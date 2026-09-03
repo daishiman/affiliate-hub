@@ -96,6 +96,22 @@ const INFLUENCE_LABEL: Record<EditorialInfluence, string> = {
 };
 
 /**
+ * 語彙にある関係の種類・関与の範囲かを、実行時に確かめる。
+ *
+ * 型だけで持つと、画面から来た綴りの違う値がそのまま `RELATIONSHIP_LABEL[...]`
+ * を引き、**読者に出る文の先頭が `undefined` になる。**表示文は法令が求めている
+ * ものなので、組み立てる前に語彙で落とす。名札の表を正本にしているので、
+ * 種類が増えたときに判定だけが古くなることが無い。
+ */
+export function isRelationshipType(value: unknown): value is RelationshipType {
+  return typeof value === "string" && Object.hasOwn(RELATIONSHIP_LABEL, value);
+}
+
+export function isEditorialInfluence(value: unknown): value is EditorialInfluence {
+  return typeof value === "string" && Object.hasOwn(INFLUENCE_LABEL, value);
+}
+
+/**
  * 読者へ出す表示文を組み立てる。
  *
  * 文言を画面側で書かせない。書かせると必ず短縮され、

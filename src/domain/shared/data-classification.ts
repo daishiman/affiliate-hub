@@ -72,3 +72,22 @@ export function containsCommercial(deps: Readonly<Record<string, unknown>>): str
     .filter(([, v]) => readDataClass(v) === "commercial")
     .map(([k]) => k);
 }
+
+/**
+ * 指定した項目に `dataClass` の印が付いていないものを返す（**印が無いものも含む**）。
+ *
+ * `containsCommercial` は「商業と名乗っているもの」しか見つけられない。
+ * 実行時の印は「型を外した回を捕まえる」ために置いたものなので、
+ * 型を外したうえで印を付け忘れた場合こそ落としたい。
+ * そのため、データを持つポートは**どちらの入口でもこの向き（印が無ければ落とす）**で見る。
+ *
+ * `ids` や `now` のような、データではない依存は対象にしない。
+ * 呼び出し側が `keys` で「データを持つポート」だけを挙げる。
+ */
+export function missingMark(
+  deps: Readonly<Record<string, unknown>>,
+  dataClass: DataClass,
+  keys: readonly string[],
+): string[] {
+  return keys.filter((key) => readDataClass(deps[key]) !== dataClass);
+}

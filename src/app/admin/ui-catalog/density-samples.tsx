@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Prose, SubSection } from "@/presentation/ui";
 import styles from "../admin.module.css";
 
 /**
@@ -16,10 +17,10 @@ import styles from "../admin.module.css";
 export function DensitySamples() {
   return (
     <>
-      <p className={styles.sectionLead}>
+      <Prose>
         「詰まっている」と言われた 4 点を、直す前と直したあとで並べます。
         数字はトークンの値からの計算で、ブラウザで測った値ではありません（画像で比べる仕組みがまだ無いため）。
-      </p>
+      </Prose>
       <div className={styles.catalogStack}>
         <DensityPair
           title="① 案内の 1 行の高さ 60px → 44px"
@@ -59,14 +60,15 @@ export function DensitySamples() {
           title="③ 読ませる文の行の長さ 上限なし → 34rem"
           note="上限が無いと、画面を広げたぶんだけ 1 行が伸びる。幅 1024px・16px の文字で 1 行 64 字。表やカードは広く使ってよいが、読ませる文だけ絞る。"
           before={<p className={styles.densityProse}>{DENSITY_SAMPLE_TEXT}</p>}
-          after={<p className={styles.densityProseFixed}>{DENSITY_SAMPLE_TEXT}</p>}
+          // 「直したあと」は実物。写しを置くと `Prose` を直した日に見本だけ古くなる。
+          after={<Prose>{DENSITY_SAMPLE_TEXT}</Prose>}
         />
       </div>
-      <p className={styles.sectionLead}>
+      <Prose>
         ④ 並べたカードの幅は、器の上限を 64rem（本文カラム用）から 72rem（一覧・表用）に変えました。
         ただし 1 行に並ぶ枚数は 3 枚のままで増えていません。4 枚にするにはカードの最小幅 18rem を下げることになり、
         値・その意味・行き先の 3 つを 1 枚に入れる約束が入りきらなくなるので、ここでは下げていません。
-      </p>
+      </Prose>
     </>
   );
 }
@@ -85,10 +87,10 @@ function DensityPair({
   readonly before: ReactNode;
   readonly after: ReactNode;
 }) {
+  // 見出し＋添え書きの枠は `SubSection` が持っている。ここで
+  // `div > h3 > p` を組み直すと、見出しの段と余白の取り方がこの画面だけ別になる。
   return (
-    <div>
-      <h3 className={styles.sectionTitle}>{title}</h3>
-      <p className={styles.sectionLead}>{note}</p>
+    <SubSection title={title} lead={note}>
       <div className={styles.densityPair}>
         <div className={styles.densitySide}>
           <span className={styles.densityLabel}>直す前</span>
@@ -99,6 +101,6 @@ function DensityPair({
           {after}
         </div>
       </div>
-    </div>
+    </SubSection>
   );
 }

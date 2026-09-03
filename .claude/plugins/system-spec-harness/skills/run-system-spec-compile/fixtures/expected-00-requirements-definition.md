@@ -10,6 +10,7 @@ category: requirements-definition
 > 上位概念がブレなければ、仕様が整った後もブレない。
 
 - 確定マーカー: `status: confirmed`
+- 状態の正本: `spec-state.json` の `lifecycle` と `review_runs`
 
 ## U1 本質的目的 (essential_purpose)
 
@@ -66,3 +67,5 @@ category: requirements-definition
 | ID | 論点 | 状態 | 選択肢 (費用・適合・注意点) | AI推奨 | ユーザー決定 | 資するゴール |
 |---|---|---|---|---|---|---|
 | D1 | 認証基盤を無料枠のmanagedサービスとOSS self-hostedのどちらにするか | recommended_pending_confirmation | managed-free:無料枠のあるmanaged認証 / cost=無料枠後は月間利用者数に応じた従量課金 / free=月間アクティブユーザー1万まで無料 / fit=短期導入と運用負荷削減に適合 / pros=初期費用0円, 運用負荷が低い / cons=無料枠超過後は課金 / risks=将来の価格改定 / lock-in=中 / ops=低 / evidence=https://example.com/official-managed-pricing<br>self-hosted:OSS self-hosted認証 / cost=ライセンス無料だがインフラと保守の人件費が必要 / free=機能上の無料枠制限なし / fit=内製運用能力を確保できる場合に適合 / pros=ライセンス費0円, 移行自由度が高い / cons=保守と更新が必要 / risks=脆弱性対応の遅延 / lock-in=低 / ops=高 / evidence=https://example.org/official-oss-docs | managed-free — 現在の利用規模では無料枠内で、運用負荷を最小化できる (注意: 無料枠上限と価格改定を定期確認する; confidence=medium; checked=2026-07-11T00:00:00Z) | 確認待ち | G2 |
+
+- 内訳 (分母 = 正本 `spec-state.json` の `decisions[]` 全 1 件): `recommended_pending_confirmation` 1 件。利用者確定日: (なし)。

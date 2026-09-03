@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-feedback-capture-self-exclusion/run-20260830T115648Z-elegant",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:4953a5a6d5b3b333bf26325672e2d7b7b19e1c954fdc9ade0ad4da349d4ed76d",
+  "verdict": "FAIL",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "FAIL",
+      "summary": "purpose/goal/scope_out と P01〜P13 の責務分解に相反はなく、P13 も実行結果・設計判断・最終 findings の canonical writeback を明記している。一方、P06 の write_scope は tests と tests/e2e を同時に持ち、親パス tests が子パス tests/e2e を内包する重複である。さらに canonical feature resource_scope が明示する tests/e2e と tests/ui より広く、P06 の実行者が feature 外の tests 配下まで変更できるため、scope 逸脱の無い状態とは言えない。",
+      "evidence": [
+        "task-specs/phase-06-test-run.md#成果物",
+        "workstream-inventory.json#tasks",
+        "task-specs/phase-13-release-deploy.md#Inner goal-seek execution loop"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "P01〜P13 は各1件の exact-set で task_count=13、13 task specs、13 inventory entries、13 graph nodes が揃う。全13 phase に必須 section、具体的な成果物・検証コマンド・テスト戦略があり、placeholder はない。受入7件は requirements→architecture/review→test design/implementation/run→acceptance/evidence→documentation/release へ写像され、P13 の spec/architecture writeback も required として明記されている。",
+      "evidence": [
+        "feature-package.json",
+        "workstream-inventory.json#tasks",
+        "task-specs/phase-01-requirements.md#成果物",
+        "task-specs/phase-04-test-design.md#テスト戦略",
+        "task-specs/phase-07-acceptance.md#目的",
+        "task-specs/phase-11-evidence.md#成果物",
+        "task-specs/phase-13-release-deploy.md#Inner goal-seek execution loop"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "FAIL",
+      "summary": "feature_package_id、parent_feature、phase_ref、task id/path、repository identity、source feature digestは package・inventory・graph・handoff間で一致し、manifest の17入力 hash と実バイトも全件一致した。しかし evaluator 0.1.0 の正本 schema は workstream-inventory.json と system-build-handoff.json の両方で top-level p01_entry_gate を additional property として拒否し、deterministic validator は exit 2 となった。よって schema 整合は成立しない。",
+      "evidence": [
+        "workstream-inventory.json#p01_entry_gate",
+        "system-build-handoff.json#p01_entry_gate",
+        "staging-manifest.json",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "intra-feature DAG は P01(依存なし)→P02→…→P13 の12本の前方 edge で、循環・後方 edge・dangling/cross-feature task 参照はない。inventory、task-graph、system-build-handoff の depends_on は同一である。P01 task spec は feature間依存を task DAG へ複製せず、parent_feature.depends_on 全件が done|closed の場合だけ通す派生 gate として定義している。schema 拒否は C3/overall を FAIL とするが、依存の意味構造自体は整合している。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "task-graph.json#edges",
+        "workstream-inventory.json#tasks",
+        "system-build-handoff.json#execution_tasks",
+        "task-specs/phase-01-requirements.md#前提条件"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/.codex/plugins/cache/harness-dev/system-dev-planner/0.1.10/scripts/validate-system-plan.py",
+        "--repo-root",
+        "/Users/dm/orca/workspaces/affiliate-hub/改善の修正",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-feedback-capture-self-exclusion/run-20260830T115648Z-elegant"
+      ],
+      "exit_code": 2,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"fail\",\n  \"validated_digest\": \"sha256:4953a5a6d5b3b333bf26325672e2d7b7b19e1c954fdc9ade0ad4da349d4ed76d\",\n  \"feature_package_id\": \"feature-package/feat-feedback-capture-self-exclusion\",\n  \"parent_feature\": \"feat-feedback-capture-self-exclusion\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"violations\": [\n    {\n      \"code\": \"inventory-schema\",\n      \"path\": \"workstream-inventory.json\",\n      \"detail\": \"$: additional property forbidden: p01_entry_gate\"\n    },\n    {\n      \"code\": \"handoff-schema\",\n      \"path\": \"system-build-handoff.json\",\n      \"detail\": \"$: additional property forbidden: p01_entry_gate\"\n    }\n  ]\n}",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "f16758ee58a8a96112b4bac24ae5a2267496549f227bc873e46f1a500c4acfe7"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "cef15ae137757f38cd9d20ad07cc4edd9aa4c01e1af46caf796c1c625d9cd984"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "11e8e3a8507647e03f09d40025366ce3ed8ff7c910d4e268f014958c7befdffa"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "704d38b372eafaa99be855ebf54153918d6191348d8a18dbe837192068a649f1"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "3650cefc8c54abad7061f64bd8127273933e0dcd0efe26b881ec6aad773b44cd"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "60d557e06b5be26ec781e49f5a1c0cf1547625b92b765dc2629946f1a3d72ac5"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "cec50970d28847e88bcdf95b53f582cdbd9ab677c8736929f84b4fff44c222bf"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "da2dada3d070e7623a491fd6896e3421deff7250313b534c533bf1646e3bff91"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "ca33d453557f37de7eaab8048bd3ac0f71c98b0335e0eeab6c4576ef6ffa7a94"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "48c1ff82897d4f75e8eab7649fb7843e50e93dcf7a8b11b34d71aa7c7ad4ec46"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "4c50d374c7761f2d8527cb256cc7ff69812768813c895d9c2f1f1eee5e6b798c"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "1665d4d46417fb3faeefc478132680632e447456ef1d9ffee0237767f10cc456"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "28f717a3bedfec7351a0167be863df6c73d33ea05ec16fdfb1e3cb3677344ba5"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "f0f28c7db0a65aae8ae84692122d4951d12b1bbcf32080ea415740deff5fff2e"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "d7ab87621e75c034f73eec1c223b2d119ebef7a37bd151614f1d691671dc1e8e"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "25418b98f20aacfcf11e099383d9a398df84636caff0236f4567107f560e929b"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "57d1289da75a491f267f95cb62312ab07bb2e8f0e180c4366e96ac498493e07e"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "7a1a3345dda1d43ae7f9d24a005c0ff76a72039976ae31115d7bef1a1ad51337"
+    }
+  ],
+  "staleness_rule": "本評価は evaluated_digest=sha256:4953a5a6d5b3b333bf26325672e2d7b7b19e1c954fdc9ade0ad4da349d4ed76d と staging-manifest.json の現在 byte SHA-256=7a1a3345dda1d43ae7f9d24a005c0ff76a72039976ae31115d7bef1a1ad51337 に束縛する。evaluated_inputs 18件のいずれかが1 byteでも変化した場合、source_feature_digest が変化した場合、または evaluator/validator/schema contract が同期された場合は本 verdict を無効とし、新しい canonical digest への独立評価をやり直す。",
+  "findings": [
+    {
+      "severity": "high",
+      "bucket": "C3-schema-contract",
+      "observation": "evaluator skill 0.1.0 の deterministic validator は workstream-inventory.json#p01_entry_gate と system-build-handoff.json#p01_entry_gate の両方を additional property として拒否した。digest は manifest と一致するが exit_code=2 であり、この generation はpromotionできない。generatorと evaluator が同じ version-pinned schema を参照するよう contract を同期し、その後に staging を再生成する必要がある。",
+      "evidence": [
+        "workstream-inventory.json#p01_entry_gate",
+        "system-build-handoff.json#p01_entry_gate",
+        "gate:deterministic-validation"
+      ]
+    },
+    {
+      "severity": "medium",
+      "bucket": "C1-scope-boundary",
+      "observation": "P06 の write_scope は tests と tests/e2e を並記しており、親パスが子パスを内包するため重複している。また canonical feature resource_scope が明示する tests/e2e と tests/ui より広い。P06 の unit/E2E 成果物に合わせ、inventory と task spec の両方を [tests/ui, tests/e2e] の非重複 exact scope へ絞る必要がある。",
+      "evidence": [
+        "workstream-inventory.json#tasks",
+        "task-specs/phase-06-test-run.md#成果物"
+      ]
+    }
+  ]
+}

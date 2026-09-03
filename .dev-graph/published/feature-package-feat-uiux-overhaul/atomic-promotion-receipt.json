@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "status": "promoted",
+  "promoted_at": "2026-08-21T12:39:22Z",
+  "repo_identity": "github:daishiman/affiliate-hub",
+  "staging_digest": "sha256:3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+  "evaluated_digest": "sha256:3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+  "published_digest": "sha256:3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+  "implementation_readiness": "complete",
+  "quality_conditions": {
+    "no_contradiction": "PASS",
+    "no_missing": "PASS",
+    "consistent": "PASS",
+    "dependency_integrity": "PASS"
+  },
+  "promotion_method": "same-filesystem-atomic-rename",
+  "registration_manifest": ".dev-graph/published/feature-package-feat-uiux-overhaul/dev-graph-registration.json"
+}

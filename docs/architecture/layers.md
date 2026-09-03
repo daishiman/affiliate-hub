@@ -57,12 +57,16 @@ R2 ストレージ、KV キャッシュ、ID 生成、秘密の取り出し。
 **置いてはいけないもの**: 業務計算。とくに**順位の計算と品質の判定を画面側に書かない**。
 仕様が明確に禁じている（ブログ層 §27 禁止依存）。
 
-## 入口が増えても、手順は 1 つ
+## 入口は 5 つ、手順は 1 つ
+
+見出しの数と下の表の行数は `tests/architecture/architecture-doc-consistency.test.ts`
+が突き合わせている。**入口を足したら、見出しの数も直さないと検査が落ちる。**
+文書が実装から静かに遅れるのを止めるためで、数を合わせる作業そのものが目的ではない。
 
 | 入口 | 置き場所 | 呼ぶもの |
 | --- | --- | --- |
 | 管理画面 | `src/presentation/admin/` | application のユースケース |
-| 読者向けブログ | `src/app/s/` | 同じユースケース |
+| 読者向けブログ | `src/presentation/site/` | 同じユースケース |
 | REST API | `src/app/api/` | 同じユースケース |
 | WebMCP（ページ内 AI） | `src/presentation/webmcp/` | 同じユースケース |
 | バックエンド MCP | `src/presentation/mcp/` | 同じユースケース |

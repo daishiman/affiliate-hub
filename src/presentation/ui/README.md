@@ -1,20 +1,18 @@
-# 共通UI部品
+# 共通UI
 
-画面ごとに見た目や作法を書き起こさないための置き場。**ここにある部品だけで画面を組む。**
-色・余白・角丸・影の値を画面側に直接書かない（`tokens.css` の変数だけを使う）。
+管理画面と公開ブログが共有する、見た目・操作・画面骨格の公開入口。
+画面からは `@/presentation/ui` (`index.ts`) を読み、内部ファイルを直接読まない。
 
 ## 入っているもの
 
-| ファイル | 役割 |
-|---|---|
-| `tokens.css` | 色・余白・文字サイズ・動きの定義（Mode A: Graphite × Amber、明/暗の両方） |
-| `ui.module.css` | 全部品の見た目。値は必ずトークン参照 |
-| `button.tsx` | ボタン。役割4種 + 実行中の表し方 |
-| `field.tsx` | 入力欄。入力の作法をここに固定 |
-| `state-view.tsx` | 読み込み中・空・失敗の表示 |
-| `callout.tsx` | 「なぜそうなっているか」の理由表示 |
-| `app-shell.tsx` | 画面の骨格。現在地と退避先を常時表示 |
-| `index.ts` | 入口。画面からは `@/presentation/ui` を読む |
+| 公開面 | 役割 | 正本 |
+|---|---|---|
+| tokens / themes | 色・余白・文字・明暗・配色 | `tokens.css` → `tokens/` (`themes.css`を含む) |
+| primitives | Button、Field、Select、状態表示など単体部品 | `primitives/` |
+| patterns | フォーム結果、絞り込み、比較、配信状態など複合部品 | `patterns/` |
+| templates | 管理画面・公開ブログ・記事の骨格 | `templates/` |
+| 管理route | 49画面の実URL、親子、ナビ、分類、パンくず | `admin-route-metadata.ts` |
+| 文言・計測属性 | 共通文言、telemetry属性 | `copy.ts` / `telemetry-attrs.ts` |
 
 ## 決めてある作法（全画面で同じ）
 
@@ -48,7 +46,23 @@
 | ログイン画面 | 作業の途中が無く、退避先の概念が要らない |
 | 公開ブログの読者向けページ | 管理画面ではない。読者向けの案内を別に持つ |
 
-画面を増やしたら `ADMIN_NAV` にも足す。載っていない画面はどこからも辿り着けない。
+管理画面を増やすときは `admin-route-metadata.ts` に1件だけ足す。
+`ADMIN_NAV`、`ADMIN_NAV_GROUPS`、パンくず、描画テストのroute表はそこから派生する。
+各画面は `AdminShell` に `routeId` と動的パラメータだけを渡し、実URLや親ナビを
+書き写さない。`actualRoutePath` は計測・改善要望の出所、`navContextPath` は
+サイドバーの現在地だけに使い、同じ値で二つの責務を兼ねない。
+
+## アイコンの作法
+
+- アイコンは `Icon` と `IconName` を正本にし、画面から Lucide を直接読まない。
+- Unicode の絵文字や手製 SVG は UI に置かない。新しい絵柄は `primitives/icon.tsx` へ追加する。
+- サイドバーは折りたたみ時の識別に必要なので全項目へ付ける。文字のラベルは常に残す。
+- ページ・セクションのタイトルは原則として文字だけにする。識別や操作を速くする根拠がない
+  アイコンは装飾なので付けない。
+- アイコンの意味は隣の文字が持つ。`Icon` は読み上げから隠れ、同じ内容を二重に読ませない。
+
+`tests/ui/uiux-sidebar-icons.test.tsx` が presentation UI への絵文字の再混入と、
+サイドバー全項目の SVG 描画を検査する。
 
 ## 動きの決まり
 

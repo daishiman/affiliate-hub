@@ -1,19 +1,19 @@
 {
- "target_id": "better-auth",
- "source_url": "https://www.better-auth.com/docs/introduction",
- "retrieved_at": "2026-08-19T15:30:39Z",
- "http_status": 200,
- "content_bytes": 195788,
- "content_sha256": "2f8506f4340ae9f108ec73bcf5a07e49b3bfb53ff7529d5db3e1faafd6216b84",
- "page_title": "Introduction | Better Auth",
- "freshness_extraction": {
-  "freshness_source": "publisher-registry",
-  "value": "1.7.1",
-  "value_measured_by": "統括が `pnpm view better-auth` を実行して報告した値。本 record の作成者は実行していない。",
-  "local_installed_version": "1.7.0",
-  "local_installed_source": "node_modules/better-auth/package.json を作成者が直接読んだ値。**これは version 欄には入らない**。version は出典が説明している対象の版であって、この repo が依存している版ではない。",
-  "doc_page_declares_version": false,
-  "body_search_method": "本文 195788 bytes 全体へ semver 型 (1.x.y)・\"version\" key・<time>・JSON-LD 日付 key を抽出。semver 型のトークンは全て SVG path 座標で、版の表明は 0 件。HTTP Last-Modified ヘッダも無い (307 → 200 の動的ページ)。",
-  "note": "rolling doc のため出典ページ自体は版を持たない。説明対象の現行版は publisher の配布 registry にしか無い。"
- }
+  "target_id": "better-auth",
+  "source_url": "https://better-auth.com/docs/introduction",
+  "retrieved_at": "2026-08-29T23:02:28Z",
+  "http_status": 200,
+  "content_bytes": 627145,
+  "content_sha256": "f44876ac638146c65aff133568bbee0c589e7a8423ae6182097972e2e5d97b1d",
+  "page_title": "Introduction | Better Auth",
+  "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "1.7.2",
+    "found_in": [
+      "公式 Introduction ページの Latest Version 表示: 1.7.2"
+    ],
+    "body_search_method": "公式ページ本文の Latest Version 表示を WebFetch で確認した。",
+    "note": "公式ドキュメント自身が現行版を表明するようになったため、配布 registry の補助値ではなく page-declared を採用する。"
+  }
 }

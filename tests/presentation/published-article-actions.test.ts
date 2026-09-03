@@ -23,7 +23,7 @@ vi.mock("@/presentation/composition", () => ({
 }));
 
 const { archivePublishedArticleAction, updatePublishedArticleAction } = await import(
-  "@/presentation/admin/published-article-action"
+  "@/presentation/admin/publish/published-article-action"
 );
 
 const IDLE = { status: "idle", message: "" } as const;
@@ -114,9 +114,12 @@ describe("公開済み記事を訂正するサーバー操作", () => {
 
     const state = await updatePublishedArticleAction(IDLE, updateForm());
 
+    // 断り文と次の一手の間は**改行**で区切る（2026-08-30）。
+    // この action は独自の組み立てをやめ、全 action 共通の
+    // `failureFromDomainError`（= `refusalText`）へ寄せた。区切りはそちらが決める。
     expect(state).toEqual({
       status: "failed",
-      message: "タイトルが短すぎます。 結論が分かる名前に直してください。",
+      message: "タイトルが短すぎます。\n結論が分かる名前に直してください。",
       field: "title",
     });
     expect(mocks.revalidatePath).not.toHaveBeenCalled();

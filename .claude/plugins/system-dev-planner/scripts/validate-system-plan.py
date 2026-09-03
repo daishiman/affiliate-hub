@@ -356,6 +356,42 @@ def validate(
             if dep not in phase_by_id: fail("cross-feature-or-missing-edge", f"nodes[{i}].depends_on", str(dep))
             elif PHASES.index(phase_by_id[dep]) >= PHASES.index(current):
                 fail("non-forward-edge", f"nodes[{i}].depends_on", f"{dep} -> {node_ids[i]}")
+    # system-dev-planner の保存契約は explicit edge=producer->consumer。
+    # nodes[].depends_on の consumer->producer 正本と reverse-equivalent でない
+    # graph は、reporter 側の解釈に委ねず promotion 前に fail-closed にする。
+    expected_forward_edges = {
+        (dep, node.get("id", node.get("graph_node_id")))
+        for node in nodes
+        for dep in node.get("depends_on", [])
+        if isinstance(dep, str)
+    }
+    raw_edges = graph.get("edges", [])
+    explicit_forward_edges: list[tuple[str, str]] = []
+    if not isinstance(raw_edges, list):
+        fail("graph-edge-parity", "task-graph.json#edges", "array required")
+    else:
+        for i, edge in enumerate(raw_edges):
+            if not isinstance(edge, dict):
+                fail("graph-edge-parity", f"edges[{i}]", "object required")
+                continue
+            if edge.get("type") != "depends_on":
+                continue
+            producer, consumer = edge.get("from"), edge.get("to")
+            if not isinstance(producer, str) or not isinstance(consumer, str):
+                fail("graph-edge-parity", f"edges[{i}]", "string endpoints required")
+                continue
+            if producer not in phase_by_id or consumer not in phase_by_id:
+                fail("graph-edge-parity", f"edges[{i}]", f"unknown endpoint: {producer} -> {consumer}")
+            explicit_forward_edges.append((producer, consumer))
+        if len(explicit_forward_edges) != len(set(explicit_forward_edges)):
+            fail("graph-edge-parity", "task-graph.json#edges", "duplicate dependency edge")
+        if set(explicit_forward_edges) != expected_forward_edges:
+            fail(
+                "graph-edge-parity",
+                "task-graph.json#edges",
+                "explicit depends_on edges must exactly reverse nodes[].depends_on "
+                "as producer -> consumer",
+            )
     repo_ctx = inventory.get("repo_context", {})
     if repo_ctx.get("repo_identity") != repository_id:
         fail("repo-identity", "workstream-inventory.json", "repo identity differs from C09 context")

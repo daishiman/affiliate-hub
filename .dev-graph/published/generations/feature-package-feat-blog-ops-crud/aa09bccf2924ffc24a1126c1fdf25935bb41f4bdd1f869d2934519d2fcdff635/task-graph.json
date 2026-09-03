@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-blog-ops-crud",
+  "parent_feature": "feat-blog-ops-crud",
+  "nodes": [
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P01"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P02"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P03"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P04"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P05"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P06"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P05"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P08"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P09"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P07",
+        "SYS-BLOG-OPS-CRUD-P09"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P10",
+        "SYS-BLOG-OPS-CRUD-P11"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P12"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P01",
+      "to": "SYS-BLOG-OPS-CRUD-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P02",
+      "to": "SYS-BLOG-OPS-CRUD-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P03",
+      "to": "SYS-BLOG-OPS-CRUD-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P04",
+      "to": "SYS-BLOG-OPS-CRUD-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P05",
+      "to": "SYS-BLOG-OPS-CRUD-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P06",
+      "to": "SYS-BLOG-OPS-CRUD-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P05",
+      "to": "SYS-BLOG-OPS-CRUD-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P08",
+      "to": "SYS-BLOG-OPS-CRUD-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P09",
+      "to": "SYS-BLOG-OPS-CRUD-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P07",
+      "to": "SYS-BLOG-OPS-CRUD-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P09",
+      "to": "SYS-BLOG-OPS-CRUD-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P10",
+      "to": "SYS-BLOG-OPS-CRUD-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P11",
+      "to": "SYS-BLOG-OPS-CRUD-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-OPS-CRUD-P12",
+      "to": "SYS-BLOG-OPS-CRUD-P13",
+      "type": "depends_on"
+    }
+  ]
+}

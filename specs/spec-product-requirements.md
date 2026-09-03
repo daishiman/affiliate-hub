@@ -12,7 +12,7 @@ iteration: null
 title: "プロダクト要求の投影"
 owners: ["daishiman"]
 created_at: "2026-08-16T11:19:17Z"
-updated_at: "2026-08-16T13:45:20.038523Z"
+updated_at: "2026-08-24T12:00:00Z"
 status: "draft"
 depends_on: []
 related_nodes: ["spec-gap-ledger","spec-analytics-foundation","feat-spec-canonicalization"]
@@ -82,7 +82,7 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 - Performance: 公開面のリダイレクトは計測障害でも遅らせない（詳細は 03）
 - Availability/Reliability: 環境分離済み。本番と dev は別 D1
 - Accessibility/Usability: 通常 UI だけで主要タスクを完了できる
-- Security/Privacy: テナント分離と同意管理。現状は未実装
+- Security/Privacy: Workspace / role / tenant 境界と拒否監査は部分実装済み。同意管理と本番 OAuth 実証は継続
 - Maintainability/Operability: 正本を増やさず、投影だけを更新する
 
 ## UI・状態遷移
@@ -108,9 +108,9 @@ N/A: 本書は製品要求の正本であり、API 変更の契約は持たな�
 
 ## 認証・認可
 
-- Authentication: To-Be は Better Auth + Google。現状は MCP_TOKEN
-- Authorization: Workspace role。現状なし
-- Tenant/data boundary: workspace_id。現状なし
+- Authentication: Better Auth + Google OAuth のコードと D1 セッション表は実装済み。Google との実往復は未検証
+- Authorization: Workspace membership から role / capability を都度解決する骨格と受入試験を実装済み
+- Tenant/data boundary: 現行の業務ポートと追加スキーマは `workspace_id` で分離。休眠表の全数 backfill は未完了
 
 ## エラー・例外・回復
 
@@ -124,17 +124,21 @@ N/A: イベント契約の正本は 03。
 ## 可観測性
 
 - 監査対象は公開、削除、リンク差し替え、権限変更、成果修正、エクスポート
-- 現状の実装証跡はなし
+- request ID 付き拒否監査、広告表記・ポリシー変更、成果リンク登録、診断保持削除の実装証跡がある
 
 ## 互換性・移行・リリース
 
 - 要求 version は 1.0
-- 実装は partial。文書更新は 00-README の更新順に従う
+- 実装は partial。2026-08-24 の実装投影は `system-spec/auth.md` と `docs/spec-writeback-receipt.md` に記録
 
 ## テストと受入条件
 
 - AC-001: 01 を正本として参照したとき、Analytics 詳細を 01 から引かない
-- 受入の全数検証は未実施
+- feat-auth-workspace のローカル受入は完了。全体テストは最終レビューで再実行し、Workers / Google / remote D1 は対象外として明示
+
+## 2026-08-24 MVP 実装投影
+
+本節は要求の正本を変更しない実装状況の投影である。認証・Workspace 境界、コンプライアンス編集、成果リンク登録、改善要望の診断保持、Actions 使用量監視が MVP として縦に接続された。要求追加はなく、既存の FR-001〜003、BR-001〜002、§25〜§26 を実装へ降ろした変更である。正規書き戻しの範囲と残差は `docs/spec-writeback-receipt.md` を参照する。
 
 ## 未決事項
 

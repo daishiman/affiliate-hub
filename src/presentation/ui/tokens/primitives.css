@@ -167,6 +167,13 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
+  /*
+    等幅。打ち込む名前（道具名・欄名）にだけ使う。
+    先頭に置く 3 つは、`l` と `1`、`0` と `O` を別の形で描く字。
+    見た目のためではなく、写し間違いが写した側に見えるようにするため。
+  */
+  --font-family-mono: "SFMono-Regular", "Menlo", "Consolas", ui-monospace, monospace;
+
   /* 字間。小さい大文字ラベルだけ広げる（本文は 0 のまま）。 */
   --letter-spacing-normal: 0;
   --letter-spacing-wide: 0.04em;
@@ -218,4 +225,10 @@
   --measure-sidebar: 15rem;
   /* 一覧カードの下限幅。これ以下に潰れると見出しが 3 行になり読めない。 */
   --measure-card: 18rem;
+  /*
+   * 表の中だけを縦へ送るときの高さの上限。
+   * これ以上高くすると、表の下にある操作がページの外へ押し出される。
+   * ノートPC の可視領域（約 44rem）から、枠と見出しの分を引いた値。
+   */
+  --measure-table-scroll: 32rem;
 }

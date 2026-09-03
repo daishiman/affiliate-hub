@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P02, REQ-S02 */
 import { describe, expect, it } from "vitest";
 import {
   createD1LinkInboxRepository,

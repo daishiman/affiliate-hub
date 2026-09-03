@@ -3,6 +3,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { requiredSectionsFor, type ArticleType } from "@/domain/authoring/article-structure";
 import {
+  type SitePublishGateRequirement,
   type PublishCandidate,
   type RelationshipType,
   buildVisibleMessage,
@@ -190,5 +191,108 @@ describe("開示の性質", () => {
         expect(attr.includes("sponsored")).toBe(requiresDisclosure(rel));
       }),
     );
+  });
+});
+
+/**
+ * 「13 項目のどれ 1 つを欠いても公開できない」を、項目ごとに 1 行ずつ確かめる。
+ *
+ * --- なぜ上の性質テストでは足りなかったか ---
+ * 上の `candidateArb` は**開示のまわりだけ**を揺らすために作られている。
+ * 2026-08-21 の実測では、公開ゲートから更新責任者の条件を丸ごと殺しても
+ * （`if (false && !c.updateOwnerId)`）、このファイルは **8 件すべて緑のまま**だった。
+ * 落ちたのは `tests/domain/invariants.test.ts` の例 1 件だけである。
+ * 「必要な条件を 1 つ落としても通る」という集合の主張を、開示以外については
+ * 何も支えていなかった（`TM04` 型）。
+ *
+ * --- なぜ表を手で書くか ---
+ * 違反の一覧を `GATE_REQUIREMENT_LABEL` から導くと、実装から条件が消えたときに
+ * 表からも同時に消えて緑のままになる。表は仕様（ブログ層 §21）を写したもので、
+ * 実装から導かない。項目を増減させれば `Record<GateRequirement, …>` が
+ * `tsc --noEmit` で落ちる。
+ */
+const VALID_CANDIDATE: PublishCandidate = {
+  articleType: "review",
+  presentSections: requiredSectionsFor("review"),
+  authorIds: ["author_1"],
+  updateOwnerId: "owner_1",
+  relationshipType: "affiliate",
+  disclosureVisibleMessage: "この記事は広告を含みます。",
+  claimCount: 3,
+  evidenceCount: 3,
+  hasAffiliateCta: true,
+  merchantOptionCount: 2,
+  imageRightsConfirmed: true,
+  structuredDataValid: true,
+  mobileChecked: true,
+  linksChecked: true,
+  aiAnswerEvalPassed: true,
+  webmcpSchemaEval: true,
+  nextReviewAt: new Date("2027-01-01T00:00:00Z"),
+  now: NOW,
+};
+
+/** 項目ごとの「これ 1 つだけを欠いた記事」。1 項目に複数の欠け方がある場合は並べる。 */
+const SINGLE_VIOLATIONS: Readonly<
+  Record<SitePublishGateRequirement, readonly (readonly [string, Partial<PublishCandidate>])[]>
+> = {
+  author: [["著者がいない", { authorIds: [] }]],
+  disclosure: [
+    ["広告との関係が未設定", { relationshipType: null }],
+    ["表記が要るのに読者へ見せる文が空", { disclosureVisibleMessage: "   " }],
+  ],
+  evidence: [
+    ["主張はあるが根拠が 0", { evidenceCount: 0 }],
+    ["確認済みの主張が 0", { claimCount: 0 }],
+  ],
+  update_owner: [["更新責任者がいない", { updateOwnerId: null }]],
+  cta_merchant_info: [["CTA はあるが販売店の選択肢が 0", { merchantOptionCount: 0 }]],
+  image_rights: [["画像の利用許諾が未確認", { imageRightsConfirmed: false }]],
+  structured_data: [["構造化データの検証に失敗", { structuredDataValid: false }]],
+  mobile_check: [["スマートフォン表示の確認が未完了", { mobileChecked: false }]],
+  link_check: [["リンク切れが見つかっている", { linksChecked: false }]],
+  ai_answer_eval: [["AI 回答の評価が基準未満", { aiAnswerEvalPassed: false }]],
+  webmcp_schema_eval: [["WebMCP のツール定義が検証を通っていない", { webmcpSchemaEval: false }]],
+  required_sections: [["必須セクションが 1 つも無い", { presentSections: [] }]],
+  next_review_date: [
+    ["次回確認日が未設定", { nextReviewAt: null }],
+    ["次回確認日が過去", { nextReviewAt: new Date("2026-01-01T00:00:00Z") }],
+  ],
+};
+
+describe("公開ゲートの 13 項目（どれ 1 つ欠けても公開できない）", () => {
+  it("すべてそろっていれば公開できる（この試験の前提が壊れていないこと）", () => {
+    const result = evaluatePublishGate(VALID_CANDIDATE);
+    expect(
+      result.ok,
+      result.failures.map((f) => f.message).join(" / "),
+    ).toBe(true);
+    expect(result.skipped).toHaveLength(0);
+  });
+
+  const rows = Object.entries(SINGLE_VIOLATIONS).flatMap(([requirement, cases]) =>
+    cases.map(([name, patch]) => ({
+      requirement: requirement as SitePublishGateRequirement,
+      name,
+      patch,
+    })),
+  );
+
+  it.each(rows)("$requirement: $name だけで公開できなくなる", ({ requirement, patch }) => {
+    const result = evaluatePublishGate({ ...VALID_CANDIDATE, ...patch });
+
+    expect(result.ok).toBe(false);
+    // 「落ちた項目がその 1 つだけ」まで見る。別の項目が巻き添えで落ちているなら、
+    // この行はその項目を測っていない。
+    expect(result.failures.map((f) => f.requirement)).toEqual([requirement]);
+    // 検査していないものを「検査した」と数えないこと。
+    expect(result.skipped.map((s) => s.requirement)).not.toContain(requirement);
+  });
+
+  it("13 項目すべてに、少なくとも 1 つの欠け方が書かれている", () => {
+    for (const [requirement, cases] of Object.entries(SINGLE_VIOLATIONS)) {
+      expect(cases.length, `${requirement} の欠け方が書かれていません`).toBeGreaterThan(0);
+    }
+    expect(Object.keys(SINGLE_VIOLATIONS)).toHaveLength(13);
   });
 });

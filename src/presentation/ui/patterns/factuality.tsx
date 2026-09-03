@@ -1,4 +1,5 @@
 import { UI_COPY } from "../copy";
+import { Icon, type IconName } from "../primitives/icon";
 import styles from "./patterns.module.css";
 
 /**
@@ -8,16 +9,16 @@ import styles from "./patterns.module.css";
  * 画面ごとに書き方を変えると、ある画面だけ推測が事実に見える状態になる。
  * だからここ 1 箇所に閉じる。
  *
- * 色だけで区別しない。記号 + 文字を必ず添える
+ * 色だけで区別しない。アイコン + 文字を必ず添える
  * （色覚特性・白黒印刷・スクリーンリーダーのすべてで伝わるようにする）。
  */
 
 export type Factuality = "fact" | "inference" | "opinion";
 
-const MARK: Readonly<Record<Factuality, string>> = {
-  fact: "✓",
-  inference: "≈",
-  opinion: "○",
+const ICON: Readonly<Record<Factuality, IconName>> = {
+  fact: "fact",
+  inference: "inference",
+  opinion: "opinion",
 };
 
 const CLASS: Readonly<Record<Factuality, string>> = {
@@ -41,7 +42,7 @@ const NOTE: Readonly<Record<Factuality, string>> = {
 export function FactualityBadge({ kind }: { readonly kind: Factuality }) {
   return (
     <span className={[styles.factBadge, CLASS[kind]].join(" ")}>
-      <span aria-hidden="true">{MARK[kind]}</span>
+      <Icon name={ICON[kind]} />
       {LABEL[kind]}
     </span>
   );
@@ -101,14 +102,14 @@ export const FACT_SOURCES: readonly FactSource[] = [
   "commercial",
 ];
 
-/** 出どころごとの記号。色だけで区別しないため、必ず記号と文字を添える。 */
-const SOURCE_MARK: Readonly<Record<FactSource, string>> = {
-  official: "▣",
-  measured: "✓",
-  experience: "○",
-  inference: "≈",
-  external: "☺",
-  commercial: "¥",
+/** 出どころごとのアイコン。色だけで区別しないため、必ず文字も添える。 */
+const SOURCE_ICON: Readonly<Record<FactSource, IconName>> = {
+  official: "official",
+  measured: "measured",
+  experience: "experience",
+  inference: "inference",
+  external: "external",
+  commercial: "commercial",
 };
 
 /** 断定してよいか。断定できないものは推測の見た目に寄せる。 */
@@ -124,7 +125,7 @@ const SOURCE_CLASS: Readonly<Record<FactSource, string>> = {
 export function FactSourceBadge({ source }: { readonly source: FactSource }) {
   return (
     <span className={[styles.factBadge, SOURCE_CLASS[source]].join(" ")}>
-      <span aria-hidden="true">{SOURCE_MARK[source]}</span>
+      <Icon name={SOURCE_ICON[source]} />
       {UI_COPY.factSource[source]}
     </span>
   );

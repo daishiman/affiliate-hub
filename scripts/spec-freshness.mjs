@@ -189,7 +189,11 @@ if (process.argv[1] && process.argv[1].endsWith("spec-freshness.mjs")) {
       files: current.files,
       pinned_at: new Date().toISOString(),
     };
-    writeFileSync(REPORT, `${JSON.stringify(report, null, 1)}\n`);
+    // 字下げ 2 はレポートの元の書式に合わせてある。1 で書き出していた頃は、
+    // 指紋を焼き直すたびにファイル全体（約 1,000 行）が差分になり、
+    // **本当に変わったのは指紋 1 行だけ**であることが差分から読めなかった。
+    // 読めない差分は読まれず、読まれない差分には何を混ぜても通る。
+    writeFileSync(REPORT, `${JSON.stringify(report, null, 2)}\n`);
     process.stdout.write("\n指紋を焼き付けました。内容を再評価せずにこれを行わないこと。\n");
     process.exit(0);
   }

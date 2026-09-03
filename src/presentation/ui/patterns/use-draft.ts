@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/** ux-design 正本の §4-1 `useDraft` をそのまま React 用に移植。 */
+/**
+ * ux-design 正本の §4-1 `useDraft` をそのまま React 用に移植。
+ *
+ * 返す時刻は `draftSavedAt`（**端末の localStorage へ書けた時刻**）。
+ * サーバーが保存へ使った時刻（`BlogOpsState.persistedAt`）とも、
+ * 読者が「気になる」を押した時刻（`ShortlistItem.shortlistedAt`）とも別物で、
+ * 3 つとも `savedAt` と呼んでいたため取り違えが起きていた。
+ */
 export function useDraft<T extends Record<string, unknown>>(
   empty: T,
   {
@@ -13,7 +20,8 @@ export function useDraft<T extends Record<string, unknown>>(
 ) {
   const [values, setValues] = useState<T>(empty);
   const [restored, setRestored] = useState(false);
-  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
+  const [dirty, setDirty] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
@@ -30,6 +38,8 @@ export function useDraft<T extends Record<string, unknown>>(
         const restoreTimer = window.setTimeout(() => {
           setValues(data);
           setRestored(true);
+          setDraftSavedAt(new Date(at));
+          setDirty(true);
         }, 0);
         return () => window.clearTimeout(restoreTimer);
       }
@@ -47,6 +57,7 @@ export function useDraft<T extends Record<string, unknown>>(
 
   const update = useCallback(
     (patch: Partial<T>) => {
+      setDirty(true);
       setValues((previous) => {
         const next = { ...previous, ...patch };
         clearTimeout(timer.current);
@@ -56,10 +67,10 @@ export function useDraft<T extends Record<string, unknown>>(
           );
           if (hasContent) {
             window.localStorage.setItem(key, JSON.stringify({ data: next, at: Date.now() }));
-            setSavedAt(new Date());
+            setDraftSavedAt(new Date());
           } else {
             window.localStorage.removeItem(key);
-            setSavedAt(null);
+            setDraftSavedAt(null);
           }
         }, delay);
         return next;
@@ -73,8 +84,22 @@ export function useDraft<T extends Record<string, unknown>>(
     window.localStorage.removeItem(key);
     setValues(empty);
     setRestored(false);
-    setSavedAt(null);
+    setDraftSavedAt(null);
+    setDirty(false);
   }, [empty, key]);
 
-  return { values, update, clear, restored, savedAt };
+  /**
+   * サーバー保存成功後だけ、端末下書きを忘れる。入力中の値はそのまま残す。
+   * `clear` は利用者が「端末下書きを破棄」したとき用で、初期値へ戻す点が違う。
+   */
+  const forget = useCallback((patch?: Partial<T>) => {
+    clearTimeout(timer.current);
+    window.localStorage.removeItem(key);
+    if (patch !== undefined) setValues((previous) => ({ ...previous, ...patch }));
+    setRestored(false);
+    setDraftSavedAt(null);
+    setDirty(false);
+  }, [key]);
+
+  return { values, update, clear, forget, restored, draftSavedAt, dirty };
 }

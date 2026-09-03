@@ -1,11 +1,16 @@
-import type {
-  ContactMessage,
-  EditorialContactPort,
-  EditorialReaderToolPort,
-  EditorialShortlistPort,
-  ReaderToolDefinition,
-  ShortlistItem,
+import {
+  TURNSTILE_CONTACT_ACTION,
+  type ContactRateLimitKeyPort,
+  type ContactMessage,
+  type ContactRequest,
+  type EditorialContactPort,
+  type EditorialHumanCheckPort,
+  type EditorialReaderToolPort,
+  type EditorialShortlistPort,
+  type ReaderToolDefinition,
+  type ShortlistItem,
 } from "@/application/ports/reader-interaction";
+import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
 import {
   type ActorContext,
   type DomainError,
@@ -31,6 +36,9 @@ export type ReaderInteractionDeps = {
   readonly shortlist: EditorialShortlistPort;
   readonly readerTools: EditorialReaderToolPort;
   readonly contact: EditorialContactPort;
+  readonly contactRateLimitKeys: ContactRateLimitKeyPort;
+  readonly sites: EditorialSiteRepositoryPort;
+  readonly humanCheck: EditorialHumanCheckPort;
 };
 
 function guardEditorial(deps: ReaderInteractionDeps): void {
@@ -183,8 +191,14 @@ export function createRunReaderToolUseCase(
 // 問い合わせ
 // ---------------------------------------------------------------------------
 
-export type SubmitContactInput = ContactMessage;
+export type SubmitContactInput = ContactRequest;
 export type SubmitContactOutput = { readonly receiptId: string };
+
+export const CONTACT_BODY_MAX_LENGTH = 5_000;
+export const CONTACT_REPLY_TO_MAX_LENGTH = 254;
+export const CONTACT_HUMAN_TOKEN_MAX_LENGTH = 2_048;
+const CONTACT_RATE_KEY_MAX_LENGTH = 128;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * 問い合わせの送信。
@@ -209,7 +223,77 @@ export function createSubmitContactUseCase(
           }),
         );
       }
-      return deps.contact.submit(input);
+      if (input.body.length > CONTACT_BODY_MAX_LENGTH) {
+        return err(
+          domainError("VALIDATION_FAILED", `内容は${CONTACT_BODY_MAX_LENGTH}文字以内で入力してください。`, {
+            field: "body",
+          }),
+        );
+      }
+      const replyTo = input.replyTo ?? "";
+      if (
+        replyTo !== "" &&
+        (replyTo.length > CONTACT_REPLY_TO_MAX_LENGTH || !EMAIL.test(replyTo))
+      ) {
+        return err(
+          domainError("VALIDATION_FAILED", "返信先メールアドレスの形式を確認してください。", {
+            field: "replyTo",
+          }),
+        );
+      }
+      const token = input.humanCheckToken ?? "";
+      if (token === "" || token.length > CONTACT_HUMAN_TOKEN_MAX_LENGTH) {
+        return err(
+          domainError("VALIDATION_FAILED", "自動送信よけの確認が必要です。", {
+            field: "humanCheckToken",
+            suggestedAction: "確認欄を完了してから、もう一度送ってください。",
+          }),
+        );
+      }
+      const identity = input.rateLimitIdentity;
+      if (identity === undefined || identity.value.trim() === "") {
+        return err(
+          domainError("VALIDATION_FAILED", "送信元を確認できません。", {
+            field: "rateLimitKey",
+            suggestedAction: "ページを開き直して、もう一度送ってください。",
+          }),
+        );
+      }
+
+      const site = await deps.sites.findBySlug(input.siteSlug);
+      if (!site.ok) return site;
+      if (site.value === null) {
+        return err(
+          domainError("NOT_FOUND", "問い合わせ先のブログが見つかりません。", {
+            field: "siteSlug",
+            suggestedAction: "ブログのトップから問い合わせページを開き直してください。",
+          }),
+        );
+      }
+
+      const human = await deps.humanCheck.verify({
+        token,
+        action: TURNSTILE_CONTACT_ACTION,
+        remoteIp: input.remoteIp,
+      });
+      if (!human.ok) return human;
+      const derived = await deps.contactRateLimitKeys.derive(identity.scope, identity.value);
+      if (!derived.ok) return derived;
+      const rateLimitKey = derived.value;
+      if (rateLimitKey.length > CONTACT_RATE_KEY_MAX_LENGTH) {
+        return err(
+          domainError("INVARIANT_VIOLATED", "送信元の保護設定が正しくありません。", {
+            suggestedAction: "時間をおいてから、もう一度送ってください。",
+          }),
+        );
+      }
+      const message: ContactMessage = {
+        siteSlug: input.siteSlug,
+        body: input.body,
+        replyTo: input.replyTo,
+        humanCheckToken: input.humanCheckToken,
+      };
+      return deps.contact.submit(site.value.workspaceId, message, rateLimitKey);
     },
   };
 }

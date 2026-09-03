@@ -10,8 +10,12 @@ import {
   SELF_REPORTED_FIELDS,
   generatedVariantJsonSchema,
 } from "@/domain/generation";
-import { requireCapability } from "@/domain/identity";
+import { requireCapability, withBrandDefaults } from "@/domain/identity";
+import type { Brand } from "@/domain/identity";
 import { domainError, err, ok } from "@/domain/shared";
+import type { ActorContext, BrandId, DomainError, Result } from "@/domain/shared";
+import { assertBrandAccess, notFound } from "@/domain/shared";
+import type { BrandRepositoryPort } from "@/application/ports";
 import type {
   LlmCostEstimatorPort,
   LlmModelSelection,
@@ -19,6 +23,7 @@ import type {
   LlmRequest,
 } from "@/application/ports";
 import type { UseCase } from "../usecase";
+import type { CapacityGuardPort } from "@/application/capacity";
 
 /**
  * 下書きを 1 本作らせるユースケース。
@@ -59,6 +64,14 @@ export type DraftContentVariantInput = {
   readonly provided: Partial<GenerationInput>;
   readonly materials?: readonly DraftMaterial[];
   readonly promptVersion?: string;
+  /**
+   * どのブランドで書くか。
+   *
+   * 渡すと、そのブランドの標準 CTA と標準免責が
+   * **明示しなかった欄だけ**に入る（明示した値が勝つ）。
+   * 渡さなければ何も補わず、足りない欄は下の ① で止まる。
+   */
+  readonly brandId?: BrandId;
   /** 1 本あたりの上限（最小単位。円なら円）。超える見積りは呼ばずに止める。 */
   readonly budgetMinor?: number | null;
 };
@@ -95,6 +108,16 @@ export type DraftContentVariantResult = {
 export type DraftContentVariantDeps = {
   readonly llm: LlmPort;
   readonly costs: LlmCostEstimatorPort;
+  /**
+   * ブランド設定の読み出し口。
+   *
+   * 省略できるようにしてあるのは、生成そのものはブランドを知らなくても
+   * 成り立つため（呼び出し側が 18 項目を全部渡せばよい）。
+   * 渡してあるときだけ、**呼びかけ文と広告表記の既定値**をここから補う。
+   */
+  readonly brands?: BrandRepositoryPort;
+  /** production composition では必須。旧の純粋単体test adapterだけ省略可能。 */
+  readonly capacity?: CapacityGuardPort;
 };
 
 /** 生成の温度。低くしてあるのは、同じ素材から違う事実が出てくるのを避けるため。 */
@@ -131,9 +154,16 @@ export function createDraftContentVariantUseCase(
         );
       }
 
+      // ⓪-b ブランドの標準値で、明示しなかった欄だけを埋める。
+      //     **AI に補わせているのではない。** 人が設定画面で決めた値を
+      //     そのまま運んでいるだけで、決めていない欄（免責が未設定など）は
+      //     埋まらず、下の ① で止まる。
+      const provided = await applyBrandDefaults(deps.brands, actor, input.brandId, input.provided);
+      if (!provided.ok) return err(provided.error);
+
       // ① そろっていなければ始めない。
       //    足りない分を AI に補わせると、素材に無いことがどこから来たか追えなくなる。
-      const missing = missingInputFields(input.provided);
+      const missing = missingInputFields(provided.value);
       if (missing.length > 0) {
         return err(
           domainError(
@@ -146,7 +176,7 @@ export function createDraftContentVariantUseCase(
           ),
         );
       }
-      const generationInput = input.provided as GenerationInput;
+      const generationInput = provided.value as GenerationInput;
 
       // ② 取り込んだ文章に、指示として読ませようとする書き方が無いかを見る。
       //    見つけても自動で消さない。消すと「何が来ていたか」が残らない。
@@ -190,61 +220,134 @@ export function createDraftContentVariantUseCase(
         temperature: TEMPERATURE,
       };
 
-      // ③ 呼ぶ前に見積もる。
-      const estimate = await deps.costs.estimate(request);
-      if (!estimate.ok) return err(estimate.error);
-      const budget = input.budgetMinor ?? null;
-      if (budget !== null && estimate.value.estimatedCostMinor > budget) {
-        return err(
-          domainError(
-            "VALIDATION_FAILED",
-            `見積り ${estimate.value.estimatedCostMinor} が上限 ${budget} を超えるため、生成しませんでした。`,
-            {
-              suggestedAction: "長さを短くするか、上限を見直してください。",
-              details: {
-                estimated: String(estimate.value.estimatedCostMinor),
-                budget: String(budget),
+      const generate = async (): Promise<Result<DraftContentVariantResult, DomainError>> => {
+        // ③ 容量を確保してから、呼ぶ前の見積りを行う。
+        const estimate = await deps.costs.estimate(request);
+        if (!estimate.ok) return err(estimate.error);
+        const budget = input.budgetMinor ?? null;
+        if (budget !== null && estimate.value.estimatedCostMinor > budget) {
+          return err(
+            domainError(
+              "VALIDATION_FAILED",
+              `見積り ${estimate.value.estimatedCostMinor} が上限 ${budget} を超えるため、生成しませんでした。`,
+              {
+                suggestedAction: "長さを短くするか、上限を見直してください。",
+                details: {
+                  estimated: String(estimate.value.estimatedCostMinor),
+                  budget: String(budget),
+                },
               },
-            },
-          ),
-        );
-      }
+            ),
+          );
+        }
 
-      const generated = await deps.llm.generateStructured<unknown>(request);
-      if (!generated.ok) return err(generated.error);
+        const generated = await deps.llm.generateStructured<unknown>(request);
+        if (!generated.ok) return err(generated.error);
 
       // ④ 途中で切れた本文をそのまま受け取らない。
       //    切れていることに気づかないまま保存すると、尻切れの記事が世に出る。
-      if (generated.value.truncated) {
-        return err(
-          domainError("VALIDATION_FAILED", "生成が途中で打ち切られました。", {
-            suggestedAction: "長さを短くしてやり直してください。途中までの本文は保存しません。",
-          }),
-        );
-      }
+        if (generated.value.truncated) {
+          return err(
+            domainError("VALIDATION_FAILED", "生成が途中で打ち切られました。", {
+              suggestedAction: "長さを短くしてやり直してください。途中までの本文は保存しません。",
+            }),
+          );
+        }
 
       // ⑤ 決めた形に一致しない返答は受け取らない。
-      const shaped = checkOutputShape(generated.value.output);
-      if (!shaped.ok) return err(shaped.error);
+        const shaped = checkOutputShape(generated.value.output);
+        if (!shaped.ok) return err(shaped.error);
 
-      return ok({
-        promptVersion: version,
-        providerId: model.providerId,
-        modelId: generated.value.modelId,
-        requestedModelId: model.modelId,
-        output: shaped.value,
-        estimatedCostMinor: estimate.value.estimatedCostMinor,
-        currency: estimate.value.currency,
-        inputTokens: generated.value.inputTokens,
-        outputTokens: generated.value.outputTokens,
-        instructionBlocks: renderInstructionBlocks(generationInput).map((b) => ({
-          id: b.id,
-          label: b.label,
-          charCount: b.text.length,
-        })),
-        materialCount: materials.length,
-        notForVerdict: [...SELF_REPORTED_FIELDS],
-      });
+        return ok({
+          promptVersion: version,
+          providerId: model.providerId,
+          modelId: generated.value.modelId,
+          requestedModelId: model.modelId,
+          output: shaped.value,
+          estimatedCostMinor: estimate.value.estimatedCostMinor,
+          currency: estimate.value.currency,
+          inputTokens: generated.value.inputTokens,
+          outputTokens: generated.value.outputTokens,
+          instructionBlocks: renderInstructionBlocks(generationInput).map((b) => ({
+            id: b.id,
+            label: b.label,
+            charCount: b.text.length,
+          })),
+          materialCount: materials.length,
+          notForVerdict: [...SELF_REPORTED_FIELDS],
+        });
+      };
+
+      return deps.capacity === undefined
+        ? generate()
+        : deps.capacity.withLease(actor.workspaceId, "generation", generate);
     },
   };
+}
+
+
+/**
+ * ブランドの標準値を、明示されなかった欄へ移す。
+ *
+ * ブランドが読めなかったときに**黙って既定値をでっち上げない**。
+ * 読めない理由をそのまま返し、呼び出し側に判断を戻す。
+ * ここで握り潰すと、「設定したはずの免責が入っていない記事」が
+ * 誰にも気づかれずに公開まで進む。
+ */
+async function applyBrandDefaults(
+  brands: BrandRepositoryPort | undefined,
+  actor: ActorContext,
+  brandId: BrandId | undefined,
+  provided: Partial<GenerationInput>,
+): Promise<Result<Partial<GenerationInput>, DomainError>> {
+  if (brands === undefined) return ok(provided);
+
+  if (brandId !== undefined) {
+    const found = await brands.findById(actor.workspaceId, brandId);
+    if (!found.ok) return err(found.error);
+    if (found.value === null) return err(notFound("ブランド", String(brandId)));
+    const accessible = assertBrandAccess(actor, found.value);
+    if (!accessible.ok) return err(accessible.error);
+    return ok(withBrandDefaults(accessible.value, provided));
+  }
+
+  const sole = await soleBrandOf(brands, actor);
+  if (!sole.ok) return err(sole.error);
+  return ok(withBrandDefaults(sole.value, provided));
+}
+
+/**
+ * ブランドが 1 つしか無い作業場所の、その 1 つを返す。0 個または 2 個以上なら `null`。
+ *
+ * **2 つ以上あるときに選ばない**のがここの肝である。
+ * AWS-ACC-03 は「呼び出し側が明示しなくても既定値が入る」ことを求めるが、
+ * 候補が複数あるときに勝手に 1 つ選ぶと、**別のブランドの免責が載った記事**が出る。
+ * 免責の取り違えは景表法・ステマ規制の側で効いてくるので、
+ * 「入らない」より「違うものが入る」ほうが害が大きい。だから曖昧なら入れない。
+ *
+ * 画面（`/admin/generation`）はブランドの保存先を知らない。
+ * 画面に選択欄を足すまでの間、1 つしか無い作業場所ではこの経路で既定値が届く。
+ * 複数ある作業場所では `brandId` を明示するまで届かない——これは仕様であり、
+ * 塞ぐなら画面へブランド選択欄を足すことになる。
+ */
+async function soleBrandOf(
+  brands: BrandRepositoryPort,
+  actor: ActorContext,
+): Promise<Result<Brand | null, DomainError>> {
+  // 限定担当者には列挙された範囲だけを見る。1 件ならその 1 件を所有照合し、
+  // 複数なら従来どおり勝手に選ばない。
+  if (actor.scopedBrandIds.length > 0) {
+    if (actor.scopedBrandIds.length !== 1) return ok(null);
+    const found = await brands.findById(actor.workspaceId, actor.scopedBrandIds[0]);
+    if (!found.ok) return err(found.error);
+    if (found.value === null) return ok(null);
+    const accessible = assertBrandAccess(actor, found.value);
+    return accessible.ok ? ok(accessible.value) : err(accessible.error);
+  }
+
+  // 2 件取れれば「2 つ以上ある」と判定できる。全件は要らない。
+  const listed = await brands.list(actor.workspaceId, { limit: 2, cursor: null });
+  if (!listed.ok) return err(listed.error);
+  const items = listed.value.items.filter((brand) => assertBrandAccess(actor, brand).ok);
+  return ok(items.length === 1 ? items[0] : null);
 }

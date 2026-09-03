@@ -1,0 +1,23 @@
+対象: /s/home-office-desk/blog/starter-kit-2026
+取得: 2026-08-30
+
+<meta charSet="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="next-size-adjust" content=""/>
+<title>
+<meta name="description" content="予算・置き場所・音の 3 点で絞り込み、迷いどころを先に片づけます。"/>
+<meta name="robots" content="index, follow"/>
+<meta name="googlebot" content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"/>
+<link rel="canonical" href="http://localhost:3001/s/home-office-desk/blog/starter-kit-2026"/>
+<meta property="og:title" content="はじめての編集机まわり おすすめ 5 選"/>
+<meta property="og:description" content="予算・置き場所・音の 3 点で絞り込み、迷いどころを先に片づけます。"/>
+<meta property="og:url" content="http://localhost:3001/s/home-office-desk/blog/starter-kit-2026"/>
+<meta property="og:site_name" content="在宅ワークの机まわり"/>
+<meta property="og:locale" content="ja_JP"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2026-08-27T08:45:37.000Z"/>
+<meta property="article:modified_time" content="2026-08-27T08:45:37.000Z"/>
+<meta property="article:author" content="ローカル検証用の担当者"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="はじめての編集机まわり おすすめ 5 選"/>
+<meta name="twitter:description" content="予算・置き場所・音の 3 点で絞り込み、迷いどころを先に片づけます。"/>

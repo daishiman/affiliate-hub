@@ -1,0 +1,1172 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-blog-ops-crud",
+  "parent_feature": "feat-blog-ops-crud",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-BLOG-OPS-CRUD-P01": "beads",
+    "SYS-BLOG-OPS-CRUD-P02": "beads",
+    "SYS-BLOG-OPS-CRUD-P03": "beads",
+    "SYS-BLOG-OPS-CRUD-P04": "beads",
+    "SYS-BLOG-OPS-CRUD-P05": "beads",
+    "SYS-BLOG-OPS-CRUD-P06": "beads",
+    "SYS-BLOG-OPS-CRUD-P07": "beads",
+    "SYS-BLOG-OPS-CRUD-P08": "beads",
+    "SYS-BLOG-OPS-CRUD-P09": "beads",
+    "SYS-BLOG-OPS-CRUD-P10": "beads",
+    "SYS-BLOG-OPS-CRUD-P11": "beads",
+    "SYS-BLOG-OPS-CRUD-P12": "beads",
+    "SYS-BLOG-OPS-CRUD-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "サイト網ブログ運用 CRUD の要求ベースライン確定",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/requirements-baseline.md",
+        "docs/spec/feat-blog-ops-crud/screen-inventory.md",
+        "docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "サイト網・記事・固定ページ・配信部品のデータモデルとAPI契約の設計",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/data-model.md",
+        "docs/spec/feat-blog-ops-crud/api-contract.md",
+        "docs/spec/feat-blog-ops-crud/component-contract.md",
+        "docs/spec/feat-blog-ops-crud/migration-plan.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p02.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "設計レビューとブループリント検証規則 (BP/AT) 整合確認",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/design-review.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p03.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "サイト網 CRUD・記事CRUD・固定ページ・配信部品のテスト設計",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/test-design.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p04.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "サイト網・記事CRUD・固定ページ・配信部品・評価機能の実装",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/app/admin/site-network/",
+        "src/app/admin/site-network/[site]/",
+        "src/app/admin/site-network/new/",
+        "src/app/admin/blog/articles/",
+        "src/app/admin/blog/articles/[article]/",
+        "src/app/admin/blog/articles/new/",
+        "src/app/admin/blog/pages/",
+        "src/app/admin/blog/tags/",
+        "src/app/admin/blog/evaluate/",
+        "src/app/api/admin/site-network/",
+        "src/app/api/admin/blog/",
+        "src/app/s/[site]/",
+        "src/app/s/[site]/best/",
+        "src/app/s/[site]/reviews/",
+        "src/app/s/[site]/guides/",
+        "src/app/s/[site]/feed.xml",
+        "src/app/s/[site]/sitemap.xml",
+        "src/app/s/[site]/llms.txt",
+        "src/presentation/ui/templates/",
+        "src/presentation/ui/patterns/",
+        "src/application/usecases/",
+        "src/application/read-models/",
+        "src/infrastructure/persistence/d1/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "scripts/check-reference-site-reuse.mjs"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "実装のテスト実行と緑化",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/test-run-report.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p06.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入14件 (A1-A14) の受入検証",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/acceptance-report.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存 articles スキーマ・admin/content 系画面との重複解消と移行",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/app/admin/content/",
+        "src/app/admin/blog/articles/",
+        "docs/spec/feat-blog-ops-crud/migration-report.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "品質保証 (アクセシビリティ・回帰・転用禁止ゲートの独立検査)",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/qa-report.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p09.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "最終レビューと promotion 可否判定",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/final-review.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p10.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入・QA証跡の集約",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P07",
+        "SYS-BLOG-OPS-CRUD-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/evidence/"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p11.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "運用文書・API/コンポーネント文書の確定",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P10",
+        "SYS-BLOG-OPS-CRUD-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/operations.md",
+        "docs/spec/feat-blog-ops-crud/data-model.md",
+        "docs/spec/feat-blog-ops-crud/api-contract.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p12.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-OPS-CRUD-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "開発環境へのリリースとsystem-specへの書き戻し",
+      "project_id": "feature-package-feat-blog-ops-crud",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-blog-ops-crud"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-25T14:00:26Z",
+      "updated_at": "2026-08-25T14:00:26Z",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-ops-crud/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md"
+      ],
+      "parent_feature": "feat-blog-ops-crud",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json",
+        "evaluated_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+        "imported_at": "2026-08-25T14:00:26Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-ops-crud の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p13.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      }
+    }
+  ]
+}

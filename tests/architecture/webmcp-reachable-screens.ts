@@ -54,6 +54,11 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   start_site_draft: { screen: "admin/sites/new/page.tsx" },
   save_site_draft_step: { screen: "admin/sites/new/page.tsx" },
   create_site_from_draft: { screen: "admin/sites/new/page.tsx" },
+  update_managed_site: { screen: "admin/sites/[site]/edit/page.tsx" },
+  delete_managed_site: {
+    screen: "admin/sites/[site]/page.tsx",
+    note: "画面の末尾に確認欄（理由が要る）",
+  },
 
   // ── ブログの中身（読者側の画面がそのまま到達先）────────
   get_site: { screen: "s/[site]/page.tsx" },
@@ -82,6 +87,14 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   list_test_runs: { screen: "admin/evidence/page.tsx" },
   list_ranking: { screen: "admin/rankings/page.tsx" },
   explain_ranking: { screen: "admin/rankings/page.tsx" },
+  create_product: { screen: "admin/products/new/page.tsx" },
+  update_product: { screen: "admin/products/[product]/edit/page.tsx" },
+  // 消す欄は詳細画面の中に置く。別画面にすると、目の前の物と消す物が
+  // 同じかを確かめられないまま押すことになる。
+  delete_product: {
+    screen: "admin/products/[product]/page.tsx",
+    note: "画面の末尾に確認欄（理由が要る）",
+  },
 
   // ── 商品（読者側）──────────────────────────────────────
   reader_list_ranking: { screen: "s/[site]/best/[topic]/page.tsx" },
@@ -106,11 +119,43 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   get_audience_persona: { screen: "admin/personas/page.tsx" },
   check_fact_boundary: { screen: "admin/evidence/page.tsx" },
   read_writing_method: { screen: "admin/writing/page.tsx" },
+  create_content_variant: { screen: "admin/content/new/page.tsx" },
+  update_content_variant: { screen: "admin/content/[variant]/edit/page.tsx" },
+  delete_content_variant: {
+    screen: "admin/content/[variant]/page.tsx",
+    note: "画面の末尾に確認欄（理由が要る）",
+  },
+
+  // ── ブログ運用（作成者向け）────────────────────────────
+  // **手元の CLI (Claude Code / Codex) から書ける道具である。**
+  // それでもここに画面を書くのは、AI からしか届かない機能を作らないため。
+  // 画面が消えた日にこの検査が落ちるので、片方だけ残ることがない。
+  list_blog_articles: { screen: "admin/blog/articles/page.tsx" },
+  get_blog_article: { screen: "admin/blog/articles/[article]/page.tsx" },
+  create_blog_article: { screen: "admin/blog/articles/new/page.tsx" },
+  update_blog_article: { screen: "admin/blog/articles/[article]/page.tsx" },
+  set_blog_article_status: {
+    screen: "admin/blog/articles/[article]/page.tsx",
+    note: "公開は人しか押せない（AI からは requiresHumanApproval で断られる）",
+  },
+  delete_blog_article: {
+    screen: "admin/blog/articles/[article]/page.tsx",
+    note: "画面の末尾に確認欄（理由が要る）。AI からは断られる",
+  },
+  list_blog_tags: { screen: "admin/blog/tags/page.tsx" },
 
   // ── 配信 ────────────────────────────────────────────────
   list_channels: { screen: "admin/distribution/page.tsx" },
+  register_channel_connection: {
+    screen: "admin/tools/page.tsx",
+    note: "人のセッション専用の道具実行画面。AIサービスアカウントとブランド限定担当者はusecaseで拒否する",
+  },
   list_publications: { screen: "admin/distribution/page.tsx" },
   get_publication: { screen: "admin/distribution/[publication]/page.tsx" },
+  update_publication: { screen: "admin/distribution/[publication]/edit/page.tsx" },
+  // 記事 1 本が「いまどこへ出ているか」を並べる場所。出していない先も
+  // 未着手として並ぶので、次にどこへ出すかを決める材料になる。
+  get_content_channel_status: { screen: "admin/content/[variant]/progress/page.tsx" },
   export_manual_draft: { screen: "admin/distribution/[publication]/page.tsx" },
   schedule_publication: { screen: "admin/distribution/calendar/page.tsx" },
   cancel_publication: { screen: "admin/distribution/[publication]/page.tsx" },
@@ -130,6 +175,12 @@ export const REACHABLE_SCREENS: Readonly<Record<string, ReachEntry>> = {
   submit_affiliate_url: { screen: "admin/inbox/page.tsx" },
   resolve_link_ingestion: { screen: "admin/inbox/page.tsx" },
   match_link_ingestion_product: { screen: "admin/inbox/page.tsx" },
+  register_affiliate_link: { screen: "admin/inbox/page.tsx" },
+  list_affiliate_links: { screen: "admin/affiliate/links/page.tsx" },
+  disable_affiliate_link: {
+    screen: "admin/affiliate/links/page.tsx",
+    note: "行ごとの確認欄（止める理由が要る）",
+  },
   reject_link_ingestion: { screen: "admin/inbox/page.tsx" },
 
   // ── 数字 ────────────────────────────────────────────────

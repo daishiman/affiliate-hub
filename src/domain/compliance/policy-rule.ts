@@ -60,6 +60,7 @@ export const POLICY_CHANNEL_SCOPES = [
   "youtube",
   "tiktok",
   "threads",
+  "facebook",
   "note",
   "newsletter",
   "wordpress",
@@ -71,10 +72,23 @@ export function isPolicyChannelScope(value: unknown): value is PolicyChannelScop
   return typeof value === "string" && (POLICY_CHANNEL_SCOPES as readonly string[]).includes(value);
 }
 
-export type PolicySeverity =
-  | "block" // 公開させない
-  | "warn" // 人が確認すれば公開できる
-  | "info"; // 記録だけ
+/**
+ * きまりの強さ。
+ *
+ * **実行時の配列を正本にする**（分野・出力先と同じ形）。型だけで持つと、
+ * 保存先の表がこの語彙を持てず、綴りの違う強さが黙って保存できてしまう。
+ * 保存先の列がここを読むことで、語彙は 1 つのままになる。
+ */
+export const POLICY_SEVERITIES = [
+  "block", // 公開させない
+  "warn", // 人が確認すれば公開できる
+  "info", // 記録だけ
+] as const;
+export type PolicySeverity = (typeof POLICY_SEVERITIES)[number];
+
+export function isPolicySeverity(value: unknown): value is PolicySeverity {
+  return typeof value === "string" && (POLICY_SEVERITIES as readonly string[]).includes(value);
+}
 
 export type PolicyRule = {
   readonly id: PolicyRuleId;

@@ -148,15 +148,54 @@ const TRACKING_PARAMS = new Set([
   "_ga",
 ]);
 
+/**
+ * ホスト名の比較用の形。**URL 正規化の正本はこのファイルに集約する。**
+ *
+ * 大小・IPv6 の角括弧・末尾ドット（`example.com.` は `example.com` と同じ宛先）を
+ * 落とす。ここを各所で書き直すと、allowlist の判定が場所ごとにずれる。
+ */
+export function normalizeHostname(hostname: string): string {
+  return hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
+}
+
+/** allowlist に書いたホストと実際のホストが同じ宛先かどうか。 */
+export function sameHost(actual: string, declared: string): boolean {
+  return normalizeHostname(actual) === normalizeHostname(declared);
+}
+
 /** 内部ネットワーク・自分自身宛かどうか。判定は保守的に倒す。 */
 export function isInternalHost(hostname: string): boolean {
-  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  const host = normalizeHostname(hostname);
   if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) return true;
-  if (host === "::1" || host.startsWith("fc") || host.startsWith("fd")) return true;
-  if (/^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host)) return true;
-  if (/^169\.254\./.test(host)) return true; // クラウドのメタデータ
-  if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return true;
-  if (host === "0.0.0.0") return true;
+  if (host === "metadata.google.internal") return true;
+  if (host.includes(":")) {
+    if (host === "::" || host === "::1") return true;
+    if (/^f[cd][0-9a-f]{2}(?::|$)/.test(host)) return true; // unique local
+    if (/^f[eE][89abAB][0-9a-f](?::|$)/.test(host)) return true; // link local
+    if (/^ff[0-9a-f]{2}(?::|$)/.test(host)) return true; // multicast
+    const mapped = host.match(/^(?:0*:)*ffff:(.+)$/i)?.[1] ?? null;
+    if (mapped !== null) {
+      if (mapped.includes(".")) return isInternalHost(mapped);
+      const pair = mapped.split(":");
+      if (pair.length === 2) {
+        const high = Number.parseInt(pair[0] ?? "", 16);
+        const low = Number.parseInt(pair[1] ?? "", 16);
+        if (Number.isFinite(high) && Number.isFinite(low)) {
+          return isInternalHost(`${high >> 8}.${high & 255}.${low >> 8}.${low & 255}`);
+        }
+      }
+    }
+    return false;
+  }
+  const octets = host.split(".").map((part) => Number(part));
+  if (octets.length === 4 && octets.every((part) => Number.isInteger(part) && part >= 0 && part <= 255)) {
+    const [a = -1, b = -1] = octets;
+    if (a === 0 || a === 10 || a === 127) return true;
+    if (a === 169 && b === 254) return true; // クラウドのメタデータ / link local
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a >= 224) return true; // multicast / reserved
+  }
   return false;
 }
 
@@ -166,14 +205,12 @@ export function createLinkIngestion(input: {
   submittedUrl: string;
   source: LinkIngestionSource;
   submittedAt: Date;
-  /** 既に受信箱にあるもの。重複判定に使う。 */
-  existing?: readonly LinkIngestion[];
+  /** 保存先の原子的な取り合いで確定した重複相手。 */
+  duplicateOf?: LinkIngestionId | null;
   note?: string | null;
 }): Result<LinkIngestion, DomainError> {
   const normalized = normalizeAffiliateUrl(input.submittedUrl);
   if (!normalized.ok) return normalized;
-
-  const duplicate = findDuplicate(input.existing ?? [], normalized.value);
 
   return ok({
     id: input.id,
@@ -186,17 +223,10 @@ export function createLinkIngestion(input: {
     programId: null,
     productId: null,
     // 重複でも捨てない。捨てると「送ったのに無い」が起きる。印を付けて残す。
-    duplicateOf: duplicate?.id ?? null,
+    duplicateOf: input.duplicateOf ?? null,
     note: input.note ?? null,
     rejectedReason: null,
   });
-}
-
-export function findDuplicate(
-  existing: readonly LinkIngestion[],
-  normalizedUrl: string,
-): LinkIngestion | null {
-  return existing.find((i) => i.normalizedUrl === normalizedUrl && i.state !== "rejected") ?? null;
 }
 
 /** 広告主が判明した。ここから先は「どの商品か」を決める作業になる。 */

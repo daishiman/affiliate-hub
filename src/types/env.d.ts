@@ -8,6 +8,12 @@ declare global {
   interface CloudflareEnv {
     /** Remote MCP クライアント用の Bearer トークン */
     MCP_TOKEN?: string;
+    /** Cloudflare Turnstile siteverify 用。値は secret store から供給する。 */
+    TURNSTILE_SECRET?: string;
+    /** siteverify 応答で許可する frontend hostname のカンマ区切り。 */
+    TURNSTILE_HOSTNAMES?: string;
+    /** 問い合わせフォームへ描画する公開 site key。 */
+    TURNSTILE_SITE_KEY?: string;
   }
 }
 

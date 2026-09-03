@@ -44,6 +44,8 @@ serves_goals: []
 
 ## 適用された設計知識
 
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
+
 ### Clean Code — deep knowledge card
 
 - 出典カード: `ref-system-design-knowledge/references/clean-code.md`

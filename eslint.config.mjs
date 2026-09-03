@@ -26,6 +26,10 @@ const eslintConfig = defineConfig([
     // HarnessHub からベンダリングしたプラグイン。上流が真実源で本リポジトリでは編集しない
     // (更新は .claude/scripts/sync-plugins.sh)。lint して直すと次の同期で消える。
     ".claude/plugins/**",
+    // エージェントが作る git worktree。リポジトリ全体の写しが丸ごと置かれるので、
+    // 検査すると同じ指摘が 2 重に並ぶ。写しを直しても本体は直らない。
+    // CI では追跡外なので現れず、手元で verify を回したときだけ混ざる。
+    ".claude/worktrees/**",
   ]),
 
   // `_` 始まりは「今は使わないが、契約上そこにある引数」を表す。

@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DomainError } from "@/domain/shared";
 import { validationError } from "@/domain/shared";
-import { INITIAL_LLM_CREDENTIAL_STATE } from "@/presentation/admin/llm-credential-state";
+import { INITIAL_LLM_CREDENTIAL_STATE } from "@/presentation/admin/maintain/llm-credential-state";
 
 /**
  * 鍵を登録・失効・確認する操作。
@@ -40,7 +40,7 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
   return { ...actual, llmCredentialEntry: async () => entry, signedInActor: async () => signedIn };
 });
 
-const { manageLlmCredentialAction } = await import("@/presentation/admin/llm-credential-action");
+const { manageLlmCredentialAction } = await import("@/presentation/admin/maintain/llm-credential-action");
 
 const SECRET = "sk-test-do-not-echo-0123456789";
 

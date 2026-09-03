@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+  "generation_id": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "published_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "published_digest": "sha256:a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "receipt": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/atomic-promotion-receipt.json"
+}

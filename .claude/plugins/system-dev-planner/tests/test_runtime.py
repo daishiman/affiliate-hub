@@ -180,10 +180,17 @@ def make_fixture(
                            "source_paths": ["system-spec/index.md"], "confirmed": True},
         "tasks": tasks,
     }
-    graph = {"schema_version": "1.0.0", "nodes": [
-        {"id": item["id"], "phase_ref": item["phase_ref"], "feature_package_id": package_id,
-         "parent_feature": parent, "depends_on": item["depends_on"]} for item in tasks
-    ]}
+    graph = {
+        "schema_version": "1.0.0",
+        "nodes": [
+            {"id": item["id"], "phase_ref": item["phase_ref"], "feature_package_id": package_id,
+             "parent_feature": parent, "depends_on": item["depends_on"]} for item in tasks
+        ],
+        "edges": [
+            {"type": "depends_on", "from": producer, "to": item["id"]}
+            for item in tasks for producer in item["depends_on"]
+        ],
+    }
     dump(staging / "feature-package.json", package)
     dump(staging / "workstream-inventory.json", inventory)
     dump(staging / "task-graph.json", graph)
@@ -307,6 +314,11 @@ def write_readiness_sources(root: Path) -> None:
     dump(root / "system-spec/completeness-findings.json", {
         "evaluator": {"name": "assign-system-spec-completeness-evaluator", "version": "0.1.0", "context": "fork"},
         "verdict": "PASS",
+        "inputs": {
+            "file_count": 1,
+            "sha256": "0" * 64,
+            "files": [{"path": "system-spec/index.md", "sha256": "0" * 64, "mtime": 0}],
+        },
         "audit_delegations": AUDIT_DELEGATIONS,
         "aspects": {key: {"verdict": "PASS", "auditor": owner, "component": component,
                            "summary": "independently verified"}
@@ -443,6 +455,35 @@ class SchemaValidationTests(unittest.TestCase):
             report = VALIDATOR.validate(staging, repository_id)
             self.assertEqual(report["status"], "pass", report)
             self.assertEqual(report["validated_digest"], digest)
+
+    def test_graph_explicit_edges_must_be_forward_reverse_equivalent(self):
+        mutations = {
+            "missing": lambda graph: graph.update(edges=[]),
+            "same-direction": lambda graph: graph["edges"][0].update(
+                {"from": "SYS-P02", "to": "SYS-P01"}
+            ),
+            "unknown": lambda graph: graph["edges"][0].update(
+                {"from": "UNKNOWN"}
+            ),
+            "duplicate": lambda graph: graph["edges"].append(
+                dict(graph["edges"][0])
+            ),
+        }
+        for name, mutate in mutations.items():
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as td:
+                root = Path(td); repository_id = make_repo(root)
+                staging, _ = make_fixture(root, repository_id)
+                graph_path = staging / "task-graph.json"
+                graph = json.loads(graph_path.read_text(encoding="utf-8"))
+                mutate(graph)
+                dump(graph_path, graph)
+                refresh_manifest(staging)
+                report = VALIDATOR.validate(staging, repository_id)
+                self.assertEqual(report["status"], "fail")
+                self.assertIn(
+                    "graph-edge-parity",
+                    {item["code"] for item in report["violations"]},
+                )
 
     def test_handoff_identity_and_receipt_owner_drift_fail_closed(self):
         with tempfile.TemporaryDirectory() as td:

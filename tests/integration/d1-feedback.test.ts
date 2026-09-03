@@ -1,6 +1,4 @@
-/** @tier 2 */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
+/** @tier 2 @req REQ-FB07, REQ-FB08, REQ-FB09, REQ-FB10, REQ-FB12, REQ-TM09, REQ-TS07 */
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
@@ -12,9 +10,17 @@ import { createSubmitFeedbackUseCase } from "@/application/usecases/feedback/sub
 import { createUpdateFeedbackStatusUseCase } from "@/application/usecases/feedback/update-feedback-status";
 import type { AppDeps } from "@/application/deps";
 import * as schema from "@/db/schema";
-import type { ActorContext } from "@/domain/shared";
+import { DIAGNOSTICS_RETENTION_DAYS } from "@/domain/feedback";
+import { asFeedbackCaptureId, type ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
+import {
+  createD1FeedbackDiagnosticsPurge,
+  purgeExpiredFeedbackDiagnostics,
+  runFeedbackDiagnosticsPurge,
+} from "@/infrastructure/platform/feedback-diagnostics-purge";
+import { createD1FeedbackRepository } from "@/infrastructure/persistence/d1/feedback-repository";
 import { OTHER_WORKSPACE, WORKSPACE, anOwner } from "../support/actors";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 改善要望と取得用の鍵を、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -53,20 +59,6 @@ const owner: ActorContext = anOwner({ workspaceId: WORKSPACE });
 const otherOwner: ActorContext = anOwner({ workspaceId: OTHER_WORKSPACE });
 
 /** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  // 1 件も読めていないのに緑になるのが最悪なので、そこだけ先に落とす。
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
@@ -91,15 +83,16 @@ beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM integration_keys").run();
 });
 
-const submit = () =>
+const submit = (now = new Date("2026-08-17T03:00:00Z")) =>
   createSubmitFeedbackUseCase({
     repository: deps.feedback,
     captures: deps.feedbackCaptures,
+    brands: deps.brands,
     ids: deps.ids,
     // 記録も本物の保存先を使う。差し替えると、この段でしか出ない
     // 「記録は書けるが要望が書けない」ような食い違いを見逃す。
     auditLog: deps.auditLog,
-    now: () => new Date("2026-08-17T03:00:00Z"),
+    now: () => now,
   });
 const list = () => createListFeedbackUseCase({ repository: deps.feedback });
 const read = () => createReadFeedbackUseCase({ repository: deps.feedback, captures: deps.feedbackCaptures });
@@ -154,8 +147,9 @@ function aSubmission(over: Partial<Parameters<ReturnType<typeof submit>["execute
 async function submitOne(
   actor: ActorContext = owner,
   over: Parameters<typeof aSubmission>[0] = {},
+  submittedAt?: Date,
 ): Promise<string> {
-  const result = await submit().execute(actor, aSubmission(over));
+  const result = await submit(submittedAt).execute(actor, aSubmission(over));
   expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
   if (!result.ok) throw new Error("送信できていません");
   return result.value.reportId;
@@ -202,6 +196,44 @@ describe("保存して読み戻す", () => {
     expect(detail.value.screenName).toBe("順位表");
   });
 
+  it("capture IDから同じworkspaceの要望だけを逆引きし、他workspaceには返さない", async () => {
+    const sent = await submit().execute(
+      owner,
+      aSubmission({
+        capture: {
+          image: new ArrayBuffer(32),
+          submission: {
+            redactionsBurnedIn: true,
+            retainsOriginal: false,
+            redactionCount: 1,
+            maskedElementCount: 1,
+            byteLength: 32,
+            mimeType: "image/png",
+          },
+        },
+      }),
+    );
+    expect(sent.ok).toBe(true);
+    if (!sent.ok) return;
+    const row = await proxy.env.DB.prepare(
+      "SELECT capture_id AS captureId FROM feedback_reports WHERE id = ?",
+    )
+      .bind(sent.value.reportId)
+      .first<{ captureId: string }>();
+    expect(row?.captureId).toBeTruthy();
+    const findByCaptureId = deps.feedback.findByCaptureId;
+    if (row === null) return;
+
+    const own = await findByCaptureId(owner.workspaceId, asFeedbackCaptureId(row.captureId));
+    const other = await findByCaptureId(
+      otherOwner.workspaceId,
+      asFeedbackCaptureId(row.captureId),
+    );
+
+    expect(own.ok && String(own.value?.id)).toBe(sent.value.reportId);
+    expect(other.ok && other.value).toBeNull();
+  });
+
   it("日付が日付のまま戻る（文字列になっていない）", async () => {
     // ここが崩れると、画面には日付が出ているのに並べ替えだけが文字列の
     // 大小で行われる。目で見ても気づけないので、機械で押さえる。
@@ -220,8 +252,40 @@ describe("保存して読み戻す", () => {
     if (!detail.ok) return;
     // 伏せた件数は 0 でないときに画面へ出る。ここが 0 に戻ると、
     // 「一部を伏せました」の案内が黙って消える。
-    expect(detail.value.redactedCount).toBe(2);
+    expect(detail.value.redactedCount).toBeGreaterThanOrEqual(2);
     expect(detail.value.jsErrorCount).toBe(1);
+  });
+
+  it("悪性 payload は D1 の JSON 列にも監査記録にも残らない", async () => {
+    const secret = "d1-secret-token-987";
+    await submitOne(owner, {
+      origin: {
+        screenName: `user@example.test ${secret}`,
+        url: `https://example.invalid/admin/rankings?token=${secret}#private`,
+        route: `/admin/rankings?email=user@example.test#${secret}`,
+        viewportWidth: 1280,
+        viewportHeight: 900,
+      },
+      technical: {
+        jsErrors: [`TypeError: ${secret}`],
+        failedRequests: [`500 https://example.invalid/api/rankings?token=${secret}`],
+        userAgent: `user@example.test ${secret}`,
+        recentActions: [`「user@example.test ${secret}」を押した`],
+        redactedCount: 0,
+      },
+    });
+
+    const stored = await proxy.env.DB.prepare(
+      "SELECT origin_json AS originJson, technical_json AS technicalJson FROM feedback_reports LIMIT 1",
+    ).first<{ originJson: string; technicalJson: string }>();
+    const audit = await proxy.env.DB.prepare(
+      "SELECT before_json AS beforeJson, after_json AS afterJson FROM audit_logs WHERE action = 'feedback.submitted' ORDER BY occurred_at DESC LIMIT 1",
+    ).first<{ beforeJson: string | null; afterJson: string | null }>();
+    const persisted = JSON.stringify({ stored, audit });
+    expect(persisted).not.toContain(secret);
+    expect(persisted).not.toContain("user@example.test");
+    expect(stored?.originJson).not.toContain("?");
+    expect(stored?.originJson).not.toContain("#");
   });
 
   it("履歴が積み上がったまま戻る（上書きで消えない）", async () => {
@@ -439,5 +503,268 @@ describe("取りに来るときの鍵", () => {
     await keys().execute(owner, { action: "issue", label: "こちらの鍵", scopes: ["read"] });
     const listed = await keys().execute(otherOwner, { action: "list" });
     expect(listed.ok && listed.value.rows).toEqual([]);
+  });
+});
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+/** 掃除を流す時刻。ここを基準に「いつ届いたか」を決める。 */
+const PURGE_NOW = new Date("2026-08-17T17:00:00Z");
+
+function submittedDaysBefore(days: number): Date {
+  return new Date(PURGE_NOW.getTime() - days * DAY_MS);
+}
+
+async function storedTechnical(id: string): Promise<{
+  jsErrors: string[];
+  failedRequests: string[];
+  recentActions: string[];
+  userAgent: string;
+  redactedCount: number;
+  purgedAt: string | null;
+}> {
+  const row = await proxy.env.DB.prepare(
+    "SELECT technical_json AS technicalJson FROM feedback_reports WHERE id = ?",
+  )
+    .bind(id)
+    .first<{ technicalJson: string }>();
+  return JSON.parse(String(row?.technicalJson));
+}
+
+describe("技術情報の保存期間（定期実行）", () => {
+  beforeEach(async () => {
+    // 記録の表は共有なので、この段の検査に前の段の行が混ざらないよう先に消す。
+    await proxy.env.DB.prepare("DELETE FROM audit_logs WHERE action = ?")
+      .bind("feedback.diagnostics_purged")
+      .run();
+  });
+
+  it("期限の 1 日手前では、何も消さない", async () => {
+    const id = await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS - 1));
+    const result = await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    expect(result.failures).toEqual([]);
+    expect(result.purged).toBe(0);
+
+    const technical = await storedTechnical(id);
+    expect(technical.jsErrors.length).toBe(1);
+    expect(technical.purgedAt).toBeNull();
+  });
+
+  it("期限ちょうどで、技術情報だけが消える（要望は残る）", async () => {
+    const id = await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS));
+    // 伏せた件数は、送信時の申告ではなく**保存側が数え直した値**である
+    // （入口の申告は見ない）。消す前の実物と突き合わせる。
+    const before = await storedTechnical(id);
+    expect(before.redactedCount).toBeGreaterThan(0);
+
+    const result = await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    expect(result.failures).toEqual([]);
+    expect(result.purged).toBe(1);
+
+    const technical = await storedTechnical(id);
+    expect(technical.jsErrors).toEqual([]);
+    expect(technical.failedRequests).toEqual([]);
+    expect(technical.recentActions).toEqual([]);
+    expect(technical.userAgent).toBe("");
+    // 伏せた件数と消した時刻は残す。ここまで消すと、後から
+    // 「本当に伏せていたのか」を問われたときに答えられない。
+    expect(technical.redactedCount).toBe(before.redactedCount);
+    expect(technical.purgedAt).not.toBeNull();
+
+    // 声そのものは消さない。90 日経っても、届いた事実は無かったことにならない。
+    const detail = await read().execute(owner, { id });
+    expect(detail.ok).toBe(true);
+    if (!detail.ok) return;
+    expect(detail.value.body).toContain("並び替え");
+    expect(detail.value.screenName).toBe("順位表");
+    expect(detail.value.history.length).toBeGreaterThan(0);
+    expect(detail.value.diagnosticsPurged).toBe(true);
+    expect(detail.value.diagnosticsPurgedAt).toBeInstanceOf(Date);
+  });
+
+  it("期限を 1 日過ぎたものも、当然消える", async () => {
+    const id = await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS + 1));
+    await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    expect((await storedTechnical(id)).purgedAt).not.toBeNull();
+  });
+
+  it("期限内のものは、同じ作業場所にあっても巻き添えにならない", async () => {
+    const old = await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS + 5));
+    const fresh = await submitOne(owner, {}, submittedDaysBefore(1));
+    const result = await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    expect(result.purged).toBe(1);
+    expect((await storedTechnical(old)).purgedAt).not.toBeNull();
+    expect((await storedTechnical(fresh)).purgedAt).toBeNull();
+    expect((await storedTechnical(fresh)).jsErrors.length).toBe(1);
+  });
+
+  it("他の作業場所の期限内のものを、巻き添えで消さない", async () => {
+    // 定期実行は「誰の分か」を持たない。絞りを 1 か所外すと、
+    // ここが他社の期限内の記録まで消すことになる。
+    const mine = await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS));
+    const theirs = await submitOne(otherOwner, {}, submittedDaysBefore(1));
+    const result = await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    expect(result.purged).toBe(1);
+    expect((await storedTechnical(mine)).purgedAt).not.toBeNull();
+    expect((await storedTechnical(theirs)).purgedAt).toBeNull();
+  });
+
+  it("作業場所をまたいで、期限切れは全部消える", async () => {
+    // 上と対で見る。片方だけだと「1 社しか回っていない」でも緑になる。
+    const mine = await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS));
+    const theirs = await submitOne(otherOwner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS));
+    const result = await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    expect(result.workspaces).toBe(2);
+    expect(result.purged).toBe(2);
+    expect((await storedTechnical(mine)).purgedAt).not.toBeNull();
+    expect((await storedTechnical(theirs)).purgedAt).not.toBeNull();
+  });
+
+  it("同じ時刻の期限切れが上限を超えても、次の回で残りへ進んで完了する", async () => {
+    const seed = await submitOne(
+      owner,
+      {},
+      submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS),
+    );
+    // 本番の上限500件と同じ分岐を、上限2件・合計3件へ縮約する。
+    // 全件を完全な同着にして、時刻だけでは順序が決まらない境界も固定する。
+    await proxy.env.DB.prepare(`
+      WITH RECURSIVE clones(n) AS (
+        SELECT 1
+        UNION ALL
+        SELECT n + 1 FROM clones WHERE n < 2
+      )
+      INSERT INTO feedback_reports (
+        id, workspace_id, brand_id, site_id, kind, body, wish, route,
+        origin_json, technical_json, capture_id, submitted_by, submitted_at,
+        status, disposition_kind, disposition_json, handoff_count, handoff_json,
+        beads_issue_id, history_json
+      )
+      SELECT
+        'retention-bulk-' || printf('%03d', clones.n),
+        seed.workspace_id, seed.brand_id, seed.site_id, seed.kind, seed.body,
+        seed.wish, seed.route, seed.origin_json, seed.technical_json,
+        seed.capture_id, seed.submitted_by, seed.submitted_at, seed.status,
+        seed.disposition_kind, seed.disposition_json, seed.handoff_count,
+        seed.handoff_json, seed.beads_issue_id, seed.history_json
+      FROM feedback_reports AS seed
+      CROSS JOIN clones
+      WHERE seed.id = ?
+    `)
+      .bind(seed)
+      .run();
+
+    const repository = createD1FeedbackRepository(drizzle(proxy.env.DB, { schema }), {
+      diagnosticsPurgeLimit: 2,
+    });
+    const first = await repository.purgeExpiredDiagnostics(WORKSPACE, PURGE_NOW);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    expect(first.value).toEqual({ purged: 2, finished: false });
+
+    const second = await repository.purgeExpiredDiagnostics(WORKSPACE, PURGE_NOW);
+    expect(second.ok).toBe(true);
+    if (!second.ok) return;
+    expect(second.value).toEqual({ purged: 1, finished: true });
+
+    const remaining = await proxy.env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM feedback_reports WHERE workspace_id = ? AND json_extract(technical_json, '$.purgedAt') IS NULL",
+    )
+      .bind(String(WORKSPACE))
+      .first<{ count: number }>();
+    expect(remaining?.count).toBe(0);
+  });
+
+  it("2 度流しても、消した時刻が書き換わらない", async () => {
+    const id = await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS));
+    await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    const first = (await storedTechnical(id)).purgedAt;
+
+    const later = new Date(PURGE_NOW.getTime() + 30 * DAY_MS);
+    const second = await runFeedbackDiagnosticsPurge(proxy.env.DB, later);
+    // 消し済みは数に入らない。数えると、毎晩「消しました」の記録が積み上がる。
+    expect(second.purged).toBe(0);
+    expect((await storedTechnical(id)).purgedAt).toBe(first);
+  });
+
+  it("消したことが記録に残る（件数と保存日数だけで、中身は残さない）", async () => {
+    await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS));
+    await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+
+    const rows = await proxy.env.DB.prepare(
+      "SELECT workspace_id AS workspaceId, actor_user_id AS actorUserId, target_type AS targetType, after_json AS afterJson FROM audit_logs WHERE action = ?",
+    )
+      .bind("feedback.diagnostics_purged")
+      .all<{
+        workspaceId: string;
+        actorUserId: string;
+        targetType: string;
+        afterJson: string | null;
+      }>();
+    expect(rows.results.length).toBe(1);
+    const row = rows.results[0];
+    expect(row.workspaceId).toBe(String(WORKSPACE));
+    expect(row.targetType).toBe("feedback_report");
+    const after = JSON.parse(String(row.afterJson));
+    expect(after.purgedCount).toBe(1);
+    expect(after.retentionDays).toBe(DIAGNOSTICS_RETENTION_DAYS);
+    // 消したものの中身が記録の側に残っていたら、消した意味が無い。
+    expect(String(row.afterJson)).not.toContain("TypeError");
+    expect(String(row.afterJson)).not.toContain("test-agent");
+  });
+
+  it("何も消さなかった夜には、記録を積まない", async () => {
+    await submitOne(owner, {}, submittedDaysBefore(1));
+    await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    const rows = await proxy.env.DB.prepare(
+      "SELECT id FROM audit_logs WHERE action = ?",
+    )
+      .bind("feedback.diagnostics_purged")
+      .all<{ id: string }>();
+    // 毎晩「0 件消しました」が増えると、本当に消えた日を探せなくなる。
+    expect(rows.results.length).toBe(0);
+  });
+
+  it("消せなかった作業場所は、記録を残さず次の回で拾い直す", async () => {
+    /*
+     * **失敗したのに「消しました」の記録だけが残る**のが最悪の壊れ方である。
+     * 中身は残っているのに、証跡は消したと言う。後から突き合わせても
+     * どちらが本当か決められない。だから失敗した回は何も書かない。
+     *
+     * 失敗のさせ方は、表を一時的に別名にすること。実際に起きるのは
+     * 接続断や上限超過だが、リポジトリから見れば同じ「書けなかった」である。
+     */
+    const id = await submitOne(owner, {}, submittedDaysBefore(DIAGNOSTICS_RETENTION_DAYS));
+    const deps = createD1FeedbackDiagnosticsPurge(drizzle(proxy.env.DB, { schema }));
+    // 一覧だけは先に取っておく（失敗させたいのは削除の側）。
+    const failing = { ...deps, workspaceIds: async () => [String(WORKSPACE)] };
+
+    await proxy.env.DB.prepare("DROP TABLE IF EXISTS feedback_reports_backup").run();
+    await proxy.env.DB.prepare(
+      "ALTER TABLE feedback_reports RENAME TO feedback_reports_backup",
+    ).run();
+    let failed: Awaited<ReturnType<typeof purgeExpiredFeedbackDiagnostics>>;
+    try {
+      failed = await purgeExpiredFeedbackDiagnostics(failing, PURGE_NOW);
+    } finally {
+      await proxy.env.DB.prepare(
+        "ALTER TABLE feedback_reports_backup RENAME TO feedback_reports",
+      ).run();
+    }
+    // 投げ返さない。投げると Cloudflare 側に再実行が積まれ、同じ失敗を繰り返す。
+    expect(failed.purged).toBe(0);
+    expect(failed.failures.length).toBe(1);
+    expect(failed.failures[0].workspaceId).toBe(String(WORKSPACE));
+
+    const audits = await proxy.env.DB.prepare("SELECT id FROM audit_logs WHERE action = ?")
+      .bind("feedback.diagnostics_purged")
+      .all<{ id: string }>();
+    expect(audits.results.length, "消せていないのに記録が残っています").toBe(0);
+
+    // 中身は消えずに残っている。次の回がそのまま拾い直す（再試行はこれで足りる）。
+    expect((await storedTechnical(id)).purgedAt).toBeNull();
+    const retried = await runFeedbackDiagnosticsPurge(proxy.env.DB, PURGE_NOW);
+    expect(retried.failures).toEqual([]);
+    expect(retried.purged).toBe(1);
+    expect((await storedTechnical(id)).purgedAt).not.toBeNull();
   });
 });

@@ -264,7 +264,10 @@ def test_pipeline_improvement_exact13_projection_has_canonical_frontmatter():
     """Regression for HarnessHub-t1i: status must read the promoted exact-13 package."""
     mod = load()
     repo_root = PLUGIN.parents[1]
-    graph = json.loads((repo_root / ".dev-graph/state/graph.json").read_text(encoding="utf-8"))
+    graph_path = repo_root / ".dev-graph/state/graph.json"
+    if not graph_path.exists():
+        pytest.skip("plugin 開発 repo の exact-13 投影 fixture は downstream install に含まれない")
+    graph = json.loads(graph_path.read_text(encoding="utf-8"))
     nodes = [
         node for node in graph["nodes"]
         if node.get("feature_package_id") == "feature-package/feat-dev-pipeline-improvement"
@@ -304,19 +307,37 @@ def test_preview_graph_validates_from_stdin_without_writing_into_the_repo(tmp_pa
 
 
 def _schema_valid_issue_node(graph_node_id: str, file_path: str) -> dict:
-    """canonical store から schema 適合済みの issue node を1件借用し、id/file_path だけ差し替える。
+    """canonical store の現行 node を schema 適合済みの local issue に正規化する。
 
     graph-node.schema.json は required フィールドが多く、その場でリテラルを組むと
     schema drift のたびにテストが追従漏れするため、正本 store の実データを流用する。
+    issue node が 0 件の正当な graph でも fixture 構築が壊れないよう kind 固有値は明示する。
     """
-    canonical = PLUGIN.parents[1] / ".dev-graph" / "state" / "graph.json"
+    canonical = PLUGIN.parents[2] / ".dev-graph" / "state" / "graph.json"
     document = json.loads(canonical.read_text(encoding="utf-8"))
-    template = next(node for node in document["nodes"] if node.get("artifact_kind") == "issue")
+    template = next(
+        (node for node in document["nodes"] if node.get("artifact_kind") == "issue"),
+        document["nodes"][0],
+    )
     node = dict(template)
     node["graph_node_id"] = graph_node_id
+    node["artifact_kind"] = "issue"
+    node["artifact_subtypes"] = []
     node["file_path"] = file_path
+    node["template_id"] = "issue"
     node["depends_on"] = []
     node["related_nodes"] = []
+    node["parent_feature"] = None
+    node["feature_package_id"] = None
+    node["phase_ref"] = None
+    node["tracker_binding"] = "none"
+    node["beads_linkage"] = None
+    node["github_publication"] = {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": None,
+    }
     return node
 
 

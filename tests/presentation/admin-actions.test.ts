@@ -1,8 +1,9 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P08 */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorContext } from "@/domain/shared";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
 import { SITE_WIZARD_STEPS, authoredSectionsFor } from "@/domain/authoring";
+import { BLOG_TEMPLATES } from "@/domain/authoring/blog-template";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
 
 /**
@@ -48,9 +49,18 @@ vi.mock("@/infrastructure/identity/sample-actor", async (importOriginal) => {
  * 断る側から見ると同じもので、`signedInActor()` はどちらも `null` を返す。
  */
 let loggedIn = true;
+const executeDisclosure = vi.fn();
+const executePolicyRule = vi.fn();
 vi.mock("@/presentation/composition", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
-  return { ...actual, signedInActor: async () => (loggedIn ? signedIn : null) };
+  return {
+    ...actual,
+    signedInActor: async () => (loggedIn ? signedIn : null),
+    settingsUseCases: async () => ({
+      editDisclosure: { execute: executeDisclosure },
+      editPolicyRule: { execute: executePolicyRule },
+    }),
+  };
 });
 
 /**
@@ -79,20 +89,23 @@ vi.mock("@/infrastructure/persistence/sample/settings-sample-repository", async 
 const {
   advanceLinkIngestionAction,
   submitAffiliateUrlAction,
-} = await import("@/presentation/admin/inbox-action");
-const { checkFactBoundaryAction } = await import("@/presentation/admin/fact-boundary-action");
-const { reschedulePublicationAction } = await import("@/presentation/admin/reschedule-action");
+} = await import("@/presentation/admin/earn/inbox-action");
+const { checkFactBoundaryAction } = await import("@/presentation/admin/write/fact-boundary-action");
+const { reschedulePublicationAction } = await import("@/presentation/admin/publish/reschedule-action");
 const {
   createSiteFromDraftAction,
   saveSiteDraftStepAction,
   startSiteDraftAction,
-} = await import("@/presentation/admin/site-wizard-action");
+} = await import("@/presentation/admin/publish/site-wizard-action");
 const {
   advanceContentStateAction,
   approveContentAction,
-} = await import("@/presentation/admin/content-progress-action");
-const { adjustConversionAction } = await import("@/presentation/admin/adjust-conversion-action");
-const { publishArticleAction } = await import("@/presentation/admin/publish-article-action");
+} = await import("@/presentation/admin/write/content-progress-action");
+const { adjustConversionAction } = await import("@/presentation/admin/earn/adjust-conversion-action");
+const { publishArticleAction } = await import("@/presentation/admin/publish/publish-article-action");
+const { editDisclosureAction, editPolicyRuleAction } = await import(
+  "@/presentation/admin/maintain/compliance-action"
+);
 const { schedulePublicationAction } = await import(
   "@/presentation/admin/schedule-publication-action"
 );
@@ -139,6 +152,155 @@ beforeEach(() => {
   signedIn = SAMPLE_ACTOR;
   loggedIn = true;
   auditWritable = true;
+  executeDisclosure.mockReset();
+  executePolicyRule.mockReset();
+});
+
+describe("コンプライアンス設定の操作", () => {
+  it("ログインしていない人は、保存先へ届く前に2操作とも止める", async () => {
+    loggedIn = false;
+
+    const disclosure = await editDisclosureAction(IDLE, form({}));
+    const policy = await editPolicyRuleAction(IDLE, form({}));
+
+    expect(disclosure).toMatchObject({ status: "failed" });
+    expect(policy).toMatchObject({ status: "failed" });
+    expect(executeDisclosure).not.toHaveBeenCalled();
+    expect(executePolicyRule).not.toHaveBeenCalled();
+  });
+
+  it("広告表記の全入力をユースケースへ渡し、読者に出る文まで成功結果へ載せる", async () => {
+    executeDisclosure.mockResolvedValue({
+      ok: true,
+      value: {
+        message: "広告表記を変更しました。",
+        visibleMessage: "スポンサーから商品の提供を受けています。",
+      },
+    });
+
+    const state = await editDisclosureAction(
+      IDLE,
+      form({
+        disclosureId: "dc_existing",
+        relationshipType: "sponsored",
+        advertiserOrSupplier: "見本商事",
+        editorialInfluence: "limited",
+        aiAssisted: "on",
+        reason: "提供条件が変わったため。",
+      }),
+    );
+
+    expect(executeDisclosure).toHaveBeenCalledWith(SAMPLE_ACTOR, {
+      disclosureId: "dc_existing",
+      relationshipType: "sponsored",
+      advertiserOrSupplier: "見本商事",
+      editorialInfluence: "limited",
+      aiAssisted: true,
+      reason: "提供条件が変わったため。",
+    });
+    expect(state).toEqual({
+      status: "done",
+      message:
+        "広告表記を変更しました。 読者にはこう出ます:「スポンサーから商品の提供を受けています。」",
+    });
+  });
+
+  it("省略入力を勝手に補わず、業務エラーの欄と理由を画面へ返す", async () => {
+    executeDisclosure.mockResolvedValue({
+      ok: false,
+      error: { code: "VALIDATION_FAILED", message: "関係の種類を選んでください。", field: "relationshipType" },
+    });
+
+    const state = await editDisclosureAction(IDLE, form({ advertiserOrSupplier: "   " }));
+
+    expect(executeDisclosure).toHaveBeenCalledWith(SAMPLE_ACTOR, {
+      relationshipType: "",
+      advertiserOrSupplier: null,
+      editorialInfluence: "",
+      aiAssisted: false,
+      reason: "",
+    });
+    expect(state).toMatchObject({
+      status: "failed",
+      field: "relationshipType",
+    });
+  });
+
+  it("きまりの有効・無効を専用の指示へ変換する", async () => {
+    executePolicyRule.mockResolvedValue({
+      ok: true,
+      value: { message: "表記のきまりを有効にしました。" },
+    });
+
+    const state = await editPolicyRuleAction(
+      IDLE,
+      form({
+        intent: "set_enabled",
+        ruleId: "rule_1",
+        enabled: "true",
+        reason: "公開前検査へ戻すため。",
+      }),
+    );
+
+    expect(executePolicyRule).toHaveBeenCalledWith(SAMPLE_ACTOR, {
+      action: "set_enabled",
+      ruleId: "rule_1",
+      enabled: true,
+      reason: "公開前検査へ戻すため。",
+    });
+    expect(state).toEqual({ status: "done", message: "表記のきまりを有効にしました。" });
+  });
+
+  it("false の無効化と保存指示を区別し、失敗も共通状態へ変換する", async () => {
+    executePolicyRule
+      .mockResolvedValueOnce({
+        ok: false,
+        error: { code: "NOT_FOUND", message: "表記のきまりが見つかりません。" },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        value: { message: "表記のきまりを保存しました。" },
+      });
+
+    const disabled = await editPolicyRuleAction(
+      IDLE,
+      form({ intent: "set_enabled", ruleId: "rule_missing", enabled: "false", reason: "終了" }),
+    );
+    const saved = await editPolicyRuleAction(
+      IDLE,
+      form({
+        intent: "save",
+        name: "誇大表現",
+        domainScope: "general",
+        channelScope: "any",
+        severity: "warn",
+        pattern: "世界一",
+        basis: "景品表示法 第5条",
+        suggestion: "比較条件を明示する",
+        reason: "検査項目を追加するため。",
+      }),
+    );
+
+    expect(executePolicyRule).toHaveBeenNthCalledWith(1, SAMPLE_ACTOR, {
+      action: "set_enabled",
+      ruleId: "rule_missing",
+      enabled: false,
+      reason: "終了",
+    });
+    expect(executePolicyRule).toHaveBeenNthCalledWith(2, SAMPLE_ACTOR, {
+      action: "save",
+      name: "誇大表現",
+      domainScope: "general",
+      channelScope: "any",
+      severity: "warn",
+      pattern: "世界一",
+      basis: "景品表示法 第5条",
+      suggestion: "比較条件を明示する",
+      reason: "検査項目を追加するため。",
+    });
+    expect(disabled).toMatchObject({ status: "failed" });
+    expect(saved).toEqual({ status: "done", message: "表記のきまりを保存しました。" });
+  });
 });
 
 describe("受信箱の操作", () => {
@@ -343,6 +505,52 @@ describe("受信箱の操作", () => {
     );
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
+
+  /*
+   * --- 成果リンクとして登録する（受信箱の最後の一歩） ---
+   * ここまでの 3 操作は受信箱の中で状態を進めるだけで、`affiliate_links` には
+   * 1 行も入らなかった。入る口が無いので、記事を公開しても成果リンクが
+   * 1 件も出ない状態が続いていた（残課題 58 / REQ-E13）。
+   *
+   * 見本の置き場では保存そのものが断られる（`stubCall`）。通る側を見るのは
+   * `tests/integration/d1-affiliate-link.test.ts`。ここで見るのは
+   * **保存へ届く前に止まるもの**、つまり入口の閉じ方だけである。
+   */
+  it("ログインしていない人は、成果リンクを登録できない", async () => {
+    // 役では断られない人のまま、ログインだけ外す。役で断られる人で測ると、
+    // 入口が開いていても役が塞いでくれて緑になる（`ah-dao` と同じ形）。
+    asAffiliateManager();
+    loggedIn = false;
+    const state = await advanceLinkIngestionAction(
+      IDLE,
+      form({ linkIngestionId: "li_matched_1", intent: "register", productName: "Alpha Studio 15" }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  it("商品名が空のまま登録しようとすると、その欄を指して断る", async () => {
+    // ここで画面側が「—」などを補うと、その文字列がそのまま読者のカードに
+    // 商品名として出る。補わずにユースケースへ断らせる。
+    asAffiliateManager();
+    const state = await advanceLinkIngestionAction(
+      IDLE,
+      form({ linkIngestionId: "li_matched_1", intent: "register", productName: "   " }),
+    );
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("productName");
+  });
+
+  it("できることの並びに、成果リンクとしての登録が入っている", async () => {
+    asAffiliateManager();
+    const state = await advanceLinkIngestionAction(IDLE, form({ intent: "unknown" }));
+
+    // 入口を 1 つにまとめている以上、増えた操作が案内に出ていないと、
+    // 画面からしか呼べない操作になる（AI からは名前が分からない）。
+    expect(state.message).toContain("成果リンクとして登録する");
+  });
 });
 
 describe("ブログ作成ウィザードの操作", () => {
@@ -382,6 +590,10 @@ describe("ブログ作成ウィザードの操作", () => {
       internalLinkStrategy: "用途別の案内から個別レビューへ落とす",
     },
   };
+
+  /** 実画面が送る見せ方まで含めた、作成ボタンの入力。 */
+  const creationForm = (draftId: string): FormData =>
+    form({ draftId, templateId: BLOG_TEMPLATES[0].id });
 
   async function completeDraftThroughForms(slug: string): Promise<string> {
     const started = await movedTo(() => startSiteDraftAction());
@@ -446,7 +658,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("居ない下書きは作れない", async () => {
     const state = await createSiteFromDraftAction(
       { status: "idle", message: "" },
-      form({ draftId: "sd_missing" }),
+      creationForm("sd_missing"),
     );
     expect(state.status).toBe("failed");
     expect(state.message.trim()).not.toBe("");
@@ -454,38 +666,33 @@ describe("ブログ作成ウィザードの操作", () => {
 
   /*
    * 記録が残せない置き場（`createUnavailableAuditLog`）へ差し替えて動かす。
-   * ブログを作ると記録が要るので、その置き場では**必ず断られる**。
-   * それでよいと決めた理由は
-   * docs/product/port-wiring.md「記録を足すと、見本モードでは操作が断られる」。
-   *
-   * ここで見るのは、断り方が**押した人を二度押しへ誘導しないか**である。
-   * 記録は作った後に書くので、断られた時点でブログはもう読者から見えている。
-   * 断り文がそれを隠すと、押した人は名前を変えてもう一度作り、同じブログが 2 本並ぶ。
+   * サイト実体と作成監査は同じ Unit of Work なので、監査が書けなければ
+   * サイトも作られない。失敗後に「読者からは見える」と案内する旧補償前提を残さない。
    */
   it("記録を残せない段では、作れたことにせず断る", async () => {
     auditWritable = false;
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
 
     expect(state.status).toBe("failed");
     // 「できました」と読める場所を残さない。
     expect(state.createdPath).toBeUndefined();
   });
 
-  it("断り文が、すでに読者から見えていることを隠さない", async () => {
+  it("監査を残せないときは、サイト実体も作らない", async () => {
     auditWritable = false;
     const slug = `action-test-${Date.now()}`;
     const draftId = await completeDraftThroughForms(slug);
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
 
-    // 済んだこと（もう見えている）と、次にすること（記録の直し方）の両方が要る。
-    expect(state.message).toContain("読む人からも見えます");
-    expect(state.message.trim().split("\n").length).toBeGreaterThan(1);
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("操作の記録");
+    expect(state.message).not.toContain("読む人からも見えます");
 
-    // 実際に読者側の一覧へ増えている。増えていないなら断り文の方が嘘になる。
+    // 実際の一覧にも増えない。監査だけ失敗した残骸を正常系にしない。
     const listed = await (await siteUseCases()).listSites.execute(SAMPLE_ACTOR, {});
     expect(listed.ok).toBe(true);
-    if (listed.ok) expect(listed.value.some((s) => s.slug === slug)).toBe(true);
+    if (listed.ok) expect(listed.value.some((s) => s.slug === slug)).toBe(false);
   });
 
   /*
@@ -496,7 +703,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("記録が残せる置き場では、作れて、作った先への道が返る", async () => {
     const slug = `action-test-${Date.now()}`;
     const draftId = await completeDraftThroughForms(slug);
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
 
     expect(state.status).toBe("done");
     // 「できました」で終えない。次に開く場所が無いと、押した人はそこで止まる。
@@ -526,7 +733,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("ログインしていない人は、ブログを作れない", async () => {
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
     loggedIn = false;
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
     expect(state.status, "ログインを見ずにブログが作れています").toBe("failed");
   });
 
@@ -541,7 +748,7 @@ describe("ブログ作成ウィザードの操作", () => {
     if (!before.ok) throw new Error("ブログの一覧が読めませんでした");
 
     loggedIn = false;
-    await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
 
     const after = await (await siteUseCases()).listSites.execute(SAMPLE_ACTOR, {});
     if (!after.ok) throw new Error("ブログの一覧が読めませんでした");
@@ -551,7 +758,7 @@ describe("ブログ作成ウィザードの操作", () => {
   it("ログインしていない断りは、理由が画面に出る", async () => {
     const draftId = await completeDraftThroughForms(`action-test-${Date.now()}`);
     loggedIn = false;
-    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, form({ draftId }));
+    const state = await createSiteFromDraftAction({ status: "idle", message: "" }, creationForm(draftId));
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
   });
 
@@ -588,7 +795,7 @@ describe("ブログ作成ウィザードの操作", () => {
 
 describe("事実の範囲の確認", () => {
   async function anAuthorId(): Promise<string> {
-    const list = await personaUseCases().listAuthors.execute(SAMPLE_ACTOR, {});
+    const list = await (await personaUseCases()).listAuthors.execute(SAMPLE_ACTOR, {});
     if (!list.ok) throw new Error("見本の書き手を取得できませんでした");
     const withoutTestRun = list.value.items.find((a) => a.verifiedExperienceCount === 0);
     return (withoutTestRun ?? list.value.items[0]).personaId;
@@ -1107,6 +1314,43 @@ describe("自分のブログへ記事を出す操作", () => {
     loggedIn = false;
     const state = await publishArticleAction(IDLE, fullForm());
     expect(state.message, "断る理由が画面に出ていません").toContain("ログイン");
+  });
+
+  /**
+   * 公開前の点検（REQ-SEO03）。
+   *
+   * ここは見本の保存先なので**出そうとすると必ず落ちる**。その差がそのまま
+   * 検査になる。点検が保存まで進んでいれば、同じ理由で落ちるはずである。
+   */
+  it("点検は何も出さずに結果だけ返す（出す道は同じ入力で落ちる）", async () => {
+    asPublisher();
+    const checked = await publishArticleAction(IDLE, fullForm({ intent: "check" }));
+
+    expect(checked.status).toBe("done");
+    expect(checked.phase).toBe("checked");
+    // **読者ページへの導線を付けない。** まだ何も出ていない。
+    expect(checked.url).toBeUndefined();
+    expect(checked.message).toContain("まだ公開していません");
+    expect(checked.aiSearch?.length ?? 0).toBeGreaterThan(0);
+
+    // 同じ入力で出そうとすると保存で落ちる = 点検は保存へ進んでいない。
+    expect((await publishArticleAction(IDLE, fullForm())).status).toBe("failed");
+  });
+
+  it("点検でも、公開と同じ理由で断られる（点検だけ通る抜け道を作らない）", async () => {
+    asPublisher();
+    const state = await publishArticleAction(IDLE, fullForm({ intent: "check", slug: "静かなノート" }));
+
+    expect(state.status).toBe("failed");
+    expect(state.field).toBe("slug");
+  });
+
+  it("ログインしていない人は、点検もできない", async () => {
+    asPublisher();
+    loggedIn = false;
+    const state = await publishArticleAction(IDLE, fullForm({ intent: "check" }));
+    expect(state.status).toBe("failed");
+    expect(state.message).toContain("ログイン");
   });
 });
 

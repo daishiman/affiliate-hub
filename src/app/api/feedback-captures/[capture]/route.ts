@@ -2,7 +2,7 @@ import { asFeedbackCaptureId } from "@/domain/shared";
 import { can } from "@/domain/identity/permissions";
 import { readFeedbackCapture } from "@/infrastructure/platform/feedback-capture-r2";
 import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
-import { signedInActor } from "@/presentation/composition";
+import { canReadFeedbackCapture, signedInActor } from "@/presentation/composition";
 import { ALLOWED_CAPTURE_MIME } from "@/domain/feedback";
 
 export const dynamic = "force-dynamic";
@@ -53,6 +53,7 @@ export async function GET(
   if (!can(actor, "feedback.read")) return notFound();
 
   const { capture } = await params;
+  if (!(await canReadFeedbackCapture(actor, capture))) return notFound();
   const bucket = await tryGetBucket();
   if (bucket === null) return notFound();
 

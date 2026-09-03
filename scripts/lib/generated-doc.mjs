@@ -58,6 +58,32 @@ export function isStampLine(line) {
   return line.startsWith(PREFIX) && line.endsWith(SUFFIX);
 }
 
+/**
+ * その文書が生成物か（指紋が焼いてあるか）を、**語の出現ではなく構造**で決める。
+ *
+ * 「`生成物の指紋` という語を含むか」で数えると、判定が**文書の言い回し**に乗る。
+ * 別の言い回しをした生成物は静かに漏れ、生成物について説明しただけの文書は
+ * 巻き込まれる。**誤検出は打った本人がその場で気づくが、見落としは誰も気づかない。**
+ *
+ * ここで見るのは「指紋として妥当な行が 1 本でもあるか」だけである。
+ * 語を含む散文は行の形が違うので当たらない（誤検出も同時に消える）。
+ *
+ * 囲み（``` / ~~~）の中は数えない。**指紋の書き方を説明する文書は、
+ * 本物と同じ行を例として引く。**引いた例で生成物に化けると、
+ * 「説明を書くと赤くなる」が復活して、また文言のほうを曲げることになる。
+ */
+export function hasStampLine(text) {
+  let fenced = false;
+  for (const line of text.split("\n")) {
+    if (/^\s*(```|~~~)/.test(line)) {
+      fenced = !fenced;
+      continue;
+    }
+    if (!fenced && isStampLine(line)) return true;
+  }
+  return false;
+}
+
 /** 中身から指紋を作る。改行の揺れで変わらないよう、末尾の空白は落としてから取る。 */
 export function digestOf(content) {
   return createHash("sha256").update(content.replace(/\s+$/, ""), "utf8").digest("hex");

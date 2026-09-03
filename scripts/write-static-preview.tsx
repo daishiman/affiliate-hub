@@ -42,18 +42,13 @@
  * そうすると CSS の本文をそのまま貼れば当たるので、貼る側に書き換えが要らない。
  */
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
-import postcss from "postcss";
-import tailwind from "@tailwindcss/postcss";
 import { DEFAULT_APPEARANCE } from "@/domain/authoring/appearance";
 import { appearanceAttributes } from "@/presentation/ui/appearance";
 import { Card, Page } from "@/presentation/ui";
-import { ArticleTableOfContents, ArticleView, SiteShell } from "@/presentation/ui";
+import { ArticleView, SiteShell } from "@/presentation/ui";
 import { AppShell } from "@/presentation/ui/templates/app-shell";
 import { DensitySamples } from "@/app/admin/ui-catalog/density-samples";
-import styles from "@/app/admin/admin.module.css";
 import { createSampleContentRepository } from "@/infrastructure/persistence/sample/content-sample-repository";
 import {
   createSampleSiteRepository,
@@ -61,17 +56,14 @@ import {
   sampleSites,
 } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
-import { siteHref, toArticleCards, toArticleView, toChrome } from "@/presentation/site/view-model";
+import { siteHref, toArticleView, toChrome } from "@/presentation/site/view-model";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   articleHref,
   type ArticleSummary,
   type PublishedArticle,
 } from "@/application/read-models/published-article";
-import { buildDocument, findModuleCss } from "./lib/static-preview.mjs";
-
-const ROOT = process.cwd();
-const ENTRY_CSS = "src/app/globals.css";
+import { writeStaticPreview } from "./lib/static-preview.mjs";
 
 /**
  * 焼いた冊子の置き場所。
@@ -85,28 +77,23 @@ const NAV_OUT = "docs/product/preview/nav-and-density.html";
 const SITES_DIR_OUT = "docs/product/preview/sites";
 const ARTICLES_DIR_OUT = "docs/product/preview/articles";
 
-async function tailwindCss(): Promise<string> {
-  const from = join(ROOT, ENTRY_CSS);
-  const result = await postcss([tailwind()]).process(readFileSync(from, "utf8"), { from });
-  return result.css;
-}
-
 /* --- 管理画面の見本 ------------------------------------------------------ */
 
 function adminBody(): string {
   return renderToStaticMarkup(
     <AppShell
-      currentPath="/admin/ui-catalog"
+      actualRoutePath="/admin/ui-catalog"
+      navContextPath="/admin/ui-catalog"
       breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "画面部品の見本" }]}
     >
       <Page
         title="画面部品の見本"
         lead="実物の部品を、実物の見た目のまま並べています。ここで見えている間隔と行の長さが、アプリでもそのまま出ます。"
       >
-        <Card>
-          <h2 className={styles.sectionTitle}>22. 詰まり具合の見比べ</h2>
-          <DensitySamples />
-        </Card>
+        <Card
+          claim="22. 詰まり具合の見比べ"
+          main={<DensitySamples />}
+        />
       </Page>
     </AppShell>,
   );
@@ -284,35 +271,17 @@ function escapeText(value: string): string {
 
 /* --- 書き出し ------------------------------------------------------------ */
 
-type StyleBundle = {
-  readonly tailwindCss: string;
-  readonly moduleCss: readonly { readonly path: string; readonly text: string }[];
-};
-
-/** CSS の読み取りは全冊子で 1 回だけ。ページごとに同じファイルを読み直さない。 */
-async function loadStyles(): Promise<StyleBundle> {
-  return {
-    tailwindCss: await tailwindCss(),
-    moduleCss: findModuleCss(ROOT).map((path) => ({
-      path,
-      text: readFileSync(join(ROOT, path), "utf8"),
-    })),
-  };
-}
-
 /** 1 ページを文書へ組み立てて書く。データ取得や React 描画はここへ持ち込まない。 */
-function writeSheet(sheet: Sheet, styles: StyleBundle, generatedAt: string): void {
-  const html = buildDocument({
-    tailwindCss: styles.tailwindCss,
-    moduleCss: styles.moduleCss,
+async function writeSheet(sheet: Sheet, generatedAt: string): Promise<void> {
+  await writeStaticPreview({
+    out: sheet.out,
     bodyHtml: sheet.bodyHtml,
     htmlAttributes: { lang: "ja", ...appearanceAttributes(DEFAULT_APPEARANCE) },
     generatedAt,
     title: sheet.title,
+    source: "scripts/write-static-preview.tsx",
     navHtml: navHtml(sheet.out),
   });
-  mkdirSync(dirname(join(ROOT, sheet.out)), { recursive: true });
-  writeFileSync(join(ROOT, sheet.out), html);
 }
 
 /** 見本リポジトリを読む境界。ここでは HTML を描かない。 */
@@ -328,10 +297,10 @@ async function collectPreviewSites(): Promise<readonly PreviewSiteData[]> {
     }
     const blueprint = found.value;
 
-    // 全記事が要る。1 本だけだと、その 1 本に出る分岐しか確かめられない。
+    // 存在する記事は全件読む。記事がまだ無いサイトもトップの空状態を描く。
+    // 1 本だけに絞ると、その 1 本に出る分岐しか確かめられない。
     const recent = await content.listRecent(slug, 200);
     if (!recent.ok) throw new Error(`記事の一覧を読み込めませんでした: ${slug}`);
-    if (recent.value.length === 0) throw new Error(`記事が 1 本もありません: ${slug}`);
 
     const articles: PublishedArticle[] = [];
     for (const summary of recent.value) {
@@ -363,11 +332,7 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
 
     const chrome = toChrome(slug, blueprint);
     for (const current of articles) {
-      const related = toArticleCards(
-        slug,
-        summaries.filter((candidate) => candidate.slug !== current.slug).slice(0, 3),
-      );
-      const view = toArticleView(slug, current, related);
+      const view = toArticleView(slug, current);
       const appHref = siteHref(slug, articleHref(current));
       sheets.push({
         out: `${ARTICLES_DIR_OUT}/${slug}__${current.slug}.html`,
@@ -377,10 +342,9 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
             chrome={chrome}
             currentPath={appHref}
             breadcrumbs={[
-              { label: blueprint.name, href: chrome.homeHref },
+              { label: blueprint.name, href: siteHref(slug, "/") },
               { label: view.title },
             ]}
-            sidebar={<ArticleTableOfContents sections={view.sections} placement="sidebar" />}
           >
             <ArticleView article={view} />
           </SiteShell>,
@@ -407,12 +371,12 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
 }
 
 async function main(): Promise<void> {
-  const [styles, sites] = await Promise.all([loadStyles(), collectPreviewSites()]);
+  const sites = await collectPreviewSites();
   const sheets = renderSheets(sites);
   const generatedAt = new Date().toISOString().slice(0, 10);
 
-  for (const sheet of sheets) writeSheet(sheet, styles, generatedAt);
-  writeSheet(
+  for (const sheet of sheets) await writeSheet(sheet, generatedAt);
+  await writeSheet(
     {
       out: INDEX_OUT,
       title: "静止した写しの冊子 — 目次",
@@ -422,7 +386,6 @@ async function main(): Promise<void> {
       group: "目次",
       branches: [],
     },
-    styles,
     generatedAt,
   );
 

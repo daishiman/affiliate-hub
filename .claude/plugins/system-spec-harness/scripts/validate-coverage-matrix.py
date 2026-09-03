@@ -282,6 +282,29 @@ def _collect_unique_ids(entries, label: str) -> tuple[set[str], list[str]]:
     return seen, findings
 
 
+def _catalog_identity(catalog_path: Path | None = None) -> str:
+    """判定に使ったカタログの**身元**を 1 行で返す。
+
+    **同じ名前のハーネスが 2 箇所にあり、どちらを開いたかが出力のどこにも
+    現れなかった。**実測 2026-08-25: 独立監査 C07 が marketplace 側の古いコピー
+    (`.../marketplaces/local/plugins/system-spec-harness`, catalog mtime 08-12) を読み、
+    worktree に install されている側 (mtime 08-24) と内容が違うことに気付けなかった。
+    旧コピーには `context-of-use` / `information-priority` が実在し、新しい側では
+    `screen-information-priority` に統合されている。**C07 の観察は古い正本に対しては
+    全て正しかった。**誤っていたのは読解ではなく、入力の同一性である。
+
+    読み手に「同じものを見ているか」を確かめる手段が無いなら、食い違いは
+    読解の誤りに見える。だから機械の側が名乗る。**自分が何を読んだかを言わない
+    判定は、他人の判定と突き合わせられない。**
+    """
+    path = (catalog_path or REQUIRED_INFO_CATALOG_PATH).resolve()
+    try:
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+    except OSError as exc:
+        return f"catalog: {path} (読めない: {exc})"
+    return f"catalog: {path} (sha256:{digest})"
+
+
 def _blocking_item_ids_by_domain(catalog_path: Path | None = None) -> dict[str, set[str]]:
     """カタログから domain → missing_effect=block の item_id 集合を作る。
 
@@ -304,6 +327,61 @@ def _blocking_item_ids_by_domain(catalog_path: Path | None = None) -> dict[str, 
     return by_domain
 
 
+def _validate_catalog_domain_coverage(
+    data: dict, cat_ids: list[str], catalog_path: Path | None = None
+) -> list[str]:
+    """カタログの in_scope domain に、それを数えるカテゴリ行が在ることを要求する。
+
+    **`_validate_confirmed_required_info` は matrix の側からしかカタログを引かない。**
+    `blocking.get(cat_id, set())` は matrix に在る category についてしか問い合わせないので、
+    **カタログに在って matrix に行が無い domain の item は、一度も参照されずに消える。**
+    未収集 0・全セル確定でゲートが緑になっても、その domain の必須情報は誰にも数えられて
+    いない。`--require-grounded-design-applications` が塞いだ「セル側だけを見ていると
+    集めた設計適用が宙に浮く」穴の、ちょうど逆側である。
+
+    実測 2026-08-25: `api` が `in_scope_domains` に在り `api-contract` (degrade) を持つが、
+    matrix に `api` category 行は無く `excluded_categories` にも無い。今回の item は
+    degrade なので実害は小さいが、**block の item が同じ位置に置かれたら黙って消える。**
+
+    禁じるのではなく**名乗らせる**。行を作るか、`excluded_categories` で対象外と宣言するか、
+    カタログの `na_domains` で非該当と宣言するか — どれでもよい。**選ばなかったことだけを
+    違反とする。**黙って落とせる欄は、いつか落ちる。
+    """
+    try:
+        catalog = json.loads((catalog_path or REQUIRED_INFO_CATALOG_PATH).read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        return [f"required-info カタログを参照できないため domain 被覆を判定できない ({exc})"]
+
+    in_scope = catalog.get("in_scope_domains")
+    if not isinstance(in_scope, list):
+        return ["required-info カタログの in_scope_domains が配列でない"]
+
+    declared_na = set(catalog.get("na_domains") or [])
+    excluded = data.get("excluded_categories") or []
+    excluded_ids = {
+        entry.get("id") if isinstance(entry, dict) else entry for entry in excluded
+    }
+    accounted = set(cat_ids) | excluded_ids | declared_na
+
+    findings: list[str] = []
+    for domain in sorted(set(in_scope) - accounted):
+        items = [
+            item.get("item_id")
+            for item in catalog.get("items") or []
+            if isinstance(item, dict) and item.get("domain") == domain
+        ]
+        findings.append(
+            f"カタログの in_scope domain {domain!r} を数えるカテゴリ行が無い "
+            f"(必須情報 {sorted(filter(None, items))} が誰にも参照されない)。"
+            "matrix に行を作るか、excluded_categories で対象外と宣言するか "
+            "(apply-spec-transition.py declare-excluded-category --category "
+            f"{domain} --reason <どこで数えているか>)、"
+            "カタログの na_domains で非該当と宣言すること。"
+            "**対象外は『作らない』ではなく『このカテゴリ行を立てない』である**"
+        )
+    return findings
+
+
 def _validate_confirmed_required_info(
     data: dict, cat_ids: list[str], catalog_path: Path | None = None
 ) -> list[str]:
@@ -315,11 +393,13 @@ def _validate_confirmed_required_info(
     (`test_a_category_with_no_block_item_records_nothing` ほか)。したがって欄の欠落は
     違反ではなく、**欠落が正しいことを別の欄で裏取りする**のがここの役割である。
 
-    照合するのは 3 つ:
+    照合するのは 4 つ:
       1. `required_info` の item_id 集合がカタログの block item 集合を**満たす** (不足なし)
       2. カタログに無い item_id が載っていない (過剰なし。載せられると充足件数を自前で増やせる)
       3. block item が 0 件で欄が無い確定セルは、`required_info_checks` に
          `blocking_item_count == 0` の記録を持つ (= 数えて 0 件。一度も数えていないのと区別する)
+      4. 数えた記録の**最新の 1 件**が `unmet_blocking_items` を持つ
+         (= 総数と未充足数が分かれている。分かれていない姿は読み違えを招く)
 
     3 が要るのは、欄の欠落だけを見て「0 件だから正しい」と読むと、
     **一度も確認していないセルが 0 件のセルと同じ姿で通る**からである。writer を通さず
@@ -341,6 +421,27 @@ def _validate_confirmed_required_info(
             cell = row.get(pf)
             if not isinstance(cell, dict) or cell.get("state") != "確定":
                 continue
+            # 4. 数えた記録のうち**いちばん新しいものが `unmet_blocking_items` を持つ**。
+            #
+            # `blocking_item_count` は「収集必須 item が何件あるか」であって
+            # 「何件が未充足か」ではない。**欄名がそう読めない。**2026-08-24 の C07
+            # マトリクス監査は現にこれを未充足件数と読み、充足済みの 4 セルを
+            # 「未充足のまま確定」として差し戻し対象に挙げた (本人が撤回した)。
+            # writer は 2 欄を分けて書くようになったが、**それ以前に書かれた記録は
+            # 分かれていない姿のまま残る**ので、次の読み手はまた同じ読み方をする。
+            #
+            # 直し方は再計測 (`record-required-info-check` の再実行) であって、
+            # 古い記録の書き換えではない。だから**最新の 1 件にだけ**要求する
+            # — 過去の記録は当時の姿のまま残ってよい。
+            checks_all = cell.get("required_info_checks")
+            if isinstance(checks_all, list) and checks_all:
+                newest = checks_all[-1]
+                if not isinstance(newest, dict) or "unmet_blocking_items" not in newest:
+                    findings.append(
+                        f"matrix[{cat_id}][{pf}]: 最新の required_info_checks に "
+                        "unmet_blocking_items が無い (総数と未充足数が分かれていない姿の記録。"
+                        "record-required-info-check を再実行して数え直すこと)"
+                    )
             if "required_info" not in cell:
                 # 欄が無いのは、カタログ上 block item が 0 件のときだけ正しい。
                 # その「0 件だった」は required_info_checks の記録で裏を取る。
@@ -407,10 +508,133 @@ def _derive_aggregate(cells: list[str]) -> str:
     return "確定"
 
 
+def _validate_grounded_design_applications(data: dict) -> list[str]:
+    """**設計適用を持つ質疑が、どのセルからも引かれていない状態を落とす。**
+
+    2026-08-24 に実際に起きた形: `ui-ux` / `frontend` / `database` × web を reopen して
+    質疑を 7 件集めたが、再確定が最後まで通らず、3 セルは手放したスナップショットと
+    同じ値のまま `確定` に見えていた。集めた 7 件はどのセルからも参照されない
+    孤立記録になった。**マトリクスは 100% 確定・未収集 0 のまま緑だった。**
+    セルの側だけを見ている限り、この穴は原理的に見えない。
+
+    対象を `design_applications` を持つ entry に絞る理由: 設計適用は
+    「この知識をこう適用する」という主張であり、**どの確定セルの主張でもないなら
+    適用先が無い**。一方 `requirements_foundation` を支える U1-U9 のような entry は
+    設計適用を持たず、マトリクスではなく provenance 側から接地する。全件を対象に
+    すると、その正常な形まで赤くする。
+
+    塞げていないところ: 引かれてさえいれば通る。引いているセルの主張と設計適用の
+    中身が噛み合っているかは、ここでは見ていない。
+    """
+    findings: list[str] = []
+    cited: set[str] = set()
+    for row in (data.get("matrix") or {}).values():
+        if not isinstance(row, dict):
+            continue
+        for cell in row.values():
+            if not isinstance(cell, dict):
+                continue
+            if isinstance(cell.get("qa_ref"), str):
+                cited.add(cell["qa_ref"])
+            for ref in cell.get("qa_refs") or []:
+                if isinstance(ref, str):
+                    cited.add(ref)
+    for entry in data.get("qa_log") or []:
+        if not isinstance(entry, dict):
+            continue
+        if not entry.get("design_applications"):
+            continue
+        entry_id = entry.get("id")
+        if isinstance(entry_id, str) and entry_id not in cited:
+            findings.append(
+                f"qa_log[{entry_id}]: design_applications を持つのに、どの確定セルの "
+                "qa_ref / qa_refs からも引かれていない (集めた設計適用に適用先が無い)"
+            )
+    return findings
+
+
+def _qa_reference_scan(data: dict) -> set:
+    """qa_log の外側で名前を呼ばれている質疑 id を、正本の全域から集める。
+
+    **セルの `qa_ref` / `qa_refs` だけを見ると足りない。**実測 2026-08-25:
+    `qa-foundation-u1..u9` と `qa-platform-scope` はセルからは 1 度も引かれず、
+    design_applications の `grounded_by` と foundation の出典一覧から引かれている。
+    参照の経路を数え上げる書き方にすると、経路が 1 つ増えるたびに検査が嘘をつく。
+    だから経路を数えず、**qa_log 以外の場所に出てくる文字列**を参照とみなす。
+    """
+    seen: set = set()
+
+    def walk(node) -> None:
+        if isinstance(node, dict):
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+        elif isinstance(node, str):
+            seen.add(node)
+
+    for key, value in (data or {}).items():
+        if key == "qa_log":
+            continue
+        walk(value)
+    return seen
+
+
+def _validate_declared_qa_supersession(data: dict) -> list[str]:
+    """どこからも呼ばれていない質疑に、後継の申告があるか。
+
+    **孤立そのものを禁じない。**質疑を作り直せば古い方は引かれなくなる。それは
+    正しい経過である。禁じたいのは、置き換えたのか接地を忘れたのかを機械が
+    区別できない状態のほうである。区別できないと、監査は毎回同じ件を欠陥として
+    報告し、報告される側は毎回「これは置き換えだから問題ない」と手で説明する。
+    手の説明は正本に残らないので、次の監査でまた同じことが起きる。
+
+    **`reopen_log[].discarded.qa_ref` からの参照も参照として数える。**これは緩め
+    ではなく、置き換えの記録そのものである。実測 2026-08-25:
+    `qa-uiux-web-seo-ai-search` / `qa-frontend-web-seo-ai-search` は
+    「どのセルからも引かれていない」ため 2026-08-16 の監査で未接地と報告されたが、
+    正本は reopen_log の discarded で置き換えを既に記録していた。
+    **セルだけを見る検査が、正本の記録を見落として欠陥を捏造していた。**
+    """
+    findings: list[str] = []
+    referenced = _qa_reference_scan(data)
+    log = data.get("qa_log")
+    entries = log if isinstance(log, list) else []
+    ids = {
+        entry.get("id")
+        for entry in entries
+        if isinstance(entry, dict) and isinstance(entry.get("id"), str)
+    }
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        qa_id = entry.get("id")
+        if not isinstance(qa_id, str) or qa_id in referenced:
+            continue
+        successor = entry.get("superseded_by")
+        if not successor:
+            findings.append(
+                f"qa_log[{qa_id}]: 正本のどこからも引かれておらず、後継の申告 "
+                "(superseded_by) も無い。置き換えたのなら "
+                "`apply-spec-transition.py supersede-qa` で後継を名乗らせ、"
+                "接地を忘れたのなら正規 writer でセルへ接地すること"
+            )
+        elif successor not in ids:
+            findings.append(
+                f"qa_log[{qa_id}]: superseded_by={successor!r} が qa_log に不在 "
+                "(実在しない後継への逃がし)"
+            )
+    return findings
+
+
 def validate(
     data: dict,
     require_complete: bool = False,
     require_counted_required_info: bool = False,
+    require_catalog_domain_coverage: bool = False,
+    require_grounded_design_applications: bool = False,
+    require_declared_qa_supersession: bool = False,
 ) -> list[str]:
     """`require_counted_required_info` を既定 off にしてある理由。
 
@@ -594,6 +818,8 @@ def validate(
         findings.extend(_validate_state_schema_version(data))
         if require_counted_required_info:
             findings.extend(_validate_confirmed_required_info(data, cat_ids))
+        if require_catalog_domain_coverage:
+            findings.extend(_validate_catalog_domain_coverage(data, cat_ids))
         marker_present = "design_application_contract_version" in data
         if not marker_present and schema_version != LEGACY_STATE_SCHEMA_VERSION:
             findings.append(
@@ -624,6 +850,12 @@ def validate(
     for entry in sorted(qa_entries.values(), key=lambda item: item.get("id") or ""):
         findings.extend(_validate_written_source_digest(entry))
 
+    if require_grounded_design_applications:
+        findings.extend(_validate_grounded_design_applications(data))
+
+    if require_declared_qa_supersession:
+        findings.extend(_validate_declared_qa_supersession(data))
+
     return findings
 
 
@@ -650,6 +882,33 @@ def main(argv: list[str]) -> int:
             "--require-complete と併用する"
         ),
     )
+    ap.add_argument(
+        "--require-catalog-domain-coverage",
+        action="store_true",
+        help=(
+            "カタログの in_scope domain に、それを数えるカテゴリ行が在ることを要求する "
+            "(opt-in)。matrix の側からしかカタログを引いていないと、行の無い domain の "
+            "必須情報が一度も参照されずに消える。--require-complete と併用する"
+        ),
+    )
+    ap.add_argument(
+        "--require-grounded-design-applications",
+        action="store_true",
+        help=(
+            "design_applications を持つ qa_log entry が、どれかの確定セルから "
+            "引かれていることを要求する (opt-in)。セル側だけを見ていると "
+            "『未収集 0・100%% 確定』のまま、集めた設計適用が宙に浮く"
+        ),
+    )
+    ap.add_argument(
+        "--require-declared-qa-supersession",
+        action="store_true",
+        help=(
+            "どのセルからも引かれていない qa_log entry に、後継 (superseded_by) の"
+            "申告を要求する (opt-in)。孤立を禁じるのではなく、置き換えなのか"
+            "接地忘れなのかを正本の側に名乗らせる"
+        ),
+    )
     args = ap.parse_args(argv)
 
     path = Path(args.matrix)
@@ -666,14 +925,29 @@ def main(argv: list[str]) -> int:
         data,
         require_complete=args.require_complete,
         require_counted_required_info=args.require_counted_required_info,
+        require_catalog_domain_coverage=args.require_catalog_domain_coverage,
+        require_grounded_design_applications=args.require_grounded_design_applications,
+        require_declared_qa_supersession=args.require_declared_qa_supersession,
     )
     if args.require_counted_required_info and not args.require_complete:
         findings.append(
             "--require-counted-required-info は --require-complete と併用する "
             "(未収集セルが残る途中状態では、確定セルだけを見ても C16 の充足は判定できない)"
         )
+    if args.require_catalog_domain_coverage and not args.require_complete:
+        findings.append(
+            "--require-catalog-domain-coverage は --require-complete と併用する "
+            "(カテゴリ軸が固まる前は、行が無いことを未初期化と区別できない)"
+        )
     if args.require_foundation:
         findings += validate_foundation(data)
+
+    # カタログを読んだ検査が走ったなら、**何を読んだかを必ず名乗る**。
+    # 独立監査が自分の読んだファイルと突き合わせられなければ、
+    # 別コピーを読んだことによる食い違いが「読解の誤り」に見える。
+    if args.require_counted_required_info or args.require_catalog_domain_coverage:
+        print(_catalog_identity())
+
     if findings:
         for f in findings:
             print(f"VIOLATION: {f}", file=sys.stderr)
@@ -682,8 +956,14 @@ def main(argv: list[str]) -> int:
     mode = "final(未収集0)" if args.require_complete else "loop"
     if args.require_counted_required_info:
         mode += "+counted-required-info(C16充足照合)"
+    if args.require_catalog_domain_coverage:
+        mode += "+catalog-domain-coverage(カタログ domain の勘定先)"
     if args.require_foundation:
         mode += "+foundation(上位概念トレース)"
+    if args.require_grounded_design_applications:
+        mode += "+grounded-design-applications(設計適用の接地)"
+    if args.require_declared_qa_supersession:
+        mode += "+declared-qa-supersession(孤立質疑の後継申告)"
     print(f"OK: 収集マトリクス網羅性 ({mode}) を満たす")
     return 0
 

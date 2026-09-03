@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "status": "promoted",
+  "promoted_at": "2026-08-30T04:06:53Z",
+  "repo_identity": "github:daishiman/affiliate-hub",
+  "staging_digest": "sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b",
+  "evaluated_digest": "sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b",
+  "published_digest": "sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b",
+  "implementation_readiness": "complete",
+  "quality_conditions": {
+    "no_contradiction": "PASS",
+    "no_missing": "PASS",
+    "consistent": "PASS",
+    "dependency_integrity": "PASS"
+  },
+  "promotion_method": "same-filesystem-atomic-rename",
+  "registration_manifest": ".dev-graph/published/feature-package-feat-feedback-capture-self-exclusion/dev-graph-registration.json"
+}

@@ -2,7 +2,14 @@ import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
 import { type SiteBlueprint, createSiteBlueprint } from "@/domain/authoring";
 import { type WorkspaceId, markEditorial, ok, taggedString } from "@/domain/shared";
 import { registerStub, stubReason } from "../../stub-registry";
-import { SAMPLE_WORKSPACE_ID } from "./sample-identity";
+import {
+  FIFTH_SITE_SLUG,
+  FOURTH_SITE_SLUG,
+  SAMPLE_SITE_SLUG,
+  SAMPLE_WORKSPACE_ID,
+  SECOND_SITE_SLUG,
+  THIRD_SITE_SLUG,
+} from "./sample-identity";
 import { createdSites } from "./site-draft-sample-repository";
 
 /**
@@ -41,12 +48,20 @@ const stub = registerStub({
  * 名前（`SAMPLE_` / `SECOND_` …）は呼び出し側が使っているので変えていない。
  * 変えるとテストと台本の側だけが古い名前で残り、**どのブログを指しているのか
  * ファイルごとに違う**状態ができる。指す先だけを差し替える。
+ *
+ * 正本は `sample-identity.ts` へ移した。ここは**取り次ぎだけ**である。
+ * 保存先どうしが住所を貸し借りすると輪ができ、輪の中の module は
+ * 相手が数え終わる前に定数を読む。読んだ側は `undefined` を掴んだまま
+ * 種データを組み立て、**誰も例外を投げないまま**見本のブログが 404 になる。
+ * 2026-08-31 に実際そうなった（`site-draft` → `blog-ops` → ここ → `site-draft`）。
  */
-export const SAMPLE_SITE_SLUG = "home-office-desk";
-export const SECOND_SITE_SLUG = "compact-kitchen-gear";
-export const THIRD_SITE_SLUG = "first-camera";
-export const FOURTH_SITE_SLUG = "run-and-recover";
-export const FIFTH_SITE_SLUG = "mobile-plan-navi";
+export {
+  FIFTH_SITE_SLUG,
+  FOURTH_SITE_SLUG,
+  SAMPLE_SITE_SLUG,
+  SECOND_SITE_SLUG,
+  THIRD_SITE_SLUG,
+} from "./sample-identity";
 
 function build(
   slug: string,
@@ -83,7 +98,7 @@ const HOME_OFFICE = build(SAMPLE_SITE_SLUG, {
       slug: "chairs",
       name: "椅子",
       oneLine: "8 時間座り続けたときの腰の負担で選んだ椅子。",
-      initialArticleTypes: ["ranking", "review", "comparison"],
+      initialArticleTypes: ["ranking", "review", "comparison", "tool"],
     },
     {
       slug: "desks",
@@ -297,7 +312,7 @@ export function sampleSiteNotice(): string {
 }
 
 /**
- * 見本の 5 本と、ウィザードで作られたブログを合わせた一覧。
+ * sample モードの見本 5 本と、同じメモリ上で作られたブログを合わせた一覧。
  *
  * **読者側の画面はこの 2 種類を区別しない。**
  * 区別すると「見本のブログでは動くが、作ったブログでは動かない」が起きる。
@@ -309,9 +324,8 @@ function allSites(): readonly { readonly slug: string; readonly blueprint: SiteB
 /**
  * 見本のブログ 5 本だけ。
  *
- * 保存先を D1 にしたときも、この 5 本は消さずに残す。
- * 消すと、まだ 1 本も作っていない状態で読者側の画面が全部空になり、
- * 「作っていない」のか「壊れている」のかを見分けられなくなる。
+ * D1 モードの一覧には混ぜない。D1 の一覧へ見本だけを混ぜると、
+ * 管理画面では選べるのに公開 reader では 404 になるためである。
  */
 export function sampleSites(): readonly {
   readonly slug: string;

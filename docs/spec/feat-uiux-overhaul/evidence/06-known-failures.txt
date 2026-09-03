@@ -1,0 +1,11 @@
+# 既知の失敗 52 件の内訳（自動集計）
+
+抽出元: 04-full-suite-coverage.txt
+抽出方法: 失敗行 'FAIL <path>' の path を数える
+
+  42 tests/architecture/chapter-regeneration-floor.test.ts
+   3 tests/architecture/doctrine-citation-gap.test.ts
+   3 tests/architecture/chapter-normative-body-unreproducible.test.ts
+   2 tests/architecture/doc-source-version-gap.test.ts
+   1 tests/architecture/qa-scope-notes-coverage.test.ts
+   1 tests/architecture/generated-doc-freshness.test.ts

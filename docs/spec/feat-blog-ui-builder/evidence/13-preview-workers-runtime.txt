@@ -1,0 +1,17 @@
+# P13 リリース前確認 — Workers ランタイム (opennextjs-cloudflare preview --port 8790)
+# 実施: 2026-08-30T10:37:55Z
+# ポートを既定 8787 から動かした理由: 他 worktree が 8787/8788/3000 を占有しているため
+
+/                                          200
+/s/home-office-desk                        200
+/s/home-office-desk/sitemap.xml            200
+/s/home-office-desk/feed.xml               200
+/s/home-office-desk/llms.txt               200
+/s/home-office-desk/robots.txt             200
+/indexnow.txt                              404
+/admin                                     307
+
+# 判読
+#   /indexnow.txt 404 = INDEXNOW_KEY 未設定。開発機ではこれが正しい (鍵が無くても公開は通る)
+#   /admin 307      = 未ログインからのリダイレクト。認証境界が効いている
+#   SEO 出力 4 本が 200 = Workers ランタイム上でも sitemap/feed/llms.txt/robots が組み立たる

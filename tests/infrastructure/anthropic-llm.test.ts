@@ -160,6 +160,7 @@ describe("Anthropic への接続", () => {
 
     expect(usage.entries).toHaveLength(1);
     const entry = usage.entries[0];
+    expect(entry?.capacityConsumed).toBe(true);
     expect(entry?.succeeded).toBe(true);
     expect(entry?.inputTokens).toBe(1_000);
     // 2,250 × 1,000/1,000,000 + 11,250 × 400/1,000,000 = 2.25 + 4.5 → 切り上げ 7
@@ -227,6 +228,7 @@ describe("Anthropic への接続", () => {
     // 返る失敗に鍵が混ざらないこと。
     expect(JSON.stringify(result.error)).not.toContain(API_KEY);
     // 失敗した呼び出しも記録に残ること（失敗にも料金が掛かることがある）。
+    expect(usage.entries[0]?.capacityConsumed).toBe(true);
     expect(usage.entries[0]?.succeeded).toBe(false);
   });
 

@@ -1,5 +1,5 @@
 import type { ActorContext, Role } from "@/domain/shared/tenancy";
-import type { WorkspaceId } from "@/domain/shared/ids";
+import type { BrandId, WorkspaceId } from "@/domain/shared/ids";
 
 /**
  * テストで使う実行主体。
@@ -21,6 +21,7 @@ type ActorOverrides = {
   readonly workspaceId?: WorkspaceId;
   readonly userId?: string;
   readonly roles?: readonly Role[];
+  readonly scopedBrandIds?: readonly BrandId[];
   readonly isAiServiceAccount?: boolean;
   readonly identified?: boolean;
 };
@@ -30,6 +31,7 @@ function actor(userId: string, roles: readonly Role[], over: ActorOverrides = {}
     workspaceId: over.workspaceId ?? WORKSPACE,
     userId: over.userId ?? userId,
     roles: over.roles ?? roles,
+    scopedBrandIds: over.scopedBrandIds ?? [],
     isAiServiceAccount: over.isAiServiceAccount ?? roles.includes("ai_service_account"),
     /**
      * ここの既定は `true`。**ここに並ぶのは全員、身元を確かめてある人**である。

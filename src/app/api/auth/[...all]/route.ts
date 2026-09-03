@@ -20,6 +20,7 @@ async function handler(request: Request): Promise<Response> {
       { status: 503 },
     );
   }
+
   return auth.handler(request);
 }
 

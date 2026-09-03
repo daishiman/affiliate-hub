@@ -10,7 +10,6 @@
  *                    上げられる／止める基準が 1 つ欠けても上げられない）。
  *                    片方向だけだと、常に false を返す関数でも通ってしまう。
  */
-import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { ARTICLE_TYPE_SECTIONS } from "@/domain/authoring/article-structure";

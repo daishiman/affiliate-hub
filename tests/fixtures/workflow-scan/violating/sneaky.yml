@@ -1,0 +1,19 @@
+# 仮の置き場。**本物のワークフローではない。**
+# `tests/architecture/ci-config.test.ts` の走査が効いているかを測るための偽物。
+# `clean/honest.yml` との差は、下の 2 行だけにしてある。
+name: sneaky
+on:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm install --frozen-lockfile
+      # 違反 1: 検査の道具を直に叩く（手元の verify では再現できない検査になる）
+      - name: run the tests
+        run: pnpm exec vitest run tests/
+      # 違反 2: 正本の閾値を書き写す
+      - name: gate
+        run: node scripts/coverage-report.mjs --coverage-threshold 75

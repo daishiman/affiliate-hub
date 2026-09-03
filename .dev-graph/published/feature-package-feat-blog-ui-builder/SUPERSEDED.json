@@ -1,0 +1,24 @@
+{
+  "current_pointer": ".dev-graph/state/current/feature-package-feat-blog-ui-builder.json",
+  "feature_package_id": "feature-package/feat-blog-ui-builder",
+  "notice": "この directory は supersede 済みの旧世代であり、正本ではない。実装要件の正本は superseded_by.published_path 配下の content-addressed generation を読むこと。旧世代は byte-for-byte 不変で保持されるため、この directory の中身を編集して現行世代へ追随させてはならない。さらに世代が進んだ場合は current_pointer から再解決すること。",
+  "published_digest": "sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1",
+  "schema_version": "1.0.0",
+  "status": "superseded",
+  "superseded_by": {
+    "generation_id": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+    "published_digest": "sha256:168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+    "published_path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
+    "receipt": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/atomic-promotion-receipt.json"
+  },
+  "superseded_receipts": {
+    "promotion": {
+      "path": ".dev-graph/published/feature-package-feat-blog-ui-builder/atomic-promotion-receipt.json",
+      "sha256": "sha256:9036b5f8b637f7cfd38621d0215e7bd33685f290d61ad42f95dc36f37a23a307"
+    },
+    "registration": {
+      "path": ".dev-graph/published/generations/feature-package-feat-blog-ui-builder/9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1/dev-graph-registration-receipt.json",
+      "sha256": "sha256:f1c67fd037bae905e348fd18794887c576b594adf618d74d26ca8320537ece2f"
+    }
+  }
+}

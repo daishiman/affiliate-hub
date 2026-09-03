@@ -1,0 +1,191 @@
+{
+ "schema": "dev-graph-requirements-handoff/v1",
+ "handoff_target": "task-graph",
+ "feature_id": "feat-blog-ops-crud",
+ "feature_package_id": "feature-package/feat-blog-ops-crud",
+ "graph_snapshot_digest": "sha256:cce9523e53163cc7b4c0450bae1ab696c72888ce6853be657000e91f6931837d",
+ "graph_revision": 272,
+ "requirements_document": "docs/requirements/feat-blog-ops-crud-implementation-requirements.md",
+ "requirements_document_sha256": "6e3ec2e58086ce3857cc578d9a301c5850fc2062c565730c3e41e680e8f1a336",
+ "promoted_generation": ".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+ "lineage_closure": [
+  "arch-system-spec-overview",
+  "arch-two-layer-platform",
+  "feat-blog-ops-crud",
+  "SYS-BLOG-OPS-CRUD-P01",
+  "SYS-BLOG-OPS-CRUD-P02",
+  "SYS-BLOG-OPS-CRUD-P03",
+  "SYS-BLOG-OPS-CRUD-P04",
+  "SYS-BLOG-OPS-CRUD-P05",
+  "SYS-BLOG-OPS-CRUD-P06",
+  "SYS-BLOG-OPS-CRUD-P07",
+  "SYS-BLOG-OPS-CRUD-P08",
+  "SYS-BLOG-OPS-CRUD-P09",
+  "SYS-BLOG-OPS-CRUD-P10",
+  "SYS-BLOG-OPS-CRUD-P11",
+  "SYS-BLOG-OPS-CRUD-P12",
+  "SYS-BLOG-OPS-CRUD-P13"
+ ],
+ "readiness": {
+  "status": "complete",
+  "missing_sections": [],
+  "remediation_owner": null
+ },
+ "gates": {
+  "C11_validate_graph_schema": {
+   "command": "validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+   "exit": 0,
+   "valid": true,
+   "violations": 0
+  },
+  "C02_saved_state": {
+   "implementation_readiness": "complete",
+   "evaluation_status": "pass",
+   "confirmation_status": "confirmed",
+   "scope": "closure 6 node (feature+arch2+depends3); task 13 は promoted package (graph 登録は node verb で実施)"
+  },
+  "source_digest": {
+   "command": "registered source_lineage.source_digest vs feature frontmatter",
+   "registered": "7b029152ed5130b0c3e331bb390f3f344811fc97f9cb92b9f0b3557d9a9b54c1",
+   "mismatch": 0
+  },
+  "validate_system_plan": {
+   "command": "validate-system-plan.py --repo-root . --staging .dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635",
+   "exit": 0,
+   "status": "pass",
+   "violations": 0,
+   "validated_digest": "sha256:aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635"
+  },
+  "independent_evaluation": {
+   "findings": ".dev-graph/cache/plan-findings-feat-blog-ops-crud.json",
+   "verdict": "PASS",
+   "conditions": {
+    "C1": "PASS",
+    "C2": "PASS",
+    "C3": "PASS",
+    "C4": "PASS"
+   }
+  }
+ },
+ "tasks": [
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P01",
+   "phase_ref": "P01",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md",
+   "tracker_binding": "beads",
+   "depends_on": []
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P02",
+   "phase_ref": "P02",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p02.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P01"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P03",
+   "phase_ref": "P03",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p03.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P02"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P04",
+   "phase_ref": "P04",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p04.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P03"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P05",
+   "phase_ref": "P05",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P04"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P06",
+   "phase_ref": "P06",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p06.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P05"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P07",
+   "phase_ref": "P07",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P06"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P08",
+   "phase_ref": "P08",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P05"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P09",
+   "phase_ref": "P09",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p09.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P08"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P10",
+   "phase_ref": "P10",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p10.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P07",
+    "SYS-BLOG-OPS-CRUD-P09"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P11",
+   "phase_ref": "P11",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p11.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P07",
+    "SYS-BLOG-OPS-CRUD-P09"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P12",
+   "phase_ref": "P12",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p12.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P10",
+    "SYS-BLOG-OPS-CRUD-P11"
+   ]
+  },
+  {
+   "graph_node_id": "SYS-BLOG-OPS-CRUD-P13",
+   "phase_ref": "P13",
+   "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p13.md",
+   "tracker_binding": "beads",
+   "depends_on": [
+    "SYS-BLOG-OPS-CRUD-P12"
+   ]
+  }
+ ],
+ "emitted_at": "2026-08-25T14:10:00Z"
+}

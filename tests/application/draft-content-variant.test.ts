@@ -17,12 +17,14 @@ import {
   createDraftContentVariantUseCase,
 } from "@/application/usecases/generation/draft-content-variant";
 import type { LlmCostEstimatorPort, LlmPort, LlmRequest } from "@/application/ports";
+import type { BrandRepositoryPort } from "@/application/ports/identity";
 import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
 import { createLlmPorts } from "@/infrastructure/llm/llm-setup";
 import type { ActorContext } from "@/domain/shared";
-import { ok, taggedString } from "@/domain/shared";
+import { domainError, err, ok, taggedString } from "@/domain/shared";
 import { OUTPUT_REQUIRED_FIELDS } from "@/domain/generation";
 import { anLlmRequest } from "../support/doubles";
+import { aBrand } from "../support/factories";
 
 /**
  * 下書き生成の決まりを機械で固定する。
@@ -36,6 +38,7 @@ const actor: ActorContext = {
   userId: taggedString("user_test"),
   workspaceId: taggedString("ws_test"),
   roles: ["writer"],
+  scopedBrandIds: [],
   isAiServiceAccount: false,
   // 身元を確かめてある人。ここは権限の検査で、ログインの有無は見ていない。
   identified: true,
@@ -102,6 +105,27 @@ function run(input: DraftContentVariantInput, llm: LlmPort) {
 }
 
 describe("そろっていなければ生成 AI を呼ばない", () => {
+  it("月次上限なら見積りも生成も始めない", async () => {
+    const { llm, calls } = spyLlm(validOutput());
+    let estimates = 0;
+    const result = await createDraftContentVariantUseCase({
+      llm,
+      costs: {
+        estimate: async () => {
+          estimates += 1;
+          return ok({ estimatedCostMinor: 30, currency: "JPY" });
+        },
+      },
+      capacity: {
+        withLease: async () => err(domainError("VALIDATION_FAILED", "生成の上限です。")),
+      },
+    }).execute(actor, { provided: sampleGenerationInput(), model: MODEL });
+
+    expect(result.ok).toBe(false);
+    expect(estimates).toBe(0);
+    expect(calls).toHaveLength(0);
+  });
+
   it("項目が欠けていると、呼ばずに何が足りないかを返す", async () => {
     const { llm, calls } = spyLlm(validOutput());
     const result = await run({ provided: { subject: "何かの記事" } }, llm);
@@ -121,6 +145,33 @@ describe("そろっていなければ生成 AI を呼ばない", () => {
 
     expect(result.ok).toBe(true);
     expect(calls).toHaveLength(1);
+  });
+
+  it("担当外ブランドの番号を指定しても、その既定値で生成しない", async () => {
+    const { llm, calls } = spyLlm(validOutput());
+    const targetBrandId = taggedString<"BrandId">("brand-outside-scope");
+    const brands = {
+      findById: async () =>
+        ok(
+          aBrand({
+            id: targetBrandId,
+            workspaceId: actor.workspaceId,
+          }),
+        ),
+    } as unknown as BrandRepositoryPort;
+    const scopedActor = {
+      ...actor,
+      scopedBrandIds: [taggedString<"BrandId">("brand-allowed")],
+    };
+
+    const result = await createDraftContentVariantUseCase({ llm, costs, brands }).execute(
+      scopedActor,
+      { provided: sampleGenerationInput(), model: MODEL, brandId: targetBrandId },
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+    expect(calls).toHaveLength(0);
   });
 });
 

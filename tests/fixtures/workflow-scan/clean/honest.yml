@@ -1,0 +1,19 @@
+# 仮の置き場。**本物のワークフローではない。**
+# `violating/sneaky.yml` と同じ形で、禁じていない書き方だけを持つ版。
+# **差は 2 行だけ。**差が増えると「緑だった」理由が確定しなくなる。
+name: honest
+on:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm install --frozen-lockfile
+      # 禁じていない: 検査は verify を通す
+      - name: run the tests
+        run: pnpm run verify
+      # 禁じていない: wrangler は検査の道具ではない。数字も閾値ではない
+      - name: gate
+        run: pnpm exec wrangler deploy --retries 3

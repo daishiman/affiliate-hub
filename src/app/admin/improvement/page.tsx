@@ -1,5 +1,3 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
 import { DEFAULT_MINIMUM_SAMPLES, METRIC_DEFINITIONS } from "@/domain/analytics";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
@@ -7,7 +5,7 @@ import {
   ApproveVariantSpecForm,
   DraftVariantSpecForm,
   StartLoopRunForm,
-} from "@/presentation/admin/improvement-forms";
+} from "@/presentation/admin/observe/improvement-forms";
 import {
   currentActor,
   improvementBlockedBy,
@@ -15,8 +13,22 @@ import {
   improvementUseCases,
   platformUseCases,
 } from "@/presentation/composition";
-import { Callout, Card, EmptyView, ErrorView, Page, StubNotice } from "@/presentation/ui";
-import styles from "../admin.module.css";
+import {
+  ActionNote,
+  BarChart,
+  Callout,
+  DataTable,
+  DecisionStatus,
+  EmptyView,
+  ErrorView,
+  ListView,
+  Note,
+  Prose,
+  Section,
+  StubNotice,
+  SummaryStrip,
+  TextLink,
+} from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -47,21 +59,6 @@ export default async function ImprovementPage({
   const dimensions = await uc.dimensions.execute(actor, { siteSlug });
   const sites = await (await platformUseCases()).listSites.execute(actor, {});
 
-  if (!review.ok) {
-    return (
-      <Shell>
-        <ErrorView
-          title="改善の状況を出せませんでした"
-          body={review.error.message}
-          suggestedAction={review.error.suggestedAction ?? null}
-          action={<Link href="/admin">ホームへ戻る</Link>}
-        />
-      </Shell>
-    );
-  }
-
-  const v = review.value;
-
   // 軸の選択肢は登録表から作る。画面に書き起こすと、軸を足した日にここだけ古くなる。
   const dimensionOptions = dimensions.ok
     ? dimensions.value.groups.flatMap((g) =>
@@ -78,178 +75,217 @@ export default async function ImprovementPage({
   const metricOptions = METRIC_DEFINITIONS.map((m) => ({ value: m.key, label: m.label }));
   const siteOptions = sites.ok ? sites.value.items : [];
 
-  return (
-    <Shell>
-      <StubNotice
-        what="改善ループの記録先"
-        blockedBy={improvementBlockedBy()}
-        stubId="persistence:improvement-sample"
-      >
-        <span>{improvementNotice()}</span>
-      </StubNotice>
+  /*
+   * 状態ごとの件数を棒にする。単位は「件」だけで、期間は全件で固定する。
+   *
+   * 見たいのは「どの段階で止まっているか」であって、順位ではない。
+   * だから表の行を数え直すのではなく、状態の見出しをそのまま軸に使う
+   * （見出しの文言は application が持つ `statusLabel` を正本にする）。
+   */
+  const statusPoints = Object.entries(
+    (review.ok ? review.value.rows : []).reduce<Record<string, number>>((acc, r) => {
+      acc[r.statusLabel] = (acc[r.statusLabel] ?? 0) + 1;
+      return acc;
+    }, {}),
+  ).map(([label, count]) => ({
+    key: label,
+    label,
+    value: count,
+    valueLabel: `${count}件`,
+  }));
 
-      <Card>
-        <h2 className={styles.sectionTitle}>いまの状況</h2>
-        <ul className={styles.linkList}>
-          <li>
-            実施中 {v.runningCount} 件
-            <span className={styles.linkNote}>結果が出るまで待ちます</span>
-          </li>
-          <li>
-            まだ判定できないもの {v.pendingCount} 件
-            <span className={styles.linkNote}>件数が足りていません</span>
-          </li>
-        </ul>
-        {v.caveats.map((c) => (
-          <Callout key={c} tone="info" title="この数字の読み方" reason={c} />
-        ))}
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>試す（1 周まわす）</h2>
-        <p className={styles.sectionLead}>
-          試作を登録する → 承認する → 比較を始める → 観測値を書く → 判定する。
-          この順番は飛ばせません。承認を挟むのは、見た目だけの変更でも人が決めるためです。
-        </p>
-
-        {!dimensions.ok ? (
-          <Callout
-            tone="warn"
-            title="いまは試作を登録できません"
-            reason={dimensions.error.message}
-          />
-        ) : siteSlug === undefined ? (
-          <>
-            <p>どのブログで試すかを先に決めてください。</p>
-            {siteOptions.length === 0 ? (
-              <p className={styles.linkNote}>
-                {sites.ok
-                  ? "まだブログがありません。先にブログを 1 つ作ってください。"
-                  : `ブログの一覧をまだ読み出せません（${sites.error.message}）。`}
-              </p>
-            ) : (
-              <ul className={styles.linkList}>
-                {siteOptions.map((s) => (
-                  <li key={s.slug}>
-                    <Link href={`/admin/improvement?site=${s.slug}`}>{s.name}</Link>
-                    <span className={styles.linkNote}>このブログで試す</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
-        ) : (
-          <>
-            <DraftVariantSpecForm
-              siteSlug={siteSlug}
-              dimensions={dimensionOptions}
-              maxSimultaneous={dimensions.value.maxSimultaneous}
-            />
-            <ApproveVariantSpecForm siteSlug={siteSlug} pendingSpecs={pendingSpecs} />
-            <StartLoopRunForm
-              siteSlug={siteSlug}
-              approvedSpecs={approvedSpecs}
-              metrics={metricOptions}
-              defaultMinimumSamples={DEFAULT_MINIMUM_SAMPLES}
-            />
-          </>
-        )}
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>試している比較</h2>
-        {v.rows.length === 0 ? (
-          <EmptyView
-            title="まだ試している比較がありません"
-            body={v.emptyReason ?? "変えてみたい軸を選ぶと、ここに比較が並びます。"}
-            action={<Link href="/admin/improvement/dimensions">変えられるものを見る</Link>}
-          />
-        ) : (
-          <table className={styles.rankTable}>
-            <caption>実施中のものを先に並べています。判定できないものも隠さず出します。</caption>
-            <thead>
-              <tr>
-                <th scope="col">ブログ</th>
-                <th scope="col">変えたところ</th>
-                <th scope="col">見ている指標</th>
-                <th scope="col">状態</th>
-                <th scope="col">いまの判定</th>
-              </tr>
-            </thead>
-            <tbody>
-              {v.rows.map((r) => (
-                <tr key={r.id}>
-                  <th scope="row">{r.siteSlug}</th>
-                  <td>{r.changedLabels.join("・")}</td>
-                  <td>{r.primaryMetricLabel}</td>
-                  <td>{r.statusLabel}</td>
-                  <td>{r.verdictLabel}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </Card>
-
-      {v.rows.map((r) => (
-        <Card key={`detail-${r.id}`}>
-          <h2 className={styles.sectionTitle}>
-            {r.siteSlug}／{r.changedLabels.join("・")}
-          </h2>
-          <p className={styles.sectionLead}>
-            {r.loopKindLabel}・{r.statusLabel}
-          </p>
-          {r.blockedReason !== null ? (
-            <Callout tone="info" title="まだ判定していません" reason={r.blockedReason} />
-          ) : (
-            <Callout
-              tone="info"
-              title={r.verdictLabel}
-              reason={r.result?.reason ?? "判定の理由が記録されていません。"}
-            />
-          )}
-          {r.suggestions.length === 0 ? (
-            <p className={styles.linkNote}>
-              判定が出ていないため、次の一手はまだ出せません。件数が足りるまで待ちます。
-            </p>
-          ) : (
-            <ul className={styles.linkList}>
-              {r.suggestions.map((s) => (
-                <li key={`${r.id}-${s.dimensionKey}`}>
-                  {s.dimensionLabel}: {s.from} → {s.to}
-                  <span className={styles.linkNote}>{s.rationale}</span>
-                  <span className={styles.linkNote}>
-                    適用には承認が要ります（見た目だけの変更でも同じです）。
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <AdvanceLoopRunForm
-            runId={r.id}
-            running={r.status === "running"}
-            hasObservation={r.hasObservation}
-          />
-        </Card>
-      ))}
-    </Shell>
-  );
-}
-
-function Shell({ children }: { readonly children: ReactNode }) {
   return (
     <AdminShell
-      currentPath="/admin/improvement"
-      breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "改善の状況" }]}
-      actions={<Link href="/admin/improvement/dimensions">変えられるものを見る</Link>}
+      routeId="improvement"
+      title="改善の状況"
+      lead="いま何を試していて、何が言えるのかを見ます。"
+      actions={
+        <TextLink href="/admin/improvement/dimensions">変えられるものを見る</TextLink>
+      }
     >
-      <Page
-        title="改善の状況"
-        lead="いま何を試していて、何が言えるのかを見る画面です。件数が足りないものは「まだ分からない」と出します。数字を良く見せるために判定を緩めません。"
-      >
-        {children}
-      </Page>
+      {!review.ok ? (
+        <ErrorView
+          title="改善の状況を出せませんでした"
+          body={review.error.message}
+          suggestedAction={review.error.suggestedAction ?? null}
+          action={<TextLink href="/admin">ホームへ戻る</TextLink>}
+        />
+      ) : (
+        <>
+          <StubNotice
+            what="改善ループの記録先"
+            blockedBy={improvementBlockedBy()}
+            stubId="persistence:improvement-sample"
+          >
+            {improvementNotice()}
+          </StubNotice>
+
+          <Section title="いまの状況">
+            <SummaryStrip
+              label="いまの状況"
+              metrics={[
+                {
+                  key: "running",
+                  label: "実施中",
+                  value: `${review.value.runningCount}件`,
+                  meaning: "結果が出るまで待ちます。ここを増やしすぎると、どれが効いたか分からなくなります。",
+                },
+                {
+                  key: "pending",
+                  label: "まだ判定できないもの",
+                  value: `${review.value.pendingCount}件`,
+                  meaning: "件数が足りていません。足りるまで、良し悪しを言ってはいけません。",
+                  action: (
+                    <DecisionStatus
+                      status={review.value.pendingCount > 0 ? "insufficient-n" : "final"}
+                      detail={
+                        review.value.pendingCount > 0
+                          ? "母数が足りない比較が残っています。この画面の判定を根拠にしないでください。"
+                          : "保留中の比較はありません。出ている判定はそのまま使えます。"
+                      }
+                    />
+                  ),
+                },
+              ]}
+            />
+            {statusPoints.length === 0 ? null : (
+              <BarChart
+                title="比較がどの段階で止まっているか"
+                unit="件"
+                period="登録されている比較の全件"
+                textSummary="実施中が積み上がっていれば手が足りておらず、判定保留が積み上がっていれば件数が足りていません。"
+                pointValues={statusPoints}
+              />
+            )}
+            {review.value.caveats.map((c) => (
+              <ActionNote key={c}>この数字の読み方: {c}</ActionNote>
+            ))}
+          </Section>
+
+          <Section
+            title="試す（1 周まわす）"
+            lead="試作を登録する → 承認する → 比較を始める → 観測値を書く → 判定する。この順番は飛ばせません。承認を挟むのは、見た目だけの変更でも人が決めるためです。"
+          >
+            {!dimensions.ok ? (
+              <Callout
+                tone="warn"
+                title="いまは試作を登録できません"
+                reason={dimensions.error.message}
+              />
+            ) : siteSlug === undefined ? (
+              <>
+                <Prose>どのブログで試すかを先に決めてください。</Prose>
+                {siteOptions.length === 0 ? (
+                  <Note>
+                    {sites.ok
+                      ? "まだブログがありません。先にブログを 1 つ作ってください。"
+                      : `ブログの一覧をまだ読み出せません（${sites.error.message}）。`}
+                  </Note>
+                ) : (
+                  <ListView
+                    rows={siteOptions.map((s) => ({
+                      key: s.slug,
+                      label: s.name,
+                      href: `/admin/improvement?site=${s.slug}`,
+                      note: "このブログで試す",
+                    }))}
+                  />
+                )}
+              </>
+            ) : (
+              <>
+                <DraftVariantSpecForm
+                  siteSlug={siteSlug}
+                  dimensions={dimensionOptions}
+                  maxSimultaneous={dimensions.value.maxSimultaneous}
+                />
+                <ApproveVariantSpecForm siteSlug={siteSlug} pendingSpecs={pendingSpecs} />
+                <StartLoopRunForm
+                  siteSlug={siteSlug}
+                  approvedSpecs={approvedSpecs}
+                  metrics={metricOptions}
+                  defaultMinimumSamples={DEFAULT_MINIMUM_SAMPLES}
+                />
+              </>
+            )}
+          </Section>
+
+          <Section title="試している比較">
+            {review.value.rows.length === 0 ? (
+              <EmptyView
+                title="まだ試している比較がありません"
+                body={
+                  review.value.emptyReason ??
+                  "変えてみたい軸を選ぶと、ここに比較が並びます。"
+                }
+                action={
+                  <TextLink href="/admin/improvement/dimensions">
+                    変えられるものを見る
+                  </TextLink>
+                }
+              />
+            ) : (
+              <DataTable
+                caption="実施中のものを先に並べています。判定できないものも隠さず出します。"
+                columns={[
+                  { key: "site", label: "ブログ" },
+                  { key: "changed", label: "変えたところ" },
+                  { key: "metric", label: "見ている指標" },
+                  { key: "status", label: "状態" },
+                  { key: "verdict", label: "いまの判定" },
+                ]}
+                rows={review.value.rows.map((r) => ({
+                  key: r.id,
+                  cells: [
+                    r.siteSlug,
+                    r.changedLabels.join("・"),
+                    r.primaryMetricLabel,
+                    r.statusLabel,
+                    r.verdictLabel,
+                  ],
+                }))}
+              />
+            )}
+          </Section>
+
+          {review.value.rows.map((r) => (
+            <Section
+              key={`detail-${r.id}`}
+              title={`${r.siteSlug}／${r.changedLabels.join("・")}`}
+              lead={`${r.loopKindLabel}・${r.statusLabel}`}
+            >
+              {r.blockedReason !== null ? (
+                <ActionNote>まだ判定していません。{r.blockedReason}</ActionNote>
+              ) : (
+                <ActionNote>
+                  {r.verdictLabel}。{r.result?.reason ?? "判定の理由が記録されていません。"}
+                </ActionNote>
+              )}
+              {r.suggestions.length === 0 ? (
+                <Note>
+                  判定が出ていないため、次の一手はまだ出せません。件数が足りるまで待ちます。
+                </Note>
+              ) : (
+                <ListView
+                  rows={r.suggestions.map((s) => ({
+                    key: `${r.id}-${s.dimensionKey}`,
+                    label: `${s.dimensionLabel}: ${s.from} → ${s.to}`,
+                    // 承認が要ることを毎回書く。1 か所にまとめて書くと、
+                    // 提案を見た場所と、承認が要ると書いてある場所が離れる。
+                    note: `${s.rationale}／適用には承認が要ります（見た目だけの変更でも同じです）。`,
+                  }))}
+                />
+              )}
+
+              <AdvanceLoopRunForm
+                runId={r.id}
+                running={r.status === "running"}
+                hasObservation={r.hasObservation}
+              />
+            </Section>
+          ))}
+        </>
+      )}
     </AdminShell>
   );
 }

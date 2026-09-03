@@ -136,6 +136,41 @@ function detectAddedParams(original: string, altered: string): readonly string[]
   }
 }
 
+/**
+ * 成果リンクを止める。
+ *
+ * --- なぜ「直す」ではなく「止める」なのか ---
+ *
+ * 商品名も URL も**写し**であり、上書きしない決まりにしてある
+ * （`docs/product/design-decisions.md` §2）。上書きすると、
+ * 読者が実際に見た表記が、その日から誰にも分からなくなる。
+ * 「この価格だと書いてあったから買った」と言われたときに、
+ * 何が書いてあったかを示せるのは、古い行がそのまま残っている場合だけである。
+ *
+ * だから直し方は **止める → 新しい ID で登録し直す** の 2 手になる。
+ * この関数はその 1 手目で、行を書き換えるのではなく `disabledAt` を立てるだけ。
+ *
+ * --- 二度押しを成功にしない ---
+ *
+ * 既に止まっているものを止めようとしたら失敗を返す。成功にすると、
+ * 止めた日時が押すたびに後ろへずれる。「いつ読者に出なくなったか」が
+ * 分からなくなり、止めたはずの期間に出ていた疑いを晴らせなくなる。
+ */
+export function disableAffiliateLink(
+  link: AffiliateLink,
+  at: Date,
+): Result<AffiliateLink, DomainError> {
+  if (link.disabledAt !== null && link.disabledAt <= at) {
+    return err(
+      validationError(
+        `このリンクは ${link.disabledAt.toISOString().slice(0, 10)} に止めてあります。表記を直すときは、新しいリンクとして登録し直してください。`,
+        "disabledAt",
+      ),
+    );
+  }
+  return ok({ ...link, disabledAt: at });
+}
+
 export function isLinkUsable(link: AffiliateLink, at: Date): boolean {
   if (link.disabledAt !== null && link.disabledAt <= at) return false;
   if (link.expiresAt !== null && link.expiresAt <= at) return false;

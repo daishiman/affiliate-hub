@@ -1,7 +1,25 @@
-import { readerActor, siteUseCases } from "@/presentation/composition";
+import type { ReactNode } from "react";
+import { articleHref } from "@/application/read-models/published-article";
+import {
+  buildBlogPosting,
+  buildBreadcrumbList,
+  buildFaqPage,
+  buildItemList,
+} from "@/application/seo/structured-data";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
+import {
+  publicArticleBlockOrder,
+  publicBlogEntry,
+  readerActor,
+  siteUseCases,
+} from "@/presentation/composition";
+import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
-import { ArticleTableOfContents, ArticleView } from "@/presentation/ui";
-import { ReadFailureBody, SiteFrame } from "./page-frame";
+import { ArticleTableOfContents, ArticleView, Section } from "@/presentation/ui";
+import { ShortlistSaveButton } from "./shortlist-buttons";
+import { JsonLdScript } from "./json-ld-script";
+import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
+import { ReaderRatingForm } from "./reader-rating-form";
 import { siteHref, toArticleCards, toArticleView } from "./view-model";
 
 /**
@@ -32,19 +50,62 @@ export async function ArticlePage({
   slug,
   pathPrefix,
   routeLabel,
+  interactiveSlot,
+  whenArticleMissing,
+  fallbackTitle,
 }: {
   readonly siteSlug: string;
   readonly slug: string;
   /** `/best` など。パンくずと現在地の表示に使う。 */
   readonly pathPrefix: string;
   readonly routeLabel: string;
+  /**
+   * 本文の前に差し込む、読者が操作できる部分（`/tools` の入力欄と結果）。
+   *
+   * 道具のページは「記事 1 本」と「操作できる道具」が同じ住所に同居する。
+   * 別々の画面にすると、道具の計算の根拠・出典・書いた人が道具の側から消え、
+   * 読者は数字だけを見て物を買うことになる。
+   */
+  readonly interactiveSlot?: ReactNode;
+  /**
+   * 記事がまだ書かれていないときに、404 の代わりに出すもの。
+   *
+   * 渡すのは道具のページだけ。道具の定義があれば、記事がまだでも
+   * 読者は計算を使える（今まで通り）。渡さないルートは今まで通り 404。
+   */
+  readonly whenArticleMissing?: ReactNode;
+  /**
+   * 記事がまだ無いときのパンくずの最後の一語。
+   *
+   * 既定は「記事」。道具のページでは記事が無くても中身はあるので、
+   * そのまま「記事」と出すと、読者は在るはずの記事を探して戻ってしまう。
+   */
+  readonly fallbackTitle?: string;
 }) {
   const useCases = await siteUseCases();
   const actor = readerActor();
-  const [result, recent] = await Promise.all([
+  const [result, recent, blockOrder] = await Promise.all([
     useCases.getArticle.execute(actor, { siteSlug, slug }),
     useCases.listRecent.execute(actor, { siteSlug, limit: 4 }),
+    /*
+      ブログが選んだ見せ方の並び（受入 A1・A5）。選んでいなければ `null` で、
+      記事画面が既定の並びで描く。**記事の中身は 1 文字も変わらない**——
+      並び替えても塊は 1 つも落ちない、が A1「差し替えても既存記事が壊れない」の中身。
+    */
+    publicArticleBlockOrder(siteSlug),
   ]);
+
+  /*
+    無い記事なら、ここで 404 として打ち切る。**JSX を組み立てる前に呼ぶ。**
+    以前はこの下の `ReadFailureBody` が「記事が見つかりませんでした」と描いていたが、
+    通信の答えは 200 のままだった。読者の目には同じでも、空の記事が検索結果に載り、
+    公開後の見張りからも壊れと区別が付かない（残課題リスト 項目 36）。
+
+    ただし代わりに出すものを渡されているとき（道具のページ）は打ち切らない。
+    そちらは記事の不在が壊れではなく、「まだ書いていない」という正しい状態である。
+  */
+  if (!result.ok && whenArticleMissing === undefined) stopIfMissing(result.error);
+
   const path = `${pathPrefix}/${slug}`;
   const relatedArticles = recent.ok
     ? toArticleCards(
@@ -52,30 +113,141 @@ export async function ArticlePage({
         recent.value.filter((candidate) => candidate.slug !== slug).slice(0, 3),
       )
     : undefined;
-  const article = result.ok ? toArticleView(siteSlug, result.value, relatedArticles) : null;
-  const failure = result.ok ? null : result.error;
+  const article = result.ok
+    ? toArticleView(siteSlug, result.value, relatedArticles, blockOrder ?? undefined)
+    : null;
+
+  /*
+    JSON-LD に入れる絶対 URL の origin。届いたリクエストの Host から作る。
+    環境変数に固定すると、開発と本番で構造化データの URL がずれたまま配られる。
+    信頼できる origin が読めない事故のときは JSON-LD 自体を出さない。
+  */
+  const origin = await requestOriginFromNextHeaders();
+  const basePath = siteBasePathBySlug(siteSlug);
 
   return (
     <SiteFrame
       siteSlug={siteSlug}
       currentPath={siteHref(siteSlug, path)}
-      trail={[{ label: routeLabel }, { label: result.ok ? result.value.title : "記事" }]}
+      trail={[
+        { label: routeLabel },
+        { label: result.ok ? result.value.title : (fallbackTitle ?? "記事") },
+      ]}
       pageKind={PAGE_KIND_BY_PREFIX[pathPrefix] ?? "article"}
-      sidebar={
+      sidebar
+      asideSlot={
         article === null ? undefined : (
           <ArticleTableOfContents sections={article.sections} placement="sidebar" />
         )
       }
     >
-      {() =>
-        article !== null ? (
-          <ArticleView article={article} />
-        ) : failure !== null ? (
-          <ReadFailureBody error={failure} what="記事" siteSlug={siteSlug} />
+      {async ({ blueprint, projection }) => {
+        const sourceArticleId = result.ok
+          ? await projection.reader.findSourceArticleId(slug)
+          : null;
+        const ratingSummary =
+          sourceArticleId?.ok === true && sourceArticleId.value !== null
+            ? await (await publicBlogEntry()).summarizeRating(sourceArticleId.value)
+            : null;
+        return result.ok ? (
+          <>
+            {/*
+              構造化データ。本文と同じ読み取りモデル（result.value）から
+              純関数で作る。値は serializeJsonLd が < を逃がしてから埋める。
+            */}
+            {origin === null ? null : (
+              <>
+                <JsonLdScript
+                  value={buildBlogPosting(result.value, {
+                    siteName: blueprint.name,
+                    origin,
+                    basePath,
+                  })}
+                />
+                <JsonLdScript
+                  value={buildBreadcrumbList([
+                    { name: blueprint.name, url: `${origin}${basePath}` },
+                    {
+                      name: result.value.title,
+                      url: `${origin}${basePath}${articleHref(result.value)}`,
+                    },
+                  ])}
+                />
+                {/*
+                  順位記事だけ ItemList を追加で出す。buildItemList は順位が無い記事で
+                  null を返し、null は「出さない」に写す（嘘の順位表を出さない）。
+                */}
+                {(() => {
+                  const itemList = buildItemList(result.value, {
+                    siteName: blueprint.name,
+                    origin,
+                    basePath,
+                  });
+                  return itemList === null ? null : <JsonLdScript value={itemList} />;
+                })()}
+                {/*
+                  よくある質問がある記事だけ FAQPage を出す。読者に見えている
+                  問いと答えを**そのまま**渡す。ここで文言を整えると、画面に無い
+                  答えが検索結果に出る（構造化データの誤用そのもの）。
+                */}
+                {(() => {
+                  const faq = buildFaqPage(result.value);
+                  return faq === null ? null : <JsonLdScript value={faq} />;
+                })()}
+              </>
+            )}
+            {/*
+              操作できる部分（道具の入力欄と結果）。**本文より先に出す。**
+              道具を使いに来た読者に、先に説明を読ませない。
+            */}
+            {interactiveSlot}
+            {/*
+              商品カードに「気になる」を足す。**部品の中では作れない。**
+              保存はサーバ動作なので、作れるのはこの層だけ。
+              どの記事から保存したかも一緒に渡す。読者があとで一覧を開いたとき、
+              「なぜ保存したか」を思い出す手がかりがそれしか無い。
+            */}
+            {article === null ? null : (
+              <ArticleView
+                article={{
+                  ...article,
+                  productCards: article.productCards?.map((card) =>
+                    card.productId === undefined
+                      ? card
+                      : {
+                          ...card,
+                          saveSlot: (
+                            <ShortlistSaveButton
+                              siteSlug={siteSlug}
+                              productId={card.productId}
+                              productName={card.name}
+                              fromArticleHref={siteHref(siteSlug, path)}
+                              oneLine={card.oneLine}
+                            />
+                          ),
+                        },
+                  ),
+                }}
+              />
+            )}
+            {sourceArticleId?.ok === true && sourceArticleId.value !== null ? (
+              <Section
+                title="この記事の評価"
+                lead="点は誰でも付けられます。名前や連絡先は要りません。"
+              >
+                <ReaderRatingForm
+                  siteSlug={siteSlug}
+                  articleSlug={slug}
+                  initialCount={ratingSummary?.ok === true ? ratingSummary.value.count : 0}
+                  initialAverage={ratingSummary?.ok === true ? ratingSummary.value.average : null}
+                />
+              </Section>
+            ) : null}
+          </>
         ) : (
-          <ReadFailureBody error={{ code: "NOT_FOUND" }} what="記事" siteSlug={siteSlug} />
-        )
-      }
+          (whenArticleMissing ?? <ReadFailureBody what="記事" siteSlug={siteSlug} />)
+        );
+      }}
     </SiteFrame>
   );
 }

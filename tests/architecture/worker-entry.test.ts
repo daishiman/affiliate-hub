@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-FB04 */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -86,6 +86,7 @@ function stripJsonComments(source: string): string {
 type WranglerSection = {
   readonly triggers?: { readonly crons?: readonly string[] };
   readonly r2_buckets?: readonly { readonly binding: string }[];
+  readonly d1_databases?: readonly { readonly binding: string }[];
 };
 type WranglerConfig = WranglerSection & {
   readonly main?: string;
@@ -137,11 +138,40 @@ describe("Worker の入口と定期実行の配線", () => {
     expect(covered.length, "置き場のある環境が 1 つも見つかりませんでした").toBeGreaterThan(0);
   });
 
+  it("技術診断の保存先がある環境にも、削除の定期実行がある", () => {
+    const covered = sections().filter(([, section]) =>
+      (section.d1_databases ?? []).some((database) => database.binding === "DB"),
+    );
+    expect(covered.length, "DB のある環境が 1 つも見つかりませんでした").toBeGreaterThan(0);
+    for (const [name, section] of covered) {
+      expect(
+        section.triggers?.crons?.length ?? 0,
+        `${name}: DB はあるのに技術診断を消す定期実行がありません`,
+      ).toBeGreaterThan(0);
+    }
+  });
+
   it("入口は、掃除を呼んでいる", () => {
     const entry = readFileSync(join(ROOT, config.main as string), "utf8");
     expect(entry, "定期実行の受け口がありません").toContain("scheduled");
     // 包むだけになっていないこと。処理そのものは src 側にあり、そちらにテストがある。
     expect(entry, "掃除を呼んでいません").toContain("sweepExpiredCaptures");
+    expect(entry, "技術診断の削除を呼んでいません").toContain(
+      "runFeedbackDiagnosticsPurge",
+    );
+    expect(entry, "予約された外部配信を呼んでいません").toContain(
+      "runScheduledDistribution",
+    );
+    expect(entry, "配信監査outboxの再送を呼んでいません").toContain(
+      "runPublicationDeliveryAuditFlush",
+    );
+    expect(entry, "D1 binding の欠落を安全側で扱っていません").toContain(
+      "env.DB === undefined",
+    );
+    expect(
+      (entry.match(/ctx\.waitUntil\(/g) ?? []).length,
+      "配信・R2・D1を同じ待ち行列へ戻すと、配信失敗で保持期限処理まで止まります",
+    ).toBeGreaterThanOrEqual(4);
   });
 
   it("入口は、生成物が出している入れ物をすべて通している", () => {

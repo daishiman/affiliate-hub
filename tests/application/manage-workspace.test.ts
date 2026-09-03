@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P01, REQ-E03, REQ-R10 */
 import { describe, expect, it } from "vitest";
 import {
   AUDIT_ACTION_LABEL,
@@ -12,6 +12,8 @@ import {
   createListDisclosuresUseCase,
   createListMembersUseCase,
   createListRolesUseCase,
+  createSaveBrandUseCase,
+  createUpdateWorkspaceUseCase,
 } from "@/application/usecases/identity/manage-workspace";
 import {
   DEFAULT_CTA,
@@ -21,6 +23,7 @@ import {
   DEFAULT_WORKSPACE_TIME_ZONE,
   HUMAN_ONLY_CAPABILITIES,
 } from "@/domain/identity";
+import type { Brand, Workspace } from "@/domain/identity";
 import { ok } from "@/domain/shared";
 import { aNobody, anAnalyst, anOwner, aWriter } from "../support/actors";
 import { aBrand, aDisclosure, aMembership, aWorkspace } from "../support/factories";
@@ -74,7 +77,9 @@ describe("設定の概要", () => {
         findById: async () => ok(workspace),
         countBrands: async () => ok(counts.brands ?? 1),
         countSites: async () => ok(counts.sites ?? 1),
-        countMembers: async () => ok(counts.members ?? 1),
+      }),
+      memberships: portOf("memberships", {
+        countCurrent: async () => ok(counts.members ?? 1),
       }),
     };
   }
@@ -103,6 +108,16 @@ describe("設定の概要", () => {
     expect(got.value.capacities.map((c) => c.used)).toEqual([2, 4, 3]);
     expect(got.value.capacities.every((c) => !c.full)).toBe(true);
     expect(got.value.blockedReason).toBeNull();
+  });
+
+  it("担当者の容量は、見本の固定件数でなく同じ membership 保存先から数える", async () => {
+    const got = await overview({
+      ...withWorkspace(aWorkspace({ plan: "team" }), { brands: 2, sites: 4, members: 99 }),
+      memberships: portOf("memberships", { countCurrent: async () => ok(2) }),
+    });
+    if (!got.ok) throw got.error;
+
+    expect(got.value.capacities.find((capacity) => capacity.label === "担当者")?.used).toBe(2);
   });
 
   it("上限ちょうどで「いっぱい」と判定する（1 つ超えてから気づかせない）", async () => {
@@ -157,7 +172,6 @@ describe("設定の概要", () => {
         findById: async () => ok(aWorkspace()),
         countBrands: async () => ok(1),
         countSites: async () => failing("ブログの数が読めません。"),
-        countMembers: async () => ok(1),
       }),
     });
 
@@ -398,6 +412,24 @@ describe("ブランドの公開準備", () => {
     ).execute(owner, {});
     expect(got.ok).toBe(false);
   });
+
+  it("担当ブランドが限定された人には、担当外と別workspaceのブランドを一覧で渡さない", async () => {
+    const allowed = aBrand({ id: "brand-allowed" as never });
+    const outsideScope = aBrand({ id: "brand-outside-scope" as never });
+    const outsideWorkspace = aBrand({
+      id: "brand-outside-workspace" as never,
+      workspaceId: "ws-other" as never,
+    });
+    const scopedOwner = { ...owner, scopedBrandIds: [allowed.id] };
+
+    const got = await createListBrandsUseCase(
+      deps(withBrands([allowed, outsideScope, outsideWorkspace])),
+    ).execute(scopedOwner, {});
+
+    expect(got.ok).toBe(true);
+    if (!got.ok) return;
+    expect(got.value.rows.map((row) => row.brandId)).toEqual([String(allowed.id)]);
+  });
 });
 
 describe("広告表記", () => {
@@ -586,5 +618,323 @@ describe("操作の記録", () => {
     expect(got.ok).toBe(false);
     if (got.ok) return;
     expect(got.error.code).toBe("FORBIDDEN");
+  });
+});
+
+/**
+ * ブランドを作る・直す口と、作業場所の設定を直す口。
+ *
+ * この 2 つはどちらも**画面の見た目を変えずに公開の可否を動かす**。
+ * ブランドの問い合わせ先が空だと記事を公開できず、
+ * 作業場所の区分を下げると新しく作れなくなる。
+ * だからここで固定するのは、次の 3 つである。
+ *   1. 空欄が「未設定」として入ること（空文字だと公開前の確認が素通りする）
+ *   2. 区分を下げても、既にあるものを消さないこと
+ *   3. どちらの変更も記録が残ること（残らないと、後から原因に辿り着けない）
+ */
+describe("ブランドを作る・直す", () => {
+  function brandDeps(over: Partial<ManageWorkspaceDeps> = {}) {
+    const saved: Brand[] = [];
+    const appended: { action: string }[] = [];
+    const base = deps({
+      brands: portOf("brands", {
+        findById: async () => ok(null),
+        save: async (b: Brand) => {
+          saved.push(b);
+          return ok(b);
+        },
+      }),
+      auditLog: portOf("auditLog", {
+        append: async (entry: { action: string }) => {
+          appended.push(entry);
+          return ok(entry);
+        },
+      }),
+      ...over,
+    });
+    return {
+      uc: createSaveBrandUseCase({
+        ...base,
+        ids: { newId: () => "generated" },
+        now: () => NOW,
+        capacity: { withLease: async (_workspaceId, _kind, mutation) => mutation() },
+      }),
+      saved,
+      appended,
+    };
+  }
+
+  const A_BRAND = {
+    displayName: "テストブランド",
+    legalName: "テスト合同会社",
+    contactEmail: "contact@example.com",
+    positioning: "実際に使った記録だけを載せます。",
+    politeness: "polite",
+    firstPerson: "私たち",
+    vocabulary: "mixed",
+    avoidPhrases: ["絶対に"],
+    disclaimer: "記事の内容は執筆時点のものです。",
+    locale: DEFAULT_LOCALE,
+    timeZone: DEFAULT_TIME_ZONE,
+    defaultCta: DEFAULT_CTA,
+  };
+
+  it("上限なら新規ブランドを保存しない", async () => {
+    const saved: Brand[] = [];
+    const base = deps({
+      brands: portOf("brands", {
+        save: async (brand: Brand) => {
+          saved.push(brand);
+          return ok(brand);
+        },
+      }),
+    });
+    const got = await createSaveBrandUseCase({
+      ...base,
+      ids: { newId: () => "blocked" },
+      now: () => NOW,
+      capacity: { withLease: async () => failing("ブランドの上限です。") },
+    }).execute(owner, A_BRAND);
+
+    expect(got.ok).toBe(false);
+    expect(saved).toHaveLength(0);
+  });
+
+  it("ブランドを扱えない人には作らせない", async () => {
+    const { uc, saved } = brandDeps();
+    const got = await uc.execute(aNobody(), A_BRAND);
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("FORBIDDEN");
+    // 断るだけでなく、**保存が起きていない**ことを見る。
+    expect(saved).toHaveLength(0);
+  });
+
+  it("担当ブランドが限定された人には、新しいブランドを作らせない", async () => {
+    const { uc, saved } = brandDeps();
+    const scopedOwner = { ...owner, scopedBrandIds: ["brand-allowed" as never] };
+    const got = await uc.execute(scopedOwner, A_BRAND);
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("FORBIDDEN");
+    expect(saved).toHaveLength(0);
+  });
+
+  it("運営者の表示名と問い合わせ先が空欄なら、空文字ではなく未設定で入る", async () => {
+    const { uc, saved } = brandDeps();
+    const got = await uc.execute(owner, { ...A_BRAND, legalName: "  ", contactEmail: "" });
+
+    if (!got.ok) throw got.error;
+    // 空文字で入ると、公開前の確認が「埋まっている」と読み、
+    // 問い合わせ先が空のまま記事を公開できてしまう。
+    expect(saved[0].legalName).toBeNull();
+    expect(saved[0].contactEmail).toBeNull();
+    expect(got.value.missing.length).toBeGreaterThan(0);
+  });
+
+  it("足りない項目があっても保存はできる（途中まで残せる）", async () => {
+    const { uc, saved } = brandDeps();
+    const got = await uc.execute(owner, { ...A_BRAND, contactEmail: "" });
+
+    expect(got.ok).toBe(true);
+    expect(saved).toHaveLength(1);
+  });
+
+  it("文体を選んでいなければ断り、保存しない", async () => {
+    const { uc, saved } = brandDeps();
+    const got = await uc.execute(owner, { ...A_BRAND, politeness: "" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("VALIDATION_FAILED");
+    expect(saved).toHaveLength(0);
+  });
+
+  it("型に無い言葉づかいは断る", async () => {
+    const { uc } = brandDeps();
+    const got = await uc.execute(owner, { ...A_BRAND, vocabulary: "casual" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("VALIDATION_FAILED");
+  });
+
+  it("直すときは作った日を引き継ぎ、番号も増やさない", async () => {
+    const existing = aBrand();
+    const captured: Brand[] = [];
+    const { uc } = brandDeps({
+      brands: portOf("brands", {
+        findById: async () => ok(existing),
+        save: async (b: Brand) => {
+          captured.push(b);
+          return ok(b);
+        },
+      }),
+    });
+    const got = await uc.execute(owner, { ...A_BRAND, brandId: String(existing.id) });
+
+    if (!got.ok) throw got.error;
+    // 作った日を今日にすると、いつからあるブランドかが直すたびに消える。
+    expect(captured[0].createdAt).toEqual(existing.createdAt);
+    expect(got.value.brandId).toBe(String(existing.id));
+  });
+
+  it("担当外ブランドは番号を知っていても直せず、保存も起きない", async () => {
+    const existing = aBrand({ id: "brand-outside-scope" as never });
+    const { uc, saved } = brandDeps({
+      brands: portOf("brands", { findById: async () => ok(existing) }),
+    });
+    const scopedOwner = { ...owner, scopedBrandIds: ["brand-allowed" as never] };
+
+    const got = await uc.execute(scopedOwner, {
+      ...A_BRAND,
+      brandId: String(existing.id),
+    });
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("TENANT_MISMATCH");
+    expect(saved).toHaveLength(0);
+  });
+
+  it("無い番号を直そうとしたら、作り直さずに断る", async () => {
+    const { uc, saved } = brandDeps();
+    const got = await uc.execute(owner, { ...A_BRAND, brandId: "br_nowhere" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("NOT_FOUND");
+    // ここで新規として作ると、URL を打ち間違えただけでブランドが増える。
+    expect(saved).toHaveLength(0);
+  });
+
+  it("保存したら記録が残る", async () => {
+    const { uc, appended } = brandDeps();
+    await uc.execute(owner, A_BRAND);
+
+    expect(appended.map((e) => e.action)).toEqual(["brand.changed"]);
+  });
+
+  it("記録の見出しが素の英字のままになっていない", () => {
+    expect(AUDIT_ACTION_LABEL["brand.changed"]).not.toMatch(/^[a-z._]+$/);
+    expect(AUDIT_ACTION_LABEL["workspace.changed"]).not.toMatch(/^[a-z._]+$/);
+  });
+});
+
+describe("作業場所の設定を直す", () => {
+  function wsDeps(
+    counts: { brands?: number; sites?: number } = {},
+    over: Partial<ManageWorkspaceDeps> = {},
+  ) {
+    const saved: Workspace[] = [];
+    const appended: { action: string }[] = [];
+    const base = deps({
+      workspaces: portOf("workspaces", {
+        findById: async () => ok(aWorkspace({ plan: "business" })),
+        countBrands: async () => ok(counts.brands ?? 1),
+        countSites: async () => ok(counts.sites ?? 1),
+        save: async (w: Workspace) => {
+          saved.push(w);
+          return ok(w);
+        },
+      }),
+      auditLog: portOf("auditLog", {
+        append: async (entry: { action: string }) => {
+          appended.push(entry);
+          return ok(entry);
+        },
+      }),
+      ...over,
+    });
+    return {
+      uc: createUpdateWorkspaceUseCase({
+        ...base,
+        ids: { newId: () => "generated" },
+        now: () => NOW,
+      }),
+      saved,
+      appended,
+    };
+  }
+
+  const AN_UPDATE = {
+    name: "テストの作業場所",
+    plan: "team",
+    timezone: DEFAULT_WORKSPACE_TIME_ZONE,
+    currency: DEFAULT_WORKSPACE_CURRENCY,
+  };
+
+  it("設定を扱えない人には直させない", async () => {
+    const { uc, saved } = wsDeps();
+    const got = await uc.execute(aWriter(), AN_UPDATE);
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("FORBIDDEN");
+    expect(saved).toHaveLength(0);
+  });
+
+  it("型に無い区分は断り、保存しない", async () => {
+    const { uc, saved } = wsDeps();
+    const got = await uc.execute(owner, { ...AN_UPDATE, plan: "enterprise" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("VALIDATION_FAILED");
+    expect(saved).toHaveLength(0);
+  });
+
+  it("名前が空なら断る", async () => {
+    const { uc } = wsDeps();
+    const got = await uc.execute(owner, { ...AN_UPDATE, name: "   " });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("VALIDATION_FAILED");
+  });
+
+  it("時間帯を空で送っても、今の設定を消さない", async () => {
+    const { uc, saved } = wsDeps();
+    const got = await uc.execute(owner, { ...AN_UPDATE, timezone: "", currency: "" });
+
+    if (!got.ok) throw got.error;
+    // 空欄は「変えない」。空文字で保存すると、予約した投稿の時刻の基準が消える。
+    expect(saved[0].timezone).not.toBe("");
+    expect(saved[0].currency).not.toBe("");
+  });
+
+  it("区分を下げて上限を超えても、保存は通り、何も消さずに超過だけ返す", async () => {
+    // ひとり用の上限を超えるブランド数・ブログ数を持たせる。
+    const { uc, saved } = wsDeps({ brands: 99, sites: 99 });
+    const got = await uc.execute(owner, { ...AN_UPDATE, plan: "solo" });
+
+    if (!got.ok) throw got.error;
+    // 消す作りにすると、料金の欄を触っただけで記事の載っているブログが消える。
+    expect(saved).toHaveLength(1);
+    expect(got.value.overLimits.length).toBeGreaterThan(0);
+    expect(got.value.overLimits.join("")).toContain("上限");
+  });
+
+  it("上限に収まっているなら超過は空", async () => {
+    const { uc } = wsDeps({ brands: 1, sites: 1 });
+    const got = await uc.execute(owner, AN_UPDATE);
+
+    if (!got.ok) throw got.error;
+    expect(got.value.overLimits).toEqual([]);
+  });
+
+  it("区分の名前を素の英字で返さない", async () => {
+    const { uc } = wsDeps();
+    const got = await uc.execute(owner, AN_UPDATE);
+
+    if (!got.ok) throw got.error;
+    expect(got.value.planLabel).not.toBe("team");
+  });
+
+  it("直したら記録が残る", async () => {
+    const { uc, appended } = wsDeps();
+    await uc.execute(owner, AN_UPDATE);
+
+    expect(appended.map((e) => e.action)).toEqual(["workspace.changed"]);
   });
 });

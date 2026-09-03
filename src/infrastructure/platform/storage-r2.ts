@@ -20,6 +20,8 @@ export type R2Like = {
  * （先例: `src/infrastructure/platform/feedback-capture-r2.ts` と
  *   `src/app/api/feedback-captures/[capture]/route.ts`）。
  *
+ * 判断の全文は `docs/product/design-decisions.md` の §5。
+ *
  * それでもここが仮のままなのは、**この置き場をまだ誰も使っていない**ため。
  * `createR2Storage` の呼び出しは 0 件で、画像も書き出しファイルも見本のままなので、
  * 取り出す口だけ先に作っても、そこから出てくるものが無い。

@@ -7,8 +7,6 @@
  * `drizzle/*.sql` を順に当てた実物の D1 に対して書いて読む。
  * 印が付いていなかっただけで、検査は前からここにあった。
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
@@ -21,6 +19,7 @@ import { RETENTION_DAYS } from "@/domain/analytics";
 import type { ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
 import { OTHER_WORKSPACE, WORKSPACE, anOwner } from "../support/actors";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 計測を **本物の D1 と本物のマイグレーション**で受け取り、
@@ -60,7 +59,14 @@ let deps: AppDeps;
 const owner: ActorContext = anOwner({ workspaceId: WORKSPACE });
 const otherOwner: ActorContext = anOwner({ workspaceId: OTHER_WORKSPACE });
 
-const SITE = "makuring";
+/**
+ * 計測イベントに載せるブログの slug。**ただの値**で、実在サイトを指す必要はない。
+ * 以前は参考サイトのホスト名をそのまま置いていたが、
+ * 転用ゲート (`scripts/check-reference-site-reuse.mjs`) が禁じている実名の写しであり、
+ * この検査が見ているのは「送った slug がそのまま数字の切り口になるか」だけなので、
+ * 中立な slug に置き換えた。値は path 側とここで必ず一致させる。
+ */
+const SITE = "sample-blog";
 
 /** 何の切り口も指定していない状態。数字を直接書き込めないことの確認だけに使う。 */
 const EMPTY_DIMENSIONS: MetricDimensions = {
@@ -78,19 +84,6 @@ const EMPTY_DIMENSIONS: MetricDimensions = {
 };
 
 /** マイグレーションの本文を、実行できる単位に割る。 */
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
@@ -124,7 +117,7 @@ function pageView(over: Record<string, unknown> = {}) {
   return {
     key: "page_view",
     payload: {
-      path: "/s/makuring/a/laptop",
+      path: `/s/${SITE}/a/laptop`,
       siteSlug: SITE,
       referrerKind: "search",
       ...over,
@@ -135,14 +128,14 @@ function pageView(over: Record<string, unknown> = {}) {
 function pageExit(seconds: number, percent = 60) {
   return {
     key: "page_exit",
-    payload: { path: "/s/makuring/a/laptop", siteSlug: SITE, percent, seconds },
+    payload: { path: `/s/${SITE}/a/laptop`, siteSlug: SITE, percent, seconds },
   };
 }
 
 function scrollDepth(percent: number) {
   return {
     key: "scroll_depth",
-    payload: { path: "/s/makuring/a/laptop", siteSlug: SITE, percent },
+    payload: { path: `/s/${SITE}/a/laptop`, siteSlug: SITE, percent },
   };
 }
 
@@ -159,7 +152,7 @@ async function row(actor: ActorContext, key: string) {
 describe("計測から数字までを本物の D1 で通す", () => {
   it("送ったページ表示が、そのまま表示回数の数字になる", async () => {
     const written = await record().execute(owner, {
-      events: [pageView(), pageView({ path: "/s/makuring/a/tablet" }), pageView()],
+      events: [pageView(), pageView({ path: `/s/${SITE}/a/tablet` }), pageView()],
       signals: CONSENTED,
     });
     expect(written.ok && written.value.accepted, "受け取れていません").toBe(3);

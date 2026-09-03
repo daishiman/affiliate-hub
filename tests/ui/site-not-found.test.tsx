@@ -103,7 +103,7 @@ describe("無いブログ", () => {
     // 状態コードだけ直して画面を素っ気なくすると、読者はそこで詰まる。
     const html = await renderRoute("@/app/s/[site]/not-found", propsOf({ file: "" }));
     const text = textOf(html);
-    expect(text).toContain("このブログは見つかりませんでした");
+    expect(text).toContain("このページは見つかりませんでした");
     expect(text).toContain("アドレスの綴り");
 
     const { document, cleanup } = intoDom(html);

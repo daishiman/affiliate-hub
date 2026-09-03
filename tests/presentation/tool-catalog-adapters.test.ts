@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   TENANT_ISOLATION_MIN_REACHED,
   TENANT_ISOLATION_MIN_SEPARATION_PROVEN,
+  TENANT_ISOLATION_MIN_WRITE_TOOLS,
 } from "../../quality-gates.config.mjs";
 import type { ActorContext } from "@/domain/shared";
 import { createDeps } from "@/infrastructure/composition";
@@ -23,6 +24,7 @@ import { handleJsonRpc } from "@/presentation/tools/mcp-adapter";
 import { describeTools, handleToolRequest } from "@/presentation/tools/rest-adapter";
 import { invokeTool, type AnyToolDefinition } from "@/presentation/tools/tool-definition";
 import { MAX_TOOLS_PER_PAGE, toWebMcpDescriptors } from "@/presentation/tools/webmcp-adapter";
+import { isListedOnWebMcp } from "@/presentation/tools/webmcp-policy";
 import { NO_HAPPY_PATH, requiredFieldsOf, unknownFields, validInputFor } from "./tool-inputs";
 
 /**
@@ -56,6 +58,21 @@ const JAPANESE = /[ぁ-んァ-ヶー一-龥]/;
 
 const readOnlyTools = catalog.filter((t) => t.readOnly);
 const approvalTools = catalog.filter((t) => t.requiresHumanApproval);
+/**
+ * 正常系を回す対象。**ここだけは、まだ `readOnly` を根拠にしている。**
+ *
+ * 本来の条件は「入力の見本があるから回せる」であって、旗ではない。
+ * それでも書き込みの道具を入れられないのは、**この検査が繰り返し実行されるから**である。
+ * 状態を変える道具は 1 度目と 2 度目で結果が変わる（すでに「対応中」です、など）。
+ * 見本データはモジュールに 1 組しか無いので、回した順に結果が変わってしまう。
+ *
+ * つまりここは「読み取り専用だから」ではなく「**何度呼んでも同じ結果になるから**」で
+ * 選んでいる。旗はその近似として使っている。近似であることをここに書いておかないと、
+ * 「②は旗を根拠にしたままだ」と読めてしまう。
+ *
+ * **旗を根拠にして本当に困るのはテナント分離のほう**（他社のデータを読めるより
+ * 書き換えられるほうが重い）で、そちらは `tenantTools` が別の根拠を持っている。
+ */
 const happyPathTools = readOnlyTools.filter((t) => NO_HAPPY_PATH[t.name] === undefined);
 /**
  * 他社の身元で呼んでみる対象。**`readOnly` で絞らない。**
@@ -127,14 +144,15 @@ describe("3 つの入口が同じものを配る", () => {
     }
   });
 
-  it("WebMCP には読み取り専用だけを、上限の数まで載せる", () => {
-    // ページ内の AI に状態を変えさせない、という決まりを機械にする。
+  it("WebMCP には表に名前のあるものだけを、上限の数まで載せる", () => {
+    // 載せる根拠は道具定義の `readOnly` ではなく `PAGE_TOOLS` である。
     // 数を絞るのは、選択肢が多いほどエージェントが誤った道具を選ぶため。
     const descriptors = toWebMcpDescriptors(catalog);
     expect(descriptors.length).toBeLessThanOrEqual(MAX_TOOLS_PER_PAGE);
+    expect(descriptors.length, "1 件も載っていないと、下の for は何も見ていない").toBeGreaterThan(0);
     for (const d of descriptors) {
       const source = catalog.find((t) => t.name === d.name);
-      expect(source?.readOnly, `${d.name} は読み取り専用ではありません`).toBe(true);
+      expect(isListedOnWebMcp(d.name), `${d.name} は表にありません`).toBe(true);
       expect(source?.requiresHumanApproval, `${d.name} は承認が要る操作です`).toBe(false);
       expect(d.description).toBe(source?.description);
       expect(d.inputSchema).toEqual(source?.inputSchema);
@@ -223,6 +241,23 @@ describe("認証認可", () => {
 });
 
 describe("テナント分離", () => {
+  /**
+   * **対象の選び方が `readOnly` へ戻っていないことを、数で見張る。**
+   *
+   * 下の 2 つの件数（到達・証明）は、対象が読み取りばかりに戻っても同じ数を出せる。
+   * 対象を `readOnly` で絞り直すと、状態を変える道具が丸ごと外れるが、
+   * **外れたことは「緑」として現れる**（回す件数が減るだけで、赤にはならない）。
+   * ここだけが 28 → 0 になって落ちる。
+   */
+  it("対象に、状態を変える道具が入っている", () => {
+    const writers = tenantTools.filter((t) => !t.readOnly);
+    expect(
+      writers.length,
+      `テナント分離の対象に入っている「状態を変える道具」が ${writers.length} 件しかありません。` +
+        "対象の選び方が readOnly へ戻っていないか見てください（選び方は入力の見本の有無です）",
+    ).toBeGreaterThanOrEqual(TENANT_ISOLATION_MIN_WRITE_TOOLS);
+  });
+
   it.each(tenantTools.map(nameOf))("%s は、別の会社に見本データを渡さない", async (name) => {
     const tool = catalog.find((t) => t.name === name)!;
     const result = await invokeTool(tool, OTHER_TENANT, validInputFor(tool)!);
@@ -346,6 +381,20 @@ describe("エラー形式", () => {
 });
 
 describe("まだ出来ていないものが、出来ているふりをしないこと", () => {
+  it("正常系を免れている道具は、理由つきで一覧に載っているものだけ", () => {
+    // **一覧が 0 件になっても、この describe が消えないようにする。**
+    // 空の `it.each` は検査を 1 つも作らない。下の 1 本だけだと、
+    // 一覧が空になった瞬間にこの塊ごと静かに消え、次に 1 件足した人が
+    // 「前からこの検査は無かった」と読める状態になる。
+    for (const [name, why] of Object.entries(NO_HAPPY_PATH)) {
+      expect(
+        catalog.some((t) => t.name === name),
+        `${name} という道具はもうありません。一覧から外してください`,
+      ).toBe(true);
+      expect(why.length, `${name} の理由が書かれていません`).toBeGreaterThan(10);
+    }
+  });
+
   it.each(Object.keys(NO_HAPPY_PATH))("%s は、理由どおり結果を返さない", async (name) => {
     // **NO_HAPPY_PATH は書き得にしない。** ここに名前を書けば正常系の検査を
     // 免れる、という状態にすると、実装が終わった道具もそのまま残り続ける。
@@ -359,6 +408,64 @@ describe("まだ出来ていないものが、出来ているふりをしない�
       // 失敗の仕方も検査する。黙って空を返すのが最も困る。
       expect(result.error.message).toMatch(JAPANESE);
       expect(NO_HAPPY_PATH[name].length, "理由が書かれていません").toBeGreaterThan(10);
+    }
+  });
+});
+
+describe("宣言が、ブラウザへ渡せる形であること", () => {
+  /*
+    **警告ではなく、渡せるかどうかを当てている。**
+
+    React は「サーバーからブラウザへ渡す値」に列挙できない自前の属性があると
+    plain object ではないと判断して落とす。関数は境界を越えられないからである。
+
+    `z.toJSONSchema()` の戻り値がまさにそれだった。zod は仕上げに
+    `Object.defineProperty(..., "~standard", { enumerable: false })` で
+    関数入りの隠し属性を貼る。見た目は JSON なので、目で見ても気づけない。
+
+    **警告文を当てにしない。**警告は開発時にしか出ず、文面も版で変わる。
+    ここで見るのは形そのもの——列挙できない属性が無いこと、
+    そして JSON へ写して戻しても中身が変わらないこと。
+  */
+
+  /** 隠し属性を持つ枝を、根から順に探す。**最初に見つけた場所を言う。** */
+  function hiddenPropertyPath(value: unknown, at = "$"): string | null {
+    if (value === null || typeof value !== "object") return null;
+    if (Array.isArray(value)) {
+      for (const [i, item] of value.entries()) {
+        const found = hiddenPropertyPath(item, `${at}[${i}]`);
+        if (found !== null) return found;
+      }
+      return null;
+    }
+    for (const key of Object.getOwnPropertyNames(value)) {
+      const desc = Object.getOwnPropertyDescriptor(value, key);
+      if (desc === undefined) continue;
+      if (!desc.enumerable) return `${at}.${key}`;
+      if (desc.get !== undefined) return `${at}.${key} (getter)`;
+      const found = hiddenPropertyPath(desc.value, `${at}.${key}`);
+      if (found !== null) return found;
+    }
+    return null;
+  }
+
+  it.each(catalog.map((t) => [t.name, t] as const))(
+    "%s の宣言に、列挙できない属性や getter が無い",
+    (_name, tool: AnyToolDefinition) => {
+      expect(hiddenPropertyPath(tool.inputSchema)).toBeNull();
+    },
+  );
+
+  it("ブラウザへ載せる宣言が、JSON へ写して戻しても変わらない", () => {
+    /*
+      ここだけは実際に渡る経路（`toWebMcpDescriptors`）を通す。
+      道具の一覧に無い形が混ざる余地を消すためである。
+    */
+    const descriptors = toWebMcpDescriptors(catalog);
+    expect(descriptors.length, "ブラウザへ載る道具が 1 つもありません").toBeGreaterThan(0);
+    for (const d of descriptors) {
+      expect(hiddenPropertyPath(d.inputSchema), d.name).toBeNull();
+      expect(JSON.parse(JSON.stringify(d.inputSchema)), d.name).toStrictEqual(d.inputSchema);
     }
   });
 });

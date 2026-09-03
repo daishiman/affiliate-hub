@@ -48,6 +48,8 @@ serves_goals: [G1]
 
 ## 適用された設計知識
 
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
+
 ### Secure by Design — deep knowledge card
 
 - 出典カード: `ref-system-design-knowledge/references/secure-by-design.md`
@@ -97,7 +99,7 @@ serves_goals: [G1]
 
 - 確定要件: OWASP Top 10 準拠、Web/モバイル/タブレットのみ
 - 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)
+- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
 - 資するゴール: G1
 
 ## 最新ドキュメント出典

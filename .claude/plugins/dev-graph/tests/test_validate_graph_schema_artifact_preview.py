@@ -7,19 +7,37 @@ from pathlib import Path
 
 
 PLUGIN = Path(__file__).resolve().parents[1]
+REPO_ROOT = PLUGIN.parents[2]
 SCRIPTS = PLUGIN / "scripts"
 
 
 def _schema_valid_issue_node(graph_node_id: str, file_path: str) -> dict:
-    """Borrow a schema-valid issue node, changing only the identifier and artifact path."""
-    canonical = PLUGIN.parents[1] / ".dev-graph" / "state" / "graph.json"
+    """Borrow a current node and normalize it into a schema-valid local issue."""
+    canonical = REPO_ROOT / ".dev-graph" / "state" / "graph.json"
     document = json.loads(canonical.read_text(encoding="utf-8"))
-    template = next(node for node in document["nodes"] if node.get("artifact_kind") == "issue")
+    template = next(
+        (node for node in document["nodes"] if node.get("artifact_kind") == "issue"),
+        document["nodes"][0],
+    )
     node = dict(template)
     node["graph_node_id"] = graph_node_id
+    node["artifact_kind"] = "issue"
+    node["artifact_subtypes"] = []
     node["file_path"] = file_path
+    node["template_id"] = "issue"
     node["depends_on"] = []
     node["related_nodes"] = []
+    node["parent_feature"] = None
+    node["feature_package_id"] = None
+    node["phase_ref"] = None
+    node["tracker_binding"] = "none"
+    node["beads_linkage"] = None
+    node["github_publication"] = {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": None,
+    }
     return node
 
 

@@ -1,0 +1,69 @@
+{
+  "verb": "init",
+  "timestamp": "2026-08-25",
+  "repository_id": "github:daishiman/affiliate-hub",
+  "worktree_id": "wt_0b00a1c8e7a4e7ca",
+  "content_roots": {
+    "architecture": "architecture",
+    "documents": "docs",
+    "features": "features",
+    "issues": "issues",
+    "specifications": "specs",
+    "system_spec": "system-spec",
+    "tasks": "tasks"
+  },
+  "created": [
+    ".dev-graph/cache",
+    ".dev-graph/locks"
+  ],
+  "preserved": [
+    "issues",
+    "tasks",
+    "specs",
+    "architecture",
+    "features",
+    "docs",
+    ".dev-graph/config.json",
+    ".dev-graph/state/graph.json"
+  ],
+  "migration_preview": [
+    {
+      "path": ".dev-graph/templates/template-contract.json",
+      "action": "preserved_user_edit",
+      "plugin_digest": "839b78daa50d",
+      "local_digest": "55f47725eae8"
+    },
+    {
+      "path": ".dev-graph/templates/repo-config.example.json",
+      "action": "preserved_user_edit",
+      "plugin_digest": "a19c9a84238b",
+      "local_digest": "7f08a667a89b"
+    },
+    {
+      "path": ".dev-graph/templates/README.md",
+      "action": "preserved_user_edit",
+      "plugin_digest": "8e7d1ef876fd",
+      "local_digest": "520af5b90426"
+    },
+    {
+      "path": ".dev-graph/templates/task.md",
+      "action": "preserved_user_edit",
+      "plugin_digest": "5dc37581e7d7",
+      "local_digest": "69c3eac3e6e0"
+    },
+    {
+      "path": ".dev-graph/templates/system-task-spec.md",
+      "action": "preserved_user_edit",
+      "plugin_digest": "50456f71d74b",
+      "local_digest": "6c49f1eed65b"
+    }
+  ],
+  "hook_source": "plugin",
+  "github": {
+    "enabled": false
+  },
+  "schema_result": {
+    "valid": true,
+    "violations": []
+  }
+}

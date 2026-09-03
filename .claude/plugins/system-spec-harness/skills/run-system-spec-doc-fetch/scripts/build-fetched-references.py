@@ -165,6 +165,27 @@ def assemble(records: list) -> dict:
     """
     if not isinstance(records, list):
         raise RecordError("records は配列でない")
+
+    # 素材 0 件は断る。**警告して通す道は選ばない。**
+    #
+    # 理由は 2 つ。(1) この assembler は「取得できた結果を記録する」ためのもので、
+    # 取得結果が 1 件も無いなら記録する対象が無く、呼ぶ必要そのものが無い。
+    # (2) 0 件を通すと `OK: 0 件を … へ書き出した` が exit 0 で出る——
+    # **取得に全滅した回が、成功として記録される。**
+    #
+    # 「対象が本当に 0 件」の運用が通らなくなるが、それは損にならない。
+    # 対象の有無は `--targets` の側で表現されるものであり、targets が空なら
+    # そもそも assemble を呼ばずに済む。断って失うものが無い。
+    #
+    # 中間案 (0 件のまま返し main で警告して非 0) を採らないのは、書き出しだけは
+    # 行う形になり、**空の fetched-references.json が実体として残る**ため。
+    # 残ったファイルは次に読む人にとって「取得済みで 0 件だった」と読める。
+    if not records:
+        raise RecordError(
+            "record 素材が 0 件。取得結果が 1 件も無いなら記録する対象が無い"
+            "(取得に失敗した回を『0 件で成功』として残さないため断る)"
+        )
+
     seen: set[str] = set()
     refs: list[dict] = []
     for rec in records:
@@ -202,10 +223,32 @@ def _load(path_str: str, label: str) -> dict:
 
 
 def _records_from(data) -> list:
-    """--records の入力が list そのものか {"records": [...]} かを吸収する。"""
-    if isinstance(data, dict):
-        return data.get("records", [])
-    return data
+    """--records の入力が list そのものか {"records": [...]} かを吸収する。
+
+    **dict なのに `records` キーが無いとき、黙って [] を返さない。**
+    以前はここが `data.get("records", [])` で、キー名が違う JSON を渡すと 0 件が組み上がり、
+    `OK: 0 件を … へ書き出した` と言って exit 0 で終わっていた。
+    **入力を読めなかったことが、成功として記録される。**
+    この assembler が塞ごうとしている「正規生成器が契約を黙って落とす」と同じ形である。
+
+    とくに紛らわしいのが自分の出力 (`fetched-references.json`) を渡す場合で、
+    こちらは `references` キーを持つため、素材として 1 件も見えないまま通っていた。
+    """
+    if isinstance(data, list):
+        return data
+    if not isinstance(data, dict):
+        raise RecordError(f"records が配列でも {{records:[...]}} でもない (型: {type(data).__name__})")
+    if "records" in data:
+        return data["records"]
+    if "references" in data:
+        # 通したくなる形だが通さない。出力を入力へ差し戻すと、正規化済みの値を
+        # もう一度正規化した結果が「取得結果」として記録される。
+        # 往復の確認がしたいなら、確認する側で `references` を `records` へ写して渡すこと。
+        raise RecordError(
+            "records に fetched-references.json (この assembler の出力形式) が渡された。"
+            "入力は取得結果の素材 {records:[...]} である"
+        )
+    raise RecordError(f"records に `records` キーが無い (見えたキー: {sorted(data)})")
 
 
 def main(argv: list[str]) -> int:

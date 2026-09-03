@@ -296,7 +296,11 @@ describe("公開済み記事の管理", () => {
       readonly name: string;
       readonly input: UpdatePublishedArticleInput;
       readonly message: string;
-      readonly field: string;
+      /*
+        `?` ではなく `| undefined`。**欄名が無いことも書かせる。**
+        省略可にすると、欄名を書き忘れた検査が黙って通る。
+      */
+      readonly field: string | undefined;
     }[] = [
       {
         name: "タイトル",
@@ -326,7 +330,14 @@ describe("公開済み記事の管理", () => {
         name: "節構成",
         input: updateInput({ sections: updateInput().sections.slice(0, 1) }),
         message: "記事の節構成が変わっています。開き直してから訂正してください。",
-        field: "sections",
+        /*
+          **この 1 件だけ欄名が無い（2026-08-30）。**画面に `sections` という欄は
+          存在せず（在るのは節ごとの `sectionHeading` / `sectionBody`）、
+          名前を付けると指す先の無い欄名が画面へ渡る
+          （`tests/architecture/refusal-field-wiring.test.ts` が拾う）。
+          欄名の無い断りは画面上部の状態欄にそのまま出る。
+        */
+        field: undefined,
       },
       {
         name: "節の見出し",

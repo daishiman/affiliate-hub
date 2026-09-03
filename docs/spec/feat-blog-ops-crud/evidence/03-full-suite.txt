@@ -1,0 +1,4 @@
+ Test Files  288 passed (288)
+      Tests  7235 passed (7235)
+
+[exited with code 0]

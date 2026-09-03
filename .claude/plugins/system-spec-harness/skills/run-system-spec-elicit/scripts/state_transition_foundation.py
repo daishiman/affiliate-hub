@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import datetime
 import hashlib
+import re
 from pathlib import Path
 
 from foundation_provenance import (
@@ -17,6 +18,7 @@ from state_transition_common import (
     DECISION_OPTION_FIELDS,
     DECISION_STATUSES,
     FOUNDATION_KEYS,
+    FOUNDATION_NOTE_KEYS,
     TransitionError,
     foundation_goal_ids,
     foundation_missing_fields,
@@ -62,6 +64,27 @@ def _reject_sealed_claims(foundation: dict) -> None:
             )
 
 
+def _quote_asserts_nothing(quote: str) -> bool:
+    """引用が「節の名前」だけで、何も主張していないかを判定する。
+
+    **見出しは必ず逐語で本文に在る。**だから「引用が本文に literal で在ること」
+    という検査は、見出しを貼った瞬間に無条件で通る。通るのに、見出しは何も
+    主張していない——`## 30.8 追跡可能性` は追跡可能性という語を置くだけで、
+    何が追跡できるとも言っていない。**支えになり得ないものが、支えとして封を
+    される。**これは検査の穴であって、書き手の不注意ではない。
+
+    実測 2026-08-25 (独立監査 R6-audit-hearing の指摘を照合): 封済み 23 件のうち
+    `success_criteria[0]` `success_criteria[1]` `stakeholders[0]` `stakeholders[1]`
+    `stakeholders[2]` の 5 件が見出し 1 行だけを引用していた。値そのものは節の
+    本文に支えられており創作ではないが、**引用がその支えを運んでいなかった。**
+
+    見出しが根拠になる場面は無い。節そのものを指したいなら、節の主張している行を
+    引く (`section` 欄が節の位置を既に持っている)。だからこの判定に例外は置かない。
+    """
+    stripped = quote.strip()
+    return bool(re.match(r"^#{1,6}\s", stripped)) and "\n" not in stripped
+
+
 def seal_foundation_sources(state: dict) -> dict:
     """**`field_sources` の書面根拠を、実ファイルへ照合してから封をする。**
 
@@ -90,6 +113,12 @@ def seal_foundation_sources(state: dict) -> dict:
     引用が本文に在ることは確かめられるが、**その引用がその欄の根拠として妥当か**は
     機械では決まらない。文書のどこかに在る一文を、無関係な欄の出典として貼れる。
     ここは `quote` の長さでも位置でも縛れない。
+
+    **一部だけ反転した (2026-08-25)。**「妥当か」は決まらないが、「**そもそも
+    支えになり得ないか**」は決まる場合がある。見出し 1 行だけの引用がそれで、
+    見出しは必ず逐語で本文に在るため上の literal 検査を無条件で通り抜けるのに、
+    何も主張していない。`_quote_asserts_nothing` がこの 1 形だけを塞ぐ。
+    残りの穴 (無関係な一文を貼る / 値の一部しか支えない一文を貼る) は開いたまま。
 
     **⑤ 反転先**: 欄と引用の対応を機械で判定できるようになった日 (例: 欄ごとに
     節番号を要求する)、この doc comment の「塞げていない」記述を消さず、
@@ -152,6 +181,12 @@ def seal_foundation_sources(state: dict) -> dict:
                 f"{FOUNDATION_SEAL_WRITER}: {label} の引用が {path} の本文に見つからない "
                 "(名乗りを封にしない)"
             )
+        if _quote_asserts_nothing(quote):
+            raise TransitionError(
+                f"{FOUNDATION_SEAL_WRITER}: {label} の引用が見出し 1 行だけである: {quote.strip()!r}。"
+                "見出しは節の名前であって主張ではないため、値の根拠になり得ない。"
+                "その節の主張している行を引くこと (節の位置は section 欄が持っている)"
+            )
         digest = hashlib.sha256(target.read_bytes()).hexdigest()
         previous = record.get("sha256")
         if previous == digest:
@@ -188,7 +223,15 @@ def set_foundation(state: dict, foundation: dict) -> None:
     for key, value in foundation.items():
         if key not in FOUNDATION_KEYS:
             raise TransitionError(f"requirements_foundation の未知キー: {key!r}")
+        # 注記欄は空文字を置けてしまうと「在るのに何も言っていない」欄が生まれる。
+        # 消すなら欄ごと消す (null)、置くなら中身を伴わせる。
+        if key in FOUNDATION_NOTE_KEYS and value is not None:
+            if not isinstance(value, str) or not value.strip():
+                raise TransitionError(f"requirements_foundation.{key} は非空文字列または null 必須")
         merged[key] = value
+    for key in FOUNDATION_NOTE_KEYS:
+        if merged.get(key) is None:
+            merged.pop(key, None)
     scope = merged.get("scope")
     if scope is None:
         scope = {"in": [], "out": []}

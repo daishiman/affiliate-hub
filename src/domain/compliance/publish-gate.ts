@@ -9,16 +9,20 @@ import { requiresDisclosure } from "./disclosure";
  * 「次のいずれかが欠ける場合は公開しない」を仕組みで担保する。
  * 目視レビューに任せると、急いでいるときに必ず抜ける。
  *
- * このモジュールは Publication 集約の不変条件そのもの。
- * 記事公開・ブログ配信・SNS投稿の 3 経路すべてがここを通る。
+ * このモジュールはサイト記事向けPublicationの不変条件を定義する。
+ * 外部媒体は、保存されている候補が異なるため `external-publication-gate.ts` が
+ * 同じ `GateResult` 契約で評価する。存在しないサイト項目を捏造して通さない。
  *
  * 検査できない項目は「検査していない」と結果に残す。
  * 空の合格を返すと、通っていない検査が通ったことになる。
  */
-export type GateRequirement =
+export type BasePublicationPolicyRequirement =
   | "author" // 著者
   | "disclosure" // 広告表記
-  | "evidence" // 根拠
+  | "evidence"; // 根拠
+
+export type SitePublishGateRequirement =
+  | BasePublicationPolicyRequirement
   | "update_owner" // 更新責任者
   | "cta_merchant_info" // CTAの販売店情報
   | "image_rights" // 必須画像の権利
@@ -30,6 +34,15 @@ export type GateRequirement =
   | "required_sections" // 記事タイプの必須セクション
   | "next_review_date"; // 次回確認日 (§28 運用)
 
+export type ExternalPublicationGateRequirement =
+  | "human_approval" // 人による承認
+  | "policy_compliance" // 表現ポリシー・自動確認
+  | BasePublicationPolicyRequirement;
+
+export type GateRequirement =
+  | SitePublishGateRequirement
+  | ExternalPublicationGateRequirement;
+
 /**
  * 検査項目の表示名。**ここが唯一の正本**。
  *
@@ -37,6 +50,8 @@ export type GateRequirement =
  * 何を用意すればよいのかが読んだ人に伝わらない。
  */
 export const GATE_REQUIREMENT_LABEL: Readonly<Record<GateRequirement, string>> = {
+  human_approval: "人による承認",
+  policy_compliance: "表現のきまりの確認",
   author: "著者",
   disclosure: "広告・アフィリエイト表記",
   evidence: "根拠",
@@ -70,6 +85,64 @@ export type GateResult = {
   readonly skipped: readonly GateSkip[];
 };
 
+/**
+ * サイトと外部媒体に共通する、読者保護のための最小policy入力。
+ *
+ * 媒体ごとの保存形式をこの形へ正規化し、共通項目の判定と修正文を一元化する。
+ * relationship未設定や人による承認など、媒体にしか存在しない項目は含めない。
+ */
+export type BasePublicationPolicyCandidate = {
+  readonly authorIds: readonly string[];
+  readonly disclosureRequired: boolean;
+  readonly disclosureVisibleMessage: string | null;
+  readonly claimCount: number;
+  readonly evidenceCount: number;
+};
+
+/**
+ * サイトと外部媒体に共通するauthor/disclosure/evidenceを評価する。
+ *
+ * これは媒体全体の公開可否を表す `GateResult` を返さない。媒体固有の検査を
+ * していないのに空のPASSを作らないため、検出した失敗だけをextensionへ返す。
+ */
+export function evaluateBasePublicationPolicy(
+  candidate: BasePublicationPolicyCandidate,
+): readonly GateFailure[] {
+  const failures: GateFailure[] = [];
+
+  if (!candidate.authorIds.some((authorId) => authorId.trim() !== "")) {
+    failures.push({
+      requirement: "author",
+      message: "著者が割り当てられていません。誰が書いたか示さない記事は公開できません。",
+    });
+  }
+
+  if (
+    candidate.disclosureRequired &&
+    (!candidate.disclosureVisibleMessage || candidate.disclosureVisibleMessage.trim() === "")
+  ) {
+    failures.push({
+      requirement: "disclosure",
+      message: "広告関係があるのに、読者へ見せる表示文がありません。ステマ規制の対象になります。",
+    });
+  }
+
+  if (candidate.claimCount > 0 && candidate.evidenceCount === 0) {
+    failures.push({
+      requirement: "evidence",
+      message: `主張が ${candidate.claimCount} 件ありますが、根拠が 1 つも登録されていません。`,
+    });
+  }
+  if (candidate.claimCount === 0) {
+    failures.push({
+      requirement: "evidence",
+      message: "確認済みの主張が 1 つもありません。根拠に紐づかない記事は公開できません。",
+    });
+  }
+
+  return failures;
+}
+
 export type PublishCandidate = {
   readonly articleType: ArticleType;
   readonly presentSections: readonly SectionId[];
@@ -98,7 +171,7 @@ export type PublishCandidate = {
 };
 
 /**
- * 公開してよいか判定する。
+ * サイト記事を公開してよいか判定する。
  *
  * 判定の方針:
  *   - 「読者が誤認しうるもの」は必ず失敗にする (著者・広告表記・根拠・販売店情報)
@@ -106,16 +179,17 @@ export type PublishCandidate = {
  *     (失敗にすると全記事が公開できず、ゲート自体が無効化される)
  */
 export function evaluatePublishGate(c: PublishCandidate): GateResult {
-  const failures: GateFailure[] = [];
+  const failures: GateFailure[] = [
+    ...evaluateBasePublicationPolicy({
+      authorIds: c.authorIds,
+      disclosureRequired:
+        c.relationshipType !== null && requiresDisclosure(c.relationshipType),
+      disclosureVisibleMessage: c.disclosureVisibleMessage,
+      claimCount: c.claimCount,
+      evidenceCount: c.evidenceCount,
+    }),
+  ];
   const skipped: GateSkip[] = [];
-
-  // 著者
-  if (c.authorIds.length === 0) {
-    failures.push({
-      requirement: "author",
-      message: "著者が割り当てられていません。誰が書いたか示さない記事は公開できません。",
-    });
-  }
 
   // 更新責任者
   if (!c.updateOwnerId) {
@@ -130,27 +204,6 @@ export function evaluatePublishGate(c: PublishCandidate): GateResult {
     failures.push({
       requirement: "disclosure",
       message: "広告との関係が未設定です。自費購入の場合もその旨を設定してください。",
-    });
-  } else if (requiresDisclosure(c.relationshipType)) {
-    if (!c.disclosureVisibleMessage || c.disclosureVisibleMessage.trim() === "") {
-      failures.push({
-        requirement: "disclosure",
-        message: "広告関係があるのに、読者へ見せる表示文がありません。ステマ規制の対象になります。",
-      });
-    }
-  }
-
-  // 根拠
-  if (c.claimCount > 0 && c.evidenceCount === 0) {
-    failures.push({
-      requirement: "evidence",
-      message: `主張が ${c.claimCount} 件ありますが、根拠が 1 つも登録されていません。`,
-    });
-  }
-  if (c.claimCount === 0) {
-    failures.push({
-      requirement: "evidence",
-      message: "確認済みの主張が 1 つもありません。根拠に紐づかない記事は公開できません。",
     });
   }
 

@@ -19,7 +19,12 @@ from live_trial_evidence_selection import task_path_from_criteria_receipt
 
 LINT_NAME = "lint-live-trial-task-contract"
 
-FIXTURES_REL = "plugins/dev-graph/tests/fixtures"
+# fixture/scenario は caller repository の成果物ではなく、実行中 plugin 自身の配布物。
+# ``root/plugins`` 固定にすると downstream の ``root/.claude/plugins`` で読めないため、
+# module の実体から plugin-relative に解決する。
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+FIXTURES_REL = "tests/fixtures"
+FIXTURES_DIR = PLUGIN_ROOT / FIXTURES_REL
 SHAPES_REL = f"{FIXTURES_REL}/live_trial_shapes"
 SCENARIOS_REL = f"{FIXTURES_REL}/live-trial-positive-scenarios.json"
 # scenario 正本は dev-graph plugin の live-trial だけを載せる。証跡の置き場所は
@@ -120,7 +125,7 @@ def load_shape_contracts(root: Path) -> dict[str, dict[str, Any]]:
     sys.path へ載せて package として import し、shape 名の対応は package 側の
     ``SHAPE_MODULES`` (正本) に委ねる。
     """
-    fixtures_dir = root / FIXTURES_REL
+    fixtures_dir = FIXTURES_DIR
     if not (fixtures_dir / "live_trial_shapes" / "__init__.py").is_file():
         raise LintError(f"shape package が無い: {SHAPES_REL}")
     if str(fixtures_dir) not in sys.path:
@@ -149,7 +154,7 @@ def load_shape_contracts(root: Path) -> dict[str, dict[str, Any]]:
 
 
 def load_scenarios(root: Path) -> dict[str, dict[str, Any]]:
-    path = root / SCENARIOS_REL
+    path = FIXTURES_DIR / "live-trial-positive-scenarios.json"
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:

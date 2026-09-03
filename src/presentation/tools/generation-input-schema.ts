@@ -75,6 +75,14 @@ export const draftContentVariantSchema = z.object({
   materials: z.array(material).max(20).optional(),
   promptVersion: z.string().regex(/^v[1-9][0-9]*$/).optional(),
   budgetMinor: z.number().int().min(0).nullable().optional(),
+  /**
+   * どのブランドで書くか。
+   *
+   * 渡すと、そのブランドの標準 CTA と標準免責が、**明示しなかった欄だけ**に入る。
+   * `optional()` なのは、18 項目を全部自分で渡す呼び出しがあるため。
+   * 渡さなければ何も補わず、足りない欄はそのまま断られる。
+   */
+  brandId: z.string().min(1).optional(),
 });
 
 /**

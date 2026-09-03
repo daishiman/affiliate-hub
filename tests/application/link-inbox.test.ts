@@ -19,8 +19,9 @@ import {
   filterLabel,
   type ManageLinkInboxDeps,
 } from "@/application/usecases/monetization/manage-link-inbox";
-import type { WorkspaceId } from "@/domain/shared";
-import { markCommercial } from "@/domain/shared";
+import { type LinkIngestion, createLinkIngestion } from "@/domain/monetization";
+import type { LinkIngestionId, WorkspaceId } from "@/domain/shared";
+import { markCommercial, ok, taggedString } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anAnalyst, anOwner } from "../support/actors";
 import { failing, recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
@@ -66,6 +67,19 @@ function inboxThatFails(over: Record<string, unknown>): ManageLinkInboxDeps["inb
     ...testDeps().linkInbox,
     ...over,
   }) as ManageLinkInboxDeps["inbox"];
+}
+
+/** 既に受信箱にある 1 本。取り合いに勝っている相手として渡す。 */
+function anIngestion(id: string, url: string): LinkIngestion {
+  const built = createLinkIngestion({
+    id: taggedString<"LinkIngestionId">(id) as LinkIngestionId,
+    workspaceId: SAMPLE_WORKSPACE_ID as WorkspaceId,
+    submittedUrl: url,
+    source: "paste",
+    submittedAt: new Date(),
+  });
+  if (!built.ok) throw new Error(`試験用の受信リンクが作れません: ${built.error.message}`);
+  return built.value;
 }
 
 /** 貼り付けるたびに違う URL を作る。見本の受信箱は動いている間ずっと溜まるため。 */
@@ -171,13 +185,94 @@ describe("受け取り", () => {
 
   it("重なりを調べられないときは、受け取ったことにしない", async () => {
     const result = await createSubmitAffiliateUrlUseCase(
-      deps({ inbox: inboxThatFails({ findByNormalizedUrl: async () => failing() }) }),
+      deps({ inbox: inboxThatFails({ claimNormalizedUrl: async () => failing() }) }),
     ).execute(actor, { url: freshUrl(), source: "paste" });
 
     // 調べられないまま受け取ると、重複したまま記事に 2 本並ぶ。
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.code).toBe("NOT_IMPLEMENTED");
+  });
+
+  it("重なりの判定は、読み直しではなく取り合いで決める", async () => {
+    /*
+     * **一覧や URL 検索の結果で決めていないこと**を、ここで固定する。
+     * 読んでから入れる形に戻すと、2 人が同時に貼ったときに
+     * 両方が「無い」を読み、どちらにも印が付かない
+     * （その実測は `tests/integration/d1-link-inbox.test.ts`）。
+     *
+     * ここでは「取り合いに負けた」とだけ答える保存先を渡す。
+     * 受信箱の中身は空のままなので、読み直しで決めていたら印は付かない。
+     */
+    const url = freshUrl();
+    const winner = "li_taken_first";
+    const holder = anIngestion(winner, url);
+    const inbox = inboxThatFails({
+      claimNormalizedUrl: async () => ok(holder.id),
+      findById: async () => ok(holder),
+    });
+
+    const result = await createSubmitAffiliateUrlUseCase(deps({ inbox })).execute(actor, {
+      url,
+      source: "paste",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.duplicate).toBe(true);
+    // 印は相手を指す。指していないと、どちらを本体として扱ったか分からない。
+    expect(result.value.item.duplicateOf).toBe(winner);
+  });
+
+  it("対象外にしたら、その URL の取り合いから降りる", async () => {
+    /*
+     * 降りないと、捨てたリンクを相手に指した「重複」が次から延々と出る。
+     * 貼り直した人には、既にあると言われた先が対象外のリンクで、
+     * どうすれば通るのか分からない形になる。
+     */
+    const released: string[] = [];
+    const inbox = inboxThatFails({
+      releaseNormalizedUrl: async (_ws: unknown, url: string, id: unknown) => {
+        released.push(`${url} ${String(id)}`);
+        return ok(undefined);
+      },
+    });
+
+    const submitted = await createSubmitAffiliateUrlUseCase(deps({ inbox })).execute(actor, {
+      url: freshUrl(),
+      source: "paste",
+    });
+    expect(submitted.ok).toBe(true);
+    if (!submitted.ok) return;
+
+    const rejected = await createRejectLinkIngestionUseCase(deps({ inbox })).execute(actor, {
+      linkIngestionId: submitted.value.item.id,
+      reason: "提携が終了した広告主のため",
+    });
+    expect(rejected.ok).toBe(true);
+    // 降ろすのは**自分の分だけ**。他人の取り分まで消すと、
+    // 次の貼り付けが重複でなくなる。
+    expect(released).toHaveLength(1);
+    expect(released[0]).toContain(submitted.value.item.id);
+  });
+
+  it("取り合いから降ろせないときは、対象外にできたことにしない", async () => {
+    const submitted = await createSubmitAffiliateUrlUseCase(deps()).execute(actor, {
+      url: freshUrl(),
+      source: "paste",
+    });
+    expect(submitted.ok).toBe(true);
+    if (!submitted.ok) return;
+
+    const result = await createRejectLinkIngestionUseCase(
+      deps({ inbox: inboxThatFails({ releaseNormalizedUrl: async () => failing() }) }),
+    ).execute(actor, {
+      linkIngestionId: submitted.value.item.id,
+      reason: "提携が終了した広告主のため",
+    });
+
+    // 降ろせないまま成功を返すと、次の貼り付けが捨てたリンクを指す。
+    expect(result.ok).toBe(false);
   });
 
   it("保存できないときは、成功したことにしない", async () => {
@@ -187,6 +282,25 @@ describe("受け取り", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.message.trim()).not.toBe("");
+  });
+
+  it("取り合いに勝った後で保存できなければ、孤児claimを残さない", async () => {
+    const released: string[] = [];
+    const inbox = inboxThatFails({
+      claimNormalizedUrl: async (_ws: unknown, _url: string, candidateId: LinkIngestionId) =>
+        ok(candidateId),
+      save: async () => failing(),
+      releaseNormalizedUrl: async (_ws: unknown, url: string, id: LinkIngestionId) => {
+        released.push(`${url} ${String(id)}`);
+        return ok(undefined);
+      },
+    });
+    const result = await createSubmitAffiliateUrlUseCase(deps({ inbox })).execute(actor, {
+      url: freshUrl(),
+      source: "paste",
+    });
+    expect(result.ok).toBe(false);
+    expect(released).toHaveLength(1);
   });
 
   it("受け取ったことは、出来事として流れる", async () => {

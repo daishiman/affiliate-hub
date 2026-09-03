@@ -1,0 +1,36 @@
+{
+  "phase": "P01",
+  "feature": "feat-feedback-capture-self-exclusion",
+  "detection": {
+    "rule": "src/presentation/ui 配下の *.module.css で position: fixed を持つ class",
+    "enforced_by": "tests/ui/floating-overlay-declaration.test.ts"
+  },
+  "overlays": [
+    {
+      "class": "feedbackLauncher",
+      "css": "src/presentation/ui/patterns/patterns.module.css",
+      "used_by": "src/presentation/ui/patterns/feedback-button.tsx",
+      "declares_attribute": true,
+      "note": "右下固定の起動ボタン。変更前から名乗っていた（重なり監査のため）"
+    },
+    {
+      "class": "feedbackDialog",
+      "css": "src/presentation/ui/patterns/patterns.module.css",
+      "used_by": "src/presentation/ui/patterns/feedback-button.tsx",
+      "declares_attribute": true,
+      "note": "送信モーダル。本 feature で名乗らせた。撮り直し経路で退避の対象になる"
+    },
+    {
+      "class": "skipLink",
+      "css": "src/presentation/ui/primitives/ui.module.css",
+      "declares_attribute": false,
+      "exempt_reason": "焦点が当たるまで画面外にあり、写しにも重なり判定にも現れないため"
+    },
+    {
+      "class": "skipLink",
+      "css": "src/presentation/ui/templates/site.module.css",
+      "declares_attribute": false,
+      "exempt_reason": "焦点が当たるまで画面外にあり、写しにも重なり判定にも現れないため"
+    }
+  ]
+}
