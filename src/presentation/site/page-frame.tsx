@@ -60,7 +60,20 @@ export async function SiteFrame({
   readonly sidebar?: ReactNode;
   readonly children: (ctx: SiteContext) => ReactNode;
 }) {
-  const result = await (await siteUseCases()).getSite.execute(readerActor(), { siteSlug });
+  const useCases = await siteUseCases();
+  const actor = readerActor();
+  /*
+    ブログの設計図と、サイドバーに出すブランドを**同時に**取る。
+    順番に待つと、18 本すべてのルートで往復が 1 回分ずつ増える。
+
+    ブランドが読めなかったときは失敗にしない。記事は読めているのに
+    棚が 1 つ数えられなかっただけで画面全体を落とすと、
+    読者は読めるはずのものを読めなくなる。
+  */
+  const [result, brands] = await Promise.all([
+    useCases.getSite.execute(actor, { siteSlug }),
+    useCases.listBrands.execute(actor, { siteSlug }),
+  ]);
 
   if (!result.ok) {
     /*
@@ -76,7 +89,7 @@ export async function SiteFrame({
   }
 
   const blueprint = result.value.blueprint;
-  const chrome = toChrome(siteSlug, blueprint);
+  const chrome = toChrome(siteSlug, blueprint, brands.ok ? brands.value : []);
 
   /*
     読者の明るさの選択を読む。**18 本のルートで別々に読まない。**

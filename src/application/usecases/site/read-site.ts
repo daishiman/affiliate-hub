@@ -1,4 +1,5 @@
 import type {
+  BrandTally,
   EditorialPublishedContentPort,
   EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
@@ -148,6 +149,25 @@ export function createListRecentArticlesUseCase(
   return {
     async execute(_actor, input) {
       return deps.content.listRecent(input.siteSlug, input.limit ?? DEFAULT_LIST_LIMIT);
+    },
+  };
+}
+
+/**
+ * サイドバーの「ブランドから探す」。
+ *
+ * 0 件は失敗ではない。商品を扱っていないブログ（読み物だけのブログ）では
+ * 0 件が正しい答えで、そのとき画面はこの欄ごと出さない。
+ * ここで空を失敗として返すと、読み物のブログを開くたびに
+ * 「読み込めませんでした」が出る。
+ */
+export function createListArticleBrandsUseCase(
+  deps: ReadSiteDeps,
+): UseCase<{ readonly siteSlug: string }, readonly BrandTally[]> {
+  guardEditorial(deps);
+  return {
+    async execute(_actor, input) {
+      return deps.content.listBrands(input.siteSlug);
     },
   };
 }

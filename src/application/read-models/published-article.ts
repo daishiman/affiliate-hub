@@ -240,3 +240,38 @@ export function toSummary(article: PublishedArticle): ArticleSummary {
     authorName: article.author.name,
   };
 }
+
+/**
+ * 記事の束から、ブランドと本数を数える。
+ *
+ * **保存先の実装ごとに数え方を書かない。** D1 と見本の両方が同じ関数を通る。
+ * 別々に書くと、開発中の画面と公開後の画面でブランドの並びが変わり、
+ * どちらが正しいのかを人が判断できなくなる。
+ *
+ * --- 数え方の決まり ---
+ * 1 本の記事が同じブランドを何枚出していても 1 本と数える。
+ * 読者が知りたいのは「読める記事が何本あるか」であり、
+ * 商品カードの枚数ではない。
+ *
+ * 並びは「本数の多い順 → 同数なら名前順」。名前順を後ろに置くのは、
+ * 同数のときに並びが実行ごとに変わると、読者が前回見た位置を頼りにできないため。
+ */
+export function tallyBrands(
+  articles: readonly PublishedArticle[],
+): readonly { readonly name: string; readonly articleCount: number }[] {
+  const counts = new Map<string, number>();
+  for (const article of articles) {
+    // 同じ記事の中の重複をここで潰す。潰さないと商品カードの枚数を数えることになる。
+    const brandsInArticle = new Set(
+      (article.productCards ?? [])
+        .map((card) => card.brand.trim())
+        .filter((brand) => brand !== ""),
+    );
+    for (const brand of brandsInArticle) {
+      counts.set(brand, (counts.get(brand) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .map(([name, articleCount]) => ({ name, articleCount }))
+    .sort((a, b) => b.articleCount - a.articleCount || a.name.localeCompare(b.name));
+}

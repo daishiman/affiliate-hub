@@ -54,6 +54,19 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
       }),
     );
 
+  /**
+   * 本文ではなく、画面の骨格の脇にだけ出るもの。
+   *
+   * これも失敗させる（本物を通すと、失敗した骨格を一度も描かないことになる）が、
+   * **「本文が保存先を見た」とは数えない。** 数えると、保存先を一切見ない画面
+   * （固定文の案内など）まで「取れなかった」扱いになり、
+   * 正しく本文が出ているのに「表示できません」を出せと要求してしまう。
+   *
+   * 骨格の脇が欠けたときに本文が無事であることは、これらの画面が
+   * 下の「中身が空では困る」検査を通ることで確かめられる。
+   */
+  const FRAME_ONLY = new Set(["listBrands"]);
+
   /** 中身の「実行できるもの」だけを、必ず失敗するものに置き換える。 */
   const degrade = (bundle: unknown): unknown => {
     if (bundle === null || typeof bundle !== "object") return bundle;
@@ -68,7 +81,7 @@ vi.mock("@/presentation/composition", async (importOriginal) => {
         ? {
             ...(value as object),
             execute: async () => {
-              seen.used = true;
+              if (!FRAME_ONLY.has(key)) seen.used = true;
               return refusal();
             },
           }

@@ -29,6 +29,8 @@ export { TextArea, type TextAreaProps } from "./primitives/textarea";
 export { ToolForm } from "./primitives/tool-form";
 export { Callout, type CalloutTone } from "./primitives/callout";
 export { LoadingView, EmptyView, ErrorView } from "./primitives/state-view";
+export { Icon } from "./primitives/icon";
+export { ICON_NAMES, pickCategoryIcon, type IconName } from "./primitives/icon-name";
 
 /* --- patterns（仕様固有。画面ごとに書き起こさない） --------------------- */
 export {
@@ -145,6 +147,7 @@ export {
   PublicShell,
   type SiteChrome,
   type SiteNavItem,
+  type SiteBrandTag,
   type CategoryDirectoryItem,
   type CategoryArticleGroupView,
 } from "./templates/site-shell";

@@ -13,11 +13,12 @@ import {
   routesFor,
   siteBasePathBySlug,
 } from "@/domain/authoring";
-import type {
-  ArticleCardView,
-  ArticleViewModel,
-  CorrectionView,
-  SiteChrome,
+import {
+  pickCategoryIcon,
+  type ArticleCardView,
+  type ArticleViewModel,
+  type CorrectionView,
+  type SiteChrome,
 } from "@/presentation/ui";
 
 /**
@@ -64,7 +65,18 @@ export function siteRouteHref(
  * 中身はすべて設計図とルート表から作る。ブログごとに書き並べない。
  * 書き並べると、ブログを 1 本増やすたびに案内を作り直すことになる。
  */
-export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): SiteChrome {
+export function toChrome(
+  siteSlug: string,
+  blueprint: PublicSiteBlueprint,
+  /**
+   * 記事から数えたブランド。読めなかったときは省く。
+   *
+   * 省いた結果この欄が消えるのは意図どおり。読み込みに失敗した棚に
+   * 「読み込めませんでした」と出しても、読者にできることが無い
+   * （記事そのものは読めている）。
+   */
+  brands: readonly { readonly name: string; readonly articleCount: number }[] = [],
+): SiteChrome {
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
   const search = routes.find((r) => r.key === "search");
@@ -73,6 +85,13 @@ export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): Site
   const categoryNav = blueprint.categories.map((c) => ({
     href: siteHref(siteSlug, `/categories/${c.slug}`),
     label: c.name,
+    /*
+      記号は**ここで決める**。共通UI に決めさせない。
+      共通UI は「渡された形を出すだけ」に保つ決まりで（要求 E-2）、
+      そこにカテゴリー名の読み解きを入れると、
+      画面の部品がブログの中身を知っている状態になる。
+    */
+    icon: pickCategoryIcon(c.name, c.slug),
   }));
 
   const nav = [
@@ -87,6 +106,21 @@ export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): Site
     brandTheme: blueprint.theme.brandTheme,
     nav,
     categoryNav,
+    /*
+      押した先は検索の画面。ブランド専用の画面は作らない。
+      作ると、記事が 1 本も無いブランドの URL が独立して存在することになり、
+      検索エンジンには中身の無いページとして拾われる。
+      検索なら、結果が 0 件でも「探した結果」として意味が通る。
+    */
+    brands: brands.map((brand) => ({
+      label: brand.name,
+      count: brand.articleCount,
+      href: `${
+        search === undefined
+          ? `${siteBasePathBySlug(siteSlug)}/search`
+          : siteRouteHref(siteSlug, search)
+      }?q=${encodeURIComponent(brand.name)}`,
+    })),
     homeHref: home === undefined ? siteBasePathBySlug(siteSlug) : siteRouteHref(siteSlug, home),
     searchHref:
       search === undefined ? `${siteBasePathBySlug(siteSlug)}/search` : siteRouteHref(siteSlug, search),

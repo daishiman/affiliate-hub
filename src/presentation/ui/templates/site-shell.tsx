@@ -5,6 +5,7 @@ import { UI_COPY } from "../copy";
 import type { ConsentAnswer } from "../consent";
 import { AppearancePicker } from "../patterns/appearance-picker";
 import { ConsentBanner } from "../patterns/consent-banner";
+import { Icon, type IconName } from "../primitives/icon";
 import type { SelectOption } from "../primitives/select";
 import { ArticleList, type ArticleCardView } from "./article-view";
 import styles from "./site.module.css";
@@ -24,6 +25,27 @@ import styles from "./site.module.css";
 export type SiteNavItem = {
   readonly href: string;
   readonly label: string;
+  /**
+   * 一覧の中で形から見分けるための記号。
+   *
+   * **色は持たせない。** 色で区別すると、色覚の違いや高コントラスト表示で
+   * 区別が消える。無いときは文字だけで出す（抜けても壊れない）。
+   */
+  readonly icon?: IconName;
+};
+
+/**
+ * ブランドで探すための 1 つ。
+ *
+ * 件数を持たせるのは、大きさで扱いの多さを見せるため。
+ * ただし**大きさだけに頼らない**。数字も併記する
+ * （大きさの差は、拡大表示や高コントラスト表示では読み取りづらい）。
+ */
+export type SiteBrandTag = {
+  readonly href: string;
+  readonly label: string;
+  /** そのブランドを扱っている公開記事の本数。 */
+  readonly count: number;
 };
 
 export type SiteChrome = {
@@ -37,6 +59,15 @@ export type SiteChrome = {
   readonly nav: readonly SiteNavItem[];
   /** サイドバーに出すカテゴリーだけの案内。 */
   readonly categoryNav: readonly SiteNavItem[];
+  /**
+   * ブランドで探すための一覧。
+   *
+   * 記事から数えて作る。**運営が手で並べる欄にしない。**
+   * 手で並べると、記事を書いた日と欄を直す日がずれ、
+   * 「載っているのに探せないブランド」が静かに増える。
+   * 扱いが 0 本のブランドはここに来ない（押すと空振りする導線を作らない）。
+   */
+  readonly brands: readonly SiteBrandTag[];
   /** ロゴとサイドバーから戻るブログの入口。 */
   readonly homeHref: string;
   /** 共通検索フォームの送信先。 */
@@ -140,33 +171,79 @@ export function SiteShell({
         )}
         <div className={styles.siteBody}>
           <div className={styles.siteContent}>{children}</div>
+          {/*
+            サイドバーは 2 段に分ける。
+
+            上の段（探すための道具）は本文と一緒に流れ、
+            下の段（目次と広告）は読んでいる間ずっと貼り付く。
+
+            なぜ全部を貼り付けないのか: 検索とカテゴリーは
+            **読み終わってから**使うもので、読んでいる最中に必要なのは
+            「いま記事のどこにいるか」だけである。全部貼り付けると、
+            画面の高さを常に占有した上に、目次が画面外へ押し出される。
+          */}
           <aside className={styles.siteSidebar} aria-label="記事を探す">
-            {sidebar}
-            <section className={styles.sidebarSection}>
-              <h2 className={styles.sidebarHeading}>キーワードから探す</h2>
-              <SiteSearch
-                action={chrome.searchHref}
-                inputId="site-sidebar-search"
-                landmarkLabel="サイドバーから記事を探す"
-              />
-            </section>
-            <section className={styles.sidebarSection}>
-              <h2 className={styles.sidebarHeading}>カテゴリーから探す</h2>
-              <nav aria-label="カテゴリーの案内">
-                <ul className={styles.sidebarLinks}>
-                  {chrome.categoryNav.map((item) => (
-                    <li key={item.href}>
-                      <Link href={item.href}>{item.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </section>
-            <section className={styles.sidebarSection}>
-              <h2 className={styles.sidebarHeading}>このブログについて</h2>
-              <p>{chrome.tagline}</p>
-              <Link href={chrome.aboutHref}>運営方針を見る</Link>
-            </section>
+            <div className={styles.sidebarFlow}>
+              <section className={styles.sidebarSection}>
+                <h2 className={styles.sidebarHeading}>
+                  <Icon name="search" className={styles.sidebarHeadingIcon} />
+                  キーワードから探す
+                </h2>
+                <SiteSearch
+                  action={chrome.searchHref}
+                  inputId="site-sidebar-search"
+                  landmarkLabel="サイドバーから記事を探す"
+                />
+              </section>
+              <section className={styles.sidebarSection}>
+                <h2 className={styles.sidebarHeading}>
+                  <Icon name="compass" className={styles.sidebarHeadingIcon} />
+                  カテゴリーから探す
+                </h2>
+                <nav aria-label="カテゴリーの案内">
+                  <ul className={styles.sidebarLinks}>
+                    {chrome.categoryNav.map((item) => (
+                      <li key={item.href}>
+                        <Link href={item.href}>
+                          <Icon
+                            name={item.icon ?? "tag"}
+                            className={styles.sidebarLinkIcon}
+                          />
+                          <span>{item.label}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </section>
+              {chrome.brands.length > 0 && (
+                <section className={styles.sidebarSection}>
+                  <h2 className={styles.sidebarHeading}>
+                    <Icon name="tag" className={styles.sidebarHeadingIcon} />
+                    ブランドから探す
+                  </h2>
+                  <BrandTagCloud brands={chrome.brands} />
+                </section>
+              )}
+              <section className={styles.sidebarSection}>
+                <h2 className={styles.sidebarHeading}>
+                  <Icon name="home" className={styles.sidebarHeadingIcon} />
+                  このブログについて
+                </h2>
+                <p>{chrome.tagline}</p>
+                <Link href={chrome.aboutHref}>運営方針を見る</Link>
+              </section>
+            </div>
+            {/*
+              **目次を広告より上に置く。** この欄は高さに上限があり、
+              入りきらない分は中でスクロールさせる作りなので、
+              上に置いたほうが必ず見える。参考にした作りは広告が上だったが、
+              読んでいる間ずっと見えていてほしいのは、読者が現在地を確かめる目次のほう。
+            */}
+            <div className={styles.sidebarSticky}>
+              {sidebar}
+              <SidebarAdSlot />
+            </div>
           </aside>
         </div>
       </main>
@@ -209,6 +286,82 @@ export function SiteShell({
         </div>
       </footer>
     </div>
+  );
+}
+
+/**
+ * ブランドの一覧。扱いの多いものほど大きく出す。
+ *
+ * --- 大きさの段を 3 つに絞る理由 ---
+ * 参考にした作りは件数に比例した連続の大きさ（8pt〜22pt）だった。
+ * ここでは 3 段にする。小さい側が本文より小さくなると押しづらくなり、
+ * 指で操作する人と拡大して読む人が最初に切り捨てられる。
+ * 3 段なら「多い・普通・少ない」は伝わり、下限は本文と同じに保てる。
+ *
+ * 件数は**数字でも書く**。大きさの差は拡大表示では読み取れない。
+ */
+function BrandTagCloud({ brands }: { readonly brands: readonly SiteBrandTag[] }) {
+  const counts = brands.map((b) => b.count);
+  const max = Math.max(...counts);
+  const min = Math.min(...counts);
+  /*
+    全部が同じ本数のときは差を付けない。
+    差が無いのに大小を付けると、無い意味を読ませることになる。
+  */
+  const span = max - min;
+
+  const sizeOf = (count: number): "lg" | "md" | "sm" => {
+    if (span === 0) return "md";
+    const ratio = (count - min) / span;
+    if (ratio >= 0.66) return "lg";
+    if (ratio >= 0.33) return "md";
+    return "sm";
+  };
+
+  return (
+    <ul className={styles.brandCloud}>
+      {brands.map((brand) => (
+        <li key={brand.href}>
+          <Link
+            href={brand.href}
+            className={styles.brandTag}
+            data-size={sizeOf(brand.count)}
+            /* 読み上げには件数まで含めて 1 度で伝える。 */
+            aria-label={`${brand.label}（${brand.count} 件の記事）`}
+          >
+            <Icon name="tag" className={styles.brandTagIcon} />
+            <span>{brand.label}</span>
+            <span className={styles.brandTagCount} aria-hidden="true">
+              {brand.count}
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * 広告の場所。
+ *
+ * いまは**枠だけ**で、配信の仕組みは入っていない。
+ * 空の四角を黙って置かないのは、読者からは読み込み失敗と区別が付かないため。
+ * 何も入っていないことを文字で言う。
+ *
+ * `data-ad-slot` は差し込み側の目印。この属性を目印にすれば、
+ * 配信を入れるときにこのファイルを触らずに済む。
+ */
+function SidebarAdSlot() {
+  return (
+    <section className={styles.sidebarAd} aria-label="広告の場所">
+      <p className={styles.sidebarAdLabel}>
+        <Icon name="megaphone" className={styles.sidebarHeadingIcon} />
+        広告
+      </p>
+      <div className={styles.sidebarAdFrame} data-ad-slot="sidebar">
+        <span>この場所には広告が入ります。</span>
+      </div>
+    </section>
   );
 }
 

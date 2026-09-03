@@ -8,11 +8,13 @@ import {
   type ArticleSummary,
   type PublishedArticle,
   type PublishedPerson,
+  tallyBrands,
   toSummary,
 } from "@/application/read-models/published-article";
 import { publishedArticles } from "@/db/schema";
 import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { createSampleContentRepository } from "../sample/content-sample-repository";
+import { sampleArticlesBySite } from "../sample/content-sample-data";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
 
@@ -127,6 +129,37 @@ export function createD1ContentRepository(db: DrizzleD1): EditorialPublishedCont
         return ok(merged.slice(0, limit));
       } catch (cause) {
         return storageFailure("新着記事の読み込み", cause);
+      }
+    },
+
+    /*
+      ブランドの数え直し。
+
+      **数える前に重ねる。** 保存済みの集計と見本の集計を別々に出してから
+      足すと、同じ URL 名の記事が両方に居るときに 1 本を 2 本と数える。
+      ここだけ見本の記事そのものを読むのは、集計済みの数を返す口
+      (`samples.listBrands`) では重ね合わせができないため。
+    */
+    async listBrands(siteSlug: string) {
+      try {
+        const rows = await db
+          .select({
+            slug: publishedArticles.slug,
+            archivedAt: publishedArticles.archivedAt,
+            articleJson: publishedArticles.articleJson,
+          })
+          .from(publishedArticles)
+          .where(eq(publishedArticles.siteSlug, siteSlug));
+        const stored = rows.filter((row) => row.archivedAt === null).map((row) => parse(row.articleJson));
+        const merged = mergeBySlug(
+          stored,
+          sampleArticlesBySite(siteSlug),
+          // 非表示にした記事の URL 名も押さえる。取り下げた記事を見本で埋め戻さない。
+          rows.map((row) => row.slug),
+        );
+        return ok(tallyBrands(merged));
+      } catch (cause) {
+        return storageFailure("ブランド一覧の読み込み", cause);
       }
     },
 

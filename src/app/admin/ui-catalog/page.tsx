@@ -24,6 +24,8 @@ import {
   FactSourceBadge,
   FactualityBadge,
   FilterBar,
+  ICON_NAMES,
+  Icon,
   LoadingView,
   MaterialReview,
   ModelPicker,
@@ -692,6 +694,23 @@ export default function UiCatalogPage() {
         <Card>
           <h2 className={styles.sectionTitle}>22. 詰まり具合の見比べ</h2>
           <DensitySamples />
+        </Card>
+
+        <Card>
+          <h2 className={styles.sectionTitle}>23. 記号</h2>
+          <p className={styles.sectionLead}>
+            線だけで描き、色は周りの文字と同じものを引き継ぎます。項目ごとに違う色は付けません。
+            付けると、読者が高コントラスト表示を選んだときの置き換えを素通りします。
+            区別は形で付けるので、色の見え方が違っても同じだけ伝わります。
+            必ず文字の隣に置いてください（読み上げには出ません）。
+          </p>
+          <div className={styles.catalogRow}>
+            {ICON_NAMES.map((name) => (
+              <span key={name}>
+                <Icon name={name} /> {name}
+              </span>
+            ))}
+          </div>
         </Card>
       </Page>
     </AdminShell>

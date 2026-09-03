@@ -5,9 +5,9 @@
 要件 → テストの向きは `docs/product/traceability.md` が正本で、ここはその裏返しに
 テスト側の `@req` 印を重ねたもの。
 
-- 最終更新: 2026-08-29
-- テストファイル: 215 件
-- 由来の要件が分かる: 187 件
+- 最終更新: 2026-09-03
+- テストファイル: 216 件
+- 由来の要件が分かる: 188 件
 - **由来不明: 28 件**（上限 28 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -212,6 +212,7 @@
 | `tests/ui/fact-source.test.ts` | REQ-QC04, REQ-W07 | 印と表 |
 | `tests/ui/feedback-admin-forms.test.tsx` | REQ-FB08, REQ-FB12 | 表 |
 | `tests/ui/feedback-button.test.tsx` | REQ-FB02, REQ-FB03, REQ-FB04 | 印と表 |
+| `tests/ui/icon-name.test.ts` | REQ-B02, REQ-B08 | 印 |
 | `tests/ui/improvement-forms.test.tsx` | REQ-IM09 | 印と表 |
 | `tests/ui/keyboard-operation.test.tsx` | REQ-B01, REQ-B02, REQ-B03, REQ-B04, REQ-B05, REQ-B06, REQ-B07, REQ-B08, REQ-B09, REQ-B10, REQ-B11, REQ-B12, REQ-B13, REQ-B14, REQ-B15, REQ-B16, REQ-B17, REQ-B18, REQ-FB07, REQ-IM09, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-P05, REQ-P06, REQ-P07, REQ-P08, REQ-P09, REQ-P10, REQ-S01, REQ-S02, REQ-S03, REQ-S04, REQ-S05, REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10, REQ-SEC08, REQ-TH01, REQ-TM02, REQ-TM03, REQ-TM05, REQ-TM06, REQ-TM10, REQ-TS05 | 印と表 |
 | `tests/ui/llm-credential-forms.test.tsx` | REQ-SEC01 | 印 |
@@ -235,4 +236,4 @@
 | `tests/ui/tool-form.test.tsx` | REQ-WC05 | 印と表 |
 | `tests/ui/ui-layers.test.ts` | REQ-S09, REQ-TM05 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-TS12 | 印 |
-<!-- 生成物の指紋 sha256:565df3f97705e6e569371716a2eb225d47322c22d5eb06c22e396cb76fedf214 -->
+<!-- 生成物の指紋 sha256:238b87bd270b328b4bffc80278224744d8382477a53546354315647761f11ebd -->

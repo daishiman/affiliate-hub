@@ -5,6 +5,7 @@ import type {
   EditorialPublishedContentPort,
 } from "@/application/ports/site";
 import { countTrackingCoverage } from "@/application/read-models/article-tracking";
+import { tallyBrands } from "@/application/read-models/published-article";
 import { markEditorial, ok } from "@/domain/shared";
 import { stubCall } from "../../stub-registry";
 import {
@@ -108,6 +109,9 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
         (a) => a.title.toLowerCase().includes(q) || a.summary.toLowerCase().includes(q),
       );
       return ok(sampleArticleSummaries(hit.slice(0, limit)));
+    },
+    async listBrands(siteSlug: string) {
+      return ok(tallyBrands(sampleArticlesBySite(siteSlug)));
     },
     async findPerson(siteSlug: string, kind: "author" | "expert", slug: string) {
       return ok(

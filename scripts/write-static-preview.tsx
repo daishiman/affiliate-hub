@@ -65,6 +65,7 @@ import { siteHref, toArticleCards, toArticleView, toChrome } from "@/presentatio
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   articleHref,
+  tallyBrands,
   type ArticleSummary,
   type PublishedArticle,
 } from "@/application/read-models/published-article";
@@ -124,8 +125,10 @@ function siteBody(
   siteSlug: string,
   blueprint: PublicSiteBlueprint,
   recent: readonly ArticleSummary[],
+  /* サイドバーの「ブランドで探す」。実物と同じく、公開記事から数えたものを渡す。 */
+  brands: readonly { readonly name: string; readonly articleCount: number }[],
 ): string {
-  const chrome = toChrome(siteSlug, blueprint);
+  const chrome = toChrome(siteSlug, blueprint, brands);
   return renderToStaticMarkup(
     <SiteShell chrome={chrome} currentPath={siteHref(siteSlug, "/")}>
       <SiteHomeContent view={toSiteHomeView(siteSlug, blueprint, recent)} />
@@ -351,17 +354,18 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
   const sheets: Sheet[] = [];
 
   for (const { slug, blueprint, summaries, articles } of sites) {
+    const brands = tallyBrands(articles);
     sheets.push({
       out: `${SITES_DIR_OUT}/${slug}.html`,
       title: `${blueprint.name}（トップ）`,
-      bodyHtml: siteBody(slug, blueprint, summaries),
+      bodyHtml: siteBody(slug, blueprint, summaries, brands),
       appHref: siteHref(slug, "/"),
       kind: "site",
       group: blueprint.name,
       branches: ["ブログのトップ"],
     });
 
-    const chrome = toChrome(slug, blueprint);
+    const chrome = toChrome(slug, blueprint, brands);
     for (const current of articles) {
       const related = toArticleCards(
         slug,

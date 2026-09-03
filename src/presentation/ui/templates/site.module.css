@@ -154,9 +154,45 @@
   line-height: var(--leading-heading);
 }
 
+/*
+  サイドバーは本文と同じ高さまで伸ばす。
+
+  **ここが目次を貼り付ける鍵。** `.siteBody` は `align-items: start` なので、
+  何もしないとサイドバーは中身の高さ（数百 px）で止まる。
+  貼り付く要素は親の高さの中でしか動けないため、
+  親が短いままだと `position: sticky` を書いても本文の途中で流れ去る。
+*/
 .siteSidebar {
   display: grid;
+  grid-template-rows: auto 1fr;
   gap: var(--space-5);
+  align-self: stretch;
+}
+
+/* 上の段。探すための道具。本文と一緒に流れる。 */
+.sidebarFlow {
+  display: grid;
+  gap: var(--space-5);
+  align-content: start;
+}
+
+/*
+  下の段。読んでいる間ずっと見えている場所。
+
+  `max-height` と `overflow-y` を必ず組にする。片方だけだと、
+  節の多い記事で目次の下側が画面の外に出たまま届かなくなる。
+  `overscroll-behavior` は、目次の端まで来たときに
+  裏の本文が動き出すのを止める（読んでいた位置を見失わせない）。
+*/
+.sidebarSticky {
+  position: sticky;
+  top: var(--space-4);
+  align-self: start;
+  display: grid;
+  gap: var(--space-4);
+  max-height: calc(100vh - var(--space-7));
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .sidebarSection {
@@ -177,11 +213,38 @@
 }
 
 .sidebarHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
   color: var(--color-text-strong);
   font-size: var(--text-sm);
   line-height: var(--leading-heading);
   font-weight: var(--weight-bold);
+}
+
+/*
+  見出しの記号は控えめに。見出しの文字より目立つと、
+  読者は記号の並びを先に読もうとして、肝心の見出しが後回しになる。
+*/
+.sidebarHeadingIcon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+
+/*
+  項目の記号は本文と同じ濃さで出す。
+  こちらは「どのカテゴリーか」を形で見分けるためのもので、
+  見出しの飾りとは役割が違う。
+*/
+.sidebarLinkIcon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+
+.sidebarLinks a:hover .sidebarLinkIcon,
+.sidebarLinks a:focus-visible .sidebarLinkIcon {
+  color: var(--color-action-hover);
 }
 
 .sidebarLinks {
@@ -201,6 +264,7 @@
 .sidebarLinks a {
   display: flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: var(--tap-target-min);
   color: var(--color-text-default);
   text-decoration: none;
@@ -209,6 +273,106 @@
 .sidebarLinks a:hover,
 .sidebarLinks a:focus-visible {
   text-decoration: underline;
+}
+
+/* --- ブランドで探す ----------------------------------------------------- */
+
+.brandCloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+  押せる大きさを最初に確保してから、文字の大きさで多寡を見せる。
+  順番を逆にすると、扱いの少ないブランドだけ押しづらい状態になる。
+*/
+.brandTag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-target-min);
+  padding-inline: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+  color: var(--color-text-default);
+  text-decoration: none;
+  line-height: var(--leading-heading);
+}
+
+.brandTag[data-size="sm"] {
+  font-size: var(--text-sm);
+}
+
+.brandTag[data-size="md"] {
+  font-size: var(--text-base);
+}
+
+.brandTag[data-size="lg"] {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  border-color: var(--color-border-strong);
+}
+
+.brandTag:hover,
+.brandTag:focus-visible {
+  border-color: var(--color-accent-border);
+  color: var(--color-action-hover);
+}
+
+.brandTagIcon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+
+/*
+  件数は必ず本文と同じ濃さより薄く、かつ薄すぎない位置に置く。
+  ブランド名と同じ濃さだと、名前と数字のどちらを読むのか迷う。
+*/
+.brandTagCount {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- 広告の場所 --------------------------------------------------------- */
+
+.sidebarAd {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/*
+  「広告」の 3 文字は、広告そのものより先に読まれる位置に置く。
+  下や横に置くと、読者は中身を読んでから広告だと知ることになる。
+*/
+.sidebarAdLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+}
+
+.sidebarAdFrame {
+  display: grid;
+  place-items: center;
+  /* 刻みの外の生値を書かない。枠の高さも縦のリズムに乗せる。 */
+  min-height: calc(var(--space-8) * 2);
+  padding: var(--space-4);
+  border: var(--border-width-default) dashed var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  text-align: center;
 }
 
 .siteSearch {
@@ -540,6 +704,12 @@
 .section {
   display: grid;
   gap: var(--space-3);
+  /*
+    目次から飛んできたとき、見出しを画面の上端にぴったり付けない。
+    付けると「その節の始まり」が視界の端に来て、読者は自分が
+    正しい場所に着いたのか一瞬わからなくなる。少し余白を残す。
+  */
+  scroll-margin-top: var(--space-5);
 }
 
 .sectionHeading {
@@ -580,9 +750,52 @@
   letter-spacing: var(--tracking-wide);
 }
 
+/*
+  貼り付けるのは 1 つ外の `.sidebarSticky` の役目。ここでは高さの上限だけ外す
+  （上限を二重に掛けると、目次の中に 2 つ目のスクロール領域ができる）。
+*/
 .tocSidebar {
-  position: sticky;
-  top: var(--space-4);
+  min-width: 0;
+}
+
+.tocSidebar .tocLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tocSidebar ul {
+  padding-inline-start: 0;
+  list-style: none;
+  gap: 0;
+}
+
+.tocSidebar a {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-inline-start: var(--border-width-emphasis) solid transparent;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.tocSidebar a:hover,
+.tocSidebar a:focus-visible {
+  background: var(--color-action-subtle);
+  text-decoration: underline;
+}
+
+/*
+  いま読んでいる節。**地色だけで示さない。**
+  左の線と文字の太さも一緒に変える。地色の差は、
+  明るい画面と暗い画面で見え方が変わり、高コントラスト表示では消える。
+*/
+.tocSidebar a[data-active="true"] {
+  border-inline-start-color: var(--color-accent-border);
+  background: var(--color-accent-subtle);
+  color: var(--color-text-on-accent);
+  font-weight: var(--weight-semibold);
 }
 
 .tocInline {
@@ -815,6 +1028,17 @@
     order: 2;
     padding-top: var(--space-6);
     border-top: var(--border-width-emphasis) solid var(--color-border-strong);
+  }
+
+  /*
+    細い画面では貼り付けない。1 列になるとサイドバーは本文の**下**に来るため、
+    貼り付けると読み終わる前に画面の一部を占領し続けることになる。
+    高さの上限も外す（本文の下では最後まで見せてよい）。
+  */
+  .sidebarSticky {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
   }
 
   .tocSidebar {

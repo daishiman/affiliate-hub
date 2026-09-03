@@ -18,6 +18,18 @@ import type { PortResult } from "./common";
  * 変わるのはブループリントの設定値だけ。
  */
 
+/**
+ * ブランド 1 つと、それを扱っている記事の本数。
+ *
+ * 同じブランドを 2 度出す記事があっても 1 本と数える
+ * （読者が知りたいのは「読める記事が何本あるか」であって、
+ * 商品カードが何枚あるかではない）。
+ */
+export type BrandTally = {
+  readonly name: string;
+  readonly articleCount: number;
+};
+
 export type SiteRepositoryPort = {
   /** URL の名前からブログを引く。無ければ null（画面側で 404）。 */
   findBySlug(slug: string): PortResult<SiteBlueprint | null>;
@@ -34,6 +46,17 @@ export type PublishedContentPort = {
   findArticle(siteSlug: string, slug: string): PortResult<PublishedArticle | null>;
   /** 自然文での検索。件数 0 は失敗ではない。 */
   search(siteSlug: string, query: string, limit: number): PortResult<readonly ArticleSummary[]>;
+  /**
+   * このブログが扱っているブランドと、その本数。
+   *
+   * 記事に出ている商品カードから数える。**商品台帳を引かない。**
+   * 台帳を引くと、まだ記事にしていない商品のブランドまで出て、
+   * 読者は「押しても記事が 1 本も無い」導線を渡される。
+   *
+   * 扱いが 0 本のブランドは返さない（数える対象がそもそも記事だから、
+   * 0 本のブランドはここに現れようが無い）。
+   */
+  listBrands(siteSlug: string): PortResult<readonly BrandTally[]>;
   /** 書き手・監修者。 */
   findPerson(
     siteSlug: string,

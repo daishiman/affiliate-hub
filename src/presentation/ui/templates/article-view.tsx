@@ -16,6 +16,7 @@ import {
 import { StubNotice } from "../patterns/stub-notice";
 import { EmptyView } from "../primitives/state-view";
 import { type TelemetrySectionKind, telemetrySectionAttrs } from "../telemetry-attrs";
+import { SidebarTableOfContents } from "./toc-sidebar";
 import styles from "./site.module.css";
 
 /**
@@ -110,6 +111,12 @@ export type ArticleViewModel = {
  * 原稿に書かせない。手で書かせると、節を 1 つ足した日に目次だけ古くなり、
  * 読者は「無い項目」へ飛ばされる。節が 2 つ以下のときは出さない
  * （目次を読む手間のほうが大きい）。
+ *
+ * サイドバーに置くときだけ、いま読んでいる節に印を付ける
+ * （`SidebarTableOfContents`）。貼り付いて視界に居続けるものが
+ * どこも指していないと、場所を取るだけの飾りになるため。
+ * 本文の中の目次には印を付けない。読み進めれば画面から出ていくものに、
+ * 端末側の見張りを増やす理由が無い。
  */
 export function ArticleTableOfContents({
   sections,
@@ -119,15 +126,19 @@ export function ArticleTableOfContents({
   readonly placement?: "inline" | "sidebar";
 }) {
   if (sections.length < 3) return null;
+
+  if (placement === "sidebar") {
+    return (
+      <SidebarTableOfContents
+        entries={sections.map((s) => ({ id: s.id, heading: s.heading }))}
+      />
+    );
+  }
+
   return (
     <nav
-      className={[
-        styles.tableOfContents,
-        placement === "sidebar" ? styles.tocSidebar : styles.tocInline,
-      ].join(" ")}
-      aria-label={`${UI_COPY.article.tocTitle}（${
-        placement === "sidebar" ? "サイドバー" : "本文"
-      }）`}
+      className={[styles.tableOfContents, styles.tocInline].join(" ")}
+      aria-label={`${UI_COPY.article.tocTitle}（本文）`}
     >
       <p className={styles.tocLabel}>{UI_COPY.article.tocTitle}</p>
       <ul>
