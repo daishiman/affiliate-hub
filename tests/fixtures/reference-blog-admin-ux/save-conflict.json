@@ -1,0 +1,8 @@
+{
+  "article_id": "bar_conflict_fixture",
+  "stored_revision": 4,
+  "first_writer_expected_revision": 4,
+  "stale_writer_expected_revision": 4,
+  "expected_after_first_write": 5,
+  "stale_writer_result": "CONFLICT"
+}

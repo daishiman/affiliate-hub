@@ -1,0 +1,1225 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+  "parent_feature": "feat-reference-blog-admin-ux",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P01": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P02": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P03": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P04": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P05": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P06": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P07": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P08": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P09": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P10": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P11": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P12": "beads",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "全公開URL・画面型・現行画面の要求ベースライン確定",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/requirements-baseline.md",
+        "docs/spec/feat-reference-blog-admin-ux/reference-url-inventory.json",
+        "docs/spec/feat-reference-blog-admin-ux/sitemap-snapshot.json",
+        "docs/spec/feat-reference-blog-admin-ux/page-archetype-analysis.md",
+        "docs/spec/feat-reference-blog-admin-ux/screen-inventory.md",
+        "docs/spec/feat-reference-blog-admin-ux/current-screen-gap-ledger.md",
+        "docs/spec/feat-reference-blog-admin-ux/acceptance-traceability.json"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P01 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p01.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "低認知負荷UI・URLプレビュー・非模倣公開面の設計",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P01"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/data-model.md",
+        "docs/spec/feat-reference-blog-admin-ux/api-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/interaction-state-machine.md",
+        "docs/spec/feat-reference-blog-admin-ux/component-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/non-copying-design-system.md",
+        "docs/spec/feat-reference-blog-admin-ux/affiliate-preview-contract.md"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P02 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "設計の独立レビューと非模倣・安全性ゲート",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P02"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/design-review.md"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P03 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p03.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入・回帰・アクセシビリティ・ユーザビリティのテスト設計",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P03"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/test-design.md",
+        "docs/spec/feat-reference-blog-admin-ux/usability-test-protocol.md",
+        "tests/fixtures/reference-blog-admin-ux/"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P04 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p04.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "分析基盤・公開面・直感的管理CRUD・affiliate可視化の実装",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P04"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "scripts/reference-site-analysis/",
+        "src/app/admin/blog/",
+        "src/app/admin/content/",
+        "src/app/admin/affiliate/links/",
+        "src/app/s/[site]/",
+        "src/presentation/admin/",
+        "src/presentation/site/",
+        "src/presentation/ui/",
+        "src/domain/blogops/",
+        "src/domain/monetization/",
+        "src/application/usecases/blog-ops/",
+        "src/application/usecases/monetization/",
+        "src/application/read-models/",
+        "src/application/ports/",
+        "src/infrastructure/persistence/d1/",
+        "src/infrastructure/persistence/sample/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "tests/"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P05 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p05.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "単体・結合・E2E・securityテストの実行と緑化",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/test-run-report.md",
+        "test-results/reference-blog-admin-ux/"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P06 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p06.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "A1–A12と初見操作性のfeature受入",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P06"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/acceptance-report.md",
+        "docs/spec/feat-reference-blog-admin-ux/usability-report.md"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P07 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p07.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存blog-ops・affiliate・保存モデルとの移行と重複解消",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "data",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/domain/blogops/",
+        "src/domain/monetization/",
+        "src/application/usecases/blog-ops/",
+        "src/application/usecases/monetization/",
+        "src/infrastructure/persistence/d1/",
+        "src/presentation/admin/",
+        "docs/spec/feat-reference-blog-admin-ux/migration-report.md"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P08 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p08.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "アクセシビリティ・性能・安全性・非模倣の独立QA",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P08"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/qa-report.md",
+        "test-results/reference-blog-admin-ux/qa/"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P09 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p09.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "目的・受入・品質証跡の独立最終レビュー",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/final-review.md"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P10 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p10.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "全URL分析・受入・QA証跡の再現可能な集約",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/evidence/"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P11 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p11.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理者ガイド・分析更新runbook・障害対応の確定",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P11"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/admin-guide.md",
+        "docs/spec/feat-reference-blog-admin-ux/analysis-refresh-runbook.md",
+        "docs/spec/feat-reference-blog-admin-ux/affiliate-preview-runbook.md",
+        "docs/spec/feat-reference-blog-admin-ux/operations.md",
+        "docs/spec/feat-reference-blog-admin-ux/api-contract.md",
+        "docs/spec/feat-reference-blog-admin-ux/data-model.md"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P12 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p12.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "development段階展開・rollback確認・仕様書への書き戻し",
+      "project_id": "feature-package-feat-reference-blog-admin-ux",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-reference-blog-admin-ux"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-29T14:56:20Z",
+      "updated_at": "2026-08-29T14:56:20Z",
+      "depends_on": [
+        "SYS-REFERENCE-BLOG-ADMIN-UX-P12"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reference-blog-admin-ux/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "parent_feature": "feat-reference-blog-admin-ux",
+      "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json",
+        "evaluated_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+        "imported_at": "2026-08-29T14:56:20Z"
+      },
+      "classification_confidence": 1,
+      "classification_reason": "feat-reference-blog-admin-ux の P13 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1,
+          "candidate_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p13.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-29T14:38:12Z"
+      }
+    }
+  ]
+}

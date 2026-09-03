@@ -1,0 +1,13 @@
+{
+  "graph_node_id": "feat-blog-ui-builder",
+  "patch": {
+    "source_lineage": {
+      "imported_at": "2026-08-29T23:02:28Z",
+      "origin_kind": "generated",
+      "source_digest": "2a4248717f4ad9540be1bf2cb17b4a24e1fdc97a5baf4664ad6a023f8e8d77bd",
+      "source_path": "system-spec/ui-ux.md",
+      "source_plugin": "dev-graph",
+      "source_version": "0.1.0"
+    }
+  }
+}

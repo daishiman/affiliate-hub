@@ -9,6 +9,7 @@ import type {
   PublishedPerson,
 } from "@/application/read-models/published-article";
 import { type SiteBlueprint, routesFor } from "@/domain/authoring";
+import { UNCATEGORIZED_ARTICLE_CATEGORY } from "@/domain/blogops";
 import {
   type ActorContext,
   type DomainError,
@@ -75,7 +76,14 @@ function notFound(what: string): DomainError {
  */
 export type PublicSiteBlueprint = Omit<SiteBlueprint, "workspaceId">;
 
-function toPublicBlueprint(blueprint: SiteBlueprint): PublicSiteBlueprint {
+/**
+ * 作業場所の識別子を落とす。**落とす場所はここだけ。**
+ *
+ * 公開する読み口を組み立てる側（静止した写しを焼く道具も含む）は、
+ * 自分で `workspaceId` を消さずにこれを呼ぶ。各自で消すと、
+ * 消し忘れた 1 経路だけが内部識別子を載せて出る形が作れる。
+ */
+export function toPublicBlueprint(blueprint: SiteBlueprint): PublicSiteBlueprint {
   const { workspaceId: _workspaceId, ...rest } = blueprint;
   return rest;
 }
@@ -198,7 +206,10 @@ export function createListByCategoryUseCase(
       if (!site.ok) return site;
       if (site.value === null) return err(notFound("ブログ"));
 
-      const category = site.value.categories.find((c) => c.slug === input.categorySlug);
+      const category =
+        input.categorySlug === UNCATEGORIZED_ARTICLE_CATEGORY.slug
+          ? UNCATEGORIZED_ARTICLE_CATEGORY
+          : site.value.categories.find((c) => c.slug === input.categorySlug);
       if (category === undefined) return err(notFound("カテゴリー"));
 
       const articles = await deps.content.listByCategory(input.siteSlug, input.categorySlug);
@@ -305,7 +316,7 @@ export function createGetPersonUseCase(deps: ReadSiteDeps): UseCase<GetPersonInp
       if (person.value === null) {
         return err(notFound(input.kind === "author" ? "書き手" : "監修者"));
       }
-      const articles = await deps.content.listByPerson(input.siteSlug, input.slug);
+      const articles = await deps.content.listByPerson(input.siteSlug, input.kind, input.slug);
       if (!articles.ok) return articles;
       return ok({ person: person.value, kind: input.kind, articles: articles.value });
     },

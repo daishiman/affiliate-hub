@@ -47,6 +47,7 @@ function toDomain(row: AuditLogRow): AuditLogEntry {
     before: parseJson(row.beforeJson),
     after: parseJson(row.afterJson),
     reason: row.reason,
+    requestId: row.requestId,
     occurredAt: row.occurredAt,
   };
 }
@@ -70,25 +71,36 @@ function parseJson(value: string | null): Readonly<Record<string, unknown>> | nu
   }
 }
 
+/**
+ * 監査行の保存形式を 1 か所にする。
+ *
+ * 通常の `append` と、サイト作成の Unit of Work は同じ `audit_logs` 行を書く。
+ * 変換を 2 か所に複製すると、後から列を足した日に原子的作成側だけが古い形になる。
+ */
+export function auditLogValues(entry: AuditLogEntry): typeof auditLogs.$inferInsert {
+  return {
+    id: String(entry.id),
+    workspaceId: String(entry.workspaceId),
+    action: entry.action,
+    actorUserId: entry.actor.userId === null ? null : String(entry.actor.userId),
+    actorIsAi: entry.actor.isAiServiceAccount,
+    actorIdentified: entry.actor.identified,
+    actorModelId: entry.actor.modelId,
+    targetType: entry.targetType,
+    targetId: entry.targetId,
+    beforeJson: entry.before === null ? null : JSON.stringify(entry.before),
+    afterJson: entry.after === null ? null : JSON.stringify(entry.after),
+    reason: entry.reason,
+    requestId: entry.requestId,
+    occurredAt: entry.occurredAt,
+  };
+}
+
 export function createD1AuditLog(db: DrizzleD1): AuditLogPort {
   return {
     async append(entry) {
       try {
-        await db.insert(auditLogs).values({
-          id: String(entry.id),
-          workspaceId: String(entry.workspaceId),
-          action: entry.action,
-          actorUserId: entry.actor.userId === null ? null : String(entry.actor.userId),
-          actorIsAi: entry.actor.isAiServiceAccount,
-          actorIdentified: entry.actor.identified,
-          actorModelId: entry.actor.modelId,
-          targetType: entry.targetType,
-          targetId: entry.targetId,
-          beforeJson: entry.before === null ? null : JSON.stringify(entry.before),
-          afterJson: entry.after === null ? null : JSON.stringify(entry.after),
-          reason: entry.reason,
-          occurredAt: entry.occurredAt,
-        });
+        await db.insert(auditLogs).values(auditLogValues(entry));
       } catch (cause) {
         return storageFailure("操作の記録", cause);
       }

@@ -1,7 +1,5 @@
 import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
-import type { SiteBlueprint } from "@/domain/authoring";
 import { markEditorial, ok } from "@/domain/shared";
-import { sampleSites } from "../sample/site-sample-repository";
 import { listPublishedBlueprints } from "./site-draft-repository";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
@@ -9,20 +7,13 @@ import { storageFailure } from "./storage-failure";
 /**
  * 読者向けブログの一覧（D1）。
  *
- * **見本を消さない。** ウィザードで作ったブログを保存先へ載せても、
- * 見本は残したまま合わせて返す。消すと、まだ 1 本も作っていない状態で
- * 読者側の画面が全部空になり、「作っていない」のか「壊れている」のかを
- * 見分けられなくなる。見本には仮であることの表示が付いている。
- *
- * **同じ URL 名なら、作ったほうが勝つ。** 見本と同じ名前で作った人が、
- * 自分の作ったものを開けないのはおかしいため。
+ * D1 モードでは D1 に実在するブログだけを返す。
+ * コード上の見本を一覧に重ねると、管理画面では開けるように見えるのに
+ * D1 を読む公開経路では 404 になる。見本は sample モードの保存先だけが
+ * 返し、一覧と公開解決のモード境界を一致させる。
  */
-type SiteEntry = { readonly slug: string; readonly blueprint: SiteBlueprint };
-
-async function allSites(db: DrizzleD1): Promise<readonly SiteEntry[]> {
-  const published = await listPublishedBlueprints(db);
-  const takenSlugs = new Set(published.map((entry) => entry.slug));
-  return [...published, ...sampleSites().filter((entry) => !takenSlugs.has(entry.slug))];
+async function allSites(db: DrizzleD1) {
+  return (await listPublishedBlueprints(db)).published;
 }
 
 /**

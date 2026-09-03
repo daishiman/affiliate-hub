@@ -49,6 +49,7 @@ const actorArb = (workspaceId: string) =>
         workspaceId: taggedString<"WorkspaceId">(workspaceId),
         userId: "u_prop",
         roles,
+        scopedBrandIds: [],
         isAiServiceAccount: isAi,
         identified: true,
       }),
@@ -68,6 +69,7 @@ describe("テナントの境界", () => {
             workspaceId: taggedString<"WorkspaceId">(actorWs),
             userId: "u_prop",
             roles: ["owner"],
+            scopedBrandIds: [],
             isAiServiceAccount: false,
             identified: true,
           };
@@ -95,6 +97,7 @@ describe("テナントの境界", () => {
             workspaceId: taggedString<"WorkspaceId">(actorWs),
             userId: "u_prop",
             roles: ["owner"],
+            scopedBrandIds: [],
             isAiServiceAccount: false,
             identified: true,
           };
@@ -117,7 +120,14 @@ describe("テナントの境界", () => {
         const id = taggedString<"WorkspaceId">(ws);
         const entity = { workspaceId: id, payload: "x" };
         const result = assertSameTenant(
-          { workspaceId: id, userId: "u", roles: [], isAiServiceAccount: false, identified: true },
+          {
+            workspaceId: id,
+            userId: "u",
+            roles: [],
+            scopedBrandIds: [],
+            isAiServiceAccount: false,
+            identified: true,
+          },
           entity,
           "記事",
         );
@@ -138,6 +148,13 @@ describe("権限の性質", () => {
     );
   });
 
+  /**
+   * ここが見るのは「一覧に載っているものは、どんな役の積み方でも通らない」だけである。
+   * **一覧から 1 件消えたことは、この性質では言えない**（回す元が同じ一覧なので、
+   * 縮めば検査も縮む）。中身が欠けていないことは
+   * `tests/domain/permissions.test.ts`「AI に必ず断るもの（REQ-R10）」が
+   * 要件の文から起こした別の一覧で見ている。片方だけにしないこと。
+   */
   it("AI サービスアカウントは、どの役割を積んでも人限定の操作に到達できない", () => {
     fc.assert(
       fc.property(rolesArb, fc.constantFrom(...HUMAN_ONLY_CAPABILITIES), (roles, cap) => {
@@ -145,6 +162,7 @@ describe("権限の性質", () => {
           workspaceId: taggedString<"WorkspaceId">("ws"),
           userId: "u_ai",
           roles,
+          scopedBrandIds: [],
           isAiServiceAccount: true,
           identified: true,
         };
@@ -173,6 +191,7 @@ describe("権限の性質", () => {
               workspaceId: taggedString<"WorkspaceId">("ws"),
               userId: "u",
               roles: [],
+              scopedBrandIds: [],
               isAiServiceAccount: isAi,
               identified: true,
             },
@@ -201,6 +220,7 @@ describe("権限の性質", () => {
           workspaceId: taggedString<"WorkspaceId">("ws"),
           userId: "u",
           roles: have,
+          scopedBrandIds: [],
           isAiServiceAccount: false,
           identified: true,
         };

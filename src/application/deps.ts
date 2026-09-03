@@ -6,6 +6,7 @@ import type {
   EditorialScoreCardRepositoryPort,
   EditorialTestRunRepositoryPort,
 } from "./ports";
+import type { BlogOpsRepositoryPort, PublicBlogPort } from "./ports/blog-ops";
 import type {
   EditorialContentPackageRepositoryPort,
   EditorialContentVariantRepositoryPort,
@@ -14,6 +15,7 @@ import type {
 } from "./ports/authoring";
 import type {
   ChannelConnectionRepositoryPort,
+  ChannelConnectorProviderPort,
   ManualExportPort,
   PublicationRepositoryPort,
 } from "./ports/distribution";
@@ -51,14 +53,18 @@ import type {
   CommercialLinkIngestionRepositoryPort,
 } from "./ports/monetization";
 import type {
+  ContactRateLimitKeyPort,
   EditorialContactPort,
+  EditorialHumanCheckPort,
   EditorialReaderToolPort,
   EditorialShortlistPort,
 } from "./ports/reader-interaction";
 import type {
+  EditorialArticleOfferPort,
   EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
   EditorialPublishedContentPort,
+  EditorialSiteDocumentRepositoryPort,
   EditorialSiteRepositoryPort,
 } from "./ports/site";
 
@@ -80,19 +86,59 @@ export type AppDeps = {
   readonly testRuns: EditorialTestRunRepositoryPort;
   readonly sites: EditorialSiteRepositoryPort;
   readonly publishedContent: EditorialPublishedContentPort;
+  /**
+   * ブログの固定文書（運営者情報・各方針・規約・特商法表記）を出し入れする口。
+   *
+   * 読者に出る 1 枚引き（`publishedContent.findPolicyDocument`）と**同じ表**を読む。
+   * 別々の置き場にすると、直したのに読者に出ない事故が静かに起きる。
+   */
+  readonly siteDocuments: EditorialSiteDocumentRepositoryPort;
   /** 記事を読者ページへ出す口。読み口と分けている理由は ports/site.ts に書いた。 */
   readonly publishedArticles: EditorialPublishedArticleWriterPort;
   /** 公開後の訂正と非表示化。読者用の口に混ぜない。 */
   readonly publishedArticleAdmin: EditorialPublishedArticleAdminPort;
+  /**
+   * 記事の版が指している成果リンクを、読者に見せる写しへ引き当てる口。
+   *
+   * **報酬を持たない形しか返さない。** 返す形に報酬の欄が無いので、
+   * 記事の組み立てが「報酬の高い順に並べる」を書けない。
+   */
+  readonly articleOffers: EditorialArticleOfferPort;
   readonly shortlist: EditorialShortlistPort;
   readonly readerTools: EditorialReaderToolPort;
   readonly contact: EditorialContactPort;
+  /** 生IP・利用者IDを保存先へ渡さず、秘密鍵付きの回数制限キーへ変換する。 */
+  readonly contactRateLimitKeys: ContactRateLimitKeyPort;
+  readonly humanCheck: EditorialHumanCheckPort;
   readonly contentPackages: EditorialContentPackageRepositoryPort;
   readonly contentVariants: EditorialContentVariantRepositoryPort;
   readonly personas: EditorialPersonaRepositoryPort;
   /** ブログ作成ウィザードの下書き。ブログを増やすのはコードではなくここのデータ。 */
   readonly siteDrafts: EditorialSiteDraftRepositoryPort;
+  /**
+   * ブログの住所の基底ドメイン（例: `example.com`）。無い環境では `null`。
+   *
+   * **ここに 1 つだけ置く理由**: 住所を組み立てる側（作成）と、届いた要求を
+   * ブログへ振り分ける側（入口）が別々に環境を読むと、片方だけが古い値や
+   * 空文字を見る形が作れる。作れたのに開けないブログはそこから生まれる。
+   * 値の解釈は `infrastructure/platform/site-base-domain.ts` が唯一持つ。
+   */
+  readonly siteBaseDomain: string | null;
+  /**
+   * ブログ運用（版面・記事・タグ・固定ページ）の保管庫。
+   *
+   * **画面だけでなく道具 (`src/presentation/tools/blog-ops-tools.ts`) もここを見る。**
+   * 画面用に別の組み立てを持っていたころは、手元の CLI から記事を書く口が
+   * そもそも存在しなかった。1 か所にしてあるので、
+   * 「画面ではできるが AI からはできない」を作れない。
+   */
+  readonly blogOps: BlogOpsRepositoryPort;
+  /** 管理表示と作成判定も使う、読者面と同じ fail-closed 公開読み口。 */
+  readonly publicBlog: PublicBlogPort;
+  readonly publicBlogSource: "live" | "sample";
   readonly channelConnections: ChannelConnectionRepositoryPort;
+  /** 接続行から、秘密を外へ出さず実媒体コネクタを組み立てる。 */
+  readonly channelConnectors: ChannelConnectorProviderPort;
   readonly publications: PublicationRepositoryPort;
   readonly manualExport: ManualExportPort;
   readonly metrics: MetricsRepositoryPort;

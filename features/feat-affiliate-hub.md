@@ -12,9 +12,9 @@ iteration: null
 title: "Affiliate Hub (アフィリエイト一元管理)"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-16T14:35:00Z"
+updated_at: "2026-08-30T15:16:06Z"
 status: "active"
-depends_on: ["feat-auth-workspace","feat-affiliate-inbox","feat-data-model"]
+depends_on: ["feat-affiliate-inbox","feat-auth-workspace","feat-data-model"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "ASP・プログラム・リンク・成果・報酬を一箇所で管理し、リンク切れや終了を取りこぼさない"
@@ -46,7 +46,6 @@ execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
 implementation_readiness: {"checked_at":"2026-08-16T13:30:00Z","missing_sections":[],"status":"complete"}
 ---
-
 
 # 目的
 
@@ -85,6 +84,10 @@ ASP/広告主/プログラム/リンクと提携状態を管理でき、掲載�
 
 - `depends_on`: feat-auth-workspace, feat-affiliate-inbox, feat-data-model
 - 依存理由: テナント境界とブランド既定値が決まらないと、後続のどのデータにも所有者を付けられない / URL が入口として登録されていないと、商品情報を取りにいく対象が存在しない
+
+## 2026-08-24 実装投影
+
+成果リンク登録時に商品スナップショットを残す経路を追加した（Beads `ah-au4`）。リンク切れ検出、CSV 取込、停止して登録し直す流れは未達（`ah-1y7` / `ah-sc9`）。
 
 ## Handoff
 

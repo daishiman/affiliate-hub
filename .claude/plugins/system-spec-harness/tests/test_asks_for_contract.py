@@ -56,7 +56,7 @@ def _state() -> dict:
 
 
 def _turn(qa_id: str, **over) -> dict:
-    turn = {"qa_id": qa_id, "question": "DB 方式は?", "answer": "D1。", "ops": []}
+    turn = {"qa_id": qa_id, "question": "DB 方式は?", "answer": "D1。", "ops": [], "source": {"kind": "user-dialogue"}}
     turn.update(over)
     return turn
 

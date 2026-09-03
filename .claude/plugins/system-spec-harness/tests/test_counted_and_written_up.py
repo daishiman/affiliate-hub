@@ -106,6 +106,7 @@ def test_a_zero_count_is_recorded_instead_of_leaving_nothing() -> None:
             "checked_on": datetime.date.today().isoformat(),
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
+            "unmet_blocking_items": 0,
         }
     ]
     jsonschema.validate(cell, CELL_SCHEMA)
@@ -323,8 +324,20 @@ def test_the_same_fingerprint_twice_is_refused_but_a_changed_document_appends(
 
 def test_no_writer_op_can_rewrite_source() -> None:
     """**gap 2 と同じ構造の見分け。**`source` を書き換える op が後から生えたら
-    ここが赤くなる。書き込み箇所は entry 生成の 1 箇所だけで、後付け annotation は
-    どれも新しい欄を足すだけである。"""
+    ここが赤くなる。後付け annotation はどれも新しい欄を足すだけである。
+
+    書き込みを許す関数は 2 つだけである。
+
+    - `apply_turn`: entry を作る場所。作成時に名乗らせる (`_require_qa_source`)。
+    - `set_qa_source`: **名乗りが任意だった時代に入った entry を直す場所** (2026-08-25 追加)。
+      作成側を塞いでも、塞ぐ前に入った 5 件は誰にも直せない。塞ぐことと、塞ぐ前に
+      入ったものを直すことは別の仕事である。
+
+    後者が「書き換え op」に化けないのは、**書ける値が 1 つしか無い**からである。
+    `user-dialogue` 以外を引数で受け取る口が無く、既存の異なる `source` が在れば
+    拒む。したがって書面の裏取りを対話の名乗りへ塗り替える経路にはならない
+    (`test_qa_source_declaration.py` が両方を試験する)。
+    """
     sites = []
     for path in sorted(ELICIT_SCRIPTS.glob("state_transition_*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"))
@@ -346,7 +359,10 @@ def test_no_writer_op_can_rewrite_source() -> None:
                             sites.append((path.name, function.name))
                             break
                         cursor = cursor.value
-    assert sites == [("state_transition_matrix.py", "apply_turn")], sites
+    assert sorted(sites) == [
+        ("state_transition_matrix.py", "apply_turn"),
+        ("state_transition_matrix.py", "set_qa_source"),
+    ], sites
 
 
 def test_known_hole_the_write_up_is_not_checked_for_content(tmp_path: Path) -> None:

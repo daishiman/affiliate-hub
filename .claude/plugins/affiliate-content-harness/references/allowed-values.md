@@ -1,6 +1,6 @@
 # 使ってよい値
 
-正本は `src/domain/authoring/site-blueprint.ts` と `src/domain/reading/published-article.ts`。
+正本は `src/domain/authoring/site-blueprint.ts` と `src/application/read-models/published-article.ts`。
 検品スクリプトは**この文書ではなくコードを実行時に読む**ので、コードが増えれば自動で通るようになる。
 この文書はコードが変わったら追いつかない可能性がある。食い違ったらコードが正しい。
 

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "status": "pass",
+  "validated_digest": "sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b",
+  "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+  "parent_feature": "feat-feedback-capture-self-exclusion",
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "violations": []
+}

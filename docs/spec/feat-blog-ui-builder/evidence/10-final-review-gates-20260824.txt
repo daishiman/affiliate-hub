@@ -1,0 +1,46 @@
+# feat-blog-ui-builder 最終レビュー品質ゲート
+# generated_at: 2026-08-24
+# graph_node_id: feat-blog-ui-builder
+# beads: ah-6lf
+
+## pnpm exec tsc --noEmit --incremental false
+exit 0
+
+## targeted vitest
+pnpm vitest run \
+  tests/application/seo \
+  tests/domain/seo \
+  tests/presentation/seo-route-handlers.test.ts \
+  tests/presentation/site-metadata.test.ts \
+  tests/presentation/publish-article-indexnow.test.ts \
+  tests/application/manage-guideline-references.test.ts \
+  tests/architecture/open-doors.test.ts \
+  tests/ui/app-shell-nav.test.tsx \
+  tests/ui/uiux-screen-single-purpose.test.ts \
+  tests/ui/publish-article-result.test.tsx \
+  tests/architecture/ci-config.test.ts \
+  tests/architecture/dependency-direction.test.ts \
+  tests/architecture/writer-absence.test.ts
+
+Test Files  16 passed (16)
+Tests       223 passed (223)
+Duration    5.71s
+
+## validate-system-plan.py --feature-package feature-package/feat-blog-ui-builder
+exit 2
+validated_digest sha256:9a2832f2d6f8656f3495435827399bed84d70c893a027d828694b07b46506fe1
+violations:
+- workstream-inventory.json / system-build-handoff.json に p01_entry_gate が無い
+- canonical parent feature dependencies must all be done|closed
+
+判断: 実装要件書は「package からは p01_entry_gate 宣言を除去済み。ゲート判定は
+dev-graph scheduler が feature 間 depends_on から行う」と書いてある。
+promoted digest を手で直して緑にしない。契約のずれは残課題として記録する。
+
+## 未実行（MVP 最小ゲートから外す）
+- pnpm test（全量）
+- pnpm run lint
+- pnpm run build
+- pnpm run preview
+- pnpm run visual
+- pnpm run deploy:dev

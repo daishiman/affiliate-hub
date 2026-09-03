@@ -1,4 +1,5 @@
 import type { DomainError } from "@/domain/shared";
+import { maskExistence } from "@/presentation/http/error-response";
 
 /**
  * 断ったときに画面へ出す文を作る。
@@ -23,9 +24,25 @@ import type { DomainError } from "@/domain/shared";
  * もう片側で同じ抜け方がもう一度生まれる。
  */
 export function refusalText(error: DomainError): string {
-  return error.suggestedAction === undefined
-    ? error.message
-    : `${error.message}\n${error.suggestedAction}`;
+  /*
+   * --- 存在を隠すのは、ここでもやる（2026-08-24 に足した） ---
+   *
+   * `maskExistence()` は REST（`errorResponse()`）と MCP には入っていたが、
+   * **画面の経路には入っていなかった**。入口は 4 つあると分かっていて、
+   * 2 つで止まっていた。
+   *
+   * 画面はその 2 つより漏れやすい。番号を見なくてよく、本文がそのまま目に入る。
+   * 他所の作業場所の ID を入れると「記事 が見つかりません。」、
+   * 無い ID を入れると「記事 が見つかりません (id: obj-9999)。」と出ていたので、
+   * ID を 1 つずつ試して括弧の有無を見るだけで、他所に何があるかが読めた。
+   *
+   * 潰す規則そのものはここに書かない。`maskExistence()` を呼ぶ。
+   * 規則を写すと、片方だけが古くなる。
+   */
+  const shown = maskExistence(error);
+  return shown.suggestedAction === undefined
+    ? shown.message
+    : `${shown.message}\n${shown.suggestedAction}`;
 }
 
 /**

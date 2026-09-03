@@ -185,6 +185,46 @@ function reachablePortCalls(program, entry, localFns) {
 }
 
 /**
+ * 記録を**引数として受け取る**書き込みの口を集める。
+ *
+ * 記録の届け方は 2 つある。`AuditLogPort.append` を別に呼ぶ形と、
+ * 書き込みの依頼に `audit` を同梱して**同じ取引の中で書かせる**形である。
+ * 後者のほうが強い。別に呼ぶ形は、書き込みだけ成功して記録だけ落ちる隙間が
+ * 残るが、同梱の形にはその隙間が無い。
+ *
+ * それなのに、この検査は前者しか知らなかった。結果、**より強い届け方をした
+ * 入口ほど「記録へ届いていない」と数えられる**。検査が良い設計を罰する形で、
+ * 逃げ道は「除外簿に登録する」しかなかった。除外簿に積むと、本物の抜けと
+ * 見分けが付かなくなる。
+ *
+ * 見分け方は「その口の依頼の型が `audit` を持っているか」。持っていれば、
+ * 記録は**口の約束のほう**に書かれている。呼ぶ側が忘れることはできない
+ * （忘れたら型検査が落ちる）ので、`append` を呼んだのと同じかそれ以上に固い。
+ * 「`buildAuditEntry` を呼んだか」で見ないのは、作って捨てても通ってしまうため。
+ */
+function portMethodsCarryingAudit(program) {
+  const checker = program.getTypeChecker();
+  /** @type {Set<string>} `Port.method` の形 */
+  const carrying = new Set();
+  for (const sf of program.getSourceFiles()) {
+    if (!isPortFile(sf.fileName) || sf.isDeclarationFile) continue;
+    ts.forEachChild(sf, (node) => {
+      if (!ts.isTypeAliasDeclaration(node)) return;
+      if (!node.name.text.endsWith("Port")) return;
+      if (!ts.isTypeLiteralNode(node.type)) return;
+      for (const member of node.type.members) {
+        if (!ts.isMethodSignature(member) || !ts.isIdentifier(member.name)) continue;
+        const hasAudit = member.parameters.some(
+          (p) => checker.getTypeAtLocation(p).getProperty("audit") !== undefined,
+        );
+        if (hasAudit) carrying.add(`${node.name.text}.${member.name.text}`);
+      }
+    });
+  }
+  return carrying;
+}
+
+/**
  * 「書き込みをするのに、操作の記録へ届いていない入口」を集める。
  *
  * これが 4 件目の穴の形である。記録の口は呼ばれている（＝上の総ざらいは緑）が、
@@ -192,6 +232,7 @@ function reachablePortCalls(program, entry, localFns) {
  * 上の検査は原理的に拾えない。手続き単位で「1 回でも呼ばれたか」しか見ないためである。
  */
 function collectWriteEntryPoints(program, unknownVerbs) {
+  const auditCarrying = portMethodsCarryingAudit(program);
   /** @type {{name: string, file: string, writes: string[]}[]} */
   const rows = [];
   for (const sf of program.getSourceFiles()) {
@@ -228,6 +269,8 @@ function collectWriteEntryPoints(program, unknownVerbs) {
       for (const r of own.filter((x) => classify(x.split(".")[1]) === "unknown")) unknownVerbs.add(r);
       if (writes.length === 0) return;
       if (reach.has("AuditLogPort.append")) return;
+      // 記録を同梱して書かせる口を呼んでいれば、記録には届いている。
+      if (writes.some((w) => auditCarrying.has(w))) return;
       rows.push({
         name: node.name.text,
         file: sf.fileName.replace(`${process.cwd()}/`, ""),
@@ -454,7 +497,22 @@ const NON_WRITE_VERBS = [
   "observations",
   // 期間の合計を返すだけ。何も書き換えないので記録は要らない。
   "summarize",
+  // 手元の値から鍵や身元を組み立てて返すだけ（`deriveContactRateLimitKey` /
+  // `resolveIdentity`）。**外へ問い合わせても、こちら側は何も書き換えない。**
+  "derive",
+  "resolve",
+  // 貼られた URL の先を 1 度読んで、9 項目の抽出結果だけを返す
+  // （`AffiliatePreviewFetcherPort.retrieve`）。本文も画像も持ち帰らず、
+  // こちら側には何も残さない。**外へ出る手続きだが、書き込みではない。**
+  "retrieve",
 ];
+/**
+ * 動詞で始まらないが、読み取りだと分かっている名前。
+ *
+ * `forConnection` は「その接続に合う実装を選んで返す」だけの索引で、
+ * 動詞が無い（`getConnector` にすると、接続そのものを取ってくるように読める）。
+ * 名前を曲げるより、ここへ 1 行足すほうが正直である。
+ */
 
 /**
  * 動詞で始まらない手続き。**頭の一致では拾えないので、名前ごと書く。**
@@ -462,7 +520,27 @@ const NON_WRITE_VERBS = [
  * `new` や `run` を頭の一致に足すと広く効きすぎる（`newOrder` を作る手続きまで
  * 書き込みでない側へ落ちる）。数が少ないうちは名前ごと並べるほうが安全である。
  */
-const NON_WRITE_EXACT = new Set(["current", "newId", "aiUsage"]);
+const NON_WRITE_EXACT = new Set([
+  "current",
+  "newId",
+  "aiUsage",
+  // 接続 1 本ぶんの読み口を返すだけ（`forConnection`）。何も残さない。
+  "forConnection",
+  // 公開面の入口を開けて、その場の見え方を返すだけ（`PublicBlogPort.openSite`）。
+  //
+  // **`open` を頭の一致へ足さない。**足すと `openTicket` のように「開いて残す」
+  // 手続きまで書き込みでない側へ落ちる。ここで読み取りなのは `openSite` 1 件で、
+  // 名前ごと書けば効き過ぎない。
+  "openSite",
+  // ブログが選んでいる見せ方 / 配色を 1 つ返すだけ（`BlogAppearancePort.templateOf`
+  // / `themeOf`）。行が無ければ `null` で、**既定値を書き足さない。**
+  //
+  // **`Of` の接尾辞を規則にしない。**「〜の」で終わる名前は読みが多いが、
+  // `takeOwnershipOf` のように所有を移す名前も同じ形で書ける。
+  // 接尾辞で拾うと、その日から書き込みが 1 件黙って読み側へ落ちる。
+  "templateOf",
+  "themeOf",
+]);
 const WRITE_VERBS = [
   "save",
   "create",
@@ -477,6 +555,10 @@ const WRITE_VERBS = [
   "put",
   "append",
   "publish",
+  // ブログ 1 本ぶんの器（版面・帯・固定ページ）を保存先に作る
+  // （`SiteDraftRepositoryPort.provisionSite`）。`create` と同じ側だが、
+  // 「1 件を作る」ではなく「一式を揃える」という語感なので名前を曲げずに足す。
+  "provision",
   "record",
   "revoke",
   "archive",
@@ -490,6 +572,58 @@ const WRITE_VERBS = [
   // 鍵を預ける。`save` と同じ側だが、預かり所の語彙としては `store` が自然なので
   // 名前を曲げずに語彙のほうを足す。
   "store",
+  // 取り合いの一手（`claimNormalizedUrl` / `releaseNormalizedUrl`）。
+  //
+  // **`claim` は「聞く」ではなく「書く」。**この 2 つは、読んでから書く 2 手に
+  // 分けると同時に呼ばれたとき両方が「無い」を見て両方入ってしまうので、
+  // **一手で決着させる**ことを口の側で要求している（`monetization.ts` の doc）。
+  // 返り値が ID なので読み取りに見えるが、**返る前に必ず書いている。**
+  // `release` は取り分を消す側で、こちらは字面どおり書き込み。
+  //
+  // **返り値の形で読み書きを決めないこと**が、この 2 件の教訓である。
+  "claim",
+  "release",
+  // 出していたものを引っ込める（`unpublish`）。`publish` で始まらないので
+  // 前方一致では拾えない。**打ち消しの接頭辞は、消し忘れると
+  // 「公開は記録されるが取り下げは記録されない」という片側だけの記録になる。**
+  "unpublish",
+  // 使えなくする（`disable`）。消しはしないが、外から見える振る舞いは
+  // 消したのと同じなので、記録の要求は `remove` と同じ側に置く。
+  "disable",
+  // 印を付ける（`markHandled`）。付けた印で次の人の仕事が変わるので書き込み。
+  "mark",
+  // 読んでから書く 2 手を一手で決着させる（`compareAndSwap`）。
+  // `claim` と同じ理由でここに居る。返り値が真偽でも、返る前に書いている。
+  "compareAndSwap",
+  // 伏せる / 伏せを解く（`setRatingHidden`）。
+  //
+  // **`set` は書き込みである。**「値を渡すだけ」に見えるが、渡した値は残る。
+  // 読み取りの `get` と対で覚えている語なので読み側へ入れたくなるが、
+  // そちらへ入れると、書いたのに記録が要らない手続きが 1 つ生まれる。
+  "set",
+  // 論理削除を取り消す（`restoreArticle` / `restoreFixedPage` / `restoreNetworkNode`）。
+  //
+  // **「戻す」は書き込みである。**元の値へ戻すだけなので何も足していないように
+  // 読めるが、`deleted_at` を消すのは行の状態を変える一手で、消した人と時刻が
+  // 記録に残らないと「いつ誰が戻したのか」を後から言えない。
+  "restore",
+  // 確認したことを記録する（`acknowledgeReevaluation`）。
+  //
+  // **「確認した」は読み取りではない。**字面は読む側の語だが、残るのは
+  // 「誰がどの版を確認済みにしたか」で、次に再評価を促すかどうかがそれで変わる。
+  // 読み側へ入れると、確認だけが記録の要らない一手になり、
+  // 「確認していないのに確認済みになっている」を後から追えなくなる。
+  "acknowledge",
+  // 上書きを外して既定へ戻す（`BlogAppearancePort.clearOverride`）。
+  //
+  // **「消す」ではなく「空にする」と言い換えても書き込みである。**
+  // `delete` と違って行そのものが残ることもあるが、外から見える結果は
+  // 「その設定が効かなくなった」で、`remove` と同じ側に置く。
+  //
+  // なお `select` はここへ足していない。SQL の `SELECT` が読みの語なので、
+  // 足すと将来の読み取り手続きが黙って書き込み扱いになる。
+  // 書きなのに `select` と名乗る手続きのほうを `save` へ改名すること。
+  "clear",
 ];
 const startsWithVerb = (name, verbs) => verbs.some((v) => name.startsWith(v));
 /** 書き込み / 書き込みでない / 判定できない のどれかを返す。 */

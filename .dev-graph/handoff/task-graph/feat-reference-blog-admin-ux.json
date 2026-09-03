@@ -1,0 +1,161 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "handoff_target": "task-graph",
+  "feature_id": "feat-reference-blog-admin-ux",
+  "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+  "graph_snapshot_digest": "sha256:4671e5c50b4c15e57a02fe4cd2910358db78dbe200215b5f1fa6fca4657ac919",
+  "graph_revision": 276,
+  "scope_digest": "sha256:7d6e7ce01c9bac96b4f5c52f41ab401d2e311269dab4d0d0ba5b0e2c30b4eee8",
+  "trace_plan_digest": "sha256:0415415a913dc5088baca2ef57cc6bf22d5ae539bd80f81ca92f7c7b40a0fc2c",
+  "requirements_document": "docs/requirements/feat-reference-blog-admin-ux-implementation-requirements.md",
+  "requirements_document_sha256": "2847fdbd7a94a47bdf0e16ef902edcba857ecdd0c4853ba7925423e397dc7cc7",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "lineage_closure": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "feat-reference-blog-admin-ux",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P13"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "C02_saved_state": {
+      "scope_count": 16,
+      "implementation_readiness": "complete",
+      "evaluation_status": "pass",
+      "confirmation_status": "confirmed",
+      "missing_sections": []
+    },
+    "source_digest": {
+      "command": "validate-source-digest.py --repo-root . --registered <closure 16>",
+      "exit": 0,
+      "checked": 16,
+      "registered_mismatch": 0
+    },
+    "validate_system_plan": {
+      "command": "validate-system-plan.py --repo-root . --feature-package feature-package/feat-reference-blog-admin-ux",
+      "exit": 0,
+      "status": "pass",
+      "violations": 0,
+      "contract_version": "1.3.0",
+      "validated_digest": "sha256:a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd"
+    }
+  },
+  "tasks": [
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p01.md",
+      "tracker_binding": "beads",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P01"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p03.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P02"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p04.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P03"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p05.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P04"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p06.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P05"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p07.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P06"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p08.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P05"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p09.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P07", "SYS-REFERENCE-BLOG-ADMIN-UX-P08"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p10.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P09"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p11.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P07", "SYS-REFERENCE-BLOG-ADMIN-UX-P09", "SYS-REFERENCE-BLOG-ADMIN-UX-P10"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p12.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P10", "SYS-REFERENCE-BLOG-ADMIN-UX-P11"]
+    },
+    {
+      "graph_node_id": "SYS-REFERENCE-BLOG-ADMIN-UX-P13",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p13.md",
+      "tracker_binding": "beads",
+      "depends_on": ["SYS-REFERENCE-BLOG-ADMIN-UX-P12"]
+    }
+  ],
+  "requirements_quality": "detailed",
+  "implementation_code_generated": 0,
+  "emitted_at": "2026-08-29T15:07:22Z"
+}

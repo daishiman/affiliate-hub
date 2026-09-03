@@ -41,3 +41,33 @@ export function collect<T, E>(results: readonly Result<T, E>[]): Result<T[], E> 
   }
   return ok(values);
 }
+
+/** 組の各要素が持つ成功値の型。位置ごとに別の型を保つ。 */
+type OkValues<T extends readonly Result<unknown, unknown>[]> = {
+  readonly [K in keyof T]: T[K] extends Result<infer V, unknown> ? V : never;
+};
+
+/** 組の要素が返しうる失敗の型。 */
+type ErrOf<T extends readonly Result<unknown, unknown>[]> =
+  T[number] extends Result<unknown, infer E> ? E : never;
+
+/**
+ * 型の違う `Result` を組で受け、全部成功したときだけ値の組を返す。
+ *
+ * `collect` は同じ型の配列用で、型の違う読み取りを束ねられない。
+ * 束ねる道具が無いと、呼び出し側は「失敗を返す番人」と
+ * 「型を絞り込むための番人」を別々に書くことになる。
+ * すると後者は**構造的に到達しない枝**になり、読む人には
+ * 意味のある分岐に見えたまま、永遠に真にならない。
+ * 1 つの関数で両方を担うのは、その死んだ枝を作らせないため。
+ */
+export function collectAll<T extends readonly Result<unknown, unknown>[]>(
+  ...results: T
+): Result<OkValues<T>, ErrOf<T>> {
+  const values: unknown[] = [];
+  for (const r of results) {
+    if (!r.ok) return err(r.error as ErrOf<T>);
+    values.push(r.value);
+  }
+  return ok(values as unknown as OkValues<T>);
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `blog_article_rating` ADD `hidden` integer DEFAULT false NOT NULL;

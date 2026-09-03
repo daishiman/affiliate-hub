@@ -1,25 +1,20 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
 import type { SiteWizardStep } from "@/domain/authoring";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
-import { startSiteDraftAction } from "@/presentation/admin/site-wizard-action";
-import { SiteWizardStepForm } from "@/presentation/admin/site-wizard-form";
+import { startSiteDraftAction } from "@/presentation/admin/publish/site-wizard-action";
+import { SiteWizardStepForm } from "@/presentation/admin/publish/site-wizard-form";
+import { currentActor, siteBuilderUseCases, siteDraftNotice } from "@/presentation/composition";
 import {
-  currentActor,
-  siteBuilderUseCases,
-  siteDraftNotice,
-} from "@/presentation/composition";
-import {
-  Button,
+  ActionButton,
   Callout,
-  Card,
   EmptyView,
   ErrorView,
-  Page,
+  ListView,
+  Prose,
+  Section,
   StorageNotice,
+  TextLink,
 } from "@/presentation/ui";
-import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +27,10 @@ export const dynamic = "force-dynamic";
  *
  * 段階は 1 画面 1 段階にしている。13 個を 1 画面に並べると、
  * どこまで答えたか分からなくなり、途中で離脱したときに続きから戻れない。
+ *
+ * 骨格（パンくず・見出し・戻り先）は 1 か所だけで書く。
+ * 下書きの一覧と質問の途中で骨格を二重に書くと、
+ * 片方だけ戻り先が消えた画面が後から生まれる。
  */
 export default async function NewSitePage({
   searchParams,
@@ -39,26 +38,50 @@ export default async function NewSitePage({
   readonly searchParams: Promise<{ draftId?: string; step?: string; error?: string }>;
 }) {
   const params = await searchParams;
+
+  return (
+    <AdminShell
+      routeId="sites/new"
+      title="新しいブログを作る"
+      lead="13 の質問に答えると、ブログが 1 本できます。"
+      actions={<TextLink href="/admin/sites">ブログの一覧へ戻る</TextLink>}
+    >
+      <StorageNotice status={await siteDraftNotice()} />
+
+      {params.draftId === undefined ? (
+        <DraftListView error={params.error} />
+      ) : (
+        <WizardBody draftId={params.draftId} step={params.step} />
+      )}
+    </AdminShell>
+  );
+}
+
+/**
+ * 質問 1 段階分。
+ *
+ * 現在地と、13 段階のうちどこが埋まっているかを同じ画面に出す。
+ * 現在地だけだと「あと何回答えるのか」が読めず、途中でやめる理由になる。
+ */
+async function WizardBody({
+  draftId,
+  step: rawStep,
+}: {
+  readonly draftId: string;
+  readonly step?: string;
+}) {
   const actor = await currentActor();
-  const uc = (await siteBuilderUseCases());
-
-  if (params.draftId === undefined) {
-    return <DraftListView error={params.error} />;
-  }
-
-  const step = SITE_WIZARD_STEPS.find((s) => s === params.step) as SiteWizardStep | undefined;
-  const found = await uc.getDraft.execute(actor, { draftId: params.draftId, step });
+  const step = SITE_WIZARD_STEPS.find((s) => s === rawStep) as SiteWizardStep | undefined;
+  const found = await (await siteBuilderUseCases()).getDraft.execute(actor, { draftId, step });
 
   if (!found.ok) {
     return (
-      <Shell>
-        <ErrorView
-          title="この下書きを開けませんでした"
-          body={found.error.message}
-          suggestedAction={found.error.suggestedAction ?? null}
-          action={<Link href="/admin/sites/new">作りかけの一覧へ戻る</Link>}
-        />
-      </Shell>
+      <ErrorView
+        title="この下書きを開けませんでした"
+        body={found.error.message}
+        suggestedAction={found.error.suggestedAction ?? null}
+        action={<TextLink href="/admin/sites/new">作りかけの一覧へ戻る</TextLink>}
+      />
     );
   }
 
@@ -66,39 +89,29 @@ export default async function NewSitePage({
   const current = draft.steps.find((s) => s.step === draft.currentStep);
 
   return (
-    <Shell>
-      <StorageNotice status={await siteDraftNotice()} />
-
-      <Card>
-        {/* 現在地は常に出す。13 段階のどこにいるか分からない状態を作らない。 */}
-        <p className={styles.sectionLead}>
-          {current?.position ?? 1} / {draft.totalSteps} 段階目（{draft.doneCount} 段階まで入力済み）
-        </p>
-        <h2 className={styles.sectionTitle}>{current?.label ?? "作る"}</h2>
-        <p className={styles.sectionLead}>{current?.question ?? ""}</p>
-
+    <>
+      <Section
+        title={current?.label ?? "作る"}
+        /* 現在地は常に出す。13 段階のどこにいるか分からない状態を作らない。 */
+        lead={`${current?.position ?? 1} / ${draft.totalSteps} 段階目（${draft.doneCount} 段階まで入力済み）`}
+      >
+        <Prose>{current?.question ?? ""}</Prose>
         <SiteWizardStepForm draft={draft} />
-      </Card>
+      </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>13 段階の進み具合</h2>
-        <p className={styles.sectionLead}>
-          好きな段階へ戻れます。順番どおりに答えなくても構いません。
-        </p>
-        <ol className={styles.linkList}>
-          {draft.steps.map((s) => (
-            <li key={s.step}>
-              <Link href={`/admin/sites/new?draftId=${draft.draftId}&step=${s.step}`}>
-                {s.position}. {s.label}
-              </Link>
-              {" — "}
-              {s.done ? "入力済み" : "まだ入力していません"}
-              {s.step === draft.currentStep ? "（いま開いています）" : ""}
-            </li>
-          ))}
-        </ol>
-      </Card>
-    </Shell>
+      <Section title="13 段階の進み具合" lead="好きな段階へ戻れます。順番どおりでなくて構いません。">
+        <ListView
+          rows={draft.steps.map((s) => ({
+            key: s.step,
+            label: `${s.position}. ${s.label}`,
+            href: `/admin/sites/new?draftId=${draft.draftId}&step=${s.step}`,
+            note: `${s.done ? "入力済み" : "まだ入力していません"}${
+              s.step === draft.currentStep ? "（いま開いています）" : ""
+            }`,
+          }))}
+        />
+      </Section>
+    </>
   );
 }
 
@@ -113,32 +126,32 @@ async function DraftListView({ error }: { readonly error?: string }) {
   const listed = await (await siteBuilderUseCases()).listDrafts.execute(actor, {});
 
   return (
-    <Shell>
-      <StorageNotice status={await siteDraftNotice()} />
-
+    <>
       {error === undefined ? null : <Callout tone="warn" reason={error} />}
 
-      <Card>
-        <h2 className={styles.sectionTitle}>新しいブログを始める</h2>
-        <p className={styles.sectionLead}>
-          13 の質問に答えると、ブログが 1 本できます。答えた内容は設計図として保存され、
-          読者に見える画面は既にあるものがそのまま使われます。作るまで公開されません。
-        </p>
-        <form action={startSiteDraftAction}>
-          <Button type="submit" tone="primary">
-            13 の質問を始める
-          </Button>
-        </form>
-      </Card>
+      <Section title="新しいブログを始める">
+        <Prose>
+          答えた内容は設計図として保存され、読者に見える画面は既にあるものがそのまま使われます。作るまで公開されません。
+        </Prose>
+        <ActionButton
+          action={startSiteDraftAction}
+          label="13 の質問を始める"
+          reason={
+            "新しいブログを起こすかどうかは人が決める。目録に start_site_draft に当たる道具が無く、" +
+            "AI サービスアカウントへ site.draft の権限も配っていない。13 の質問は" +
+            "「誰に何を届けるか」を人から引き出す手続きなので、AI が代わりに答えると" +
+            "設計図だけができて、答えた人が誰も居ないブログが残る。"
+          }
+        />
+      </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>作りかけのブログ</h2>
+      <Section title="作りかけのブログ">
         {!listed.ok ? (
           <ErrorView
             title="作りかけの一覧を出せませんでした"
             body={listed.error.message}
             suggestedAction={listed.error.suggestedAction ?? null}
-            action={<Link href="/admin/sites">ブログの一覧へ戻る</Link>}
+            action={<TextLink href="/admin/sites">ブログの一覧へ戻る</TextLink>}
           />
         ) : listed.value.total === 0 ? (
           <EmptyView
@@ -146,41 +159,18 @@ async function DraftListView({ error }: { readonly error?: string }) {
             body={listed.value.emptyReason ?? "作りかけのブログはありません。"}
           />
         ) : (
-          <ul className={styles.linkList}>
-            {listed.value.items.map((d) => (
-              <li key={d.draftId}>
-                <Link href={`/admin/sites/new?draftId=${d.draftId}`}>
-                  {d.name === "" ? "名前がまだ決まっていない下書き" : d.name}
-                </Link>
-                {" — "}
-                {d.doneCount} / {d.totalSteps} 段階まで入力済み
-                {d.createdSiteSlug === null ? "（まだ公開されていません）" : "（作成済み）"}
-              </li>
-            ))}
-          </ul>
+          <ListView
+            rows={listed.value.items.map((d) => ({
+              key: d.draftId,
+              label: d.name === "" ? "名前がまだ決まっていない下書き" : d.name,
+              href: `/admin/sites/new?draftId=${d.draftId}`,
+              note: `${d.doneCount} / ${d.totalSteps} 段階まで入力済み${
+                d.createdSiteSlug === null ? "（まだ公開されていません）" : "（作成済み）"
+              }`,
+            }))}
+          />
         )}
-      </Card>
-    </Shell>
-  );
-}
-
-function Shell({ children }: { readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/sites"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "サイト", href: "/admin/sites" },
-        { label: "新しいブログ" },
-      ]}
-      actions={<Link href="/admin/sites">ブログの一覧へ戻る</Link>}
-    >
-      <Page
-        title="新しいブログを作る"
-        lead="13 の質問に答えると、ブログが 1 本できます。増えるのは設計図のデータだけで、画面のコードは共通のまま使います。"
-      >
-        {children}
-      </Page>
-    </AdminShell>
+      </Section>
+    </>
   );
 }

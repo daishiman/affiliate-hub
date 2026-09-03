@@ -27,6 +27,7 @@ import {
   AUDIT_ACTIONS_MAX_SAMPLE_ONLY,
   AUDIT_ACTIONS_MAX_WITHOUT_EMITTER,
   AUDIT_ACTIONS_MIN_EMITTED,
+  AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS,
 } from "../../quality-gates.config.mjs";
 
 const ROOT = resolve(import.meta.dirname, "../..");
@@ -56,7 +57,7 @@ type Placement = "実処理" | "見本のみ" | "出す場所なし";
  * その語がどこで使われているかを見る。
  *
  * **日本語ラベルの表は「出す場所」として数えない。**
- * `manage-workspace.ts` に 28 語すべての日本語訳が並んでおり、
+ * `manage-workspace.ts` に**全語**の日本語訳が並んでおり、
  * ここを数えると全語が「出している」ことになる（最初に数えたときはそうなった）。
  * 表の行は `"語": "日本語"` の形をしているので、その形だけを外す。
  */
@@ -80,6 +81,8 @@ const files = sourceFiles(join(ROOT, "src"));
 const placed = auditActions().map((action) => ({ action, where: placementOf(action, files) }));
 const listOf = (where: Placement) =>
   placed.filter((p) => p.where === where).map((p) => p.action);
+/** 理由の表。`.mjs` から来るので、語で引ける形に受け直す。 */
+const reasons = AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS as Record<string, string | undefined>;
 
 describe("記録の語が、出す場所を持っているか", () => {
   it("語が 1 つも読めなくなっていない（型定義の形が変わったら気づく）", () => {
@@ -106,6 +109,53 @@ describe("記録の語が、出す場所を持っているか", () => {
       `見本にしか無い記録の語: ${sampleOnly.join(" / ")}\n` +
         "画面には記録が並びますが、その行を作る操作がありません。",
     ).toBeLessThanOrEqual(AUDIT_ACTIONS_MAX_SAMPLE_ONLY);
+  });
+
+  /*
+   * --- 数だけでは足りなかった話（2026-08-21 に足した 3 件） ---
+   *
+   * 上の 2 つは件数しか見ていない。だから**語が入れ替わっても緑のまま**である。
+   * 実際に起きた: `member.role_changed` に出す場所が付いた一方で、
+   * 上限の説明は「`member.role_changed` は残課題 62」と書かれたまま残った。
+   * 数は 6 のままで、古くなったのは説明だけ。
+   *
+   * ここから先は**語を鍵にして**突き合わせる。
+   */
+  it("出す場所を持たない語には、1 語ずつ理由が書いてある", () => {
+    const missing = listOf("出す場所なし");
+    const undocumented = missing.filter(
+      (a) => (reasons[a] ?? "").trim() === "",
+    );
+    expect(
+      undocumented,
+      "出す場所が無いのに理由の書かれていない語があります。\n" +
+        "quality-gates.config.mjs の AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS へ、\n" +
+        "**どの機能が無いから出せないのか**まで書いてください。",
+    ).toEqual([]);
+  });
+
+  it("出す場所が付いた語の理由が、表に残っていない", () => {
+    // **こちら向きが要る。**理由の表は放っておくと古くなる一方で、
+    // 古い理由は古く見えない。出す場所を作った人が表から 1 行消すまで
+    // 緑にしないことで、説明と実測を同じ変更の中で動かす。
+    const missing = listOf("出す場所なし");
+    const stale = Object.keys(reasons).filter((a) => !missing.includes(a));
+    expect(
+      stale,
+      "この語には出す場所ができています（または語が消えています）。\n" +
+        "quality-gates.config.mjs の AUDIT_ACTIONS_WITHOUT_EMITTER_REASONS から\n" +
+        "該当の行を消し、AUDIT_ACTIONS_MAX_WITHOUT_EMITTER を同じぶん下げてください。",
+    ).toEqual([]);
+  });
+
+  it("すべての語が、出しているか理由があるかのどちらかで説明されている", () => {
+    // 受入条件そのもの。上の 2 件を合わせると、説明の無い語は 1 つも残らない。
+    const explained = new Set([
+      ...listOf("実処理"),
+      ...Object.keys(reasons),
+    ]);
+    const unexplained = placed.map((p) => p.action).filter((a) => !explained.has(a));
+    expect(unexplained, `説明の無い記録の語: ${unexplained.join(" / ")}`).toEqual([]);
   });
 
   it("実処理から出している語が、減っていない", () => {

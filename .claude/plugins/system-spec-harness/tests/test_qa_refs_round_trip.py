@@ -102,11 +102,10 @@ def _reopen(state: dict) -> None:
     )
 
 
-def _reconfirm(state: dict, qa_ref: str = BUNDLE_ID) -> None:
-    stm.apply_cell_op(
-        state,
-        {"action": "confirm", "category": "database", "platform": "web", "qa_ref": qa_ref},
-    )
+def _reconfirm(state: dict, qa_ref: str = BUNDLE_ID, **over) -> None:
+    op = {"action": "confirm", "category": "database", "platform": "web", "qa_ref": qa_ref}
+    op.update(over)
+    stm.apply_cell_op(state, op)
 
 
 def _restore(state: dict) -> None:
@@ -200,7 +199,10 @@ def test_restore_refuses_when_nothing_was_preserved() -> None:
     state = _state()
     del state["matrix"]["database"]["web"]["qa_refs"]
     _reopen(state)
-    _reconfirm(state)
+    # 退避に qa_refs が無いので再確定値は退避と完全一致する。この test の主題は
+    # 書き戻しの拒否なので、同じ値へ戻す意図はここで名乗っておく
+    # (名乗らないと「宣言なき逆戻り」の側で止まり、確かめたい門まで届かない)。
+    _reconfirm(state, reaffirm=True)
     with pytest.raises(TransitionError, match="退避された qa_refs が無い"):
         _restore(state)
 

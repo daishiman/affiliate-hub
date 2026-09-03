@@ -1,6 +1,4 @@
 /** @tier 2 */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -12,6 +10,7 @@ import { createAuditLogEntry } from "@/domain/compliance";
 import type { AuditLogId, UserId, WorkspaceId } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 操作の記録の**読み口**を、本物の D1 と本物のマイグレーションで通す。
@@ -43,20 +42,6 @@ let repo: AuditLogPort;
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;
 const OTHER_WS = taggedString<"WorkspaceId">("ws_other") as WorkspaceId;
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 /** 記録を 1 件作る。作れないものはここで落とす（テストが嘘の値を持たない）。 */
 function anEntry(over: {
@@ -168,7 +153,7 @@ describe("操作の記録（D1）", () => {
       anEntry({ id: "al_a", action: "content.state_changed", occurredAt: T("2026-08-10T00:00:00Z") }),
     );
     await repo.append(
-      anEntry({ id: "al_b", action: "content.created", occurredAt: T("2026-08-17T00:00:00Z") }),
+      anEntry({ id: "al_b", action: "content.published", occurredAt: T("2026-08-17T00:00:00Z") }),
     );
     await repo.append(
       anEntry({ id: "al_c", action: "content.state_changed", occurredAt: T("2026-08-18T00:00:00Z") }),
@@ -287,7 +272,11 @@ describe("操作の記録（D1）", () => {
 
     // 後続のテストのために作り直す（この検査だけが表を壊す）。
     for (const statement of migrationStatements()) {
-      if (statement.includes("audit_logs")) {
+      if (
+        /^CREATE TABLE `audit_logs`/.test(statement) ||
+        /^ALTER TABLE `audit_logs` ADD /.test(statement) ||
+        /^CREATE INDEX `audit_logs_/.test(statement)
+      ) {
         await proxy.env.DB.prepare(statement).run();
       }
     }

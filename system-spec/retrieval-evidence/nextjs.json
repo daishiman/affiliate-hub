@@ -1,9 +1,20 @@
 {
- "target_id": "nextjs",
- "source_url": "https://nextjs.org/docs",
- "retrieved_at": "2026-08-16T09:01:51Z",
- "http_status": 200,
- "content_bytes": 419100,
- "content_sha256": "40e69b97c8d2186e17b5b7c0c1b9d6782332875f2e19c21ba6bc5ba2b5cb4cdd",
- "page_title": "Next.js Docs | Next.js"
+  "target_id": "nextjs",
+  "source_url": "https://nextjs.org/docs",
+  "retrieved_at": "2026-09-02T09:14:35Z",
+  "http_status": 200,
+  "content_bytes": 455787,
+  "content_sha256": "70696562e59ac3719005e628746066ac3ad74df94dfdc63ef3946f9cf41c44e3",
+  "page_title": "Next.js Docs | Next.js",
+  "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "16.3.4",
+    "found_in": [
+      "公式 Docs ページの Latest Version 表示: 16.3.4",
+      "公式 npm registry latest の version: 16.3.4"
+    ],
+    "body_search_method": "公式 Docs ページ本文の Latest Version と Vercel が発行する npm package の latest record を突合した。",
+    "note": "docs 本文と publisher registry が同じ 16.3.4 を表明している。前回取得 (2026-08-29T23:02:28Z) 時点の 16.3.3 から上流が進んだ。"
+  }
 }

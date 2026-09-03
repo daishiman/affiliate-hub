@@ -141,3 +141,49 @@ implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"inc
 
 - 82 で入れた座標の道を消すこと
 - 要素の一覧が用意できないまま、それらしい一覧を作って通すこと
+
+## 実行の記録（2026-08-26）
+
+### 手順 1 の判定: **要素の一覧は持てない。ここで止まった。**
+
+測った事実（次に見る人は同じ測定をやり直さなくてよい）:
+
+- 写しを撮っているのは `src/presentation/ui/patterns/feedback-button.tsx` の
+  `captureScreen()` で、`navigator.mediaDevices.getDisplayMedia` → `<video>` →
+  `canvas.drawImage` → `toDataURL`。撮れるのは**映像の 1 枚**であって DOM ではない。
+- **どの画面を渡すかは必ず本人が選ぶ。**同じ関数のコメントが
+  「これは実装の手抜きではなく安全の側の決まりで、迂回する手立ては用意しない」と
+  書いているとおり、この窓は消せない。**別のウィンドウや別のアプリも選べる。**
+  `preferCurrentTab` は Chromium だけが見るただの希望で、選ばれた保証にはならない。
+- したがって、いま開いている DOM の `getBoundingClientRect()` を一覧にしても、
+  **写った画像の座標と一致する保証が無い。**
+- 宣言による自動マスク（`data-capture="mask"`）も、`src/domain/feedback/capture-policy.ts`
+  に定数が在るだけで、**付けている場所が `src/` に 1 つも無い**。
+  `feedback-button.tsx` は `maskedElementCount={0}` を直に渡している。
+  撮る側は要素を 1 つも知らない。
+
+ずれた位置を「3 番目の見出し」と名乗って塗ると、**隠したはずのものが隠れていない写し**が
+送られる。この機能で最悪の壊れ方であり、上の「やらないこと」が禁じている形そのものである。
+
+### 代わりに満たしたこと: **画像そのものを区切った**
+
+目的（座標を扱わずに黒塗りの対象を選べる道）は、要素の一覧を経由せずに満たせる。
+黒塗りを選ぶと、画面を縦横 3 つずつに区切った 9 つのボタンが出る。
+「上段の左」は**写っているものが何であれ嘘にならない**し、DOM と一致している必要も無い。
+
+受入条件との対応:
+
+- 座標を 1 度も動かさずに、黒塗りを 1 つ確定できる → ボタン 1 つで確定する
+- 確定したものが `onExport` の `redactionCount` に入っている → 区画も黒塗りとして数える
+- 82 のキーボード操作が、この変更のあとも緑のまま → 既存 9 件はそのまま緑
+
+要素の名前で呼ぶ道は、撮り方が DOM を写す形に変わった日に、この区切りの隣へ足せばよい。
+
+### 触ったもの
+
+- `src/presentation/ui/patterns/capture-canvas.tsx`（区画の Shape・描画・ボタン・読み上げ）
+- `src/presentation/ui/copy.ts`（区画の言い回し）
+- `src/presentation/ui/patterns/patterns.module.css`（`.captureRegionGrid`）
+- `tests/ui/capture-canvas.test.tsx`（describe「座標を扱わずに、区画で黒塗りを置ける」7 件）
+
+赤の実測: 区画の塗りを画素へ描かなくすると 3 件落ちる（複製から書き戻して 42 件緑に復帰）。

@@ -50,7 +50,28 @@
   // tests/infrastructure/llm-provider-catalog-config.test.ts が見る。
   //
   // 更新の仕方: 正本を直して `pnpm run catalog:sync` を走らせる。
+  // --- ブログの住所について ---------------------------------------------------
+  // `SITE_BASE_DOMAIN` を入れると、作ったブログは
+  // `<URL名>.<ここの値>` で開けるようになる（例: first-lens.example.com）。
+  // **秘密ではない**（読者が打つ住所そのもの）ので secret ではなく vars に置く。
+  //
+  // 空にしてある間は住所を割り当てず、今までどおり `/s/<URL名>` だけで開く。
+  // 未設定を障害として扱わないのは、住所を用意する前の環境まで
+  // 丸ごと 404 にしないため（判断は src/domain/authoring/site-host-routing.ts）。
+  //
+  // 実際に使うときは、この 3 か所（手元・dev・本番）へ値を入れたうえで:
+  //   1. DNS に `*.<基底ドメイン>` のプロキシ済みレコードを足す
+  //   2. 下の "routes" の行のコメントを外し、同じ基底ドメインへ書き換える
+  //   3. `pnpm deploy:dev` → `pnpm deploy:prod`
+  // 2 を忘れると、住所は割り当たるのに Worker まで届かず開けない。
+  // Workers Custom Domain は wildcard を受けない。この用途は Custom Domain ではなく、
+  // プロキシ済み wildcard DNS + Workers route の組み合わせで構成する。
+  // 現状は実ドメインも DNS 証跡も無いため、意図的に未設定である。
+  // 機械可読な現状は config/site-domain-readiness.json にある。
+  //
+  // "routes": [{ "pattern": "*.example.com/*", "zone_name": "example.com" }],
   "vars": {
+    "SITE_BASE_DOMAIN": "",
     "LLM_PROVIDER_CATALOG": "{\"anthropic\":[{\"modelId\":\"claude-opus-5\",\"label\":\"Claude Opus 5\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":2500,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"claude-sonnet-5\",\"label\":\"Claude Sonnet 5\",\"inputPricePerMillionMinor\":200,\"outputPricePerMillionMinor\":1000,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"}],\"google\":[{\"modelId\":\"gemini-3.5-flash\",\"label\":\"Gemini 3.5 Flash\",\"inputPricePerMillionMinor\":150,\"outputPricePerMillionMinor\":900,\"currency\":\"USD\",\"sourceUrl\":\"https://ai.google.dev/gemini-api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"openai\":[{\"modelId\":\"gpt-5.6-sol\",\"label\":\"GPT-5.6 Sol\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":3000,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna（安い代わりに短め向き）\",\"inputPricePerMillionMinor\":20,\"outputPricePerMillionMinor\":120,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"xai\":[{\"modelId\":\"grok-4.6\",\"label\":\"Grok 4.6（長い依頼の単価で見積ります）\",\"inputPricePerMillionMinor\":400,\"outputPricePerMillionMinor\":1200,\"currency\":\"USD\",\"sourceUrl\":\"https://docs.x.ai/developers/pricing\",\"pricedOn\":\"2026-08-18\"}],\"workers_ai\":[]}"
   },
 
@@ -86,6 +107,8 @@
         "enabled": true
       },
       "vars": {
+        // 住所の基底ドメイン。トップレベルの説明を参照。空なら /s/<URL名> のみ。
+        "SITE_BASE_DOMAIN": "",
         "LLM_PROVIDER_CATALOG": "{\"anthropic\":[{\"modelId\":\"claude-opus-5\",\"label\":\"Claude Opus 5\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":2500,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"claude-sonnet-5\",\"label\":\"Claude Sonnet 5\",\"inputPricePerMillionMinor\":200,\"outputPricePerMillionMinor\":1000,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"}],\"google\":[{\"modelId\":\"gemini-3.5-flash\",\"label\":\"Gemini 3.5 Flash\",\"inputPricePerMillionMinor\":150,\"outputPricePerMillionMinor\":900,\"currency\":\"USD\",\"sourceUrl\":\"https://ai.google.dev/gemini-api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"openai\":[{\"modelId\":\"gpt-5.6-sol\",\"label\":\"GPT-5.6 Sol\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":3000,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna（安い代わりに短め向き）\",\"inputPricePerMillionMinor\":20,\"outputPricePerMillionMinor\":120,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"xai\":[{\"modelId\":\"grok-4.6\",\"label\":\"Grok 4.6（長い依頼の単価で見積ります）\",\"inputPricePerMillionMinor\":400,\"outputPricePerMillionMinor\":1200,\"currency\":\"USD\",\"sourceUrl\":\"https://docs.x.ai/developers/pricing\",\"pricedOn\":\"2026-08-18\"}],\"workers_ai\":[]}"
       },
       "d1_databases": [
@@ -120,6 +143,8 @@
         "enabled": true
       },
       "vars": {
+        // 住所の基底ドメイン。トップレベルの説明を参照。空なら /s/<URL名> のみ。
+        "SITE_BASE_DOMAIN": "",
         "LLM_PROVIDER_CATALOG": "{\"anthropic\":[{\"modelId\":\"claude-opus-5\",\"label\":\"Claude Opus 5\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":2500,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"claude-sonnet-5\",\"label\":\"Claude Sonnet 5\",\"inputPricePerMillionMinor\":200,\"outputPricePerMillionMinor\":1000,\"currency\":\"USD\",\"sourceUrl\":\"https://platform.claude.com/docs/en/about-claude/pricing\",\"pricedOn\":\"2026-08-18\"}],\"google\":[{\"modelId\":\"gemini-3.5-flash\",\"label\":\"Gemini 3.5 Flash\",\"inputPricePerMillionMinor\":150,\"outputPricePerMillionMinor\":900,\"currency\":\"USD\",\"sourceUrl\":\"https://ai.google.dev/gemini-api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"openai\":[{\"modelId\":\"gpt-5.6-sol\",\"label\":\"GPT-5.6 Sol\",\"inputPricePerMillionMinor\":500,\"outputPricePerMillionMinor\":3000,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"},{\"modelId\":\"gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna（安い代わりに短め向き）\",\"inputPricePerMillionMinor\":20,\"outputPricePerMillionMinor\":120,\"currency\":\"USD\",\"sourceUrl\":\"https://developers.openai.com/api/docs/pricing\",\"pricedOn\":\"2026-08-18\"}],\"xai\":[{\"modelId\":\"grok-4.6\",\"label\":\"Grok 4.6（長い依頼の単価で見積ります）\",\"inputPricePerMillionMinor\":400,\"outputPricePerMillionMinor\":1200,\"currency\":\"USD\",\"sourceUrl\":\"https://docs.x.ai/developers/pricing\",\"pricedOn\":\"2026-08-18\"}],\"workers_ai\":[]}"
       },
       "d1_databases": [

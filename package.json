@@ -9,29 +9,40 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:prepare": "tsx tests/e2e/prepare-preview.mts",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "build:worker": "opennextjs-cloudflare build && node scripts/dedupe-server-chunks.mjs && opennextjs-cloudflare build --skipNextBuild",
     "preview": "pnpm run build:worker && opennextjs-cloudflare preview",
     "preview:static": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-static-preview.tsx",
     "visual": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/visual-regression.tsx",
-    "deploy:dev": "pnpm run build:worker && opennextjs-cloudflare deploy -- --env dev",
-    "deploy:prod": "pnpm run build:worker && opennextjs-cloudflare deploy -- --env production",
+    "scaffold:blog": "tsx scripts/scaffold-blog-components.ts",
+    "size:worker": "node scripts/worker-size.mjs",
+    "deploy:dev": "pnpm run build:worker && pnpm run size:worker -- --env dev && opennextjs-cloudflare deploy -- --env dev",
+    "deploy:prod": "pnpm run build:worker && pnpm run size:worker -- --env production && opennextjs-cloudflare deploy -- --env production",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply DB --env dev --local",
-    "db:migrate:dev": "wrangler d1 migrations apply DB --env dev --remote",
-    "db:migrate:prod": "wrangler d1 migrations apply DB --env production --remote",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "db:drift": "node scripts/check-schema-drift.mjs",
+    "seed:local": "tsx scripts/seed-local.ts",
     "catalog:sync": "node scripts/catalog-sync.mjs",
     "content:validate": "node .claude/plugins/affiliate-content-harness/scripts/validate-content-set.mjs --content-set blog-content/quiet-rental --content-set blog-content/kids-english-trial",
+    "acceptance:reconcile": "node scripts/acceptance-reconciliation.mjs",
+    "check:reference-reuse": "node scripts/check-reference-site-reuse.mjs",
+    "generate": "node scripts/generate.mjs",
     "verify": "node scripts/verify.mjs",
     "mutation": "stryker run",
-    "mutation:changed": "stryker run --since=origin/dev"
+    "mutation:changed": "stryker run --since=origin/dev",
+    "preview:blog": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-blog-preview.tsx",
+    "preview:site": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-site-preview.tsx"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.2",
     "better-auth": "^1.7.0",
     "drizzle-orm": "^0.45.2",
+    "lucide-react": "^1.33.0",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -40,6 +51,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260816.1",
+    "@playwright/test": "^1.62.1",
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/vitest-runner": "^10.0.0",
     "@tailwindcss/postcss": "^4",
@@ -66,7 +78,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@esbuild-kit/core-utils>esbuild": "^0.25.0"
+      "@esbuild-kit/core-utils>esbuild": "^0.25.0",
+      "qs": "6.15.3"
     }
   },
   "packageManager": "pnpm@10.19.0"

@@ -3,8 +3,6 @@
  * @req REQ-P09
  * @types equivalence, tenant-isolation, state-transition
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -20,6 +18,7 @@ import { type ActorContext, formatMoney } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner, anOutsider } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 成果の金額の手修正を、**本物の D1 と本物のマイグレーション**で通す結合テスト。
@@ -56,20 +55,6 @@ const manager: ActorContext = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID });
 const OPEN_CONVERSION = "cv_2026_08_a";
 /** 見本にある、締め済みの期間の成果。 */
 const CLOSED_CONVERSION = "cv_2026_07_a";
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
 
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({

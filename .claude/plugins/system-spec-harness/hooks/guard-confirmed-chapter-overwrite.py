@@ -104,16 +104,26 @@ EXEMPT_NAMES = frozenset(
 )
 
 # system-spec/ を参照する書込で in-place 変更を行うツール群 (対象ファイルを引数で受ける)。
+#
+# `\b` だけでは**オプション文字列の中身**に当たる。実測 2026-08-25: 読み取り専用の
+# `find ... | xargs grep -ln 'retrieval-evidence'` が `-ln` の `ln` を `\bln\b` に食われて
+# mutation 判定になり、保護領域を参照していたため find/xargs 経路で遮断された。証跡ファイルを
+# 一覧するだけの監査が通らず、doc_freshness の裏取りが構造的に不可能になっていた。
+# **読むだけの操作が書込と誤認される穴は、塞ぐ側ではなく調べる側を黙らせる。**
+#
+# ツール名は「コマンド語の位置」に現れる。直前が `-` (オプション) や語構成文字なら別物である。
+# `/usr/bin/rm` のようなパス前置は残す必要があるので `/` は除外しない。
+_CMD_POS = r"(?<![-\w])"
 _MUTATION_TOOLS = (
-    (re.compile(r"\bsed\s+(?:-[a-zA-Z]*i|--in-place)\b"), "sed -i"),
-    (re.compile(r"\btee\b"), "tee"),
-    (re.compile(r"\bcp\b"), "cp"),
-    (re.compile(r"\bmv\b"), "mv"),
-    (re.compile(r"\brm\b"), "rm"),
-    (re.compile(r"\bdd\b"), "dd"),
-    (re.compile(r"\btruncate\b"), "truncate"),
-    (re.compile(r"\binstall\b"), "install"),
-    (re.compile(r"\bln\b"), "ln"),
+    (re.compile(_CMD_POS + r"sed\s+(?:-[a-zA-Z]*i|--in-place)\b"), "sed -i"),
+    (re.compile(_CMD_POS + r"tee\b"), "tee"),
+    (re.compile(_CMD_POS + r"cp\b"), "cp"),
+    (re.compile(_CMD_POS + r"mv\b"), "mv"),
+    (re.compile(_CMD_POS + r"rm\b"), "rm"),
+    (re.compile(_CMD_POS + r"dd\b"), "dd"),
+    (re.compile(_CMD_POS + r"truncate\b"), "truncate"),
+    (re.compile(_CMD_POS + r"install\b"), "install"),
+    (re.compile(_CMD_POS + r"ln\b"), "ln"),
 )
 # python ワンライナ等での書込操作。
 _PY_WRITE = re.compile(
@@ -125,7 +135,14 @@ _PY_WRITE = re.compile(
     r"""|shutil\.(?:copy|move|rmtree)\s*\("""
 )
 # 出力リダイレクト (`>`/`>>`) の対象トークン。`2>&1` 等の fd 複製は (?!&) で除外。
-_REDIRECT = re.compile(r"""\d*>>?\s*(?!&)("[^"]*"|'[^']*'|[^\s;|&>]+)""")
+#
+# 演算子と宛先の間は **水平の空白のみ** (`[ \t]*`)。`\s*` にすると改行を跨ぐ。
+# 実測 2026-08-25: heredoc 本文中の `</details>` の閉じ山括弧と、改行を挟んだ次行の
+# `system-spec/spec-state.json` (読み取り対象としての言及) が
+# 「リダイレクト演算子とその宛先」として読まれ、書込の無い Bash が遮断された。
+# **シェルでも、素の改行を挟んだ `>` はコマンドとして成立しない** (そこで構文が切れる)。
+# 同一行に限るのは緩和ではなく、実態に合わせた制約である。
+_REDIRECT = re.compile(r"""\d*>>?[ \t]*(?!&)("[^"]*"|'[^']*'|[^\s;|&>]+)""")
 # 保護領域 (system-spec/ ディレクトリ) をパス境界 (完全なパスセグメント) で参照しているか。
 # 前後をデリミタ/末尾で束ねるため、自plugin パスの `system-spec-harness` (直後が '-') には発火しない。
 _PROTECTED_SEG = re.compile(r"""(?:^|[\s;|&<>()'"=/])system-spec(?:/|[\s;|&<>()'"]|$)""")

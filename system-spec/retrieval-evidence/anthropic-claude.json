@@ -1,0 +1,26 @@
+{
+ "target_id": "anthropic-claude",
+ "source_url": "https://platform.claude.com/docs/en/models/overview",
+ "requested_url": "https://platform.claude.com/docs/en/models/overview",
+ "retrieved_at": "2026-09-02T08:19:13Z",
+ "http_status": 200,
+ "content_bytes": 447861,
+ "content_sha256": "bc32f8def173620c635a7b6a1ab021fa3b82d89e4b63b30bfda25bef8c54d881",
+ "page_title": "Models overview - Claude Platform Docs",
+ "retrieval_method": "official page HTTPS GET (Accept-Encoding: identity)。この worker には WebFetch tool が付与されていなかったため、同じ公式 URL を HTTP で直接取得し、応答本文を保存して digest を採った。",
+ "redirect_note": "最終 URL は要求 URL と同一 (url_effective 一致・リダイレクトなし)。",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "現行 active モデル (claude-fable-5-1 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001)",
+  "found_in": [
+   "埋め込みモデルデータ中の lifecycle=\"active\" entry: claude-fable-5-1 (name=\"Claude Fable 5.1\", generation=\"5.1\", releasedOn=\"2026-09-01\", inLineup=true)",
+   "埋め込みモデルデータ中の lifecycle=\"active\" entry: claude-opus-5 (releasedOn=\"2026-07-24\")",
+   "埋め込みモデルデータ中の lifecycle=\"active\" entry: claude-sonnet-5 (releasedOn=\"2026-06-30\")",
+   "埋め込みモデルデータ中の lifecycle=\"active\" entry: claude-haiku-4-5-20251001 (releasedOn=\"2025-10-15\")"
+  ],
+  "http_last_modified": null,
+  "body_declares_date": true,
+  "body_search_method": "このページは SPA でモデル比較表がクライアント側描画されるため、表の DOM ではなく本文へ埋め込まれたモデルデータを直接数えた。lifecycle=\"active\" を持つ entry は本文全体でちょうど 4 件で、各 entry の直前に現れる model ID は上記 4 件と一対一に対応する。リンクや移行案内として本文に現れる他の ID は lifecycle 欄を持たないため、この数え方で active な掲載モデルと区別できる。",
+  "note": "2026-09-02 の再取得で **active lineup が動いた**。前回記録 (2026-08-29) の claude-fable-5 は lifecycle=active entry として本文に存在せず、代わりに claude-fable-5-1 (Claude Fable 5.1, releasedOn=2026-09-01, inLineup=true) が active entry として現れる。claude-fable-5 の文字列は残るが、いずれも /docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5 と /docs/en/release-notes/system-prompts/claude-fable-5 という **navigation の path/title** としてのみで、lifecycle 欄を持たない。opus-5 / sonnet-5 / haiku-4-5-20251001 の 3 件は前回から変化していない。C08 の独立監査が報告した『現行ラインナップに Claude Fable 5.1 が含まれる』は、この再取得で確定した。"
+ }
+}

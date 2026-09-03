@@ -185,6 +185,7 @@ def schema_findings(node: dict[str, Any], schema: dict[str, Any], index: int) ->
     try:
         from jsonschema import Draft202012Validator, FormatChecker  # type: ignore
     except ImportError:
+        _assert_fallback_schema(schema)
         raw = _schema_fallback(node, schema, schema)
     else:
         try:
@@ -204,6 +205,52 @@ def schema_findings(node: dict[str, Any], schema: dict[str, Any], index: int) ->
         {"node": node_id, "code": "schema_violation", "detail": f"{path}: {detail}"}
         for path, detail in raw
     ]
+
+
+def _assert_fallback_schema(schema: Any, path: str = "$") -> None:
+    """Fail closed on malformed local schemas when the optional jsonschema package is absent."""
+    if isinstance(schema, bool):
+        return
+    if not isinstance(schema, dict):
+        raise ContractError(f"invalid canonical graph schema {SCHEMA_PATH}: {path} must be an object or boolean")
+
+    allowed_types = {"null", "boolean", "object", "array", "number", "integer", "string"}
+    declared_type = schema.get("type")
+    if declared_type is not None:
+        declared_types = declared_type if isinstance(declared_type, list) else [declared_type]
+        if not declared_types or any(
+            not isinstance(item, str) or item not in allowed_types for item in declared_types
+        ):
+            raise ContractError(
+                f"invalid canonical graph schema {SCHEMA_PATH}: {path}.type is invalid"
+            )
+
+    for keyword in ("properties", "$defs"):
+        children = schema.get(keyword)
+        if children is None:
+            continue
+        if not isinstance(children, dict):
+            raise ContractError(
+                f"invalid canonical graph schema {SCHEMA_PATH}: {path}.{keyword} must be an object"
+            )
+        for key, child in children.items():
+            _assert_fallback_schema(child, f"{path}.{keyword}.{key}")
+
+    for keyword in ("items", "contains", "additionalProperties", "if", "then", "else", "not"):
+        child = schema.get(keyword)
+        if child is not None:
+            _assert_fallback_schema(child, f"{path}.{keyword}")
+
+    for keyword in ("allOf", "anyOf", "oneOf"):
+        children = schema.get(keyword)
+        if children is None:
+            continue
+        if not isinstance(children, list) or not children:
+            raise ContractError(
+                f"invalid canonical graph schema {SCHEMA_PATH}: {path}.{keyword} must be a non-empty array"
+            )
+        for child_index, child in enumerate(children):
+            _assert_fallback_schema(child, f"{path}.{keyword}[{child_index}]")
 
 
 def _scalar(raw: str) -> Any:

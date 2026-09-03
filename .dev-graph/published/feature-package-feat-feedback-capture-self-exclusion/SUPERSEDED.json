@@ -1,0 +1,24 @@
+{
+  "current_pointer": ".dev-graph/state/current/feature-package-feat-feedback-capture-self-exclusion.json",
+  "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+  "notice": "この directory は supersede 済みの旧世代であり、正本ではない。実装要件の正本は superseded_by.published_path 配下の content-addressed generation を読むこと。旧世代は byte-for-byte 不変で保持されるため、この directory の中身を編集して現行世代へ追随させてはならない。さらに世代が進んだ場合は current_pointer から再解決すること。",
+  "published_digest": "sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b",
+  "schema_version": "1.0.0",
+  "status": "superseded",
+  "superseded_by": {
+    "generation_id": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+    "published_digest": "sha256:892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+    "published_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+    "receipt": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/atomic-promotion-receipt.json"
+  },
+  "superseded_receipts": {
+    "promotion": {
+      "path": ".dev-graph/published/feature-package-feat-feedback-capture-self-exclusion/atomic-promotion-receipt.json",
+      "sha256": "sha256:ca1cbe7d2e85655b9abd4773663fb9a642939231fb57e43f6f555c4cb1cfbf29"
+    },
+    "registration": {
+      "path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b/dev-graph-registration-receipt.json",
+      "sha256": "sha256:1ae7a2a7a1c4347363a64a3ff2ef12b0e7f034ba6d4e095cd2daae6b78af3d3e"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-API01, REQ-TS09 */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -166,10 +166,32 @@ function createDepsArguments(body: string): readonly string[] {
         depth -= 1;
       }
     }
-    found.push(body.slice(at + head.length, end));
+    found.push(resolveAppContext(body.slice(at + head.length, end)));
     at = body.indexOf(head, end);
   }
   return found;
+}
+
+/**
+ * `createDeps(await appContext())` を、`appContext()` が実際に返す名前へ開く。
+ *
+ * **束ねた関数を「渡していない」と読ませない。** `appContext()` は
+ * 保存先と環境を 1 度にそろえるためにある（片方だけ渡す書き方を残さないため）。
+ * その名前ごしに渡している入口を赤にすると、直し方は
+ * 「束ねるのをやめて 2 つ別々に取る」になってしまい、
+ * この検査が防ぎたかった食い違いを検査自身が呼び戻す。
+ *
+ * 開く先は手で書かない。`app-context.ts` の `return { … }` から読む。
+ * 束の中身が痩せた日には、ここが自動で赤くなる。
+ */
+function resolveAppContext(args: string): string {
+  if (!/^\s*await\s+appContext\(\s*\)\s*$/.test(args)) return args;
+  const source = readFileSync(`${ROOT}src/infrastructure/app-context.ts`, "utf-8");
+  const at = source.lastIndexOf("return {");
+  const body = source.slice(at, source.indexOf("}", at));
+  const keys = [...body.matchAll(/(\w+):/g)].map((m) => m[1]);
+  if (keys.length === 0) throw new Error("appContext() が何を返しているか読めない");
+  return keys.join(", ");
 }
 
 /** 入口 1 つ分（`export function 名前(...)` から次の `export` まで）。 */

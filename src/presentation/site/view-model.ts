@@ -4,6 +4,7 @@ import {
   articleHref,
   outboundHref,
 } from "@/application/read-models/published-article";
+import { expressionBlocksOf } from "@/application/seo/expression-blocks";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
   type ArticleType,
@@ -13,13 +14,13 @@ import {
   routesFor,
   siteBasePathBySlug,
 } from "@/domain/authoring";
-import {
-  pickCategoryIcon,
-  type ArticleCardView,
-  type ArticleViewModel,
-  type CorrectionView,
-  type SiteChrome,
+import type {
+  ArticleCardView,
+  ArticleViewModel,
+  CorrectionView,
+  SiteChrome,
 } from "@/presentation/ui";
+import type { PublicSiteProjection } from "./public-site-projection";
 
 /**
  * 保存されている形 → 画面に出す形 の変換。
@@ -68,14 +69,7 @@ export function siteRouteHref(
 export function toChrome(
   siteSlug: string,
   blueprint: PublicSiteBlueprint,
-  /**
-   * 記事から数えたブランド。読めなかったときは省く。
-   *
-   * 省いた結果この欄が消えるのは意図どおり。読み込みに失敗した棚に
-   * 「読み込めませんでした」と出しても、読者にできることが無い
-   * （記事そのものは読めている）。
-   */
-  brands: readonly { readonly name: string; readonly articleCount: number }[] = [],
+  projection?: PublicSiteProjection,
 ): SiteChrome {
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
@@ -85,42 +79,48 @@ export function toChrome(
   const categoryNav = blueprint.categories.map((c) => ({
     href: siteHref(siteSlug, `/categories/${c.slug}`),
     label: c.name,
-    /*
-      記号は**ここで決める**。共通UI に決めさせない。
-      共通UI は「渡された形を出すだけ」に保つ決まりで（要求 E-2）、
-      そこにカテゴリー名の読み解きを入れると、
-      画面の部品がブログの中身を知っている状態になる。
-    */
-    icon: pickCategoryIcon(c.name, c.slug),
   }));
 
+  const headerSlots = projection?.chrome.headerSlots ?? [];
+  const savedHeader = headerSlots.length > 0;
+  const headerBrand = headerSlots.find((slot) => slot.slotKey === "header-brand");
   const nav = [
     ...(home === undefined ? [] : [{ href: siteRouteHref(siteSlug, home), label: "トップ" }]),
     ...categoryNav,
-    ...(search === undefined ? [] : [{ href: siteRouteHref(siteSlug, search), label: search.label }]),
+    ...(search === undefined || (savedHeader && !headerSlots.some((s) => s.slotKey === "header-search-modal"))
+      ? []
+      : [{ href: siteRouteHref(siteSlug, search), label: search.label }]),
   ];
 
+  const defaultFooter = footerRoutes(blueprint).map((route) => ({
+    href: siteRouteHref(siteSlug, route),
+    label: route.label,
+  }));
+  const savedFooter = projection?.chrome.footerSlots ?? [];
+  const projectedFooter =
+    savedFooter.length === 0
+      ? defaultFooter
+      : [
+          ...(savedFooter.some((slot) => slot.slotKey === "footer-logo-nav")
+            ? defaultFooter
+            : []),
+          ...(savedFooter.some((slot) => slot.slotKey === "footer-category-tree")
+            ? blueprint.categories.map((category) => ({
+                href: siteHref(siteSlug, `/categories/${category.slug}`),
+                label: category.name,
+              }))
+            : []),
+        ];
+  const footer = projectedFooter.filter(
+    (item, index, all) => all.findIndex((candidate) => candidate.href === item.href) === index,
+  );
+
   return {
-    siteName: blueprint.name,
+    siteName: headerBrand?.title.trim() || blueprint.name,
     tagline: blueprint.purpose,
     brandTheme: blueprint.theme.brandTheme,
     nav,
     categoryNav,
-    /*
-      押した先は検索の画面。ブランド専用の画面は作らない。
-      作ると、記事が 1 本も無いブランドの URL が独立して存在することになり、
-      検索エンジンには中身の無いページとして拾われる。
-      検索なら、結果が 0 件でも「探した結果」として意味が通る。
-    */
-    brands: brands.map((brand) => ({
-      label: brand.name,
-      count: brand.articleCount,
-      href: `${
-        search === undefined
-          ? `${siteBasePathBySlug(siteSlug)}/search`
-          : siteRouteHref(siteSlug, search)
-      }?q=${encodeURIComponent(brand.name)}`,
-    })),
     homeHref: home === undefined ? siteBasePathBySlug(siteSlug) : siteRouteHref(siteSlug, home),
     searchHref:
       search === undefined ? `${siteBasePathBySlug(siteSlug)}/search` : siteRouteHref(siteSlug, search),
@@ -128,10 +128,7 @@ export function toChrome(
       editorialPolicy === undefined
         ? siteBasePathBySlug(siteSlug)
         : siteRouteHref(siteSlug, editorialPolicy),
-    footer: footerRoutes(blueprint).map((r) => ({
-      href: siteRouteHref(siteSlug, r),
-      label: r.label,
-    })),
+    footer,
   };
 }
 
@@ -158,12 +155,20 @@ export function toArticleView(
   siteSlug: string,
   article: PublishedArticle,
   relatedArticles?: readonly ArticleCardView[],
+  /** ブログが選んだ見せ方の並び（受入 A1・A5）。未選択なら渡さない。 */
+  blockOrder?: readonly string[],
 ): ArticleViewModel {
+  const blocks = expressionBlocksOf(article);
+  const answer = blocks.find((block) => block.kind === "answer");
+  const keyPoints = blocks.find((block) => block.kind === "key_points");
+  const faq = blocks.find((block) => block.kind === "faq");
+  const freshness = blocks.find((block) => block.kind === "freshness");
+
   return {
     title: article.title,
-    summary: article.summary,
+    summary: answer?.text ?? "",
     publishedAt: article.publishedAt,
-    updatedAt: article.updatedAt,
+    updatedAt: freshness?.asOf ?? "",
     authorName: article.author.name,
     authorHref: siteHref(siteSlug, `/authors/${article.author.slug}`),
     authorBio: article.author.bio,
@@ -194,7 +199,14 @@ export function toArticleView(
       })),
     })),
     conversation: article.conversation,
+    blockOrder,
+    // answer / key_points / faq / freshness は画面で読み直さない。
+    // 公開前監査・JSON-LD と同じ射影に、空白の扱いまで揃える。
+    keyPoints: keyPoints?.items,
+    faq: faq?.items,
     productCards: article.productCards?.map((card) => ({
+      // どの商品かを画面まで運ぶ。「気になる」の保存先を決めるのに要る。
+      productId: card.productId,
       name: card.name,
       brand: card.brand,
       oneLine: card.oneLine,

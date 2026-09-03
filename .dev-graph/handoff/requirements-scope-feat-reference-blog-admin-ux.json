@@ -1,0 +1,36 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-reference-blog-admin-ux.md",
+  "package_current_pointer": ".dev-graph/state/current/feature-package-feat-reference-blog-admin-ux.json",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd",
+  "selected_feature": "feat-reference-blog-admin-ux",
+  "feature_package_id": "feature-package/feat-reference-blog-admin-ux",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform"
+  ],
+  "task_ids": [
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P01",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P02",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P03",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P04",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P05",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P06",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P08",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P11",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P12",
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-reference-blog-admin-ux-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-reference-blog-admin-ux.json"
+  ],
+  "scope_digest": "sha256:7d6e7ce01c9bac96b4f5c52f41ab401d2e311269dab4d0d0ba5b0e2c30b4eee8"
+}

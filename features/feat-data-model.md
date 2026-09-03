@@ -12,9 +12,9 @@ iteration: null
 title: "データモデル基盤 (32エンティティ)"
 owners: ["daishiman"]
 created_at: "2026-08-16T13:20:00Z"
-updated_at: "2026-08-16T14:20:00Z"
+updated_at: "2026-08-17T15:17:48Z"
 status: "active"
-depends_on: ["feat-auth-workspace"]
+depends_on: []
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "プラットフォーム層 §21 の全32エンティティを単一のスキーマ定義として持ち、二層で同じ正規データを参照できるようにする"

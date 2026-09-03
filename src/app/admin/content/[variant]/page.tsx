@@ -1,30 +1,33 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
-import {
-  AdvanceContentStateForm,
-  ApproveContentForm,
-} from "@/presentation/admin/content-progress-form";
-import { SchedulePublicationForm } from "@/presentation/admin/schedule-publication-form";
+import { adminOperation } from "@/presentation/admin/admin-operation-manifest";
+import { DeleteConfirm } from "@/presentation/admin/delete-confirm";
+import { deleteContentVariantAction } from "@/presentation/admin/delete-form-action";
 import { contentUseCases, currentActor, editorialContentNotice } from "@/presentation/composition";
 import {
-  AiCannotApproveNotice,
-  ApprovalBlockedNotice,
+  ActionNote,
   ApprovalFlow,
   Callout,
-  Card,
   EmptyView,
   ErrorView,
-  Page,
+  FactList,
+  SeeAlso,
+  Prose,
+  Section,
+  Stack,
   StorageNotice,
+  SubSection,
+  TextLink,
   type ApprovalState,
 } from "@/presentation/ui";
-import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
 /**
  * 記事 1 本の画面。
+ *
+ * **読んで判断するための画面。** 押して動かす操作は
+ * `/admin/content/[variant]/progress` へ移した。本文を読みに来た人の目の前に
+ * 「承認」と「配信を作る」が並んでいると、読み終える前に手が出る。
  *
  * **自動確認の結果を「合格」だけで済ませない。**
  * 実行しなかった項目も理由つきで並べる。
@@ -36,205 +39,198 @@ export default async function ContentDetailPage({
 }: {
   readonly params: Promise<{ readonly variant: string }>;
 }) {
+  const operation = adminOperation("content.delete");
   const { variant: variantId } = await params;
   const actor = await currentActor();
   const result = await (await contentUseCases()).getContent.execute(actor, { variantId });
 
-  if (!result.ok) {
-    return (
-      <Shell title="記事">
+  const title = result.ok ? (result.value.variant.title ?? "（見出し未設定）") : "記事";
+
+  return (
+    <AdminShell
+      routeId="content/[variant]"
+      routeParams={{ variant: variantId }}
+      title={title}
+      lead="本文と、自動確認の指摘。"
+      actions={
+        <>
+          <TextLink href={`/admin/content/${encodeURIComponent(variantId)}/edit`}>
+            この記事を直す
+          </TextLink>
+          <TextLink href="/admin/content">記事の一覧へ戻る</TextLink>
+        </>
+      }
+    >
+      {!result.ok ? (
         <ErrorView
           title="この記事を表示できませんでした"
           body={result.error.message}
           suggestedAction={result.error.suggestedAction ?? null}
-          action={<Link href="/admin/content">記事の一覧へ戻る</Link>}
+          action={<TextLink href="/admin/content">記事の一覧へ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <>
+          <StorageNotice status={await editorialContentNotice()} />
 
-  const {
-    variant,
-    quality,
-    policy,
-    policyUncheckedReason,
-    authorName,
-    state,
-    stateLabel,
-    nextStates,
-    approvalBlockedReason,
-    publishBlockedReason,
-  } = result.value;
-  const title = variant.title ?? "（見出し未設定）";
+          <Section title="いまの段階">
+            <ApprovalFlow current={approvalStateOf(result.value.variant.status)} />
+            <Prose>
+              いまは「{result.value.stateLabel}」です。書き手:{" "}
+              {result.value.authorName ?? "未設定"} / 媒体: {result.value.variant.channel} /
+              作成に使った指示: {result.value.variant.generationPromptVersion}（
+              {result.value.variant.modelId}）
+            </Prose>
+            <SeeAlso>
+              <TextLink href={`/admin/content/${encodeURIComponent(variantId)}/progress`}>
+                進行と配信の操作へ
+              </TextLink>
+            </SeeAlso>
+          </Section>
+
+          <QualitySection quality={result.value.quality} />
+
+          <Section title="表現のきまり">
+            {result.value.policy === null ? (
+              // 確認できなかったことを「指摘なし」と並べて出さない。
+              // 同じ見た目にすると、見ていない記事が見た記事と区別できなくなる。
+              <Callout
+                tone="warn"
+                title="確認できていません"
+                reason={result.value.policyUncheckedReason ?? "理由が分かりません。"}
+                action={<TextLink href="/admin/content">記事の一覧へ戻る</TextLink>}
+              />
+            ) : result.value.policy.violations.length === 0 ? (
+              <EmptyView
+                title="当たった項目はありません"
+                body="この記事の分野で登録されているきまりには当たりませんでした。登録されていない法令は確認していません。"
+              />
+            ) : (
+              <Stack>
+                {result.value.policy.violations.map((v, i) => (
+                  <ActionNote
+                    key={`${String(v.ruleId)}-${i}`}
+                    tone={v.severity === "block" ? "danger" : "neutral"}
+                  >
+                    {/* 禁止だけ示すと執筆が止まる。根拠と言い換えを必ず添える。 */}
+                    {v.ruleName}: {`「${v.excerpt}」— ${v.basis}。${v.suggestion}`}
+                  </ActionNote>
+                ))}
+              </Stack>
+            )}
+            {result.value.policy !== null && result.value.policy.unevaluatedRuleIds.length > 0 && (
+              /*
+                実行できなかったルールを黙って飛ばさない。ただし `Callout` にはしない。
+                この画面には既に「確認できていません」の告知があり、告知を重ねると
+                どちらが記事の判断に効くのかが読み取れなくなる。
+              */
+              <ActionNote tone="danger">
+                {result.value.policy.unevaluatedRuleIds.length}
+                件のきまりが実行できませんでした。設定した検出条件を見直してください。
+              </ActionNote>
+            )}
+          </Section>
+
+          <Section title="本文">
+            <Prose>{result.value.variant.summary}</Prose>
+            {result.value.variant.body.split("\n").map((line, i) => (
+              <Prose key={`${i}-${line.slice(0, 8)}`}>{line}</Prose>
+            ))}
+          </Section>
+
+          {result.value.variant.assumptions.length === 0 ? null : (
+            <Section
+              title="AI が置いた仮定"
+              lead="確かめられた内容ではありません。読者にも仮定として示します。"
+            >
+              <ListOfText items={result.value.variant.assumptions} />
+            </Section>
+          )}
+
+          <Section title="この記事を消す">
+            <DeleteConfirm
+              action={deleteContentVariantAction}
+              toolName={operation.tool}
+              toolDescription="記事を消す（公開中の記事は断られる）"
+              idName="variantId"
+              idValue={variantId}
+              label={title}
+              verb="消す"
+              consequence="公開中の記事は断られます。先に取り下げてください。消すと本文ごと無くなり、後から中身を確かめる手段は残りません。"
+            />
+          </Section>
+        </>
+      )}
+    </AdminShell>
+  );
+}
+
+type Quality = {
+  readonly issues: readonly {
+    readonly check: string;
+    readonly severity: string;
+    readonly message: string;
+  }[];
+  readonly skipped: readonly { readonly check: string; readonly reason: string }[];
+};
+
+/**
+ * 自動確認の結果。
+ *
+ * 「確認しなかった項目」を同じ塊の中へ入れている。別の節に切ると、
+ * 指摘 0 件を見た時点で読み終える人が出て、見ていない観点が見落とされる。
+ */
+function QualitySection({ quality }: { readonly quality: Quality }) {
   const errors = quality.issues.filter((i) => i.severity === "error");
   const warnings = quality.issues.filter((i) => i.severity !== "error");
 
   return (
-    <Shell title={title}>
-      <StorageNotice status={await editorialContentNotice()} />
-
-      <Card>
-        <h2 className={styles.sectionTitle}>いまの段階</h2>
-        <ApprovalFlow current={approvalStateOf(variant.status)} />
-        {actor.isAiServiceAccount ? (
-          <AiCannotApproveNotice action={<Link href="/admin/content">記事の一覧へ</Link>} />
-        ) : approvalBlockedReason === null ? null : (
-          <ApprovalBlockedNotice
-            reason={approvalBlockedReason}
-            action={<Link href="/admin/content">ほかの記事を見る</Link>}
-          />
-        )}
-        <p className={styles.sectionLead}>
-          書き手: {authorName ?? "未設定"} / 媒体: {variant.channel} / 作成に使った指示:{" "}
-          {variant.generationPromptVersion}（{variant.modelId}）
-        </p>
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>次に進める</h2>
-        {state === null ? (
-          // 分からないものを最初の段階として出さない。出すと、押しても通らない。
-          <EmptyView
-            title="進行の記録がありません"
-            body="この記事がかんばんのどの列にいるかが記録されていません。記事の一覧から開き直してください。"
-          />
-        ) : (
-          <>
-            <p className={styles.sectionLead}>
-              いまは「{stateLabel}」です。進めた段階は保存され、記事の一覧にも反映されます。
-            </p>
-            {actor.isAiServiceAccount ? null : (
-              <AdvanceContentStateForm variantId={variantId} from={state} nextStates={nextStates} />
-            )}
-            {/* 承認は人にしかできない。AI の代行では、押せる欄そのものを出さない。 */}
-            {actor.isAiServiceAccount || approvalBlockedReason !== null ? null : (
-              <ApproveContentForm variantId={variantId} />
-            )}
-          </>
-        )}
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>自動確認の結果</h2>
-        <p className={styles.sectionLead}>
-          直すべき指摘 {errors.length}件 / 気をつける点 {warnings.length}件 / 確認しなかった項目{" "}
-          {quality.skipped.length}件
-        </p>
-
-        {quality.issues.length === 0 ? (
-          <EmptyView
-            title="指摘はありません"
-            body="自動で確認できる範囲では問題は見つかりませんでした。人の目での確認は別に必要です。"
-          />
-        ) : (
-          <ul className={styles.linkList}>
-            {quality.issues.map((issue, i) => (
-              <li key={`${issue.check}-${i}`}>
-                <Callout
-                  tone={issue.severity === "error" ? "danger" : "warn"}
-                  title={CHECK_LABEL[issue.check] ?? issue.check}
-                  reason={issue.message}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <h3 className={styles.sectionTitle}>確認しなかった項目</h3>
-        {quality.skipped.length === 0 ? (
-          <p className={styles.sectionLead}>すべての項目を確認しました。</p>
-        ) : (
-          <dl className={styles.criteria}>
-            {quality.skipped.map((s) => (
-              <div key={s.check}>
-                <dt>{CHECK_LABEL[s.check] ?? s.check}</dt>
-                <dd>{s.reason}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>表現のきまり</h2>
-        {policy === null ? (
-          // 確認できなかったことを「指摘なし」と並べて出さない。
-          // 同じ見た目にすると、見ていない記事が見た記事と区別できなくなる。
-          <Callout
-            tone="warn"
-            title="確認できていません"
-            reason={policyUncheckedReason ?? "理由が分かりません。"}
-            action={<Link href="/admin/content">記事の一覧へ戻る</Link>}
-          />
-        ) : policy.violations.length === 0 ? (
-          <EmptyView
-            title="当たった項目はありません"
-            body="この記事の分野で登録されているきまりには当たりませんでした。登録されていない法令は確認していません。"
-          />
-        ) : (
-          <ul className={styles.linkList}>
-            {policy.violations.map((v, i) => (
-              <li key={`${String(v.ruleId)}-${i}`}>
-                <Callout
-                  tone={v.severity === "block" ? "danger" : v.severity === "warn" ? "warn" : "info"}
-                  title={v.ruleName}
-                  // 禁止だけ示すと執筆が止まる。根拠と言い換えを必ず添える。
-                  reason={`「${v.excerpt}」— ${v.basis}。${v.suggestion}`}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-        {policy !== null && policy.unevaluatedRuleIds.length > 0 && (
-          // 実行できなかったルールを黙って飛ばさない。
-          <Callout
-            tone="warn"
-            title="確認できなかったきまりがあります"
-            reason={`${policy.unevaluatedRuleIds.length}件のきまりが実行できませんでした。設定した検出条件を見直してください。`}
-          />
-        )}
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>この記事を出す</h2>
-        {publishBlockedReason === null ? (
-          <>
-            <p className={styles.sectionLead}>
-              出し先と日時を決めると、配信が 1 件登録されます。ここで投稿はされません。
-              同じ記事・同じ先・同じ日時をもう一度登録しても、配信は増えません。
-            </p>
-            <SchedulePublicationForm variantId={variantId} />
-          </>
-        ) : (
-          // 欄を消して黙らない。なぜ出せないのか、次に何をすれば出せるのかを書く。
-          // 理由の文はユースケースが返す。画面でもう一度判定すると、
-          // 画面と AI で違う理由が出る（そして片方だけ古くなる）。
-          <EmptyView title="まだ配信できません" body={publishBlockedReason} />
-        )}
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>本文</h2>
-        <p className={styles.sectionLead}>{variant.summary}</p>
-        {variant.body.split("\n").map((line, i) => (
-          <p key={`${i}-${line.slice(0, 8)}`}>{line}</p>
-        ))}
-      </Card>
-
-      {variant.assumptions.length === 0 ? null : (
-        <Card>
-          <h2 className={styles.sectionTitle}>AI が置いた仮定</h2>
-          <p className={styles.sectionLead}>
-            これは確かめられた内容ではありません。読者にも仮定として示します。
-          </p>
-          <ul className={styles.linkList}>
-            {variant.assumptions.map((a) => (
-              <li key={a}>{a}</li>
-            ))}
-          </ul>
-        </Card>
+    <Section
+      title="自動確認の結果"
+      lead={`直すべき指摘 ${errors.length}件 / 気をつける点 ${warnings.length}件 / 確認しなかった項目 ${quality.skipped.length}件`}
+    >
+      {quality.issues.length === 0 ? (
+        <EmptyView
+          title="指摘はありません"
+          body="自動で確認できる範囲では問題は見つかりませんでした。人の目での確認は別に必要です。"
+        />
+      ) : (
+        <Stack>
+          {quality.issues.map((issue, i) => (
+            <ActionNote
+              key={`${issue.check}-${i}`}
+              tone={issue.severity === "error" ? "danger" : "neutral"}
+            >
+              {CHECK_LABEL[issue.check] ?? issue.check}: {issue.message}
+            </ActionNote>
+          ))}
+        </Stack>
       )}
-    </Shell>
+
+      <SubSection title="確認しなかった項目">
+        {quality.skipped.length === 0 ? (
+          <Prose>すべての項目を確認しました。</Prose>
+        ) : (
+          <FactList
+            rows={quality.skipped.map((s) => ({
+              key: s.check,
+              label: CHECK_LABEL[s.check] ?? s.check,
+              value: s.reason,
+            }))}
+          />
+        )}
+      </SubSection>
+    </Section>
+  );
+}
+
+/** 行き先を持たない文字列の並び。`ListView` の行き先なし版として使う。 */
+function ListOfText({ items }: { readonly items: readonly string[] }) {
+  return (
+    <Stack>
+      {items.map((item) => (
+        <Prose key={item}>{item}</Prose>
+      ))}
+    </Stack>
   );
 }
 
@@ -274,21 +270,3 @@ const CHECK_LABEL: Readonly<Record<string, string>> = {
   missing_drawback: "デメリットの欠落",
   missing_citation: "出典の欠落",
 };
-
-function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/content"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "記事", href: "/admin/content" },
-        { label: title },
-      ]}
-      actions={<Link href="/admin/content">記事の一覧へ戻る</Link>}
-    >
-      <Page title={title} lead="本文と自動確認の結果を見て、次の段階へ進めてよいかを判断します。">
-        {children}
-      </Page>
-    </AdminShell>
-  );
-}

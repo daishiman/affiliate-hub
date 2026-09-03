@@ -11,109 +11,55 @@ serves_goals: [G2, G1]
 - カテゴリ集約状態: **確定**
 - 章確定マーカー: `status: confirmed`
 
-## 状態の意味と実装差分
-
-`confirmed` は要求判断と採用方針が確定していることを表す。**実装済み・デプロイ済み・検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
-
-- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §1、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
-
-### As-Is（2026-08-16 のリポジトリ実体）
-
-- Next.js / OpenNext の単一アプリ内に、D1 を直接読む stateless MCP PoC がある。
-- MCP PoC は `list_programs`、`record_conversion`、`get_revenue_summary` の3ツールのみ。単一の `MCP_TOKEN` または same-origin 判定で入口を分けるが、利用者主体、Workspace membership、role による認可はない。same-origin は主体認証ではない。
-- `record_conversion` は成果を1件追加するだけで、ASP API / CSV の一括取り込み、安定した成果同一性、再取り込みの冪等化、判断・入金の状態履歴はない。現在の単一 `status` は `pending | approved | rejected` のみで、入金状態を表現できない。任意の `external_id` に一意制約もない。
-- ClickEvent / BehaviorEvent / Channel Insights の収集、正規化、MetricRollup、Attribution、Insight Engine、Brief への提案は未実装である。
-
-### To-Be（規範契約）
-
-| ID | 契約 | 状態 |
-|---|---|---|
-| BE-ANA-01 | 収集→正規化→集計→分析→活用の責務境界は `docs/spec/03-分析・解析基盤仕様.md` §1–§7 を正本とする。各段は再実行可能な idempotent consumer とし、append-only の入力から同じ rollup を再構築できること | 未実装 |
-| BE-CONV-01 | 成果の安定同一性 `conversion_key` は `(workspace_id, affiliate_account_id, import_source, source_record_id)`。source ID がない取込元だけ、状態を除く不変項目から source fingerprint を作る。`import_record_key` は原票1行の canonical hash とし、同一キー再送は no-op、同一 `conversion_key` の新しい原票は承認または支払の状態更新履歴として扱う。現在値は `approval_status ∈ {pending, approved, rejected, cancelled}` と `payment_status ∈ {not_eligible, unpaid, scheduled, paid, reversed}` の二軸で投影し、単一 `status` へ合成しない。`scheduled/paid` は `approval_status=approved` の場合だけ許可する | 未実装 |
-| BE-AUTH-01 | UI / REST / WebMCP / backend MCP は共通の use-case 境界を呼び、そこで `actor(type, id) + workspace_id + membership status + role` を認可する。actor と workspace は検証済み session/token から導出し、ツール引数を信用しない | 未実装 |
-| BE-MCP-01 | 現行 MCP は接続性検証用 PoC。製品版では BE-AUTH-01 を通る薄い adapter とし、§24.3 の resource/tool 契約、監査、確認必須操作、集計値のみの開示を通常 API と共有する | PoC のみ |
-
-### Delta
-
-1. BE-AUTH-01 を先に実装し、すべての repository query に workspace scope を必須化する。
-2. BE-CONV-01 の import command、idempotency ledger、判断・入金の状態履歴を実装する。現行 `record_conversion` の無条件 insert と単一 `status` は、移行後に二軸を扱う内部 command へ置換する。
-3. BE-ANA-01 を収集・正規化・rollup・分析の順に追加し、同じ KPI 契約を画面/API/MCPで使用する。
-4. 最後に BE-MCP-01 を PoC token 依存から actor-scoped credential に移行する。
-
-### Dependencies
-
-依存方向は `前提 → 後続` とする。
-
-- `DB-IDENTITY-01` / `DB-TENANT-01` + auth 章の session 方針 → BE-AUTH-01。
-- `DB-CONVERSION-01` + Commercial D1 + ASPごとの原票正規化規則 → BE-CONV-01。
-- `DB-PROJECTION-01` / `DB-KPI-01` + infrastructure の Queue / Cron / Redirect Resolver → BE-ANA-01。
-- BE-AUTH-01 + 各 use case → BE-MCP-01。MCP 固有ロジックから DB を直接操作しない。
-
-### Acceptance evidence
-
-- 同一取込ファイルを2回処理して成果件数・金額が増えず、後続の `approval_status` / `payment_status` 変更だけが同じ成果へ反映される自動テスト。
-- 異なる Workspace の actor が同じ resource ID を指定しても参照・変更できず、role 不足が拒否される API/MCP 共通の認可テスト。
-- 生イベントから rollup を全再計算した結果が増分集計と一致する fixture テスト。`approval_status=approved, payment_status=unpaid` では `revenue_approved` のみ、`payment_status=paid` への変更後は `revenue_paid` も計上され、承認報酬が二重加算されないこと。
-- MCP の tool call と通常 API が同一 use case / KPI 定義 / 監査記録を使うことを示す contract test。
-
 ## カテゴリ別収集状態
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: `qa-backend-web-spec-intake` (正本 `spec-state.json` の `qa_ref`。旧記載 `qa-backend-web-analytics` との不一致は `## 確定セルの記録` を参照) |
+| Web (web) | 確定 | 確定質疑: qa-backend-web-blog-creation-atomicity。裏付け質疑 (`qa_refs`): `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 
-## 確定セルの記録 (正本 spec-state.json)
-
-> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.backend.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | backend × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-backend-web-spec-intake` |
-| 資するゴール (serves_goals) | G2, G1 |
-| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/04-二層構造統合仕様.md` |
-| 出典 節 | §3 WebMCP の確定契約 / §4 禁止依存 |
-| 出典 sha256 | `101ad27f5bf796c7180815bd2d1e582f9378b645c5aea9e9f1d65330af27b6ef` |
-| 適用された設計知識 (design_applications) | 10 件 — 本章 `## 適用された設計知識` を参照 |
-
-### 本節を「転記」に留めた理由
-
-C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
-
-## 意思決定 (decisions)
-
-> 正本 `decisions[]` の全 6 件。**6 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
-
-| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
-|---|---|---|---|---|---|
-| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | auth |
-| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |
-| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
-| **`decision-llm-provider`** | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | **backend** |
-| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
-| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
-
-- **`decision-llm-provider` が本章に効く形**: 複数プロバイダを保つのは選択肢を増やすためではなく、07 §0 GC-5 (レビュー系を執筆系から分離し、自作自演の検証にしない) を**書き手と検査役に別モデルを当てる**ことで満たすためである。1 社固定にするとこの分離が構成では表せなくなる。単価は `vars` に置き、値上げに気づける状態を保つ。
-- **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片もこの作業場所には置かない。
-
 ## 確定内容 (質疑録)
 
-### qa-backend-web-analytics (対応セル: web)
+### qa-backend-web-blog-creation-atomicity (対応セル: web)
+
+**質問**: ブログ作成の完了条件をどう定義し、サブドメインから slug への解決をどこで行うか。
+
+**回答**: 作成ユースケースは create-only の Unit of Work が完了したときだけ成功を返す。1つでも失敗したら全体を巻き戻し、成功メッセージも読者リンクも出さない。下書き保存は expected revision の CAS、作成は同じ revision の DB claim を要求し、古い回答や作成後の遅延保存を conflict にする。作成直後は provisioningComplete を fixed pages/全 provisioned bands・slots/categories/network から判定し、公開表示用の enabled layout、および公開固定ページと articles を要求する contentReady と分離する。D1/live の公開 reader へ code sample fallback を混ぜず、記事一覧・本文・composition は同じ PublicBlog の保存実体を読む。ホスト→slug の解決は middleware が単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ1本ごとにルートもコードも増やさない。未知ホストは404とし、存在するブログの一覧を推測させない。
+
+### qa-backend-web-spec-intake (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)
+
+**回答**: | 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |
+| ツール数 | 1ページあたり原則6個以下 |
+| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する | `src/lib/domain/ranking.ts` 以外に重み計算が現れないことを grep テストで固定 |
+| FD-2 | 報酬データを推薦スコアの入力にする | Ranking Service の入力型に Commercial DB 由来の型が含まれないことを型で担保 |
+| FD-4 | WebMCP でしか到達できない機能を作る | 全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認 |
+
+### qa-backend-web (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 書面入力 docs/spec/01-要求仕様書-v1.0.md §18.3 のバックエンド (backend) × web 要件は何か
+
+**回答**: * 同一投稿の重複実行を防ぐ
+* Idempotency Keyを使用
+* 投稿前にアカウントを再確認
+* トークン期限を確認
+* API制限を確認
+* 公開操作を監査ログに残す
+* 予約直前の編集を検知する
+* 投稿失敗時に自動で無限再試行しない
+* 削除・更新は別承認を要求できる
+* 外部投稿のURLを保存する
+
+### qa-backend-web-analytics (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: backend×web: 分析・解析パイプライン (収集→正規化→集計→分析→活用) の要件は何か (書面入力 docs/spec/03 §1)
 
-**回答**:
-
-```
-ClickEvent(リダイレクトサービス)
+**回答**: ClickEvent(リダイレクトサービス)
   BehaviorEvent(ブログ計測タグ)
   Channel Insights(SNS API)
   Conversion(ASP API / CSV)
@@ -135,8 +81,17 @@ ClickEvent(リダイレクトサービス)
 
 * **イベントは不変(append-only)**。修正は打ち消しイベントで行う
 * **集計は再計算可能**。生イベントから任意時点のロールアップを再構築できる
-* **転送と計測を障害分離**する。計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。SLOと劣化条件はINF-REDIRECT-01を正とする
+* **転送は必達、計測はベストエフォート**。リダイレクトはDB障害時も止めない
 * **Editorial / Commercial 分離**(v1.0 19.4章)。Insight Engine は配信戦略・表現の学習にのみ収益データを使い、商品評価・ランキングへは出力しない
+```
+
+- (注記: 正本 qa_log[qa-backend-web-analytics].answer のコードフェンスが閉じていないため、章の構造を守るためコンパイラが閉じた。正本側の修正が要る)
+
+### qa-backend-web-overhaul-v2 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: backend×web: UI/UX 改善で必要になる API は何か (2026-08-21 利用者ヒアリング逐語)
+
+**回答**: 利用者本人の回答を逐語主旨で記録する。「この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください」。具体的には (1) 各管理対象 (商品・ブログ・SNS チャネル・記事等) の新規作成・削除を含む CRUD API。(2) 商品×ブログの多対多対応付けと、ブログごとのコンセプト管理 API。(3) コンセプトごとの文章生成・保存 API。(4) X・Facebook 等を抽象化した SNS チャネル登録・投稿状態参照 API (プロバイダ追加可能な構成)。(5) ブログごとの構成 (セクション並び・テンプレート・コンポーネントセット) を保存・取得する構成管理 API。ドメインモデルは既確定の qa-backend-web-spec-intake を基礎とし、ブログ構成とチャネルの 2 概念を拡張する。既存のバックエンドスタック (Cloudflare Workers/D1) を継続使用する。
 
 ## 上流指針 (doctrine anchor)
 
@@ -159,7 +114,7 @@ ClickEvent(リダイレクトサービス)
 
 ## 適用された設計知識
 
-> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は BE-ANA-01〜BE-MCP-01 と参照先仕様で管理する。
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
 
 ### Domain-Driven Design — deep knowledge card
 
@@ -290,35 +245,83 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 
 #### 本章での適用
 
-##### 確定内容 qa-backend-web-analytics (対応セル: web)
+##### 確定内容 qa-backend-web-blog-creation-atomicity (対応セル: web)
 
-- 確定要件:
+- 確定要件: 作成ユースケースは create-only の Unit of Work が完了したときだけ成功を返す。1つでも失敗したら全体を巻き戻し、成功メッセージも読者リンクも出さない。下書き保存は expected revision の CAS、作成は同じ revision の DB claim を要求し、古い回答や作成後の遅延保存を conflict にする。作成直後は provisioningComplete を fixed pages/全 provisioned bands・slots/categories/network から判定し、公開表示用の enabled layout、および公開固定ページと articles を要求する contentReady と分離する。D1/live の公開 reader へ code sample fallback を混ぜず、記事一覧・本文・composition は同じ PublicBlog の保存実体を読む。ホスト→slug の解決は middleware が単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ1本ごとにルートもコードも増やさない。未知ホストは404とし、存在するブログの一覧を推測させない。
+- 設計解釈の記録経路: `dialogue`
+- 原則: Use Cases — application 固有の処理を delivery/persistence から独立して表し、成功の定義を use case 側が持つ (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: createCreateSiteFromDraftUseCase は新規作成専用とし、既存 slug を上書きしない。source draft claim・設計図・必須実体・下書き完了・作成監査を persistence の 1 Unit of Work に渡し、1 つでも失敗したら全体を巻き戻して成功を返さない
+  - トレードオフ:
+    - use case が知る実体が増えるため、persistence 側の port が太る。port を分割しすぎると原子性を保証する主体が曖昧になるので、transaction 境界を握る port を 1 つに保つ
+- 原則: Ports and Adapters / DIP — 内側が必要な port を定義し、外側 adapter が実装する (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ホスト名から slug を導く解決は middleware という単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ 1 本ごとにルートもコードも増やさない。ホスト解決は外側 adapter の関心で、内側の use case は解決済みの site identity だけを受け取る
+  - トレードオフ:
+    - middleware に判定が集まるため、ここが単一障害点になる。逆に判定箇所が 1 か所に閉じることでテナント境界の検査対象も 1 か所で済む
+    - 未知ホストを 404 とする方針は、設定ミスとブログ不在を利用者から区別できなくする。存在するブログ一覧を推測させないことを優先し、切り分けは運用ログ側で行う
+- 原則: Least privilege / deny by default — 判断不能時は fail closed (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ホスト解決が一意に定まらない場合 (未知ホスト・導出 slug の公開 identity 欠落または曖昧・workspace 不一致) は配信せず 404 を返す。resolvePublicSiteIdentity が rows.length !== 1 で null を返す現行の fail-closed 判定はこの原則に合致しており、変えるのは『作成側が満たすべき前提を書き切っていない』側であって、読者側の厳格さではない
+  - トレードオフ:
+    - 読者側の判定を緩めれば 404 は即座に消えるが、それは不完全なブログを公開することと同義になる。是正の向きを作成側に固定するぶん、修正範囲は広くなる
+- 原則: CQRS / Ports and Adapters — 編集用 aggregate と公開用 projection を分離し、公開側の port を一つにする (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: D1/live の公開記事は published_articles を唯一の canonical public projection とする。PublicBlogPort の記事一覧・詳細は PublishedContentPort へ委譲し、articles の直読、sample fallback、union、独自件数集計を持たない。ブログ運用と AI 生成の公開 writer は同じ projection statement builder を使い、公開・更新・非公開化・削除・復元の状態遷移で独立 writer を増やさない。source_article_id のある行は BlogOps 管理だけが更新し、AI 公開記事用 published admin から除外する
+  - トレードオフ:
+    - 公開 projection へ書けなければ編集 aggregate だけを公開済みにしない fail-closed 動作が必要で、単純な status 更新より transaction 境界が広がる
+    - 旧 /blog/:slug は削除せず同じ projection を引いて articleHref の canonical URL へ 308 redirect するため、入口は残るが本文の描画経路は一つになる
+##### 接地根拠 qa-backend-web-spec-intake (対応セル: web)
 
-```
-ClickEvent(リダイレクトサービス)
-  BehaviorEvent(ブログ計測タグ)
-  Channel Insights(SNS API)
-  Conversion(ASP API / CSV)
-      ↓
-[正規化層]
-  bot除外・重複排除・セッション化・ディメンション付与
-      ↓
-[集計層]
-  MetricRollup(日次 × ディメンション組み合わせ)
-      ↓
-[分析層]
-  KPIディクショナリ / Attribution / Experiment / Insight Engine
-      ↓
-[活用層]
-  Analyticsダッシュボード / InsightReport / 生成時の推奨(Brief への提案)
-```
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-spec-intake` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: ランキング計算・比較候補の分類・公開ゲート判定・広告表記の要否判定は src/lib/domain/ の純関数 1 箇所に置き、管理画面・公開ブログ・WebMCP・MCP のすべてがそこを呼ぶ (`docs/spec/04-二層構造統合仕様.md#§2-3`)
+  - 採否: `applied`
+  - 章固有の根拠: 計算の正本を 1 箇所に固定し、呼び出し側 (画面 / WebMCP / MCP) は結果を描画するだけにする。重複実装は FD-1 として grep テストで落とす
+  - トレードオフ:
+    - 経路ごとの最適化余地は減るが、経路によって順位が食い違う事態を構造的に排除できる
+- 原則: WebMCP の登録先は document.modelContext。navigator.modelContext は legacy fallback 専用で、1 ページあたりのツールは原則 6 個以下 (`docs/spec/04-二層構造統合仕様.md#§3`)
+  - 採否: `applied`
+  - 章固有の根拠: 能力検出を先に行い、非対応環境は通常 UI へ落とす。ページ種別ごとに登録するツールを 6 個以下に選択する
+  - トレードオフ:
+    - ページごとに公開ツールを選ぶ手間が増えるが、モデル側の選択誤りを減らせる
+- 原則: 禁止依存 FD-1〜FD-5。特に FD-4「WebMCP でしか到達できない機能を作る」は、全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認する (`docs/spec/04-二層構造統合仕様.md#§4`)
+  - 採否: `applied`
+  - 章固有の根拠: WebMCP は追加の入口であって唯一の入口ではない。docs/product/traceability.md の導線列で対応 UI を必須にする
+  - トレードオフ:
+    - UI 側の実装が常に先行するため WebMCP の追加が遅くなるが、機能フラグを落としたときに使えなくなる機能が生じない
+- 原則: 生成基盤の設計制約 GC-1〜GC-6。AI に自由に書かせず、承認済みの事実・根拠・ペルソナ・媒体ルールを入力として与えて生成させる (GC-1)。レビュー系は執筆系と分離し自作自演の検証にしない (GC-5) (`docs/spec/07-生成基盤設計.md#§0`)
+  - 採否: `applied`
+  - 章固有の根拠: プロンプト入力変数を必須項目に固定し、欠落があれば生成を実行しない。Writer と Fact-checker / Compliance-reviewer を別サブエージェント・別コンテキストに置く
+  - トレードオフ:
+    - 入力を揃えるまで生成できず着手が遅れるが、根拠のない文章が生成物として残らない
+- 原則: 執筆順序（結論→理由→根拠→具体例→例外→読者にとっての意味→次の行動）を節単位で必ず 1 周させる。根拠の段は省略不可 (`docs/spec/05-文章作成メソッド仕様.md#§1`)
+  - 採否: `applied`
+  - 章固有の根拠: 生成の出力契約をこの 7 段の構造体にし、根拠の段が空のまま公開ゲートを通らないようにする
+  - トレードオフ:
+    - 文章の自由度は下がるが、根拠のない主張が節の単位で検出できる
+##### 接地根拠 qa-backend-web (対応セル: web)
 
-設計原則:
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: Idempotency Key による重複投稿防止と監査ログ (`docs/spec/01-要求仕様書-v1.0.md §18.3`)
+  - 採否: `applied`
+  - 章固有の根拠: 外部公開操作は冪等キー・トークン期限確認・監査ログ記録を必須とし、失敗時の無限再試行を禁止する
+  - トレードオフ:
+    - 冪等キー管理のため投稿キューに状態テーブルが必要となり実装が増えるが、重複公開事故を構造的に防げる
+- 原則: Connector 契約と Capability Registry (`docs/spec/01-要求仕様書-v1.0.md §17.1`)
+  - 採否: `applied`
+  - 章固有の根拠: 媒体別の文字数・形式制約をコードへ直書きせず、バージョン管理された Capability Registry で管理する
+  - トレードオフ:
+    - レジストリの更新運用が必要になるが、媒体仕様変更時にコード改修なしで追従できる
+- 原則: イベント駆動 (publication.published 等) の非同期処理 (`docs/spec/01-要求仕様書-v1.0.md §23.2`)
+  - 採否: `applied`
+  - 章固有の根拠: 投稿・成果・リンク切れをイベントとして発行し、通知・集計・再生成を疎結合にする
+  - トレードオフ:
+    - 結果整合となるためダッシュボードは速報値と確定値を区別表示する必要がある
+##### 接地根拠 qa-backend-web-analytics (対応セル: web)
 
-* **イベントは不変(append-only)**。修正は打ち消しイベントで行う
-* **集計は再計算可能**。生イベントから任意時点のロールアップを再構築できる
-* **転送と計測を障害分離**する。計測系障害単独を理由に、既知の有効なresolver entryの転送を止めない。SLOと劣化条件はINF-REDIRECT-01を正とする
-* **Editorial / Commercial 分離**(v1.0 19.4章)。Insight Engine は配信戦略・表現の学習にのみ収益データを使い、商品評価・ランキングへは出力しない
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-analytics` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: イベントは不変 (append-only) とし、集計は生イベントから再計算可能にする (`docs/spec/03-分析・解析基盤仕様.md#§1`)
   - 採否: `applied`
@@ -330,10 +333,111 @@ ClickEvent(リダイレクトサービス)
   - 章固有の根拠: Insight Engine の入出力境界をコードレベルで分離し、Commercial DB への参照を Editorial 系モジュールから物理的に遮断する (v1.0 §19.4)
   - トレードオフ:
     - データ結合の自由度は下がるが、報酬額バイアスの混入を構造的に防止できる
+##### 接地根拠 qa-backend-web-overhaul-v2 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-overhaul-v2` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: UI の各操作は対応する API 契約と対で定義し、画面だけが先行して API 不在で死んでいる状態を作らない (`user-dialogue:2026-08-21#必要API併走`)
+  - 採否: `applied`
+  - 章固有の根拠: 利用者が「UI/UX を整える際に必要な API があれば併せて実行する」と明言した。各サイト・各 SNS への投稿部分が画面に反映されていない現状は、表示に必要な API/データ供給の欠落が一因であり、画面と API を同一タスク境界で対にする
+  - トレードオフ:
+    - API を同時に整備するぶん 1 機能あたりの実装範囲は広がる。画面ごとに必要最小の API から段階導入し、プロバイダ別 SNS 連携の実配信は契約定義と投稿状態参照を先行させる
 - 資するゴール: G2, G1
 
 ## 最新ドキュメント出典
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| drizzle-orm | 0.45.2 | Drizzle Team (orm.drizzle.team) | https://orm.drizzle.team/docs/overview | 2026-08-16T09:01:52Z | 2026-08-16T09:02:16Z |
+| drizzle-orm | 0.45.2 | Drizzle Team (orm.drizzle.team) | https://orm.drizzle.team/docs/overview | 2026-08-16T09:01:52Z | 2026-08-22T22:20:35Z |
+| anthropic-claude | 現行 active モデル (claude-fable-5-1 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001) | Anthropic (platform.claude.com) | https://platform.claude.com/docs/en/models/overview | 2026-09-02T08:19:13Z | 2026-09-02T08:19:13Z |
+| openai-platform | gpt-5.6 | OpenAI (developers.openai.com) | https://developers.openai.com/api/docs/models | 2026-08-22T15:05:04Z | 2026-08-22T15:05:04Z |
+| google-gemini | Gemini 3 系 (gemini-3.8-flash / gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview) | Google (ai.google.dev) | https://ai.google.dev/gemini-api/docs/models | 2026-09-02T21:20:17Z | 2026-09-02T21:20:17Z |
+
+## 状態の意味と実装差分
+
+`confirmed` は要求判断と採用方針が確定していることを表す。**実装済み・デプロイ済み・検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
+
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §1、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
+
+### As-Is（2026-08-16 のリポジトリ実体）
+
+- Next.js / OpenNext の単一アプリ内に、D1 を直接読む stateless MCP PoC がある。
+- MCP PoC は `list_programs`、`record_conversion`、`get_revenue_summary` の3ツールのみ。単一の `MCP_TOKEN` または same-origin 判定で入口を分けるが、利用者主体、Workspace membership、role による認可はない。same-origin は主体認証ではない。
+- `record_conversion` は成果を1件追加するだけで、ASP API / CSV の一括取り込み、安定した成果同一性、再取り込みの冪等化、判断・入金の状態履歴はない。現在の単一 `status` は `pending | approved | rejected` のみで、入金状態を表現できない。任意の `external_id` に一意制約もない。
+- ClickEvent / BehaviorEvent / Channel Insights の収集、正規化、MetricRollup、Attribution、Insight Engine、Brief への提案は未実装である。
+
+### To-Be（規範契約）
+
+| ID | 契約 | 状態 |
+|---|---|---|
+| BE-ANA-01 | 収集→正規化→集計→分析→活用の責務境界は `docs/spec/03-分析・解析基盤仕様.md` §1–§7 を正本とする。各段は再実行可能な idempotent consumer とし、append-only の入力から同じ rollup を再構築できること | 未実装 |
+| BE-CONV-01 | 成果の安定同一性 `conversion_key` は `(workspace_id, affiliate_account_id, import_source, source_record_id)`。source ID がない取込元だけ、状態を除く不変項目から source fingerprint を作る。`import_record_key` は原票1行の canonical hash とし、同一キー再送は no-op、同一 `conversion_key` の新しい原票は承認または支払の状態更新履歴として扱う。現在値は `approval_status ∈ {pending, approved, rejected, cancelled}` と `payment_status ∈ {not_eligible, unpaid, scheduled, paid, reversed}` の二軸で投影し、単一 `status` へ合成しない。`scheduled/paid` は `approval_status=approved` の場合だけ許可する | 未実装 |
+| BE-AUTH-01 | UI / REST / WebMCP / backend MCP は共通の use-case 境界を呼び、そこで `actor(type, id) + workspace_id + membership status + role` を認可する。actor と workspace は検証済み session/token から導出し、ツール引数を信用しない | 未実装 |
+| BE-MCP-01 | 現行 MCP は接続性検証用 PoC。製品版では BE-AUTH-01 を通る薄い adapter とし、§24.3 の resource/tool 契約、監査、確認必須操作、集計値のみの開示を通常 API と共有する | PoC のみ |
+
+### Delta
+
+1. BE-AUTH-01 を先に実装し、すべての repository query に workspace scope を必須化する。
+2. BE-CONV-01 の import command、idempotency ledger、判断・入金の状態履歴を実装する。現行 `record_conversion` の無条件 insert と単一 `status` は、移行後に二軸を扱う内部 command へ置換する。
+3. BE-ANA-01 を収集・正規化・rollup・分析の順に追加し、同じ KPI 契約を画面/API/MCPで使用する。
+4. 最後に BE-MCP-01 を PoC token 依存から actor-scoped credential に移行する。
+
+### Dependencies
+
+依存方向は `前提 → 後続` とする。
+
+- `DB-IDENTITY-01` / `DB-TENANT-01` + auth 章の session 方針 → BE-AUTH-01。
+- `DB-CONVERSION-01` + Commercial D1 + ASPごとの原票正規化規則 → BE-CONV-01。
+- `DB-PROJECTION-01` / `DB-KPI-01` + infrastructure の Queue / Cron / Redirect Resolver → BE-ANA-01。
+- BE-AUTH-01 + 各 use case → BE-MCP-01。MCP 固有ロジックから DB を直接操作しない。
+
+### Acceptance evidence
+
+- 同一取込ファイルを2回処理して成果件数・金額が増えず、後続の `approval_status` / `payment_status` 変更だけが同じ成果へ反映される自動テスト。
+- 異なる Workspace の actor が同じ resource ID を指定しても参照・変更できず、role 不足が拒否される API/MCP 共通の認可テスト。
+- 生イベントから rollup を全再計算した結果が増分集計と一致する fixture テスト。`approval_status=approved, payment_status=unpaid` では `revenue_approved` のみ、`payment_status=paid` への変更後は `revenue_paid` も計上され、承認報酬が二重加算されないこと。
+- MCP の tool call と通常 API が同一 use case / KPI 定義 / 監査記録を使うことを示す contract test。
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.backend.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
+
+| 項目 | 値 |
+|---|---|
+| セル | backend × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-backend-web-blog-creation-atomicity` |
+| 資するゴール (serves_goals) | G2, G1 |
+| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
+| 出典 kind | written-requirements |
+| 出典 path | `docs/spec/04-二層構造統合仕様.md` |
+| 出典 節 | §3 WebMCP の確定契約 / §4 禁止依存 |
+| 出典 sha256 | `101ad27f5bf796c7180815bd2d1e582f9378b645c5aea9e9f1d65330af27b6ef` |
+| 適用された設計知識 (design_applications) | 10 件 — 本章 `## 適用された設計知識` を参照 |
+
+### 本節を「転記」に留めた理由
+
+C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+## 意思決定 (decisions)
+
+> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
+|---|---|---|---|---|---|
+| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | auth |
+| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |
+| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
+| **`decision-llm-provider`** | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | **backend** |
+| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
+| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
+| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
+
+- **`decision-llm-provider` が本章に効く形**: 複数プロバイダを保つのは選択肢を増やすためではなく、07 §0 GC-5 (レビュー系を執筆系から分離し、自作自演の検証にしない) を**書き手と検査役に別モデルを当てる**ことで満たすためである。1 社固定にするとこの分離が構成では表せなくなる。単価は `vars` に置き、値上げに気づける状態を保つ。
+- **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片もこの作業場所には置かない。
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `  - 章固有の根拠: D1/live の公開記事は published_articles を唯一の canonical public projection とする。PublicBlogPort の記事一覧・詳細は PublishedContentPort へ委譲し、articles の直読、sample fallback、union、独自件数集計を持たない。ブログ運用と AI 生成の公開 writer は同じ projection statement builder を使い、公開・更新・非公開化・削除の状態遷移で独立 writer を増やさない`

@@ -11,11 +11,13 @@
  * @req REQ-FB07
  * @req REQ-IM09
  * @req REQ-TM02, REQ-TM03, REQ-TM05, REQ-TM06, REQ-TM10
+ * @req REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06
+ * @req REQ-BOPS07, REQ-BOPS08, REQ-BOPS09, REQ-BOPS10, REQ-BOPS11, REQ-BOPS12, REQ-BOPS14
  * @types keyboard
  */
 import { describe, expect, it } from "vitest";
-import { ROUTE_CASES, ROUTE_STATE_CASES, importPathOf, propsOf } from "./route-table";
-import { focusableOrder, intoDom, renderRoute } from "../support/render";
+import { RENDERABLE_ROUTE_CASES, ROUTE_STATE_CASES, renderCase } from "./route-table";
+import { focusableOrder, intoDom } from "../support/render";
 
 /**
  * キーボードだけで画面を操作できるか。
@@ -56,12 +58,12 @@ const OPERABLE_ROLES = ["button", "link", "tab", "checkbox", "switch", "menuitem
 const NATIVELY_FOCUSABLE = ["a", "button", "input", "select", "textarea"];
 
 const ALL_ROUTES = [
-  ...ROUTE_CASES.map((r) => ({ ...r, state: "既定の表示" })),
+  ...RENDERABLE_ROUTE_CASES.map((r) => ({ ...r, state: "既定の表示" })),
   ...ROUTE_STATE_CASES,
 ];
 
 async function domOf(route: (typeof ALL_ROUTES)[number]) {
-  const html = await renderRoute(importPathOf(route.file), propsOf(route));
+  const html = await renderCase(route);
   return intoDom(html);
 }
 

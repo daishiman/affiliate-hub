@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { AppDeps } from "@/application/deps";
+import { createCapacityGuard } from "@/application/capacity";
 import {
   createCreateSiteFromDraftUseCase,
   createGetSiteDraftUseCase,
@@ -8,11 +9,16 @@ import {
   createStartSiteDraftUseCase,
 } from "@/application/usecases/site/build-site";
 import {
+  createDeleteManagedSiteUseCase,
+  createUpdateManagedSiteUseCase,
+} from "@/application/usecases/site/edit-sites";
+import {
   createCheckSiteDifferentiationUseCase,
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
 } from "@/application/usecases/site/manage-sites";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
+import { readPublicSiteComposition } from "@/presentation/site/public-site-projection";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 
@@ -25,6 +31,20 @@ import type { AnyToolDefinition } from "./tool-definition";
  */
 export function platformTools(deps: AppDeps): readonly AnyToolDefinition[] {
   const sites = { sites: deps.sites };
+  /**
+   * 直す・取り下げるほうは、読む側より依存が多い。
+   *
+   * 読むのは `sites`（読者向けの一覧）だが、書くのは `drafts`（登録の窓口）で、
+   * 取り下げの前に `publishedContent` で残っている記事を数える。
+   * 理由は `edit-sites.ts` の冒頭に書いてある。
+   */
+  const siteEditing = {
+    sites: deps.sites,
+    drafts: deps.siteDrafts,
+    publishedContent: deps.publishedContent,
+    auditLog: deps.auditLog,
+    ids: deps.ids,
+  };
 
   return [
     ...siteBuilderTools(deps),
@@ -52,6 +72,35 @@ export function platformTools(deps: AppDeps): readonly AnyToolDefinition[] {
       readOnly: true,
       useCase: createCheckSiteDifferentiationUseCase(sites),
     }),
+    defineTool({
+      name: "update_managed_site",
+      description:
+        "ブログの設計図（名前・狙い・分野・差別化の 10 軸）を直します。URL 名とパターンは変えられません。",
+      schema: z.object({
+        siteSlug: z.string().min(1),
+        name: z.string().min(1).optional(),
+        purpose: z.string().min(1).optional(),
+        genre: z.string().min(1).optional(),
+        emitLlmsTxt: z.boolean().optional(),
+        differentiation: z.record(z.string(), z.string()).optional(),
+      }),
+      readOnly: false,
+      useCase: createUpdateManagedSiteUseCase(siteEditing),
+    }),
+    defineTool({
+      name: "delete_managed_site",
+      description:
+        "ブログを取り下げます。読者に出ている記事が残っていれば、その本数を返して断ります。人の操作でのみ実行できます。",
+      schema: z.object({
+        siteSlug: z.string().min(1),
+        // 理由は業務側でも必須。ここで空を弾くのは、画面に「なぜ」を書かせるため。
+        reason: z.string().min(1),
+      }),
+      readOnly: false,
+      // 消したブログは戻せない。AI 単独では実行させない。
+      requiresHumanApproval: true,
+      useCase: createDeleteManagedSiteUseCase(siteEditing),
+    }),
   ];
 }
 
@@ -67,11 +116,24 @@ export function platformTools(deps: AppDeps): readonly AnyToolDefinition[] {
  * 名前も URL も後から気軽には変えられないため。
  */
 function siteBuilderTools(deps: AppDeps): readonly AnyToolDefinition[] {
+  const capacity = createCapacityGuard({
+    workspaces: deps.workspaces,
+    now: () => new Date(),
+  });
   const builder = {
     drafts: deps.siteDrafts,
     ids: deps.ids,
     auditLog: deps.auditLog,
     now: () => new Date(),
+    capacity,
+    // 画面と同じ住所を割り当てる。ここだけ `null` を渡すと、
+    // 道具から作ったブログだけがサブドメインを持たない形になる。
+    siteBaseDomain: deps.siteBaseDomain,
+    readComposition: (siteSlug: string) =>
+      readPublicSiteComposition(siteSlug, {
+        source: deps.publicBlogSource,
+        port: deps.publicBlog,
+      }),
   };
 
   return [

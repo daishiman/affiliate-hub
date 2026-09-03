@@ -65,7 +65,6 @@ const EXEMPT: Readonly<Record<string, string>> = {
   "WorkspaceRepositoryPort.save": "作業場所そのものを保存する",
   "WorkspaceRepositoryPort.countBrands": "引数の id が作業場所そのもの",
   "WorkspaceRepositoryPort.countSites": "引数の id が作業場所そのもの",
-  "WorkspaceRepositoryPort.countMembers": "引数の id が作業場所そのもの",
   "WorkspaceRepositoryPort.countGenerationsThisMonth": "引数の id が作業場所そのもの",
 
   // 読者に見せる公開サイト。ログインの無い読み取りで、URL の名前だけが手がかり。
@@ -75,6 +74,13 @@ const EXEMPT: Readonly<Record<string, string>> = {
   // 時刻で起動する処理。全作業場所をまたいで「今出すもの」を集める。
   "PublicationRepositoryPort.listDue":
     "予定時刻の到来した配信を全作業場所から集める。呼ぶのは人ではなく時計",
+
+  // 外部providerの身元はworkspaceを越えて同じアカウントを指す。
+  // workspaceで分けると、同じDIDへ複数workspaceから同時送信できてしまう。
+  "ChannelConnectionRepositoryPort.acquireProviderDeliveryLease":
+    "provider DID単位の全作業場所共通mutex。作業場所で分けると同じ外部アカウントへ並行送信できる",
+  "ChannelConnectionRepositoryPort.releaseProviderDeliveryLease":
+    "取得時tokenが一致する全作業場所共通mutexだけを解放する。作業場所で分ける境界ではない",
 };
 
 type PortMethod = {
@@ -85,7 +91,18 @@ type PortMethod = {
   readonly params: readonly { name: string; typeText: string }[];
 };
 
-/** `export type X = {...}` の本文に `workspaceId` があるか、domain 全体を読んで表にする。 */
+/**
+ * `export type X = {...}` の本文に `workspaceId` があるか、型宣言を読んで表にする。
+ *
+ * 読む先は domain だけでなく **ports も**含める。この検査が確かめたいのは
+ * 「渡している型が保存の時点で作業場所を知っているか」であって、
+ * その型がどの層で宣言されているかではない。domain だけを読んでいると、
+ * 入口専用の入力型（`SiteProvisionRequest` のような、実体ではなく
+ * 「これから書くもの一式」を表す型）に `workspaceId` を足しても
+ * 検査からは見えず、直したのに落ち続ける。
+ * 直し方が「型を domain へ動かす」になってしまうと、層の分け方のほうが
+ * 検査に引きずられる。
+ */
 function domainTypesWithWorkspaceId(): ReadonlySet<string> {
   const found = new Set<string>();
   const walk = (dir: string): string[] =>
@@ -93,7 +110,7 @@ function domainTypesWithWorkspaceId(): ReadonlySet<string> {
       e.isDirectory() ? walk(join(dir, e.name)) : e.name.endsWith(".ts") ? [join(dir, e.name)] : [],
     );
 
-  for (const file of walk(DOMAIN_DIR)) {
+  for (const file of [...walk(DOMAIN_DIR), ...walk(PORTS_DIR)]) {
     const src = ts.createSourceFile(
       file,
       readFileSync(file, "utf8"),
