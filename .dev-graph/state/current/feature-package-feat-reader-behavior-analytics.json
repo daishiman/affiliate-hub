@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+  "generation_id": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "published_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "published_digest": "sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "receipt": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/atomic-promotion-receipt.json"
+}

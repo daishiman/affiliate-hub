@@ -1,0 +1,37 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-aeo-answer-optimization.md",
+  "package_current_pointer": ".dev-graph/state/current/feature-package-feat-aeo-answer-optimization.json",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-aeo-answer-optimization/28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "selected_feature": "feat-aeo-answer-optimization",
+  "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "arch-blog-operations-console"
+  ],
+  "task_ids": [
+    "SYS-AEO-ANSWER-OPTIMIZATION-P01",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P02",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P03",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P04",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P05",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P06",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P08",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P09",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P11",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P12",
+    "SYS-AEO-ANSWER-OPTIMIZATION-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-aeo-answer-optimization-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-aeo-answer-optimization.json"
+  ],
+  "scope_digest": "sha256:630f8738db5bec184444d3f972e2d21a6437933e5555652a23a794c63a0a056f"
+}

@@ -1,0 +1,52 @@
+{
+  "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+  "parent_feature": "feat-blog-scoped-admin-console",
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "schema_version": "1.0.0",
+  "source_feature_digest": "sha256:d202d1d997fc0ebb89858e0f79fa45fee784e41a21f266560417a4fbdaf010dc",
+  "task_count": 13,
+  "task_node_ids": [
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13"
+  ],
+  "task_spec_paths": [
+    "task-specs/phase-01-requirements.md",
+    "task-specs/phase-02-architecture.md",
+    "task-specs/phase-03-design-review.md",
+    "task-specs/phase-04-test-design.md",
+    "task-specs/phase-05-implementation.md",
+    "task-specs/phase-06-test-run.md",
+    "task-specs/phase-07-acceptance.md",
+    "task-specs/phase-08-refactoring-migration.md",
+    "task-specs/phase-09-quality-assurance.md",
+    "task-specs/phase-10-final-review.md",
+    "task-specs/phase-11-evidence.md",
+    "task-specs/phase-12-documentation-operations.md",
+    "task-specs/phase-13-release-deploy.md"
+  ]
+}

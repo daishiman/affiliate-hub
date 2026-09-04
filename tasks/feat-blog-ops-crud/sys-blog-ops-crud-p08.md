@@ -1,50 +1,50 @@
 ---
+graph_node_id: "SYS-BLOG-OPS-CRUD-P08"
 artifact_kind: "task"
 artifact_subtypes: []
-beads_linkage: null
-classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md","confidence":1.0}]
-classification_confidence: 1.0
-classification_reason: "feat-blog-ops-crud の P08 lifecycle 責務への確定写像"
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr_merged_all","reconciled_at":null,"source":null,"status":"in_progress"}
-confirmation_evidence: {"evaluated_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json"}
-confirmation_status: "confirmed"
-created_at: "2026-08-25T14:00:26Z"
-depends_on: ["SYS-BLOG-OPS-CRUD-P05"]
-domain: "backend"
-evaluation_status: "pass"
-execution_contexts: []
-feature_package_id: "feature-package/feat-blog-ops-crud"
-file_path: "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md"
-github_project_linkages: []
-github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
-graph_node_id: "SYS-BLOG-OPS-CRUD-P08"
-implementation_readiness: {"checked_at":"2026-08-25T13:19:00Z","missing_sections":[],"status":"complete"}
-issue_linkage: null
-iteration: null
-owners: ["daishiman"]
-parent_feature: "feat-blog-ops-crud"
-phase_ref: "P08"
-priority: null
 project_id: "feature-package-feat-blog-ops-crud"
-pull_request_linkages: []
+domain: "backend"
+tags: ["p08","feat-blog-ops-crud"]
+priority: null
+start_date: null
+target_date: null
+iteration: null
+title: "既存 articles スキーマ・admin/content 系画面との重複解消と移行"
+owners: ["daishiman"]
+created_at: "2026-08-25T14:00:26Z"
+updated_at: "2026-09-04T03:08:24.291007Z"
+status: "active"
+depends_on: ["SYS-BLOG-OPS-CRUD-P05"]
 related_nodes: []
 resource_scope: ["src/db/schema.ts","drizzle/","src/app/admin/content/","src/app/admin/blog/articles/","docs/spec/feat-blog-ops-crud/migration-report.md"]
-source_lineage: {"imported_at":"2026-08-25T14:00:26Z","origin_kind":"system-dev-planner","source_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","source_path":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-08-refactoring-migration.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
-start_date: null
-status: "active"
-tags: ["p08","feat-blog-ops-crud"]
-target_date: null
-template_id: "task"
-template_version: "1.1.0"
-title: "既存 articles スキーマ・admin/content 系画面との重複解消と移行"
-tracker_binding: "beads"
-updated_at: "2026-08-25T14:00:26Z"
 purpose: "既存 articles テーブル (type enum ranking/review/comparison/guide/tool、status enum draft/review/published/archived、AIコンテンツ生成パイプライン (content_variants/publications) が参照) と、本 feature が追加するblog CRUD用フィールド (article_template・status拡張 draft/scheduled/published/unpublished/archived・category_id→blog_category・author_profile_id 等) が後方互換migrationで単一テーブルへ統合され、既存 src/app/admin/content 配下 (AIコンテンツ生成の管理画面) と新規 src/app/admin/blog/articles 配下 (本featureのブログ記事CRUD画面) の間で記事一覧・編集ロジックの重複実装が0件であることが確認された状態を成立させる。"
 goal: "既存 articles テーブル (type enum ranking/review/comparison/guide/tool、status enum draft/review/published/archived、AIコンテンツ生成パイプライン (content_variants/publications) が参照) と、本 feature が追加するblog CRUD用フィールド (article_template・status拡張 draft/scheduled/published/unpublished/archived・category_id→blog_category・author_profile_id 等) が後方互換migrationで単一テーブルへ統合され、既存 src/app/admin/content 配下 (AIコンテンツ生成の管理画面) と新規 src/app/admin/blog/articles 配下 (本featureのブログ記事CRUD画面) の間で記事一覧・編集ロジックの重複実装が0件であることが確認された状態を成立させる。"
 scope_in: ["Produced artifacts: src/db/schema.ts への articles.status enum 後方互換拡張; drizzle/配下の追加migration; src/app/admin/content 配下の重複ロジック整理; docs/spec/feat-blog-ops-crud/migration-report.md (移行前後の対応表と重複解消の証跡)","Consumed artifacts: docs/spec/feat-blog-ops-crud/migration-plan.md, src/app/admin/content/, src/db/schema.ts","Write scope/touches: src/db/schema.ts, drizzle/, src/app/admin/content/, src/app/admin/blog/articles/, docs/spec/feat-blog-ops-crud/migration-report.md"]
 scope_out: ["feat-blog-ops-crud の scope_out に該当する変更","src/app/admin/content配下のAIコンテンツ生成機能そのものの再設計 (別featureが所有する)"]
 acceptance: ["Automated commands: `pnpm run lint` (重複コンポーネントの静的検出)","Automated commands: `pnpm run typecheck` (移行後の型整合性を確認する)","Automated commands: `pnpm run db:generate` (status enum後方互換migrationの生成を確認する)","Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ops-crud` (本 package の C12 決定論検証を世代非依存に再実行する)","Required evidence: P08 の 成果物 section に記載した produced artifacts のパス"]
 architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
+parent_feature: "feat-blog-ops-crud"
+feature_package_id: "feature-package/feat-blog-ops-crud"
+phase_ref: "P08"
+file_path: "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md"
+template_id: "task"
+template_version: "1.1.0"
+confirmation_status: "confirmed"
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json"}
+source_lineage: {"imported_at":"2026-08-25T14:00:26Z","origin_kind":"system-dev-planner","source_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","source_path":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-08-refactoring-migration.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
+classification_confidence: 1.0
+classification_reason: "feat-blog-ops-crud の P08 lifecycle 責務への確定写像"
+classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md","confidence":1.0}]
+issue_linkage: null
+tracker_binding: "beads"
+beads_linkage: {"bd_issue_id":"ah-85cn.8","github_mirror":null,"linked_at":"2026-08-25T14:30:00Z","sync_state":"linked"}
+github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
+github_project_linkages: []
+pull_request_linkages: []
+execution_contexts: []
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr_merged_all","reconciled_at":null,"source":null,"status":"in_progress"}
+implementation_readiness: {"checked_at":"2026-08-25T13:19:00Z","missing_sections":[],"status":"complete"}
 ---
 
 # System task overlay: 既存 articles スキーマ・admin/content 系画面との重複解消と移行

@@ -12,9 +12,9 @@ iteration: null
 title: "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)"
 owners: ["daishiman"]
 created_at: "2026-08-24T02:20:00Z"
-updated_at: "2026-09-02T21:41:52.306236Z"
+updated_at: "2026-09-04T06:47:49.957441Z"
 status: "active"
-depends_on: ["feat-ui-foundation","feat-site-builder","feat-affiliate-hub"]
+depends_on: []
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "ブログごとにテンプレートと配色を選び、公開面・作成・保存・管理一覧のどの面でも「どのブログにどのアフィリエイトが載っているか」を迷わず把握できるブログ UI を提供する"
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ui-builder/168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-03T00:00:00Z","origin_kind":"generated","source_digest":"666a851ea9d11886650209fa956a15457b405c91a2242e0107f9d237dc75d380","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"d05856c3c58a7ca30ae3360b48f9f960cced9167937cd86d8e4d2e90e7d1ea38","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望 (ブログ UI 更新: テンプレート/配色/常時表示/固定ページ/表現ブロック/アフィリエイト配置管理) を C14 macro 分解で 1 feature 化。細分は system-dev-planner の P01..P13 に委譲"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-ui-builder.md","confidence":0.95}]

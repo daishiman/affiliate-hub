@@ -1,0 +1,196 @@
+{
+  "edges": [
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+      "to": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13",
+      "type": "depends_on"
+    }
+  ],
+  "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12"
+      ],
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-blog-scoped-admin-console",
+  "schema_version": "1.0.0"
+}

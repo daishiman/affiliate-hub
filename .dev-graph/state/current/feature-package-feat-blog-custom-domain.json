@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-blog-custom-domain",
+  "generation_id": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+  "published_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+  "published_digest": "sha256:e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+  "receipt": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/atomic-promotion-receipt.json"
+}

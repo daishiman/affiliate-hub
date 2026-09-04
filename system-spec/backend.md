@@ -3,7 +3,7 @@ status: confirmed
 category: backend
 aggregate: 確定
 spec_cells: [backend.web, backend.mobile, backend.tablet, backend.desktop-windows, backend.desktop-linux, backend.desktop-macos]
-serves_goals: [G2, G1]
+serves_goals: [G1, G2]
 ---
 
 # バックエンド (backend)
@@ -15,7 +15,7 @@ serves_goals: [G2, G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-backend-web-blog-creation-atomicity。裏付け質疑 (`qa_refs`): `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-backend-web-domain-aeo-behavior。裏付け質疑 (`qa_refs`): `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G2, G1]
 
 ## 確定内容 (質疑録)
 
-### qa-backend-web-blog-creation-atomicity (対応セル: web)
+### qa-backend-web-domain-aeo-behavior (対応セル: web)
+
+**質問**: backend×web: カスタムドメインの接続・検証・証明書、読者行動の受け口、日次ロールアップ、SEO/AEO の評価と記事への反映は、どの処理単位でどう並べるか
+
+**回答**: 4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない
+
+### qa-backend-web-blog-creation-atomicity (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: ブログ作成の完了条件をどう定義し、サブドメインから slug への解決をどこで行うか。
 
@@ -245,9 +251,23 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 
 #### 本章での適用
 
-##### 確定内容 qa-backend-web-blog-creation-atomicity (対応セル: web)
+##### 確定内容 qa-backend-web-domain-aeo-behavior (対応セル: web)
 
-- 確定要件: 作成ユースケースは create-only の Unit of Work が完了したときだけ成功を返す。1つでも失敗したら全体を巻き戻し、成功メッセージも読者リンクも出さない。下書き保存は expected revision の CAS、作成は同じ revision の DB claim を要求し、古い回答や作成後の遅延保存を conflict にする。作成直後は provisioningComplete を fixed pages/全 provisioned bands・slots/categories/network から判定し、公開表示用の enabled layout、および公開固定ページと articles を要求する contentReady と分離する。D1/live の公開 reader へ code sample fallback を混ぜず、記事一覧・本文・composition は同じ PublicBlog の保存実体を読む。ホスト→slug の解決は middleware が単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ1本ごとにルートもコードも増やさない。未知ホストは404とし、存在するブログの一覧を推測させない。
+- 確定要件: 4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない
+- 設計解釈の記録経路: `dialogue`
+- 原則: 依存は内側へ向け、外部サービスはポートの向こうに置く (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 証明書の発行や DNS の検証は Cloudflare 側の都合で状態が変わる。これをユースケースの中へ直接書くと、provider の応答形式が変わるたびに業務手順が壊れる。状態を問う口をポートにし、こちらは status の遷移だけを持つ
+  - トレードオフ:
+    - provider 固有の詳細な失敗理由が抽象化で落ちる。failure_reason を素通しする列を 1 つ持って補うが、それでも provider の管理画面を見ないと分からない場面は残る
+- 原則: 再実行しても同じ結果になる形で書く (`continuous-delivery.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 日次ロールアップは失敗して途中で止まりうる。差分を足し込む形にすると、再実行のたびに二重計上して数字が膨らむ。対象日を丸ごと置き換えれば、何度流しても同じ数字に落ち着く
+  - トレードオフ:
+    - 1 日ぶんを毎回作り直すので、差分更新より計算量が多い。日次かつサイト単位の粒度では許容範囲だが、時間単位まで細かくするなら見直しが要る
+##### 接地根拠 qa-backend-web-blog-creation-atomicity (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-blog-creation-atomicity` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: Use Cases — application 固有の処理を delivery/persistence から独立して表し、成功の定義を use case 側が持つ (`clean-architecture.md#中核概念`)
   - 採否: `applied`
@@ -342,7 +362,7 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
   - 章固有の根拠: 利用者が「UI/UX を整える際に必要な API があれば併せて実行する」と明言した。各サイト・各 SNS への投稿部分が画面に反映されていない現状は、表示に必要な API/データ供給の欠落が一因であり、画面と API を同一タスク境界で対にする
   - トレードオフ:
     - API を同時に整備するぶん 1 機能あたりの実装範囲は広がる。画面ごとに必要最小の API から段階導入し、プロバイダ別 SNS 連携の実配信は契約定義と投稿状態参照を先行させる
-- 資するゴール: G2, G1
+- 資するゴール: G1, G2
 
 ## 最新ドキュメント出典
 
@@ -406,9 +426,9 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 |---|---|
 | セル | backend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-backend-web-blog-creation-atomicity` |
-| 資するゴール (serves_goals) | G2, G1 |
-| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
+| 確定質疑 (qa_ref) | `qa-backend-web-domain-aeo-behavior` |
+| 資するゴール (serves_goals) | G1, G2 |
+| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-domain-aeo-behavior`) |
 | 出典 kind | written-requirements |
 | 出典 path | `docs/spec/04-二層構造統合仕様.md` |
 | 出典 節 | §3 WebMCP の確定契約 / §4 禁止依存 |
@@ -435,9 +455,3 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 - **`decision-llm-provider` が本章に効く形**: 複数プロバイダを保つのは選択肢を増やすためではなく、07 §0 GC-5 (レビュー系を執筆系から分離し、自作自演の検証にしない) を**書き手と検査役に別モデルを当てる**ことで満たすためである。1 社固定にするとこの分離が構成では表せなくなる。単価は `vars` に置き、値上げに気づける状態を保つ。
 - **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片もこの作業場所には置かない。
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `  - 章固有の根拠: D1/live の公開記事は published_articles を唯一の canonical public projection とする。PublicBlogPort の記事一覧・詳細は PublishedContentPort へ委譲し、articles の直読、sample fallback、union、独自件数集計を持たない。ブログ運用と AI 生成の公開 writer は同じ projection statement builder を使い、公開・更新・非公開化・削除の状態遷移で独立 writer を増やさない`

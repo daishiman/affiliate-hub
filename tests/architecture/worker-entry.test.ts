@@ -108,6 +108,71 @@ function sections(): readonly (readonly [string, WranglerSection])[] {
   ];
 }
 
+function waitUntilSections(entry: string): readonly string[] {
+  const starts = [...entry.matchAll(/ctx\.waitUntil\(/g)].map((match) => match.index);
+  return starts.map((start, index) => entry.slice(start, starts[index + 1] ?? entry.length));
+}
+
+const SEO_SCHEDULER_IMPORT =
+  'import { runScheduledSeoAssessment } from "./src/infrastructure/platform/seo-assessment-scheduler.ts";';
+
+const OTHER_CRON_JOBS = [
+  "sweepExpiredCaptures",
+  "runPublicationDeliveryAuditFlush",
+  "runScheduledDistribution",
+  "runReaderMetricsRollup",
+  "runFeedbackDiagnosticsPurge",
+] as const;
+
+function assertSeoWiring(entry: string): void {
+  const imports = entry
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.includes("/seo-assessment-scheduler.ts"));
+  expect(imports, "SEO scheduler は正確な named import 1 本で読み込んでください").toEqual([
+    SEO_SCHEDULER_IMPORT,
+  ]);
+
+  const seoJobs = waitUntilSections(entry).filter((section) =>
+    section.includes("runScheduledSeoAssessment"),
+  );
+  expect(seoJobs, "SEO 再診断が独立した waitUntil になっていません").toHaveLength(1);
+  const seoJob = seoJobs[0] as string;
+  const call = "runScheduledSeoAssessment(env.DB, now)";
+  const guardAt = seoJob.indexOf("if (env.DB === undefined)");
+  const returnAt = seoJob.indexOf("return;", guardAt);
+  const guardEndAt = seoJob.indexOf("}", guardAt);
+  const callAt = seoJob.indexOf(call);
+  expect(
+    guardAt >= 0 && guardAt < returnAt && returnAt < guardEndAt && guardEndAt < callAt,
+    "SEO scheduler は DB guard → return → call の順で配線してください",
+  ).toBe(true);
+  expect(seoJob.match(new RegExp(call.replace(/[().]/g, "\\$&"), "g")) ?? []).toHaveLength(1);
+
+  for (const field of ["scanned", "completed", "failed", "truncated"]) {
+    expect(seoJob, `SEO 定期処理の ${field} を構造化ログに出していません`).toContain(
+      `${field}: result.${field}`,
+    );
+  }
+  for (const [, args = ""] of seoJob.matchAll(/console\.(?:log|warn|error)\(([\s\S]*?)\);/g)) {
+    expect(args, "SEO 定期処理のログに例外または失敗対象を渡しています").not.toMatch(
+      /\berror\b|result\.failures/,
+    );
+  }
+  const errorCalls = [...seoJob.matchAll(/console\.error\(([\s\S]*?)\);/g)].map(
+    (match) => `console.error(${match[1]});`,
+  );
+  expect(errorCalls, "SEO 定期処理の例外は安全な固定文言だけを出してください").toEqual([
+    'console.error("[seo-assessment] 月次再診断に失敗しました");',
+  ]);
+
+  for (const otherJob of OTHER_CRON_JOBS) {
+    expect(seoJob, `SEO waitUntil に別の cron 処理 ${otherJob} が混ざっています`).not.toContain(
+      otherJob,
+    );
+  }
+}
+
 describe("Worker の入口と定期実行の配線", () => {
   it("入口は、リポジトリに入っているファイルを指している", () => {
     const main = config.main;
@@ -165,13 +230,66 @@ describe("Worker の入口と定期実行の配線", () => {
     expect(entry, "配信監査outboxの再送を呼んでいません").toContain(
       "runPublicationDeliveryAuditFlush",
     );
+    expect(entry, "SEO の月次再診断を呼んでいません").toContain(
+      "runScheduledSeoAssessment",
+    );
     expect(entry, "D1 binding の欠落を安全側で扱っていません").toContain(
       "env.DB === undefined",
     );
     expect(
       (entry.match(/ctx\.waitUntil\(/g) ?? []).length,
-      "配信・R2・D1を同じ待ち行列へ戻すと、配信失敗で保持期限処理まで止まります",
-    ).toBeGreaterThanOrEqual(4);
+      "SEO・配信・R2・D1を同じ待ち行列へ戻すと、1 つの失敗で他の定期処理まで止まります",
+    ).toBeGreaterThanOrEqual(6);
+    assertSeoWiring(entry);
+  });
+
+  it("危険な SEO 配線の変異を拒否する", () => {
+    const entry = readFileSync(join(ROOT, config.main as string), "utf8");
+    const mutations: readonly (readonly [string, (source: string) => string])[] = [
+      [
+        "side-effect import",
+        (source) =>
+          source.replace(
+          'import { runScheduledSeoAssessment } from "./src/infrastructure/platform/seo-assessment-scheduler.ts";',
+          'import "./src/infrastructure/platform/seo-assessment-scheduler.ts";',
+        ),
+      ],
+      [
+        "guard より前の call",
+        (source) =>
+          source.replace(
+          'if (env.DB === undefined) {\n          console.warn("[seo-assessment]',
+          'if (env.DB === undefined) {\n          runScheduledSeoAssessment(env.DB, now);\n          console.warn("[seo-assessment]',
+        ),
+      ],
+      [
+        "error ログ",
+        (source) =>
+          source.replace(
+          'console.error("[seo-assessment] 月次再診断に失敗しました");',
+          'console.error("[seo-assessment] 月次再診断に失敗しました", error);',
+        ),
+      ],
+      [
+        "failures ログ",
+        (source) =>
+          source.replace(
+          "truncated: result.truncated,",
+          "truncated: result.truncated,\n            failures: result.failures,",
+        ),
+      ],
+      [
+        "他 cron の混入",
+        (source) =>
+          source.replace(
+          "const result = await runScheduledSeoAssessment(env.DB, now);",
+          "await runPublicationDeliveryAuditFlush(env.DB);\n          const result = await runScheduledSeoAssessment(env.DB, now);",
+        ),
+      ],
+    ];
+    for (const [name, mutate] of mutations) {
+      expect(() => assertSeoWiring(mutate(entry)), name).toThrow();
+    }
   });
 
   it("入口は、生成物が出している入れ物をすべて通している", () => {

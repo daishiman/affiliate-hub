@@ -1,0 +1,196 @@
+{
+  "edges": [
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P01",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P02",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P03",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P04",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P05",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P06",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P05",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P08",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P09",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P09",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P11",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-AEO-ANSWER-OPTIMIZATION-P12",
+      "to": "SYS-AEO-ANSWER-OPTIMIZATION-P13",
+      "type": "depends_on"
+    }
+  ],
+  "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P01",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P01"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P02",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P02"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P03",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P03"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P04",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P04"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P05",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P05"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P06",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P06"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P05"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P08",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P08"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P09",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P09"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+        "SYS-AEO-ANSWER-OPTIMIZATION-P09"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P11",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+        "SYS-AEO-ANSWER-OPTIMIZATION-P11"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P12",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P12"
+      ],
+      "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+      "id": "SYS-AEO-ANSWER-OPTIMIZATION-P13",
+      "parent_feature": "feat-aeo-answer-optimization",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-aeo-answer-optimization",
+  "schema_version": "1.0.0"
+}

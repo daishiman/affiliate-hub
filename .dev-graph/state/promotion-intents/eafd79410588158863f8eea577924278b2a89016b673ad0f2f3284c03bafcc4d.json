@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-blog-scoped-admin-console",
+  "destination": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+  "digest": "sha256:853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+  "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+  "package_slug": "feature-package-feat-blog-scoped-admin-console",
+  "generation_id": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+  "supersedes": null,
+  "receipt": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/atomic-promotion-receipt.json",
+  "completed_at": "2026-09-03T23:49:34Z"
+}

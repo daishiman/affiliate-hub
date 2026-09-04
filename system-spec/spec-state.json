@@ -759,8 +759,9 @@
     "database": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-database-web-blog-provisioning-integrity",
+        "qa_ref": "qa-database-web-domain-aeo-behavior",
         "qa_refs": [
+          "qa-database-web-domain-aeo-behavior",
           "qa-database-web-blog-provisioning-integrity",
           "qa-database-web-blog-builder",
           "qa-database-web-spec-intake",
@@ -773,7 +774,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -804,21 +805,26 @@
     "auth": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-auth-web",
+        "qa_ref": "qa-auth-web-domain-analytics-authority",
+        "qa_refs": [
+          "qa-auth-web-domain-analytics-authority",
+          "qa-auth-web"
+        ],
         "required_info": [
           {
             "item_id": "auth-model",
             "missing_effect": "block",
             "status": "grounded",
-            "grounded_by": "qa-auth-web"
+            "grounded_by": "qa-auth-web-domain-analytics-authority"
           }
         ],
         "serves_goals": [
-          "G1"
+          "G1",
+          "G2"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -849,8 +855,9 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ui-ux-web-creation-completion-feedback",
+        "qa_ref": "qa-uiux-web-blog-scoped-admin",
         "qa_refs": [
+          "qa-uiux-web-blog-scoped-admin",
           "qa-ui-ux-web-creation-completion-feedback",
           "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
           "qa-uiux-web-seo-ai-search-v2",
@@ -871,7 +878,7 @@
             "item_id": "screen-information-priority",
             "missing_effect": "block",
             "status": "grounded",
-            "grounded_by": "qa-uiux-web-screen-priority"
+            "grounded_by": "qa-uiux-web-blog-scoped-admin"
           },
           {
             "item_id": "target-platforms",
@@ -886,7 +893,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-03",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -917,30 +924,27 @@
     "security": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-security-web-spec-intake",
+        "qa_ref": "qa-security-web-domain-behavior-privacy",
+        "qa_refs": [
+          "qa-security-web-domain-behavior-privacy",
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
         "required_info": [
           {
             "item_id": "security-posture",
             "missing_effect": "block",
             "status": "grounded",
-            "grounded_by": "qa-security-web-spec-intake"
+            "grounded_by": "qa-security-web-domain-behavior-privacy"
           }
         ],
         "serves_goals": [
-          "G1"
-        ],
-        "qa_refs": [
-          "qa-security-web-spec-intake",
-          "qa-security-web"
+          "G1",
+          "G2"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-22",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
-          },
-          {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -971,8 +975,9 @@
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infrastructure-web-wildcard-subdomain",
+        "qa_ref": "qa-infra-web-custom-hostname",
         "qa_refs": [
+          "qa-infra-web-custom-hostname",
           "qa-infrastructure-web-wildcard-subdomain",
           "qa-infra-web-migration-guard-v2",
           "qa-infra-web-migration-guard",
@@ -981,12 +986,12 @@
           "qa-infra-web-redirect"
         ],
         "serves_goals": [
-          "G2",
-          "G1"
+          "G1",
+          "G2"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-02",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1017,8 +1022,9 @@
     "backend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-backend-web-blog-creation-atomicity",
+        "qa_ref": "qa-backend-web-domain-aeo-behavior",
         "qa_refs": [
+          "qa-backend-web-domain-aeo-behavior",
           "qa-backend-web-blog-creation-atomicity",
           "qa-backend-web-spec-intake",
           "qa-backend-web",
@@ -1030,16 +1036,16 @@
             "item_id": "domain-model",
             "missing_effect": "block",
             "status": "grounded",
-            "grounded_by": "qa-backend-web-spec-intake"
+            "grounded_by": "qa-backend-web-domain-aeo-behavior"
           }
         ],
         "serves_goals": [
-          "G2",
-          "G1"
+          "G1",
+          "G2"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-03",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -1070,8 +1076,9 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-blog-composition-visibility",
+        "qa_ref": "qa-frontend-web-blog-scoped-admin",
         "qa_refs": [
+          "qa-frontend-web-blog-scoped-admin",
           "qa-frontend-web-blog-composition-visibility",
           "qa-frontend-web-capture-self-occlusion",
           "qa-frontend-web-affiliate-link-preview-v3",
@@ -1088,7 +1095,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1119,8 +1126,9 @@
     "maintenance-ops": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ops-web-migration-guard-v2",
+        "qa_ref": "qa-ops-web-domain-retention-seo-freshness",
         "qa_refs": [
+          "qa-ops-web-domain-retention-seo-freshness",
           "qa-ops-web-migration-guard-v2",
           "qa-ops-web-migration-guard",
           "qa-ops-web-spec-intake",
@@ -1132,7 +1140,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-02",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -3091,6 +3099,269 @@
           "rationale": "途中終了が見えるようになっても、戻る先が要ることは変わらない。中身の空判定 ([ ! -s ])、30 日保管、if-no-files-found: error はそのまま残す",
           "tradeoffs": [
             "空でないことしか見ておらず、中身が壊れた控えは通る。復元まで試す費用に見合わないという判断は据え置く"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-database-web-domain-aeo-behavior",
+      "question": "database×web: ブログごとに独自ドメインを接続でき、読者がどこに時間をかけ・どこを押したかを座標まで含めて解析でき、AEO (回答エンジン最適化) の状態を管理でき、ブログ横断で売上と PV を集約できるようにするには、データをどう持つか。既存の『読者向けホスト名は DB に保存せず SITE_BASE_DOMAIN から導出する』という site_blueprints の判断はどう扱うか",
+      "answer": "既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "database",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ddd.md#中核概念",
+          "principle": "集約境界は不変条件の単位で引き、寿命と変更頻度が違うものを同じ集約へ入れない",
+          "applicability": "applied",
+          "rationale": "読者の座標イベントは 1 閲覧で数百行・保持は短期、ブログの住所は 1 サイト 1 行・寿命はサイトと同じで、不変条件も『同意が無ければ reader_key を持たない』と『同じホスト名を 2 サイトが持たない』で別物である。既存 telemetry_events へ相乗りさせると、保持期間の削除がサイト設定まで巻き込む。よって reader_interaction_events / site_custom_domains を別表に切る",
+          "tradeoffs": [
+            "表が増え、読者 1 人の行動をたどるのに 2 表の突合が要る。単一表なら結合は不要だが、削除依頼のたびに設定行まで走査対象になり、保持期間の異なるデータが同じ索引に載る"
+          ]
+        },
+        {
+          "knowledge_ref": "ddd.md#トレードオフ・失敗モード",
+          "principle": "導出できる値を行へ焼き込まない",
+          "applicability": "applied",
+          "rationale": "既存 site_blueprints が住所を保存しないのは、dev/prod でデータを移すと住所が古くなるためである。この理由はカスタムドメインには当たらない。カスタムドメインは環境から導出できず、利用者が外部で取得した固有の値だからである。よって既定の住所は導出のまま残し、カスタムドメインだけを行として持つ",
+          "tradeoffs": [
+            "1 つのサイトが『導出される既定の住所』と『保存されたカスタムドメイン』の 2 つを持ち、どちらを正規 URL とするかの判断が要る。全部を行へ移せば単純になるが、既存判断が避けた dev/prod 移送時の陳腐化が戻る"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-backend-web-domain-aeo-behavior",
+      "question": "backend×web: カスタムドメインの接続・検証・証明書、読者行動の受け口、日次ロールアップ、SEO/AEO の評価と記事への反映は、どの処理単位でどう並べるか",
+      "answer": "4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "依存は内側へ向け、外部サービスはポートの向こうに置く",
+          "applicability": "applied",
+          "rationale": "証明書の発行や DNS の検証は Cloudflare 側の都合で状態が変わる。これをユースケースの中へ直接書くと、provider の応答形式が変わるたびに業務手順が壊れる。状態を問う口をポートにし、こちらは status の遷移だけを持つ",
+          "tradeoffs": [
+            "provider 固有の詳細な失敗理由が抽象化で落ちる。failure_reason を素通しする列を 1 つ持って補うが、それでも provider の管理画面を見ないと分からない場面は残る"
+          ]
+        },
+        {
+          "knowledge_ref": "continuous-delivery.md#中核概念",
+          "principle": "再実行しても同じ結果になる形で書く",
+          "applicability": "applied",
+          "rationale": "日次ロールアップは失敗して途中で止まりうる。差分を足し込む形にすると、再実行のたびに二重計上して数字が膨らむ。対象日を丸ごと置き換えれば、何度流しても同じ数字に落ち着く",
+          "tradeoffs": [
+            "1 日ぶんを毎回作り直すので、差分更新より計算量が多い。日次かつサイト単位の粒度では許容範囲だが、時間単位まで細かくするなら見直しが要る"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web-blog-scoped-admin",
+      "question": "frontend×web: 管理画面 88 ページを『記事ごと』ではなく『ブログごと』に扱えるようにするには、画面の構造をどう組み替えるか。ヒートマップの描画はどう実現するか",
+      "answer": "ブログを選ぶ操作を、画面ごとの絞り込みではなく URL の階層そのものにする。/admin/sites/[site]/ の下へ、そのブログに閉じた画面 (記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信) を集め、いま /admin/blog/* や /admin/analytics にある横断画面は『全ブログの比較』として別に残す。どちらの画面を見ているのかが URL とパンくずで分かる状態にし、絞り込みの選択が画面遷移で消えないようにする。既存 /admin/blog/* は当面残して /admin/sites/[site]/ へ転送し、リンク切れを作らない。ヒートマップは読者側と管理側の 2 つに分ける。読者側は IntersectionObserver で到達深度を、visibilitychange と滞在タイマーで滞在を、クリックは委譲したリスナ 1 つで要素基準の比率へ変換して送る。送信は個別ではなく sendBeacon でまとめて送り、読者の体感を落とさない。管理側は記事のプレビューを背景に、比率で受け取った点を canvas へ重ねて描く。端末幅ごとに重ねると意味が壊れるので、viewport_bucket (狭い/中/広い) を切り替えて表示する。同意が無い読者の点も (reader_key を持たないまま) 描画対象に含める",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "usability-accessibility.md#中核概念",
+          "principle": "いま何を操作しているのかを、画面自身が示し続ける",
+          "applicability": "applied",
+          "rationale": "ブログの選択を画面内の絞り込みに置くと、別画面へ移った瞬間に何のブログを見ているかが消える。複数ブログを並行運営すると、これは『どのブログの記事を消したか分からない』事故に直結する。選択を URL 階層へ上げると、パンくず・戻る操作・共有した URL のすべてが対象を保つ",
+          "tradeoffs": [
+            "全ブログ横断で見たい場面 (収益比較など) が別画面に分かれ、行き来が増える。単一画面で切り替える方式なら往復は減るが、いま見ている対象が曖昧になる"
+          ]
+        },
+        {
+          "knowledge_ref": "usability-accessibility.md#トレードオフ・失敗モード",
+          "principle": "計測が読者の体験を損なわない",
+          "applicability": "applied",
+          "rationale": "座標まで採ると送信回数が増える。1 イベント 1 リクエストにすると、読者の回線が細いときに記事本文の読み込みと競合する。まとめて sendBeacon で送れば、画面遷移時にも取りこぼさず、描画を待たせない",
+          "tradeoffs": [
+            "まとめる間に離脱すると直近ぶんが欠ける。sendBeacon は遷移時にも送るので大半は救えるが、完全ではない。取りこぼしを 0 にするには同期送信が要り、それは読者を待たせる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-uiux-web-blog-scoped-admin",
+      "question": "ui-ux×web: ブログを運営・分析するうえで必要な情報を、どの画面に何を残し・何を落として並べるか。優先順位は何を根拠に決めるか",
+      "answer": "順位は『その作業をどれだけ頻繁にするか』と『間違えたときにどれだけ痛いか』の積で決める。ブログ 1 つのダッシュボード (/admin/sites/[site]) の先頭には、収益・PV・成果率の推移と、住所 (ドメイン) が生きているかを置く。ドメインが失効すればブログ全体が読者から見えなくなり、失敗コストが最大で、しかも普段は見に行かないためである。次に『いま伸びている記事・落ちている記事』を置く。ここが日々の判断の入口になる。個々の記事の細部 (滞在・到達深度・ヒートマップ) は記事の画面へ落とし、ダッシュボードには順位と変化だけを出す。全ブログ横断の画面には、ブログ間の比較 (収益・PV・成果率) と、どのブログが手を入れるべきかだけを出し、記事単位の数字は出さない。同じ数字を 2 か所で違う粒度で見せると、どちらが正しいか分からなくなるためである。SEO/AEO の指摘は、記事の画面では『この記事の直し方』として、ブログの画面では『何件残っているか』として出す。分析画面で数字を見せるときは、根拠の件数が少ない場合に発見として表示しない (既存の成功基準『根拠のない発見を表示しない』を踏襲する)。この方針までを要件として確定し、表現物ごとの情報優先度マップの作成は下流の生成工程に委ねる",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "情報の順位は、作業の頻度と失敗コストの積で決める",
+          "applicability": "applied",
+          "rationale": "ドメインの失効は頻度こそ低いが、起きればブログ全体が読者から消える。頻度だけで並べるとページ下部へ沈み、気づくのが遅れる。積で測ると先頭に来る。逆にヒートマップは見る頻度が低く失敗コストも低いので、記事の画面へ落として良い",
+          "tradeoffs": [
+            "失敗コストの見積もりは主観が入る。運用してから順位が違うと分かる場合があり、そのときは実際の利用ログで測り直す必要がある"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md#トレードオフ・失敗モード",
+          "principle": "同じ指標を複数の画面で違う粒度で見せない",
+          "applicability": "applied",
+          "rationale": "ブログ横断の画面とブログ個別の画面で同じ『収益』を違う集計期間や粒度で出すと、数字が食い違って見え、どちらを信じるか判断できなくなる。横断は比較だけ、個別は内訳だけ、と役割を分ける",
+          "tradeoffs": [
+            "横断画面から記事の数字を見るには 1 階層降りる必要がある。全部を 1 画面に出せば往復は減るが、粒度の混在という代償が戻る"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-infra-web-custom-hostname",
+      "question": "infrastructure×web: ブログごとの独自ドメインを、どの仕組みで受け、どう配信へ結びつけるか",
+      "answer": "Cloudflare for SaaS のカスタムホスト名を使う。利用者が外部で取得したドメインを管理画面から登録し、こちらは所有権確認用の CNAME (または TXT) を指示する。利用者がそのレコードを自分の DNS へ置くと、Cloudflare が検証して証明書を発行する。証明書の発行・更新・失効はすべて Cloudflare 側に任せ、自前で ACME を回さない。Worker 側は受け取った Host ヘッダからカスタムホスト名を引き、site_custom_domains で active な行があればその site_slug のブログとして描画する。無ければ従来どおり /s/<slug> の経路で扱う。既定の住所 (SITE_BASE_DOMAIN からの導出) は残し、カスタムドメインが未接続・検証中・失効中でもブログが読者から消えないようにする。カスタムドメインが active な間は、既定の住所から正規 URL (canonical) をカスタムドメイン側へ向け、検索エンジンから見て同じ内容が 2 つの住所に存在する状態を避ける。ドメインの取得 (購入) 自体は範囲に含めず、外部のレジストラで済ませた前提で接続だけを扱う",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "infrastructure",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "自分で持たなくてよい運用責務は、それを本業にしている側へ預ける",
+          "applicability": "applied",
+          "rationale": "証明書の自動更新は、失敗すると全読者にブラウザの警告が出る種類の運用である。ACME を自前で回せば更新の失敗も自分の当番になる。Cloudflare for SaaS に預ければ、こちらの責務は『状態を読んで管理画面に出す』だけに縮む",
+          "tradeoffs": [
+            "Cloudflare への依存が深まり、他の配信基盤へ移す際にこの部分を作り直すことになる。自前 ACME なら移設は容易だが、更新失敗の当番を負う"
+          ]
+        },
+        {
+          "knowledge_ref": "site-reliability-engineering.md#トレードオフ・失敗モード",
+          "principle": "新しい経路の失敗が、既存の経路まで巻き込まないようにする",
+          "applicability": "applied",
+          "rationale": "カスタムドメインの検証は利用者の DNS 操作待ちで、いつ終わるか分からない。接続の途中でブログが読者から消えると、ドメインを足した結果として悪化する。既定の住所を常に生かしておけば、カスタムドメイン側の失敗は『まだ新しい住所で見られない』だけに留まる",
+          "tradeoffs": [
+            "同じ内容が 2 つの住所で見られる期間が生じる。canonical を向けて検索エンジンには 1 つに見せるが、直接アクセスは両方で通る"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-security-web-domain-behavior-privacy",
+      "question": "security×web: 他人のドメインを勝手に接続されないようにし、座標まで採る読者行動データで読者を特定できないようにするには、何を課すか",
+      "answer": "ドメインは、所有権の確認が済むまで active にしない。管理画面で登録しただけでは pending であり、こちらが発行したトークンを利用者が自分の DNS へ置き、Cloudflare が検証して初めて配信へ結びつく。これにより、他人が所有するドメインを名前だけ入力して奪うことができない。同じホスト名を 2 つの workspace が同時に active にできないよう、hostname に一意制約を置く。切断後も行を revoked として残すのは、直後に別の workspace が同じ名前を取り、失効前のリンクの行き先を差し替えることを防ぐためである。読者行動は、同意が無ければ reader_key を null のまま記録する (既存 telemetry_events と同じ扱いを踏襲する)。座標は端末画面の絶対位置ではなく要素基準の比率で持ち、端末の解像度から個人を絞り込む手がかりにしない。ポインタの軌跡は連続的に採らず、クリックと一定間隔の標本のみとする。連続軌跡は筆跡に近い個人性を持ちうるためである。管理画面のヒートマップは常に集計後の分布だけを描き、個々の読者の 1 回ぶんの軌跡を再生する機能は作らない。読者からの削除依頼は既存の reader_key 索引でまとめて消せる状態を保つ",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "security",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "名乗りを信用せず、所有していることの証明を求める",
+          "applicability": "applied",
+          "rationale": "ドメイン名は入力欄に打てば誰でも名乗れる。検証なしで配信へ結びつけると、他人のドメイン宛の通信を自分の内容で受けられてしまう。DNS へレコードを置けるのは実際にそのドメインを管理している者だけなので、これを証明の手段にする",
+          "tradeoffs": [
+            "利用者は DNS の操作という手間を負い、接続が即座に完了しない。手間を省く方式は、そのまま乗っ取りの経路になる"
+          ]
+        },
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "集めない情報は漏れない。目的に対して過剰な粒度を最初から採らない",
+          "applicability": "applied",
+          "rationale": "『どこに時間をかけて見ているか』を知るのに、連続的なポインタ軌跡は要らない。到達深度・滞在・クリック位置で足りる。連続軌跡は個人性が高く、いったん保存すれば漏洩時の被害が大きい。標本化とクリックに絞れば、目的を満たしたまま持つ情報を減らせる",
+          "tradeoffs": [
+            "マウスの迷いや戻りといった細かい挙動は見えなくなる。詳細な軌跡が要る調査は別途、同意を明示的に取る設計が必要になる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-auth-web-domain-analytics-authority",
+      "question": "auth×web: ドメインの接続・切断、読者行動データの閲覧と削除は、誰ができることにするか",
+      "answer": "ドメインの接続と切断は、ブログの公開停止と同じ重さの操作として扱う。既存の役割のうち Publisher 相当以上に限り、Writer・Reviewer からは実行できない。切断はブログ全体が新しい住所から見えなくなる操作なので、実行前に対象ブログ名の確認入力を求める。読者行動データは、集計後の分布 (ヒートマップ・滞在・到達深度) を Analyst 以上が閲覧できる。個々の reader_key に紐づく行の抽出と削除は、読者からの削除依頼に応じるための操作であり、Owner 相当に限る。ドメインの状態変更と読者データの削除は、既存の audit_logs に誰がいつ何をしたかを残す。ブログ単位のスコープを持つ既存の workspace/membership の枠内で判断し、ブログごとに別の権限体系を新設しない",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "auth",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "権限は、失敗したときの被害の大きさで区切る",
+          "applicability": "applied",
+          "rationale": "ドメインの切断は、記事 1 本の誤削除と違ってブログ全体が読者から到達不能になる。編集権限と同じ扱いにすると、日常操作の流れで実行されうる。公開停止と同じ段へ置き、確認入力を挟む",
+          "tradeoffs": [
+            "ドメインの付け替えのたびに権限保持者の手を借りることになり、小規模な運営では手間になる。緩めれば誤操作の被害がブログ全体に及ぶ"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-ops-web-domain-retention-seo-freshness",
+      "question": "maintenance-ops×web: 接続したドメインが切れかけていることに、どうやって気づくか。座標データはいつまで持つか。SEO/AEO の評価はいつ作り直すか",
+      "answer": "ドメインは日次で状態を問い直す。Cloudflare のカスタムホスト名の状態と証明書の有効期限を引き、active でなくなった行、または期限が 21 日を切った行を管理画面のブログ一覧とダッシュボードの先頭へ出す。失効してから気づくと読者から見えない時間が生まれるため、検知は失効前に置く。通知は既存の改善要望と同じ画面内の掲示で行い、新しい通知経路を作らない。座標を含む reader_interaction_events は 90 日で削除する。日次ロールアップ (site_daily_metrics / article_daily_metrics) は残すので、90 日より前の傾向は集計値で追える。生データを長く持つほど削除依頼への対応と漏洩時の被害が重くなるため、細かい方を先に捨てる。読者からの削除依頼は reader_key 索引で即時に消し、ロールアップ側は個人に紐づかないので作り直さない。SEO/AEO の評価は、記事の公開・更新の時点と、月次の定期実行の 2 つで作り直す。評価に使う指針の出典は既存の 90 日見直しの仕組み (domain/seo/guideline-reference.ts) に載せ、古い基準で採点し続けない",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "maintenance-ops",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "壊れてからでなく、壊れる前に気づける位置へ検知を置く",
+          "applicability": "applied",
+          "rationale": "証明書やドメインは、失効した瞬間に読者から見えなくなる。失効を検知しても手遅れである。期限の 21 日前という余裕を持った閾値で出せば、DNS の再設定や更新の手続きに要る時間を確保できる",
+          "tradeoffs": [
+            "余裕を長く取るほど、まだ対処不要な警告が画面に出続けて慣れが生じる。21 日は更新手続きに要る現実的な時間から置いた値で、運用して鈍化するようなら短くする"
+          ]
+        },
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "保持期間は、その粒度のデータが持つ危険の大きさに合わせる",
+          "applicability": "applied",
+          "rationale": "座標つきの生データは個人を絞り込む手がかりになりうるが、集計後の分布はならない。両方を同じ期間持つ理由がない。細かい方を 90 日で捨て、傾向はロールアップで残せば、分析の目的を保ったまま危険な在庫だけを減らせる",
+          "tradeoffs": [
+            "90 日より前のヒートマップを後から見返すことはできなくなる。季節ごとの比較には集計値しか使えない"
           ]
         }
       ]
@@ -5221,6 +5492,560 @@
           }
         ]
       }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "利用者要件の追加 (2026-09-03): ブログごとの独自ドメイン接続管理・座標を含む読者行動解析・AEO 状態管理・ブログ横断の収益/PV 集約。既存確定は『読者向けホスト名を DB に保存しない』を前提にしており、カスタムドメイン表の導入はこの前提の再確認を要する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-blog-provisioning-integrity",
+        "qa_refs": [
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "利用者要件の追加 (2026-09-03): カスタムドメインの接続・検証・失効監視、読者行動イベントの受け口、日次ロールアップ、SEO/AEO 評価と記事への反映という 4 つの処理群が既存確定に含まれていない",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-blog-creation-atomicity",
+        "qa_refs": [
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "利用者要件の追加 (2026-09-03): 管理画面をブログ単位で扱えるようにする画面構造の組み替えと、ヒートマップの自前描画。既存確定は記事単位の画面構成を前提にしている",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-blog-composition-visibility",
+        "qa_refs": [
+          "qa-frontend-web-blog-composition-visibility",
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "利用者要件の追加 (2026-09-03): 管理画面全体をブログ軸へ見直す方針の確定。既存確定は記事単位の画面優先度を前提にしており、ブログ単位のダッシュボードと横断比較の役割分担が含まれていない",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ui-ux-web-creation-completion-feedback",
+        "qa_refs": [
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "利用者要件の追加 (2026-09-03): ブログごとの独自ドメイン接続。既存確定は SITE_BASE_DOMAIN からのサブドメイン導出のみを前提にしており、カスタムホスト名の受け口・証明書・正規 URL の扱いが含まれていない",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infrastructure-web-wildcard-subdomain",
+        "qa_refs": [
+          "qa-infrastructure-web-wildcard-subdomain",
+          "qa-infra-web-migration-guard-v2",
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-02",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "利用者要件の追加 (2026-09-03): カスタムドメインの所有権検証と乗っ取り防止、および座標を含む読者行動データの最小化。既存確定はどちらも対象にしていない",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "qa_refs": [
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "利用者要件の追加 (2026-09-03): ドメイン接続・切断と読者行動データの閲覧/削除に対する権限区分。既存確定はこれらの操作を対象にしていない",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web",
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "利用者要件の追加 (2026-09-03): カスタムドメインの失効監視、座標を含む読者行動データの保持期間、SEO/AEO 評価の再計算契機。既存確定はいずれも対象にしていない",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-migration-guard-v2",
+        "qa_refs": [
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-02",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "裏付けの範囲を名乗り直すため (2026-09-03)。ドメイン接続権限と行動データ閲覧権限で再確定した際に qa_refs を名乗らなかったため、既存の qa-auth-web がどのセルからも引かれない孤立記録になった",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web-domain-analytics-authority",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web-domain-analytics-authority"
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "上位概念トレースの取りこぼしを戻すため (2026-09-03)。カスタムホスト名の確定で serves_goals を G1 のみで名乗ったが、裏付けに含まれる qa-infra-web-redirect は転送解決の計測 (G2 の成果突合) を支えており、G2 を落とすと index の章一覧から計測系の資する先が消える",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-custom-hostname",
+        "qa_refs": [
+          "qa-infra-web-custom-hostname",
+          "qa-infrastructure-web-wildcard-subdomain",
+          "qa-infra-web-migration-guard-v2",
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G1"
+        ]
+      }
+    },
+    {
+      "category": "auth",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals / required_info の grounded_by が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-auth-web-domain-analytics-authority",
+        "qa_refs": [
+          "qa-auth-web-domain-analytics-authority",
+          "qa-auth-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "auth-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-auth-web-domain-analytics-authority"
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals / required_info の grounded_by が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-domain-aeo-behavior",
+        "qa_refs": [
+          "qa-backend-web-domain-aeo-behavior",
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-domain-aeo-behavior"
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals / required_info の grounded_by が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-domain-aeo-behavior",
+        "qa_refs": [
+          "qa-database-web-domain-aeo-behavior",
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals / required_info の grounded_by が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-blog-scoped-admin",
+        "qa_refs": [
+          "qa-frontend-web-blog-scoped-admin",
+          "qa-frontend-web-blog-composition-visibility",
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals / required_info の grounded_by が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infra-web-custom-hostname",
+        "qa_refs": [
+          "qa-infra-web-custom-hostname",
+          "qa-infrastructure-web-wildcard-subdomain",
+          "qa-infra-web-migration-guard-v2",
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals / required_info の grounded_by が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-domain-retention-seo-freshness",
+        "qa_refs": [
+          "qa-ops-web-domain-retention-seo-freshness",
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals / required_info の grounded_by が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-domain-behavior-privacy",
+        "qa_refs": [
+          "qa-security-web-domain-behavior-privacy",
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-domain-behavior-privacy"
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "章の「確定セルの記録」節が正本と食い違っている。正本の qa_ref / serves_goals / required_info の grounded_by が後の質疑で動いたのに、この節には生成器が無く追随しなかった。章本文を現行の正本値へ揃えるために開ける (収集内容は変えない)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-blog-scoped-admin",
+        "qa_refs": [
+          "qa-uiux-web-blog-scoped-admin",
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-blog-scoped-admin"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -5293,6 +6118,14 @@
     {
       "target_id": "github-actions",
       "category": "maintenance-ops"
+    },
+    {
+      "target_id": "cloudflare-for-saas",
+      "category": "infrastructure"
+    },
+    {
+      "target_id": "cloudflare-r2",
+      "category": "infrastructure"
     }
   ],
   "requirements_foundation": {
@@ -6741,7 +7574,7 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 1,
+    "loop_count": 8,
     "next_question": null,
     "complete": true,
     "max_loops": 10,

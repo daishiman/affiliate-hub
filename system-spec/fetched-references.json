@@ -145,16 +145,16 @@
     },
     {
       "target_id": "vitest",
-      "retrieved_at": "2026-08-24T11:38:56Z",
+      "retrieved_at": "2026-09-03T12:55:14Z",
       "source_url": "https://vitest.dev/guide/",
       "official_publisher": "Vitest",
       "official_host": "vitest.dev",
-      "version": "4.1.11",
+      "version": "5.0.0",
       "freshness_source": "publisher-registry",
-      "latest_checked_at": "2026-08-24T11:38:55Z",
+      "latest_checked_at": "2026-09-03T12:55:14Z",
       "evidence_ref": "system-spec/retrieval-evidence/vitest.json",
-      "evidence_sha256": "59cd11c79f1052aeb64e0d74e420cebd15afaa61f96257b676aab0b83a4d9d97",
-      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。配信中 HTML は Last updated 2026-04-08 のままだが、公式 repository の同ファイル履歴は 2026-06-18 まで進んでいるため、その日付は鮮度根拠に採らない。2026-08-24T11:38:55Z に publisher registry を照合し、version / dist-tags.latest とも現行版 4.1.11 であることを確認した。"
+      "evidence_sha256": "d611327ae6d988468de363374bf7386a4d548ebbc781639cb9493fc8fdc89621",
+      "summary": "Vitest 公式ガイド Getting Started。試験基盤の authority。2026-09-03 に再取得し、ページ本文の前提環境表記 \"Vitest requires Vite >=v6.4.0 and Node >=v22.12.0\" と publisher registry (registry.npmjs.org/vitest/latest) の version がともに 5.0.0 世代を指すことを確認した。配信中 HTML の \"Last updated\" は日付テキストを伴わないため last_updated の根拠には採らず、version を registry から採る。"
     },
     {
       "target_id": "github-actions",
@@ -194,6 +194,32 @@
       "evidence_ref": "system-spec/retrieval-evidence/stryker-mutator.json",
       "evidence_sha256": "3ae09df999fec24351fd7e38a441c870a26de4699644970612168e52b3ced2a9",
       "summary": "StrykerJS 公式ドキュメント導入章。決定 decision-test-ci-tooling のミューテーション試験側 authority。TypeScript/React/Angular/Vue/Svelte/Node を対象に、試験そのものの有効性を変異で測る枠組み。docs は rolling で版も日付も表明しないため version は配布 registry の現行版 10.0.0 (`npm view @stryker-mutator/core` を 2026-08-22T21:19:48Z に照会)。HTTP Last-Modified は取得日と同日で Docusaurus のデプロイ時刻でしかないため採らず、退けた理由を証跡の rejected_candidate に残してある。"
+    },
+    {
+      "target_id": "cloudflare-for-saas",
+      "retrieved_at": "2026-09-03T12:55:14Z",
+      "source_url": "https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/",
+      "official_publisher": "Cloudflare",
+      "official_host": "developers.cloudflare.com",
+      "last_updated": "2026-04-29",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T12:55:14Z",
+      "evidence_ref": "system-spec/retrieval-evidence/cloudflare-for-saas.json",
+      "evidence_sha256": "6bea06beda700f7c2f63a27427c55b5bccb7bf23846e2798feb147e2727f5a5b",
+      "summary": "Cloudflare for SaaS 公式ドキュメント。利用者が持ち込んだドメインを提供者の zone 配下の custom hostname として引き受け、証明書発行・暗号化接続・分析を提供者側の設定だけで賄う仕組み。確定質疑 qa-infra-web-custom-hostname、database の site_custom_domains.provider_hostname_id、backend の connect-custom-domain ユースケースが依拠する authority。"
+    },
+    {
+      "target_id": "cloudflare-r2",
+      "retrieved_at": "2026-09-03T12:55:14Z",
+      "source_url": "https://developers.cloudflare.com/r2/",
+      "official_publisher": "Cloudflare",
+      "official_host": "developers.cloudflare.com",
+      "last_updated": "2026-08-07",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T12:55:14Z",
+      "evidence_ref": "system-spec/retrieval-evidence/cloudflare-r2.json",
+      "evidence_sha256": "3ca9c2d97010c5fad13a0bf2fd4385ce498cb038f88828df3d7101b3f195ee81",
+      "summary": "Cloudflare R2 公式ドキュメント。egress 帯域課金を取らないオブジェクトストレージ。確定決定 decision-redirect-measurement-async (採用 opt-waituntil-fallback-cron) の D1 書込失敗時の退避先であり、infrastructure 章 As-Is の R2 binding BUCKET が依拠する authority。"
     }
   ]
 }

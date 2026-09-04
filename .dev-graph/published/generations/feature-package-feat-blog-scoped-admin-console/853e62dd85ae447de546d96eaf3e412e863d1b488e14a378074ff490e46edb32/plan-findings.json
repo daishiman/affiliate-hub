@@ -1,0 +1,172 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-blog-scoped-admin-console",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "P03 背景節と P11 背景節はいずれも「6つの上流 feature / 6 feature の上に載る」へ訂正済みで、depends_on 6件・acceptance 10件・phase_refs 13件など全 phase 本文の数値・固有名に他の食い違いは無い。",
+      "evidence": [
+        "task-specs/phase-03-design-review.md#背景",
+        "task-specs/phase-03-design-review.md#成果物",
+        "task-specs/phase-11-evidence.md#背景",
+        "workstream-inventory.json#p01_entry_gate"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "受入10件は P01/P04/P07 の qa_log 相当・acceptance-report.md 産出を通じて一意対応し、P02/P05/P09 が設計・実装・検証へ具体反映しているが、受入の一部従属句（記事画面限定のヒートマップ/滞在/到達、SEO/AEO残数表示、既存お知らせ板への通知）が各 phase 本文で名指しされずゴール文の再掲に留まっている medium finding が前回同様残る。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#成果物",
+        "task-specs/phase-04-test-design.md#テスト戦略",
+        "task-specs/phase-07-acceptance.md#Verification and evidence",
+        "workstream-inventory.json#tasks[].acceptance"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "全 phase の Write scope/touches (docs/spec/feat-blog-scoped-admin-console/, src/app/admin/sites/[site]/, src/app/admin/blog/, src/app/admin/(cross)/, src/components/admin/, tests/, system-spec/ui-ux.md, system-spec/frontend.md) はいずれも feature context の resource_scope に包含され、過大な書き込み範囲は無い。",
+      "evidence": [
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-13-release-deploy.md#成果物",
+        "workstream-inventory.json#tasks[].write_scope"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json の13ノードは各 task spec の Dependencies と system-build-handoff.json の execution_tasks と一致し、閉路の無い実行可能な依存グラフ（P01→P02→P03→P04→P05→{P06→P07, P08→P09}→P10、P07/P09→P11、P10/P11→P12→P13）を構成している。",
+      "evidence": [
+        "task-graph.json#edges",
+        "system-build-handoff.json#execution_tasks",
+        "task-specs/phase-11-evidence.md#参照情報",
+        "task-specs/phase-12-documentation-operations.md#参照情報"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-blog-scoped-admin-console"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32\",\n  \"feature_package_id\": \"feature-package/feat-blog-scoped-admin-console\",\n  \"parent_feature\": \"feat-blog-scoped-admin-console\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}\n",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "94dd6baf8b532e2cd62c5c3067cf05b5676d6a57e084b32d2241f51f0f9e6f07"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "63a2b39d1fc2d469facace58cb00dc934f3abe2452637b7b6ac25d7d8efb6729"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "7a2ec0a6ae3a1800bf7ea06a6a6e0501adf62f2a2ac73d4bcd3b072ba0834d7b"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "81e06cfd4f8db5b4e7b77e4e8bc1b1c98a98bfda025610ec014e82dedd6f5b88"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "4b290454454870c35fe0c2a0bbc1113160f850e2fccf9f3b151358aa154ad9d3"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "74dbbdc221c2b0ef85b6d99199ef469b1f57285bcefa46221aaa9d4715bc183d"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "14b2849a66f870af3fd7268f75f6a609e512402dbcea45d444db000502727d4c"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "ef79653806920d96f28e4350f24998fe2413ec404091d5ddde68bb842ce1c548"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "544d643736c71ca33a0b56ac91436f02de1ba0daae956a0ec2ef251d619401a8"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "cd6196fbc379e6b06b7aa981b6292c4123af4d3d7c154869454df061cf354fda"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "094fa3a467242d8a8f3ea1d1f9ef46856a14d33c1575d3a3dbd47e338a5528e5"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "434180cbfb4fd74898d13a5ec3abeb8c33fa6d3eb7770be74f6ad1d8a8357b4f"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "60f65d9c0431cb327e3bfbffd949f1adf8dc5ee0b5bdb88040bab1afb29a4234"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "8190478fe289289aafc11e56f09606cc9c5808a2aa20c111bbff68d0191e6373"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "ec428b218bce5d4e6c62a467c8c95fddcf5e5386f86ff080688f74ad6c5ae8e5"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "5c02501abc238b006907b503738bc84fb317f3108400b97db3359f6a52f618d2"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "126b7b2d704f69a9771dad0ab09959fd13065df38f80142bfc35be2afb178e7f"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "abd5d4789f193753a81dff128897bce186d4853ddc9f87b0d431b84dd64e0617"
+    }
+  ],
+  "staleness_rule": "evaluated_inputs の path 集合と各 sha256 が promotion 時点の staging bytes と完全一致しない場合、本 findings は失効とみなし再評価する。",
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "C1",
+      "observation": "前回 FAIL の原因だった P03/P11 背景節の「5」表記は「6」へ訂正され、staging-manifest.json のファイルハッシュも訂正後の内容と一致することを確認した。 — P03 背景: 「本 feature は6つの上流 feature を消費する。」/ P11 背景: 「本 feature は6 feature の上に載る。」に修正済み。task-specs/phase-03-design-review.md と phase-11-evidence.md の sha256 は staging-manifest.json の files 記載値 (それぞれ 14b2849a...、ec428b21...) と一致し、両ファイルは直前の再ビルド前後で byte 不変であることを確認した。staging-manifest.json の canonical_digest は sha256:853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32 (再ビルド後の現行値)。",
+      "evidence": [
+        "task-specs/phase-03-design-review.md#背景"
+      ]
+    },
+    {
+      "severity": "medium",
+      "bucket": "C2",
+      "observation": "受入10件のうち「記事画面限定のヒートマップ/滞在/到達」「SEO/AEO残数のブログ画面表示」「既存お知らせ板での通知」の3件は、各 phase 本文で見出し語として名指しされず、P05/P07 のゴール再掲文にのみ間接的に含まれる。 — P01/P02/P04/P09 の各節を grep しても「滞在」「到達」「ヒートマップ」「お知らせ板」「通知」の語は P02 背景の一般論および P05 目的節の列挙以外に出現せず、独立した検証条件・設計判断としての明記が薄い。workstream-inventory.json の tasks[].acceptance にも同じ再掲文以上の分解は無い。前回評価と同一の finding であり、今回の修正対象外のため未解消のまま残存している。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#目的"
+      ]
+    }
+  ]
+}

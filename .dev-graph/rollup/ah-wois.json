@@ -1,0 +1,84 @@
+{
+  "epic_bd_issue_id": "ah-wois",
+  "feature_id": "feat-blog-scoped-admin-console",
+  "children": [
+    {
+      "phase_ref": "P01",
+      "bd_issue_id": "ah-wois.1",
+      "status": "closed",
+      "title": "P01"
+    },
+    {
+      "phase_ref": "P02",
+      "bd_issue_id": "ah-wois.2",
+      "status": "closed",
+      "title": "P02"
+    },
+    {
+      "phase_ref": "P03",
+      "bd_issue_id": "ah-wois.3",
+      "status": "closed",
+      "title": "P03"
+    },
+    {
+      "phase_ref": "P04",
+      "bd_issue_id": "ah-wois.4",
+      "status": "closed",
+      "title": "P04"
+    },
+    {
+      "phase_ref": "P05",
+      "bd_issue_id": "ah-wois.5",
+      "status": "closed",
+      "title": "P05"
+    },
+    {
+      "phase_ref": "P06",
+      "bd_issue_id": "ah-wois.6",
+      "status": "closed",
+      "title": "P06"
+    },
+    {
+      "phase_ref": "P07",
+      "bd_issue_id": "ah-wois.7",
+      "status": "closed",
+      "title": "P07"
+    },
+    {
+      "phase_ref": "P08",
+      "bd_issue_id": "ah-wois.8",
+      "status": "closed",
+      "title": "P08"
+    },
+    {
+      "phase_ref": "P09",
+      "bd_issue_id": "ah-wois.9",
+      "status": "closed",
+      "title": "P09"
+    },
+    {
+      "phase_ref": "P10",
+      "bd_issue_id": "ah-wois.10",
+      "status": "closed",
+      "title": "P10"
+    },
+    {
+      "phase_ref": "P11",
+      "bd_issue_id": "ah-wois.11",
+      "status": "closed",
+      "title": "P11"
+    },
+    {
+      "phase_ref": "P12",
+      "bd_issue_id": "ah-wois.12",
+      "status": "closed",
+      "title": "P12"
+    },
+    {
+      "phase_ref": "P13",
+      "bd_issue_id": "ah-wois.13",
+      "status": "closed",
+      "title": "P13"
+    }
+  ]
+}

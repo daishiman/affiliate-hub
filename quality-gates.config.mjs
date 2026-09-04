@@ -2555,7 +2555,18 @@ export const OPEN_DOORS_MIN_IRREVERSIBLE_MARKED = 8;
 // `src/app/s/[site]/[fixedPage]/page.tsx` は読み取り専用で、公開済み・未削除かつ
 // canonical語彙に一致する行だけを返し、未知語彙・別tenant・未公開は404へ閉じる。
 // 管理画面や変更操作を公開宣言へ逃がした増加ではないため、実測どおり1件だけ床を更新する。
-export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 40;
+// 2026-09-04: feat-reader-behavior-analytics で読者行動の受け口
+// `src/app/api/reader-events/route.ts` を 1 本足した。**これは読者の道である。**
+// 送るのは公開ブログを読んでいる未ログインの読者で、門を置くと
+// 観測できるのがログイン済みの人だけになり、数字が運営者の自己観測に化ける。
+// 変更を起こす口ではあるが、書けるのは観測の行だけで、読者にも運営側にも
+// 見えているものを 1 つも動かさない。守りは資格ではなく受け取る中身の側にある:
+// (1) 同意が無ければ 1 件も積まない (GPC/DNT は本人の許可より強い)
+// (2) 1 要求 50 件・本文 32KiB の上限
+// (3) ブログ名は URL 側の 1 つだけを信じ、束の中の名乗りは捨てる
+// (4) 生の記録は 90 日で消える (AD-4)
+// 管理側の入口は 1 つも増えていない。実測どおり 1 件だけ床を更新する。
+export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 41;
 
 /**
  * **画面を 1 枚取り込んで描く検査の待ち時間。**

@@ -220,6 +220,7 @@ export {
   StepList,
   DataTable,
   FactList,
+  RowSummary,
   Foldable,
   Figure,
   RowSelector,

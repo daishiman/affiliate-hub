@@ -1,50 +1,50 @@
 ---
+graph_node_id: "SYS-BLOG-OPS-CRUD-P01"
 artifact_kind: "task"
 artifact_subtypes: []
-beads_linkage: null
-classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md","confidence":1.0}]
-classification_confidence: 1.0
-classification_reason: "feat-blog-ops-crud の P01 lifecycle 責務への確定写像"
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr_merged_all","reconciled_at":null,"source":null,"status":"in_progress"}
-confirmation_evidence: {"evaluated_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json"}
-confirmation_status: "confirmed"
-created_at: "2026-08-25T14:00:26Z"
-depends_on: []
-domain: "documentation"
-evaluation_status: "pass"
-execution_contexts: []
-feature_package_id: "feature-package/feat-blog-ops-crud"
-file_path: "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md"
-github_project_linkages: []
-github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
-graph_node_id: "SYS-BLOG-OPS-CRUD-P01"
-implementation_readiness: {"checked_at":"2026-08-25T13:19:00Z","missing_sections":[],"status":"complete"}
-issue_linkage: null
-iteration: null
-owners: ["daishiman"]
-parent_feature: "feat-blog-ops-crud"
-phase_ref: "P01"
-priority: null
 project_id: "feature-package-feat-blog-ops-crud"
-pull_request_linkages: []
+domain: "documentation"
+tags: ["p01","feat-blog-ops-crud"]
+priority: null
+start_date: null
+target_date: null
+iteration: null
+title: "サイト網ブログ運用 CRUD の要求ベースライン確定"
+owners: ["daishiman"]
+created_at: "2026-08-25T14:00:26Z"
+updated_at: "2026-09-04T03:05:26.407111Z"
+status: "active"
+depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/requirements-baseline.md","docs/spec/feat-blog-ops-crud/screen-inventory.md","docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json"]
-source_lineage: {"imported_at":"2026-08-25T14:00:26Z","origin_kind":"system-dev-planner","source_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","source_path":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-01-requirements.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
-start_date: null
-status: "active"
-tags: ["p01","feat-blog-ops-crud"]
-target_date: null
-template_id: "task"
-template_version: "1.1.0"
-title: "サイト網ブログ運用 CRUD の要求ベースライン確定"
-tracker_binding: "beads"
-updated_at: "2026-08-25T14:00:26Z"
 purpose: "feat-blog-ops-crud の受入14件 (A1-A14) それぞれについて、検証可能な受入条件文と対応する画面/データ要求がrequirements-baseline.md に一意対応表として存在し、docs/spec/13 §2 のページ種別目録のうち本 feature が扱うページ種別が screen-inventory.md に、docs/spec/06/13 のブループリント・パラメータ被覆状況がblueprint-coverage-map.json に機械可読で確定している状態を成立させる。"
 goal: "feat-blog-ops-crud の受入14件 (A1-A14) それぞれについて、検証可能な受入条件文と対応する画面/データ要求がrequirements-baseline.md に一意対応表として存在し、docs/spec/13 §2 のページ種別目録のうち本 feature が扱うページ種別が screen-inventory.md に、docs/spec/06/13 のブループリント・パラメータ被覆状況がblueprint-coverage-map.json に機械可読で確定している状態を成立させる。"
 scope_in: ["Produced artifacts: docs/spec/feat-blog-ops-crud/requirements-baseline.md (受入14件と画面/データ要求の一意対応表); docs/spec/feat-blog-ops-crud/screen-inventory.md (docs/spec/13 §2 のページ種別目録のうち本 feature が扱う画面の棚卸し); docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json (docs/spec/06/13 のブループリント・パラメータ被覆状況)","Consumed artifacts: features/feat-blog-ops-crud.context.json, features/feat-blog-ops-crud.md, docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md, docs/spec/06-サイトブループリント-記事構成テンプレート.md","Write scope/touches: docs/spec/feat-blog-ops-crud/requirements-baseline.md, docs/spec/feat-blog-ops-crud/screen-inventory.md, docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json"]
 scope_out: ["feat-blog-ops-crud の scope_out に該当する変更","feat-blog-ui-builder / feat-site-blueprint / feat-site-builder / feat-affiliate-* / feat-analytics-insight の scope_out に該当する変更"]
 acceptance: ["Automated commands: `node -e \"JSON.parse(require('fs').readFileSync('docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json'))\"` (blueprint-coverage-map.json のJSON妥当性を確認する)","Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ops-crud` (本 package の C12 決定論検証を世代非依存に再実行する)","Required evidence: docs/spec/feat-blog-ops-crud/requirements-baseline.md, docs/spec/feat-blog-ops-crud/screen-inventory.md, docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json のパス"]
 architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
+parent_feature: "feat-blog-ops-crud"
+feature_package_id: "feature-package/feat-blog-ops-crud"
+phase_ref: "P01"
+file_path: "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md"
+template_id: "task"
+template_version: "1.1.0"
+confirmation_status: "confirmed"
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json"}
+source_lineage: {"imported_at":"2026-08-25T14:00:26Z","origin_kind":"system-dev-planner","source_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","source_path":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-01-requirements.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
+classification_confidence: 1.0
+classification_reason: "feat-blog-ops-crud の P01 lifecycle 責務への確定写像"
+classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md","confidence":1.0}]
+issue_linkage: null
+tracker_binding: "beads"
+beads_linkage: {"bd_issue_id":"ah-85cn.1","github_mirror":null,"linked_at":"2026-08-25T14:30:00Z","sync_state":"linked"}
+github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
+github_project_linkages: []
+pull_request_linkages: []
+execution_contexts: []
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr_merged_all","reconciled_at":null,"source":null,"status":"in_progress"}
+implementation_readiness: {"checked_at":"2026-08-25T13:19:00Z","missing_sections":[],"status":"complete"}
 ---
 
 # System task overlay: サイト網ブログ運用 CRUD の要求ベースライン確定

@@ -63,8 +63,16 @@ const FETCH_EXEMPT: readonly { readonly file: string; readonly why: string }[] =
     why: "ブラウザから計測の受け口へ送る。送り先は自分のサイトの相対パスで、取りに行っているのではなく送っている",
   },
   {
+    file: "presentation/reader/behavior-probe.tsx",
+    why: "ブラウザから読者の行動の受け口 `/api/reader-events` へ送る。上の collector と同型で、送り先は自分のサイトの相対パス（`endpoint` の既定値）であり、取りに行っているのではなく送っている。離脱時は `sendBeacon` に落ちる",
+  },
+  {
     file: "presentation/tools/webmcp-adapter.ts",
     why: "ブラウザのページ内 AI が自分のサイトの道具の入口を叩く。行き先は同一オリジンの相対パス",
+  },
+  {
+    file: "infrastructure/domains/cloudflare-custom-hostname.ts",
+    why: "Cloudflare for SaaS の custom hostname 操作。行き先はコードに固定した https://api.cloudflare.com/client/v4 だけで、外から渡された URL ではない。登録・削除は送信 (POST/DELETE) なので、取得専用の guardedFetch では運べない",
   },
   {
     file: "infrastructure/indexnow/indexnow-client.ts",

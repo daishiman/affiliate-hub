@@ -144,12 +144,17 @@ describe("Worker の入口が引き込む量", () => {
       "入口が src/infrastructure/composition.ts を引いています。\n" +
         "cron に要る口だけを直に組んでください（distribution-scheduler.ts の注記を参照）。",
     ).not.toContain("src/infrastructure/composition.ts");
+    expect(
+      PATHS,
+      "SEO scheduler が画面用の composition を引いています。cron に要る依存だけを直に組んでください。",
+    ).not.toContain("src/presentation/composition.ts");
   });
 
   it("要件 3: 数えられている（たどれずに 0 件で緑になっていない）", () => {
     // 解決に失敗して空になれば、上限は必ず満たされる。**測っていないのに緑**を塞ぐ。
     expect(PATHS.length, "入口からたどれたファイルが少なすぎます").toBeGreaterThan(50);
     expect(PATHS).toContain("src/infrastructure/platform/distribution-scheduler.ts");
+    expect(PATHS).toContain("src/infrastructure/platform/seo-assessment-scheduler.ts");
     expect(PATHS).toContain("src/db/schema.ts");
   });
 });

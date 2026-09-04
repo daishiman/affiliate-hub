@@ -1,0 +1,96 @@
+{
+  "verb": "spec-reflection",
+  "repository_id": "github:daishiman/affiliate-hub",
+  "generated_at": "2026-09-04T23:27:42Z",
+  "base_head_sha": "f6ad882fa4a0bc8189a3c231d522adee9ad9a0a6",
+  "verdict": "reflected",
+  "rationale": "6 feature は新しい表 (site_custom_domain / reader_interaction_event / site_daily_metric / article_daily_metric / article_seo_assessment / site_aeo_profile / article_answer_unit)、新しい口 (BlogDomainsPort / BlogObservabilityPort / BlogImprovementPort)、新しい画面 5 件を持ち込むため、仕様・設計への影響がある。影響なしとは判定しない。C01 apply-spec-transition.py で spec-state.json を遷移させ、C03 compile-spec-doc.py で system-spec/ の各章を再生成した。architecture/arch-blog-operations-console.md を新設し、architecture/system-spec-overview.md から参照させた。いずれも正規フロー経由で、手書きの上書きは行っていない。",
+  "features": [
+    {
+      "feature_id": "feat-blog-custom-domain",
+      "bd_epic_id": "ah-t7vv",
+      "graph_node_id": "feature-package-feat-blog-custom-domain",
+      "task_spec_dir": "tasks/feat-blog-custom-domain/",
+      "evidence_dir": "docs/spec/feat-blog-custom-domain/",
+      "phases_closed": 13
+    },
+    {
+      "feature_id": "feat-blog-metrics-rollup",
+      "bd_epic_id": "ah-q4dt",
+      "graph_node_id": "feature-package-feat-blog-metrics-rollup",
+      "task_spec_dir": "tasks/feat-blog-metrics-rollup/",
+      "evidence_dir": "docs/spec/feat-blog-metrics-rollup/",
+      "phases_closed": 13
+    },
+    {
+      "feature_id": "feat-reader-behavior-analytics",
+      "bd_epic_id": "ah-f4do",
+      "graph_node_id": "feature-package-feat-reader-behavior-analytics",
+      "task_spec_dir": "tasks/feat-reader-behavior-analytics/",
+      "evidence_dir": "docs/spec/feat-reader-behavior-analytics/",
+      "phases_closed": 13
+    },
+    {
+      "feature_id": "feat-seo-assessment-reflection",
+      "bd_epic_id": "ah-ji7d",
+      "graph_node_id": "feature-package-feat-seo-assessment-reflection",
+      "task_spec_dir": "tasks/feat-seo-assessment-reflection/",
+      "evidence_dir": "docs/spec/feat-seo-assessment-reflection/",
+      "phases_closed": 13
+    },
+    {
+      "feature_id": "feat-aeo-answer-optimization",
+      "bd_epic_id": "ah-4d0q",
+      "graph_node_id": "feature-package-feat-aeo-answer-optimization",
+      "task_spec_dir": "tasks/feat-aeo-answer-optimization/",
+      "evidence_dir": "docs/spec/feat-aeo-answer-optimization/",
+      "phases_closed": 13
+    },
+    {
+      "feature_id": "feat-blog-scoped-admin-console",
+      "bd_epic_id": "ah-wois",
+      "graph_node_id": "feature-package-feat-blog-scoped-admin-console",
+      "task_spec_dir": "tasks/feat-blog-scoped-admin-console/",
+      "evidence_dir": "docs/spec/feat-blog-scoped-admin-console/",
+      "phases_closed": 13
+    }
+  ],
+  "spec_artifacts": {
+    "system-spec/index.md": "sha256:bfd54655ae9a9f44",
+    "system-spec/spec-state.json": "sha256:ab476ea9052eb92e",
+    "system-spec/database.md": "sha256:29e6e2d824872ff6",
+    "system-spec/backend.md": "sha256:890be994a5a8aa9b",
+    "system-spec/frontend.md": "sha256:0abd5654936c854e",
+    "system-spec/ui-ux.md": "sha256:d05856c3c58a7ca3",
+    "system-spec/security.md": "sha256:67b67de3446d5307",
+    "system-spec/auth.md": "sha256:f1ab8a2f1bee164c",
+    "system-spec/infrastructure.md": "sha256:83d9bbed4dff134a",
+    "system-spec/maintenance-ops.md": "sha256:08743c6f7675ca27",
+    "system-spec/completeness-report.json": "sha256:0e5aa65c5941663f",
+    "architecture/arch-blog-operations-console.md": "sha256:f8d575dacd91261a",
+    "architecture/system-spec-overview.md": "sha256:99ab0ee6344c593c"
+  },
+  "architecture_decisions": [
+    "AD-1 住所層 → 観測層 → 改善層 → 提示層の一方向依存。逆流させない",
+    "AD-2 提示層で計算しない。読み口が集計済みの値を返す",
+    "AD-3 改善層は公開面へ書けない。診断は提案までで、反映は人が押す",
+    "AD-4 生の観測 (reader_interaction_event) は 90 日で捨てる",
+    "AD-5 site_slug が層をまたぐ唯一の結合キー"
+  ],
+  "gates": {
+    "system-spec-harness/validate-coverage-matrix.py --require-complete --require-foundation": "exit 0",
+    "system-spec-harness/validate-source-citation.py": "exit 0",
+    "scripts/traceability.mjs": "exit 0",
+    "scripts/required-test-types.mjs": "exit 0",
+    "scripts/acceptance-reconciliation.mjs": "exit 0 (10 IDs / 213 evidence files)",
+    "scripts/port-wiring.mjs": "exit 1",
+    "vitest --project normal": "446 files / 9129 tests passed",
+    "vitest --project a11y": "15 files / 1451 tests passed"
+  },
+  "open_issues": [
+    "scripts/port-wiring.mjs が赤 (exit 1)。書き込み側の理由つき除外が 6 件で上限 5 を 1 件超過。原因は createRecordReaderInteractionsUseCase を除外簿へ足したこと。読者のブラウザから届く観測を操作の記録へ入れると承認や公開の行が埋もれるため、除外そのものは意図した判断。上限 PORT_WIRING_MAX_WRITE_EXCLUSIONS は引き上げていない。赤のまま残すことで、除外が 1 件増えた事実が消えないようにしている。",
+    "6 epic (ah-t7vv / ah-q4dt / ah-f4do / ah-ji7d / ah-4d0q / ah-wois) は範囲外の epic (ah-dtq / ah-50p / ah-87b / ah-d9s / ah-ejk / ah-85cn) にブロックされ close できない。--force は使用していない。枝番 78 件はすべて closed。",
+    "/admin/sites/[site] の actions 11 本は手書きで、画面を足したときの入口の足し忘れを機械が検出しない (docs/spec/feat-blog-scoped-admin-console/design-review-findings.md F-01)。",
+    "required-test-types.mjs の未宣言が 5 件で上限 5 ちょうど。次に要件を 1 件足して宣言を書き忘れると赤になる。"
+  ]
+}

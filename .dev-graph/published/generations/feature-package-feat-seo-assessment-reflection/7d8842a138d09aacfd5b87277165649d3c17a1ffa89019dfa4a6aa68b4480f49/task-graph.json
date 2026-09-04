@@ -1,0 +1,196 @@
+{
+  "edges": [
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P01",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P02",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P03",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P04",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P05",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P06",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P05",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P08",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P09",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P09",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P11",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-ASSESSMENT-REFLECTION-P12",
+      "to": "SYS-SEO-ASSESSMENT-REFLECTION-P13",
+      "type": "depends_on"
+    }
+  ],
+  "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P01",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P01"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P02",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P02"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P03",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P03"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P04",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P04"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P05",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P06",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P06"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P08",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P08"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P09",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+        "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P11",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+        "SYS-SEO-ASSESSMENT-REFLECTION-P11"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P12",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P12"
+      ],
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "id": "SYS-SEO-ASSESSMENT-REFLECTION-P13",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-seo-assessment-reflection",
+  "schema_version": "1.0.0"
+}

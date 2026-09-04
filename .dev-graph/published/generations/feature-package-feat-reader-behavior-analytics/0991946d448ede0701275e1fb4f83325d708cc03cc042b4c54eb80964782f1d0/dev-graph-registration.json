@@ -1,0 +1,1154 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+  "parent_feature": "feat-reader-behavior-analytics",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-READER-BEHAVIOR-ANALYTICS-P01": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P02": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P03": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P04": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P05": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P06": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P07": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P08": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P09": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P10": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P11": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P12": "beads",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測の要求ベースライン確定",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/requirements-baseline.md",
+        "docs/spec/feat-reader-behavior-analytics/privacy-constraints.md",
+        "docs/spec/feat-reader-behavior-analytics/measurement-inventory.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "reader_interaction_events のデータモデルと計測契約の確定",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/data-model.md",
+        "docs/spec/feat-reader-behavior-analytics/ingest-contract.md",
+        "docs/spec/feat-reader-behavior-analytics/aggregation-design.md",
+        "docs/spec/feat-reader-behavior-analytics/subject-request-design.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測設計の独立レビューと着手可否判定",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/design-review-findings.md",
+        "docs/spec/feat-reader-behavior-analytics/invariant-checklist.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測の受入テスト設計",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/test-plan.md",
+        "docs/spec/feat-reader-behavior-analytics/test-cases.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測とヒートマップの実装",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/domain/analytics/reader-interaction.ts",
+        "src/application/analytics/ingest-reader-interactions.ts",
+        "src/application/analytics/reader-subject-request.ts",
+        "src/app/api/reader-events/",
+        "src/components/reader/behavior-probe.tsx",
+        "src/app/admin/sites/[site]/articles/[article]/behavior/"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測のテスト実行と緑化",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/",
+        "docs/spec/feat-reader-behavior-analytics/test-run-report.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測の受入10件の判定",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/acceptance-report.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存イベント基盤との重複解消と移行",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/application/analytics/ingest-reader-interactions.ts",
+        "src/application/analytics/reader-subject-request.ts",
+        "src/components/reader/behavior-probe.tsx",
+        "docs/spec/feat-reader-behavior-analytics/migration-notes.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測の非機能検査",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/quality-report.md",
+        "tests/"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測の最終レビュー",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/final-review.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測の証跡集約",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+        "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/evidence-index.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測の運用手順と説明",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+        "SYS-READER-BEHAVIOR-ANALYTICS-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-reader-behavior-analytics/operations-runbook.md",
+        "docs/spec/feat-reader-behavior-analytics/"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "読者行動計測のリリースと仕様書への書き戻し",
+      "project_id": "feature-package-feat-reader-behavior-analytics",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-reader-behavior-analytics"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:24Z",
+      "updated_at": "2026-09-03T23:47:24Z",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "docs/spec/feat-reader-behavior-analytics/release-notes.md"
+      ],
+      "parent_feature": "feat-reader-behavior-analytics",
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/plan-findings.json",
+        "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+        "imported_at": "2026-09-03T23:47:24Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-behavior-analytics の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    }
+  ]
+}

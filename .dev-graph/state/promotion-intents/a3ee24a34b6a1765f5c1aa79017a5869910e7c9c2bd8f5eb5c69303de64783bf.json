@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-blog-metrics-rollup",
+  "destination": ".dev-graph/published/generations/feature-package-feat-blog-metrics-rollup/f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
+  "digest": "sha256:f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
+  "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+  "package_slug": "feature-package-feat-blog-metrics-rollup",
+  "generation_id": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
+  "supersedes": null,
+  "receipt": ".dev-graph/published/generations/feature-package-feat-blog-metrics-rollup/f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0/atomic-promotion-receipt.json",
+  "completed_at": "2026-09-03T23:49:24Z"
+}

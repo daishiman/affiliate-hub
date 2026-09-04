@@ -73,24 +73,29 @@ const CHAPTER_TARGETS = {
   backend: ["drizzle-orm"],
   database: ["cloudflare-d1"],
   frontend: ["nextjs"],
-  infrastructure: ["cloudflare-workers"],
+  infrastructure: ["cloudflare-workers", "cloudflare-for-saas", "cloudflare-r2"],
   "maintenance-ops": ["google-sre", "vitest", "github-actions", "stryker-mutator"],
   security: ["owasp-asvs"],
   "ui-ux": ["apple-hig"],
 } as const;
 
 /**
- * 章別の出典本数の実測 (2026-08-25)。
+ * 章別の出典本数の実測 (2026-09-04)。
  *
  * **前提ではなく測定値として置く。**旧版はこれを 1 と決め打ちし、増えた日に
  * 試験ファイルごと沈黙した。増減はここが赤くなって知らせる。
+ *
+ * 2026-09-03 に infrastructure が 1 → 3 になった。C08 の鮮度監査が、
+ * 独自ドメイン (`cloudflare-for-saas`) と画像の保管 (`cloudflare-r2`) を
+ * 確定質疑が依拠しているのに `targets[]` の外に置いていたと指摘し、
+ * 2 本が取得対象へ入ったため。**この増加は見えてよい増加である。**
  */
 const EXPECTED_ROW_COUNTS: Record<string, number> = {
   auth: 1,
   backend: 4,
   database: 1,
   frontend: 2,
-  infrastructure: 1,
+  infrastructure: 3,
   "maintenance-ops": 4,
   security: 1,
   "ui-ux": 1,
@@ -224,13 +229,13 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
     // **0 件の主張が母数 0 由来でないことを、同じ it で示す。**
     // 上の等号は rows が空でも通る。読み取りが黙って全滅した日に、
     // この検査が「違反なし」と報せるのを止めている。
-    expect(rows.length).toBe(15);
+    expect(rows.length).toBe(17);
   });
 
-  it("全 15 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
+  it("全 17 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
     const missing = [...refs.values()].filter((r) => !r.freshness_source);
     expect(missing.map((r) => r.target_id)).toEqual([]);
-    expect(refs.size).toBe(15);
+    expect(refs.size).toBe(17);
   });
 
   /**
@@ -238,9 +243,9 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
    * 章が純関数になった今も、写しである以上ずれる道は残っている。
    * **食い違いが減っても増えても赤くする**のがこの検査の役目である。
    */
-  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 15 行）", () => {
+  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 17 行）", () => {
     expect(driftBetween(rows, refs)).toEqual([]);
-    expect(rows.length).toBe(15); // 母数。突合する相手が消えたら赤くする。
+    expect(rows.length).toBe(17); // 母数。突合する相手が消えたら赤くする。
   });
 
   /**
@@ -262,9 +267,12 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
 
   it("確認が取得より前になっている行は、いずれも本文以外を鮮度根拠にしている", () => {
     const early = rows.filter((r) => Date.parse(r.confirmedAt) < Date.parse(r.retrievedAt));
-    expect(early.map((r) => `${r.target}=${refs.get(r.target)?.freshness_source}`)).toEqual([
-      "vitest=publisher-registry",
-    ]);
+    /*
+     * 2026-09-03 の `vitest` 再取得で、registry 照会とページ取得が同じ時刻に
+     * 記録された。先行する行はいまは 1 件も無い。**空で固定してよいのは、
+     * 上の「本文根拠なら取得以降」がこの母集団を別途見ているからである。**
+     */
+    expect(early.map((r) => `${r.target}=${refs.get(r.target)?.freshness_source}`)).toEqual([]);
   });
 
   /**

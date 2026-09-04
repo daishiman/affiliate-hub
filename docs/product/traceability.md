@@ -1271,6 +1271,20 @@ Google は不使用を明言、IndexNow は Bing/Yandex 系のみで Google 非�
 | REQ-BOPS13 | 参考サイト固有の文章・素材・固有名・色値・テーマ名を成果物に含めない | `docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json` | — | — | 禁止語検出時は fail-closed | — | — | `tests/architecture/blog-ops-spec-governance.test.ts` | 仕様ゲート緑・完了判定は in_progress |
 | REQ-BOPS14 | 依存方向・単一定義・テナント境界・監査・a11y の既存ゲートを破らない | `features/feat-blog-ops-crud.md`, `.dev-graph/state/graph.json` | 主要 6 画面 | — | 欠落/重複/依存不整合は fail-closed | 主要画面共通 | `tests/ui/blog-ops-a11y-floor.test.tsx` | `tests/architecture/blog-ops-spec-governance.test.ts`, `tests/architecture/blog-ops-content-separation.test.ts` | 仕様ゲート緑・完了判定は in_progress |
 
+### ブログ運営コンソール 4 層の実装要件 (arch-blog-operations-console・2026-09-04 追加)
+
+アーキテクチャ正本は `architecture/arch-blog-operations-console.md`。
+**住所 → 観測 → 改善 → 提示**の一方向の依存 (AD-1) を持ち、改善層は公開面へ書かない (AD-3)。
+既存の `REQ-BOPS01`–`REQ-BOPS14`（記事とサイト網の CRUD）とは別 namespace で、
+こちらは**ブログ 1 本を運営するために外から入ってくる事実**（住所・読者・検索）を扱う。
+
+| REQ | 要件 | 実装 | 画面 | 導線 | 状態 | RWD | a11y | test | 結果 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| REQ-BOPC01 | ブログごとの独自ドメインを登録・確認・正規化・取り下げできる。意思 (D1) と事実 (提供元の所有権・証明書) を混ぜず、外部が落ちていても取り下げは通る | `src/domain/domains/`, `src/application/usecases/blog-ops/manage-custom-domains.ts`, `src/infrastructure/persistence/d1/custom-domain-repository.ts` | `/admin/sites/[site]/domains` | ブログ詳細 → 住所 | 外部失敗は `notice` で分けて出し、保存済みを失敗と言わない | 管理画面共通 | 管理画面共通ゲート | `tests/integration/d1-custom-domain.test.ts` | 実装済 |
+| REQ-BOPC02 | 公開ブログの読者行動を未ログインのまま受け取る。同意が無ければ 1 件も積まず、1 要求 50 件・本文 32KiB を上限とし、ブログ名は URL 側だけを信じる | `src/app/api/reader-events/route.ts`, `src/application/usecases/blog-ops/record-reader-interactions.ts` | 公開ブログ（画面義務なし） | 公開記事の読み込み | 同意なし・上限超過は受け取らない | 公開面共通 | — | `tests/application/reader-interaction-intake.test.ts` | 実装済 |
+| REQ-BOPC03 | 生の読者行動を日次へ畳み、記事ごとの PV・滞在・クリック率とサイト日次を引ける。生の行は 90 日で消える (AD-4) | `src/infrastructure/persistence/d1/reader-metrics-repository.ts`, `src/application/usecases/blog-ops/read-blog-audience.ts`, `src/application/usecases/blog-ops/read-blog-revenue.ts` | `/admin/sites/[site]/audience`, `/admin/sites/[site]/revenue` | ブログ詳細 → 読者の行動 / 記事ごとの成果 | 空集合は 0 でなく「まだ無い」として出す | 管理画面共通 | 管理画面共通ゲート | `tests/integration/d1-reader-metrics.test.ts` | 実装済 |
+| REQ-BOPC04 | SEO 診断と AEO の構えを記事・サイト単位で保存し、指摘の見送りは理由付きで残す。**改善層は公開面へ書かない** (AD-3) | `src/application/usecases/blog-ops/manage-seo-assessment.ts`, `src/application/usecases/blog-ops/manage-aeo-answers.ts`, `src/infrastructure/persistence/d1/seo-assessment-repository.ts` | `/admin/sites/[site]/seo`, `/admin/sites/[site]/aeo` | ブログ詳細 → SEO / AEO | 診断結果が無い状態と「指摘 0 件」を区別する | 管理画面共通 | 管理画面共通ゲート | `tests/integration/d1-seo-assessment.test.ts` | 実装済 |
+
 ### この表と `docs/product/test-traceability.md` の関係
 
 この表は**要件 → テスト**の向きしか持っていない。逆向き（テスト → 要件）は

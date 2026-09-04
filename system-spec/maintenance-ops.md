@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-ops-web-migration-guard-v2。裏付け質疑 (`qa_refs`): `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-ops-web-domain-retention-seo-freshness。裏付け質疑 (`qa_refs`): `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-ops-web-migration-guard-v2 (対応セル: web)
+### qa-ops-web-domain-retention-seo-freshness (対応セル: web)
+
+**質問**: maintenance-ops×web: 接続したドメインが切れかけていることに、どうやって気づくか。座標データはいつまで持つか。SEO/AEO の評価はいつ作り直すか
+
+**回答**: ドメインは日次で状態を問い直す。Cloudflare のカスタムホスト名の状態と証明書の有効期限を引き、active でなくなった行、または期限が 21 日を切った行を管理画面のブログ一覧とダッシュボードの先頭へ出す。失効してから気づくと読者から見えない時間が生まれるため、検知は失効前に置く。通知は既存の改善要望と同じ画面内の掲示で行い、新しい通知経路を作らない。座標を含む reader_interaction_events は 90 日で削除する。日次ロールアップ (site_daily_metrics / article_daily_metrics) は残すので、90 日より前の傾向は集計値で追える。生データを長く持つほど削除依頼への対応と漏洩時の被害が重くなるため、細かい方を先に捨てる。読者からの削除依頼は reader_key 索引で即時に消し、ロールアップ側は個人に紐づかないので作り直さない。SEO/AEO の評価は、記事の公開・更新の時点と、月次の定期実行の 2 つで作り直す。評価に使う指針の出典は既存の 90 日見直しの仕組み (domain/seo/guideline-reference.ts) に載せ、古い基準で採点し続けない
+
+### qa-ops-web-migration-guard-v2 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: maintenance-ops×web: 本番 D1 への適用が途中で打ち切られた疑いがあるとき、次の公開はどうふるまい、運用者は何をどの順で確かめるか。控えの空判定と保管期間は変えるか
 
@@ -121,9 +127,23 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 
 #### 本章での適用
 
-##### 確定内容 qa-ops-web-migration-guard-v2 (対応セル: web)
+##### 確定内容 qa-ops-web-domain-retention-seo-freshness (対応セル: web)
 
-- 確定要件: 次の公開は自動で進まず、release の先頭で止める。運用者は 4 つを順に確かめる。(1) 止められた実行が指す前回の実行を開き、控えの成果物 (d1-backup-*) が残っていることを確かめる。控えは適用より先に保存しているので必ず在る。(2) やり直しで押し切らない。部分的に当たった移行の上へ同じ移行を当て直すと duplicate column name で止まる (run #22 と同じ形)。(3) pnpm run db:drift --env <環境> で実際の形を読み、どこまで当たったかを確かめる。(4) missing / extra / changed が出たら形のずれの直し方 (新しい番号の前方修復) へ移り、すべて 0 なら形は揃っているので公開を再実行してよい。控えが空なら適用を中止すること、成果物として 30 日保管すること、保管に失敗したこと自体も落ちる扱いにすることは変えない
+- 確定要件: ドメインは日次で状態を問い直す。Cloudflare のカスタムホスト名の状態と証明書の有効期限を引き、active でなくなった行、または期限が 21 日を切った行を管理画面のブログ一覧とダッシュボードの先頭へ出す。失効してから気づくと読者から見えない時間が生まれるため、検知は失効前に置く。通知は既存の改善要望と同じ画面内の掲示で行い、新しい通知経路を作らない。座標を含む reader_interaction_events は 90 日で削除する。日次ロールアップ (site_daily_metrics / article_daily_metrics) は残すので、90 日より前の傾向は集計値で追える。生データを長く持つほど削除依頼への対応と漏洩時の被害が重くなるため、細かい方を先に捨てる。読者からの削除依頼は reader_key 索引で即時に消し、ロールアップ側は個人に紐づかないので作り直さない。SEO/AEO の評価は、記事の公開・更新の時点と、月次の定期実行の 2 つで作り直す。評価に使う指針の出典は既存の 90 日見直しの仕組み (domain/seo/guideline-reference.ts) に載せ、古い基準で採点し続けない
+- 設計解釈の記録経路: `dialogue`
+- 原則: 壊れてからでなく、壊れる前に気づける位置へ検知を置く (`site-reliability-engineering.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 証明書やドメインは、失効した瞬間に読者から見えなくなる。失効を検知しても手遅れである。期限の 21 日前という余裕を持った閾値で出せば、DNS の再設定や更新の手続きに要る時間を確保できる
+  - トレードオフ:
+    - 余裕を長く取るほど、まだ対処不要な警告が画面に出続けて慣れが生じる。21 日は更新手続きに要る現実的な時間から置いた値で、運用して鈍化するようなら短くする
+- 原則: 保持期間は、その粒度のデータが持つ危険の大きさに合わせる (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 座標つきの生データは個人を絞り込む手がかりになりうるが、集計後の分布はならない。両方を同じ期間持つ理由がない。細かい方を 90 日で捨て、傾向はロールアップで残せば、分析の目的を保ったまま危険な在庫だけを減らせる
+  - トレードオフ:
+    - 90 日より前のヒートマップを後から見返すことはできなくなる。季節ごとの比較には集計値しか使えない
+##### 接地根拠 qa-ops-web-migration-guard-v2 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-ops-web-migration-guard-v2` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 自動を止めた先に、人が踏む手順を必ず用意する (`docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1-3`)
   - 採否: `applied`
@@ -189,7 +209,7 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
 | google-sre | 2017 | Google (sre.google) | https://sre.google/sre-book/table-of-contents/ | 2026-08-19T15:30:40Z | 2026-08-19T15:30:40Z |
-| vitest | 4.1.11 | Vitest (vitest.dev) | https://vitest.dev/guide/ | 2026-08-24T11:38:56Z | 2026-08-24T11:38:55Z |
+| vitest | 5.0.0 | Vitest (vitest.dev) | https://vitest.dev/guide/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
 | github-actions | free-pro-team@latest | GitHub (docs.github.com) | https://docs.github.com/en/actions | 2026-08-22T15:05:16Z | 2026-08-22T15:05:16Z |
 | stryker-mutator | 10.0.0 | Stryker Mutator (stryker-mutator.io) | https://stryker-mutator.io/docs/stryker-js/introduction/ | 2026-08-22T21:18:38Z | 2026-08-22T21:19:48Z |
 
@@ -250,7 +270,7 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 |---|---|
 | セル | maintenance-ops × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-ops-web-migration-guard-v2` |
+| 確定質疑 (qa_ref) | `qa-ops-web-domain-retention-seo-freshness` |
 | 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
@@ -348,14 +368,3 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
     - 直したという申告だけでは公開を再開できないので、復旧までの時間が検査 1 回分ずつ延びる
     - 検査そのものが落ちている状況では、実体が直っていても再開できず、手当ての経路が別途要る
     - 検査が見るのは形の一致だけなので、これを合格の唯一の根拠にすると「形は合ったが直っていない」を見逃す
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 6 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `serves_goals: [G1]`
-- `| Web (web) | 確定 | 確定質疑: qa-ops-web-migration-guard。裏付け質疑 (`qa_refs`): `qa-ops-web-spec-intake`, `qa-ops-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `### qa-ops-web-migration-guard (対応セル: web)`
-- `##### 確定内容 qa-ops-web-migration-guard (対応セル: web)`
-- `- 確定要件: 空なら適用を中止する。wrangler が 0 で終わっても中身の無いファイルだけ残る場合があり、それを控えと呼ばない。控えは成果物として 30 日保管し (migrate.yml と同条件)、落ちても残るよう適用より先に保存する。保管に失敗したこと自体も落ちる扱いにする (if-no-files-found: error)`
-- `- 資するゴール: G1`

@@ -26,6 +26,8 @@ import {
   runPublicationDeliveryAuditFlush,
   runScheduledDistribution,
 } from "./src/infrastructure/platform/distribution-scheduler.ts";
+import { runReaderMetricsRollup } from "./src/infrastructure/platform/reader-metrics-scheduler.ts";
+import { runScheduledSeoAssessment } from "./src/infrastructure/platform/seo-assessment-scheduler.ts";
 
 // キャッシュの仕組みが使う入れ物。生成物が公開しているものをそのまま通す。
 // ここで落とすと、公開時に「宣言された入れ物が見つからない」で失敗する。
@@ -105,6 +107,58 @@ const handlers = {
         } catch {
           // 秘密やprovider応答を出さない。詳細はPublicationの安全化済みlastErrorへ残る。
           console.error("[distribution] 予約配信の処理に失敗しました");
+        }
+      })(),
+    );
+
+    /*
+     * 読者行動の日次集計と、生イベントの 90 日保持（AD-4）。
+     *
+     * ここも独立した待ち行列に置く。配信が provider の不調で失敗した日に
+     * 集計まで止まると、管理画面の数字だけが静かに古くなる。
+     * **数字が出ないより、古い数字が出るほうが危ない。**
+     */
+    ctx.waitUntil(
+      (async () => {
+        if (env.DB === undefined) {
+          console.warn("[reader-metrics] 保存先がつながっていないので、集計を行いませんでした");
+          return;
+        }
+        try {
+          const result = await runReaderMetricsRollup(env.DB, now);
+          console.log(
+            `[reader-metrics] 日次集計を ${result.rolled} 件やり直し、` +
+              `生の記録を ${result.purged} 件消しました` +
+              (result.failed === 0 ? "" : `（失敗 ${result.failed} 件は次の回で拾い直します）`) +
+              (result.truncated ? "（上限に達したため、続きは次の回で集計します）" : ""),
+          );
+        } catch (error) {
+          console.error("[reader-metrics] 日次集計に失敗しました", error);
+        }
+      })(),
+    );
+
+    /*
+     * SEO の月次再診断。日次 cron の中で今月分の未完了だけを拾う。
+     * 他の定期処理と分け、1 ブログの診断障害で配信や保持期限処理を止めない。
+     */
+    ctx.waitUntil(
+      (async () => {
+        if (env.DB === undefined) {
+          console.warn("[seo-assessment] 保存先がつながっていないので、月次再診断を行いませんでした");
+          return;
+        }
+        try {
+          const result = await runScheduledSeoAssessment(env.DB, now);
+          console.log("[seo-assessment] 月次再診断を処理しました", {
+            scanned: result.scanned,
+            completed: result.completed,
+            failed: result.failed,
+            truncated: result.truncated,
+          });
+        } catch {
+          // 対象や DB 応答は出さない。未完了分は次の cron が拾い直す。
+          console.error("[seo-assessment] 月次再診断に失敗しました");
         }
       })(),
     );

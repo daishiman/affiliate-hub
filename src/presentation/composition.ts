@@ -278,6 +278,61 @@ import {
   type ReviewBlogPlacementsInput,
   createReviewBlogPlacementsUseCase,
 } from "@/application/usecases/authoring/review-blog-placements";
+// ブログ運営コンソール (arch-blog-operations-console) の 4 層。
+// 住所層 → 観測層 → 改善層 の順に並べてある。提示層はこのファイル自身。
+import {
+  type BlogDomainsView,
+  type ManageCustomDomainsInput,
+  createManageCustomDomainsUseCase,
+} from "@/application/usecases/blog-ops/manage-custom-domains";
+import {
+  type BlogAudienceView,
+  type ReadBlogAudienceInput,
+  createReadBlogAudienceUseCase,
+} from "@/application/usecases/blog-ops/read-blog-audience";
+import {
+  type RecordReaderInteractionsInput,
+  type RecordReaderInteractionsResult,
+  createRecordReaderInteractionsUseCase,
+} from "@/application/usecases/blog-ops/record-reader-interactions";
+import {
+  type RebuildDailyMetricsInput,
+  type RebuildDailyMetricsView,
+  createRebuildDailyMetricsUseCase,
+} from "@/application/usecases/blog-ops/rebuild-daily-metrics";
+import {
+  type BlogRevenueView,
+  type ReadBlogRevenueInput,
+  createReadBlogRevenueUseCase,
+} from "@/application/usecases/blog-ops/read-blog-revenue";
+import {
+  type ManageSeoAssessmentInput,
+  type SeoAssessmentView,
+  createManageSeoAssessmentUseCase,
+} from "@/application/usecases/blog-ops/manage-seo-assessment";
+import {
+  type AeoAnswersView,
+  type ManageAeoAnswersInput,
+  createManageAeoAnswersUseCase,
+} from "@/application/usecases/blog-ops/manage-aeo-answers";
+import { createD1CustomDomainRepository } from "@/infrastructure/persistence/d1/custom-domain-repository";
+import { createCloudflareCustomHostnameProvider } from "@/infrastructure/domains/cloudflare-custom-hostname";
+import {
+  createD1BlogAudienceRepository,
+  createD1BlogRevenueRepository,
+  createD1MetricsRollup,
+  createD1ReaderInteractionIntake,
+} from "@/infrastructure/persistence/d1/reader-metrics-repository";
+import {
+  createD1AeoProfileRepository,
+  createD1AnswerUnitRepository,
+  createD1SeoAssessmentRepository,
+} from "@/infrastructure/persistence/d1/seo-assessment-repository";
+import {
+  createAnswerUnitExtractor,
+  createArticleSeoAnalyzer,
+  createSeoFixDrafter,
+} from "@/infrastructure/improvement";
 import { createD1BlogAppearanceRepository } from "@/infrastructure/persistence/d1/blog-appearance-repository";
 import { createD1BlogAffiliatePlacementRepository } from "@/infrastructure/persistence/d1/blog-affiliate-placement-repository";
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
@@ -1912,6 +1967,248 @@ export async function blogPlacementEntry(): Promise<BlogPlacementEntry> {
 }
 
 /**
+ * ブログの住所（独自ドメイン）の入口。住所層。
+ *
+ * 証明書の発行元（Cloudflare for SaaS）を**ここで**渡す。鍵が無い実行では
+ * 提供者側が `NOT_SUPPORTED` を返し、画面には「登録はできるが発行できない」
+ * と出る。入口ごと `ready: false` にしないのは、すでに登録済みの住所の
+ * 一覧まで見えなくなるためで、見えないと運用者は「消えた」と判断する。
+ */
+export type BlogDomainsEntry =
+  | {
+      readonly ready: true;
+      readonly manage: UseCase<ManageCustomDomainsInput, BlogDomainsView>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogDomainsEntry(): Promise<BlogDomainsEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。ブログの住所（独自ドメイン）は、保存先がある実行でだけ管理できます。",
+    };
+  }
+  const deps = createDeps({ db });
+  return {
+    ready: true,
+    manage: createManageCustomDomainsUseCase({
+      domains: createD1CustomDomainRepository({ db, newId: () => deps.ids.newId() }),
+      provider: createCloudflareCustomHostnameProvider(),
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
+}
+
+/**
+ * 読者の行動を受け取る口。観測層の**入り側**。
+ *
+ * --- 読み側 (`blogAudienceEntry`) と別にしてある理由 ---
+ * 読み側は管理画面から、ここは公開面（読者が開いているページ）から呼ばれる。
+ * 1 つにまとめると、読者向けの経路に管理画面用の読み取りポートまで
+ * ぶら下がる。公開面に置くものは少ないほどよい。
+ *
+ * **保存先が無いときは `null` を返す。** 読み側のように理由の文言を返さない
+ * のは、この口の呼び手が読者向けの経路で、返した文言を出す場所が
+ * 無いためである（記録できなくても読者の画面は動く）。
+ */
+export async function readerInteractionIntakeEntry(): Promise<UseCase<
+  RecordReaderInteractionsInput,
+  RecordReaderInteractionsResult
+> | null> {
+  const db = await tryGetDb();
+  if (db === null) return null;
+  const deps = createDeps({ db });
+  return createRecordReaderInteractionsUseCase({
+    intake: createD1ReaderInteractionIntake({ db, newId: () => deps.ids.newId() }),
+    now: () => new Date(),
+  });
+}
+
+/**
+ * 日次集計をやり直す入口。観測層の**作り直し側**。
+ *
+ * 定期実行 (`reader-metrics-scheduler.ts`) は当日と前日しか見ない。その窓から
+ * 出た日を拾い直す手段がないと、集計が失敗した 1 日だけが永久に空のまま残る。
+ * 窓を広げず、必要なときだけ手で指せるようにしてある。
+ *
+ * 受け側 (`readerInteractionIntakeEntry`) と別にしてあるのは、あちらが公開面から
+ * 呼ばれる口だからである。読者向けの経路に、集計を作り直す力を置かない。
+ */
+export type MetricsRebuildEntry =
+  | {
+      readonly ready: true;
+      readonly rebuild: UseCase<RebuildDailyMetricsInput, RebuildDailyMetricsView>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function metricsRebuildEntry(): Promise<MetricsRebuildEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。日次集計のやり直しは、保存先がある実行でだけ行えます。",
+    };
+  }
+  const deps = createDeps({ db });
+  return {
+    ready: true,
+    rebuild: createRebuildDailyMetricsUseCase({
+      rollup: createD1MetricsRollup(db),
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
+}
+
+/**
+ * 読者の像（どんな人が・どこで時間を使い・どこを押したか）の入口。観測層。
+ *
+ * **見本へ落とさない。** 配色と違い、ここに見本の数字を出すと、運用者は
+ * それを自分のブログの実績として読む。数字は「無い」と分かるほうが安全で、
+ * 「あるが嘘」は取り返しがつかない。
+ */
+export type BlogAudienceEntry =
+  | {
+      readonly ready: true;
+      readonly read: UseCase<ReadBlogAudienceInput, BlogAudienceView>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogAudienceEntry(): Promise<BlogAudienceEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。読者の行動の集計は、保存先がある実行でだけ読めます。",
+    };
+  }
+  return {
+    ready: true,
+    read: createReadBlogAudienceUseCase({
+      audience: createD1BlogAudienceRepository(db),
+    }),
+  };
+}
+
+/**
+ * 記事ごとの売上と PV の入口。観測層。
+ *
+ * **読者の像と別の入口にしてある。** 報酬データを見るには
+ * `affiliate.read_revenue` が要り、読者の像は `analytics.read` で足りる。
+ * 1 つの入口にまとめると、片方だけ見せたい役割に両方が渡る。
+ */
+export type BlogRevenueEntry =
+  | {
+      readonly ready: true;
+      readonly read: UseCase<ReadBlogRevenueInput, BlogRevenueView>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogRevenueEntry(): Promise<BlogRevenueEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。記事ごとの売上と PV は、保存先がある実行でだけ読めます。",
+    };
+  }
+  return {
+    ready: true,
+    read: createReadBlogRevenueUseCase({
+      revenue: createD1BlogRevenueRepository(db),
+    }),
+  };
+}
+
+/**
+ * SEO 診断の入口。改善層。
+ *
+ * 診断する側（`analyze`）と直す場所を特定する側（`draft`）を**ここで**束ねる。
+ * 何を指摘とみなすかは差し替えたくなるが、指摘をどう保存するかは
+ * 差し替えたくない。だから保管庫の外から渡している。
+ */
+export type BlogSeoEntry =
+  | {
+      readonly ready: true;
+      readonly manage: UseCase<ManageSeoAssessmentInput, SeoAssessmentView>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogSeoEntry(): Promise<BlogSeoEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。SEO 診断は、保存先がある実行でだけ回せます。",
+    };
+  }
+  const deps = createDeps({ db });
+  return {
+    ready: true,
+    manage: createManageSeoAssessmentUseCase({
+      seo: createD1SeoAssessmentRepository({
+        db,
+        newId: () => deps.ids.newId(),
+        analyze: createArticleSeoAnalyzer(db),
+        draft: createSeoFixDrafter(db),
+      }),
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
+}
+
+/**
+ * AEO（回答エンジン最適化）の入口。改善層。
+ *
+ * ブログ全体の構え（`profiles`）と、記事ごとの引用単位（`units`）を
+ * 1 つのユースケースへ渡す。画面が別々に読むと、構えを保存した直後の
+ * 一覧に古い構えが出る瞬間ができる。
+ */
+export type BlogAeoEntry =
+  | {
+      readonly ready: true;
+      readonly manage: UseCase<ManageAeoAnswersInput, AeoAnswersView>;
+    }
+  | { readonly ready: false; readonly reason: string };
+
+export async function blogAeoEntry(): Promise<BlogAeoEntry> {
+  const db = await tryGetDb();
+  if (db === null) {
+    return {
+      ready: false,
+      reason:
+        "保存先 (D1) が用意されていません。AEO の構えと引用単位は、保存先がある実行でだけ扱えます。",
+    };
+  }
+  const deps = createDeps({ db });
+  return {
+    ready: true,
+    manage: createManageAeoAnswersUseCase({
+      profiles: createD1AeoProfileRepository(db),
+      units: createD1AnswerUnitRepository({
+        db,
+        newId: () => deps.ids.newId(),
+        extract: createAnswerUnitExtractor(db),
+      }),
+      auditLog: deps.auditLog,
+      ids: deps.ids,
+      now: () => new Date(),
+    }),
+  };
+}
+
+/**
  * 18 項目がそろった状態の見本。
  *
  * **見本データ（スタブ）である。** 画面で「そろった状態」を実際に押して
@@ -2196,25 +2493,29 @@ export function readerActor(): ActorContext {
 }
 
 /**
- * 読者の記録を、**どの作業場所のものとして残すか**を決める。
+ * 既知のブログについてだけ、読者の記録を残す作業場所を返す。
  *
- * 読者自身はどこにも所属していないが、記録は
- * 「そのブログを運営している人」の数字として読まれる必要がある。
- * ここを `readerActor()`（所属なし）のままにすると、
- * 計測は貯まるのに管理画面には一生出てこない。
- * **貯まっているのに 0 と出る**のは、いちばん切り分けにくい壊れ方になる。
- *
- * URL 名から引けなかったときは所属なしのまま記録する（捨てない）。
- * 捨てると、ブログの設定を直している最中の記録だけが消える。
+ * 読者自身はどこにも所属していないが、行動の記録はブログを所有する
+ * 作業場所へ積む必要がある。未知の名前を `ws_public` へ落とすと、誰からも
+ * 読まれない孤立行が増えるため、保存する入口はこの strict な口を使う。
  */
-export async function readerActorForSite(siteSlug: string | null): Promise<ActorContext> {
-  const base = readerActor();
-  if (siteSlug === null || siteSlug === "") return base;
+export async function readerActorForKnownSite(
+  siteSlug: string | null,
+): Promise<ActorContext | null> {
+  if (siteSlug === null || siteSlug.trim() === "") return null;
   // 読者向けのユースケース（`getSite`）は、外へ出せる項目だけを返すので
   // 作業場所を持っていない。ここは組み立ての層なので、保存先を直接引く。
   const found = await createDeps({ db: await tryGetDb() }).sites.findBySlug(siteSlug);
-  if (!found.ok || found.value === null) return base;
-  return { ...base, workspaceId: found.value.workspaceId };
+  if (!found.ok || found.value === null) return null;
+  return { ...readerActor(), workspaceId: found.value.workspaceId };
+}
+
+/**
+ * 表示・telemetry互換のresolver。既知siteの解決規則はstrictな口と共有し、
+ * 見つからない場合だけ従来どおり所属なしの読者へ戻す。
+ */
+export async function readerActorForSite(siteSlug: string | null): Promise<ActorContext> {
+  return (await readerActorForKnownSite(siteSlug)) ?? readerActor();
 }
 
 /** 見本データで表示していることを読者向け画面に出すための一文。 */

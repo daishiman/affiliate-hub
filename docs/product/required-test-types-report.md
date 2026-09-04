@@ -4,9 +4,9 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-09-03
-- 要件表の要件: 291 件
-- 性質を宣言済: 286 件
+- 最終更新: 2026-09-04
+- 要件表の要件: 295 件
+- 性質を宣言済: 290 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 5 件（上限 7 件）
 
@@ -256,6 +256,10 @@
 | REQ-BOPS12 | has-enumerated-input, has-screen | `a11y` `decision-table` `equivalence` `keyboard` `screen-states` | `a11y` `decision-table` `equivalence` `keyboard` `screen-states` | — |
 | REQ-BOPS13 | has-code-placement-rule | `code-boundary` | `code-boundary` | — |
 | REQ-BOPS14 | has-tenant, has-screen, has-code-placement-rule | `a11y` `code-boundary` `keyboard` `screen-states` `tenant-isolation` | `a11y` `code-boundary` `keyboard` `screen-states` `tenant-isolation` | — |
+| REQ-BOPC01 | has-input, has-state, has-permission, has-tenant, has-external, has-screen, has-db-table, has-recorded-operation | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `fault-injection` `idempotency` `keyboard` `permission-matrix` `screen-states` `state-transition` `tenant-isolation` | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `fault-injection` `idempotency` `keyboard` `permission-matrix` `screen-states` `state-transition` `tenant-isolation` | — |
+| REQ-BOPC02 | has-input, has-enumerated-input, has-tenant | `boundary` `decision-table` `equivalence` `tenant-isolation` | `boundary` `decision-table` `equivalence` `tenant-isolation` | — |
+| REQ-BOPC03 | has-input, has-enumerated-input, has-permission, has-tenant, has-screen, has-db-table | `a11y` `boundary` `db-migration` `decision-table` `equivalence` `keyboard` `permission-matrix` `screen-states` `tenant-isolation` | `a11y` `boundary` `db-migration` `decision-table` `equivalence` `keyboard` `permission-matrix` `screen-states` `tenant-isolation` | — |
+| REQ-BOPC04 | has-input, has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `keyboard` `permission-matrix` `screen-states` `state-transition` `tenant-isolation` | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `keyboard` `permission-matrix` `screen-states` `state-transition` `tenant-isolation` | — |
 | REQ-WA01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-WA02 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
 | REQ-WB01 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
@@ -320,4 +324,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:f6e1fe7e3560d8de7500c55b75352931002c54ff15392e5836caf84e941704dd -->
+<!-- 生成物の指紋 sha256:05f39464f90b92aff0a54f29b132ba3ed9ae0d128d4c521424942d3e2b5aff08 -->

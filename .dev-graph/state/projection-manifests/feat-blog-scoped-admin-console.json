@@ -1,0 +1,140 @@
+{
+  "source_digest": "sha256:853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+  "feature": {
+    "graph_node_id": "feat-blog-scoped-admin-console",
+    "title": "ブログ単位の管理コンソールへの再編",
+    "description": "管理の単位を記事からブログへ移し、1 本のブログを運営するのに要る情報と操作を 1 つの階層へ集める\n\n/admin/sites/[site]/ 以下にブログ単位の画面 (記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信) が揃い、ブログのダッシュボードが収益と PV と転換の推移と住所が生きているかを先頭に出し、横断画面はブログ間比較だけを担い、既存の /admin/blog/* から新階層へ転送される状態になっている\n\nfile: features/feat-blog-scoped-admin-console.md"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "ブログ単位管理画面の要求ベースライン確定",
+      "description": "feat-blog-scoped-admin-console の受入10件を検証可能な条件文へ写像し、ブログ画面・記事画面・横断画面がそれぞれ何を持ち何を持たないかという情報の置き場所を要求として確定した状態を成立させる。\n\nfeat-blog-scoped-admin-console の受入10件を検証可能な条件文へ写像し、ブログ画面・記事画面・横断画面がそれぞれ何を持ち何を持たないかという情報の置き場所を要求として確定した状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p01.md",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "画面階層とデータ読み取り経路の設計確定",
+      "description": "ブログ階層のルーティング、各画面が読む集計結果と診断結果の取得経路、注意喚起の並べ替え規則、証拠件数が閾値未満のときの提案抑制の設計を確定した状態を成立させる。\n\nブログ階層のルーティング、各画面が読む集計結果と診断結果の取得経路、注意喚起の並べ替え規則、証拠件数が閾値未満のときの提案抑制の設計を確定した状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p02.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面設計の独立レビューと着手可否判定",
+      "description": "画面責務の排他性、既存導線からの移行漏れ、上流6 feature への依存の向きを独立観点で検査し、実装着手の可否を判定した状態を成立させる。\n\n画面責務の排他性、既存導線からの移行漏れ、上流6 feature への依存の向きを独立観点で検査し、実装着手の可否を判定した状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p03.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面の受入テスト設計",
+      "description": "受入10件を自動テストへ写像し、ブログ階層への到達、既存パスからの転送、注意喚起行の先頭固定、横断画面が記事単位の数値を持たないこと、証拠件数不足時に提案が出ないことを、実行可能なケース表として確定した状態を成立させる。\n\n受入10件を自動テストへ写像し、ブログ階層への到達、既存パスからの転送、注意喚起行の先頭固定、横断画面が記事単位の数値を持たないこと、証拠件数不足時に提案が出ないことを、実行可能なケース表として確定した状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p04.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "ブログ階層管理画面の実装",
+      "description": "記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信を持つブログ階層の画面群、ブログダッシュボード、記事ごとの改善画面、横断比較画面、および既存 admin パスからの転送を実装した状態を成立させる。\n\n記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信を持つブログ階層の画面群、ブログダッシュボード、記事ごとの改善画面、横断比較画面、および既存 admin パスからの転送を実装した状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p05.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面のテスト実行と緑化",
+      "description": "P04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。\n\nP04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p06.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面の受入10件の判定",
+      "description": "feat-blog-scoped-admin-console の受入10件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。\n\nfeat-blog-scoped-admin-console の受入10件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p07.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "既存 admin 画面との重複解消と移行",
+      "description": "記事単位で作られていた既存 admin 画面のうち、ブログ階層へ移した画面と残す画面を確定し、重複した画面と到達不能になった導線が0件である状態を成立させる。\n\n記事単位で作られていた既存 admin 画面のうち、ブログ階層へ移した画面と残す画面を確定し、重複した画面と到達不能になった導線が0件である状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p08.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面の非機能検査",
+      "description": "ブログ数と記事数が増えたときの一覧描画性能、ブログ横断画面での閲覧範囲の限定、および空状態の表示を検査し、いずれも基準を満たす状態を成立させる。\n\nブログ数と記事数が増えたときの一覧描画性能、ブログ横断画面での閲覧範囲の限定、および空状態の表示を検査し、いずれも基準を満たす状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p09.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面の最終レビュー",
+      "description": "P01 から P09 までの成果物を通しでレビューし、画面責務表・導線対応表・実装が一致していることを確認して残課題を確定した状態を成立させる。\n\nP01 から P09 までの成果物を通しでレビューし、画面責務表・導線対応表・実装が一致していることを確認して残課題を確定した状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p10.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面の証跡集約",
+      "description": "受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入10件の成立を再確認できる状態を成立させる。\n\n受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入10件の成立を再確認できる状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p11.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面の運用手順と読み方の説明",
+      "description": "ブログ階層のどこで何を見るか、注意喚起が出たとき何をするか、旧画面の導線がどこへ移ったかを、運用手順と利用者向け説明として整えた状態を成立させる。\n\nブログ階層のどこで何を見るか、注意喚起が出たとき何をするか、旧画面の導線がどこへ移ったかを、運用手順と利用者向け説明として整えた状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p12.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "title": "管理画面のリリースと仕様書への書き戻し",
+      "description": "ブログ階層管理画面を dev 経由で本番へ反映し、確定した画面責務と導線対応を system-spec の該当章へ書き戻した状態を成立させる。\n\nブログ階層管理画面を dev 経由で本番へ反映し、確定した画面責務と導線対応を system-spec の該当章へ書き戻した状態を成立させる。\n\nfile: tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p13.md",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12"
+      ]
+    }
+  ]
+}

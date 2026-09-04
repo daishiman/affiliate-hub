@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-database-web-blog-provisioning-integrity。裏付け質疑 (`qa_refs`): `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-database-web-domain-aeo-behavior。裏付け質疑 (`qa_refs`): `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G1, G2]
 
 ## 確定内容 (質疑録)
 
-### qa-database-web-blog-provisioning-integrity (対応セル: web)
+### qa-database-web-domain-aeo-behavior (対応セル: web)
+
+**質問**: database×web: ブログごとに独自ドメインを接続でき、読者がどこに時間をかけ・どこを押したかを座標まで含めて解析でき、AEO (回答エンジン最適化) の状態を管理でき、ブログ横断で売上と PV を集約できるようにするには、データをどう持つか。既存の『読者向けホスト名は DB に保存せず SITE_BASE_DOMAIN から導出する』という site_blueprints の判断はどう扱うか
+
+**回答**: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
+
+### qa-database-web-blog-provisioning-integrity (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: 13問のウィザードで作ったブログが読者側で404になる。作成が書き切るべき保存の境界と、サブドメイン割り当てに必要な保存項目は何か。
 
@@ -393,9 +399,23 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 
 #### 本章での適用
 
-##### 確定内容 qa-database-web-blog-provisioning-integrity (対応セル: web)
+##### 確定内容 qa-database-web-domain-aeo-behavior (対応セル: web)
 
-- 確定要件: 原因は作成が site_blueprints 1表しか書かないこと。公開判定 (resolvePublicSiteIdentity) は site_blueprints に加えて site_network_nodes に active かつ未削除の行がちょうど1件あることを要求するため、作成後も読者側は null 解決となり404になる。したがって新規作成を create-only の Unit of Work とし、source_draft_id と source_draft_revision の DB claim、site_blueprints、active network node、8 種の固定ページ draft、既定 bands/slots、下書き完了、作成監査を 1 回の D1 batch で逐次実行する。site_drafts は秒精度時刻ではなく単調 revision を持ち、保存は expected revision の CAS、作成は current revision の trigger 検証で stale request を拒否する。カテゴリーは blueprint JSON を正本とし、別表へ複製しない。1 ステップでも失敗すれば全体を巻き戻す。公開表示は enabled bands/slots、provisioningComplete は保存済みの全 provisioned bands/slots を同じ投影で数える。reader hostname は永続化せず、slug と環境ごとの SITE_BASE_DOMAIN から実行時に一意に導出する。既存行の hostname backfill と slug 変更時の追随書き込みは持たない。
+- 確定要件: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
+- 設計解釈の記録経路: `dialogue`
+- 原則: 集約境界は不変条件の単位で引き、寿命と変更頻度が違うものを同じ集約へ入れない (`ddd.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 読者の座標イベントは 1 閲覧で数百行・保持は短期、ブログの住所は 1 サイト 1 行・寿命はサイトと同じで、不変条件も『同意が無ければ reader_key を持たない』と『同じホスト名を 2 サイトが持たない』で別物である。既存 telemetry_events へ相乗りさせると、保持期間の削除がサイト設定まで巻き込む。よって reader_interaction_events / site_custom_domains を別表に切る
+  - トレードオフ:
+    - 表が増え、読者 1 人の行動をたどるのに 2 表の突合が要る。単一表なら結合は不要だが、削除依頼のたびに設定行まで走査対象になり、保持期間の異なるデータが同じ索引に載る
+- 原則: 導出できる値を行へ焼き込まない (`ddd.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: 既存 site_blueprints が住所を保存しないのは、dev/prod でデータを移すと住所が古くなるためである。この理由はカスタムドメインには当たらない。カスタムドメインは環境から導出できず、利用者が外部で取得した固有の値だからである。よって既定の住所は導出のまま残し、カスタムドメインだけを行として持つ
+  - トレードオフ:
+    - 1 つのサイトが『導出される既定の住所』と『保存されたカスタムドメイン』の 2 つを持ち、どちらを正規 URL とするかの判断が要る。全部を行へ移せば単純になるが、既存判断が避けた dev/prod 移送時の陳腐化が戻る
+##### 接地根拠 qa-database-web-blog-provisioning-integrity (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-database-web-blog-provisioning-integrity` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: Aggregate — 強い invariant を一 transaction で守る整合性境界。外部変更は aggregate root を経由する (`ddd.md#中核概念`)
   - 採否: `applied`
@@ -545,7 +565,7 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 |---|---|
 | セル | database × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-database-web-blog-provisioning-integrity` |
+| 確定質疑 (qa_ref) | `qa-database-web-domain-aeo-behavior` |
 | 資するゴール (serves_goals) | G1, G2 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | written-requirements |
@@ -612,10 +632,3 @@ C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[]
   - トレードオフ:
     - テンプレート/テーマに version を持たせると公開済みブログの参照固定が要り、移行時の二重管理が発生する
     - 既存 32 エンティティへ 5 エンティティを追加するため、データモデル基盤 feature との整合レビューが必要
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 2 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `  - 章固有の根拠: articles は編集 aggregate に限定し、published_articles を唯一の canonical public projection とする。ブログ運用由来の行は source_article_id で既存 articles.id を追跡し、公開・更新・非公開化・論理削除と projection 更新を同じ D1 batch に含める。公開 reader は articles を直読せず、一覧・本文・検索・カテゴリー・人物・SEO・composition を PublishedContentPort の同一集合から導く`
-- `    - projection を原子的に保つため公開境界の repository が触る表は増える。通常の下書き保存は境界外のままにし、公開状態を跨ぐ操作だけを Unit of Work に含める`

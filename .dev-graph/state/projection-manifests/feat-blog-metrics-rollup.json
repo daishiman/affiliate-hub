@@ -1,0 +1,140 @@
+{
+  "source_digest": "sha256:f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
+  "feature": {
+    "graph_node_id": "feat-blog-metrics-rollup",
+    "title": "ブログ・記事の日次指標ロールアップ",
+    "description": "収益・PV・読者行動を同じブログ/記事の軸で 1 日単位に束ね、運営判断に使える形の指標を一箇所に置く\n\nsite_daily_metrics と article_daily_metrics が日次で生成され、同じ日を何度処理しても当日ぶんを丸ごと置き換えて同じ結果になり、記事ごとの売上・PV・滞在・到達・クリック率がブログ単位で合算できる状態になっている\n\nfile: features/feat-blog-metrics-rollup.md"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップの要求ベースライン確定",
+      "description": "feat-blog-metrics-rollup の受入9件を検証可能な条件文へ写像し、各指標の定義 (売上・PV・滞在・スクロール到達・クリック率・標本数) を一意に確定した状態を成立させる。\n\nfeat-blog-metrics-rollup の受入9件を検証可能な条件文へ写像し、各指標の定義 (売上・PV・滞在・スクロール到達・クリック率・標本数) を一意に確定した状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p01.md",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次指標テーブルと冪等集計の契約確定",
+      "description": "site_daily_metrics と article_daily_metrics のスキーマ、集計対象日の丸ごと置き換えという冪等戦略、置き換えを単一 transaction で行い途中失敗時に部分行を残さない原子性契約、ロールアップ済みの行が生イベントの 90 日削除から独立して残る保持独立性、および入力ソース (アフィリエイト成果・PV・行動イベント) との対応を確定した状態を成立させる。\n\nsite_daily_metrics と article_daily_metrics のスキーマ、集計対象日の丸ごと置き換えという冪等戦略、置き換えを単一 transaction で行い途中失敗時に部分行を残さない原子性契約、ロールアップ済みの行が生イベントの 90 日削除から独立して残る保持独立性、および入力ソース (アフィリエイト成果・PV・行動イベント) との対応を確定した状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p02.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "集計設計の独立レビューと着手可否判定",
+      "description": "冪等戦略が実際に二重計上を防ぐこと、指標定義が実装可能であること、入力欠測時に誤った0が記録されないことを独立観点で検査し、実装着手の可否を判定した状態を成立させる。\n\n冪等戦略が実際に二重計上を防ぐこと、指標定義が実装可能であること、入力欠測時に誤った0が記録されないことを独立観点で検査し、実装着手の可否を判定した状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p03.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップの受入テスト設計",
+      "description": "受入9件を自動テストへ写像し、同一日の二回実行で行数と値が変わらないこと、記事単位の合計とブログ単位の値が一致すること、標本数が閾値未満の行が識別可能であること、入力欠測が0でなく欠測として記録されること、書き込み途中で失敗させた対象日が実行前の状態へ戻り部分行が残らないこと、生イベントを 90 日削除した後もロールアップ済みの日の行と値が変わらないことを、実行可能なケース表として確定した状態を成立させる。\n\n受入9件を自動テストへ写像し、同一日の二回実行で行数と値が変わらないこと、記事単位の合計とブログ単位の値が一致すること、標本数が閾値未満の行が識別可能であること、入力欠測が0でなく欠測として記録されること、書き込み途中で失敗させた対象日が実行前の状態へ戻り部分行が残らないこと、生イベントを 90 日削除した後もロールアップ済みの日の行と値が変わらないことを、実行可能なケース表として確定した状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p04.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップ処理の実装",
+      "description": "site_daily_metrics / article_daily_metrics のスキーマ、rollup-daily-metrics の冪等集計 (対象日の削除と挿入を単一 transaction に閉じ、途中失敗時は対象日を実行前の状態へ戻す)、Cloudflare Workers の定期実行、および対象日を指定した再実行の入口を実装した状態を成立させる。\n\nsite_daily_metrics / article_daily_metrics のスキーマ、rollup-daily-metrics の冪等集計 (対象日の削除と挿入を単一 transaction に閉じ、途中失敗時は対象日を実行前の状態へ戻す)、Cloudflare Workers の定期実行、および対象日を指定した再実行の入口を実装した状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p05.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップのテスト実行と緑化",
+      "description": "P04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。\n\nP04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p06.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップの受入9件の判定",
+      "description": "feat-blog-metrics-rollup の受入9件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。\n\nfeat-blog-metrics-rollup の受入9件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p07.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "既存集計経路との重複解消と移行",
+      "description": "既存のアフィリエイト成果集計や PV 集計と本 feature の日次行が同じ数字を別経路で持っている箇所を洗い出し、各指標の正本が一箇所に定まった状態を成立させる。\n\n既存のアフィリエイト成果集計や PV 集計と本 feature の日次行が同じ数字を別経路で持っている箇所を洗い出し、各指標の正本が一箇所に定まった状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p08.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップの非機能検査",
+      "description": "集計処理の実行時間と Workers の実行制限との余裕、再実行入口の権限限定、定期実行が失敗したときの検知可能性を検査し、いずれも基準を満たす状態を成立させる。\n\n集計処理の実行時間と Workers の実行制限との余裕、再実行入口の権限限定、定期実行が失敗したときの検知可能性を検査し、いずれも基準を満たす状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p09.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップの最終レビュー",
+      "description": "P01 から P09 までの成果物を通しでレビューし、指標定義・冪等契約・欠測方針が実装と一致していることを確認して残課題を確定した状態を成立させる。\n\nP01 から P09 までの成果物を通しでレビューし、指標定義・冪等契約・欠測方針が実装と一致していることを確認して残課題を確定した状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p10.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップの証跡集約",
+      "description": "受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入9件の成立と指標の意味を再確認できる状態を成立させる。\n\n受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入9件の成立と指標の意味を再確認できる状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p11.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P07",
+        "SYS-BLOG-METRICS-ROLLUP-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップの運用手順と数値定義の説明",
+      "description": "定期実行が失敗した日をどう埋め直すか、各指標が何を意味するか、標本数が少ない行をどう扱うかを、運用手順と利用者向け説明として整えた状態を成立させる。\n\n定期実行が失敗した日をどう埋め直すか、各指標が何を意味するか、標本数が少ない行をどう扱うかを、運用手順と利用者向け説明として整えた状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p12.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P10",
+        "SYS-BLOG-METRICS-ROLLUP-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "title": "日次ロールアップのリリースと仕様書への書き戻し",
+      "description": "日次ロールアップを dev 経由で本番へ反映し、確定した指標定義とテーブル設計を system-spec の該当章へ書き戻した状態を成立させる。\n\n日次ロールアップを dev 経由で本番へ反映し、確定した指標定義とテーブル設計を system-spec の該当章へ書き戻した状態を成立させる。\n\nfile: tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p13.md",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P12"
+      ]
+    }
+  ]
+}

@@ -158,7 +158,7 @@ const renderedSource = (file: string): string => {
  * `settings/appearance` は「配色と文字の大きさを選ぶ」だけの画面で、
  * 並べて読むものが 1 つも無い。台帳の 8 分類は**並べ方**の語彙なので、
  * 選択肢を 2 つ出すだけの画面に当てはまる分類が無い。分類を増やすと
- * 他 85 画面の宣言をやり直すことになるため、ここは例外として明示する。
+ * 管理画面全体の宣言をやり直すことになるため、ここは例外として明示する。
  *
  * 黙って通さないよう、実際に見逃した件数はテスト中に出力する。
  */
@@ -196,7 +196,7 @@ const reportMarkerExceptions = (skipped: readonly string[]): void => {
 };
 
 describe("管理画面の情報台帳", () => {
-  it("86 route と86 pageを一対一で監査している", () => {
+  it("実在routeとpageを正本と一対一で監査している", () => {
     const files = walkPages(ADMIN).sort();
     const ledgerFiles = ledger.routes.map((route) => route.file).sort();
     const metadataFiles = ADMIN_ROUTE_METADATA.map((route) => `src/app/${route.file}`).sort();
@@ -234,7 +234,7 @@ describe("管理画面の情報台帳", () => {
     }
   });
 
-  it("目的と主操作は86routeで重複しない", () => {
+  it("目的と主操作は全routeで重複しない", () => {
     // 目的が同じ文なら、その画面のために表現を選ぶ余地が無くなる。実際、86 件が
     // 同一テンプレート文だったとき primary は 44/86 が table に寄っていた。
     const duplicated = (values: readonly string[]): readonly string[] => {
@@ -282,7 +282,7 @@ describe("管理画面の情報台帳", () => {
     expect(gaps.length, "実装が追いついていない route が増えています").toBeLessThanOrEqual(22);
   });
 
-  it("全86routeの主要操作は200%相当で照合できるroleとaccessible nameを持つ", () => {
+  it("全routeの主要操作は200%相当で照合できるroleとaccessible nameを持つ", () => {
     const completions = new Set([
       "internal-navigation",
       "external-navigation",
@@ -328,7 +328,7 @@ describe("管理画面の情報台帳", () => {
     reportMarkerExceptions(skipped);
   });
 
-  it("6状態は全86routeでevent/safeData/nextActionと実runtime DOMへ結線される", () => {
+  it("6状態は全routeでevent/safeData/nextActionと実runtime DOMへ結線される", () => {
     expect(ledger.operationalStateBinding.runtimeSource).toBe(
       "src/presentation/ui/admin-screen-state-contract.ts",
     );

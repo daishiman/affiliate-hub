@@ -194,22 +194,27 @@ describe("上流指針の条項が要件文へ引かれていない (塞げて�
    *   owasp-asvs に `freshness_extraction`（鮮度の由来）が載って 1 度、
    *   apple-hig に `reverification`（上流へ取り直した記録）が載って 1 度。
    *   どちらも証跡を**強くする**追記であり、止めるべきものではない。
-   * - **緩すぎる**: 15 件のうち 3 件しか見ていない。残る 12 件は節名を持ち込んでも黙る。
+   * - **緩すぎる**: 17 件のうち 3 件しか見ていない。残る 14 件は節名を持ち込んでも黙る。
    *
    * いま測っているのは目的そのもの——**どの証跡のどの階層にも、章・節・条項・
-   * 見出しを指す名前の欄が無いこと**——を 15 件すべてに対して、である。
+   * 見出しを指す名前の欄が無いこと**——を 17 件すべてに対して、である。
    * これで証跡から条項は引けない（doctrine の引用根拠に使えない）が保たれる。
    * 欄が増えることは通し、節名が入ることだけを止める。
    */
-  const EVIDENCE_BASE_KEYS = [
-    "content_bytes",
-    "content_sha256",
-    "http_status",
-    "page_title",
-    "retrieved_at",
-    "source_url",
-    "target_id",
-  ];
+  const EVIDENCE_BASE_KEYS = ["page_title", "retrieved_at", "source_url", "target_id"];
+
+  /**
+   * 生バイト列に由来する欄。**取り方によっては原理的に持てない。**
+   *
+   * WebFetch は本文を要約して返し、応答の生 HTML も HTTP 状態も渡さない。
+   * その経路で取った証跡に `content_sha256` を書けば、何のダイジェストでもない
+   * 64 桁を書くことになる——つまり捏造である。だから「無い」を許す。
+   *
+   * ただし**黙って欠けるのは許さない**。欠かすなら `retrieval_method.note` に
+   * 「なぜ持てないか」を書かせる。書き忘れれば下の検査が赤くなるので、
+   * 「面倒だから 3 欄落とす」で証跡を弱める経路が塞がれる。
+   */
+  const RAW_BYTE_KEYS = ["content_bytes", "content_sha256", "http_status"];
 
   /** 章・節・条項・見出しを指す欄名。これが証跡に現れたら、証跡から条項が引ける。 */
   const SECTION_KEY = /section|clause|heading|anchor|chapter|節|条項|見出し|章/i;
@@ -230,8 +235,9 @@ describe("上流指針の条項が要件文へ引かれていない (塞げて�
     .filter((f) => f.endsWith(".json"))
     .map((f) => f.replace(/\.json$/, ""));
 
-  it("取得証跡は 15 件そろっている（母数が縮んで 0 件で緑になる形を止める）", () => {
-    expect(EVIDENCE_IDS.length).toBe(15);
+  it("取得証跡は 17 件そろっている（母数が縮んで 0 件で緑になる形を止める）", () => {
+    // 2026-09-03 に cloudflare-for-saas / cloudflare-r2 が加わって 15 → 17。
+    expect(EVIDENCE_IDS.length).toBe(17);
   });
 
   it.each(EVIDENCE_IDS)("%s.json の証跡は節名を持っていない", (id) => {
@@ -241,10 +247,19 @@ describe("上流指針の条項が要件文へ引かれていない (塞げて�
     const keys = allKeys(evidence);
     // 「節名の欄は 0 件」は、欄そのものが 0 件でも成り立ってしまう。母集団の床を同居させる。
     expect(keys.length, `${id}.json の欄が少なすぎます（0 件で緑になっていないか）`).toBeGreaterThan(6);
-    // 基本の欄は 15 件とも欠かさず持っていること（欄が増えるのは通すが、減るのは通さない）。
+    // 基本の欄は 17 件とも欠かさず持っていること（欄が増えるのは通すが、減るのは通さない）。
     expect(Object.keys(evidence), `${id}.json に欠けている基本の欄`).toEqual(
       expect.arrayContaining(EVIDENCE_BASE_KEYS),
     );
+    // 生バイト由来の欄は、落とすなら取り方の但し書きと引き換えにする。
+    const missingRaw = RAW_BYTE_KEYS.filter((k) => !(k in evidence));
+    if (missingRaw.length > 0) {
+      const method = evidence.retrieval_method as { note?: unknown } | undefined;
+      expect(
+        typeof method?.note === "string" && method.note.length > 0,
+        `${id}.json は ${missingRaw.join("/")} を落としているのに retrieval_method.note が無い`,
+      ).toBe(true);
+    }
     expect(keys.filter((k) => SECTION_KEY.test(k)), `${id}.json の節名を指す欄`).toEqual([]);
   });
 

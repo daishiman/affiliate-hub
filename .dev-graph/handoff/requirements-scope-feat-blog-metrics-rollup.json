@@ -1,0 +1,37 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-blog-metrics-rollup.md",
+  "package_current_pointer": ".dev-graph/state/current/feature-package-feat-blog-metrics-rollup.json",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-blog-metrics-rollup/f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
+  "selected_feature": "feat-blog-metrics-rollup",
+  "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "arch-blog-operations-console"
+  ],
+  "task_ids": [
+    "SYS-BLOG-METRICS-ROLLUP-P01",
+    "SYS-BLOG-METRICS-ROLLUP-P02",
+    "SYS-BLOG-METRICS-ROLLUP-P03",
+    "SYS-BLOG-METRICS-ROLLUP-P04",
+    "SYS-BLOG-METRICS-ROLLUP-P05",
+    "SYS-BLOG-METRICS-ROLLUP-P06",
+    "SYS-BLOG-METRICS-ROLLUP-P07",
+    "SYS-BLOG-METRICS-ROLLUP-P08",
+    "SYS-BLOG-METRICS-ROLLUP-P09",
+    "SYS-BLOG-METRICS-ROLLUP-P10",
+    "SYS-BLOG-METRICS-ROLLUP-P11",
+    "SYS-BLOG-METRICS-ROLLUP-P12",
+    "SYS-BLOG-METRICS-ROLLUP-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-blog-metrics-rollup-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-blog-metrics-rollup.json"
+  ],
+  "scope_digest": "sha256:af2550468a0b74b5be0ec4d9431bb92087b05f4254fb8a5d9e8e2d76a4e34bae"
+}

@@ -1,0 +1,140 @@
+{
+  "source_digest": "sha256:7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+  "feature": {
+    "graph_node_id": "feat-seo-assessment-reflection",
+    "title": "記事の SEO 診断と下書きへの反映",
+    "description": "記事が検索から見つかる状態にあるかを機械的に診断し、その結果を人の承認を経てブログ本体へ戻せるようにする\n\n公開・更新時と月次で article_seo_assessments が生成され、検証可能な指摘 (索引可能性・構造化データの妥当性・更新日の掲出・内部リンク・見出し構造) だけが提示され、採用した推奨は下書きへ書き戻されて既存の人間承認経路を必ず通る状態になっている\n\nfile: features/feat-seo-assessment-reflection.md"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断と書き戻しの要求ベースライン確定",
+      "description": "feat-seo-assessment-reflection の受入10件を検証可能な条件文へ写像し、提示してよい指摘の範囲 (機械的に検証できるものだけ) と、書き戻しが必ず下書きを経ることを要求として確定した状態を成立させる。\n\nfeat-seo-assessment-reflection の受入10件を検証可能な条件文へ写像し、提示してよい指摘の範囲 (機械的に検証できるものだけ) と、書き戻しが必ず下書きを経ることを要求として確定した状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p01.md",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "診断テーブルと構造化データ検証の契約確定",
+      "description": "article_seo_assessments のスキーマ、assess-article-seo の起動契機 (公開・更新・月次)、構造化データ妥当性検証の純関数境界、および apply-seo-recommendation が下書きへ書く経路を確定した状態を成立させる。\n\narticle_seo_assessments のスキーマ、assess-article-seo の起動契機 (公開・更新・月次)、構造化データ妥当性検証の純関数境界、および apply-seo-recommendation が下書きへ書く経路を確定した状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p02.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断設計の独立レビューと着手可否判定",
+      "description": "検証できない指摘が設計に混入していないこと、書き戻しが承認経路を迂回できないこと、構造化データ検証が外部通信を持たないことを独立観点で検査し、実装着手の可否を判定した状態を成立させる。\n\n検証できない指摘が設計に混入していないこと、書き戻しが承認経路を迂回できないこと、構造化データ検証が外部通信を持たないことを独立観点で検査し、実装着手の可否を判定した状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p03.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断の受入テスト設計",
+      "description": "受入10件を自動テストへ写像し、不正な構造化データが指摘として立ち妥当なものは立たないこと、採用した推奨が下書きにだけ書かれること、sitemap と RSS/Atom が公開記事を漏れなく列挙すること、拒否設定が robots.txt に反映されることを、実行可能なケース表として確定した状態を成立させる。\n\n受入10件を自動テストへ写像し、不正な構造化データが指摘として立ち妥当なものは立たないこと、採用した推奨が下書きにだけ書かれること、sitemap と RSS/Atom が公開記事を漏れなく列挙すること、拒否設定が robots.txt に反映されることを、実行可能なケース表として確定した状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p04.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断と推奨書き戻しの実装",
+      "description": "article_seo_assessments のスキーマ、assess-article-seo (公開・更新・月次)、構造化データの純関数検証、sitemap.xml / RSS・Atom / robots.txt の生成、apply-seo-recommendation による下書き書き戻し、および記事画面の診断表示を実装した状態を成立させる。\n\narticle_seo_assessments のスキーマ、assess-article-seo (公開・更新・月次)、構造化データの純関数検証、sitemap.xml / RSS・Atom / robots.txt の生成、apply-seo-recommendation による下書き書き戻し、および記事画面の診断表示を実装した状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p05.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断のテスト実行と緑化",
+      "description": "P04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。\n\nP04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p06.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断の受入10件の判定",
+      "description": "feat-seo-assessment-reflection の受入10件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。\n\nfeat-seo-assessment-reflection の受入10件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p07.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "既存公開面生成経路との重複解消と移行",
+      "description": "sitemap / RSS / robots の生成が既存の公開面生成と二重に存在している箇所を洗い出し、配信経路が一本に定まった状態を成立させる。\n\nsitemap / RSS / robots の生成が既存の公開面生成と二重に存在している箇所を洗い出し、配信経路が一本に定まった状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p08.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断の非機能検査",
+      "description": "月次全記事診断の実行時間、診断失敗が公開処理を止めないこと、推奨採用が workspace 権限で守られること、および構造化データ検証が外部通信を行わないことを検査し、いずれも基準を満たす状態を成立させる。\n\n月次全記事診断の実行時間、診断失敗が公開処理を止めないこと、推奨採用が workspace 権限で守られること、および構造化データ検証が外部通信を行わないことを検査し、いずれも基準を満たす状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p09.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断の最終レビュー",
+      "description": "P01 から P09 までの成果物を通しでレビューし、指摘カタログ・承認経路・配信経路が実装と一致していることを確認して残課題を確定した状態を成立させる。\n\nP01 から P09 までの成果物を通しでレビューし、指摘カタログ・承認経路・配信経路が実装と一致していることを確認して残課題を確定した状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p10.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断の証跡集約",
+      "description": "受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入10件の成立と指摘の根拠を再確認できる状態を成立させる。\n\n受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入10件の成立と指摘の根拠を再確認できる状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p11.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+        "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断の運用手順と指針出典の説明",
+      "description": "月次診断の失敗時対応、推奨の採用と承認の流れ、および指針の出典と 90 日見直しの運用を、手順と説明として整えた状態を成立させる。\n\n月次診断の失敗時対応、推奨の採用と承認の流れ、および指針の出典と 90 日見直しの運用を、手順と説明として整えた状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p12.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+        "SYS-SEO-ASSESSMENT-REFLECTION-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-seo-assessment-reflection",
+      "title": "SEO 診断のリリースと仕様書への書き戻し",
+      "description": "SEO 診断と推奨書き戻しを dev 経由で本番へ反映し、確定した指摘カタログと配信経路を system-spec の該当章へ書き戻した状態を成立させる。\n\nSEO 診断と推奨書き戻しを dev 経由で本番へ反映し、確定した指摘カタログと配信経路を system-spec の該当章へ書き戻した状態を成立させる。\n\nfile: tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p13.md",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P12"
+      ]
+    }
+  ]
+}

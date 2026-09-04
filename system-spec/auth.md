@@ -3,7 +3,7 @@ status: confirmed
 category: auth
 aggregate: 確定
 spec_cells: [auth.web, auth.mobile, auth.tablet, auth.desktop-windows, auth.desktop-linux, auth.desktop-macos]
-serves_goals: [G1]
+serves_goals: [G1, G2]
 ---
 
 # 認証(ログイン) (auth)
@@ -15,7 +15,7 @@ serves_goals: [G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-auth-web |
+| Web (web) | 確定 | 確定質疑: qa-auth-web-domain-analytics-authority。裏付け質疑 (`qa_refs`): `qa-auth-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -24,7 +24,13 @@ serves_goals: [G1]
 
 ## 確定内容 (質疑録)
 
-### qa-auth-web (対応セル: web)
+### qa-auth-web-domain-analytics-authority (対応セル: web)
+
+**質問**: auth×web: ドメインの接続・切断、読者行動データの閲覧と削除は、誰ができることにするか
+
+**回答**: ドメインの接続と切断は、ブログの公開停止と同じ重さの操作として扱う。既存の役割のうち Publisher 相当以上に限り、Writer・Reviewer からは実行できない。切断はブログ全体が新しい住所から見えなくなる操作なので、実行前に対象ブログ名の確認入力を求める。読者行動データは、集計後の分布 (ヒートマップ・滞在・到達深度) を Analyst 以上が閲覧できる。個々の reader_key に紐づく行の抽出と削除は、読者からの削除依頼に応じるための操作であり、Owner 相当に限る。ドメインの状態変更と読者データの削除は、既存の audit_logs に誰がいつ何をしたかを残す。ブログ単位のスコープを持つ既存の workspace/membership の枠内で判断し、ブログごとに別の権限体系を新設しない
+
+### qa-auth-web (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: 認証 (auth) × web の方式は何か (2026-08-16 対話ヒアリング)
 
@@ -98,9 +104,18 @@ serves_goals: [G1]
 
 #### 本章での適用
 
-##### 確定内容 qa-auth-web (対応セル: web)
+##### 確定内容 qa-auth-web-domain-analytics-authority (対応セル: web)
 
-- 確定要件: A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Drizzle アダプタにより現行の Next.js + Cloudflare Workers + D1 スタックと同居できる。Google ログインを初期提供し、メール/パスワード・パスキーは後続拡張とする。セッションは D1 に保存し、Workspace 単位のマルチテナント分離と §25 のロール (Owner/Admin/Researcher/Writer/Reviewer/Publisher/Analyst) 権限をアプリ層で紐付ける。外部公開・予約投稿等の重要操作は認証済みユーザーの明示承認を必須とする。
+- 確定要件: ドメインの接続と切断は、ブログの公開停止と同じ重さの操作として扱う。既存の役割のうち Publisher 相当以上に限り、Writer・Reviewer からは実行できない。切断はブログ全体が新しい住所から見えなくなる操作なので、実行前に対象ブログ名の確認入力を求める。読者行動データは、集計後の分布 (ヒートマップ・滞在・到達深度) を Analyst 以上が閲覧できる。個々の reader_key に紐づく行の抽出と削除は、読者からの削除依頼に応じるための操作であり、Owner 相当に限る。ドメインの状態変更と読者データの削除は、既存の audit_logs に誰がいつ何をしたかを残す。ブログ単位のスコープを持つ既存の workspace/membership の枠内で判断し、ブログごとに別の権限体系を新設しない
+- 設計解釈の記録経路: `dialogue`
+- 原則: 権限は、失敗したときの被害の大きさで区切る (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ドメインの切断は、記事 1 本の誤削除と違ってブログ全体が読者から到達不能になる。編集権限と同じ扱いにすると、日常操作の流れで実行されうる。公開停止と同じ段へ置き、確認入力を挟む
+  - トレードオフ:
+    - ドメインの付け替えのたびに権限保持者の手を借りることになり、小規模な運営では手間になる。緩めれば誤操作の被害がブログ全体に及ぶ
+##### 接地根拠 qa-auth-web (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-auth-web` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 最小権限の原則: ロールごとに操作可能範囲を限定し、公開・削除等の重要操作は承認フローを経る (`docs/spec/01-要求仕様書-v1.0.md#§25 チーム権限`)
   - 採否: `applied`
@@ -112,7 +127,7 @@ serves_goals: [G1]
   - 章固有の根拠: Google OAuth のシークレットは Cloudflare Workers の Secrets に保管し、D1 にはセッション/アカウント情報のみを保存する
   - トレードオフ:
     - シークレットローテーション手順を保守運用に追加する必要がある
-- 資するゴール: G1
+- 資するゴール: G1, G2
 
 ## 最新ドキュメント出典
 
@@ -187,9 +202,9 @@ serves_goals: [G1]
 |---|---|
 | セル | auth × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-auth-web` |
-| 資するゴール (serves_goals) | G1 |
-| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web`) |
+| 確定質疑 (qa_ref) | `qa-auth-web-domain-analytics-authority` |
+| 資するゴール (serves_goals) | G1, G2 |
+| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web-domain-analytics-authority`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
