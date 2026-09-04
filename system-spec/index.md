@@ -13,19 +13,19 @@ kind: index
 
 - [要件定義書](./00-requirements-definition.md) — 上位概念 U1-U9 の正本 (確定マーカー: `confirmed`)。各技術章は serves_goals でここのゴールへトレース (anchor) する。
 - **本質的目的 (U1)**: 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。
-- **ゴール (U3)**: G1=一つのアフィリエイトURLを起点に、正しい商品情報・比較候補・根拠・書き手・読者・媒体・広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できる, G2=どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる
+- **ゴール (U3)**: G1=一つのアフィリエイトURLを起点に、正しい商品情報・比較候補・根拠・書き手・読者・媒体・広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できる, G2=どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる, G3=公開したブログが、読者にとって読み進めやすく、かつ検索エンジンとAI検索の双方から見つかり引用される機械可読な構造を持ち、その充足度を解析して次の記事と既存記事へ反映できる
 
 ## 章一覧と集約状態
 
 | カテゴリ | 章 | 集約状態 | 確定マーカー | 資するゴール | 対応セル |
 |---|---|---|---|---|---|
-| データベース (database) | [database.md](./database.md) | 確定 | `confirmed` | G1 G2 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
+| データベース (database) | [database.md](./database.md) | 確定 | `confirmed` | G1 G2 G3 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
 | 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `confirmed` | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
-| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `confirmed` | G1 G2 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
+| UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `confirmed` | G1 G2 G3 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
 | セキュリティ (security) | [security.md](./security.md) | 確定 | `confirmed` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
 | インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `confirmed` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
-| バックエンド (backend) | [backend.md](./backend.md) | 確定 | `confirmed` | G2 G1 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
-| フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `confirmed` | G1 G2 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
+| バックエンド (backend) | [backend.md](./backend.md) | 確定 | `confirmed` | G1 G2 G3 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
+| フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `confirmed` | G1 G2 G3 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
 | 保守運用管理 (maintenance-ops) | [maintenance-ops.md](./maintenance-ops.md) | 確定 | `confirmed` | G1 G2 | maintenance-ops.web maintenance-ops.mobile maintenance-ops.tablet maintenance-ops.desktop-windows maintenance-ops.desktop-linux maintenance-ops.desktop-macos |
 
 ## 集約状態サマリ

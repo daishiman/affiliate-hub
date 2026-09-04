@@ -4,9 +4,9 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-09-03
-- 要件表の要件: 291 件
-- 性質を宣言済: 286 件
+- 最終更新: 2026-09-04
+- 要件表の要件: 293 件
+- 性質を宣言済: 288 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 5 件（上限 7 件）
 
@@ -236,6 +236,8 @@
 | REQ-SEO03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO04 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO05 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO06 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO07 | has-input, has-tenant, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `tenant-isolation` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `tenant-isolation` | — |
 | REQ-BLOG01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-BLOG02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-BLOG03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
@@ -320,4 +322,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:f6e1fe7e3560d8de7500c55b75352931002c54ff15392e5836caf84e941704dd -->
+<!-- 生成物の指紋 sha256:18c4b8c5f7eeb9af469cce1d91c336ca1f03e6c39d8325fa29d74b028098f472 -->

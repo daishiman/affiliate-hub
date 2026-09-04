@@ -4,6 +4,9 @@ import {
   createListPublishedArticlesUseCase,
   createUpdatePublishedArticleUseCase,
 } from "@/application/usecases/site/manage-published-articles";
+import { createListFailingAuditsUseCase } from "@/application/usecases/seo/list-failing-audits";
+import { createGetLatestAiSearchReauditRunUseCase } from "@/application/usecases/seo/get-latest-ai-search-reaudit-run";
+import type { RecordAiSearchAuditDeps } from "@/application/usecases/seo/record-ai-search-audit";
 import {
   createGetArticleUseCase,
   createGetPersonUseCase,
@@ -1043,6 +1046,32 @@ export async function publishedArticleAdminUseCases() {
     get: createGetPublishedArticleUseCase(read),
     update: createUpdatePublishedArticleUseCase(write),
     archive: createArchivePublishedArticleUseCase(write),
+    // 公開済み一覧と同じ入口に置く。落ちている記事は「別の画面で見るもの」ではなく、
+    // 公開した記事そのものの状態なので、一覧を開いた人がそのまま気づけるようにする。
+    listFailingAudits: createListFailingAuditsUseCase({
+      history: deps.aiSearchAuditHistory,
+    }),
+    // 記事ごとの最新判定とは別に、定期処理そのものが完了したかを見せる。
+    // workspace は usecase が actor から解き、画面入力では指定させない。
+    getLatestReauditRun: createGetLatestAiSearchReauditRunUseCase({
+      runs: deps.aiSearchReauditRuns,
+    }),
+  };
+}
+
+/**
+ * AI 検索点検の履歴を残すための道具立て。
+ *
+ * usecase を返さず deps をそのまま返す。`recordAiSearchAudit` は actor を取らない
+ * 後始末の手続きで、`UseCase` の形（actor を第 1 引数に取る）に当てはまらない。
+ * 無理に合わせると、cron 側で偽の actor を作ることになる。
+ */
+export async function aiSearchAuditDeps(): Promise<RecordAiSearchAuditDeps> {
+  const deps = createDeps({ db: await tryGetDb() });
+  return {
+    history: deps.aiSearchAuditHistory,
+    ids: deps.ids,
+    now: () => new Date(),
   };
 }
 

@@ -47,6 +47,20 @@ import { describe, expect, it } from "vitest";
  * そこで順序ではなく「取得ページ本文を鮮度根拠にしている行だけ、確認は取得以降」
  * という条件へ狭めた。
  *
+ * ── 【2026-09-04・4 度目の反転】母数 15 → 19、例外 1 件 → 0 件 ────────
+ *
+ * 増えた 4 件は実在する取得証跡である——`google-search-central` / `schema-org` /
+ * `w3c-wai-aria` / `web-dev-core-web-vitals`。G3 の AEO/SEO 決定を裏取りするために
+ * 取り、frontend 章が 2 → 5 本、ui-ux 章が 1 → 2 本になった。
+ * **この母数を減らす向きに触らないこと。**減らせば「食い違い 0 件」「版が取得日の行
+ * 0 件」が、見る対象を失っただけで緑になる。上の 1. がまさにその形で 2 日間死んでいた。
+ *
+ * 例外 `vitest=publisher-registry` が消えたのは、違反が直ったからではない。
+ * C08 鮮度監査が記録の 4.1.11 と公式の 5.0.0 の乖離を指摘し、2026-09-03 に
+ * registry 照会とページ取得を同一時刻で取り直した結果、**確認が取得より前になる行が
+ * 1 つも無くなった**。3. で狭めた条件そのものは今も生きている（`page-declared` 以外
+ * なら先行してよい）。期待値は消さず空配列で残し、抜け道が再び開く日に名指しさせる。
+ *
  * ── 解除条件（次に赤くなる日） ──────────────────────────
  *
  *   - 「版が取得日である行は 0 件」が赤 → 版を確かめずに取得日で埋めた行が戻った
@@ -89,11 +103,11 @@ const EXPECTED_ROW_COUNTS: Record<string, number> = {
   auth: 1,
   backend: 4,
   database: 1,
-  frontend: 2,
+  frontend: 5,
   infrastructure: 1,
   "maintenance-ops": 4,
   security: 1,
-  "ui-ux": 1,
+  "ui-ux": 2,
 };
 
 /** 版番号ではなく日付が書かれている、という判定。`1.6.29` を日付と読まないこと。 */
@@ -224,13 +238,13 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
     // **0 件の主張が母数 0 由来でないことを、同じ it で示す。**
     // 上の等号は rows が空でも通る。読み取りが黙って全滅した日に、
     // この検査が「違反なし」と報せるのを止めている。
-    expect(rows.length).toBe(15);
+    expect(rows.length).toBe(19);
   });
 
-  it("全 15 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
+  it("全 19 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
     const missing = [...refs.values()].filter((r) => !r.freshness_source);
     expect(missing.map((r) => r.target_id)).toEqual([]);
-    expect(refs.size).toBe(15);
+    expect(refs.size).toBe(19);
   });
 
   /**
@@ -238,9 +252,9 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
    * 章が純関数になった今も、写しである以上ずれる道は残っている。
    * **食い違いが減っても増えても赤くする**のがこの検査の役目である。
    */
-  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 15 行）", () => {
+  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 19 行）", () => {
     expect(driftBetween(rows, refs)).toEqual([]);
-    expect(rows.length).toBe(15); // 母数。突合する相手が消えたら赤くする。
+    expect(rows.length).toBe(19); // 母数。突合する相手が消えたら赤くする。
   });
 
   /**
@@ -262,9 +276,13 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
 
   it("確認が取得より前になっている行は、いずれも本文以外を鮮度根拠にしている", () => {
     const early = rows.filter((r) => Date.parse(r.confirmedAt) < Date.parse(r.retrievedAt));
-    expect(early.map((r) => `${r.target}=${refs.get(r.target)?.freshness_source}`)).toEqual([
-      "vitest=publisher-registry",
-    ]);
+    // 2026-09-04 に `['vitest=publisher-registry']` → `[]` へ。**違反が直ったのではなく、
+    // 例外そのものが消えた。**C08 鮮度監査が vitest 4.1.11 の陳腐化を指摘し、2026-09-03 に
+    // registry 照会とページ取得を同一時刻 (23:21:10Z) で取り直したため、確認が取得より前に
+    // なる行が 1 つも無くなった。**期待値を消さず空配列として残す**のは、`page-declared` 以外を
+    // 逃がす抜け道がここに再び開いたとき、名指しで赤くするためである。
+    expect(early.map((r) => `${r.target}=${refs.get(r.target)?.freshness_source}`)).toEqual([]);
+    expect(rows.length).toBe(19); // 母数。読み取りが全滅した状態を「例外 0 件」と読ませない。
   });
 
   /**

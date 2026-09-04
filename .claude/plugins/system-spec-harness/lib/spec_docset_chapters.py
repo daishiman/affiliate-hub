@@ -159,6 +159,79 @@ def render_state_table(spec: dict, cat_id: str) -> str:
     return "\n".join(lines)
 
 
+def render_decisions(spec: dict, cat_id: str) -> str:
+    """正本 `decisions[]` のうち**本章を主担当とする分だけ**を章へ描く。
+
+    **なぜ compile が描くのか (2026-09-04 に足した)**: この表は 2026-09-04 まで
+    8 章それぞれに**手で**書かれていた。章は `status: confirmed` なので C11 hook が
+    Edit を遮断し、決定が 1 件増えても人が 8 ファイルを直す正規経路は無い。しかも
+    手書き節は再生成のたびに `--on-handwritten preserve` の引き継ぎに命を預けており、
+    実際に 2026-09-04 の再生成で 8 章すべてから節ごと消えた
+    (`tests/architecture/chapter-regeneration-floor.test.ts` が 33 件で捕まえた)。
+
+    守るのではなく、消えようのない場所を用意する — `render_chapter_notes` と同じ手である。
+    主担当章は正本 `decisions[].owner_category` が持ち、C01 writer が実在カテゴリを検める。
+    章側に判断は残らないので、この関数は正本の純関数になる。
+
+    **なぜ全件ではなく主担当だけなのか (同日中に絞った)**: 初版は全 12 件を 8 章すべてへ
+    描いた。「他の章で何が決まったか」を章から見えるようにするためだったが、
+    `00-requirements-definition.md` が既に正本の全件表を持っている。つまり同じ表が
+    9 か所に出る。実測でその重複は 4 章を行数の天井へ押し上げ、とくに ui-ux は
+    「次に当たったら天井を動かさず**置き場そのものを疑え**」という宿題を持っていた
+    (`chapter-regeneration-floor.test.ts`)。宿題への答えがこれである — 章が持つべきは
+    **その章が主担当の決定**であって、全体の一覧ではない。全体は 00 章へ送る。
+
+    絞っても純関数のままなので、欠落も順序も測れる (テストは owner_category で
+    絞った期待列と `toEqual` で突き合わせ、8 章の和が正本全件になることも見る)。
+    """
+    decisions = spec.get("decisions")
+    lines = ["## 意思決定 (decisions)", ""]
+    if not isinstance(decisions, list) or not decisions:
+        return "\n".join(lines + ["- (正本 `decisions[]` に記録なし)"])
+
+    own = [d for d in decisions if isinstance(d, dict) and d.get("owner_category") == cat_id]
+    lead = (
+        f"> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`{cat_id}`) を主担当とする"
+        f" **{len(own)} 件**。全 {len(decisions)} 件の一覧は"
+        " [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く"
+        " (章へ写さない)。"
+    )
+    if not own:
+        return "\n".join(lines + [lead, "", "- 本章を主担当とする決定は無い。"])
+
+    lines += [
+        lead,
+        "",
+        "| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |",
+        "|---|---|---|---|---|",
+    ]
+    for decision in own:
+        did = decision.get("id", "-")
+        user = decision.get("user_decision") or {}
+        chosen = user.get("option_id") if isinstance(user, dict) else None
+        if not chosen:
+            rec = decision.get("recommendation") or {}
+            chosen = (
+                f"{rec.get('option_id')} (AI推奨・確認待ち)"
+                if isinstance(rec, dict) and rec.get("option_id")
+                else "未定"
+            )
+        lines.append(
+            f"| `{did}` | {decision.get('question', '-')} | `{chosen}` | "
+            f"{decision.get('status', '-')} | "
+            f"{', '.join(decision.get('serves_goals') or []) or '-'} |"
+        )
+    for decision in own:
+        caveats = (decision.get("recommendation") or {}).get("caveats") or []
+        if caveats:
+            lines += [
+                "",
+                f"- **`{decision.get('id', '-')}` の caveat**: "
+                + " / ".join(str(c) for c in caveats),
+            ]
+    return "\n".join(lines)
+
+
 def _qa_by_id(spec: dict) -> dict[str, dict]:
     return {
         q["id"]: q
@@ -342,6 +415,115 @@ def render_chapter_notes(spec: dict, cat_id: str) -> str:
         if reason:
             lines += ["", f"- 正本へ入れた理由: {reason}"]
     return "\n".join(lines)
+
+
+def render_confirmed_cell(spec: dict, cat_id: str) -> str:
+    """確定セルの内容を正本 `matrix` / `qa_log` から章へ描く。
+
+    **なぜ compile が描くのか (2026-09-04 に足した)**: この節は 2026-08-20 に
+    「再生成ではなく手編集で」8 章へ入れられ、以来ずっと手写しだった。節の冒頭は
+    自分で「本節は正本の**転記**である。値が食い違ったら正本を正とする」と断って
+    いたが、**その断り書きに追従の機械は無かった。**結果は既定どおり腐った —
+    2026-08-30 に 8 章中 5 章が古く (`chapter-confirmed-cell-transcript.test.ts` の
+    冒頭に実測表が残っている)、手で直した 5 日後の 2026-09-04 に再び 4 章がずれた
+    (`serves_goals`)。しかも章は `status: confirmed` なので C11 hook が Edit を
+    遮断する。**腐るのに直せない節**だった。
+
+    `render_decisions` / `render_chapter_notes` と同じ手を採る —
+    守るのではなく、消えようのない場所を用意する。
+
+    **正本に無い欄は 1 つも無かった**のが、この節を生成へ移せる根拠である。
+    セル / 状態 / `qa_ref` / `serves_goals` / `required_info` は
+    `matrix[cat][platform]` が、出典 kind / path / 節 / sha256 と
+    `design_applications` の件数は `qa_log[qa_ref]` が持つ。「出典は正本に無いから
+    移せない」は調べる前の思い込みで、実測で消えた。
+
+    実際その思い込みの間に**出典行だけが誰にも見られず腐っていた** — 2026-09-04 時点で
+    backend / database / frontend / maintenance-ops の 4 章が `written-requirements` と
+    `docs/spec/*.md` の path・sha256 を書いていたが、正本の当該 `qa_ref` の source は
+    `user-dialogue` (path を持たない) だった。検査は出典行を見ていないので赤くならない。
+    **章が実在しない sha256 で裏取り済みを騙る**形であり、生成化はこれも同時に消す。
+
+    手写し時代の散文 (「本節を『転記』に留めた理由」) は捨てず、正本
+    `chapter_notes` へ移してある (`## 章の注記` として同じ compile が描く)。
+    """
+    row = _row(spec, cat_id)
+    qa_by_id = _qa_by_id(spec)
+    confirmed = [
+        (pf, row[pf])
+        for pf in CANONICAL_PLATFORMS
+        if isinstance(row.get(pf), dict) and row[pf].get("state") == "確定"
+    ]
+    if not confirmed:
+        return ""
+
+    lines = [
+        "## 確定セルの記録 (正本 spec-state.json)",
+        "",
+        "> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から"
+        " **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る"
+        " (2026-09-04 まで手写しで、その間ずっと腐っていた)。",
+    ]
+    for platform, cell in confirmed:
+        qa_ref = cell.get("qa_ref")
+        qa = qa_by_id.get(qa_ref) or {}
+        source = qa.get("source") if isinstance(qa.get("source"), dict) else {}
+        # 空欄記号は章の中で 1 種類に揃える (`-` と `—` が混ざると grep が二度要る)。
+        kind = source.get("kind") or "—"
+        # path/節/sha256 を持たない出典 (user-dialogue) は「持たない」と書く。
+        # 空欄にすると「調べていない」と区別が付かない。
+        dash = "— (対話に基づくため path/節/sha256 を持たない)" if kind == "user-dialogue" else "—"
+        applications = qa.get("design_applications")
+        n_apps = len(applications) if isinstance(applications, list) else 0
+        path = source.get("path")
+        sha = source.get("sha256")
+        path_cell = "`" + path + "`" if path else dash
+        sha_cell = "`" + sha + "`" if sha else "—"
+        # qa_ref 欠落は起こらないはずだが、起きたときに空のコード片 (`` ` ` ``) で
+        # 「何か在る」ように見せない。他の欄と同じ `—` で「無い」と書く。
+        qa_cell = "`" + qa_ref + "`" if qa_ref else "—"
+        lines += [
+            "",
+            "| 項目 | 値 |",
+            "|---|---|",
+            f"| セル | {cat_id} × {platform} |",
+            "| 状態 | 確定 |",
+            f"| 確定質疑 (qa_ref) | {qa_cell} |",
+            f"| 資するゴール (serves_goals) | {', '.join(cell.get('serves_goals') or []) or '—'} |",
+            f"| required-info | {_required_info_cell(cell)} |",
+            f"| 出典 kind | {kind} |",
+            f"| 出典 path | {path_cell} |",
+            f"| 出典 節 | {source.get('section') or '—'} |",
+            f"| 出典 sha256 | {sha_cell} |",
+            f"| 適用された設計知識 (design_applications) | {n_apps} 件 —"
+            " 本章 `## 適用された設計知識` を参照 |",
+        ]
+    return "\n".join(lines)
+
+
+def _required_info_cell(cell: dict) -> str:
+    """required_info を章の 1 セルへ写す。
+
+    0 件は空欄でも `—` でもなく文言で書く。「block 指定が無い」と
+    「登録を見ていない」は読む人にとって別物で、空欄はどちらとも読める。
+    """
+    items = cell.get("required_info")
+    if not isinstance(items, list) or not items:
+        return "なし (この確定に block 指定の必須情報は登録されていない)"
+    parts = []
+    for info in items:
+        if not isinstance(info, dict):
+            continue
+        status = info.get("status")
+        grounded = (
+            f"接地: 済 (`{info.get('grounded_by')}`)"
+            if status == "grounded"
+            else f"接地: {'未' if status == 'missing' else status}"
+        )
+        parts.append(
+            f"`{info.get('item_id')}` — missing_effect: {info.get('missing_effect')} / {grounded}"
+        )
+    return "<br>".join(parts)
 
 
 def render_doctrine_anchor(cat_id: str) -> str:
@@ -653,6 +835,7 @@ def render_chapter(spec: dict, cat_id: str, refs_by_cat: dict[str, list[dict]]) 
     agg = category_aggregate(spec, cat_id)
     refs = refs_by_cat.get(cat_id, [])
     notes = render_chapter_notes(spec, cat_id)
+    cell_record = render_confirmed_cell(spec, cat_id)
     parts = [
         render_frontmatter(spec, cat_id),
         "",
@@ -662,6 +845,11 @@ def render_chapter(spec: dict, cat_id: str, refs_by_cat: dict[str, list[dict]]) 
         f"- 章確定マーカー: `status: {chapter_status(agg)}`",
         "",
         render_state_table(spec, cat_id),
+        "",
+        # 確定セルを持たない章に空節を作らない (手写し時代は 8 章すべてが持っていた)。
+        *([cell_record, ""] if cell_record else []),
+        # 質疑録の手前に置く。「何が決まったか」を読んでから「どう決まったか」を読む。
+        render_decisions(spec, cat_id),
         "",
         render_confirmed_qa(spec, cat_id),
         "",

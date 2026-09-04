@@ -920,7 +920,7 @@ describe("出す前の点検", () => {
     await h2.run();
 
     if (!checked.ok) throw new Error(checked.error.message);
-    expect(checked.value.aiSearch).toEqual(auditArticleForAiSearch(h2.saved[0]));
+    expect(checked.value.aiSearch).toEqual(auditArticleForAiSearch(h2.saved[0], new Date()));
   });
 
   it("公開と点検は、ゲート未実施と未登録リンクを同じ警告として返す", async () => {

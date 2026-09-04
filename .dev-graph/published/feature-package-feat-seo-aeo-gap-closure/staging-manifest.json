@@ -1,0 +1,33 @@
+{
+  "canonical_digest": "sha256:204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646",
+  "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+  "files": {
+    "feature-package.json": "12cd14a2606f8206ba7a785b6ef21ecc02ec5bd3f96eebe0c4189fc8a4abd5e9",
+    "system-build-handoff.json": "751ff7e329f2ff873aa918667c24ab2ef58ccab529889077f5d27b489e275ef7",
+    "task-graph.json": "998f396d41b098bdbaa78bcc879655a3523a1fd81730898889f754b066fd5be3",
+    "task-specs/phase-01-requirements.md": "c9b8a7437bc5aaa9bdc5e20ce58bb6dfdd05d935b70ad6a8dc1091b8a505c08b",
+    "task-specs/phase-02-architecture.md": "2fe191b40a3af6c7dd038fbf2a0ea5a23132af03d861fd5b7765881834ee6a84",
+    "task-specs/phase-03-design-review.md": "8029e654bb4a258b4251da60656f5b1a278d4b054143881e6bf413091efbb1a8",
+    "task-specs/phase-04-test-design.md": "5cd2570f8627de671d1afeeb5b3e8dff1cfed8addc1503e929420005a2eecf00",
+    "task-specs/phase-05-implementation.md": "87942594c1adf0370e4d70302f37c38d4366ece5f874d673cd438643acdc6011",
+    "task-specs/phase-06-test-run.md": "b2ce3903dc8e3954a7e4afc17d8a7ea1c373e21614d748cbd4866e1d953b494d",
+    "task-specs/phase-07-acceptance.md": "f5190ad08cdfb9b2154c4762e09da4312100f09d1da8c7ff336e17ca45b82236",
+    "task-specs/phase-08-refactoring-migration.md": "0b123579bfd4556829362f91d887fa51414727d167e26eb502f09fc38ece4a7c",
+    "task-specs/phase-09-quality-assurance.md": "b9a1a5bdfffeb02acf0cd5e9436d2ee1c84966ba83d0aeefb839bc212ae02ba8",
+    "task-specs/phase-10-final-review.md": "9f9c8afa5fdbdf49dfe4e9578013cafc5b21913fde443ce7a5f23e142ee1d294",
+    "task-specs/phase-11-evidence.md": "0d806f107d286e6d3a339b33fb6e9c4a0cb05a2742fd132a9d9ce468798ab003",
+    "task-specs/phase-12-documentation-operations.md": "69766b5ed2c6c08b22fe3ae8238bcc9457ced05be817abe3f04afcf1420dd384",
+    "task-specs/phase-13-release-deploy.md": "1f4aa6c1606bef43cd8c5790ea0fc9230cac2d7a3222e38d88185c78b823390b",
+    "workstream-inventory.json": "9679f3c0f146c3173c107de80e972d2c68f74ad6ff11cd672014f32f85be1e50"
+  },
+  "handoff_contract": {
+    "manifest_is_commit_point": true,
+    "path": "system-build-handoff.json",
+    "schema_version": "1.0.0",
+    "self_reference_policy": "handoff hash and final digest are manifest-only",
+    "sha256": "751ff7e329f2ff873aa918667c24ab2ef58ccab529889077f5d27b489e275ef7",
+    "source_canonical_digest": "sha256:abf0f7d6c67d95d1f6f2ad949c7b8cfb0723255075c2a05fdeadef9f1c033e94"
+  },
+  "parent_feature": "feat-seo-aeo-gap-closure",
+  "schema_version": "1.0.0"
+}

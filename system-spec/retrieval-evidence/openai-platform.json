@@ -1,25 +1,25 @@
 {
- "target_id": "openai-platform",
- "source_url": "https://developers.openai.com/api/docs/models",
- "requested_url": "https://platform.openai.com/docs/models",
- "retrieved_at": "2026-08-22T15:05:04Z",
- "http_status": 200,
- "content_bytes": 351042,
- "content_sha256": "460f2eb9bc4fe7e06b9c0c782291ac3a0310a9b6dd20228641cc081115aa39b9",
- "page_title": "Models | OpenAI API",
- "page_title_note": "<title> タグは head 内に無く、本文先頭のテキストから採った。タグ検索が空振りしたことを隠さないために記す。",
- "redirect_note": "要求した platform.openai.com は developers.openai.com へ移送された。official_host は最終 URL の host である developers.openai.com を採る。",
- "freshness_extraction": {
-  "freshness_source": "page-declared",
-  "value": "gpt-5.6",
-  "found_in": [
-   "本文見出し逐語: \"Using GPT-5.6\"",
-   "モデル一覧の逐語: \"GPT-5.6 Cyber\" / \"GPT-5.6 Luna\" / \"GPT-5.6 Sol\" / \"GPT-5.6 Terra\"",
-   "モデル ID 逐語: gpt-5.6, gpt-5.6-cyber, gpt-5.6-luna, gpt-5.6-sol"
-  ],
-  "http_last_modified": null,
-  "body_declares_date": false,
-  "body_search_method": "本文 351042 bytes に対し JSON-LD \"dateModified\"/\"datePublished\"、<time datetime=...>、\"Last updated\"/\"Updated on\" 語彙、© 年 の 4 通りで探して全て 0 件。陰性対照として同じ探し方を vitest.html へ適用すると <time datetime=\"2026-04-08...\"> を検出するので、探し方そのものは動いている。",
-  "note": "更新日の表明が無いため、鮮度は説明対象の版 (現行モデル世代 gpt-5.6) で表す。取得日 2026-08-22 を last_updated へ代入していない。"
- }
+  "target_id": "openai-platform",
+  "source_url": "https://developers.openai.com/api/docs/models",
+  "requested_url": "https://platform.openai.com/docs/models",
+  "retrieved_at": "2026-09-04T13:41:59Z",
+  "http_status": 200,
+  "content_bytes": 365152,
+  "content_sha256": "da8dc5f148ef07823a8b9c3e37f0a670cc57020f45aa0b42198cc5e6a1b5c856",
+  "page_title": "Models | OpenAI API",
+  "page_title_note": "<title> タグは head 内に無く、本文先頭のテキストから採った。タグ検索が空振りしたことを隠さないために記す。",
+  "redirect_note": "要求した platform.openai.com は developers.openai.com へ移送された。official_host は最終 URL の host である developers.openai.com を採る。",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "gpt-6-astra",
+    "found_in": [
+      "本文逐語: \"If you're not sure where to start, use GPT-6 Astra, our flagship model for complex reasoning and coding.\"",
+      "左ナビ見出し逐語: \"Using GPT-6 Astra\"",
+      "モデル ID 逐語: gpt-6-astra (gpt-5.6 系 sol/terra/luna は併載のまま)"
+    ],
+    "http_last_modified": null,
+    "body_declares_date": false,
+    "body_search_method": "本文 365152 bytes に対し JSON-LD \"dateModified\"/\"datePublished\"、<time datetime=...>、\"Last updated\"/\"Updated on\" 語彙、© 年 の 4 通りで探して全て 0 件。2026-08-22 の取得時と同じ探し方で、結果も同じ。",
+    "note": "更新日の表明が無いため、鮮度は説明対象の版で表す。2026-08-22 時点の gpt-5.6 から gpt-6-astra へ世代が進んだ。取得日を last_updated へ代入しない。"
+  }
 }

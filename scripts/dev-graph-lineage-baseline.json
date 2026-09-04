@@ -1,0 +1,39 @@
+{
+  "_comment": "lint-lineage-freshness の既知違反。導入時点で既に溜まっていた分だけを凍結し、新規発生を fail-closed にするためのデータ。**縮小のみが正**で、増やす変更は本検査の目的を無効化するためレビューで拒否すること。鍵にはその時に見た状態値を含める。lineage は <node_id>:<記録digest>:<実際digest> で、章がもう一度書き換われば再び鳴る。未確定 close は <node_id>:<confirmation_status>:<evaluation_status> で、evaluation_status が pending (未評価) から fail (評価して落ちた) へ変われば再び鳴る。node id 単独で凍結してはならない (永久凍結になる)。",
+  "baselined_unconfirmed_closures": [
+    "feat-improvement-feedback:draft:pending",
+    "task-api-unit-tests:draft:pending",
+    "task-boundary-tests:draft:pending",
+    "task-content-persistence:draft:pending",
+    "task-contract-checks:draft:pending",
+    "task-conversion-adjustment:draft:pending",
+    "task-coverage-gates:draft:pending",
+    "task-distribution-persistence:draft:pending",
+    "task-duplicate-link-race:draft:pending",
+    "task-eval-set-runner:draft:pending",
+    "task-integration-tests:draft:pending",
+    "task-network-reach-decision:confirmed:pending",
+    "task-publication-usecase:draft:pending",
+    "task-spec-writeback:draft:pending",
+    "task-stub-coverage-gap:draft:pending",
+    "task-telemetry-to-metrics:draft:pending",
+    "task-test-foundation:draft:pending",
+    "task-ui-unit-a11y-tests:draft:pending",
+    "task-verify-and-workflows:draft:pending"
+  ],
+  "baselined_stale_lineage": [
+    "arch-system-spec-overview:af460e02930459d08ad7ac2414875f4d5ab4fdc2489ce7cafe51c99263467058:3b82e6def629c233ff96e483e6eda6b141c34f5ab37113e460b91c99c723bb9a",
+    "feat-analytics-insight:ed96924f70ef11408017b70c38c51dad3af3c82b4f02740965aa7cccaa7263ec:5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+    "feat-blog-composition-visibility:9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62:752668f45bfb09a5a6339e30efd91333748dcd46f1837762af8571f7a9f48f9f",
+    "feat-blog-ops-crud:7b029152ed5130b0c3e331bb390f3f344811fc97f9cb92b9f0b3557d9a9b54c1:6c9b17fe84e10e0d2d01603fdd1c45c47bdcd75ecf4f1d34ed8ee00e6075f74a",
+    "feat-blog-provisioning-integrity:9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62:752668f45bfb09a5a6339e30efd91333748dcd46f1837762af8571f7a9f48f9f",
+    "feat-blog-subdomain-routing:9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62:752668f45bfb09a5a6339e30efd91333748dcd46f1837762af8571f7a9f48f9f",
+    "feat-blog-ui-builder:666a851ea9d11886650209fa956a15457b405c91a2242e0107f9d237dc75d380:c3b797019d4e6a44859a1e502255b51ee723bdc471d184e6f5b3a625728c7089",
+    "feat-feedback-capture-self-exclusion:b93d1aea10645fc18c39e5bd209cbb90ebd6e494bf493d263e3d9e1112a36217:6c9b17fe84e10e0d2d01603fdd1c45c47bdcd75ecf4f1d34ed8ee00e6075f74a",
+    "feat-improvement-feedback:f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856:31b896c5e5f152c442bc35deff9627d73f0b74199c899603bfe94a21781e8f59",
+    "feat-reference-blog-admin-ux:8f2dd8dc377e624cd882aadb912d57638f3e6e41c268cc68845e4da5b84ed1d4:6c9b17fe84e10e0d2d01603fdd1c45c47bdcd75ecf4f1d34ed8ee00e6075f74a",
+    "feat-spec-canonicalization:409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44:752668f45bfb09a5a6339e30efd91333748dcd46f1837762af8571f7a9f48f9f",
+    "spec-analytics-foundation:ed96924f70ef11408017b70c38c51dad3af3c82b4f02740965aa7cccaa7263ec:5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
+    "spec-system-spec-index:d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726:752668f45bfb09a5a6339e30efd91333748dcd46f1837762af8571f7a9f48f9f"
+  ]
+}

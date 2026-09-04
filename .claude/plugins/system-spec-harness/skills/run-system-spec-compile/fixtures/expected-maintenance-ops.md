@@ -22,6 +22,12 @@ serves_goals: []
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 保守運用は外部委託のため本仕様の対象外 |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 保守運用は外部委託のため本仕様の対象外 |
 
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`maintenance-ops`) を主担当とする **0 件**。全 1 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+- 本章を主担当とする決定は無い。
+
 ## 確定内容 (質疑録)
 
 - (確定セルなし。本章は対象外または収集中)

@@ -106,6 +106,19 @@ def main(argv: list[str]) -> int:
             "このrunで新たに消える行は従来どおり章末とstderrへ報告する"
         ),
     )
+    p_compile.add_argument(
+        "--connected-subsection",
+        action="append",
+        default=[],
+        metavar="見出し",
+        help=(
+            "正本へ移し終えた手書き小節の見出し (`#` は付けない)。章から落とし、"
+            "『章にしか無い記述』へも『保てなかった行』へも出さない。"
+            "確定章は C11 hook が Edit を塞ぐので、章を手で削る案内は踏めない。"
+            "**単一 writer である compile 自身に消させるための口である。**"
+            "正本へ入れていないものを渡さないこと (章からも正本からも消える)"
+        ),
+    )
     args = ap.parse_args(argv)
 
     losses: list[tuple[str, list[str]]] = []
@@ -130,6 +143,7 @@ def main(argv: list[str]) -> int:
             on_handwritten=args.on_handwritten,
             loss_report=losses,
             acknowledge_prior_residue=args.acknowledge_prior_residue,
+            connected_subsections=frozenset(args.connected_subsection),
         )
     except (OSError, json.JSONDecodeError) as exc:
         print(f"IO/JSON error: {exc}", file=sys.stderr)

@@ -1,0 +1,42 @@
+{
+ "graph_node_id": "feat-seo-aeo-machine-readable",
+ "artifact_kind": "feature",
+ "purpose": "構造化データ・canonical・OGP・robots・見出し階層・画像属性・広告 rel を、書き手が本文へ書き足す前提から外し、記事の実データから決定論的に導出する。人手に依存する限り、欠落は書き手ごとに揺れ、公開後まで残る。",
+ "goal": "確定 decision dec-structured-data-emission (opt-render-time-derive) のとおり、記事の描画時に Article/BlogPosting・FAQPage・HowTo・Speakable・BreadcrumbList と canonical・OGP・robots max-image-preview が記事の実データから生成され、見出し階層・画像 alt/width/height・アフィリエイトリンクの rel が本文データそのものから機械的に決まる状態になっている",
+ "scope_in": [
+  "記事の実データ (見出し・本文ブロック・人物・商品・カテゴリ・公開日時) から Article/BlogPosting・BreadcrumbList・Person・Organization の JSON-LD を描画時に導出する",
+  "会話ブロック・手順ブロック・Q&A ブロックから FAQPage / HowTo / Speakable を導出し、該当ブロックが無い記事では当該種別を出さない (空の型を出して充足したと見せない)",
+  "canonical URL・OGP・robots max-image-preview をブログのドメイン戦略 (dec-blog-domain-strategy = opt-wildcard-subdomain) と整合する形で生成する",
+  "見出し階層の正規化 (本文外見出しを本文の H2/H3 系列へ混入させない)",
+  "画像の alt と width/height を画像登録時に必須化し、欠落画像を描画前に検出可能にする",
+  "アフィリエイトリンクへの rel (sponsored/nofollow) 付与を original_url 無改変のまま行う",
+  "schema.org 30.0 / Google 検索セントラル / WAI-ARIA 1.2 を出典とする判定根拠の参照レジストリ"
+ ],
+ "scope_out": [
+  "充足度の解析と管理画面への差し戻し (feat-seo-aeo-analysis-feedback)",
+  "読者面の目次・サイドバー・タグアイコンの配置 (feat-reference-blog-admin-ux)",
+  "管理画面の画面分割と共通部品化 (feat-uiux-overhaul)",
+  "外部順位データ・検索コンソール実測値の取り込み",
+  "記事本文そのものの生成 (feat-ai-content-studio)"
+ ],
+ "acceptance": [
+  "公開記事の HTML に Article/BlogPosting と BreadcrumbList の JSON-LD が記事実データ由来で含まれ、Rich Results 相当の必須プロパティ欠落が 0 件である",
+  "会話・手順・Q&A ブロックを持つ記事だけに FAQPage/HowTo/Speakable が出力され、持たない記事では当該型が出力されない",
+  "canonical が 1 記事 1 本で、サブドメイン戦略と一致し、重複 canonical が 0 件である",
+  "画像 alt と width/height を欠く画像は登録時に弾かれ、既存記事の欠落数が公開ページから機械的に数えられる",
+  "本文外見出しが本文の見出し階層へ混入せず、目次が同じ見出しを二重に読み上げない",
+  "アフィリエイトリンクに rel が付与され、original_url は 1 文字も改変されない",
+  "参考サイト実測 (hitodeblog.com/blog-money-sikumi: 画像 83 枚中 alt 有効 8 枚・FAQPage/HowTo/Speakable 不在) を、alt 被覆率と構造化データ種別数の 2 点で上回ることを機械が検証できる"
+ ],
+ "architecture_refs": [
+  "architecture/system-spec-overview.md",
+  "architecture/arch-two-layer-platform.md",
+  "system-spec/index.md",
+  "system-spec/00-requirements-definition.md",
+  "system-spec/frontend.md",
+  "system-spec/ui-ux.md",
+  "system-spec/backend.md",
+  "system-spec/database.md"
+ ],
+ "updated_at": "2026-09-04T00:00:00Z"
+}

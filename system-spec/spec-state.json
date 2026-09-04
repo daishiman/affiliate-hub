@@ -759,21 +759,24 @@
     "database": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-database-web-blog-provisioning-integrity",
+        "qa_ref": "qa-database-web-audit-history-window-p13-v3",
         "qa_refs": [
+          "qa-database-web-audit-history-window-p13-v3",
           "qa-database-web-blog-provisioning-integrity",
           "qa-database-web-blog-builder",
           "qa-database-web-spec-intake",
           "qa-database-web",
-          "qa-database-web-analytics"
+          "qa-database-web-analytics",
+          "qa-database-web-aeo-analysis-storage-v4"
         ],
         "serves_goals": [
           "G1",
-          "G2"
+          "G2",
+          "G3"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -858,7 +861,8 @@
           "qa-uiux-web-screen-priority",
           "qa-uiux-web-spec-intake",
           "qa-uiux-web",
-          "qa-uiux-web-overhaul-v2"
+          "qa-uiux-web-overhaul-v2",
+          "qa-uiux-web-reader-experience-aeo-v4"
         ],
         "required_info": [
           {
@@ -882,7 +886,8 @@
         ],
         "serves_goals": [
           "G1",
-          "G2"
+          "G2",
+          "G3"
         ],
         "required_info_checks": [
           {
@@ -1017,13 +1022,15 @@
     "backend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-backend-web-blog-creation-atomicity",
+        "qa_ref": "qa-backend-web-seo-audit-writeback-p13-v3",
         "qa_refs": [
+          "qa-backend-web-seo-audit-writeback-p13-v3",
           "qa-backend-web-blog-creation-atomicity",
           "qa-backend-web-spec-intake",
           "qa-backend-web",
           "qa-backend-web-analytics",
-          "qa-backend-web-overhaul-v2"
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4"
         ],
         "required_info": [
           {
@@ -1034,12 +1041,13 @@
           }
         ],
         "serves_goals": [
+          "G1",
           "G2",
-          "G1"
+          "G3"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-03",
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -1080,15 +1088,23 @@
           "qa-frontend-web-spec-intake",
           "qa-frontend-web",
           "qa-frontend-web-analytics",
-          "qa-frontend-web-overhaul-v2"
+          "qa-frontend-web-overhaul-v2",
+          "qa-frontend-web-aeo-emission-v4"
         ],
         "serves_goals": [
           "G1",
-          "G2"
+          "G2",
+          "G3"
         ],
         "required_info_checks": [
           {
             "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          },
+          {
+            "checked_on": "2026-09-04",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -3094,6 +3110,373 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-uiux-web-reader-experience-aeo-v4",
+      "question": "ui-ux×web: 読者向けブログ画面と記事エディター (管理画面) を、参考サイト実測 (hitodeblog.com/blog-money-sikumi・2026-09-03 取得) を上回る読みやすさと AEO/SEO 充足へどう整えるか。従来の確定 (作成完了フィードバック・管理画面の単一用途化・SEO/AI検索チェックパネル) は維持したうえで、何を足すか。2026-09-03 利用者ヒアリング。",
+      "answer": "利用者の指示: 「この共有しているブログよりも、UI/UX をさらに良くして」「見えない部分の情報も含めて、どのようにしたら SEO に強いか」「ブログ用のエディターの部分も改善」「SEO や AIO、AI の SEO のようなものに対しても対応できるように」「AEO,SEO 対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしい」。参考は makuring.jp から hitodeblog.com/blog-money-sikumi へ変更。\n\n## 参考サイト実測 (2026-09-03、HTTP 200・207,538 bytes。WordPress + JIN:R)\n見出し h1×1 / h2×5 (本文) + h2×13 (本文外導線) / h3×1、可視 約4,925字。目次は rtoc により本文中とサイドバーの2か所に同内容 (10項目)。内部リンク72・外部リンク22、うち nofollow または sponsored が13、target=_blank が28。画像83枚のうち width/height 指定81枚・lazy 52枚だが alt が有効なのは8枚のみ。head は canonical・og一式・twitter:card=summary_large_image・robots max-image-preview:large・JSON-LD 2本 (BreadcrumbList+ListItem / Article+Person+Organization+ImageObject)・アイコンフォントとヒーロー画像の preload。\n\n## 上回る条件 (受入条件。順位や掲載の保証は条件にしない)\n(a) 画像 alt の被覆率を100%にする。alt が空の画像は公開前に欠落として名指しで提示し、装飾画像は明示的に装飾と宣言したときだけ空 alt を許す。参考サイトは83枚中8枚しか無く、読み上げでも画像検索でも情報が落ちている。\n(b) 目次は1記事につき1つの見出しリストだけを支援技術へ露出する。追従表示 (サイドバー) と本文内表示を両方出す場合でも、同じ見出しを2度読み上げさせない。参考サイトはここが二重になっている。\n(c) 本文外の導線 (関連記事・SNS・広告) に h2 を使わず、本文の見出し階層を汚さない。参考サイトは本文外 h2 が13個あり主題がぼやけている。\n(d) 構造化データは Article/BlogPosting・Person (著者)・Organization・BreadcrumbList に加え、FAQ ブロックから FAQPage、手順ブロックから HowTo、結論ブロックから Speakable を出す。参考サイトはこの3種が無く、設問に答える形の引用元になりにくい。\n(e) 記事に最終更新日と『〜時点』を出し、改稿履歴を読者が見られるようにする。dateModified の根拠が読者に見えない状態にしない。\n\n## 読者向け画面の構成 (従来の確定を維持したうえで追加)\n左サイドバーに、検索窓・カテゴリー・タグ・ブランドから探す導線を置き、分類ごとにアイコンを添える。アイコンは既存の共通アイコン層 (lucide 由来の役割名) の語彙で表し、分類ごとに独自 SVG を増やさない。目次はスクロール追従し、現在読んでいる節を示す。広告と本文は視覚的に区別し、広告リンクは rel を機械にも読者にも明示する。狭い画面では追従目次を折りたたみ、本文の可読幅を優先する。\n\n## 情報の優先順位 (表現物ごとの残す・落とす・加工する)\n記事ページ: 『結論』>『本文の現在地 (目次)』>『根拠と出典』>『関連導線・広告』。根拠は失敗コスト — 結論に辿り着けない記事は滞在時間が長くても読者の意思決定を助けない。\nエディター画面: 『公開できるか (欠落の有無)』>『本文の編集』>『構造化データの素材 (FAQ・手順・出典・著者)』>『体裁』。根拠は、公開後に欠落が判明すると全記事を開き直す手戻りが発生するため。\n\n## エディター (管理画面) の改善\n記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "表現物ごとに、残すもの・落とすもの・加工するものを先に決める",
+          "applicability": "applied",
+          "rationale": "回答は記事ページとエディター画面それぞれに順位を書き、順位の根拠を『失敗コスト』で述べている — 記事ページは結論に辿り着けないことが最大の失敗であり、エディター画面は公開後に欠落が判明して全記事を開き直すことが最大の失敗である。両画面で先頭が異なるのは、同じ情報でも表現物が変われば残すべきものが変わるという原理をそのまま適用した結果である",
+          "tradeoffs": [
+            "記事ページで『関連導線・広告』を最下位に置くため、回遊と広告の視認機会を意図的に下げている。収益面の指標だけを見れば不利だが、結論に辿り着けない記事は滞在時間が伸びても読者の意思決定を助けないため、この順位を採る",
+            "エディター画面で『体裁』を最下位に置くため、見た目を整える操作が探しにくくなる。公開できるかどうかを先頭に置く判断を優先し、体裁は編集の後段へ寄せる"
+          ]
+        },
+        {
+          "knowledge_ref": "usability-accessibility.md#適用条件",
+          "principle": "同じ内容を支援技術へ二度露出させない",
+          "applicability": "applied",
+          "rationale": "参考サイト実測で、目次が rtoc により本文中とサイドバーの2か所へ同内容 (10項目) 出ていることを観測した。読み上げでは同じ見出しリストを2度聞かされる。受入条件 (b) は、追従表示と本文内表示の両方を出す場合でも支援技術へ露出する見出しリストを1つに保つと定めており、視覚的な二重掲載と支援技術への二重露出を切り離している",
+          "tradeoffs": [
+            "露出を1つに絞ると、支援技術の利用者は追従目次と本文内目次のどちらか一方しか辿れない。どちらを露出させるかの選択が必要になるが、二度読み上げる方が実害が大きいためこの制約を受け入れる",
+            "画像 alt の被覆率100%は、装飾画像の宣言という新しい入力欄を書き手へ課す。宣言せずに空 alt を許すと参考サイトと同じ状態 (83枚中8枚) へ戻るため、宣言を必須にする"
+          ]
+        },
+        {
+          "knowledge_ref": "elicit-question-bank:screen-information-priority",
+          "principle": "画面の先頭は、その画面を開いた理由と一致させる",
+          "applicability": "applied",
+          "rationale": "既存の確定 qa-uiux-web-screen-priority で採った『毎日あるものを先頭へ、たまにあるものは常設の帯へ』という形を、記事エディターにも適用した。エディターを開く理由は本文を書くことだが、公開できるかどうかの判定は書き終えた瞬間にだけ意味を持つため、常時先頭を占めさせず、不足があるときだけ名指しで提示する形にしている",
+          "tradeoffs": [
+            "不足の提示を常時先頭に固定しないため、書き手が提示に気づかないまま公開操作へ進む余地が残る。dec-aeo-analysis-trigger で公開操作そのものにゲートを置くことで補う",
+            "AEO/SEO 充足度を編集画面と同じ場所へ出すため、単一用途の画面という既存方針 (qa-uiux-web-overhaul-v2) との緊張が生じる。充足度は編集対象そのものの属性であり別用途ではない、と解して同居を許す"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      },
+      "written_up": [
+        {
+          "path": "docs/spec/dialogue-confirmations.md",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "recorded_on": "2026-09-04",
+          "recorded_with": "set-qa-written-up",
+          "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）"
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web-aeo-emission-v4",
+      "question": "frontend×web: 記事の実データから SEO/AEO の機械可読要素をどう生成し、欠落をどう機械が検出するか。従来の確定 (公開面 SSR・構成の可視化・JSON-LD 自動生成・sitemap/RSS/IndexNow) を維持したうえで、参考サイト実測を上回るために何を足すか。2026-09-03 利用者ヒアリング。",
+      "answer": "既存の確定 (qa-frontend-web-seo-ai-search-v2 / qa-frontend-web-blog-composition-visibility) を土台にし、次を追加する。\n\n## 生成の原則\n機械可読要素は記事の保存実体から導出する。人手で別途書き足す前提の欄を作らない。書き足しが要るのは『元データが無い情報』(著者の経歴・出典 URL・FAQ の設問文) だけで、それ以外 (見出し階層・パンくず・公開日・更新日・画像寸法) は保存実体から計算する。読者面と管理画面プレビューは同じ public-site-projection を通し、描画経路を二重に持たない。\n\n## 出力する機械可読要素\n(1) JSON-LD: Article/BlogPosting・Person (著者)・Organization・BreadcrumbList を常時、FAQ ブロックがあれば FAQPage、手順ブロックがあれば HowTo、結論ブロックがあれば Speakable を出す。schema.org の型と必須プロパティを検証する純粋関数を置き、テストで妥当性を確認する。ブロックが無い記事に空の構造化データを出さない。\n(2) head: canonical、og:type/title/url/description/image/site_name、twitter:card=summary_large_image、robots に max-image-preview:large を出す。\n(3) 画像: width/height を必ず出して読み込み中の版面ずれを防ぎ、本文外の画像は遅延読み込み、ヒーロー画像は先読みする。alt は保存実体の値をそのまま出し、空を許すのは装飾宣言済みのときだけ。\n(4) 見出し: 本文の見出しだけを h2/h3 として出し、関連記事・SNS・広告の見出しは本文階層に混ぜない。\n(5) 目次: 追従表示と本文内表示のどちらを出しても、支援技術へ露出する見出しリストは1つに保つ。\n(6) リンク: 広告・アフィリエイトリンクには rel に sponsored (必要に応じ nofollow) を機械的に付ける。付け忘れを手作業に委ねない。\n(7) 配信: sitemap.xml・RSS/Atom を自動生成し、公開・更新時に IndexNow へ送信する。/llms.txt は低コストかつ効果未確認と明記したうえで生成する。\n\n## 欠落の検出\n公開済み記事1本ごとに、上記のうち検証可能な項目の充足を判定する純粋関数を置く。判定は記事の保存実体だけを入力とし、外部の順位データや推測を混ぜない。判定結果は項目名・該当箇所・不足理由を持ち、管理画面のエディターへそのまま差し戻せる形で返す。アーキテクチャテストで、この判定関数が読者向け描画と同じ投影を読んでいることを機械が確認する。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "描画経路を二重に持たず、同じ投影を通す",
+          "applicability": "applied",
+          "rationale": "回答は読者面と管理画面プレビューを同じ public-site-projection へ通すと定め、さらに欠落判定の純粋関数が読者向け描画と同じ投影を読んでいることをアーキテクチャテストで機械が確認すると定めている。判定と出力が別の入力を見ると『判定は緑なのに出力は欠けている』が成立してしまうため、両者を同一の投影へ束ねている",
+          "tradeoffs": [
+            "投影を1本にすると、読者面だけの都合による最適化 (プレビューでは不要な処理の省略など) が入れにくくなる。判定と出力の一致を優先してこの硬さを受け入れる",
+            "アーキテクチャテストという間接的な検査に依存するため、テストが緩むと二重経路が静かに復活する"
+          ]
+        },
+        {
+          "knowledge_ref": "google-search-central:structured-data",
+          "principle": "構造化データは、ページに実際に見えている内容と一致させる",
+          "applicability": "applied",
+          "rationale": "回答は『ブロックが無い記事に空の構造化データを出さない』と明記し、FAQPage は FAQ ブロックがあるとき、HowTo は手順ブロックがあるとき、Speakable は結論ブロックがあるときだけ出すと条件付けている。型の数を増やすこと自体を目的にすると、本文に無い内容を構造化データだけが主張する状態になり、公式ガイドラインが禁じている形になる",
+          "tradeoffs": [
+            "条件付き出力にすることで、記事によって出る型が変わる。全記事で同じ型が揃わないため、充足度の判定は『出せるのに出していない』と『そもそも素材が無い』を区別する必要がある (解析側で対象外の3値目を持つ理由)",
+            "schema.org の型と必須プロパティを検証する純粋関数を自前で持つため、仕様の更新に追従する責任がこちら側に残る。dec-guideline-registry-recheck の再確認間隔がこの追従を担う"
+          ]
+        },
+        {
+          "knowledge_ref": "usability-accessibility.md#中核概念",
+          "principle": "読み込み中に版面がずれない",
+          "applicability": "applied",
+          "rationale": "回答は画像へ width/height を必ず出すことを『読み込み中の版面ずれを防ぐ』ためと明示し、本文外画像の遅延読み込みとヒーロー画像の先読みを使い分けている。参考サイト実測では83枚中81枚が寸法指定済みで、ここは参考サイトも満たしている水準であり、下回らないことを条件にしている",
+          "tradeoffs": [
+            "寸法を必ず出すには保存実体が寸法を持っている必要があり、画像を保存する時点で寸法を取得する処理が要る。取得に失敗した画像を公開できなくするか、寸法無しを許すかの判断が別途要る",
+            "広告・アフィリエイトリンクへの rel 付与を機械的に行うため、rel を付けたくない例外 (自社サイトへの内部リンクが広告枠に置かれる等) を表現する手段が要る"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      },
+      "written_up": [
+        {
+          "path": "docs/spec/dialogue-confirmations.md",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "recorded_on": "2026-09-04",
+          "recorded_with": "set-qa-written-up",
+          "section": "§4. 機械可読要素の生成と欠落の検出（frontend × web）"
+        }
+      ]
+    },
+    {
+      "id": "qa-backend-web-aeo-analysis-pipeline-v4",
+      "question": "backend×web: AEO/SEO の充足度を解析し、その結果をブログと記事エディターへ反映する仕組みをどこにどう置くか。API 契約はどうするか。2026-09-03 利用者ヒアリング。",
+      "answer": "利用者の指示は「AEO,SEO 対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしい」。仕組みは次の3層に分ける。\n\n## 1. 解析 (analyze)\n公開済み記事の保存実体を入力に、検証可能な項目の充足を判定する純粋関数をドメイン層に置く。判定項目は index 可否 (noindex/robots)・canonical の有無・JSON-LD の型と必須プロパティ・見出し階層の妥当性 (本文外見出しの混入なし)・画像の alt 被覆と width/height・広告リンクの rel・最終更新日の表示・結論/FAQ/手順/出典ブロックの有無・最終更新からの経過日数。各項目は充足/不足/対象外の3値と、不足時の該当箇所を返す。順位・流入・引用率のような外部由来の推定値は判定に含めない。含めると、確かめられない数字を根拠に記事を書き換えることになる。\n\n## 2. 保存 (record)\n解析結果は記事単位・実行時刻付きで保存し、いつの時点の判定かを常に言えるようにする。保存はワークスペースで区切り、他テナントの記事の判定を読めない。\n\n## 3. 反映 (apply)\n解析結果は2つの経路で反映する。(a) 管理画面の記事エディターへ、不足項目を名指しで差し戻す。書き手はその場で直せる。(b) 記事一覧に充足度を出し、どの記事から直すべきかを判断できるようにする。自動で本文を書き換えない。自動書き換えは、書き手が読んでいない文章が公開される状態を作る。\n\n## API 契約 (api カテゴリは backend で扱う既存方針を踏襲)\n解析の実行・結果の取得・記事単位の再解析を、既存の管理 API と同じ規約 (ワークスペース境界・認可・エラー形状) で提供する。公開読者面はこの API を呼ばない。読者に見せる必要が無い情報を読者経路へ流さない。\n\n## ガイドライン参照レジストリ\nSEO/AI 検索ガイドラインの出典 (発行元・URL・確認日・要約) をレジストリとして持ち、確認日から90日を超えたものを要再確認として管理画面へ出す。ガイドライン変更時は仕様セルを R4-reopen する運用とし、判定項目を勝手に書き換えない。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "判定はドメイン層の純粋関数に置き、外部由来の推定値を混ぜない",
+          "applicability": "applied",
+          "rationale": "回答は解析を純粋関数としてドメイン層へ置き、順位・流入・引用率のような外部由来の推定値を判定に含めないと明記している。理由も回答自身が述べている — 含めると、確かめられない数字を根拠に記事を書き換えることになる。入力を記事の保存実体だけに限ると、同じ記事に対する判定が常に同じ結果になり、判定の再現性が保たれる",
+          "tradeoffs": [
+            "実際に検索で見つかっているかという最も知りたい情報が判定に入らない。検証可能な項目だけを条件にする代わりに、施策の効果は間接的にしか測れない",
+            "外部データを一切入れないため、ガイドライン側の変更は自動では反映されない。dec-guideline-registry-recheck の再確認と R4-reopen の運用が追従経路になる"
+          ]
+        },
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "対応不要な通知は、対応が要る通知の信頼を削る",
+          "applicability": "applied",
+          "rationale": "各判定項目を充足/不足/対象外の3値にし、不足時にだけ該当箇所を返す形にしたのは、素材の無い記事に対して出せない型を『不足』と呼ばないためである。FAQ ブロックが無い記事に FAQPage の不足を出し続けると、指摘が常時赤い状態になり、実際に直すべき欠落まで読み飛ばされる。既存の decision-screen-priority で同じ構造の判断 (0件の枠が先頭を占め続けることを避ける) を採っている",
+          "tradeoffs": [
+            "対象外の3値目を持つことで、『素材が無いから対象外』と『素材を足すべきなのに足していない』の区別が判定からは付かなくなる。どちらかを知りたい場合は別の観点として設計する必要がある",
+            "反映を差し戻しと一覧表示に限り自動で本文を書き換えないため、欠落の解消は必ず人の操作を要する。自動修正より遅いが、書き手が読んでいない文章が公開される状態を作らない"
+          ]
+        },
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "読者に見せる必要が無い情報を読者経路へ流さない",
+          "applicability": "applied",
+          "rationale": "回答は解析 API を既存の管理 API と同じ規約 (ワークスペース境界・認可・エラー形状) で提供し、公開読者面はこの API を呼ばないと定めている。解析結果は運営側の内部評価であり、読者経路へ出す必要が無い。経路を分けることで、認可の判断を読者面へ持ち込まずに済む",
+          "tradeoffs": [
+            "読者面と管理面で API を分けるため、同じ記事データに対して2つの取得経路が生まれる。描画そのものは public-site-projection を共有させて二重化を避ける",
+            "解析の実行を管理 API 側に置くため、公開操作からの呼び出しが認証済み経路を経る必要がある。外部から解析を任意に誘発できない利点と引き換えに、経路の設計が1段増える"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      },
+      "written_up": [
+        {
+          "path": "docs/spec/dialogue-confirmations.md",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "recorded_on": "2026-09-04",
+          "recorded_with": "set-qa-written-up",
+          "section": "§5. SEO/AEO 充足度の解析と反映（backend × web）"
+        }
+      ]
+    },
+    {
+      "id": "qa-database-web-aeo-analysis-storage-v4",
+      "question": "database×web: AEO/SEO 解析結果とガイドライン参照レジストリ、および記事の機械可読要素の素材 (alt・出典・FAQ・手順・著者) をどこにどう保存するか。2026-09-03 利用者ヒアリング。",
+      "answer": "既存の確定 (qa-database-web-blog-provisioning-integrity) の原則 — 正本を1か所に置き、別表へ複製しない — をそのまま適用する。\n\n## 記事の機械可読要素の素材\n結論・要点・比較表・FAQ・手順・出典・著者/監修者・画像の alt と寸法・装飾画像の宣言は、記事本体の保存実体 (published_articles の記事 JSON) の中に持つ。構造化データ用の別表を作らない。別表にすると、記事を直したのに構造化データが古いまま残る状態が生まれる。\n\n## 解析結果\n解析結果は記事単位・実行時刻付きの履歴として保存する。最新1件だけを上書き保存しない。上書きすると「直したのに直っていない」のか「判定が変わった」のかを後から区別できない。保存する内容は判定項目ごとの3値 (充足/不足/対象外)・不足時の該当箇所・判定に使った規則の版。記事本文は複製せず参照で持つ。\n\n## ガイドライン参照レジストリ\n発行元・URL・確認日・要約を保存する。要約は取得した文章の複製ではなく、こちらで書いた要約であることを明示する。\n\n## テナント境界\n解析結果とレジストリはワークスペースで区切る。読者向けの読み取り (記事一覧・本文・検索・カテゴリー・人物) はサイト単位で区切る既存の方針を維持し、解析結果を読者経路から読まない。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "design_applications": [
+        {
+          "knowledge_ref": "ddd.md#中核概念",
+          "principle": "正本を1か所に置き、別表へ複製しない",
+          "applicability": "applied",
+          "rationale": "回答は既存の確定 qa-database-web-blog-provisioning-integrity の原則をそのまま引き、機械可読要素の素材 (結論・要点・比較表・FAQ・手順・出典・著者・alt と寸法・装飾宣言) を記事本体の保存実体の中に持ち、構造化データ用の別表を作らないと定めている。理由も回答自身が述べている — 別表にすると、記事を直したのに構造化データが古いまま残る状態が生まれる。これは dec-structured-data-emission で配信時導出を選んだ判断と同じ根拠に立っている",
+          "tradeoffs": [
+            "記事 JSON が持つ項目が増え、記事1件あたりの保存サイズが伸びる。別表へ切り出せば個々は小さくなるが、記事と構造化データがずれる状態を許すことになるため採らない",
+            "FAQ・手順・出典のように記事によって有無が変わる項目を記事 JSON へ持つため、項目の追加・改名が記事全件へ影響する。素材の項目設計を実装着手前に固める必要がある"
+          ]
+        },
+        {
+          "knowledge_ref": "cloudflare:d1-drizzle",
+          "principle": "いつの時点の判定かを常に言えるようにする",
+          "applicability": "applied",
+          "rationale": "解析結果を記事単位・実行時刻付きの履歴として保存し、最新1件だけの上書きにしない。回答が挙げる理由は、上書きすると『直したのに直っていない』のか『判定が変わった』のかを後から区別できなくなることである。判定に使った規則の版を各行へ持たせるのは、この区別を成立させるための最小の情報であり、dec-analysis-history-retention の caveat と同じ内容を保存側から要求している",
+          "tradeoffs": [
+            "履歴を積むため行数が記事数×解析回数で伸びる。dec-analysis-history-retention で保持件数の上限を設けることで上限付きに抑えるが、上限を超えた過去は失われる",
+            "記事本文を複製せず参照で持つため、記事が後から改稿されると過去の判定が『どの本文に対する判定だったか』を復元できない。規則の版は残るが本文の版は残らない"
+          ]
+        },
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "境界は保存の側で区切り、読み取り経路の判断に委ねない",
+          "applicability": "applied",
+          "rationale": "解析結果とガイドライン参照レジストリをワークスペースで区切り、読者向けの読み取り (記事一覧・本文・検索・カテゴリー・人物) はサイト単位で区切る既存方針を維持している。2つの区切りが別の軸である点が重要で、運営の内部評価をテナント境界に、読者に見せる内容をサイト境界に置くことで、読者経路から解析結果へ到達する経路そのものを作らない",
+          "tradeoffs": [
+            "境界の軸が2つになるため、どちらの境界で区切るべきかを新しい表を足すたびに判断する必要がある。単一の境界に揃える方が単純だが、運営の内部評価と読者向け内容を同じ軸で区切ると、片方を緩めたときにもう片方まで緩む",
+            "レジストリの要約をこちらで書いた要約と明示するため、原文の複製で済ませられない。取得元の文章をそのまま保存する方が手間は少ないが、複製の可否という別の判断を持ち込むことになる"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      }
+    },
+    {
+      "id": "qa-backend-web-seo-audit-writeback-p13-v2",
+      "question": "backend×web: feat-seo-aeo-gap-closure の実装で確定した、構造化データ (HowTo / Speakable) の導出規則と、AI 検索点検の履歴保持窓・定期再点検の運用値は何か (P13 書き戻し・v2)。",
+      "answer": "2026-09-04 時点の実装から取った確定値である。推定や設計値ではない。\n\n## 構造化データの導出規則\n\nHowTo の導出元は記事の `steps` 節だけで、0 件なら JSON-LD を出さない。記事型では分岐しない — 「`steps` 節を持つ = 手順記事」を前提に置く。補助情報 (所要時間・費用・事前準備) は有るときだけキーを出し、`null` を値として出さない。事前準備は `supply` にだけ写し `tool` は出さない。散文から材料と道具の区別は機械的に付かず、両方へ同じ段落を出すと嘘の構造が読む側に見える。\n\nSpeakable の指し先は `[data-speakable=\"answer\"]` と `[data-speakable=\"key-points\"]` の 2 つで、`id` ではなく `data-*` で揃える。`id` は目次アンカーと衝突し、片方を動かすともう片方が黙って壊れる。指し先が本文に実在することは検査で保証するが、**読んで意味の通る文かは記事を書く人の責任**である。\n\n## 点検履歴と定期再点検の運用値\n\n保持窓は記事ごと直近 30 件 (`AUDIT_HISTORY_WINDOW`)。日数で切ると更新の少ない記事の履歴が先に消えるが、そこがいちばん推移を見たい記事である。刈り取りは追記と同一トランザクションに入れ、履歴テーブルは記事へ外部キーを張らない。総量は「記事数 × 30 行」で頭打ちになり、運用年数では増えない。\n\n再点検は最終点検から 7 日超の公開記事を 1 起動 50 件まで拾う (`REAUDIT_AFTER_DAYS` / `REAUDIT_BATCH_LIMIT`)。既存の毎日 Cron に相乗りし、`0 17 * * *` (UTC 17:00 = 日本時間の翌 02:00) をトップレベル・dev・production の 3 か所すべてに置く。1 か所だけ直してもその環境でしか効かない。「7 日以内に全件」を満たせるのは 350 本まで。超えたら 1 回の件数ではなく cron の頻度を上げる — 処理量を増やすと実行時間上限に当たり、途中で切れた回が黙って部分適用になる。\n\n## 落ちた記事の見せ方\n\n再点検は人が起動しないので、落ちたことに気づく経路は管理画面の一覧しかない。一覧は落ちている記事だけを点検日の新しい順に並べ、項目名ではなく直し方の文を出す。**0 件のときも節を消さない。**消すと「全部通っている日」と「取得に失敗した日」が同じ見た目になる。導入直後は全記事が履歴 0 件から始まるため、この期間の 0 件を「全部通っている」と読むと誤る。\n\n## 未測定として残すもの\n\n(a) 実 D1 での 1 回の所要時間、(b) 記事 350 本超での挙動。いずれもリリース後の実環境でしか測れない。設計値のまま確定させず、未測定であることを明示して残す。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "導出規則は記事の保存実体だけを入力とする純粋関数に置き、まだ存在しない要求のための分岐を先回りで持たない",
+          "applicability": "applied",
+          "rationale": "HowTo の導出を記事型ではなく `steps` 節の有無だけで決めたのは、入力を記事の保存実体に限ることで同じ記事に対する出力が常に同じになるからである。記事型で分岐させると、型の追加のたびに導出規則側を触ることになり、変更の理由が 2 か所に散る。補助情報を `null` の値として出さず有るときだけキーを出すのも同じ理由で、欠落を欠落として表現すると読む側が『空文字列の所要時間』のような偽の値を受け取らずに済む",
+          "tradeoffs": [
+            "`steps` 節を持つ記事型が将来 `guide` 以外に増えると、意図せず HowTo が出る。これは事故ではなく設計どおりの帰結だが、増やす日に導出規則を見直す必要がある",
+            "`supply` にだけ写して `tool` を出さないため、schema.org が持つ材料と道具の区別を捨てている。区別したいなら記事フォーマット側に別の節を用意するのが先で、導出規則だけでは解けない"
+          ]
+        },
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "落ちても利用者の画面に何も起きない仕組みは、壊れていることと順調であることが同じに見える",
+          "applicability": "applied",
+          "rationale": "定期再点検は人が起動せず、失敗しても読者の画面は変わらない。だから 0 件のときも一覧の節を消さないと決めた — 消すと『全部通っている日』と『点検の取得に失敗した日』が同じ見た目になり、異常を異常として観測できなくなる。1 起動 50 件の上限も同じ思想で、処理量を増やして実行時間上限に当てると途中で切れた回が黙って部分適用になり、何件処理できたのかを誰も言えない状態が生まれる。上限に当てないことで、失敗した回は次の回がそのまま拾える",
+          "tradeoffs": [
+            "1 起動 50 件・7 日周期の組み合わせは公開記事 350 本までしか『7 日以内に全件』を満たせない。超えたときの手当ては件数ではなく cron 頻度になるが、頻度を上げる判断そのものは人が気づく必要がある",
+            "導入直後は全記事が履歴 0 件から始まるため、数日間は一覧が過少表示になる。この期間の 0 件を『全部問題ない』と読むと誤るが、仕組み側からはその区別を出していない"
+          ]
+        },
+        {
+          "knowledge_ref": "ddd.md#中核概念",
+          "principle": "監査記録は記録対象のライフサイクルに従属させない",
+          "applicability": "applied",
+          "rationale": "点検履歴のテーブルに記事への外部キーを張らないと決めたのは、記事を取り下げたときに履歴が連鎖削除されると『なぜ取り下げたか』を後から辿れなくなるからである。履歴は記事の一部ではなく、記事に対して行った判断の記録であり、寿命が異なる。刈り取りを追記と同一トランザクションに入れたのも同じ境界の話で、『追記されたが古い分が残っている』中間状態を外から観測できないようにしている",
+          "tradeoffs": [
+            "外部キーを張らないため、参照先の無い履歴行が残りうる。整合性の保証をデータベース制約ではなくアプリケーション側の責務へ移している",
+            "保持窓を件数 (30) で切ったため、更新頻度の高い記事ほど短い期間しか遡れない。日数で切ると逆に更新の少ない記事の履歴が先に消えるので、どちらかを選ぶ必要があった"
+          ]
+        }
+      ],
+      "superseded_by": "qa-backend-web-seo-audit-writeback-p13-v3"
+    },
+    {
+      "id": "qa-database-web-audit-history-window-p13-v2",
+      "question": "database×web: AEO/SEO 点検結果の履歴を D1 にどう保持するか。`dec-analysis-history-retention` が「根拠を持たない」として空にしていた保持窓の具体値と、その根拠は何か (P13 書き戻し・v2)。",
+      "answer": "`dec-analysis-history-retention` は `opt-append-with-window` (追記して窓で刈る) を採ったが、**窓の具体値は「根拠なく数値を確定しない」として空のまま**だった。決定は動いているのに値だけが仕様に無い状態は、実装が先に決めた値を誰も検証できないことを意味する。実装で確定した値を根拠付きで書き戻す。\n\n## 確定値と、その軸を選んだ理由\n\n保持窓は記事ごと直近 30 件 (`AUDIT_HISTORY_WINDOW`)。件数のみで切り、日数では切らない。日数の窓は更新の少ない記事の履歴を先に消すが、「更新が少ない = 古い情報のまま放置されている」記事こそ推移を見たい対象である。**日数の窓は、いちばん見たい記事の履歴をいちばん先に捨てる。**件数なら、どの記事も等しく直近 30 回ぶんを持つ。\n\n30 という値は積まれ方から出した。履歴が増える契機は (a) 公開のたびに 1 行、(b) 最終点検から 7 日超の記事を拾う定期再点検で 1 行。(b) だけでも約 7 か月ぶんが 30 件に収まる。caveat が求めた「施策の効果が現れるまでの期間」に対し、検索結果への反映が数週間から数か月であることを踏まえ、その 2〜3 倍を持てる値を採った。\n\n## 容量と、刈り取りの失敗の扱い\n\n総量は「記事数 × 30 行 × 約 1.5KB」で頭打ちになる。100 本で約 4.5MB、1,000 本で約 45MB。**運用年数が延びても増えない** — 増え方が記事数にだけ比例する。手で消す運用は要らない。\n\ncaveat は「刈り取りの失敗は容量が伸びるだけで画面に何も現れない」と警告していた。実装は**刈り取りを追記と同一トランザクションに入れる**ことで答えた。追記が成功して刈り取りだけが失敗する状態が存在しないので、最終実行時刻を別に記録して見張る必要が無い。追記が動いていれば刈り取りも動いている。\n\n## 記事が消えたときの扱いと、未確定のまま残すもの\n\n履歴テーブルは記事へ**外部キーを張らない**。取り下げたときに履歴が連鎖削除されると、取り下げた理由を後から辿れなくなる。監査記録は記録対象のライフサイクルに従属させない。\n\ncaveat が求めた「解析ロジックのバージョンを各行へ記録する」は、判定結果の一式を各行へ持つ形で満たしている。一方、**実 D1 での刈り取りを含む 1 回の所要時間は未測定**である。リリース後にログで初めて測れるので、設計値のまま確定させない。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "database",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ddd.md#中核概念",
+          "principle": "監査記録は記録対象のライフサイクルに従属させない",
+          "applicability": "applied",
+          "rationale": "点検履歴のテーブルに記事への外部キーを張らないと決めたのは、記事を取り下げたときに履歴が連鎖削除されると『なぜ取り下げたか』を後から辿れなくなるからである。履歴は記事の一部ではなく、記事に対して行った判断の記録であり、寿命が異なる。dec-analysis-history-retention が『上書きすると直したのに直っていないのか判定が変わったのかを区別できない』として履歴を選んだのと同じ理由が、記事の削除に対しても効く",
+          "tradeoffs": [
+            "外部キーを張らないため、参照先の無い履歴行が残りうる。整合性の保証をデータベース制約ではなくアプリケーション側の責務へ移している",
+            "記事を完全に消したい要求 (削除要請など) に対して、履歴側を別途たどって消す手順が要る"
+          ]
+        },
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "静かに失敗しうる処理は、見張る仕組みを足すより、失敗しえない構造にする方が先",
+          "applicability": "applied",
+          "rationale": "dec-analysis-history-retention の caveat は『刈り取りの失敗は容量が伸びるだけで画面に何も現れない』ため最終実行時刻と削除件数を記録せよと求めていた。実装は監視を足す代わりに、刈り取りを追記と同一トランザクションへ入れて『追記は成功したが刈り取りだけ失敗した』状態を存在させない構造を採った。見張る対象を増やすと、見張り自身が静かに壊れる経路が増える",
+          "tradeoffs": [
+            "追記の経路に刈り取りの負荷が常に乗る。件数が小さい (30) ため現規模では問題にならないが、窓を大きくすると追記のたびに重くなる",
+            "刈り取りだけを後追いで走らせる運用 (窓の値を変えたときの一括再適用など) は別の手段が要る"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "保持の窓は、いちばん見たいデータをいちばん先に捨てない軸で切る",
+          "applicability": "applied",
+          "rationale": "日数の窓は、更新の少ない記事の履歴を先に消す。だが『更新が少ない = 古い情報のまま放置されている』記事こそ点検結果の推移を見たい対象であり、日数で切るといちばん見たい履歴からいちばん先に失われる。件数で切れば、どの記事も等しく直近 30 回ぶんを持つ。総量も記事数にだけ比例して運用年数では増えないため、容量の見積りが先に立つ",
+          "tradeoffs": [
+            "更新の激しい記事では 30 件が短い期間しか覆わない。長期の推移を追いたい記事があれば、窓の値では解けず別の集約が要る",
+            "件数固定のため、記事数が増えると総量は線形に伸びる。350 本を超える規模では D1 の無料枠に対する余裕を再計算する必要がある"
+          ]
+        }
+      ],
+      "superseded_by": "qa-database-web-audit-history-window-p13-v3"
+    },
+    {
+      "id": "qa-backend-web-seo-audit-writeback-p13-v3",
+      "question": "backend×web: 定期 SEO/AEO 再点検の対象 0 件成功、一部失敗、全件失敗、対象取得失敗をどう区別し、最終実行時刻をどの workspace の管理画面に表示するか (P13 書き戻し・v3)。",
+      "answer": "2026-09-04 時点の実装では、記事単位の点検結果と cron 自体の実行結果を別の状態として扱う。記事は未点検／全合格／要修正／取得不能、定期再点検は未実行／成功／一部失敗／失敗／状態取得不能を区別する。成功は失敗 0 件で対象 0 件も含み、一部失敗は保存の成功と失敗が混在、全件の保存失敗と対象取得失敗は失敗とする。固定 failure code で後ろ 2 つも区別し、自由文の例外は保存しない。\n\nscheduler は非停止 workspace を列挙した後、既存の古い順の全体バッチを 1 回だけ取得する。1 起動の上限 50 件は変えず、処理結果だけを workspace 別に集計する。対象取得自体が失敗したときも、列挙済みの各 workspace へ失敗と開始／完了時刻を残してから入口へ失敗を返す。run-state の保存失敗も成功に潰さない。Worker はジョブごとの独立 `waitUntil` と catch を維持し、失敗時は成功ログを出さず retry も要求しない。DB binding が無い場合は警告ログのみとする。\n\n管理画面は actor の `workspaceId` だけを読み口へ渡し、隣の workspace の状態や件数を表示しない。各最終状態に開始時刻と最終完了時刻、この回の対象／保存／失敗件数を表示する。対象 0 件は「この回で再点検した記事は無い」という事実だけを示し、未実行や失敗と混ぜない。\n\nHowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上、1 起動 50 件、毎日 `0 17 * * *` の既存値は変えない。実 D1 での所要時間と記事 350 本超の挙動は引き続き未測定である。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "落ちても利用者の画面に何も起きない処理は、成功 0 件と未実行・失敗を同じ見た目にしない",
+          "applicability": "applied",
+          "rationale": "記事の落ち方と cron の健全性を分け、workspace ごとの最新 run-state・固定 failure code・時刻を管理画面に出す。これにより 0 件成功、未実行、取得失敗を判定できる",
+          "tradeoffs": [
+            "直近 1 回の投影だけを保存するため、cron 実行の長期トレンドはこの表からは読めない",
+            "D1 自体が利用できない障害では run-state も残せないため、固定ワーカーログを併用する"
+          ]
+        },
+        {
+          "knowledge_ref": "clean-architecture.md#中核概念",
+          "principle": "記事の点検結果と定期ジョブの実行状態を役割の異なる境界に分ける",
+          "applicability": "applied",
+          "rationale": "既存の記事点検履歴を汎用ジョブイベントに変えず、SEO 再点検専用の domain・port・最新状態だけを追加した。管理画面も記事 4 状態と run 状態を別の節で読む",
+          "tradeoffs": [
+            "SEO 再点検以外のジョブに同じ表を流用できないが、未確定の汎用イベント基盤は持たない"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-database-web-audit-history-window-p13-v3",
+      "question": "database×web: 点検履歴と定期再点検の最新実行状態を D1 にどう分けて保存し、workspace 境界と状態整合を保証するか (P13 書き戻し・v3)。",
+      "answer": "記事単位の点検履歴は既存 0044 の `ai_search_audit_history` に保持し、記事ごと直近 30 件、追記と刈り取りを同一トランザクション、記事への外部キー無しという規則は変えない。刈り取り単体の実行マーカーは不要だが、それは cron 全体の成否を記録しないという意味ではない。\n\n0044 を編集せず、0045 で SEO 再点検専用の `ai_search_reaudit_runs` を追加する。これは履歴を無限に追記する表ではなく、1 workspace に直近の最終状態 1 行を上書き保存する投影である。`workspace_id` を主キーとして `workspaces.id` へ外部キーを持ち、管理画面の取得 SQL は必ず actor の `workspace_id` で絞る。\n\n`status` は `succeeded | partial | failed`、`failure_code` は `target_list_unavailable | article_audit_failed | null`。非負整数と `scanned = recorded + failed`、完了時刻が開始時刻以上、status・failure code・件数の正しい組み合わせを D1 CHECK 制約で保証する。時刻は UTC epoch 秒の integer timestamp で、`started_at` と `completed_at` を持つ。実行結果に自由文や秘匿情報は保存しない。\n\n0045 適用時に過去の cron を推定して backfill せず、初期は「未実行」と読む。次の cron 完了後に初めて最終状態と時刻が入る。巻き戻しは 0045 の表を先に落とし、その後に必要なら 0044 を落とす。記事本体は変更しない。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "database",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ddd.md#中核概念",
+          "principle": "記事の監査履歴とジョブの最新健全性投影を、異なるライフサイクルとして分ける",
+          "applicability": "applied",
+          "rationale": "記事点検は過去 30 回の比較に要る追記履歴、run-state は今の運用健全性に要る直近 1 行である。同じ表に混ぜず、後者だけを workspace 主キーで上書きする",
+          "tradeoffs": [
+            "過去の cron 実行の推移は run-state 表からは読めないが、そのための汎用イベント基盤は作らない",
+            "workspace 行を物理削除する前に run-state の扱いも決める必要があるため、現行どおり workspace は削除ではなく停止で扱う"
+          ]
+        },
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "観測状態自体にも、成功と失敗を取り違えない制約を置く",
+          "applicability": "applied",
+          "rationale": "対象 0 件成功と対象取得失敗が同じ 0 件に見えないよう status と固定 failure code を分け、件数と時刻を CHECK 制約で結び付ける",
+          "tradeoffs": [
+            "状態語彙を増やす際は domain 型、migration 制約、表示を同時に変更する必要がある"
+          ]
+        }
+      ]
     }
   ],
   "approval_log": [
@@ -3104,6 +3487,10 @@
     {
       "id": "approval-platform-web-only",
       "note": "2026-08-16 AskUserQuestion で利用者が「Webのみ」を選択"
+    },
+    {
+      "id": "approval-foundation-2",
+      "note": "2026-09-03 利用者の指示により上位概念へ G3 (読者向け UI/UX と SEO/AEO の機械可読構造・その解析と反映) を追加し再確定。根拠発言: 「この共有しているブログよりも、UI/UXをさらに良くして…SEOに強いかというところも踏まえて…ブログ用のエディターの部分も改善しておいてください」「SEOやAIO、AIのSEOのようなものに対しても対応できるようにしておいてください」「https://hitodeblog.com/blog-money-sikumi こちらのブログの方を参考にしてください」「aeo,SEO対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしいです」「これらの今回の内容をすべて実行したいので、そのためのタスク仕様書をすべて作成しておいてください」"
     }
   ],
   "reopen_log": [
@@ -5221,6 +5608,220 @@
           }
         ]
       }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "feat-seo-aeo-gap-closure の実装が完了し、構造化データの導出規則 (HowTo/Speakable) と点検履歴の保持窓・定期再点検の運用値が実装側で確定した。決めた内容と動いている内容の差を閉じるため、実装確定内容を裏付け質疑として backend.web セルへ書き戻す (P13)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-blog-creation-atomicity",
+        "qa_refs": [
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "dec-analysis-history-retention は保持件数の具体値を「根拠を持たない」として未確定のまま残していたが、feat-seo-aeo-gap-closure の実装で AUDIT_HISTORY_WINDOW = 30 として確定した。決めた内容と動いている内容の差を閉じるため、確定値と根拠を裏付け質疑として database.web セルへ書き戻す (P13)。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-blog-provisioning-integrity",
+        "qa_refs": [
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics",
+          "qa-database-web-aeo-analysis-storage-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          },
+          {
+            "checked_on": "2026-09-04",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "P13 の書き戻しで作った qa-backend-web-seo-audit-writeback-p13 が、正本の契約を満たしていなかった。written-requirements を名乗りながら引用先の path も指紋も持たず (REQ-TS20)、answer が ### 見出しを 2 つ持って束ね上限を割り (REQ-TS19)、章が行数の天井を超えた。契約に適合する v2 へ差し替えるため再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-blog-creation-atomicity",
+        "qa_refs": [
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4",
+          "qa-backend-web-seo-audit-writeback-p13"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-04",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "P13 の書き戻しで作った qa-database-web-audit-history-window-p13 が、正本の契約を満たしていなかった。written-requirements を名乗りながら引用先の path も指紋も持たない (REQ-TS20)。契約に適合する v2 へ差し替えるため再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-blog-provisioning-integrity",
+        "qa_refs": [
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics",
+          "qa-database-web-aeo-analysis-storage-v4",
+          "qa-database-web-audit-history-window-p13"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-04",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "反復2で、定期SEO再点検の実行成否・開始時刻・最終完了時刻をworkspace別run-stateとして管理画面へ表示する実装が追加された。対象0件成功と未実行・対象取得失敗、部分失敗と全件失敗を区別する現行実装へ確定内容を更新する。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-blog-creation-atomicity",
+        "qa_refs": [
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4",
+          "qa-backend-web-seo-audit-writeback-p13-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-04",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "反復2で0044を保ったまま0045のworkspace別SEO再点検run-state投影を追加した。点検履歴の保持とcron実行状態の保持を分ける現行スキーマへ確定内容を更新する。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-blog-provisioning-integrity",
+        "qa_refs": [
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics",
+          "qa-database-web-aeo-analysis-storage-v4",
+          "qa-database-web-audit-history-window-p13-v2"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-04",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -5293,11 +5894,27 @@
     {
       "target_id": "github-actions",
       "category": "maintenance-ops"
+    },
+    {
+      "target_id": "google-search-central",
+      "category": "frontend"
+    },
+    {
+      "target_id": "schema-org",
+      "category": "frontend"
+    },
+    {
+      "target_id": "w3c-wai-aria",
+      "category": "ui-ux"
+    },
+    {
+      "target_id": "web-dev-core-web-vitals",
+      "category": "frontend"
     }
   ],
   "requirements_foundation": {
     "essential_purpose": "発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
-    "background": "アフィリエイトURL・ASP管理画面・商品情報・比較表・記事原稿・SNS投稿文・画像・ペルソナ・投稿スケジュール・クリック数・成果報酬・更新履歴が別々の場所で管理され、同じ商品名・価格・特徴を何度も入力し、修正時にも複数の投稿を個別に直す必要が生じている。",
+    "background": "アフィリエイトURL・ASP管理画面・商品情報・比較表・記事原稿・SNS投稿文・画像・ペルソナ・投稿スケジュール・クリック数・成果報酬・更新履歴が別々の場所で管理され、同じ商品名・価格・特徴を何度も入力し、修正時にも複数の投稿を個別に直す必要が生じている。加えて、公開したブログ記事が読者に読み進められるか、検索エンジンとAI検索から見つけられ引用されるかは、書き手の手作業と勘に委ねられており、機械可読要素 (構造化データ・見出し階層・画像代替テキスト・内部リンク・広告の明示) の欠落が公開後も検出されないまま残る。参考サイト実測 (hitodeblog.com/blog-money-sikumi) でも画像83枚中altが有効なのは8枚、FAQPage/HowTo/Speakableは不在であり、この領域は業界的にも取りこぼされている。",
     "goals": [
       {
         "id": "G1",
@@ -5306,6 +5923,10 @@
       {
         "id": "G2",
         "text": "どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる"
+      },
+      {
+        "id": "G3",
+        "text": "公開したブログが、読者にとって読み進めやすく、かつ検索エンジンとAI検索の双方から見つかり引用される機械可読な構造を持ち、その充足度を解析して次の記事と既存記事へ反映できる"
       }
     ],
     "objectives": [
@@ -5318,12 +5939,19 @@
         "id": "O2",
         "text": "クリック・成果の要因分析が可能な計測カバレッジを確保する",
         "measure": "成果のアトリビューション突合率 (sub_id/クリックID一致の割合)"
+      },
+      {
+        "id": "O3",
+        "text": "公開記事の機械可読要素の充足率を上げ、欠落を公開前に検出できる状態を保つ",
+        "measure": "公開記事あたりの SEO/AEO 充足率 (構造化データ必須種別・見出し階層・画像altとwidth/height・canonical・広告rel の充足割合) と、公開前に検出された欠落の割合"
       }
     ],
     "success_criteria": [
       "情報源↔商品↔主張↔コンテンツパッケージ↔媒体別文章↔投稿↔クリック↔成果の経路を双方向に追跡できる",
       "第30章の受け入れ条件 (URL登録・比較・ペルソナ・AI生成・ブログ・配信・アフィリエイト・追跡可能性) をすべて満たす",
-      "配置・切り口・ペルソナ別のCTR/CVR/EPCを比較でき、根拠のない発見を表示しない"
+      "配置・切り口・ペルソナ別のCTR/CVR/EPCを比較でき、根拠のない発見を表示しない",
+      "参考サイト実測 (hitodeblog.com/blog-money-sikumi) に対し、画像alt被覆率・構造化データ種別数 (FAQPage/HowTo/Speakable を含む)・本文外見出しの混入率・目次の重複読み上げの4点で上回ることを、機械が検証できる",
+      "SEO/AEO の欠落が、公開前に管理画面のエディター上で名指しで提示され、その場で直せる"
     ],
     "stakeholders": [
       "読者: 自分に合う商品かを根拠と弱点込みで判断でき、広告であることを認識できる",
@@ -5397,10 +6025,41 @@
           "G2",
           "G1"
         ]
+      },
+      {
+        "id": "I5",
+        "text": "読者向けブログ画面の UI/UX を、参考サイト実測を根拠に組み立てる (スクロール追従する目次・検索窓とカテゴリー/タグ/ブランドのサイドバー導線・分類ごとのアイコン・広告と本文の視覚的区別)。参考サイトの弱点 (alt欠落・目次の二重読み上げ・本文外見出しの混入) は繰り返さない",
+        "serves": [
+          "G3",
+          "G1"
+        ]
+      },
+      {
+        "id": "I6",
+        "text": "SEO/AEO の機械可読要素を記事の実データから生成する (Article/Person/Organization/BreadcrumbList に加え FAQPage/HowTo/Speakable、canonical、OGP、robots max-image-preview、見出し階層、画像の alt と width/height、広告リンクの rel)。人手で書き足す前提にしない",
+        "serves": [
+          "G3"
+        ]
+      },
+      {
+        "id": "I7",
+        "text": "公開記事の SEO/AEO 充足度を解析し、不足を名指しで管理画面へ差し戻して、書き手がその場で直せる仕組みを整える。解析は記事の実データを入力とし、外部順位データの推測で判断しない",
+        "serves": [
+          "G3",
+          "G2"
+        ]
+      },
+      {
+        "id": "I8",
+        "text": "記事作成エディター (管理画面) の UI/UX を、見出し階層・画像alt・内部リンク・構造化データの素材が書きながら揃う形へ改善し、公開前に欠落が見える状態にする",
+        "serves": [
+          "G3",
+          "G1"
+        ]
       }
     ],
     "confirmed": true,
-    "approval_ref": "approval-foundation-1",
+    "approval_ref": "approval-foundation-2",
     "provenance": {
       "scope": {
         "source_qa_id": "qa-foundation-u7",
@@ -5582,7 +6241,7 @@
           "section": "§32 (L2441)",
           "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5593,7 +6252,7 @@
           "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5603,7 +6262,7 @@
           "section": "§27.1",
           "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5613,7 +6272,7 @@
           "section": "§27.1",
           "quote": "単なる生成数や投稿数を中心指標にしない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5623,7 +6282,7 @@
           "section": "§7.1 (L489)",
           "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5633,7 +6292,7 @@
           "section": "L475",
           "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5643,7 +6302,7 @@
           "section": "§30.8",
           "quote": "次の経路を双方向に追跡できる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5653,7 +6312,7 @@
           "section": "§30 (L2278)",
           "quote": "## 30.1 URL登録\n\n* アフィリエイトURLを元の状態で保存できる\n* 商品を識別できる\n* 不確実な場合は確認待ちになる\n* 情報源を確認できる\n* 危険なURLを拒否できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5663,7 +6322,7 @@
           "section": "L683",
           "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5673,7 +6332,7 @@
           "section": "§2.2",
           "quote": "* 自分に合う商品か判断できる\n* 商品の長所だけでなく弱点も確認できる\n* 他の商品との違いが分かる\n* おすすめの根拠を確認できる\n* 広告・アフィリエイトであることを認識できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5683,7 +6342,7 @@
           "section": "§2.3",
           "quote": "* 商品調査を媒体ごとに繰り返さなくてよい\n* 一つの情報から複数媒体向けコンテンツを作れる\n* 自分らしい文章表現を維持できる\n* 読者層ごとに文章を変えられる\n* 複数ブログを一つの管理画面で運営できる\n* アフィリエイトリンクを一元管理できる\n* 公開済みコンテンツの古い情報を検出できる\n* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5693,7 +6352,7 @@
           "section": "§25 (L2006-2019)",
           "quote": "| Researcher         | 商品、比較、根拠        |\n| Writer             | 原稿、生成、修正        |\n| Reviewer           | 事実、表現、広告確認      |\n| Publisher          | 予約、公開、更新        |\n| Analyst            | 分析、レポート         |",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5703,7 +6362,7 @@
           "section": "§2.1 (L85)",
           "quote": "> 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5713,7 +6372,7 @@
           "section": "§3.1 (L121)",
           "quote": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5723,7 +6382,7 @@
           "section": "§3.4 (L184)",
           "quote": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5733,7 +6392,7 @@
           "section": "§3.4 (L186)",
           "quote": "一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5743,7 +6402,7 @@
           "section": "§10.1 (L767)",
           "quote": "`original_url` は、成果計測に必要な情報を保持するため変更しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5753,7 +6412,7 @@
           "section": "§20 (L1614)",
           "quote": "日本では、広告であるにもかかわらず広告であることを判別しにくい表示が、景品表示法上のステルスマーケティング規制の対象となる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5763,7 +6422,7 @@
           "section": "§5.5 (L326)",
           "quote": "外部公開、予約投稿、個人情報送信、アフィリエイトリンク挿入などの重要操作は、原則として人間の確認を経る。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5773,7 +6432,7 @@
           "section": "§1 (L38)",
           "quote": "同一商品・類似商品・比較候補を抽出",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5783,7 +6442,7 @@
           "section": "§1 (L44)",
           "quote": "ブログ・X・Instagram・Threads・note等の媒体別に文章を生成",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5793,7 +6452,7 @@
           "section": "§1 (L50)",
           "quote": "クリック・成果・反応を収集",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5803,7 +6462,7 @@
           "section": "§27.5 (L2174)",
           "quote": "商品の編集評価には自動反映しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -5813,7 +6472,139 @@
           "section": "§21 (L1425)",
           "quote": "X APIは投稿作成に対応し、現在は従量課金型で提供されているため、投稿件数だけでなくAPI利用コストもConnector側で監視する。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-08-31",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "goals[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）",
+          "quote": "利用者の指示: 「この共有しているブログよりも、UI/UX をさらに良くして」「見えない部分の情報も含めて、どのようにしたら SEO に強いか」「ブログ用のエディターの部分も改善」「SEO や AIO、AI の SEO のようなものに対しても対応できるように」「AEO,SEO 対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしい」。参考は makuring.jp から hitodeblog.com/blog-money-sikumi へ変更。",
+          "note": "G3 の四要素 (UI/UX を良くする・SEO に強い構成・AEO 対応・解析して反映する仕組み) は、この一文で利用者自身が述べている",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "objectives[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§4. 機械可読要素の生成と欠落の検出（frontend × web）",
+          "quote": "公開済み記事1本ごとに、上記のうち検証可能な項目の充足を判定する純粋関数を置く。判定は記事の保存実体だけを入力とし、外部の順位データや推測を混ぜない。判定結果は項目名・該当箇所・不足理由を持ち、管理画面のエディターへそのまま差し戻せる形で返す。アーキテクチャテストで、この判定関数が読者向け描画と同じ投影を読んでいることを機械が確認する。",
+          "note": "O3 前半『機械可読要素の充足を判定する』の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "objectives[2]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）",
+          "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
+          "note": "O3 後半『欠落を公開前に検出する』の出所 (編集中に同じ画面へ出す、と述べている)",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "objectives[2].measure",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§5. SEO/AEO 充足度の解析と反映（backend × web）",
+          "quote": "公開済み記事の保存実体を入力に、検証可能な項目の充足を判定する純粋関数をドメイン層に置く。判定項目は index 可否 (noindex/robots)・canonical の有無・JSON-LD の型と必須プロパティ・見出し階層の妥当性 (本文外見出しの混入なし)・画像の alt 被覆と width/height・広告リンクの rel・最終更新日の表示・結論/FAQ/手順/出典ブロックの有無・最終更新からの経過日数。各項目は充足/不足/対象外の3値と、不足時の該当箇所を返す。順位・流入・引用率のような外部由来の推定値は判定に含めない。含めると、確かめられない数字を根拠に記事を書き換えることになる。",
+          "note": "測る対象の列挙。O3.measure の項目はこの一文の判定項目と一対一で対応する",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "success_criteria[3]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）",
+          "quote": "(a) 画像 alt の被覆率を100%にする。alt が空の画像は公開前に欠落として名指しで提示し、装飾画像は明示的に装飾と宣言したときだけ空 alt を許す。参考サイトは83枚中8枚しか無く、読み上げでも画像検索でも情報が落ちている。\n(b) 目次は1記事につき1つの見出しリストだけを支援技術へ露出する。追従表示 (サイドバー) と本文内表示を両方出す場合でも、同じ見出しを2度読み上げさせない。参考サイトはここが二重になっている。\n(c) 本文外の導線 (関連記事・SNS・広告) に h2 を使わず、本文の見出し階層を汚さない。参考サイトは本文外 h2 が13個あり主題がぼやけている。\n(d) 構造化データは Article/BlogPosting・Person (著者)・Organization・BreadcrumbList に加え、FAQ ブロックから FAQPage、手順ブロックから HowTo、結論ブロックから Speakable を出す。参考サイトはこの3種が無く、設問に答える形の引用元になりにくい。",
+          "note": "参考サイト実測に対して上回る 4 点 (alt 被覆・目次の重複・本文外見出し・構造化データ種別) の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "success_criteria[4]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）",
+          "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
+          "note": "公開前にエディター上で名指しし、その場で直せる、という形の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[4]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）",
+          "quote": "左サイドバーに、検索窓・カテゴリー・タグ・ブランドから探す導線を置き、分類ごとにアイコンを添える。アイコンは既存の共通アイコン層 (lucide 由来の役割名) の語彙で表し、分類ごとに独自 SVG を増やさない。目次はスクロール追従し、現在読んでいる節を示す。広告と本文は視覚的に区別し、広告リンクは rel を機械にも読者にも明示する。狭い画面では追従目次を折りたたみ、本文の可読幅を優先する。",
+          "note": "I5 の読者向け画面 (検索窓・分類導線・アイコン・追従目次・広告の区別) の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[4]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）",
+          "quote": "(a) 画像 alt の被覆率を100%にする。alt が空の画像は公開前に欠落として名指しで提示し、装飾画像は明示的に装飾と宣言したときだけ空 alt を許す。参考サイトは83枚中8枚しか無く、読み上げでも画像検索でも情報が落ちている。\n(b) 目次は1記事につき1つの見出しリストだけを支援技術へ露出する。追従表示 (サイドバー) と本文内表示を両方出す場合でも、同じ見出しを2度読み上げさせない。参考サイトはここが二重になっている。\n(c) 本文外の導線 (関連記事・SNS・広告) に h2 を使わず、本文の見出し階層を汚さない。参考サイトは本文外 h2 が13個あり主題がぼやけている。",
+          "note": "I5 の『参考サイトの弱点を繰り返さない』が指す 3 点の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[5]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§4. 機械可読要素の生成と欠落の検出（frontend × web）",
+          "quote": "機械可読要素は記事の保存実体から導出する。人手で別途書き足す前提の欄を作らない。書き足しが要るのは『元データが無い情報』(著者の経歴・出典 URL・FAQ の設問文) だけで、それ以外 (見出し階層・パンくず・公開日・更新日・画像寸法) は保存実体から計算する。読者面と管理画面プレビューは同じ public-site-projection を通し、描画経路を二重に持たない。",
+          "note": "I6 の『人手で書き足す前提にしない』の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[5]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§4. 機械可読要素の生成と欠落の検出（frontend × web）",
+          "quote": "(1) JSON-LD: Article/BlogPosting・Person (著者)・Organization・BreadcrumbList を常時、FAQ ブロックがあれば FAQPage、手順ブロックがあれば HowTo、結論ブロックがあれば Speakable を出す。schema.org の型と必須プロパティを検証する純粋関数を置き、テストで妥当性を確認する。ブロックが無い記事に空の構造化データを出さない。\n(2) head: canonical、og:type/title/url/description/image/site_name、twitter:card=summary_large_image、robots に max-image-preview:large を出す。\n(3) 画像: width/height を必ず出して読み込み中の版面ずれを防ぎ、本文外の画像は遅延読み込み、ヒーロー画像は先読みする。alt は保存実体の値をそのまま出し、空を許すのは装飾宣言済みのときだけ。\n(4) 見出し: 本文の見出しだけを h2/h3 として出し、関連記事・SNS・広告の見出しは本文階層に混ぜない。\n(5) 目次: 追従表示と本文内表示のどちらを出しても、支援技術へ露出する見出しリストは1つに保つ。\n(6) リンク: 広告・アフィリエイトリンクには rel に sponsored (必要に応じ nofollow) を機械的に付ける。付け忘れを手作業に委ねない。",
+          "note": "I6 が列挙する機械可読要素の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[6]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§5. SEO/AEO 充足度の解析と反映（backend × web）",
+          "quote": "解析結果は2つの経路で反映する。(a) 管理画面の記事エディターへ、不足項目を名指しで差し戻す。書き手はその場で直せる。(b) 記事一覧に充足度を出し、どの記事から直すべきかを判断できるようにする。自動で本文を書き換えない。自動書き換えは、書き手が読んでいない文章が公開される状態を作る。",
+          "note": "I7 の『不足を名指しで管理画面へ差し戻す』の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
+          "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[7]",
+          "kind": "written-requirements",
+          "path": "docs/spec/dialogue-confirmations.md",
+          "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）",
+          "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
+          "note": "I8 のエディター改善 (ブロック既定配置・alt 入力の促し・見出し階層・充足度表示) の出所",
+          "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+          "sealed_on": "2026-09-04",
           "sealed_with": "seal-foundation-sources"
         }
       ]
@@ -5944,7 +6735,9 @@
         "option_id": "opt-better-auth",
         "confirmed_at": "2026-08-16T00:00:00Z",
         "note": "2026-08-16 AskUserQuestion で利用者が A. Better Auth を選択"
-      }
+      },
+      "owner_category": "auth",
+      "recorded_with": "set-decision"
     },
     {
       "id": "decision-editorial-commercial-split",
@@ -6047,7 +6840,9 @@
         "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
         "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。本番データがまだ無い (ah-08q 未着手) ため、いま分けるのが最も安く、本番データに触る境界にも当たらない。運用開始後に分けると移送が要る。",
         "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
-      }
+      },
+      "owner_category": "database",
+      "recorded_with": "set-decision"
     },
     {
       "id": "decision-redirect-measurement-async",
@@ -6177,7 +6972,9 @@
         "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
         "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。有料プランの契約状態はこちらから確かめられないが、この推奨はその事実に依存しない(無料の範囲で成立する)。Queues は費用のかかる上げ方なので caveats に置き、必要になった時点で別途判断する。",
         "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
-      }
+      },
+      "owner_category": "infrastructure",
+      "recorded_with": "set-decision"
     },
     {
       "id": "decision-llm-provider",
@@ -6309,7 +7106,9 @@
         "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
         "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。鍵は利用者本人がブラウザまたは別の端末で登録する。鍵の値をこちらで受け取らないし、要求もしない。",
         "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
-      }
+      },
+      "owner_category": "backend",
+      "recorded_with": "set-decision"
     },
     {
       "id": "decision-ui-theme-implementation",
@@ -6405,7 +7204,9 @@
         "confirmation_mode": "推奨への一任 (候補の比較根拠を示したうえでの委任)",
         "note": "利用者本人が「お任せ、ベストプラクティスで選定」と回答。推奨どおり採用。",
         "recorded_with": "キャッシュ側 install (system-spec-harness 0.1.2) の apply-spec-transition.py で書いた。この writer は state の schema_version を検査しない（門が無い）。プロジェクト側の writer は 1.1 との exact 一致を要求するため、1.2 のこの正本には届かない。門を通したのではなく、門が無い writer で書いた。"
-      }
+      },
+      "owner_category": "frontend",
+      "recorded_with": "set-decision"
     },
     {
       "id": "decision-test-ci-tooling",
@@ -6506,7 +7307,9 @@
         "provenance": "利用者本人が 2 つの選択肢 (「現行のままで確定」/「まだ保留のまま」) から直接選んだ結果である。AI の推奨をそのまま確定へ昇格させたものではなく、オーケストレーターが代理で決めたものでもない。選択肢の提示と回答の受け取りはオーケストレーターが行い、上記 verbatim は利用者の回答原文である。",
         "why_this_distinction_is_recorded": "この記録を書いた実装担当は、当初『オーケストレーターからの伝聞だけでは status を confirmed にできない』として作業を止めた。gap 4 が求めているのは『利用者本人の確定』であり、伝聞を確定として書けば、この gap が存在する理由そのもの (本人しか決められないことを本人に確かめる) を空洞化させるためである。とくにこの決定は、recommendation の caveats が『不要と判断した』と『走る段が決まるまで保留した』を明確に区別しており、確定 (opt-keep-current) と保留はそもそも別の状態である。どちらを意味していたかは本人にしか決められない。次にこの記録を更新する人も、同じ区別を保つこと: 推奨・伝聞・代理判断のいずれも user_decision には入れない。"
       },
-      "recorded_with": "プロジェクト側 install (.claude/plugins/system-spec-harness) の apply-spec-transition.py set-decision で書いた。この writer は schema_version の門を持ち、正本の 1.2 を受理する。以前この record を書いた際は『門が無い writer で書いた』状態だった (gap 5) が、schema・writer・網羅性検証を 1.2 まで通した (5534f4c) ため、今回は門を通って書かれている。"
+      "owner_category": "maintenance-ops",
+      "recorded_with": "set-decision",
+      "prior_unverified_provenance": "プロジェクト側 install (.claude/plugins/system-spec-harness) の apply-spec-transition.py set-decision で書いた。この writer は schema_version の門を持ち、正本の 1.2 を受理する。以前この record を書いた際は『門が無い writer で書いた』状態だった (gap 5) が、schema・writer・網羅性検証を 1.2 まで通した (5534f4c) ため、今回は門を通って書かれている。"
     },
     {
       "id": "decision-screen-priority",
@@ -6604,6 +7407,7 @@
         "confirmation_mode": "本人回答の優先 (qa-uiux-web-screen-priority の逐語回答を、既存の要件 ID 本文より優先すると本人が判断)",
         "note": "利用者本人が「本人回答（成績比較が先頭）」を選択。qa-uiux-web-screen-priority に記録された逐語回答と一致する。UIUX-REQ-001 の本文更新は設計側の作業として残す。"
       },
+      "owner_category": "ui-ux",
       "recorded_with": "set-decision"
     },
     {
@@ -6736,15 +7540,570 @@
         "confirmed_at": "2026-08-31T00:00:00Z",
         "note": "利用者がサブドメイン方式を選択し、あわせてドメイン対応を今回の実装範囲に含めることを選択した。"
       },
+      "owner_category": "infrastructure",
+      "recorded_with": "set-decision"
+    },
+    {
+      "id": "dec-structured-data-emission",
+      "question": "構造化データ (Article/BlogPosting・FAQPage・HowTo・Speakable・BreadcrumbList) と canonical・OGP・robots を、どこで生成するか。現状は記事本文へ書き手が書き込む前提の箇所があり、書かれなければ欠落したまま公開される。",
+      "status": "confirmed",
+      "serves_goals": [
+        "G3",
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-author-embedded",
+          "label": "記事本文へ書き手が JSON-LD を書き込む",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "実装費用は最小 (本文をそのまま出力するだけ)。ただし記事1本ごとに書き手の作業時間が加算され、記事数に比例して費用が増える。"
+          },
+          "free_tier_limits": "追加のインフラを使わないため制限なし。",
+          "goal_fit": "G3 の『機械可読な構造を持つ』は満たしうるが、『人手で書き足す前提にしない』という I6 の要件と正面から衝突する。",
+          "security_fit": "書き手の入力がそのまま script タグとして出力されるため、JSON-LD 経由の XSS の入口になる。エスケープと schema 検証を必ず挟む必要がある。",
+          "pros": [
+            "実装が最小で、特殊な記事に任意の型を差し込める",
+            "生成ロジックの間違いが全記事へ波及しない"
+          ],
+          "cons": [
+            "書き忘れが検出されないまま公開される (現状の問題そのもの)",
+            "記事データと構造化データが二重管理になり、本文を直しても構造化データが古いまま残る",
+            "型の仕様変更を全記事へ反映できない"
+          ],
+          "risks": [
+            "書き手ごとに記法が揺れ、機械可読であるつもりで機械が読めない記事が積み上がる",
+            "本文由来の JSON-LD が script として出力され、XSS 経路になる"
+          ],
+          "lock_in": "低い。ただし蓄積した手書き JSON-LD は移行時に全記事の書き換えが必要になる。",
+          "ops_burden": "高い。記事ごとの人手作業が恒常的に発生する。",
+          "evidence_refs": [
+            "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+            "https://schema.org/docs/releases.html"
+          ]
+        },
+        {
+          "id": "opt-render-time-derive",
+          "label": "配信時に記事データから導出する (Worker のレンダリング経路で生成)",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "既存の Next.js on Workers の配信経路に生成関数を足すだけで、追加のインフラ・追加の保存領域が発生しない。生成は記事1本あたり数ミリ秒の文字列組み立てで、CPU 時間の増分は無料枠の消費として無視できる。"
+          },
+          "free_tier_limits": "Workers の無料枠 (1日あたりのリクエスト数と CPU 時間) の範囲内。追加のサブリクエストを発生させない。",
+          "goal_fit": "G3 に直接資する。記事データが正本となるため、本文・見出し・画像・公開日を直せば構造化データが自動で追従し、I6 の『人手で書き足す前提にしない』を構造で満たす。",
+          "security_fit": "生成が1関数に閉じるため、エスケープと型検証の実施箇所が1か所になる。書き手の入力は値として埋め込まれ、記法としては埋め込まれない。",
+          "pros": [
+            "記事データが唯一の正本になり、本文と構造化データがずれない",
+            "型の仕様変更を1か所の修正で全記事へ反映できる",
+            "解析 (充足度チェック) と生成が同じ記事データを見るため、判定と出力が食い違わない"
+          ],
+          "cons": [
+            "生成関数の不具合が全記事へ同時に波及する",
+            "記事データに無い情報 (FAQ の質問文など) は、記事データ側の項目として持たせる設計が必要になる",
+            "配信のたびに生成するため、同じ出力を繰り返し組み立てる"
+          ],
+          "risks": [
+            "記事データの項目設計が不足すると、FAQPage/HowTo のような型が生成できず、型の数だけが目標化する",
+            "生成関数の回帰を検出する検査が無いと、構造化データが静かに壊れても画面上は何も変わらない"
+          ],
+          "lock_in": "低い。生成は純関数として切り出せ、ビルド時生成へ移す場合も同じ関数を呼ぶ位置を変えるだけで済む。",
+          "ops_burden": "低い。運用操作が発生せず、記事の更新に自動で追従する。",
+          "evidence_refs": [
+            "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+            "https://schema.org/docs/releases.html",
+            "https://developers.cloudflare.com/workers/",
+            "https://nextjs.org/docs"
+          ]
+        },
+        {
+          "id": "opt-build-time-static",
+          "label": "ビルド時に静的生成して記事へ焼き込む",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加のインフラ費用は無い。ただし記事の更新ごとに再ビルドが要り、ビルド時間と CI 実行時間が記事数に比例して伸びる。"
+          },
+          "free_tier_limits": "GitHub Actions の公開リポジトリ無料枠の範囲内だが、記事数が増えるとビルド時間が枠を圧迫する。",
+          "goal_fit": "G3 を満たすが、記事の更新から公開までにビルドを挟むため、『欠落を公開前に直してすぐ出す』という運用の速さを落とす。",
+          "security_fit": "配信時に動的な組み立てが無く、出力が固定されるため攻撃面は最小。",
+          "pros": [
+            "配信時の計算が無く、出力が完全に決定論になる",
+            "生成結果を成果物として検査でき、公開前に中身をそのまま確認できる"
+          ],
+          "cons": [
+            "記事を1文字直すたびに再ビルドが要る",
+            "管理画面からの公開が即時に反映されず、記事作成の体験が落ちる",
+            "本システムは記事を D1 に持つ動的サイトで、静的生成の前提と噛み合わない"
+          ],
+          "risks": [
+            "ビルド失敗が公開の停止に直結する",
+            "記事数の増加でビルド時間が伸び、公開までの遅延が徐々に悪化する"
+          ],
+          "lock_in": "中。ビルドパイプラインへの依存が生まれ、配信時生成へ戻すにはパイプラインの解体が要る。",
+          "ops_burden": "中。ビルドの監視と失敗時の復旧が要る。",
+          "evidence_refs": [
+            "https://nextjs.org/docs",
+            "https://developers.cloudflare.com/workers/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-render-time-derive",
+        "rationale": "I6 は『人手で書き足す前提にしない』と明記しており、手書き案はこの要件そのものを満たさない。ビルド時生成は出力の決定論性で勝るが、本システムは記事を D1 に持ち管理画面から即時公開する動的サイトで、記事1文字の修正に再ビルドを挟む構造は U5 の『公開前にその場で直せる』と噛み合わない。配信時導出は、記事データを唯一の正本とすることで生成と解析が同じ入力を見る状態を作れる — これは dec-aeo-analysis-trigger で選ぶ解析の判定が、実際に出力される構造化データと一致することを構造で保証する。",
+        "caveats": [
+          "生成関数の回帰は画面から見えない。構造化データの出力を対象にした検査を実装と同時に置くこと。置かなければ『生成しているつもりで壊れている』状態が長期間検出されない",
+          "FAQPage/HowTo/Speakable は記事本文から機械的に導出できない情報を要する。記事データ側にその項目を持たせる設計を先に決めること。持たせずに始めると、生成できる型だけを生成して型の数を満たしたことにする Goodhart 化が起きる",
+          "根拠として引用した Google 検索セントラルと schema.org は 2026-09-03 取得の入口ページで、個別型 (FAQPage/HowTo/Speakable) の要件ページは本セッションで再取得していない。実装着手時に各型の必須プロパティを公式資料で再確認すること",
+          "書き手の入力を値として埋め込む際のエスケープを生成関数の内側で行うこと。呼び出し側の責務にすると呼び忘れが起きる"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-09-03T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "G3 の『機械可読な構造を欠落なく出す』に対し、配信時導出だけが記事データを唯一の正本として欠落自体を発生させない。手書きは欠落を人の注意力に委ね、ビルド時生成は欠落は防げるが公開の即時性を落とす。",
+          "tco": "3案とも追加インフラ費用は0。差は人件費とビルド時間で、手書きは記事数に比例して書き手の時間が増え、ビルド時生成は記事数に比例して CI 時間が伸びる。配信時導出だけが記事数に対して定数。",
+          "security": "手書きは書き手入力がそのまま script として出力され XSS 経路になる。配信時導出はエスケープ箇所が生成関数1か所に閉じる。ビルド時生成は出力が固定され攻撃面が最小。",
+          "operations": "手書きは記事ごとの人手作業が恒常化する。ビルド時生成はビルド監視と失敗時復旧が要る。配信時導出は運用操作が発生しない。",
+          "lock_in": "配信時導出は生成を純関数に切り出せ、後からビルド時生成へ移す場合も呼ぶ位置を変えるだけで済むため最も低い。ビルド時生成はパイプライン依存を作る。手書きは蓄積分の全記事書き換えが移行コストになる。"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-render-time-derive",
+        "confirmed_at": "2026-09-04T00:00:00Z",
+        "note": "利用者が配信時導出を選択。記事データを唯一の正本とし、生成関数の回帰検査を実装と同時に置くこと、FAQPage/HowTo/Speakable が要する項目を記事データ側へ先に設計することを前提として引き受ける。"
+      },
+      "owner_category": "frontend",
+      "recorded_with": "set-decision"
+    },
+    {
+      "id": "dec-aeo-analysis-trigger",
+      "question": "AEO/SEO の充足度解析を、いつ・どの頻度で走らせるか。記事の公開前に止めるのか、公開後に気づかせるのか、その両方か。",
+      "status": "confirmed",
+      "serves_goals": [
+        "G3",
+        "G2"
+      ],
+      "options": [
+        {
+          "id": "opt-on-keystroke-inline",
+          "label": "エディタ編集中に逐次解析する",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加インフラは無いが、入力のたびに解析を走らせるため Workers の CPU 時間とリクエスト数を最も多く消費する。無料枠の消費は編集の激しさに比例して読めなくなる。"
+          },
+          "free_tier_limits": "Workers の1日あたりリクエスト数の枠を、記事1本の編集セッションだけで数百回消費しうる。",
+          "goal_fit": "G3 の『欠落を書き手がその場で直せる』に最も速く応える一方、まだ書き終えていない記事に対して常に不足を出し続け、指摘が背景音になって読まれなくなる。",
+          "security_fit": "解析対象は下書き本文で、公開前の内容を解析経路へ都度送る。経路が管理画面の認証内に閉じていることを保証する必要がある。",
+          "pros": [
+            "書いている最中に不足がわかり、書き直しの手戻りが最小になる",
+            "解析と本文が常に一致し、古い解析結果を見ることがない"
+          ],
+          "cons": [
+            "執筆途中の未完成な状態に対して不足を出し続け、指摘が無視される習慣を作る",
+            "リクエスト数と CPU 時間の消費が編集量に比例して読めない",
+            "デバウンス・キャンセル・競合の制御が要り、実装が最も複雑になる"
+          ],
+          "risks": [
+            "指摘が常時赤い状態になり、書き手が解析結果そのものを見なくなる (警告疲れ)",
+            "無料枠の消費が予測できず、想定外に上限へ当たる"
+          ],
+          "lock_in": "低い。解析関数自体は共通で、呼び出し契機だけの違いである。",
+          "ops_burden": "中。消費量の監視が要る。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/",
+            "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
+          ]
+        },
+        {
+          "id": "opt-publish-gate-plus-scheduled",
+          "label": "公開操作時に解析してゲートし、加えて定期的に既存記事を再解析する",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "解析回数が『公開操作の回数 + 定期実行の回数』に収まり、記事数が増えても定期実行のバッチ幅で上限を制御できる。追加インフラは Cron Trigger のみで費用は発生しない。"
+          },
+          "free_tier_limits": "Workers の無料枠と Cron Triggers の範囲内。定期実行は1回あたりの処理件数を区切ることで枠内に収める。",
+          "goal_fit": "G3 に直接資する。公開時ゲートが『欠落したまま公開される』を構造で止め、定期再解析が『公開後に基準が変わって古くなった記事』を拾う。G2 の運用の速さも、公開操作という既存の1操作の中で完結するため落とさない。",
+          "security_fit": "解析の実行契機が公開操作と定期実行の2つに限定され、いずれも認証済みの経路か内部スケジューラで、外部から解析を任意に誘発できない。",
+          "pros": [
+            "欠落したまま公開される経路が構造的に塞がる (現状の問題そのものへの回答)",
+            "解析回数が操作回数に紐づき、消費量が予測できる",
+            "定期再解析があるため、基準の更新や後からの本文編集で古くなった記事を拾える"
+          ],
+          "cons": [
+            "書いている最中には不足がわからず、公開しようとした時点で初めて差し戻される",
+            "公開操作に解析の待ち時間が乗る",
+            "定期実行の対象選定 (どの記事を何件ずつ) を設計する必要がある"
+          ],
+          "risks": [
+            "ゲートを強く倒しすぎると公開できない記事が滞留し、ゲートを回避する運用が生まれる",
+            "定期実行の失敗が静かに起き、再解析されていないことに気づかない"
+          ],
+          "lock_in": "低い。解析関数は共通で、契機の追加・削除が独立している。",
+          "ops_burden": "低い。定期実行の成否監視のみ。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/",
+            "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+            "https://schema.org/docs/releases.html"
+          ]
+        },
+        {
+          "id": "opt-scheduled-only",
+          "label": "定期バッチでのみ解析する (公開は止めない)",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "解析回数が完全に固定され、消費量が最も予測しやすい。実装も最小。"
+          },
+          "free_tier_limits": "Cron Triggers と Workers の無料枠に収まり、実行回数が固定のため枠を超えない。",
+          "goal_fit": "G3 の『欠落を検出する』は満たすが、『欠落したまま公開されない』は満たさない。検出から修正までに公開状態の空白期間が残る。",
+          "security_fit": "実行契機が内部スケジューラのみで、外部から誘発できない点は最も堅い。",
+          "pros": [
+            "実装が最小で、公開の操作性に一切影響しない",
+            "消費量が完全に固定される"
+          ],
+          "cons": [
+            "欠落したまま公開される期間が必ず生まれる",
+            "書き手が指摘を受け取るのが公開後になり、修正の動機が下がる",
+            "検出結果を書き手に届ける別の通知経路が必要になる"
+          ],
+          "risks": [
+            "検出はされるが誰も直さない一覧が積み上がり、解析が実質的に機能しなくなる",
+            "公開直後に検索エンジンへ収集された不完全な状態が残る"
+          ],
+          "lock_in": "低い。",
+          "ops_burden": "低い。ただし検出結果の消化を人が回す必要がある。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/",
+            "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-publish-gate-plus-scheduled",
+        "rationale": "解決すべき問題は『欠落に気づく』ではなく『欠落したまま公開される』である。定期バッチのみの案は前者しか満たさず、公開状態の空白期間を必ず作る。逐次解析は最短で気づけるが、未完成な下書きへ不足を出し続けることで指摘そのものが読まれなくなり、検出の精度と関係なく無効化される。公開操作という『書き手が完成したと判断した唯一の時点』に解析を置くと、指摘が意味を持つ瞬間だけに絞られ、かつ欠落したまま出る経路が構造的に閉じる。定期再解析を併走させるのは、公開時に満たしていた記事が基準側の更新で後から不足へ変わるためで、これは dec-guideline-registry-recheck の再確認と対になる。",
+        "caveats": [
+          "ゲートの強さ (公開を止めるか、警告して通すか) を項目ごとに決めること。全項目を必須にすると公開できない記事が滞留し、ゲートを迂回する運用が生まれて検出が形骸化する",
+          "定期実行の失敗は画面に何も現れない。実行の成否と最終実行時刻を管理画面から確認できるようにすること",
+          "公開操作に解析の待ち時間が乗る。解析が重くなった場合に公開を待たせない逃げ道 (非同期化) を後から入れられる形で実装すること",
+          "根拠として引用した Cloudflare Workers と Google 検索セントラルは取得済みの入口ページで、Cron Triggers の実行回数制限と個別型の必須プロパティは本セッションで再取得していない。実装着手時に公式資料で再確認すること"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-09-03T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "G3 の要点は欠落の検出ではなく欠落したままの公開を止めることにある。公開時ゲート案だけがこれを構造で満たす。逐次案は満たすが指摘の無効化で実効を失い、定期のみ案は公開の空白期間を残す。",
+          "tco": "3案とも追加インフラ費用0。差は解析の実行回数で、逐次案は編集量に比例して読めず、公開時ゲート案は操作回数に紐づいて予測でき、定期のみ案は完全固定である。",
+          "security": "3案とも解析対象は認証内の記事データ。逐次案は下書きを最も頻繁に解析経路へ送るため経路の認証保証が重くなり、定期のみ案は内部スケジューラだけで最も堅い。公開時ゲート案はその中間で、契機が2つに限定される。",
+          "operations": "逐次案は消費量の監視が要る。定期のみ案は検出結果の消化を人が回す必要がある。公開時ゲート案は定期実行の成否監視のみで最も軽い。",
+          "lock_in": "3案とも解析関数は共通で契機だけの違いのため、いずれも低い。公開時ゲート案は契機を独立して足し引きできる分、後から逐次解析を追加する余地も残る。"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-publish-gate-plus-scheduled",
+        "confirmed_at": "2026-09-04T00:00:00Z",
+        "note": "利用者が公開時ゲート＋定期再解析を選択。項目ごとにゲートの強さ (公開を止めるか警告して通すか) を決めること、定期実行の成否と最終実行時刻を管理画面から確認できるようにすることを前提として引き受ける。"
+      },
+      "owner_category": "backend",
+      "recorded_with": "set-decision"
+    },
+    {
+      "id": "dec-guideline-registry-recheck",
+      "question": "AEO/SEO の判定根拠となるガイドライン参照レジストリ (Google 検索セントラル・schema.org・WAI-ARIA の各仕様ページ) を、どの契機でどれくらいの間隔で再確認するか。",
+      "status": "confirmed",
+      "serves_goals": [
+        "G3"
+      ],
+      "options": [
+        {
+          "id": "opt-manual-on-demand",
+          "label": "人が変更に気づいたときだけ更新する",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "仕組みを作らないため実装費用0。代わりに『気づく』ための注意力を恒常的に人が払う。"
+          },
+          "free_tier_limits": "外部取得を自動で行わないため、いかなる枠も消費しない。",
+          "goal_fit": "G3 の判定基準が最新であることを何も保証しない。基準が古いまま解析が緑を出し続ける状態を検出できない。",
+          "security_fit": "自動の外部取得が無いため、外部コンテンツを取り込む経路そのものが存在しない。攻撃面は最小。",
+          "pros": [
+            "実装が不要で、外部依存が一切増えない",
+            "取得失敗という障害モードが存在しない"
+          ],
+          "cons": [
+            "基準の陳腐化が検出されず、解析結果が静かに間違いになる",
+            "最後にいつ確認したかが記録されず、鮮度を問う手段が無い",
+            "『誰も気づかなかった』が失敗の唯一の原因になり、再発防止が立てられない"
+          ],
+          "risks": [
+            "廃止された型を満たしていることを根拠に緑を出し続け、解析が信頼できなくなる",
+            "基準の更新が競合との差になって現れるまで気づけない"
+          ],
+          "lock_in": "無い。",
+          "ops_burden": "高い。継続的な人の注意力に全面的に依存する。",
+          "evidence_refs": [
+            "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+            "https://schema.org/docs/releases.html"
+          ]
+        },
+        {
+          "id": "opt-fixed-interval-with-staleness-flag",
+          "label": "固定間隔で再確認し、期限を超えた参照を鮮度切れとして表に出す",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "参照件数 (現状18件) × 固定間隔の取得だけで、記事数に依存しない。追加インフラは Cron Trigger のみ。"
+          },
+          "free_tier_limits": "Workers の外部サブリクエスト枠に対し、18件を月次で確認する程度では無視できる消費に収まる。",
+          "goal_fit": "G3 に資する。最終確認時刻を参照ごとに持ち、期限超過を鮮度切れとして表示することで『基準が古いかもしれない』を検出可能な状態にする。",
+          "security_fit": "取得先は公式ホストに限定し、取得した内容は要約と最終確認時刻の記録に留めて実行系へ流し込まないため、外部コンテンツが判定ロジックへ侵入しない。",
+          "pros": [
+            "最終確認時刻が参照ごとに残り、鮮度を機械が問える",
+            "取得に失敗しても『鮮度切れ』として表に出るため、失敗が静かに沈まない",
+            "確認の負荷が参照件数にしか依存せず、記事数が増えても増えない"
+          ],
+          "cons": [
+            "間隔の中では基準の更新に気づけない (最大で間隔ぶんの遅れが出る)",
+            "適切な間隔を決める根拠が薄く、恣意的になりやすい",
+            "取得先ページの構造変更で要約が壊れる可能性がある"
+          ],
+          "risks": [
+            "鮮度切れの表示が増えて常態化すると、警告が読まれなくなる",
+            "間隔を長く取りすぎると実質的に手動案と変わらなくなる"
+          ],
+          "lock_in": "低い。参照レジストリは JSON の記録で、間隔は設定値である。",
+          "ops_burden": "低い。鮮度切れが出たときだけ人が内容を読む。",
+          "evidence_refs": [
+            "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+            "https://schema.org/docs/releases.html",
+            "https://www.w3.org/TR/wai-aria-1.2/",
+            "https://developers.cloudflare.com/workers/"
+          ]
+        },
+        {
+          "id": "opt-refetch-every-analysis",
+          "label": "解析のたびに参照元を取得し直す",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "追加費用は無いが、解析1回あたり参照件数ぶんの外部サブリクエストが発生し、消費が解析回数×参照件数で増える。"
+          },
+          "free_tier_limits": "Workers の1リクエストあたりサブリクエスト数と、1日あたりの総数の双方を圧迫する。",
+          "goal_fit": "常に最新の基準で判定できる点は G3 に最も適合するが、外部サイトの応答が解析の成否を左右するため、判定そのものが不安定になる。",
+          "security_fit": "外部コンテンツを解析のたびに取り込むため、取り込んだ内容が判定へ影響しない境界を厳密に引く必要がある。3案中で最も攻撃面が大きい。",
+          "pros": [
+            "基準の遅れが原理的に発生しない",
+            "鮮度という概念そのものが不要になる"
+          ],
+          "cons": [
+            "外部サイトの応答遅延・障害がそのまま解析の失敗になる",
+            "同じ内容を繰り返し取得し、外部サイトへ不要な負荷をかける",
+            "解析の所要時間が読めなくなり、公開操作を待たせる"
+          ],
+          "risks": [
+            "外部サイトからのレート制限で解析が止まる",
+            "取得内容の変化で判定が日によって揺れ、再現性が失われる"
+          ],
+          "lock_in": "低い。ただし解析が外部の可用性へ強く結合する。",
+          "ops_burden": "高い。外部起因の失敗の切り分けが恒常的に発生する。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/",
+            "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-fixed-interval-with-staleness-flag",
+        "rationale": "この決定の本質は『基準が古くなったことに気づけるか』であって『常に最新であるか』ではない。都度取得は最新性を最大化する代わりに、外部サイトの可用性を解析の可用性に直結させ、同じ判定が日によって揺れる状態を作る — 判定の再現性を失う代償は最新性の利得を上回る。手動更新は費用0だが、最終確認時刻という記録すら残らないため、鮮度を問う手段そのものが存在しない状態を選ぶことになる。固定間隔 + 鮮度切れ表示は、確認の負荷を参照件数 (現状18件) にだけ依存させたうえで、期限超過を可視な状態として出すため、遅れが起きても『遅れていることは分かる』を保つ。dec-aeo-analysis-trigger の定期再解析と契機を揃えれば、基準の更新が既存記事の再判定へ自然に波及する。",
+        "caveats": [
+          "間隔の値そのものは本セッションで根拠を持たない。参照先の更新頻度 (schema.org のリリース間隔、検索セントラルの更新履歴) を実際に見てから決めること。根拠なく数値を確定しないこと",
+          "鮮度切れが常態化すると警告が読まれなくなる。表示するのは期限超過の参照だけに絞り、件数が増え続ける場合は間隔ではなく参照の絞り込みを疑うこと",
+          "取得した内容は最終確認時刻と要約の記録に留め、判定ロジックへ直接流し込まないこと。外部コンテンツが判定を動かせる経路を作らない",
+          "取得の失敗を『変更なし』として扱わないこと。失敗と未変更を区別せずに最終確認時刻を更新すると、確認していないものを確認済みとして記録することになる"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-09-03T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "G3 が要るのは基準の陳腐化を検出できることである。固定間隔案は最終確認時刻と鮮度切れで検出可能にする。手動案は検出手段を持たず、都度取得案は最新だが判定の再現性を失う。",
+          "tco": "3案とも費用0。差は消費の伸び方で、固定間隔案は参照件数 (18件) にのみ依存し記事数に依存しない。都度取得案は解析回数×参照件数で伸びる。手動案は消費0だが人の注意力を恒常的に消費する。",
+          "security": "手動案は外部取得経路そのものが無く最小。固定間隔案は公式ホスト限定かつ記録用途に留めるため限定的。都度取得案は解析のたびに外部コンテンツを取り込むため最大。",
+          "operations": "固定間隔案は鮮度切れが出たときだけ人が読む。手動案は継続的な注意力に全面依存する。都度取得案は外部起因の失敗の切り分けが恒常化する。",
+          "lock_in": "固定間隔案は参照レジストリが JSON 記録で間隔が設定値のため最も低い。都度取得案は解析が外部の可用性へ強く結合する。手動案は結合が無い。"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-fixed-interval-with-staleness-flag",
+        "confirmed_at": "2026-09-04T00:00:00Z",
+        "note": "利用者が固定間隔＋鮮度切れ表示を選択。間隔の具体値は参照先の更新頻度を実際に見てから決める (本決定では数値を確定しない)。取得の失敗を『変更なし』として扱わないことを前提として引き受ける。"
+      },
+      "owner_category": "maintenance-ops",
+      "recorded_with": "set-decision"
+    },
+    {
+      "id": "dec-analysis-history-retention",
+      "question": "AEO/SEO 解析の結果履歴を D1 にどう保持するか。最新だけを持つのか、推移を追えるよう履歴を積むのか、積むならどこで打ち切るのか。",
+      "status": "confirmed",
+      "serves_goals": [
+        "G3",
+        "G2"
+      ],
+      "options": [
+        {
+          "id": "opt-latest-only",
+          "label": "記事ごとに最新の解析結果1件だけを保持し上書きする",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "行数が記事数と等しくなり、D1 の容量消費が最小かつ完全に予測できる。刈り取り処理も不要。"
+          },
+          "free_tier_limits": "D1 の無料枠 (保存容量・読み書き行数) に対し、記事数ぶんの行しか持たないため事実上制限に当たらない。",
+          "goal_fit": "G3 の『今この記事に何が欠けているか』は満たすが、『直したことで良くなったのか』が分からない。改善の効果を測れないため、解析が指摘の一覧に留まる。",
+          "security_fit": "保持する情報が最小で、蓄積された過去データの漏洩範囲も最小。",
+          "pros": [
+            "実装が最小で、容量が記事数に固定される",
+            "刈り取り処理という新しい失敗点を持ち込まない",
+            "参照が常に1行で、クエリが単純になる"
+          ],
+          "cons": [
+            "改善の推移が追えず、施策の効果を判断できない",
+            "解析ロジックを変えたとき、変更前後の比較ができない",
+            "退行 (以前は満たしていた項目が欠けた) を検出できない"
+          ],
+          "risks": [
+            "効果測定ができないまま施策を積み、何が効いたか分からない状態になる",
+            "解析ロジックの回帰が過去との比較で検出できない"
+          ],
+          "lock_in": "低い。ただし履歴を持つ設計へ移す時点で過去は永久に失われている。",
+          "ops_burden": "低い。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/d1/",
+            "https://orm.drizzle.team/docs/overview"
+          ]
+        },
+        {
+          "id": "opt-append-with-window",
+          "label": "解析のたびに追記し、記事ごとの保持件数または保持期間で古い行を刈る",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "行数が『記事数 × 保持件数』で上限を持ち、記事数が増えても上限が計算できる。刈り取りは定期実行に相乗りさせられ、追加インフラは発生しない。"
+          },
+          "free_tier_limits": "D1 の無料枠に対し、保持件数を有限に切ることで容量の伸びを上限付きに抑えられる。",
+          "goal_fit": "G3 に資する。直近の推移が残るため、改善の効果と退行の双方が判定できる。G2 の運用の速さも、参照が直近数件に限られるためクエリが重くならず落とさない。",
+          "security_fit": "保持期間を切ることで、過去の下書き状態の解析結果が無期限に残らない。漏洩時の影響範囲が期間で区切られる。",
+          "pros": [
+            "改善の推移と退行が判定できる",
+            "容量の上限が『記事数 × 保持件数』で事前に計算できる",
+            "刈り取りを定期実行へ相乗りでき、新しい常駐処理が要らない"
+          ],
+          "cons": [
+            "刈り取り処理という新しい失敗点が増える",
+            "保持件数を超えた過去は失われ、長期の推移は追えない",
+            "最新1件を引く問合せが、単純な1行取得より複雑になる"
+          ],
+          "risks": [
+            "刈り取りが静かに失敗すると、上限付きのはずの容量が無制限に伸びる",
+            "保持件数の設定を根拠なく決めると、必要な比較期間を割ってしまう"
+          ],
+          "lock_in": "低い。保持件数は設定値で、最新のみ／無制限のどちらへも移行できる。",
+          "ops_burden": "低い。刈り取りの成否監視のみ。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/d1/",
+            "https://orm.drizzle.team/docs/overview",
+            "https://developers.cloudflare.com/workers/"
+          ]
+        },
+        {
+          "id": "opt-append-unbounded",
+          "label": "解析のたびに追記し、削除しない",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "当面の費用は0だが、行数が『記事数 × 解析回数』で単調増加し、上限を持たない。無料枠を超えた時点で費用と移行作業が同時に発生する。"
+          },
+          "free_tier_limits": "D1 の保存容量の無料枠に対し、上限が無いため到達は時間の問題になる。到達時期は解析頻度に依存して予測しにくい。",
+          "goal_fit": "長期の推移まで追える点は G3 に最も適合するが、容量の伸びに上限が無いことが運用の持続性を損なう。",
+          "security_fit": "過去の全ての解析結果が無期限に残り、漏洩時の影響範囲が時間とともに広がる。",
+          "pros": [
+            "全期間の推移が失われず、後から任意の期間で分析できる",
+            "削除処理が無いため失敗点が増えない"
+          ],
+          "cons": [
+            "容量が上限なく伸び、いずれ無料枠を超える",
+            "行数の増加でクエリが徐々に遅くなる",
+            "実際に参照されるのは直近数件で、大半の行が読まれない"
+          ],
+          "risks": [
+            "無料枠の超過が予告なく訪れ、その時点で緊急の移行作業が必要になる",
+            "過去データの蓄積が漏洩時の影響を時間とともに拡大させる"
+          ],
+          "lock_in": "中。蓄積後に上限付きへ移す際、どこで切るかの判断と大量削除が必要になる。",
+          "ops_burden": "中。容量の継続監視が要る。",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/d1/",
+            "https://orm.drizzle.team/docs/overview"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-append-with-window",
+        "rationale": "解析を入れる目的は指摘の一覧を作ることではなく、記事を良くしたかを判断できるようにすることである。最新のみ案はその判断材料を原理的に持てず、解析ロジックを変えたときの回帰も検出できない — この欠落は後から履歴を持つ設計へ移しても、失われた過去は戻らない。無制限追記は推移を最大限残すが、行数が『記事数 × 解析回数』で単調増加し、上限が無いことを引き受ける判断になる。実際に参照されるのは直近数件であり、上限付きの追記はその参照実態に容量を合わせたうえで、退行の検出と効果測定という履歴の主目的を保つ。刈り取りは dec-aeo-analysis-trigger の定期実行へ相乗りできるため、新しい常駐処理を増やさずに済む。",
+        "caveats": [
+          "保持件数・保持期間の具体値は本セッションで根拠を持たない。実際にどれだけの期間を比較したいか (施策の効果が現れるまでの期間) を決めてから設定すること。根拠なく数値を確定しないこと",
+          "刈り取りの失敗は容量が伸びるだけで画面に何も現れない。刈り取りの最終実行時刻と削除件数を記録し、確認できるようにすること",
+          "解析ロジックのバージョンを各行へ記録すること。記録しないと、スコアの変化が記事の改善によるのか解析側の変更によるのか区別できず、履歴が比較に使えなくなる",
+          "根拠として引用した Cloudflare D1 と Drizzle は取得済みの入口ページで、無料枠の具体的な容量上限は本セッションで再取得していない。保持件数を決める際に公式資料で再確認すること"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-09-03T00:00:00Z",
+        "comparison_basis": {
+          "goal_fit": "G3 が要るのは改善したかを判断できることである。上限付き追記案は直近の推移で効果と退行の双方を判定できる。最新のみ案は判定材料を持てず、無制限案は判定できるが容量の持続性を欠く。",
+          "tco": "3案とも当面の費用0。差は行数の伸び方で、最新のみ案は記事数に固定、上限付き追記案は記事数×保持件数で上限を計算でき、無制限案は記事数×解析回数で上限を持たない。",
+          "security": "最新のみ案は保持情報が最小で漏洩範囲も最小。上限付き追記案は保持期間で影響範囲が区切られる。無制限案は過去が無期限に残り影響が時間とともに拡大する。",
+          "operations": "最新のみ案は刈り取りが不要で最も軽い。上限付き追記案は刈り取りの成否監視が加わるが定期実行へ相乗りできる。無制限案は容量の継続監視が要る。",
+          "lock_in": "上限付き追記案は保持件数が設定値で、最新のみ／無制限のどちらへも移行できる。無制限案は蓄積後の移行にどこで切るかの判断と大量削除が要る。"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-append-with-window",
+        "confirmed_at": "2026-09-04T00:00:00Z",
+        "note": "利用者が追記＋保持窓を選択。保持件数・保持期間の具体値は、施策の効果が現れるまでの期間を決めてから設定する (本決定では数値を確定しない)。解析ロジックのバージョンを各行へ記録することを前提として引き受ける。"
+      },
+      "owner_category": "database",
       "recorded_with": "set-decision"
     }
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 1,
+    "loop_count": 2,
     "next_question": null,
     "complete": true,
-    "max_loops": 10,
+    "max_loops": 5,
     "max_loops_policy": "strict"
   },
   "asks_for_contract": {
@@ -6795,6 +8154,18 @@
         "body": "`feat-blog-ui-builder` (P01〜P12) の実装で確定した UI/UX 契約を記録する。\n規則の全文は `docs/spec/feat-blog-ui-builder/ui-rules.md`、\n手順は同 `operations.md` にある。**ここには、章として保つべき契約だけを書く。**\n\n### 1. 規則は 3 層に分かれる\n\n| 層 | 何か | 変えるとき |\n|---|---|---|\n| **不変** | 変えると既存記事や読者の入口が壊れる | 変えない。変えたいなら仕様から |\n| **契約** | 実装が守ることを検査で強制している | 実装と検査を同時に直す |\n| **運用** | 人が判断する余地がある | 運用手順で決める |\n\n**層を分けずに 1 枚の規則表にすると、変えてよいものと変えてはいけないものが\n同じ重さに見え、「規則だから変えられない」か「規則だから守らなくていい」の\nどちらかに倒れる。**\n\n### 2. 不変 — テンプレートは記事の中身を知らない\n\nテンプレート 6 種は並び方だけを決める。\n**「このテンプレートでは図解が使えない」の類を書いてはならない。**\n書くと、テンプレートを差し替えた瞬間に既存記事の図解が消える。\n\n受入 A1「差し替えても既存記事が壊れない」はこの一点で成り立っている。\n\n### 3. 不変 — スロットは黙って空にしない\n\n`slot` 付きブロックは別カテゴリのブログで中身だけ差し替えて再利用できる。\n**差し替え先が無いときは `fallback` を `summary` ブロックとして出す。**\n空にすると、記事の途中が理由なく飛ぶ。\n\n### 4. 契約 — 配色の 2 層が触るのは色と明暗だけ\n\n余白 (`density`) と角丸 (`radius`) は設計図のみ。\n**ページごとに骨格が変わると読者が「同じサイトだ」と思えなくなる。**\n色は季節や特集で変えてよい。骨格は変えない。\n\n管理画面で余白・角丸を出すときは、値の横に「（設計図）」と出所を書く。\n書かないと「配色を変えたのに余白が変わらない」の理由が画面から消える。\n\n### 5. 契約 — アクセシビリティの床\n\n- axe-core の重大 (`serious` / `critical`) 違反は 0 件。\n  検査は `tests/support/a11y.ts` の共通口を通る (855 件が緑)\n- 11 配色 × light/dark = 22 通りが WCAG 2.2 AA\n- **`tests/ui/axe-blind-spots.test.ts` を併走させる。**\n  axe は自動検査で拾える範囲しか拾わない。\n  「axe が緑」を「アクセシブル」と読み替えると、自動検査の穴がそのまま製品の穴になる。\n  この spec は穴を明示的に列挙し、穴が黙って増えていないことを検査する\n\n### 6. 契約 — 部品の余白・色は design token のみ\n\n生の `px` / `rem` / `ms` を部品に書けない (`design-tokens.test.ts` が止める)。\ntoken 経由でないと、配色の 2 層も密度の設定も部品に届かない。\n\nCallout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.ts` A8 §3)。\n**全部が目立つ画面は、何も目立たない画面と同じである。**\n\n### 7. 受入判定で保留になった点 (2026-08-30 時点)\n\n| 受入 | 状態 | 理由 |\n|---|---|---|\n| A3 sticky 常時表示 | 🟡 | 単体・受入テストは緑だが、**「常時表示」の言葉の意味が受入文言として定まっていない** |\n| A4 固定ページ | 🔴 | 18 経路のうち 12 経路が 404。語彙が 2 系統に割れている |\n| A5 / A12 表現ブロック | 🟡 | **公開記事の本文が 1 文字も出ていない** (H1 記事名と H2「この記事の評価」のみ) |\n| A14 出典レジストリ | 🟡 | 判定は動くが、登録が 0 件で判定する対象が無い |\n\n証跡は `docs/spec/feat-blog-ui-builder/evidence/` 配下、\n判定の根拠は同 `final-review.md`。\n\n**A5 / A12 の 🟡 は「一部できている」ではなく「載る場所そのものが空」である。**\nブロックの並べ替えも配色も動くが、並べ替える対象が無い。\n\n### 8. 視覚回帰の見本が古い (本 feature の外に原因がある)\n\n`pnpm run visual` の 5 枚すべてが差分になる。陽性対照は OK なので検査は生きている。\n\n見本の最終更新は 2026-08-28 (`a07a9e0`) で、\n`src/presentation/ui` はその後 2 回変わっている\n(`0ed9e2b` / `e97e5bc`、いずれも 2026-08-30。**すでに main へ入っている**)。\n撮影対象の 3 部品は本 feature の変更に含まれていない。\n\n**撮り直し (`--accept`) は「この変化は正しい」と宣言する取り消しにくい操作であり、\n本 feature が変えていない部品について本 feature の担当が署名するのは筋が通らない。**\n`0ed9e2b` / `e97e5bc` の変更意図を知っている側が判断する。",
         "reason": "feat-blog-ui-builder P01〜P12 で確定した UI/UX 契約 (規則の3層・テンプレートの不変条件・配色2層の適用範囲・アクセシビリティの床・design token 制約) と、受入判定で保留になった4件を正本へ記録する。章へ直接書くと compile で消えるため。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "意思決定が本章に効く形",
+        "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。分母を\n本文へ書くと、正本が増えたときに黙って嘘になる。\n\n- **本章を主担当とする decision は 1 件** (2026-09-04 時点、正本 12 件に対して)。\n  `decision-screen-priority` は、`qa-uiux-web-screen-priority` の本人回答を根拠に、\n  記事の成績比較を先頭、回復すべき業務状態をその直下の常設帯とする。本章最大の\n  論点を、対話記録と decision record の両方から同じ結論へ追跡できる。\n- **G3 (AEO/SEO) の 4 決定は本章を主担当としないが、画面の要求を 2 つ持ち込む。**\n  - `dec-aeo-analysis-trigger` は解析を**公開操作の経路**に置く。解くべき問題は\n    「欠落に気づく」ではなく「欠落したまま公開される」なので、結果を別画面に\n    出すだけでは解決しない。同時に、全項目を必須ゲートにすると公開できない記事が\n    滞留し、ゲートを迂回する運用が生まれて検出が形骸化する。**項目ごとに\n    「公開を止める」か「警告して通す」かを画面上で区別できること**が要件になる。\n  - `dec-structured-data-emission` は FAQPage / HowTo / Speakable が要する項目を\n    記事データ側へ持つ。**エディタにそれらを入力する場所が要る。**見出しからの\n    機械推定で埋めると、書き手の意図と無関係な構造化データが出る。\n  - `dec-guideline-registry-recheck` の**鮮度切れ表示**は画面側の責務である。\n    判定基準が古いまま緑に見える状態を、利用者が読んで気づける形にする。",
+        "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "章の規範本文を正本から再生成しない理由",
+        "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
+        "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "frontend": [
@@ -6802,6 +8173,18 @@
         "heading": "実装確定の書き戻し — feat-blog-ui-builder (P13、2026-08-30)",
         "body": "> 上の「確定内容 (質疑録)」は**方針**である。本節は `feat-blog-ui-builder` (P01〜P12) の\n> 実装で**実際に確定した契約**と、方針と実装がずれた点を記録する。\n> **方針を書き換えず、差分として足してある。**ずれを上書きで消すと、なぜその形になったかが読めなくなる。\n\n### 1. テーマ実装契約 — 2 層 + 単一読み取り口\n\n配色は 3 段で解決する。\n\n```\npage_theme_override（ページ単位の例外）\n        ↓ 無ければ\nblog_theme（ブログ既定）\n        ↓ 無ければ\nsite_blueprint.theme（設計図の既定）\n```\n\n**確定した契約 — 読む口は `publicBlogAppearance()` の 1 本だけ。** 公開面も管理画面もここを通る。\n別の読み方を作ると、同じブログの配色について 2 つの画面が別の値を出す\n(2026-08-30 に実際に発生。`docs/spec/feat-blog-ui-builder/migration-report.md` §2)。\n\n**確定した契約 — 2 層で上書きできるのは色 (`brandTheme`) と明暗 (`colorMode`) だけ。**\n余白 (`density`) と角丸 (`radius`) は設計図のみ。\nページごとに骨格が変わると読者が「同じサイトだ」と思えなくなるためである。\n\n**確定した契約 — dark を light の単純反転にしない**\n(`tests/ui/theme-contrast.test.ts` が止める)。数値上 AA を満たしても暗所で眩しくなる。\n11 配色 × light/dark = 22 通りが WCAG 2.2 AA を満たすことを実測済み。\n\n方針の「色は light-dark() で解決」はそのまま成立している。\n\n### 2. コンポーネント契約 — テンプレートは「並び方」だけを決める\n\nテンプレートは 6 種で確定した (`src/domain/authoring/blog-template.ts`)。\n`review_focus` / `comparison_focus` / `howto` / `news` / `minimal` / `gadget`。\n\n**確定した契約 — テンプレートは記事の中身を知らない。** 決めるのは 4 つのみである。\n\n- トップの区画の並び (`homeSections`)\n- 記事ブロックの推奨順 (`articleBlockOrder`)\n- サイドバーを既定で出すか (`sidebar`。`news` と `minimal` は `false`)\n- 追加で薦める固定ページ (`suggestedPages`)\n\n**「このテンプレートでは図解が使えない」の類を書いてはならない。**\n書くとテンプレート差し替えの瞬間に既存記事の図解が消える。\n`orderBlocksForTemplate()` は推奨順に無い種類を末尾へ元の順のまま付け、**1 つも落とさない**。\n\n方針にあった `StickyHeader` / `StickySidebar` / `Footer` は実装済みである。\nただし受入 A3 (sticky 常時表示) の判定は保留で、単体・受入テストは緑だが\n**「常時表示」の言葉の意味が受入文言として定まっていない**\n(`docs/spec/feat-blog-ui-builder/final-review.md`)。\n\n表現ブロックは 10 種で確定した。`answer` `key_points` `faq` `sources` `freshness`\n`figure` `comparison` `cta` `summary` `spec_table`。\n方針の 5 種 (figure/comparison/cta/summary/spec-table) に、AI 検索向けの 5 種が加わった形である。\n記事ブロックの並びは全テンプレート共通で\n`[answer, key_points]` で始まり `[faq, sources, freshness]` で終わる。\n先頭が結論でないと AI 検索に途中から切り取られ、\n信頼を確かめる材料は読み終わったところに置くためである。\n\n### 3. SEO / AI 検索実装契約 (A10〜A14)\n\n#### 3.1 JSON-LD — 画面と機械向け出力は同じ読み取りモデルから作る\n\n**確定した契約 — 別の組み立てを置かない。**\n置くと、記事を直したのに sitemap だけ古い、が起きる。\n\n**確定した契約 — 構造化データを HTML に埋めるときは `<` を `<` に逃がしてから埋める。**\n逃がさないと、本文に `</script>` を含む記事でスクリプトが途中で閉じ、\n以降の JSON が本文として描画される。\n\n**確定した契約 — 更新日は JSON-LD の `dateModified` と `<time dateTime>` で同じ値を出す。**\n2 か所で別々に組み立てると、読者に見える日付と機械が読む日付がずれる。\n\n**確定した契約 — 報酬・運営情報は読者向け読み取りポートを通さない。**\n\n#### 3.2 sitemap / robots / RSS / llms.txt\n\n**確定した契約 — origin は届いたリクエストの Host から作る。環境変数に固定しない。**\n固定すると、プレビュー環境が本番の URL を書いた sitemap を出す。\n\n**確定した契約 — `llms.txt` は設計図の任意項目。出さない設定なら 404 を返す (空ファイルを返さない)。**\n空ファイルは「用意したが中身が無い」と読まれ、404 は「用意していない」と読まれる。意味が違う。\n\n方針の「効果未確認と明記」は維持する。**Google は llms.txt を使わないと明言している。**\n\n#### 3.3 IndexNow — 鍵の環境変数分離\n\n**確定した契約 — 鍵はリポジトリ・管理画面・D1 のいずれにも置かず、Worker の環境変数 `INDEXNOW_KEY` だけに置く。**\n鍵ファイル `/indexnow.txt` の中身が鍵そのもので、それが所有権の証明であるためである。\n方針の「API key はブログ単位、秘密はサーバ側のみ」のうち、\n**実装は環境変数 1 本に確定した** (ブログ単位ではない)。\n\n**確定した契約 — 鍵が無いときは記事の公開は通り、通知だけが飛ばない。**\n通知は届けば早くなるだけのもので、届かなくても記事は出る。\n公開を止める設計にすると、鍵の設定漏れが公開停止として現れる。\n\n担保している spec は 4 本ある。`tests/domain/seo/indexnow.test.ts` (送信判断の純関数) /\n`tests/infrastructure/indexnow-client.test.ts` (鍵が無いときの送信スキップ) /\n`tests/presentation/publish-article-indexnow.test.ts` (公開時の連動) /\n`tests/architecture/open-doors.test.ts` (外向きに開いた口の台帳)。\n\n#### 3.4 guideline_references — 90 日再確認\n\n**確定した契約 — 90 日の判定は `referenceReviewStatus` だけが行う。画面側で数え直さない。**\n2 か所で数えると、時差や境界の扱いが食い違ったときどちらが正しいか決められなくなる。\n\n**確定した契約 — 90 日を超えた行は「再確認」と表示し、自動では消さない。**\n消すと、古い指針に基づいた記事が残っていることに気付けなくなる。\n\n**確定した契約 — ガイドラインの中身が変わったときは仕様セルを R4-reopen する。**\nアプリのレジストリを直しただけでは仕様は動かない。\n方針にあった「doc-fetch (C02) と鮮度監査 (C08) で再取得・再照合」はこの経路である。\n\n**確定した契約 — 記事公開後の AI 検索点検は公開の条件にしない。**\n条件にすると、点検を通すために内容を歪める力が働く。足りない項目は直し方 (hint) まで出す。\n\n2026-08-30 時点の実測では、レジストリの登録は 0 件で、コードに書かれた候補 4 件\n(Google AI 最適化ガイド / AI features and your website / llms.txt / IndexNow) は\nすべて「原典未取得」である。**90 日の判定は動くが、判定する対象が無い。**\n\n### 4. 方針どおりにならなかった点 (2026-08-30 時点で未解決)\n\n| 方針 | 実装の現状 | 影響 |\n|---|---|---|\n| 固定ページ 6 種を固定ページ型テンプレートから生成しフッターへ自動導線 | **固定ページの語彙が 2 系統に割れている** (`SiteDocumentKey` 9 種 / `FixedPageKind` 8 種、同じ `legal_page` 表) | 18 経路のうち 12 経路が 404。新しい種別を足せない |\n| 公開面は SSR/ISR で本文を HTML に含める | **公開記事の本文が 1 文字も出ていない** (H1 記事名 / H2「この記事の評価」のみ) | JSON-LD の元になるブロックが載る場所そのものが空 |\n\n証跡は `docs/spec/feat-blog-ui-builder/evidence/11-a4-a13-http-status.txt` および\n同 `evidence/README.md` §3.1 にある。原因の分析は `migration-report.md` §3。\n\n**この 2 件を解いていない状態では、§3.1 の JSON-LD 契約は「あるべき契約」であって\n現状の説明ではない。** 契約が守られていることの確認は、本文が出てから行う。",
         "reason": "feat-blog-ui-builder P01〜P12 の実装で確定したテーマ実装契約・コンポーネント契約・SEO/AI検索実装契約 (JSON-LD/sitemap/IndexNow/guideline_references) を、方針を上書きせず差分として正本へ記録する。章へ直接書くと compile で消えるため。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "意思決定が本章に効く形",
+        "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。\n\n- **`decision-ui-theme-implementation` が本章に効く形**: 09 §2 は「配色 × 明暗の\n  掛け合わせを設定として持たない」と書いている。`light-dark()` は掛け合わせを\n  CSS 側で解く仕組みそのものなので、この禁止が実装の形で担保される。Tailwind の\n  `dark:` クラス方式だと、禁じられている掛け合わせがクラス名として現れてしまう。\n  Tailwind は配置と余白に使い、**色だけ `light-dark()`** にする。\n- **`dec-structured-data-emission` が本章に効く形** (2026-09-04 確定、\n  `opt-render-time-derive`): 構造化データ (Article/BlogPosting/FAQPage/HowTo/\n  Speakable/BreadcrumbList)・canonical・OGP・robots は、**保存時に別途持たず\n  配信時に記事データから導出する**。別に持つと記事本文と構造化データが二つの\n  正本になり、本文だけ直したときに黙って食い違う。検索エンジンが読むのは\n  構造化データの側なので、この食い違いは画面上どこにも現れない。\n- 導出にする代償は 2 つあり、どちらも先に手当てする。(1) **生成関数の回帰検査を\n  実装と同時に置く** — 導出は関数 1 本に集約されるので、そこが壊れると全記事が\n  同時に壊れる。(2) **FAQPage / HowTo / Speakable が要する項目を記事データ側へ\n  先に設計する** — 見出しからの機械推定で埋めると、書き手の意図と無関係な\n  構造化データが出る。エディタ側にこれらを入力する場所を用意することが前提になる。",
+        "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "章の規範本文を正本から再生成しない理由",
+        "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
+        "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -6823,10 +8206,204 @@
         "body": "同章の「実装確定の書き戻し — feat-blog-ui-builder (P13、2026-08-30)」§4.3 で\n⚠️ として記録した「書き込みが操作の記録に届かない」は、**本リリース commit で解消した。**\n前の記録は消さずに残す。消すと「一度この状態で出そうとしていた」という事実が引けなくなる。\n\n### 解消した内容\n\n`createManageBlogAppearanceUseCase`（見せ方の選択・ブログ既定の配色・ページ上書きの\n保存と取り消しの 4 操作）と `createReviewBlogPlacementsUseCase`（掲載の足し引き）が、\n書き込みのたびに `audit_log` へ 1 行残すようにした。\n`pnpm run verify` の「つなぎ目の呼び出し」検査は\n**届いていない 0（上限 0）・判定できない 0（上限 0）** で緑になっている。\n\n足した語は 3 つである。\n\n| 語 | 残すもの |\n|---|---|\n| `blog_appearance.changed` | 見せ方と配色の 4 操作。差は `targetType` と `after` に出す |\n| `blog_placement.changed` | 記事のどこに成果リンクを載せたか |\n| `blog_placement.removed` | 記事のどこから外したか |\n\n### なぜ掲載だけ「足す」と「外す」を分けたか\n\n台帳 `blog_affiliate_placement` の行は**外すと物理削除される**（所在の記録であって\n履歴ではない、という表そのものの設計である）。つまり\n**外した事実が残る場所は `audit_log` しかない。**\n1 語にまとめると「掲載が消えている」を差分から読むことになるが、\n消えた行の差分は消えているので読めない。\n\n外した内容は `before` ではなく `after` に平文で並べている。台帳から引き直せない以上、\n記録の側が「どの記事のどの位置から、どのコードの掲載が消えたか」を単独で言えるべきである。\n\n### 見た目の変更にも記録が要ると判断を変えた理由\n\n`manage-blog-appearance.ts` は当初「配色とテンプレートは読者の目に映るだけで、\n法令上の主張を 1 つも含まない」として記録を書いていなかった。**この理由は誤りではないが、\n足りなかった。**記録が要るのは法令上の主張があるときだけではない。\n\n見た目は**上書きで消える設定**である。誰かが配色を変えた翌日に「読みにくくなった」と\n言われても、変える前の値はどこにも残っていない。枠の並び (`blog_layout.changed`) は\n残していて配色だけ残さないのは一貫していなかった——後から読む人にとって問いは同じ\n（「そのとき読者に何がどう見えていたか」）である。\n\n### 記録が書けなかったときは「変えました」で終わらせない\n\n保存は済んだが `audit_log` へ書けなかったとき、**保存を取り消さない。**\n取り消すと、押した人には「効かなかった」と見えるのに保存先には残っている、という\n別の食い違いを新しく 1 つ作ることになる。返すのは\n`auditWriteFailure`（済んだことと、残っていないことを両方その場で書く断り）である。\n\n### ポートの名前を 1 つ変えた\n\n`BlogAppearancePort.selectTemplate` を `saveTemplate` へ改名した。\n`scripts/port-wiring.mjs` が読み書きを判定できずに止まったためで、\n語彙表へ `select` を足して黙らせることもできたが、**それをすると将来の読み取り手続きが\n黙って書き込み扱いになる**（SQL の `SELECT` は読みの語である）。名前の側を直した。\n\n### 残る 🔴 は §4.2 のみ\n\n§4.2（`legal_page` を 2 系統の語彙が触っている / 18 経路中 12 経路が 404）は\n**開いたままである。**本番 (`main`) へ進める前に閉じること。",
         "reason": "同章 §4.3 が ⚠️『配色の保存と掲載の増減が操作の記録に届かない』と記録した状態を本リリース commit で解消したため、正本を現状に一致させる。前の記録は消さず差分として足す。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "意思決定が本章に効く形",
+        "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。\n\n- **`decision-editorial-commercial-split` が本章に効く形**: 「報酬額をランキングの\n  入力にしない」という禁止を、コードの中ではなく **D1 を 2 本に分ける**位置で\n  担保する。越えるには設定を書き換えるしかなくなり、越えた事実が差分に残る。\n- **`dec-analysis-history-retention` が本章に効く形** (2026-09-04 確定、\n  `opt-append-with-window`): 解析結果は上書きせず追記する。上書きすると「施策の\n  前後で何が変わったか」が原理的に取れず、AEO/SEO の改善が効いたのかを判定する\n  手段が消える。無制限に貯めないのは D1 の無料枠が有限だからで、**保持件数・\n  保持期間の具体値は本決定では確定しない** — 施策の効果が現れるまでの期間を\n  決めてから設定する。\n- **各行に解析ロジックのバージョンを記録する。**これが無いと、判定基準を変えた\n  前後の行が同じ土俵に並び、実際にはロジックが変わっただけの差を「改善」と\n  読み違える。刈り取り (retention) は、この列を持つ行を古い順に消す形で実装する。\n- **編集用と商用の分離は解析履歴にも及ぶ。**解析結果は編集判断の入力なので、\n  報酬データと同じ本に置かない。",
+        "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "章の規範本文を正本から再生成しない理由",
+        "body": "**2026-09-04 追記**: `## 確定セルの記録` そのものは、この日から compile が正本 `matrix` / `qa_log` から描く (手写しを 15 日続けた結果、2 度腐ったため)。\n**以下の 3 つの実測が指しているのは、その表ではなく章の規範本文である。**\n「章を丸ごと再生成して正本の本文で置き換える」を採らない理由として、そのまま生きている。\n\nC05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[] を本文へ載せる」と書いているが、**再生成も本文複製もしない**。理由は 3 つあり、どれも読んで判断したのではなく測った結果である。次に読む人が善意で「正本に合わせる」と、下に書いた退行が起きる。**この節はそのために置いてある。**\n\n**理由 1: 再生成すると章の規範本文が消える。** compile 出力と本番章を突き合わせた結果、章にあって生成器にも正本にも無い行が `system-spec/*.md` 10 枚で **374 回出現**した (分母 = 10 枚の空行を除く全行)。同じ行をファイル内で畳むと **366 行**、10 枚を横断して畳むと **316 行**。3 つの数はすべて正しく、数えている対象が違うだけである (出現回数 / ファイル内一意 / 全体一意)。消えるのは To-Be 契約表 (`DB-*` / `BE-*` / `INF-*` / `*-REQ-*` / `*-ACC-*`)、故障モード、初期 SLO、Acceptance evidence、index の状態軸。\n\n**理由 2: 正本の回答は章より古い。** 章と正本の両方に現れうるトークン 9 個で照合した (分母 = 照合トークン 9 個)。\n\n| トークン | 正本 `qa-database-web-spec-intake` の回答 | `system-spec/database.md` |\n|---|---|---|\n| `conversions_pending` | 1 | 0 |\n| `conversions_approved` | 1 | 0 |\n| `revenue_confirmed` | 1 | 0 |\n| `conversions_decision_pending` | 0 | 2 |\n| `conversions_settlement_paid` | 0 | 2 |\n| `revenue_approved` | 0 | 4 |\n| `revenue_paid` | 0 | 4 |\n| `approval_status` | 0 | 7 |\n| `payment_status` | 0 | 5 |\n\n上 3 行は正本にしかない**旧名**、下 6 行は章にしかない**現行名**である。つまり `MetricRollup` の列名について**正本のほうが古い**。正本の本文を章へ複製すると列名が旧名へ戻る。「正本が新しい」という前提が成り立たない以上、複製は同期ではなく退行になる。\n\n**理由 3: 章が名指す確定質疑が正本の `qa_ref` と食い違っていた。** 8 カテゴリ中 **7 件で不一致**、一致は auth のみだった (分母 = `coverage_matrix` の web セル 8 件)。章側は `qa-*-analytics` / `qa-*-web` を、正本側は `qa-*-spec-intake` を名指していた。本節と `## カテゴリ別収集状態` の Web 行は**正本の値を正**として書き直した。章側の旧 ID が指していた質疑録の本文は `## 確定内容 (質疑録)` にそのまま残してあり、**消していない** (理由 2 のとおり、章側の本文のほうが新しいため)。\n\n以上より gaps[0] は、**本文を増やさず「確定の根拠がどこにあるか」を章に載せる**形で実行した。正本の所在は 2 つに分かれる — **規範本文の正本は章、確定セルの状態の正本は `spec-state.json`**。食い違ったら、本節の表は `spec-state.json` を正とし、規範本文は章を正とする。",
+        "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      }
+    ],
+    "auth": [
+      {
+        "heading": "意思決定が本章に効く形",
+        "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。\n\n本章に効くのは 1 件だけである。\n\n- **`decision-auth-method` の caveat**: ライブラリ更新の追従を maintenance-ops に\n  組み込むこと。採用は「費用ゼロ・ロックインなし」で得たので、追従を止めた時点で\n  その前提が消える。\n- **G3 (AEO/SEO) の 4 決定は本章を主担当としない。**構造化データの生成・解析・\n  基準の再確認・履歴保持は、いずれも認証の境界の内側で動く既存の管理画面経路に\n  乗る。認証方式そのものを動かす論点は含まれていない。",
+        "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "章の規範本文を正本から再生成しない理由",
+        "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
+        "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      }
+    ],
+    "backend": [
+      {
+        "heading": "意思決定が本章に効く形",
+        "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。\n\n- **`decision-llm-provider` が本章に効く形**: 複数プロバイダを保つのは選択肢を\n  増やすためではなく、07 §0 GC-5 (レビュー系を執筆系から分離し、自作自演の検証に\n  しない) を**書き手と検査役に別モデルを当てる**ことで満たすためである。1 社固定に\n  するとこの分離が構成では表せなくなる。単価は `vars` に置き、値上げに気づける\n  状態を保つ。\n- **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片も\n  この作業場所には置かない。\n- **`dec-aeo-analysis-trigger` が本章に効く形** (2026-09-04 確定、\n  `opt-publish-gate-plus-scheduled`): 解析は公開操作の経路に置く。解くべき問題は\n  「欠落に気づく」ではなく**「欠落したまま公開される」**なので、検出を増やしても\n  公開経路の外に置く限り問題は残る。ゲートの強さは項目ごとに決める — 全項目を\n  必須にすると公開できない記事が滞留し、ゲートを迂回する運用が生まれて検出が\n  形骸化する。定期再解析は Cron に乗せ、**成否と最終実行時刻を管理画面から\n  読める**ようにする。定期実行の失敗は画面に何も現れないため、記録しなければ\n  「再解析されていないこと」に永久に気づけない。\n- **解析関数は生成関数と同じ入力を見る**。`dec-structured-data-emission` が\n  配信時導出を選んだのは、解析の判定と実際に出力される構造化データが食い違わない\n  ことを構造で保証するためである。解析側が独自にパースし直す実装にすると、この\n  保証が消える。",
+        "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "章の規範本文を正本から再生成しない理由",
+        "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
+        "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "本節を「転記」に留めた理由",
+        "body": "C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。\n\n(2026-09-04 追記: 本節はこの日まで章にだけ在り、`## 章にしか無い記述 (正本へ未接続)` として引き継がれていた。同じ見出しの節が P13 の書き戻しでもう 1 つ生まれ、`##` 単位の引き継ぎが衝突して本節が落ちた。**落ちようのない場所へ移すのが直し方である**ため、正本の `chapter_notes` へ入れた。文面は落ちる前の逐語のままで、この段落だけが追記である。)",
+        "reason": "章にだけ在った本節が、P13 の書き戻しで同名の「章にしか無い記述」節が 2 つになった結果、## 単位の引き継ぎが衝突して落ちた。守るのではなく落ちようのない場所へ移す。",
+        "recorded_with": "set-chapter-note"
+      }
+    ],
+    "infrastructure": [
+      {
+        "heading": "意思決定が本章に効く形",
+        "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。\n\n- **`decision-redirect-measurement-async` が本章に効く形**: 転送は必達、計測は\n  ベストエフォート (02 §7)。3 案とも転送は止めないので、差は**欠測をどこまで\n  減らすかとその値段**だった。`waitUntil` + 退避 + Cron 補完は無料枠のまま\n  成立する。Queues はいちばん堅いが有料プランが前提で、契約状態をこちらから\n  確かめられないため caveat に置き、必要になった時点で別の判断とする。\n  **採用理由が契約状態に依存していない**ことが、この選択の要点である。\n- **`dec-blog-domain-strategy` が本章に効く形**: ブログを別ドメインへ切り出さず\n  同一オリジンの経路として持つ。分けると評価が割れるうえ、認証境界と配信境界が\n  二重になり、無料枠の中で運用する前提が崩れる。\n- **`dec-aeo-analysis-trigger` の定期再解析が本章に落ちる形** (2026-09-04 確定):\n  再解析は Cron Trigger に乗る。Cron は**失敗しても画面に何も現れない**ため、\n  成否と最終実行時刻を記録し管理画面から読めるようにする。これが無いと\n  「再解析されていない」ことに永久に気づけない。実行そのものは\n  `decision-redirect-measurement-async` の Cron 補完と同じ土俵に乗るので、\n  無料枠の実行回数を両者の合計で見積もる。",
+        "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "章の規範本文を正本から再生成しない理由",
+        "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
+        "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      }
+    ],
+    "maintenance-ops": [
+      {
+        "heading": "意思決定が本章に効く形",
+        "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。\n\n- **`decision-test-ci-tooling` の結論は「現行のまま」だが、「Playwright は不要」\n  という判断ではない。** 10 の 7 種のうち**見た目の回帰だけは現行で測れておらず、\n  その穴は実在する**。足さない理由は必要性ではなく走らせ方にある。11 §8-2 の\n  3 段 (手動・止めない) は 2026-08-18 に定例をやめており、いま基準を足しても\n  回す場所が無い。穴があることを消さずに残すのが本項の要点である。\n- **確定の出どころ**: 利用者本人が 2 つの選択肢から直接選び、回答原文は\n  「現行のままで確定」(`user_decision.verbatim`、2026-08-20)。AI の推奨を\n  昇格させたものでも、オーケストレーターが代理で決めたものでもない。\n- **`decision-auth-method` から引き継ぐ宿題**: 認証ライブラリの更新追従を本章の\n  運用へ組み込む。採用理由が「費用ゼロ・ロックインなし」なので、追従を止めた\n  時点でその前提が消える。\n- **`dec-guideline-registry-recheck` が本章に効く形** (2026-09-04 確定、\n  `opt-fixed-interval-with-staleness-flag`): AEO/SEO の判定根拠 (検索セントラル・\n  schema.org・WAI-ARIA) は固定間隔で再取得し、**鮮度切れを画面に出す**。\n  判定基準そのものが古びる — 基準が古いまま緑になる状態がいちばん危ない。\n  - **間隔の具体値は本決定では確定しない。**参照先の実際の更新頻度を見てから\n    決める。頻度を先に決めると、根拠のない数字が仕様に固定される。\n  - **取得の失敗を「変更なし」として扱わない。**失敗と無変更を同じ扱いにすると、\n    取得が壊れている期間がまるごと「最新」と表示される。",
+        "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "章の規範本文を正本から再生成しない理由",
+        "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
+        "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      }
+    ],
+    "security": [
+      {
+        "heading": "意思決定が本章に効く形",
+        "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。分母を\n本文へ書くと、正本が増えたときに黙って嘘になる。\n\n- **本章を主担当とする decision は 0 件**である (2026-09-04 時点、正本 12 件に\n  対して)。これは security の論点が漏れているという意味ではなく、いずれの決定も\n  第一の適用先を security としないという意味である。security へ波及する条件を\n  持つのは `decision-auth-method` (認証方式そのもの) と `decision-llm-provider`\n  (API 鍵の預け先) の 2 件で、どちらも主担当章側で確定済み。\n- **`decision-llm-provider` の security 面の含意**: API 鍵は利用者本人がブラウザ\n  または別端末で登録する。**鍵の値も、その断片 (先頭数文字を含む) も、この作業\n  場所に置かない・受け取らない・要求しない。**これは §5 秘密情報の運用そのもの\n  である。\n- **G3 (AEO/SEO) の 4 決定が本章へ持ち込む条件**: 構造化データは配信時に記事\n  データから導出する (`dec-structured-data-emission`) ため、**外部から与えられた\n  文字列がそのまま JSON-LD へ流れる経路が生まれる**。JSON-LD は `<script>` 要素の\n  中に置かれるので、エスケープを誤ると本文経路とは別の注入面になる。導出関数の\n  出力を文字列連結で組まないこと。\n- ガイドライン参照の定期取得 (`dec-guideline-registry-recheck`) は外向きの HTTP を\n  定期的に発生させる。**取得先は決め打ちの公式 host に限り、取得内容を判定\n  ロジックとして評価しない** (データとしてのみ扱う)。",
+        "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "章の規範本文を正本から再生成しない理由",
+        "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
+        "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
       }
     ]
   },
   "excluded_categories": {
     "api": "API 契約は backend カテゴリの質疑で扱っており、独立したカテゴリ行を立てない。根拠: qa-backend-web-overhaul-v2 に利用者本人の逐語『この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください』が記録され、各管理対象の CRUD API を backend 要件として収集済み。qa-backend-web-analytics でも外部 API 連携 (SNS API / ASP API) を扱う。API を作らないという意味ではない。"
-  }
+  },
+  "retracted_qa_log": [
+    {
+      "id": "qa-backend-web-seo-audit-writeback-p13",
+      "reason": "written-requirements を名乗りながら source.path / source.section / source.sha256 を持たない。名乗りは裏取りの有無を機械へ伝えるためにあり、裏の取れない名乗りは記録ではない (REQ-TS20 の 4 検査が全て割れた)。加えて answer が ### 見出しを 2 つ持ち、束ねの上限 (REQ-TS19 の MULTI_SECTION_CAP=2) を 3 へ押し上げた。契約に適合する qa-backend-web-seo-audit-writeback-p13-v2 へ差し替え済み。",
+      "retracted_on": "2026-09-04",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-backend-web-seo-audit-writeback-p13",
+        "question": "backend×web: feat-seo-aeo-gap-closure の実装で確定した、構造化データ (HowTo / Speakable) の導出規則と、AI 検索点検の履歴保持窓・定期再点検の運用値は何か。決めた内容と動いている内容のずれを閉じるため、実装確定値を仕様へ書き戻す (P13)。",
+        "answer": "本 feature の存在理由は「決めたが動いていない」の解消である。動いた結果を仕様へ戻さないと、同じずれが逆向きに残る。以下は 2026-09-04 時点の実装で確定した値であり、推定や設計値ではなく実物のコードから取った。\n\n## 1. 構造化データの導出規則 (実装確定)\n\n### HowTo\n導出元は記事の `steps` 節だけである。`steps` が 0 件の記事では JSON-LD を出さない (`buildHowTo` が `null` を返す)。**記事型では分岐しない** — 「`steps` 節を持つ = 手順記事」を前提に置く。型ごとの分岐は、まだ存在しない要求のための分岐が残り続けるので足す日に足す。\n\n補助情報 (所要時間・費用・事前準備) は**有るときだけキーを出す**。`null` を値として出さない。事前準備は schema.org の `supply` にだけ写し、`tool` は出さない。散文の `prerequisites` 節から「消費されるもの (supply)」と「消費されないもの (tool)」の区別は機械的に付けられず、両方へ同じ段落を出すと「材料でもあり道具でもあるもの」という嘘の構造が読む側に見える。分けたいなら記事フォーマット側に別の節を用意するのが先。\n\n### Speakable\n読み上げ対象の指し先は `[data-speakable=\"answer\"]` (冒頭の結論) と `[data-speakable=\"key-points\"]` (要点) の 2 つである。`id` ではなく `data-*` 属性で揃える。`id` は目次アンカーなど他の用途と衝突し、片方を動かすともう片方が黙って壊れる。\n\n指し先が本文に実在することは検査で保証する。**指した先が読んで意味の通る文かは記事を書く人の責任**であり、機構の責任ではない。仕組み側で担保しようとすると、文章の良し悪しを機械が判定することになる。\n\n## 2. 点検履歴の保持窓 (実装確定)\n\n保持窓は**記事ごと直近 30 件**である (`AUDIT_HISTORY_WINDOW = 30`)。日数では切らない。日数で切ると、更新の少ない記事の履歴が先に消える。\n\n刈り取りは追記と**同一トランザクション**に入れる。「追記されたが古い分が残っている」中間状態を観測できないようにするためである。実装上は未実行のステートメント配列を一括投入する形を取り、その場で実行を始める呼び方を混ぜない (混ぜると刈り取りがトランザクションの外へ出る)。\n\n履歴テーブルは記事へ**外部キーを張らない**。記事を取り下げたときに履歴が連鎖削除されると、取り下げた理由を後から辿れなくなる。したがって履歴の総量は「記事数 × 30 行」で頭打ちになり、運用年数では増えない。手で消す運用は要らない。\n\n## 3. 定期再点検の運用値 (実装確定)\n\n最終点検から **7 日**超の公開記事を対象とし (`REAUDIT_AFTER_DAYS = 7`)、**1 起動あたり 50 件**を上限とする (`REAUDIT_BATCH_LIMIT = 50`)。既存の毎日 Cron に相乗りし、専用のスケジュールを増やさない。cron 式は `0 17 * * *` (UTC 17:00 = 日本時間の翌 02:00) で、トップレベル・dev・production の 3 か所すべてに置く。1 か所だけ直してもその環境でしか効かない。\n\n履歴が 1 件も無い記事は最優先で拾う。導入直後は全記事が履歴 0 件から始まるので、1 日 50 件ずつ埋まる。**この期間、落ちている記事の一覧が 0 件なのを「全部通っている」と読むと誤る。**まだ点検していない記事は、落ちているとも通っているとも判定されないためである。\n\n「7 日以内に全記事を再点検する」を満たせる上限は 50 × 7 = **350 本**である。これを超えたら 1 回の件数を上げるのではなく **cron の頻度を上げる**。1 回の処理量を増やすと実行時間上限に当たり、途中で切れた回が黙って部分適用になる — 何件処理できたのか誰にも分からない状態が生まれる。\n\n## 4. 落ちた記事の見せ方 (実装確定)\n\n再点検は人が起動しないので、**落ちたことに気づく経路は管理画面の一覧しかない**。一覧は最新の点検で落ちている記事だけを点検日の新しい順に並べ、項目名 (内部識別子) ではなく**直し方の文**を出す。読んだだけで次にやることが分かる形にする。\n\n**0 件のときも節を消さない。**消すと「全部通っている日」と「点検の取得に失敗した日」が同じ見た目になる。上限に達したときは「上限まで表示しています」を添える。\n\n一覧の取得はワークスペース境界で区切り、隣の作業場所の記事は見えないし触らない。読者経路からは呼ばない。\n\n## 5. 実装と仕様のずれとして残したもの\n\n本書き戻しの時点で未測定なのは (a) 実 D1 での 1 回の所要時間、(b) 記事 350 本超での挙動、の 2 点である。いずれもリリース後の実環境でしか測れない。設計値のまま確定させず、未測定であることを明示して残す。",
+        "source": {
+          "kind": "written-requirements"
+        },
+        "asks_for": [
+          {
+            "category": "backend",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "clean-architecture.md#中核概念",
+            "principle": "導出規則は記事の保存実体だけを入力とする純粋関数に置き、まだ存在しない要求のための分岐を先回りで持たない",
+            "applicability": "applied",
+            "rationale": "HowTo の導出を記事型ではなく `steps` 節の有無だけで決めたのは、入力を記事の保存実体に限ることで同じ記事に対する出力が常に同じになるからである。記事型で分岐させると、型の追加のたびに導出規則側を触ることになり、変更の理由が 2 か所に散る。補助情報を `null` の値として出さず有るときだけキーを出すのも同じ理由で、欠落を欠落として表現すると読む側が『空文字列の所要時間』のような偽の値を受け取らずに済む",
+            "tradeoffs": [
+              "`steps` 節を持つ記事型が将来 `guide` 以外に増えると、意図せず HowTo が出る。これは事故ではなく設計どおりの帰結だが、増やす日に導出規則を見直す必要がある",
+              "`supply` にだけ写して `tool` を出さないため、schema.org が持つ材料と道具の区別を捨てている。区別したいなら記事フォーマット側に別の節を用意するのが先で、導出規則だけでは解けない"
+            ]
+          },
+          {
+            "knowledge_ref": "site-reliability-engineering.md#中核概念",
+            "principle": "落ちても利用者の画面に何も起きない仕組みは、壊れていることと順調であることが同じに見える",
+            "applicability": "applied",
+            "rationale": "定期再点検は人が起動せず、失敗しても読者の画面は変わらない。だから 0 件のときも一覧の節を消さないと決めた — 消すと『全部通っている日』と『点検の取得に失敗した日』が同じ見た目になり、異常を異常として観測できなくなる。1 起動 50 件の上限も同じ思想で、処理量を増やして実行時間上限に当てると途中で切れた回が黙って部分適用になり、何件処理できたのかを誰も言えない状態が生まれる。上限に当てないことで、失敗した回は次の回がそのまま拾える",
+            "tradeoffs": [
+              "1 起動 50 件・7 日周期の組み合わせは公開記事 350 本までしか『7 日以内に全件』を満たせない。超えたときの手当ては件数ではなく cron 頻度になるが、頻度を上げる判断そのものは人が気づく必要がある",
+              "導入直後は全記事が履歴 0 件から始まるため、数日間は一覧が過少表示になる。この期間の 0 件を『全部問題ない』と読むと誤るが、仕組み側からはその区別を出していない"
+            ]
+          },
+          {
+            "knowledge_ref": "domain-driven-design.md#中核概念",
+            "principle": "監査記録は記録対象のライフサイクルに従属させない",
+            "applicability": "applied",
+            "rationale": "点検履歴のテーブルに記事への外部キーを張らないと決めたのは、記事を取り下げたときに履歴が連鎖削除されると『なぜ取り下げたか』を後から辿れなくなるからである。履歴は記事の一部ではなく、記事に対して行った判断の記録であり、寿命が異なる。刈り取りを追記と同一トランザクションに入れたのも同じ境界の話で、『追記されたが古い分が残っている』中間状態を外から観測できないようにしている",
+            "tradeoffs": [
+              "外部キーを張らないため、参照先の無い履歴行が残りうる。整合性の保証をデータベース制約ではなくアプリケーション側の責務へ移している",
+              "保持窓を件数 (30) で切ったため、更新頻度の高い記事ほど短い期間しか遡れない。日数で切ると逆に更新の少ない記事の履歴が先に消えるので、どちらかを選ぶ必要があった"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-database-web-audit-history-window-p13",
+      "reason": "written-requirements を名乗りながら source.path / source.section / source.sha256 を持たない (REQ-TS20)。書面由来の出典文書は 9 本に固定されており、新しい path を足す余地が無い以上、この書き戻しは書面由来を名乗れなかった。契約に適合する qa-database-web-audit-history-window-p13-v2 へ差し替え済み。",
+      "retracted_on": "2026-09-04",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-database-web-audit-history-window-p13",
+        "question": "database×web: AEO/SEO 点検結果の履歴を D1 にどう保持するか。`dec-analysis-history-retention` は保持件数の具体値を「根拠を持たない」として未確定にしていたが、feat-seo-aeo-gap-closure の実装でその値が確定した。確定値と、その値を選んだ根拠は何か (P13 書き戻し)。",
+        "answer": "`dec-analysis-history-retention` は選択肢 `opt-append-with-window` (追記して窓で刈る) を採ったが、**窓の具体値は「根拠なく数値を確定しないこと」として空のまま**確定していた。決定は動いているのに値だけが仕様に無い状態は、実装が先に決めてしまった値を誰も検証できないことを意味する。実装で確定した値を根拠付きで書き戻す。\n\n## 確定値\n\n保持窓は**記事ごと直近 30 件**、**件数のみ**で切る。日数では切らない (`AUDIT_HISTORY_WINDOW = 30`)。\n\n## なぜ件数で切り、日数で切らないか\n\n日数で切ると、更新の少ない記事の履歴が先に消える。だが「更新が少ない = 古い情報のまま放置されている」記事こそ、点検結果の推移を見たい対象である。**日数の窓は、いちばん見たい記事の履歴をいちばん先に捨てる。**件数で切れば、どの記事も等しく直近 30 回ぶんを持つ。\n\n## なぜ 30 件か\n\n履歴が積まれる契機は 2 つで、(a) 記事の公開のたびに 1 行、(b) 最終点検から 7 日超の記事を拾う定期再点検で 1 行である。(b) だけでも**約 7 か月ぶん**が 30 件に収まる (30 × 7 日)。`dec-analysis-history-retention` の caveat が求めた「施策の効果が現れるまでの期間」として、検索結果への反映が数週間から数か月かかることを踏まえ、その 2〜3 倍を持てる値を採った。\n\n記事を頻繁に更新する運用では (a) が加算されて期間は短くなるが、そのときは推移よりも直近の変化が知りたい局面であり、窓が短くなること自体が問題にならない。\n\n## 容量の見積り\n\n総量は「記事数 × 30 行 × 約 1.5KB」で頭打ちになる。100 本で約 4.5MB、1,000 本で約 45MB。**運用年数が延びても増えない** — 増え方が記事数にだけ比例する。D1 の無料枠に対して余裕がある。手で消す運用は要らない。\n\n## 刈り取りの失敗の扱い\n\ncaveat は「刈り取りの失敗は容量が伸びるだけで画面に何も現れない」と警告していた。実装では**刈り取りを追記と同一トランザクションに入れる**ことでこれに答えた。追記が成功して刈り取りだけが失敗する状態が存在しないので、「刈り取りの最終実行時刻」を別に記録して見張る必要が無い。追記が動いていれば刈り取りも動いている。\n\n## 記事が消えたときの扱い\n\n履歴テーブルは記事へ**外部キーを張らない**。記事を取り下げたときに履歴が連鎖削除されると、取り下げた理由を後から辿れなくなる。監査記録は記録対象のライフサイクルに従属させない。\n\n## 未確定のまま残すもの\n\ncaveat が求めた「解析ロジックのバージョンを各行へ記録する」は、判定結果の一式を各行へ持つ形で満たしている。一方、**実 D1 での刈り取りを含む 1 回の所要時間は未測定**である。リリース後にログで初めて測れる。設計値のまま確定させず、未測定であることを明示して残す。",
+        "source": {
+          "kind": "written-requirements"
+        },
+        "asks_for": [
+          {
+            "category": "database",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "ddd.md#中核概念",
+            "principle": "監査記録は記録対象のライフサイクルに従属させない",
+            "applicability": "applied",
+            "rationale": "点検履歴のテーブルに記事への外部キーを張らないと決めたのは、記事を取り下げたときに履歴が連鎖削除されると『なぜ取り下げたか』を後から辿れなくなるからである。履歴は記事の一部ではなく、記事に対して行った判断の記録であり、寿命が異なる。dec-analysis-history-retention が『上書きすると直したのに直っていないのか判定が変わったのかを区別できない』として履歴を選んだのと同じ理由が、記事の削除に対しても効く",
+            "tradeoffs": [
+              "外部キーを張らないため、参照先の無い履歴行が残りうる。整合性の保証をデータベース制約ではなくアプリケーション側の責務へ移している",
+              "記事を完全に消したい要求 (削除要請など) に対して、履歴側を別途たどって消す手順が要る"
+            ]
+          },
+          {
+            "knowledge_ref": "site-reliability-engineering.md#中核概念",
+            "principle": "静かに失敗しうる処理は、見張る仕組みを足すより、失敗しえない構造にする方が先",
+            "applicability": "applied",
+            "rationale": "dec-analysis-history-retention の caveat は『刈り取りの失敗は容量が伸びるだけで画面に何も現れない』ため最終実行時刻と削除件数を記録せよと求めていた。実装は監視を足す代わりに、刈り取りを追記と同一トランザクションへ入れて『追記は成功したが刈り取りだけ失敗した』状態を存在させない構造を採った。見張る対象を増やすと、見張り自身が静かに壊れる経路が増える",
+            "tradeoffs": [
+              "追記の経路に刈り取りの負荷が常に乗る。件数が小さい (30) ため現規模では問題にならないが、窓を大きくすると追記のたびに重くなる",
+              "刈り取りだけを後追いで走らせる運用 (窓の値を変えたときの一括再適用など) は別の手段が要る"
+            ]
+          },
+          {
+            "knowledge_ref": "information-design.md#中核概念",
+            "principle": "保持の窓は、いちばん見たいデータをいちばん先に捨てない軸で切る",
+            "applicability": "applied",
+            "rationale": "日数の窓は、更新の少ない記事の履歴を先に消す。だが『更新が少ない = 古い情報のまま放置されている』記事こそ点検結果の推移を見たい対象であり、日数で切るといちばん見たい履歴からいちばん先に失われる。件数で切れば、どの記事も等しく直近 30 回ぶんを持つ。総量も記事数にだけ比例して運用年数では増えないため、容量の見積りが先に立つ",
+            "tradeoffs": [
+              "更新の激しい記事では 30 件が短い期間しか覆わない。長期の推移を追いたい記事があれば、窓の値では解けず別の集約が要る",
+              "件数固定のため、記事数が増えると総量は線形に伸びる。350 本を超える規模では D1 の無料枠に対する余裕を再計算する必要がある"
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

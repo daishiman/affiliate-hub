@@ -1,11 +1,4 @@
 import type { ReactNode } from "react";
-import { articleHref } from "@/application/read-models/published-article";
-import {
-  buildBlogPosting,
-  buildBreadcrumbList,
-  buildFaqPage,
-  buildItemList,
-} from "@/application/seo/structured-data";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import {
   publicArticleBlockOrder,
@@ -15,9 +8,14 @@ import {
 } from "@/presentation/composition";
 import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
-import { ArticleTableOfContents, ArticleView, Section } from "@/presentation/ui";
+import {
+  ARTICLE_SPEAKABLE_SELECTORS,
+  ArticleTableOfContents,
+  ArticleView,
+  Section,
+} from "@/presentation/ui";
+import { ArticleStructuredData } from "./article-structured-data";
 import { ShortlistSaveButton } from "./shortlist-buttons";
-import { JsonLdScript } from "./json-ld-script";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
 import { ReaderRatingForm } from "./reader-rating-form";
 import { siteHref, toArticleCards, toArticleView } from "./view-model";
@@ -156,45 +154,13 @@ export async function ArticlePage({
               純関数で作る。値は serializeJsonLd が < を逃がしてから埋める。
             */}
             {origin === null ? null : (
-              <>
-                <JsonLdScript
-                  value={buildBlogPosting(result.value, {
-                    siteName: blueprint.name,
-                    origin,
-                    basePath,
-                  })}
-                />
-                <JsonLdScript
-                  value={buildBreadcrumbList([
-                    { name: blueprint.name, url: `${origin}${basePath}` },
-                    {
-                      name: result.value.title,
-                      url: `${origin}${basePath}${articleHref(result.value)}`,
-                    },
-                  ])}
-                />
-                {/*
-                  順位記事だけ ItemList を追加で出す。buildItemList は順位が無い記事で
-                  null を返し、null は「出さない」に写す（嘘の順位表を出さない）。
-                */}
-                {(() => {
-                  const itemList = buildItemList(result.value, {
-                    siteName: blueprint.name,
-                    origin,
-                    basePath,
-                  });
-                  return itemList === null ? null : <JsonLdScript value={itemList} />;
-                })()}
-                {/*
-                  よくある質問がある記事だけ FAQPage を出す。読者に見えている
-                  問いと答えを**そのまま**渡す。ここで文言を整えると、画面に無い
-                  答えが検索結果に出る（構造化データの誤用そのもの）。
-                */}
-                {(() => {
-                  const faq = buildFaqPage(result.value);
-                  return faq === null ? null : <JsonLdScript value={faq} />;
-                })()}
-              </>
+              <ArticleStructuredData
+                article={result.value}
+                siteName={blueprint.name}
+                origin={origin}
+                basePath={basePath}
+                speakableSelectors={ARTICLE_SPEAKABLE_SELECTORS}
+              />
             )}
             {/*
               操作できる部分（道具の入力欄と結果）。**本文より先に出す。**

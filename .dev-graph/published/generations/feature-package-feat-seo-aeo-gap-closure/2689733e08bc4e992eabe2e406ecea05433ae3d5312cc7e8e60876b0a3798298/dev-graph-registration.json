@@ -1,0 +1,1154 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+  "parent_feature": "feat-seo-aeo-gap-closure",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-SEO-AEO-GAP-CLOSURE-P01": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P02": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P03": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P04": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P05": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P06": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P07": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P08": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P09": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P10": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P11": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P12": "beads",
+    "SYS-SEO-AEO-GAP-CLOSURE-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO/AEO 未実装差分の要求ベースライン確定",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md",
+        "docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md",
+        "docs/spec/feat-seo-aeo-gap-closure/retention-policy.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "点検履歴の保持と定期再点検経路とJSON-LD導出の設計",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/architecture.md",
+        "docs/spec/feat-seo-aeo-gap-closure/data-model.md",
+        "docs/spec/feat-seo-aeo-gap-closure/api-contract.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "設計レビューと既存 SEO 実装との重複有無の独立検証",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/design-review.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入6件に対応するテスト設計",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/test-design.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "HowTo・Speakable 導出と点検履歴と定期再点検と管理画面一覧の実装",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/application/seo",
+        "src/domain/authoring",
+        "src/domain/seo",
+        "src/db/schema.ts",
+        "drizzle",
+        "src/infrastructure/persistence/d1",
+        "src/application/ports",
+        "src/application/usecases",
+        "src/app/admin",
+        "src/app/s",
+        "worker-entry.js",
+        "tests"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "テスト全量実行と回帰0件の確認",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/test-run.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入6件の受け入れ判定",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/acceptance.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存 SEO 実装との統合整理とマイグレーションの前方互換確認",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/application/seo",
+        "src/db/schema.ts",
+        "drizzle",
+        "docs/spec/feat-seo-aeo-gap-closure/migration-compatibility.md",
+        "tests"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "品質保証と非機能検査",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md",
+        "tests"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "最終レビューと残課題の確定",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/final-review.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P07",
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/evidence.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "運用手順と文書化",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P10",
+        "SYS-SEO-AEO-GAP-CLOSURE-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/operations.md",
+        "docs/spec/feat-seo-aeo-gap-closure/documentation.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "開発環境へのリリースと system-spec への書き戻し",
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:21:53Z",
+      "updated_at": "2026-09-04T04:21:53Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec/backend.md",
+        "docs/spec/feat-seo-aeo-gap-closure/release.md"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json",
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "imported_at": "2026-09-04T04:21:53Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    }
+  ]
+}

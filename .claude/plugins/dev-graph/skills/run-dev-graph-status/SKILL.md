@@ -10,7 +10,7 @@ hierarchy: L1
 user-invocable: true
 argument-hint: "[--repo-root PATH] [--id ID] [--kind KIND] [--project ID] [--domain NAME] [--status STATUS] [--tag TAG] [--keyword TEXT]"
 allowed-tools: [Read, Bash, AskUserQuestion, Skill, Agent]
-script_refs: [../../scripts/resolve-repo-context.py, ../../scripts/validate-graph-schema.py, ../../scripts/status-graph.py]
+script_refs: [../../scripts/resolve-repo-context.py, ../../scripts/validate-graph-schema.py, ../../scripts/status-graph.py, ../../scripts/lint-lineage-freshness.py]
 schema_refs: [../../schemas/graph-node.schema.json]
 responsibility_refs:
   - prompts/R1-elicit.md

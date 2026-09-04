@@ -151,27 +151,17 @@ describe("Worker の入口と定期実行の配線", () => {
     }
   });
 
-  it("入口は、掃除を呼んでいる", () => {
+  it("入口は、定期メンテナンスへ実行環境と cron の起動時刻を渡している", () => {
     const entry = readFileSync(join(ROOT, config.main as string), "utf8");
     expect(entry, "定期実行の受け口がありません").toContain("scheduled");
-    // 包むだけになっていないこと。処理そのものは src 側にあり、そちらにテストがある。
-    expect(entry, "掃除を呼んでいません").toContain("sweepExpiredCaptures");
-    expect(entry, "技術診断の削除を呼んでいません").toContain(
-      "runFeedbackDiagnosticsPurge",
-    );
-    expect(entry, "予約された外部配信を呼んでいません").toContain(
-      "runScheduledDistribution",
-    );
-    expect(entry, "配信監査outboxの再送を呼んでいません").toContain(
-      "runPublicationDeliveryAuditFlush",
-    );
-    expect(entry, "D1 binding の欠落を安全側で扱っていません").toContain(
-      "env.DB === undefined",
+    // 入口はOpenNextの生成物を包むだけに保ち、型で守る配線は src 側へ置く。
+    expect(entry, "定期メンテナンスの配線を読み込んでいません").toContain(
+      "scheduleMaintenanceJobs",
     );
     expect(
-      (entry.match(/ctx\.waitUntil\(/g) ?? []).length,
-      "配信・R2・D1を同じ待ち行列へ戻すと、配信失敗で保持期限処理まで止まります",
-    ).toBeGreaterThanOrEqual(4);
+      entry,
+      "定期メンテナンスへ実行環境・実行文脈・cron の起動時刻を渡していません",
+    ).toMatch(/scheduleMaintenanceJobs\s*\(\s*env\s*,\s*ctx\s*,\s*now\s*\)/);
   });
 
   it("入口は、生成物が出している入れ物をすべて通している", () => {

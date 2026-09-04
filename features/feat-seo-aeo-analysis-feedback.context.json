@@ -1,0 +1,42 @@
+{
+ "graph_node_id": "feat-seo-aeo-analysis-feedback",
+ "artifact_kind": "feature",
+ "purpose": "公開記事の機械可読要素の充足度を記事の実データから解析し、欠落を「どの記事のどこが何を欠いているか」まで名指しして書き手のエディターへ返す。充足率を数えるだけでは記事は直らない。直せる場所へ差し戻して初めて閉じる。",
+ "goal": "確定 decision のとおり、解析が公開ゲートと定期実行の両方で走り (dec-aeo-analysis-trigger = opt-publish-gate-plus-scheduled)、判定根拠のガイドライン参照が固定間隔で再確認され陳腐化が旗で見える (dec-guideline-registry-recheck = opt-fixed-interval-with-staleness-flag)、解析結果が窓付き追記で履歴として残り推移を追える (dec-analysis-history-retention = opt-append-with-window) 状態で、O3 の充足率と公開前検出割合が計測できるようになっている",
+ "scope_in": [
+  "記事の実データを入力に SEO/AEO 充足度を判定する解析器 (構造化データ必須種別・見出し階層・画像 alt と width/height・canonical・広告 rel)",
+  "公開ゲートでの解析実行と、公開後の定期実行 (両方・dec-aeo-analysis-trigger)",
+  "判定根拠となるガイドライン参照レジストリの固定間隔再確認と staleness flag",
+  "解析結果の D1 保持 (窓付き追記・dec-analysis-history-retention)",
+  "エディター上での欠落の名指し提示 (該当見出し・該当画像・該当リンクへ直接飛べる)",
+  "書きながら素材が揃う編集体験: 見出し階層・画像 alt・内部リンク・構造化データの素材が入力欄として編集画面に存在し、公開前に欠落が見える (I8)",
+  "O3 指標 (公開記事あたりの充足率・公開前に検出された欠落の割合) の算出と表示"
+ ],
+ "scope_out": [
+  "機械可読要素そのものの生成 (feat-seo-aeo-machine-readable)",
+  "外部順位データ・検索順位の推測に基づく判断",
+  "クリック・成果のアトリビューション分析 (feat-analytics-insight)",
+  "記事本文の自動書き換え (指摘は提示するが本文を勝手に直さない)",
+  "管理画面全体の画面分割・共通部品化 (feat-uiux-overhaul)"
+ ],
+ "acceptance": [
+  "記事を公開しようとすると解析が走り、必須要素の欠落があるものは欠落の一覧と該当箇所を示して公開ゲートで止まる",
+  "定期実行が既存の公開済み記事を解析し、公開後に生じた欠落 (参照切れ・画像差し替えによる alt 欠落等) を検出する",
+  "エディター上で欠落が該当箇所へのリンク付きで提示され、その場で直して再判定できる",
+  "解析結果が窓付きで追記保持され、1 記事の充足率の推移を期間指定で参照できる",
+  "ガイドライン参照レジストリが固定間隔で再確認され、期限を過ぎた参照は staleness flag が立ち、判定結果にその旨が併記される",
+  "O3 の 2 指標 (充足率・公開前検出割合) が算出され、初回は current=未計測 として基準値取得から始まり、根拠のない target を確定しない",
+  "解析は記事の実データだけを入力とし、外部順位データの推測を判定根拠にしない"
+ ],
+ "architecture_refs": [
+  "architecture/system-spec-overview.md",
+  "architecture/arch-two-layer-platform.md",
+  "system-spec/index.md",
+  "system-spec/00-requirements-definition.md",
+  "system-spec/frontend.md",
+  "system-spec/ui-ux.md",
+  "system-spec/backend.md",
+  "system-spec/database.md"
+ ],
+ "updated_at": "2026-09-04T00:00:00Z"
+}

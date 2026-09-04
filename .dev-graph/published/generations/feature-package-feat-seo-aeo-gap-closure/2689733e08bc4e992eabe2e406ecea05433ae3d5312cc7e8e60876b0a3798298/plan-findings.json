@@ -1,0 +1,169 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-seo-aeo-gap-closure",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "前回検出した2件の矛盾がいずれも修正され、実測で解消を確認した。(a) resource_scope: features/feat-seo-aeo-gap-closure.md#resource_scopeは[\"src\",\"drizzle\",\"tests\",\"worker-entry.js\",\"docs/spec\",\"system-spec\"]の6要素へ拡張され、全13 task specの'Parallel safety'行の宣言 (src, drizzle, tests, worker-entry.js, docs/spec, system-spec) とgrepで完全一致した。P05のWrite scope/touches (drizzle, worker-entry.js, tests含む) とP08のWrite scope/touches (drizzle, tests含む) はいずれもこの6要素の範囲内に収まり、feature側の許諾と実際の書き込み対象の間に矛盾は無い。features/feat-seo-aeo-gap-closure.context.jsonはresource_scopeキーを持たないため、source_feature_digest (sha256:5b5b3b50294c91de6f87380efa48fc41a01080e5816168bc5853511b16d2b149) は変更前後で不変であることをcontext.jsonの実測sha256一致で確認した。(b) 層別方針とWorkstream applicabilityの整合: P03/P04/P06/P10の4 phaseで層別方針の文頭が『バックエンド/データ:』から『バックエンド:』へ修正され、grepで4ファイルとも新文言を確認した。マーカー語 (API 契約/DB 結合) はLAYER_MARKERS上backend層のテスト観点として残されており、Workstream applicabilityのData行N/A宣言 (P03/P04/P06/P10いずれも'永続化スキーマはP02が設計しP05が実装する'等) との矛盾は解消した。Dataがapplicableの P01/P02/P05/P08/P09は『バックエンド/データ:』のまま変更されておらず、こちらもapplicability宣言と整合する。補修1(edges)・補修2(p01_entry_gate)・補修4(P13 writeback required:形式) は前回同様に正しく維持されている: task-graph.json#edgesの14本はnodes[].depends_onの逆写像とpython突き合わせで過不足なく一致し (missing=0, extra=0, 重複=0)、workstream-inventory.json/system-build-handoff.jsonのp01_entry_gateはcanonical値{selector:parent_feature.depends_on, operator:all, required_statuses:[done,closed]}で両ファイル一致、phase-13-release-deploy.mdのwritebackは`- P13 spec/architecture writeback: required: ...`形式のまま。他の11 phaseの層別方針・Workstream applicabilityの組み合わせにも新たな矛盾は無い。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-03-design-review.md",
+        "task-specs/phase-04-test-design.md",
+        "task-specs/phase-05-implementation.md",
+        "task-specs/phase-06-test-run.md",
+        "task-specs/phase-08-refactoring-migration.md",
+        "task-specs/phase-09-quality-assurance.md",
+        "task-specs/phase-10-final-review.md",
+        "task-specs/phase-13-release-deploy.md",
+        "task-graph.json",
+        "workstream-inventory.json",
+        "system-build-handoff.json",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "本featureはtags (seo, aeo, structured-data, scheduling, audit-history) 上でqa-NNNの上流qa要件を宣言していない (features/feat-seo-aeo-gap-closure.md#L7をgrepし0件)。したがってqa_log登録・goal-spec意味反映・C12 qa-ref-unregistered/qa-semantic-coverage/qa-task-trace類は対象外であり、この観点での漏れは無い。受入6件 (A1-A6) は今回の修正 (層別方針の文頭変更のみ) の影響を受けず、引き続きP01 (requirements.mdでA1-A6を検証可能化)、P04 (test-design.mdでA1-A6をテストケース設計へ対応付け)、P06 (test-run.mdでA6を既存回帰基準線との突き合わせとして実行)、P07 (acceptance.mdでA1-A6を1件ずつ判定) の各task specに意味記述として存在することをgrepで再確認した。scope_out (JSON-LD導出本体・llms.txt・IndexNow・出典レジストリ・公開時点検の判定ロジック) は全13 task specに明示的に列挙されており漏れは無い。goal-spec.jsonのpurpose/goal/scope_in/scope_out/acceptanceはfeatures/feat-seo-aeo-gap-closure.mdの記述と字面まで一致した。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-04-test-design.md",
+        "task-specs/phase-06-test-run.md",
+        "task-specs/phase-07-acceptance.md",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "staging-manifest.json#canonical_digestはsha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298であり、gate stdout#validated_digestと一致した。manifest掲載16ファイル (files配下) の実測sha256はshasum -a 256で個別に再計算し全件一致した。source_feature_digest (feature-package.json) はsha256:5b5b3b50294c91de6f87380efa48fc41a01080e5816168bc5853511b16d2b149で、features/feat-seo-aeo-gap-closure.context.jsonの実測sha256と一致し、resource_scope修正前後で不変であることを確認した。repo_context.repo_identity (.dev-graph/config.json#repository_id, workstream-inventory.json#repo_identity, 全13 task specのRepository context行) はいずれもgithub:daishiman/affiliate-hubで一致した。差分featureとしての境界は保たれている: scope_outに挙がるsrc/application/seo/structured-data.ts、src/app/s/[site]/llms.txt/route.ts、src/domain/seo/indexnow.ts、src/application/seo/feeds.ts、src/application/usecases/seo/manage-guideline-references.ts、src/application/seo/ai-search-audit.tsは実在し、task specはこれらへHowTo/Speakable builder等を追加するだけで作り直さないと明記している。placeholder regex (TODO|TBD|__PLACEHOLDER__) はstaging配下の実データファイル (plan-findings.json自身を除く) で0件だった。",
+      "evidence": [
+        "staging-manifest.json",
+        "feature-package.json",
+        "workstream-inventory.json",
+        "task-specs/phase-02-architecture.md",
+        "task-specs/phase-05-implementation.md",
+        "task-specs/phase-08-refactoring-migration.md",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.jsonの13 node (nodes[].id/depends_on) とsystem-build-handoff.json#execution_tasksの13 task (task_id/depends_on) をpython突き合わせで独立再計算した結果、id集合が完全一致し、depends_on集合も全13件で完全一致した (mismatches=[])。task-graph.json#edges (14本、producer->consumer方向) はnodes[].depends_onの逆写像と過不足なく一致し (missing=0, extra=0)、重複辺も0件。phase番号による前方DAG検査でbackward edgeは0件。execution_tasksのtask_spec_pathは全13件がtask-specs/phase-NN-<slug>.mdの規約に一致し、対応するphase_refとも整合する。p01_entry_gateはworkstream-inventory.json/system-build-handoff.json双方に同一canonical値で存在する。今回の修正 (feature.mdのresource_scope拡張、4 phaseの層別方針文頭修正) はtask-graph.json/system-build-handoff.jsonの依存関係構造に影響していないことをsha256 (両ファイルともsha256:ccf6da55...およびsha256:82ca07fc... で今回再計算) と依存集合の再突合で確認した。",
+      "evidence": [
+        "task-graph.json",
+        "system-build-handoff.json",
+        "workstream-inventory.json",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-seo-aeo-gap-closure"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298\",\n  \"feature_package_id\": \"feature-package/feat-seo-aeo-gap-closure\",\n  \"parent_feature\": \"feat-seo-aeo-gap-closure\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}\n",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "12cd14a2606f8206ba7a785b6ef21ecc02ec5bd3f96eebe0c4189fc8a4abd5e9"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "82ca07fccdb3ce52dd70bb93e2362501371fffc666883fe49df0a0c646c258cb"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "ccf6da55d2b7f738253d3bd456964812d3ef30b879bcf09294c03d7d0c0eaafd"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "efeab01cc752c3f95a976dab058d4d6d37eacb50544354f8bdb1b6e64244d2a7"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "6b393bcc0523455d40bb87814c7f6e27e7328dd1f2e587824c72ed4cd089ab77"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "79c969c7669fe39a623b83db26572766a266f151d26f228e8cc8df2d4b6da16b"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "edb48cb0840efb6221bbbd2f0608f2bea9f6e5d49c52a68dc2e320318914f3d4"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "2fbc870b8be264479c6141c2f02516cdd1c4bdce755c06b4bb8a8ad1137ff68d"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "d984e9c6041a4db589ecbf3727e7c48d7c6fabe709951f5731c6e0fde1111762"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "aea139905837eee7949ae5f0658bc02871ec1b4ab4b0917b568bffcc8e69c514"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "30c038c3542c323b54b98d6ec9c45ab242b83f609245d3998d85187ac549ee42"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "4536dd1e8563a759c4e47a747df1f76ea6abd551e2e43ae193677f7e0d53aac5"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "30b8d9955a26bf7d3cddb1f46e89105e728c50976c058de8262cda0fbf608d7d"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "501d25fcd9bb89ed007c3f3f45e4a8f662b9d3e7aa94cb24552cd4727f2217a0"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "cdd1a0aed8ead2168936c67349af9345132f4ab4fbe127854dc704a308edceb5"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "314e14a0c0f9128bcd9067aec5a9f7d851aa9142beaee5b693c9403514981ecf"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "66d290ac1989882ee86d5975f1a3a7018ed1a74a6cb8e61f86665ad3d4340f4c"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "2c8069bc8e5c535641d4060489619b72526ec0c8ac5724604cd5201488ddf8c6"
+    }
+  ],
+  "staleness_rule": "この findings は evaluated_digest (sha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298) に対してのみ有効。staging-manifest.json#canonical_digestがこの値と異なる場合、または evaluated_inputs に列挙した18ファイルいずれかの実測sha256が記載値と1件でも異なる場合、この findings は即時無効であり、新たな独立評価をやり直す必要がある。",
+  "findings": []
+}
