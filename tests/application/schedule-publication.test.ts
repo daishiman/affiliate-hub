@@ -10,7 +10,7 @@ import {
 } from "@/application/usecases/distribution/manage-distribution";
 import type { ContentVariant } from "@/domain/authoring";
 import type { Publication } from "@/domain/distribution";
-import { markEditorial, ok } from "@/domain/shared";
+import { domainError, err, markEditorial, ok } from "@/domain/shared";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
 import { aChannelConnection, aPublication } from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
@@ -53,6 +53,8 @@ async function sampleVariant(): Promise<ContentVariant> {
 
 type Over = {
   variant?: ContentVariant | null;
+  /** 記事の企画が属するブランド。null は親企画を辿れない壊れた参照。 */
+  packageBrand?: string | null;
   connections?: readonly unknown[];
   existing?: Publication | null;
   saveFails?: boolean;
@@ -71,12 +73,35 @@ function deps(over: Over = {}): ManageDistributionDeps {
       ...base.channelConnections,
       listByWorkspace: async () => ok({ items: over.connections ?? [], nextCursor: null }),
     } as ManageDistributionDeps["connections"],
+    connectors: {
+      forConnection: (connection) =>
+        ok({
+          kind: connection.kind,
+          resolveIdentity: async () =>
+            ok({ providerIdentity: "did:plc:test", accountLabel: "@test.example" }),
+          checkReadiness: async () => ok(true),
+          prepareDeliveryKey: async () => ok("test-delivery-key"),
+          validate: async () => ok([]),
+          publish: async () =>
+            ok({ externalId: "test", externalUrl: null, publishedAt: new Date() }),
+          unpublish: async () => ok(true),
+        }),
+    },
     publications: {
       ...base.publications,
       findByIdempotencyKey: async () =>
         over.findByKeyFails === true
           ? failing("保存先に繋がりません。")
           : ok(over.existing ?? null),
+      createIfAbsent: async (publication: Publication) => {
+        if (over.findByKeyFails === true) return failing("保存先に繋がりません。");
+        if (over.existing !== undefined && over.existing !== null) {
+          return ok({ publication: over.existing, created: false });
+        }
+        if (over.saveFails === true) return failing("保存先に繋がりません。");
+        saved.push(publication);
+        return ok({ publication, created: true });
+      },
       save: async (p: Publication) => {
         if (over.saveFails === true) return failing("保存先に繋がりません。");
         saved.push(p);
@@ -87,7 +112,25 @@ function deps(over: Over = {}): ManageDistributionDeps {
     variants: markEditorial({
       ...base.contentVariants,
       findById: async () => ok(over.variant === undefined ? null : over.variant),
+      findVersionedById: async () =>
+        ok(
+          over.variant === undefined || over.variant === null
+            ? null
+            : { variant: over.variant, revision: 7, persisted: true },
+        ),
     }) as ManageDistributionDeps["variants"],
+    contentPackages: markEditorial({
+      ...base.contentPackages,
+      findById: async (workspaceId) =>
+        ok(
+          over.packageBrand === null
+            ? null
+            : ({
+                workspaceId,
+                brandId: over.packageBrand ?? "brand-allowed",
+              } as never),
+        ),
+    }),
     ids: base.ids,
     auditLog: over.auditLog ?? recordingAuditLog().port,
   };
@@ -95,15 +138,91 @@ function deps(over: Over = {}): ManageDistributionDeps {
 
 /** 承認済みの記事を返す組み立て。 */
 async function approved(): Promise<ContentVariant> {
-  return { ...(await sampleVariant()), status: "approved", workspaceId: WORKSPACE };
+  return {
+    ...(await sampleVariant()),
+    status: "approved",
+    workspaceId: WORKSPACE,
+    complianceStatus: "pass",
+    disclosure: "広告",
+    claimIds: ["claim-approved" as never],
+    evidenceIds: ["evidence-approved" as never],
+  };
 }
 
 describe("配信を作る", () => {
+  it("ブランド限定担当者は担当外・所有元不明の記事を配信できない", async () => {
+    const limited = anOwner({ scopedBrandIds: ["brand-allowed" as never] });
+    const outsideSaved: Publication[] = [];
+    const outside = await createSchedulePublicationUseCase(
+      deps({
+        variant: await approved(),
+        packageBrand: "brand-outside",
+        saved: outsideSaved,
+      }),
+    ).execute(limited, { variantId: "cv_alpha_review", channelKind: "note" });
+    const orphanSaved: Publication[] = [];
+    const orphan = await createSchedulePublicationUseCase(
+      deps({
+        variant: await approved(),
+        packageBrand: null,
+        saved: orphanSaved,
+      }),
+    ).execute(limited, { variantId: "cv_alpha_review", channelKind: "note" });
+
+    expect(outside.ok).toBe(false);
+    expect(orphan.ok).toBe(false);
+    expect(outsideSaved).toHaveLength(0);
+    expect(orphanSaved).toHaveLength(0);
+  });
+
+  it("ブランド限定担当者も担当ブランドの記事なら配信できる", async () => {
+    const limited = anOwner({ scopedBrandIds: ["brand-allowed" as never] });
+    const got = await createSchedulePublicationUseCase(
+      deps({ variant: await approved(), packageBrand: "brand-allowed" }),
+    ).execute(limited, { variantId: "cv_alpha_review", channelKind: "note" });
+
+    expect(got.ok).toBe(true);
+  });
+
+  it.each([
+    ["自動選択", undefined],
+    ["ID指定", "conn-brandless"],
+  ] as const)(
+    "ブランド限定担当者は、ブランド所有を持たないworkspace共通接続を%sで使えない",
+    async (_label, connectionId) => {
+      const limited = anOwner({ scopedBrandIds: ["brand-allowed" as never] });
+      const connection = aChannelConnection({
+        id: "conn-brandless" as never,
+        kind: "x",
+        workspaceId: WORKSPACE,
+      });
+      const saved: Publication[] = [];
+      const got = await createSchedulePublicationUseCase(
+        deps({
+          variant: await approved(),
+          packageBrand: "brand-allowed",
+          connections: [connection],
+          saved,
+        }),
+      ).execute(limited, {
+        variantId: "cv_alpha_review",
+        channelKind: "x",
+        connectionId,
+      });
+
+      expect(got.ok).toBe(false);
+      if (!got.ok) expect(got.error.code).toBe("TENANT_MISMATCH");
+      expect(saved).toHaveLength(0);
+    },
+  );
+
   it("承認済みの記事を出し先へ渡すと、順番待ちの配信ができる", async () => {
+    const saved: Publication[] = [];
     const got = await createSchedulePublicationUseCase(
       deps({
         variant: await approved(),
         connections: [aChannelConnection({ kind: "x", workspaceId: WORKSPACE })],
+        saved,
       }),
     ).execute(owner, { variantId: "cv_alpha_review", channelKind: "x" });
     if (!got.ok) throw got.error;
@@ -112,6 +231,8 @@ describe("配信を作る", () => {
     expect(got.value.alreadyExisted).toBe(false);
     // 自動で投稿できる先なので、書き出しの案内は出ない。
     expect(got.value.manualExportNotice).toBeNull();
+    // gateを通した承認済み本文の版を固定する。workerはこの版以外を送らない。
+    expect(saved[0]?.variantRevision).toBe(7);
   });
 
   it("承認していない記事は配信できず、次にすることが示される", async () => {
@@ -131,6 +252,7 @@ describe("配信を作る", () => {
   it("同じ記事・同じ先・同じ時刻をもう一度頼んでも、配信は増えない", async () => {
     const already = aPublication({
       workspaceId: WORKSPACE,
+      variantRevision: 7,
       channelKind: "x",
       state: "QUEUED",
     });
@@ -180,6 +302,41 @@ describe("配信を作る", () => {
     // どちらへ出るか分からないまま投稿しない。名前を出して選ばせる。
     expect(got.error.message).toContain("@main");
     expect(got.error.message).toContain("@sub");
+  });
+
+  it("一覧の100件より後にある指定接続も、IDで直接確かめて選べる", async () => {
+    const target = aChannelConnection({
+      id: "conn-after-first-page" as never,
+      kind: "x",
+      accountLabel: "@after_first_page",
+      workspaceId: WORKSPACE,
+    });
+    const base = deps({ variant: await approved() });
+    const got = await createSchedulePublicationUseCase({
+      ...base,
+      connections: {
+        ...base.connections,
+        listByWorkspace: async () =>
+          ok({
+            items: Array.from({ length: 100 }, (_, index) =>
+              aChannelConnection({
+                id: `conn-first-${String(index).padStart(3, "0")}` as never,
+                kind: "x",
+                workspaceId: WORKSPACE,
+              }),
+            ),
+            nextCursor: "conn-first-099",
+          }),
+        findById: async (_workspaceId, id) =>
+          ok(String(id) === String(target.id) ? target : null),
+      },
+    }).execute(owner, {
+      variantId: "cv_alpha_review",
+      channelKind: "x",
+      connectionId: String(target.id),
+    });
+
+    expect(got.ok, got.ok ? "" : got.error.message).toBe(true);
   });
 
   it("期限切れの接続は、使える接続として数えない", async () => {
@@ -235,6 +392,87 @@ describe("配信を作る", () => {
     if (got.ok) return;
     expect(got.error.field).toBe("scheduledAt");
     expect(got.error.message).toContain("読み取れません");
+  });
+
+  it.each([
+    ["別の媒体の接続", aChannelConnection({ id: "conn-named" as never, kind: "bluesky", workspaceId: WORKSPACE })],
+    ["取り消された接続", aChannelConnection({ id: "conn-named" as never, kind: "x", workspaceId: WORKSPACE, revokedAt: daysFrom(NOW, -1) })],
+    ["存在しない接続", null],
+  ] as const)("名指しされたのが%sなら、他の接続へ勝手に付け替えない", async (_label, chosen) => {
+    // ここで「使える接続を探し直す」と、指定した覚えのないアカウントへ投稿される。
+    const usable = aChannelConnection({ id: "conn-other" as never, kind: "x", workspaceId: WORKSPACE });
+    const base = deps({ variant: await approved(), connections: [usable] });
+    const got = await createSchedulePublicationUseCase({
+      ...base,
+      connections: {
+        ...base.connections,
+        findById: async () => ok(chosen),
+      },
+    }).execute(owner, {
+      variantId: "cv_alpha_review",
+      channelKind: "x",
+      connectionId: "conn-named",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.code).toBe("NOT_FOUND");
+    expect(got.error.message).toContain("使えません");
+  });
+
+  it("名指しされた接続の認証情報が使えないなら、送れる先として扱わない", async () => {
+    // 期限内でも、鍵が抜かれていれば送れない。ここを通すと順番待ちのまま失敗する。
+    const chosen = aChannelConnection({ id: "conn-named" as never, kind: "x", workspaceId: WORKSPACE });
+    const base = deps({ variant: await approved(), connections: [chosen] });
+    const got = await createSchedulePublicationUseCase({
+      ...base,
+      connections: { ...base.connections, findById: async () => ok(chosen) },
+      connectors: {
+        forConnection: () =>
+          err(domainError("NOT_FOUND", "この接続の認証情報が読めません。")),
+      },
+    }).execute(owner, {
+      variantId: "cv_alpha_review",
+      channelKind: "x",
+      connectionId: "conn-named",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("認証情報");
+  });
+
+  it("接続の保存先が読めないときは、接続なしとして作らない", async () => {
+    // 読めないことを「1 つも無い」と同じに扱うと、
+    // 一時的な障害のたびに「接続してください」という誤った案内が出る。
+    const base = deps({ variant: await approved() });
+    const got = await createSchedulePublicationUseCase({
+      ...base,
+      connections: {
+        ...base.connections,
+        listByWorkspace: async () => failing("接続の保存先が読めません。"),
+      },
+    }).execute(owner, { variantId: "cv_alpha_review", channelKind: "x" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("接続の保存先が読めません");
+  });
+
+  it("認証情報が使えない接続しか無ければ、使える接続として数えない", async () => {
+    const got = await createSchedulePublicationUseCase({
+      ...deps({
+        variant: await approved(),
+        connections: [aChannelConnection({ kind: "x", workspaceId: WORKSPACE })],
+      }),
+      connectors: {
+        forConnection: () => err(domainError("NOT_FOUND", "この接続の認証情報が読めません。")),
+      },
+    }).execute(owner, { variantId: "cv_alpha_review", channelKind: "x" });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(got.error.message).toContain("接続がまだありません");
   });
 
   it("自動で投稿できない先は、接続が無くても作れて、書き出しの案内が付く", async () => {

@@ -10,7 +10,7 @@ import type {
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
 import type { EditorialProductRepositoryPort } from "@/application/ports/product";
 import { CHANNEL_CAPABILITIES } from "@/domain/distribution";
-import { can, requireCapability } from "@/domain/identity";
+import { can, requireWorkspaceWideCapability } from "@/domain/identity";
 import { effectiveReward } from "@/domain/monetization";
 import {
   type DomainError,
@@ -190,7 +190,7 @@ export function createGetDashboardUseCase(
 ): UseCase<ReadDashboardInput, DashboardView> {
   return {
     async execute(actor, input): Promise<Result<DashboardView, DomainError>> {
-      const allowed = requireCapability(actor, "content.read", "ホーム画面の参照");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "ホーム画面の参照");
       if (!allowed.ok) return allowed;
 
       const at = input.at ?? new Date();

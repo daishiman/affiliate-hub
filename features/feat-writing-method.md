@@ -12,8 +12,8 @@ iteration: null
 title: "文章作成メソッドと品質検査"
 owners: ["daishiman"]
 created_at: "2026-08-16T13:20:00Z"
-updated_at: "2026-08-16T14:20:00Z"
-status: "active"
+updated_at: "2026-08-17T16:24:18Z"
+status: "closed"
 depends_on: ["feat-generation-foundation"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]

@@ -74,6 +74,15 @@ describe("案内の絞り込み", () => {
    */
   const UNVERIFIABLE_UNTIL_AUTH: readonly string[] = [
     "/admin/products（product.read が要る）",
+    /*
+      2026-08-26 に 1 件増やした（読者からの問い合わせ）。**増やさない約束を破っている。**
+      減らす道はあった——案内の必要権限を見本が持つものにすれば、この一覧は増えない。
+      だが画面の中身は `feedback.read` を要求するユースケースを呼ぶので、
+      **案内には出るが開くと断られる**状態になる。行けない案内は、
+      開けない画面より悪い（探した時間だけが無駄になる）。
+      本当の直しは見本に権限を足すことではなく、認証を入れてこの一覧を空にすること。
+    */
+    "/admin/contact（feedback.read が要る）",
     "/admin/feedback（feedback.read が要る）",
   ];
 

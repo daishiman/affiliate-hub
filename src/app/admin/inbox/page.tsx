@@ -1,12 +1,13 @@
+import {
+  LINK_INBOX_FILTERS,
+  filterLabel,
+} from "@/application/usecases/monetization/manage-link-inbox";
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
-import { LINK_INBOX_FILTERS, filterLabel } from "@/application/usecases/monetization/manage-link-inbox";
 import {
   AdvanceIngestionForm,
   type ProgramOption,
   SubmitAffiliateUrlForm,
-} from "@/presentation/admin/inbox-forms";
+} from "@/presentation/admin/earn/inbox-forms";
 import {
   affiliateUseCases,
   currentActor,
@@ -14,14 +15,21 @@ import {
   linkInboxUseCases,
 } from "@/presentation/composition";
 import {
+  ActionNote,
   Callout,
-  Card,
+  Code,
+  DataTable,
   EmptyView,
   ErrorView,
-  Page,
+  FactList,
+  ListView,
+  Note,
+  Prose,
+  Section,
   StorageNotice,
+  SubSection,
+  TextLink,
 } from "@/presentation/ui";
-import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -49,19 +57,6 @@ export default async function InboxPage({
     (await affiliateUseCases()).listPrograms.execute(actor, {}),
   ]);
 
-  if (!inbox.ok) {
-    return (
-      <Shell>
-        <ErrorView
-          title="受信箱を出せませんでした"
-          body={inbox.error.message}
-          suggestedAction={inbox.error.suggestedAction ?? null}
-          action={<Link href="/admin/affiliate">提携と成果へ戻る</Link>}
-        />
-      </Shell>
-    );
-  }
-
   const programOptions: readonly ProgramOption[] = programs.ok
     ? programs.value.items.map((p) => ({
         value: p.programId,
@@ -69,154 +64,146 @@ export default async function InboxPage({
       }))
     : [];
 
-  const counts = inbox.value.countsByState;
-
-  return (
-    <Shell>
-      <StorageNotice status={await linkInboxNotice()} />
-
-      <Callout
-        tone="info"
-        title="受信箱の役目"
-        reason="貼り付けられたリンクは、広告主と商品が決まるまで記事に出しません。順位づけの計算にも入りません。"
-      />
-
-      <Card>
-        <h2 className={styles.sectionTitle}>成果リンクを受け取る</h2>
-        <p className={styles.sectionLead}>
-          ASP で発行された URL をそのまま貼り付けてください。
-          同じリンクが既にあるときも、消さずに受け取ったうえでお知らせします。
-        </p>
-        <SubmitAffiliateUrlForm />
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>受信箱のようす</h2>
-        <dl className={styles.criteria}>
-          <div>
-            <dt>未調査</dt>
-            <dd className={styles.numeric}>{counts.received}件</dd>
-          </div>
-          <div>
-            <dt>広告主が判明</dt>
-            <dd className={styles.numeric}>{counts.resolved}件</dd>
-          </div>
-          <div>
-            <dt>結びつけ済み</dt>
-            <dd className={styles.numeric}>{counts.matched}件</dd>
-          </div>
-          <div>
-            <dt>対象外</dt>
-            <dd className={styles.numeric}>{counts.rejected}件</dd>
-          </div>
-          <div>
-            <dt>重複しているもの</dt>
-            <dd className={styles.numeric}>{inbox.value.duplicateCount}件</dd>
-          </div>
-        </dl>
-        <ul className={styles.linkList}>
-          {LINK_INBOX_FILTERS.map((f) => (
-            <li key={f}>
-              {f === filter ? (
-                <span>{filterLabel(f)}（表示中）</span>
-              ) : (
-                <Link href={`/admin/inbox?state=${encodeURIComponent(f)}`}>
-                  {filterLabel(f)}を見る
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-      </Card>
-
-      {programs.ok && programOptions.length === 0 ? (
-        <Callout
-          tone="warn"
-          title="提携プログラムが登録されていません"
-          reason="広告主を決めるには、先に提携プログラムを登録する必要があります。"
-          action={<Link href="/admin/affiliate">提携と成果の画面へ</Link>}
-        />
-      ) : null}
-      {!programs.ok ? (
-        <Callout
-          tone="warn"
-          title="提携プログラムの一覧を出せませんでした"
-          reason={programs.error.suggestedAction ?? programs.error.message}
-          action={<Link href="/admin/affiliate">提携と成果の画面へ</Link>}
-        />
-      ) : null}
-
-      <Card>
-        <h2 className={styles.sectionTitle}>受け取ったリンク（{filterLabel(filter)}）</h2>
-        {inbox.value.total === 0 ? (
-          <EmptyView
-            title="表示するリンクがありません"
-            body={inbox.value.emptyReason ?? "受信箱はからです。"}
-            action={<Link href="/admin/inbox">すべてを見る</Link>}
-          />
-        ) : (
-          <>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">受け取り</th>
-                  <th scope="col">リンク先</th>
-                  <th scope="col">経路</th>
-                  <th scope="col">状態</th>
-                  <th scope="col">広告主</th>
-                  <th scope="col">商品</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inbox.value.items.map((item) => (
-                  <tr key={item.id}>
-                    <th scope="row">{item.submittedAt.toLocaleDateString("ja-JP")}</th>
-                    <td>{item.host}</td>
-                    <td>{item.sourceLabel}</td>
-                    <td>{item.stateLabel}</td>
-                    <td>{item.programLabel ?? "—"}</td>
-                    <td>{item.productId ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className={styles.linkNote}>
-              「—」は、まだ決まっていないという意味です。該当なしではありません。
-            </p>
-
-            {inbox.value.items.map((item) => (
-              <div key={item.id} className={styles.catalogStack}>
-                <h3 className={styles.sectionTitle}>{item.host}</h3>
-                <p className={styles.linkNote}>{item.submittedUrl}</p>
-                {item.duplicateOf === null ? null : (
-                  <Callout
-                    tone="warn"
-                    reason={`同じリンクが受信箱に既にあります（${item.duplicateOf}）。消さずに残しています。`}
-                  />
-                )}
-                <AdvanceIngestionForm item={item} programs={programOptions} />
-              </div>
-            ))}
-          </>
-        )}
-      </Card>
-    </Shell>
-  );
-}
-
-function Shell({ children }: { readonly children: ReactNode }) {
   return (
     <AdminShell
-      currentPath="/admin/inbox"
-      breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "成果リンクの受信箱" }]}
-      actions={<Link href="/admin/affiliate">提携と成果へ戻る</Link>}
+      routeId="inbox"
+      title="成果リンクの受信箱"
+      lead="届いた成果リンクを、どの商品のものか決めます。"
+      actions={<TextLink href="/admin/affiliate">提携と成果へ戻る</TextLink>}
     >
-      <Page
-        title="成果リンクの受信箱"
-        lead="貼り付けられた成果リンクを受け取り、どの広告主の、どの商品のものかを決める画面です。ここを通るまで記事には出しません。"
-      >
-        {children}
-      </Page>
+      {!inbox.ok ? (
+        <ErrorView
+          title="受信箱を出せませんでした"
+          body={inbox.error.message}
+          suggestedAction={inbox.error.suggestedAction ?? null}
+          action={<TextLink href="/admin/affiliate">提携と成果へ戻る</TextLink>}
+        />
+      ) : (
+        <>
+          <StorageNotice status={await linkInboxNotice()} />
+
+          <Prose>
+            貼り付けられたリンクは、広告主と商品が決まるまで記事に出しません。順位づけの計算にも入りません。
+          </Prose>
+
+          <Section
+            title="成果リンクを受け取る"
+            lead="ASP で発行された URL をそのまま貼り付けてください。同じリンクが既にあるときも、消さずに受け取ったうえでお知らせします。"
+          >
+            <SubmitAffiliateUrlForm />
+          </Section>
+
+          <Section title="受信箱のようす">
+            <FactList
+              rows={[
+                { key: "received", label: "未調査", value: `${inbox.value.countsByState.received}件` },
+                {
+                  key: "resolved",
+                  label: "広告主が判明",
+                  value: `${inbox.value.countsByState.resolved}件`,
+                },
+                {
+                  key: "matched",
+                  label: "結びつけ済み",
+                  value: `${inbox.value.countsByState.matched}件`,
+                },
+                {
+                  key: "rejected",
+                  label: "対象外",
+                  value: `${inbox.value.countsByState.rejected}件`,
+                },
+                {
+                  key: "duplicate",
+                  label: "重複しているもの",
+                  value: `${inbox.value.duplicateCount}件`,
+                },
+              ]}
+            />
+            <ListView
+              rows={LINK_INBOX_FILTERS.map((f) =>
+                f === filter
+                  ? { key: f, label: `${filterLabel(f)}（表示中）` }
+                  : {
+                      key: f,
+                      label: `${filterLabel(f)}を見る`,
+                      href: `/admin/inbox?state=${encodeURIComponent(f)}`,
+                    },
+              )}
+            />
+          </Section>
+
+          {programs.ok && programOptions.length === 0 ? (
+            <Callout
+              tone="warn"
+              title="提携プログラムが登録されていません"
+              reason="広告主を決めるには、先に提携プログラムを登録する必要があります。"
+              action={<TextLink href="/admin/affiliate">提携と成果の画面へ</TextLink>}
+            />
+          ) : null}
+          {!programs.ok ? (
+            <Callout
+              tone="warn"
+              title="提携プログラムの一覧を出せませんでした"
+              reason={programs.error.suggestedAction ?? programs.error.message}
+              action={<TextLink href="/admin/affiliate">提携と成果の画面へ</TextLink>}
+            />
+          ) : null}
+
+          <Section title={`受け取ったリンク（${filterLabel(filter)}）`}>
+            {inbox.value.total === 0 ? (
+              <EmptyView
+                title="表示するリンクがありません"
+                body={inbox.value.emptyReason ?? "受信箱はからです。"}
+                action={<TextLink href="/admin/inbox">すべてを見る</TextLink>}
+              />
+            ) : (
+              <>
+                <DataTable
+                  caption="受け取ったリンクごとの、経路と状態と結びつけ先"
+                  columns={[
+                    { key: "submitted", label: "受け取り" },
+                    { key: "host", label: "リンク先" },
+                    { key: "source", label: "経路" },
+                    { key: "state", label: "状態" },
+                    { key: "program", label: "広告主" },
+                    { key: "product", label: "商品" },
+                  ]}
+                  rows={inbox.value.items.map((item) => ({
+                    key: item.id,
+                    cells: [
+                      item.submittedAt.toLocaleDateString("ja-JP"),
+                      item.host,
+                      item.sourceLabel,
+                      item.stateLabel,
+                      item.programLabel ?? "—",
+                      item.productId ?? "—",
+                    ],
+                  }))}
+                />
+                <Note>「—」は、まだ決まっていないという意味です。該当なしではありません。</Note>
+
+                {inbox.value.items.map((item) => (
+                  <SubSection key={item.id} title={item.host}>
+                    {/*
+                      貼り付けられたままの形で出す。等幅にするのは、
+                      合言葉が 1 文字違うと別のリンクになるため。
+                    */}
+                    <Note>
+                      <Code>{item.submittedUrl}</Code>
+                    </Note>
+                    {item.duplicateOf === null ? null : (
+                      <ActionNote tone="danger">
+                        {`同じリンクが受信箱に既にあります（${item.duplicateOf}）。消さずに残しています。`}
+                      </ActionNote>
+                    )}
+                    <AdvanceIngestionForm item={item} programs={programOptions} />
+                  </SubSection>
+                ))}
+              </>
+            )}
+          </Section>
+        </>
+      )}
     </AdminShell>
   );
 }

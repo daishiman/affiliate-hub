@@ -1,0 +1,120 @@
+.card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-default);
+}
+
+.topRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.topRow p,
+.reason,
+.caption,
+.card p {
+  margin: 0;
+}
+
+.eyebrow,
+.caption {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.status {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: var(--tap-target-min);
+  padding-inline: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-strong);
+  font-size: var(--text-sm);
+}
+
+.reason {
+  padding: var(--space-3);
+  border-inline-start: var(--space-1) solid var(--color-border-strong);
+  background: var(--color-surface-sunken);
+}
+
+/*
+  図解 fallback の見た目はここに持たない。
+  `src/presentation/ui/patterns/diagram-fallback.module.css` が所有する。
+  DiagramFallback は affiliate 文脈の外でも使う汎用部品なので、
+  affiliate 用の CSS へ紐づけない。
+*/
+
+.remoteImage {
+  width: 100%;
+  max-height: var(--card-min-width);
+  border-radius: var(--radius-md);
+  object-fit: contain;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, calc(var(--space-8) + var(--space-8) + var(--space-6))), 1fr)
+  );
+  gap: var(--space-3);
+  margin: 0;
+}
+
+/*
+  1 行（項目名と値）に役割名を付けてある。
+  包みの `div` は名前が無いと「3 段包んだ」という形だけで他画面と同じに見え、
+  引き上げ先の無い重複として数えられる（tests/ui/uiux-duplicate-implementation.test.ts）。
+  規則は `.facts dt` / `.facts dd` から移しただけで、当たる要素も見た目も変わらない。
+*/
+.fact dt {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.fact dd {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+  font-weight: var(--weight-semibold);
+}
+
+/*
+ * 畳む枠と summary の見た目は `ui` の `Foldable` が持つ。
+ * ここで持っていた罫・タップ領域・字面は、3 つの画面が別々に書いていたものを
+ * `screen-parts.module.css` の `.foldable*` へ引き上げた（2026-08-30）。
+ */
+
+.detailFacts {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+}
+
+.detailFact dd {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.nextStep {
+  padding: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .status {
+    scroll-behavior: auto;
+  }
+}

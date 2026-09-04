@@ -76,7 +76,15 @@ export function checkHop(rawUrl: string): { ok: true; url: URL } | { ok: false; 
 
 export async function guardedFetch(
   rawUrl: string,
-  options: { readonly fetchImpl?: typeof fetch; readonly maxRedirects?: number } = {},
+  options: {
+    readonly fetchImpl?: typeof fetch;
+    readonly maxRedirects?: number;
+    /** provider の固定許可リスト。入口だけでなく転送の全 hop で呼ぶ。 */
+    readonly validateHop?: (url: URL) => string | null;
+    /** 本文を読む前に Content-Type だけで拒否する。 */
+    readonly acceptContentType?: (contentType: string | null) => boolean;
+    readonly unsupportedContentTypeReason?: string;
+  } = {},
 ): Promise<GuardedFetchResult> {
   const doFetch = options.fetchImpl ?? fetch;
   const limit = options.maxRedirects ?? MAX_REDIRECTS;
@@ -93,6 +101,10 @@ export async function guardedFetch(
   for (let i = 0; i <= limit; i += 1) {
     const hop = checkHop(current);
     if (!hop.ok) return { kind: "rejected", reason: hop.reason, url: current };
+    const policyRejection = options.validateHop?.(hop.url) ?? null;
+    if (policyRejection !== null) {
+      return { kind: "rejected", reason: policyRejection, url: current };
+    }
     hops.push(hop.url.toString());
 
     let response: Response;
@@ -116,6 +128,15 @@ export async function guardedFetch(
       continue;
     }
 
+    const contentType = response.headers.get("content-type");
+    if (options.acceptContentType !== undefined && !options.acceptContentType(contentType)) {
+      await response.body?.cancel();
+      return {
+        kind: "failed",
+        reason: options.unsupportedContentTypeReason ?? "この形式の内容は取得しません。",
+      };
+    }
+
     const body = await readCapped(response);
     if (body === null) {
       return {
@@ -128,7 +149,7 @@ export async function guardedFetch(
       kind: "ok",
       finalUrl: hop.url.toString(),
       status: response.status,
-      contentType: response.headers.get("content-type"),
+      contentType,
       body,
       hops,
     };

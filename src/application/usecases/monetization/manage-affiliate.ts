@@ -9,6 +9,7 @@ import type { AuditLogPort } from "@/application/ports/compliance";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   ASP_LABEL,
+  type AffiliateAccount,
   type AffiliateProgram,
   type AspKind,
   type Conversion,
@@ -16,6 +17,8 @@ import {
   type RewardModel,
   DEFAULT_REWARD_CURRENCY,
   adjustReward,
+  createAffiliateAccount,
+  createAffiliateProgram,
   effectiveReward,
   isProgramActive,
   restrictionsToConfirm,
@@ -23,6 +26,7 @@ import {
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
+  type AffiliateAccountId,
   type AffiliateProgramId,
   type ConversionId,
   type CurrencyCode,
@@ -33,10 +37,11 @@ import {
   domainError,
   err,
   formatMoney,
+  missingMark,
   money,
   ok,
-  readDataClass,
   taggedString,
+  validationError,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 
@@ -60,9 +65,19 @@ export type ManageAffiliateDeps = {
   readonly now: () => Date;
 };
 
+/**
+ * 実行時に「商業の印」を求めるポート。
+ *
+ * `ids` や `now` のような、データを持たない依存は対象にしない。
+ * 順位づけ側（`rank-products.ts`）も同じ向き（印が無ければ落とす）で見ている。
+ */
+const AFFILIATE_DATA_PORTS = ["links", "conversions"] as const;
+
 function guardCommercial(deps: ManageAffiliateDeps): void {
-  const unmarked = (["links", "conversions"] as const).filter(
-    (key) => readDataClass(deps[key]) !== "commercial",
+  const unmarked = missingMark(
+    deps as unknown as Record<string, unknown>,
+    "commercial",
+    AFFILIATE_DATA_PORTS,
   );
   if (unmarked.length > 0) {
     throw new Error(
@@ -127,21 +142,9 @@ export function createListAffiliateAccountsUseCase(
       const listed = await deps.accounts.list(actor.workspaceId, { limit: 100, cursor: null });
       if (!listed.ok) return listed;
 
-      const items = listed.value.items.map((a) => ({
-        accountId: String(a.id),
-        asp: a.asp,
-        aspLabel: ASP_LABEL[a.asp],
-        label: a.label,
-        publicTrackingId: a.publicTrackingId,
-        credentialRegistered: a.credentialRef !== null,
-        disabled: a.disabledAt !== null,
-        blockedReason:
-          a.credentialRef === null
-            ? "この提携先の接続情報がまだ登録されていません。成果の取り込みは、ご自身で接続情報を登録してから行えます。"
-            : a.disabledAt !== null
-              ? "この提携先はいま止めています。"
-              : null,
-      }));
+      // 組み立ては 1 か所（`toAccountView`）に置く。一覧と保存で別々に書くと、
+      // 「保存直後だけ案内の文が違う」というたちの悪いずれが生まれる。
+      const items = listed.value.items.map(toAccountView);
 
       return ok({
         items,
@@ -244,7 +247,10 @@ export type ListConversionsOutput = {
   readonly period: string;
   readonly items: readonly ConversionView[];
   readonly total: number;
-  /** 確定した成果の合計。未確定は足さない。 */
+  /**
+   * 確定した成果の合計。未確定は足さない。
+   * 通貨が混ざった期間は通貨ごとに分けて並べる（`¥12,000 / $34.00`）。
+   */
   readonly approvedTotalLabel: string;
   readonly pendingCount: number;
   readonly closed: boolean;
@@ -269,6 +275,41 @@ function toConversionView(c: Conversion): ConversionView {
   };
 }
 
+/**
+ * 確定した成果の合計を作る。
+ *
+ * **通貨ごとに分けて足す。**`amountMinor` の 1 は通貨ごとに意味が違い
+ * （JPY は 1 円、USD は 1 セント）、混ぜて足した数はどの通貨でも金額にならない。
+ * 混ざった期間は `¥12,000 / $34.00` のように並べて出す。
+ * 合計を出さずに文へ差し替える案も採れるが、**通貨が混ざるのは並べれば読める話**で、
+ * いままで数字が出ていた場所を文にすると、混ざっていない大多数の期間まで読みにくくなる。
+ *
+ * 並べる順は通貨コードの昇順に固定する。取り込みの順に任せると、
+ * 同じ期間の同じ成果が再取り込みのたびに違う並びで出る。
+ *
+ * 確定が 1 件も無い期間は `DEFAULT_REWARD_CURRENCY` の 0 を出す。
+ * これは `toConversionView` が通貨未確定の成果に使う既定と同じもので、
+ * 同じ画面の item と合計が別々の通貨を出すことは有り得ないので 1 つを共有する。
+ */
+function approvedTotal(raw: readonly Conversion[]): string {
+  const byCurrency = new Map<CurrencyCode, number>();
+  for (const c of raw) {
+    if (c.status !== "approved") continue;
+    const amount = effectiveReward(c);
+    if (amount === null) continue;
+    byCurrency.set(amount.currency, (byCurrency.get(amount.currency) ?? 0) + amount.amountMinor);
+  }
+  if (byCurrency.size === 0) byCurrency.set(DEFAULT_REWARD_CURRENCY, 0);
+
+  const labels: string[] = [];
+  for (const [currency, amountMinor] of [...byCurrency].sort(([a], [b]) => a.localeCompare(b))) {
+    const total = money(amountMinor, currency);
+    if (!total.ok) return "計算できません";
+    labels.push(formatMoney(total.value));
+  }
+  return labels.join(" / ");
+}
+
 export function createListConversionsUseCase(
   deps: ManageAffiliateDeps,
 ): UseCase<ListConversionsInput, ListConversionsOutput> {
@@ -291,26 +332,13 @@ export function createListConversionsUseCase(
       const items = raw.map(toConversionView);
 
       // 確定分だけを合計する。未確定を足すと、入ってこない金額を見込みにしてしまう。
-      let approvedMinor = 0;
-      // 確定した成果が 1 件も無いと、この初期値がそのまま合計の表示に出る。
-      // つまり「通貨が 1 件も決まっていないときに出る通貨」で、28 行上の
-      // `toConversionView` の既定と同じもの。同じ画面の item と合計が
-      // 別々の通貨を出すことは有り得ないので、1 つを共有する。
-      let currency: CurrencyCode = DEFAULT_REWARD_CURRENCY;
-      for (const c of raw) {
-        if (c.status !== "approved") continue;
-        const amount = effectiveReward(c);
-        if (amount === null) continue;
-        approvedMinor += amount.amountMinor;
-        currency = amount.currency;
-      }
-      const total = money(approvedMinor, currency);
+      const approvedTotalLabel = approvedTotal(raw);
 
       return ok({
         period: input.period,
         items,
         total: items.length,
-        approvedTotalLabel: total.ok ? formatMoney(total.value) : "計算できません",
+        approvedTotalLabel,
         pendingCount: raw.filter((c) => c.status === "pending").length,
         closed: raw.some((c) => c.periodClosed),
         emptyReason:
@@ -550,4 +578,321 @@ export function createListProductLinksUseCase(
 /** 提携プログラムの ID を作る補助。画面から渡された文字列を型に載せる。 */
 export function toProgramId(value: string): AffiliateProgramId {
   return taggedString<"AffiliateProgramId">(value) as AffiliateProgramId;
+}
+
+// --- 提携先の登録・変更 -------------------------------------------------------
+
+/** 選べる ASP。画面の選択肢も、入力の検査も、ここ 1 つから作る。 */
+export function aspOptions(): readonly { readonly key: AspKind; readonly label: string }[] {
+  return (Object.keys(ASP_LABEL) as AspKind[]).map((key) => ({ key, label: ASP_LABEL[key] }));
+}
+
+function readAsp(value: string): Result<AspKind, DomainError> {
+  return value in ASP_LABEL
+    ? ok(value as AspKind)
+    : err(validationError("提携先の種類が選ばれていません。", "asp"));
+}
+
+export type SaveAffiliateAccountInput = {
+  /** `null` なら新しく作る。文字列なら、その提携先を直す。 */
+  readonly accountId: string | null;
+  readonly asp: string;
+  readonly label: string;
+  /** 空文字は「未設定」。空文字のまま保存しない（未設定と空欄を混ぜない）。 */
+  readonly publicTrackingId: string;
+  /** 接続情報の**保管先の名前**。鍵そのものを渡してはいけない。 */
+  readonly credentialRef: string;
+  /** 止めるかどうか。止めても行は消さない（過去の成果の出どころが消えるため）。 */
+  readonly disabled: boolean;
+};
+
+export type SaveAffiliateAccountOutput = {
+  readonly accountId: string;
+  readonly view: AffiliateAccountView;
+};
+
+function toAccountView(a: AffiliateAccount): AffiliateAccountView {
+  return {
+    accountId: String(a.id),
+    asp: a.asp,
+    aspLabel: ASP_LABEL[a.asp],
+    label: a.label,
+    publicTrackingId: a.publicTrackingId,
+    credentialRegistered: a.credentialRef !== null,
+    disabled: a.disabledAt !== null,
+    blockedReason:
+      a.credentialRef === null
+        ? "この提携先の接続情報がまだ登録されていません。成果の取り込みは、ご自身で接続情報を登録してから行えます。"
+        : a.disabledAt !== null
+          ? "この提携先はいま止めています。"
+          : null,
+  };
+}
+
+/**
+ * 提携先（ASP アカウント）を 1 つ登録する・直す。
+ *
+ * **秘密の値をここへ渡さない。** 受け取るのは保管先の名前（`credentialRef`）だけで、
+ * 鍵そのものは各サービスの画面でご自身が登録する。ドメイン側が長さで弾くのは
+ * 「鍵を丸ごと貼り付けた」形をせき止めるためで、正しさの保証ではない。
+ * 保証しているのは、**この経路にも保存先にも鍵を置く場所が無い**ことのほうである。
+ *
+ * 直すときに `connectedAt` を引き継ぐ。引き継がないと、名前を直しただけの保存で
+ * 「いつからの提携か」が今日へ動き、過去の成果がどの提携のものか読めなくなる。
+ */
+export function createSaveAffiliateAccountUseCase(
+  deps: ManageAffiliateDeps,
+): UseCase<SaveAffiliateAccountInput, SaveAffiliateAccountOutput> {
+  guardCommercial(deps);
+  return {
+    async execute(
+      actor: ActorContext,
+      input: SaveAffiliateAccountInput,
+    ): Promise<Result<SaveAffiliateAccountOutput, DomainError>> {
+      const allowed = requireCapability(actor, "affiliate.manage", "提携先の登録");
+      if (!allowed.ok) return allowed;
+
+      const asp = readAsp(input.asp);
+      if (!asp.ok) return asp;
+
+      const existing =
+        input.accountId === null
+          ? null
+          : await deps.accounts.findById(
+              actor.workspaceId,
+              taggedString<"AffiliateAccountId">(input.accountId) as AffiliateAccountId,
+            );
+      if (existing !== null && !existing.ok) return existing;
+      if (input.accountId !== null && existing?.ok && existing.value === null) {
+        return err(
+          domainError("NOT_FOUND", "その提携先が見つかりません。", {
+            suggestedAction: "一覧へ戻り、選び直してください。",
+          }),
+        );
+      }
+      const before = existing?.ok ? existing.value : null;
+
+      const now = deps.now();
+      const built = createAffiliateAccount({
+        id:
+          before?.id ??
+          (taggedString<"AffiliateAccountId">(deps.ids.newId()) as AffiliateAccountId),
+        workspaceId: actor.workspaceId,
+        asp: asp.value,
+        label: input.label,
+        // 空欄は空文字ではなく未設定にする。空文字だと「登録済みだが空」に見え、
+        // 接続情報が要るという案内が画面から消える。
+        publicTrackingId: input.publicTrackingId.trim() === "" ? null : input.publicTrackingId.trim(),
+        credentialRef: input.credentialRef.trim() === "" ? null : input.credentialRef.trim(),
+        connectedAt: before?.connectedAt ?? now,
+      });
+      if (!built.ok) return built;
+
+      // ドメインの構築子は必ず「止まっていない」状態で返す。止める指示は
+      // ここで載せ直す。構築子に引数を足すと、作るときにも止められる形になる。
+      const account: AffiliateAccount = {
+        ...built.value,
+        disabledAt: input.disabled ? (before?.disabledAt ?? now) : null,
+      };
+
+      const saved = await deps.accounts.save(account);
+      if (!saved.ok) return saved;
+
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "affiliate_account.changed",
+        targetType: "affiliate_account",
+        targetId: String(account.id),
+        // **鍵は詰めない。** 登録されているかどうか（真偽）だけを残す。
+        before:
+          before === null
+            ? null
+            : {
+                asp: before.asp,
+                label: before.label,
+                credentialRegistered: before.credentialRef !== null,
+                disabled: before.disabledAt !== null,
+              },
+        after: {
+          asp: account.asp,
+          label: account.label,
+          credentialRegistered: account.credentialRef !== null,
+          disabled: account.disabledAt !== null,
+        },
+        reason: null,
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("提携先は保存されています", appended.error.details));
+      }
+
+      return ok({ accountId: String(account.id), view: toAccountView(saved.value) });
+    },
+  };
+}
+
+// --- 提携条件の登録・変更 -----------------------------------------------------
+
+export type SaveAffiliateProgramInput = {
+  readonly programId: string | null;
+  /** どの提携先の下の提携か。ASP はこの提携先から引く（別々に選ばせない）。 */
+  readonly accountId: string;
+  readonly advertiserName: string;
+  readonly rewardKind: string;
+  /** `rate` のときの率（%）。 */
+  readonly rewardPercent: number | null;
+  /** `fixed` のときの額。通貨は `rewardCurrency`。 */
+  readonly rewardAmountMinor: number | null;
+  readonly rewardCurrency: CurrencyCode;
+  readonly rewardNote: string;
+  /** 承認率を**％で**受け取る。0〜1 の小数を人に入力させない。 */
+  readonly approvalRatePercent: number | null;
+  readonly confirmationDays: number | null;
+  readonly cookieDurationDays: number | null;
+  readonly restrictions: readonly string[];
+  /** 提携を終了にするか。終了でも行は消さない。 */
+  readonly ended: boolean;
+};
+
+export type SaveAffiliateProgramOutput = {
+  readonly programId: string;
+  readonly view: AffiliateProgramView;
+};
+
+/** 画面の 4 通りの入力を、排他の 1 つの値へ畳む。 */
+function readRewardModel(input: SaveAffiliateProgramInput): Result<RewardModel, DomainError> {
+  switch (input.rewardKind) {
+    case "rate":
+      return input.rewardPercent === null
+        ? err(validationError("報酬率（％）を入れてください。", "rewardPercent"))
+        : ok({ kind: "rate", percent: input.rewardPercent });
+    case "fixed": {
+      if (input.rewardAmountMinor === null) {
+        return err(validationError("1 件あたりの報酬額を入れてください。", "rewardAmountMinor"));
+      }
+      const amount = money(input.rewardAmountMinor, input.rewardCurrency);
+      if (!amount.ok) return amount;
+      return ok({ kind: "fixed", amount: amount.value });
+    }
+    case "tiered":
+      return input.rewardNote.trim() === ""
+        ? err(validationError("段階制の中身を一言で書いてください。", "rewardNote"))
+        : ok({ kind: "tiered", note: input.rewardNote.trim() });
+    case "unknown":
+      // **「未取得」を選べるようにしておく。** 選べないと、分からない人が
+      // とりあえず 0% を入れ、報酬の出ない提携として画面に並ぶ。
+      return ok({ kind: "unknown" });
+    default:
+      return err(validationError("報酬の決め方が選ばれていません。", "rewardKind"));
+  }
+}
+
+/**
+ * 提携条件（広告主ごとのプログラム）を 1 つ登録する・直す。
+ *
+ * **ASP は提携先から引く。** 画面で別々に選ばせると、A8 のアカウントの下に
+ * 楽天の提携条件がぶら下がる行が作れてしまい、成果の突合が合わなくなる。
+ */
+export function createSaveAffiliateProgramUseCase(
+  deps: ManageAffiliateDeps,
+): UseCase<SaveAffiliateProgramInput, SaveAffiliateProgramOutput> {
+  guardCommercial(deps);
+  return {
+    async execute(
+      actor: ActorContext,
+      input: SaveAffiliateProgramInput,
+    ): Promise<Result<SaveAffiliateProgramOutput, DomainError>> {
+      const allowed = requireCapability(actor, "affiliate.manage", "提携条件の登録");
+      if (!allowed.ok) return allowed;
+
+      if (input.accountId.trim() === "") {
+        return err(validationError("どの提携先の条件かを選んでください。", "accountId"));
+      }
+      const account = await deps.accounts.findById(
+        actor.workspaceId,
+        taggedString<"AffiliateAccountId">(input.accountId) as AffiliateAccountId,
+      );
+      if (!account.ok) return account;
+      if (account.value === null) {
+        return err(
+          domainError("NOT_FOUND", "選ばれた提携先が見つかりません。", {
+            suggestedAction: "先に提携先を登録してください。",
+          }),
+        );
+      }
+
+      const existing =
+        input.programId === null
+          ? null
+          : await deps.programs.findById(actor.workspaceId, toProgramId(input.programId));
+      if (existing !== null && !existing.ok) return existing;
+      if (input.programId !== null && existing?.ok && existing.value === null) {
+        return err(
+          domainError("NOT_FOUND", "その提携条件が見つかりません。", {
+            suggestedAction: "一覧へ戻り、選び直してください。",
+          }),
+        );
+      }
+      const before = existing?.ok ? existing.value : null;
+
+      const reward = readRewardModel(input);
+      if (!reward.ok) return reward;
+
+      const now = deps.now();
+      const built = createAffiliateProgram({
+        id: before?.id ?? toProgramId(deps.ids.newId()),
+        workspaceId: actor.workspaceId,
+        accountId: account.value.id,
+        // 提携先から引く。画面には出すが、選ばせない。
+        asp: account.value.asp,
+        advertiserName: input.advertiserName,
+        rewardModel: reward.value,
+        // ％で受け取り、ここで 0〜1 へ直す。人に小数を入力させない。
+        approvalRate:
+          input.approvalRatePercent === null ? null : input.approvalRatePercent / 100,
+        confirmationDays: input.confirmationDays,
+        cookieDurationDays: input.cookieDurationDays,
+        restrictions: input.restrictions,
+        joinedAt: before?.joinedAt ?? now,
+      });
+      if (!built.ok) return built;
+
+      const program: AffiliateProgram = {
+        ...built.value,
+        endedAt: input.ended ? (before?.endedAt ?? now) : null,
+      };
+
+      const saved = await deps.programs.save(program);
+      if (!saved.ok) return saved;
+
+      const entry = buildAuditEntry({ ids: deps.ids, now: deps.now }, actor, {
+        action: "affiliate_program.changed",
+        targetType: "affiliate_program",
+        targetId: String(program.id),
+        before:
+          before === null
+            ? null
+            : {
+                advertiserName: before.advertiserName,
+                rewardKind: before.rewardModel.kind,
+                restrictionCount: before.restrictions.length,
+                ended: before.endedAt !== null,
+              },
+        after: {
+          advertiserName: program.advertiserName,
+          rewardKind: program.rewardModel.kind,
+          restrictionCount: program.restrictions.length,
+          ended: program.endedAt !== null,
+        },
+        reason: null,
+      });
+      if (!entry.ok) return entry;
+      const appended = await deps.auditLog.append(entry.value);
+      if (!appended.ok) {
+        return err(auditWriteFailure("提携条件は保存されています", appended.error.details));
+      }
+
+      return ok({ programId: String(program.id), view: toProgramView(saved.value, now) });
+    },
+  };
 }

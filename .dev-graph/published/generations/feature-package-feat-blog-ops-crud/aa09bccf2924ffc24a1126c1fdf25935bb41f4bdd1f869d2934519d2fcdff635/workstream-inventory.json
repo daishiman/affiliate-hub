@@ -1,0 +1,1171 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-blog-ops-crud",
+  "parent_feature": "feat-blog-ops-crud",
+  "p01_entry_gate": {
+    "selector": "parent_feature.depends_on",
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ]
+  },
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/database.md",
+      "system-spec/backend.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md",
+      "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+      "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P01",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "サイト網ブログ運用 CRUD の要求ベースライン確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "frontend",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/requirements-baseline.md",
+        "docs/spec/feat-blog-ops-crud/screen-inventory.md",
+        "docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P01 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: feat-blog-ops-crud の受入14件 (A1-A14) それぞれについて、検証可能な受入条件文と対応する画面/データ要求が requirements-baseline.md に一意対応表として存在し、docs/spec/13 §2 のページ種別目録 (P1-P23) のうち本 feature が扱うページ種別が screen-inventory.md に、docs/spec/06/13 のブループリント・パラメータ被覆状況が blueprint-coverage-map.json に機械可読で確定している状態を成立させる。"
+      ],
+      "verification": [
+        "P01 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P01 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P01",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p01.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P02",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "サイト網・記事・固定ページ・配信部品のデータモデルとAPI契約の設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/data-model.md",
+        "docs/spec/feat-blog-ops-crud/api-contract.md",
+        "docs/spec/feat-blog-ops-crud/component-contract.md",
+        "docs/spec/feat-blog-ops-crud/migration-plan.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P02 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: qa-database-web-site-blueprint / qa-database-web-blog-ops-crud の回答を満たす migration 0023 以降のテーブル設計 (site_network 拡張・blog_hero_config・blog_layout_config 拡張・layout_custom_html・articles 拡張・author_profiles・article_block 拡張・tags 拡張・legal_pages 拡張・delivery_snapshots) が data-model.md に列単位で記述され、既存 articles.status enum (draft/review/published/archived) と新規要求 (draft/scheduled/published/unpublished/archived) の非互換を migration-plan.md が後方互換 migration として解決し、管理 API 契約が api-contract.md に、公開面/管理面コンポーネント契約が component-contract.md に存在する状態を成立させる。"
+      ],
+      "verification": [
+        "P02 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P02 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P02",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p02.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P03",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "設計レビューとブループリント検証規則 (BP/AT) 整合確認",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/design-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P03 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: P02 の data-model.md / api-contract.md / component-contract.md が docs/spec/06 §2-1 (BP-01..06) と §3-4 (AT-01..05) の検証規則を BLOCK/WARN 単位で満たすこと、feat-blog-ui-builder が既に所有する blog_template / blog_theme / page_theme_override / legal_page (6 種) / blog_affiliate_placement との重複拡張が無いこと、feat-site-blueprint / feat-site-builder / feat-affiliate-* / feat-analytics-insight の scope_out 境界を侵していないことの独立レビュー結果が design-review.md に承認記録として存在する状態を成立させる。"
+      ],
+      "verification": [
+        "P03 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P03 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P03",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p03.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P04",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "サイト網 CRUD・記事CRUD・固定ページ・配信部品のテスト設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P03"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/test-design.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P04 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: 受入14件 (A1-A14) それぞれに対応する単体/結合/境界値/回帰テストケースが test-design.md に一意対応表として存在し、転用禁止ゲート (参考サイト固有の文章・画像・固有名・色値・テーマ名 0 件) を検査する grep ゲートのテストケースが含まれる状態を成立させる。"
+      ],
+      "verification": [
+        "P04 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P04 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P04",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p04.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P05",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "サイト網・記事CRUD・固定ページ・配信部品・評価機能の実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "backend",
+      "secondary_workstreams": [
+        "frontend",
+        "api",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P04"
+      ],
+      "write_scope": [
+        "src/app/admin/site-network/",
+        "src/app/admin/site-network/[site]/",
+        "src/app/admin/site-network/new/",
+        "src/app/admin/blog/articles/",
+        "src/app/admin/blog/articles/[article]/",
+        "src/app/admin/blog/articles/new/",
+        "src/app/admin/blog/pages/",
+        "src/app/admin/blog/tags/",
+        "src/app/admin/blog/evaluate/",
+        "src/app/api/admin/site-network/",
+        "src/app/api/admin/blog/",
+        "src/app/s/[site]/",
+        "src/app/s/[site]/best/",
+        "src/app/s/[site]/reviews/",
+        "src/app/s/[site]/guides/",
+        "src/app/s/[site]/feed.xml",
+        "src/app/s/[site]/sitemap.xml",
+        "src/app/s/[site]/llms.txt",
+        "src/presentation/ui/templates/",
+        "src/presentation/ui/patterns/",
+        "src/application/usecases/",
+        "src/application/read-models/",
+        "src/infrastructure/persistence/d1/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "scripts/check-reference-site-reuse.mjs"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P05 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: 受入14件 (A1-A14) に対応する実装 (依存順): (1) migration 0023 以降の site_network/blog_hero_config/blog_layout_config 拡張/layout_custom_html/articles 拡張/author_profiles/article_block 拡張/tags 拡張/legal_pages 拡張/delivery_snapshots の永続化、(2) site-network CRUD (ハブ/サブサイト/ミニサイト作成・一覧・編集・論理削除・復元・複製)、(3) ハブトップ構成 (blog_hero_config) 編集、(4) レイアウト (blog_layout_config) header/sidebar_normal/sidebar_sticky/footer スロット編集、(5) T1-T4 article CRUD (article_template・題名規則・本文部品列・BP/AT 検証)、(6) 固定ページ 8 種 CRUD、(7) ブランドタグ (tags.kind=brand) CRUD とタグ一覧・brand-tag-cloud、(8) 配信部品 9 種 (canonical/og-twitter-meta/jsonld-website/jsonld-article/jsonld-collection/rss-feeds/sitemap-index/llms-txt/robots) の生成と delivery_snapshots 記録、(9) 評価列 (ブループリント適合・配信健全性・鮮度) と閲覧者評価 (役に立った/コメント) の受付・一覧・非表示、(10) 監査記録 (作成・更新・削除・公開・復元) と公開面 edge cache (TTL 10 分) 失効、(11) 転用禁止ゲート (scripts/check-reference-site-reuse.mjs による grep 検査) をこの順に完了し、P04 のテストを緑化した状態を成立させる。"
+      ],
+      "verification": [
+        "P05 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P05 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P05",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P06",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "実装のテスト実行と緑化",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P05"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/test-run-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P06 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: P04 で設計した単体/結合/境界値/回帰テストと転用禁止 grep ゲートが全件緑化し、失敗0件の実行結果が test-run-report.md に記録された状態を成立させる。"
+      ],
+      "verification": [
+        "P06 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P06 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P06",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p06.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P07",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "受入14件 (A1-A14) の受入検証",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/acceptance-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P07 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: feat-blog-ops-crud の受入14件 (A1-A14) それぞれについて、検証手順・実行結果・証跡パスが acceptance-report.md に一意対応表として存在し、全件 PASS である状態を成立させる。"
+      ],
+      "verification": [
+        "P07 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P07 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P07",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P08",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "既存 articles スキーマ・admin/content 系画面との重複解消と移行",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "backend",
+      "secondary_workstreams": [
+        "frontend",
+        "data",
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P05"
+      ],
+      "write_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/app/admin/content/",
+        "src/app/admin/blog/articles/",
+        "docs/spec/feat-blog-ops-crud/migration-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P08 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 既存 articles テーブル (type enum ranking/review/comparison/guide/tool、status enum draft/review/published/archived、AI コンテンツ生成パイプライン (content_variants/publications) が参照) と、本 feature が追加する blog CRUD 用フィールド (article_template・status 拡張 draft/scheduled/published/unpublished/archived・category_id→blog_category・author_profile_id 等) が後方互換 migration で単一テーブルへ統合され、既存 src/app/admin/content 配下 (AI コンテンツ生成の管理画面) と新規 src/app/admin/blog/articles 配下 (本 feature のブログ記事 CRUD 画面) の間で記事一覧・編集ロジックの重複実装が0件であることが確認された状態を成立させる。"
+      ],
+      "verification": [
+        "P08 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P08 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P08",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p08.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P09",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "品質保証 (アクセシビリティ・回帰・転用禁止ゲートの独立検査)",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/qa-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P09 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: 公開面と管理画面の主要6画面 (サイト網一覧/トップ構成/レイアウト/記事編集/固定ページ/評価一覧) の axe-core 重大違反0件、既存 tests/ 配下の全回帰0件失敗、転用禁止 grep ゲートの独立再実行 PASS が qa-report.md に記録された状態を成立させる。"
+      ],
+      "verification": [
+        "P09 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P09 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P09",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p09.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P10",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "最終レビューと promotion 可否判定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/final-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P10 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: P07 acceptance-report.md と P09 qa-report.md の結果を突合し、A1-A14 全件 PASS かつ P09 の QA 基準を満たすことを条件に promotion 可否 (readiness=complete) が final-review.md に確定している状態を成立させる。"
+      ],
+      "verification": [
+        "P10 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P10 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P10",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p10.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P11",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "受入・QA証跡の集約",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P07",
+        "SYS-BLOG-OPS-CRUD-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/evidence/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P11 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P11: P07 の受入証跡 (acceptance-report.md) と P09 の QA 証跡 (qa-report.md、axe-core レポート、grep ゲート実行ログ) が docs/spec/feat-blog-ops-crud/evidence/ 配下に一意パスで集約され、A1-A14 と証跡の対応関係が index.md に機械可読で存在する状態を成立させる。"
+      ],
+      "verification": [
+        "P11 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P11 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P11",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p11.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P12",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "運用文書・API/コンポーネント文書の確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P10",
+        "SYS-BLOG-OPS-CRUD-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/operations.md",
+        "docs/spec/feat-blog-ops-crud/data-model.md",
+        "docs/spec/feat-blog-ops-crud/api-contract.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P12 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: サイト網・記事・固定ページ・配信部品・評価機能の運用手順 (作成/一覧/編集/削除/復元/公開/評価非表示) が operations.md に、P02 で設計した data-model.md/api-contract.md が実装確定内容で更新された状態を成立させる。"
+      ],
+      "verification": [
+        "P12 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P12 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P12",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p12.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-BLOG-OPS-CRUD-P13",
+      "feature_package_id": "feature-package/feat-blog-ops-crud",
+      "parent_feature": "feat-blog-ops-crud",
+      "title": "開発環境へのリリースとsystem-specへの書き戻し",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-blog-ops-crud"
+      ],
+      "related_nodes": [],
+      "workstream_kind": "operations",
+      "secondary_workstreams": [
+        "infrastructure",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-BLOG-OPS-CRUD-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-ops-crud/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/database.md",
+        "system-spec/backend.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md",
+        "docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md",
+        "docs/spec/06-サイトブループリント-記事構成テンプレート.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-ops-crud の P13 lifecycle 責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: 本feature の成果がdevブランチ経由で開発環境へ反映され、実装で確定したデータモデル・API契約・配信部品契約がsystem-spec (ui-ux.md/frontend.md/database.md/backend.md) へR4-reopen経由で書き戻された状態を成立させる。"
+      ],
+      "verification": [
+        "P13 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "rollback": "P13 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-25T13:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-OPS-CRUD-P13",
+        "file_path": "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p13.md",
+        "parent_feature": "feat-blog-ops-crud",
+        "feature_package_id": "feature-package/feat-blog-ops-crud",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

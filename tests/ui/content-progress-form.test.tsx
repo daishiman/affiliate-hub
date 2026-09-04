@@ -6,7 +6,7 @@ import { CONTENT_STATE_LABEL } from "@/application/usecases/content/manage-conte
 import {
   AdvanceContentStateForm,
   ApproveContentForm,
-} from "@/presentation/admin/content-progress-form";
+} from "@/presentation/admin/write/content-progress-form";
 
 /**
  * 記事の画面から段階を進める欄・承認する欄。

@@ -52,6 +52,19 @@ export function auditLogStubNotice(): string {
  *
  * `workspaceId` を全件に入れてあるのは、読み出しが作業場所で絞れることを
  * 見本データの上でも確かめられるようにするため。
+ *
+ * --- 見本に置いてよい語の条件（2026-08-21 に決めた） ---
+ *
+ * **実処理から出す場所を持つ語しか置かない。**
+ * ここには以前 `content.created`（記事を作った）と
+ * `ranking_model.changed`（評価基準を変えた）が並んでいた。どちらも
+ * **その行を作る操作がどこにも無い**語で、画面には記録が並ぶのに
+ * 実際には 1 行も増えない。見本を消すまで誰も気づけない形である。
+ *
+ * 出す場所のある語だけにすると、見本の行は「実際に起きうる操作」の
+ * 見本になる。`tests/architecture/audit-action-emitters.test.ts` が
+ * 「見本にしか無い語 0」を見張っているので、ここへ出す場所の無い語を
+ * 足すと赤になる。
  */
 const SEED_ENTRIES: readonly AuditLogEntry[] = [
   {
@@ -69,13 +82,15 @@ const SEED_ENTRIES: readonly AuditLogEntry[] = [
     targetId: "cp_alpha_01",
     before: null,
     after: null,
+    requestId: null,
     reason: "根拠と価格の確認が取れたため。",
     occurredAt: new Date("2026-08-14T02:00:00Z"),
   },
   {
     id: taggedString<"AuditLogId">("al_2"),
     workspaceId: SAMPLE_WORKSPACE_ID,
-    action: "content.created",
+    // AI が下書きの段階を進めた。`createAdvanceContentStateUseCase` が出す語。
+    action: "content.state_changed",
     actor: {
       userId: taggedString<"UserId">("u_ai"),
       isAiServiceAccount: true,
@@ -85,15 +100,18 @@ const SEED_ENTRIES: readonly AuditLogEntry[] = [
     },
     targetType: "content_package",
     targetId: "cp_alpha_01",
-    before: null,
-    after: null,
+    before: { state: "DRAFT" },
+    after: { state: "REVIEW" },
+    requestId: null,
     reason: null,
     occurredAt: new Date("2026-08-12T09:00:00Z"),
   },
   {
     id: taggedString<"AuditLogId">("al_1"),
     workspaceId: SAMPLE_WORKSPACE_ID,
-    action: "ranking_model.changed",
+    // 受け取った成果リンクを対象外にした。`createRejectLinkUseCase` が出す語で、
+    // 理由が必須の語でもあるので、見本の一覧に理由の欄が埋まった行が 1 つ残る。
+    action: "affiliate_link.rejected",
     actor: {
       userId: taggedString<"UserId">("u_owner"),
       isAiServiceAccount: false,
@@ -101,11 +119,12 @@ const SEED_ENTRIES: readonly AuditLogEntry[] = [
       // 見本の持ち主は、ログイン済みの人として置いてある。
       identified: true,
     },
-    targetType: "ranking_model",
-    targetId: "rm_sample_v1",
+    targetType: "affiliate_link",
+    targetId: "lnk_sample_01",
     before: null,
     after: null,
-    reason: "実測の重みを上げ、価格の重みを下げたため。",
+    requestId: null,
+    reason: "販売が終わった商品のリンクだったため。",
     occurredAt: new Date("2026-08-01T00:00:00Z"),
   },
 ];

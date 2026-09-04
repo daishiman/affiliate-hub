@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-uiux-overhaul",
+  "parent_feature": "feat-uiux-overhaul",
+  "nodes": [
+    {
+      "id": "SYS-UIUX-OVERHAUL-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P01"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P02"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P03"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P04"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P05"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P06"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P05"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P08"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P09"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P07",
+        "SYS-UIUX-OVERHAUL-P09"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P10",
+        "SYS-UIUX-OVERHAUL-P11"
+      ]
+    },
+    {
+      "id": "SYS-UIUX-OVERHAUL-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "parent_feature": "feat-uiux-overhaul",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P12"
+      ]
+    }
+  ]
+}

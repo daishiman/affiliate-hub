@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   CONTENT_STATE_LABEL,
   DEFAULT_REVIEW_OVERDUE_LIMIT,
+  type AdvanceContentStateDeps,
   type ManageContentDeps,
   createAdvanceContentStateUseCase,
   createApproveContentUseCase,
@@ -10,10 +11,18 @@ import {
   createListContentBoardUseCase,
   createListReviewOverdueUseCase,
 } from "@/application/usecases/content/manage-content";
-import { CONTENT_STATES, type ContentState, type ContentVariant } from "@/domain/authoring";
+import type { EditorialPublishedArticleWriterPort } from "@/application/ports/site";
+import type { BrandScopeFilter } from "@/application/ports/common";
+import {
+  CONTENT_STATES,
+  type ContentPackage,
+  type ContentState,
+  type ContentVariant,
+} from "@/domain/authoring";
 import type { PolicyDomainScope } from "@/domain/compliance";
-import type { WorkspaceId } from "@/domain/shared";
-import { markCommercial, markEditorial, ok } from "@/domain/shared";
+import type { Publication } from "@/domain/distribution";
+import type { BrandId, ContentPackageId, ContentVariantId, WorkspaceId } from "@/domain/shared";
+import { markCommercial, markEditorial, ok, taggedString } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anAiAccount, anAnalyst, anOutsider, anOwner, aWriter } from "../support/actors";
 import { failing, recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
@@ -37,6 +46,10 @@ import { failing, recordingAuditLog, recordingEvents, testDeps } from "../suppor
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;
 const owner = anOwner({ workspaceId: WS });
+const outsideBrandOwner = anOwner({
+  workspaceId: WS,
+  scopedBrandIds: [taggedString<"BrandId">("brand-outside") as BrandId],
+});
 const writer = aWriter({ workspaceId: WS });
 const analyst = anAnalyst({ workspaceId: WS });
 const aiAccount = anAiAccount({ workspaceId: WS });
@@ -51,7 +64,7 @@ const APPROVED_POST = "cv_alpha_approved";
 /** 承認の理由。空だと承認そのものが断られる（記録に理由が要るため）。 */
 const APPROVE_REASON = "根拠と価格の表記を確認したため。";
 
-function deps(over: Partial<ManageContentDeps> = {}): ManageContentDeps {
+function deps(over: Partial<AdvanceContentStateDeps> = {}): AdvanceContentStateDeps {
   const base = testDeps();
   return {
     packages: base.contentPackages,
@@ -63,6 +76,8 @@ function deps(over: Partial<ManageContentDeps> = {}): ManageContentDeps {
     auditLog: recordingAuditLog().port,
     ids: base.ids,
     events: base.events,
+    publications: base.publications,
+    articles: base.publishedArticles,
     ...over,
   };
 }
@@ -100,6 +115,50 @@ function variantsRemembering(seed: Partial<Record<string, ContentState>> = {}) {
     },
   });
   return { port, states, saved };
+}
+
+function ownSitePublication(): Publication {
+  return {
+    id: "pub_quiet_laptop",
+    workspaceId: WS,
+    variantId: FAILING_DRAFT,
+    channelKind: "own_site",
+    connectionId: null,
+    state: "PUBLISHED",
+    scheduledAt: null,
+    idempotencyKey: "pub_quiet_laptop:key",
+    attempts: 1,
+    externalId: "quiet-laptop",
+    externalUrl: "/s/video-editing-gear/guides/quiet-laptop",
+    lastError: null,
+    publishedAt: new Date("2026-08-26T00:00:00Z"),
+  } as Publication;
+}
+
+function publicationsWith(items: readonly Publication[]): AdvanceContentStateDeps["publications"] {
+  return {
+    ...testDeps().publications,
+    async listByVariant() {
+      return ok(items);
+    },
+  };
+}
+
+function articleProjection(
+  over: Partial<EditorialPublishedArticleWriterPort> = {},
+) {
+  const visible = new Set(["video-editing-gear/quiet-laptop"]);
+  const port = markEditorial({
+    async save() {
+      return ok(true as const);
+    },
+    async unpublish(_workspaceId: WorkspaceId, siteSlug: string, slug: string) {
+      visible.delete(`${siteSlug}/${slug}`);
+      return ok(true as const);
+    },
+    ...over,
+  }) as EditorialPublishedArticleWriterPort;
+  return { port, visible };
 }
 
 function personasWith(over: Record<string, unknown>): ManageContentDeps["personas"] {
@@ -141,6 +200,78 @@ describe("記事の依存関係", () => {
 });
 
 describe("進行の一覧", () => {
+  it("限定担当者の一覧に担当外ブランドの記事を混ぜない", async () => {
+    const got = await createListContentBoardUseCase(deps()).execute(outsideBrandOwner, {});
+    expect(got.ok).toBe(true);
+    if (!got.ok) return;
+    expect(got.value.total).toBe(0);
+    expect(got.value.columns.flatMap((column) => column.items)).toEqual([]);
+  });
+
+  it("担当外の記事がraw limitの先頭でも、後続の担当記事を同じページで返す", async () => {
+    const base = await sampleVariant(REVIEWABLE);
+    const allowedPackageId = taggedString<"ContentPackageId">("pkg-allowed") as ContentPackageId;
+    const outsidePackageId = taggedString<"ContentPackageId">("pkg-outside") as ContentPackageId;
+    const outside = {
+      ...base,
+      id: taggedString<"ContentVariantId">("cv-outside") as ContentVariantId,
+      contentPackageId: outsidePackageId,
+    };
+    const allowed = {
+      ...base,
+      id: taggedString<"ContentVariantId">("cv-allowed") as ContentVariantId,
+      contentPackageId: allowedPackageId,
+    };
+    const basePackage = await testDeps().contentPackages.findById(WS, base.contentPackageId);
+    if (!basePackage.ok || basePackage.value === null) throw new Error("見本企画がありません");
+    const packages = new Map<string, ContentPackage>([
+      [String(outsidePackageId), { ...basePackage.value, id: outsidePackageId, brandId: "brand-outside" }],
+      [String(allowedPackageId), { ...basePackage.value, id: allowedPackageId, brandId: "brand-allowed" }],
+    ]);
+    const actor = anOwner({
+      workspaceId: WS,
+      scopedBrandIds: [taggedString<"BrandId">("brand-allowed") as BrandId],
+    });
+    const got = await createListContentBoardUseCase(
+      deps({
+        packages: packagesWith({
+          findById: async (_workspaceId: WorkspaceId, id: ContentPackageId) =>
+            ok(packages.get(String(id)) ?? null),
+        }),
+        variants: variantsWith({
+          listByState: async (
+            _workspaceId: WorkspaceId,
+            state: ContentState,
+            page: { limit: number },
+            scope?: BrandScopeFilter,
+          ) => {
+            const raw = state === "FACT_CHECK" ? [outside, allowed] : [];
+            const scoped =
+              scope === undefined
+                ? raw
+                : raw.filter((variant) => {
+                    const pkg = packages.get(String(variant.contentPackageId));
+                    return scope.brandIds.some((brandId) => String(brandId) === pkg?.brandId);
+                  });
+            const items = scoped.slice(0, page.limit);
+            return ok({
+              items,
+              nextCursor:
+                items.length > 0 && items.length < scoped.length ? String(items.at(-1)?.id) : null,
+            });
+          },
+        }),
+      }),
+    ).execute(actor, { limitPerState: 1 });
+
+    expect(got.ok).toBe(true);
+    if (!got.ok) return;
+    expect(got.value.columns.flatMap((column) => column.items).map((item) => item.variantId)).toEqual([
+      "cv-allowed",
+    ]);
+    expect(got.value.total).toBe(1);
+  });
+
   it("状態の数だけ列が並び、内部の名前をそのまま出さない", async () => {
     const got = await createListContentBoardUseCase(deps()).execute(owner, {});
     if (!got.ok) throw got.error;
@@ -241,6 +372,14 @@ describe("進行の一覧", () => {
 });
 
 describe("記事 1 本の確認", () => {
+  it("担当外ブランドの記事はIDを知っていても読めない", async () => {
+    const got = await createGetContentUseCase(deps()).execute(outsideBrandOwner, {
+      variantId: REVIEWABLE,
+    });
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("書き手の名前と企画が一緒に返る", async () => {
     const got = await createGetContentUseCase(deps()).execute(owner, { variantId: REVIEWABLE });
     if (!got.ok) throw got.error;
@@ -437,6 +576,72 @@ describe("記事 1 本の確認", () => {
 });
 
 describe("見直しの時期が来たもの", () => {
+  it("限定担当者の見直し一覧に担当外ブランドの記事を混ぜない", async () => {
+    const variant = await sampleVariant(REVIEWABLE);
+    const got = await createListReviewOverdueUseCase(
+      deps({ variants: variantsWith({ listReviewOverdue: async () => ok([variant]) }) }),
+    ).execute(outsideBrandOwner, {});
+    expect(got.ok).toBe(true);
+    if (!got.ok) return;
+    expect(got.value.items).toEqual([]);
+  });
+
+  it("担当外の期限超過がraw limitの先頭でも、後続の担当記事を返す", async () => {
+    const base = await sampleVariant(REVIEWABLE);
+    const allowedPackageId = taggedString<"ContentPackageId">("pkg-review-allowed") as ContentPackageId;
+    const outsidePackageId = taggedString<"ContentPackageId">("pkg-review-outside") as ContentPackageId;
+    const outside = {
+      ...base,
+      id: taggedString<"ContentVariantId">("cv-review-outside") as ContentVariantId,
+      contentPackageId: outsidePackageId,
+    };
+    const allowed = {
+      ...base,
+      id: taggedString<"ContentVariantId">("cv-review-allowed") as ContentVariantId,
+      contentPackageId: allowedPackageId,
+    };
+    const basePackage = await testDeps().contentPackages.findById(WS, base.contentPackageId);
+    if (!basePackage.ok || basePackage.value === null) throw new Error("見本企画がありません");
+    const packages = new Map<string, ContentPackage>([
+      [String(outsidePackageId), { ...basePackage.value, id: outsidePackageId, brandId: "brand-outside" }],
+      [String(allowedPackageId), { ...basePackage.value, id: allowedPackageId, brandId: "brand-allowed" }],
+    ]);
+    const actor = anOwner({
+      workspaceId: WS,
+      scopedBrandIds: [taggedString<"BrandId">("brand-allowed") as BrandId],
+    });
+    const got = await createListReviewOverdueUseCase(
+      deps({
+        packages: packagesWith({
+          findById: async (_workspaceId: WorkspaceId, id: ContentPackageId) =>
+            ok(packages.get(String(id)) ?? null),
+        }),
+        variants: variantsWith({
+          listReviewOverdue: async (
+            _workspaceId: WorkspaceId,
+            _at: Date,
+            limit: number,
+            scope?: BrandScopeFilter,
+          ) => {
+            const raw = [outside, allowed];
+            const scoped =
+              scope === undefined
+                ? raw
+                : raw.filter((variant) => {
+                    const pkg = packages.get(String(variant.contentPackageId));
+                    return scope.brandIds.some((brandId) => String(brandId) === pkg?.brandId);
+                  });
+            return ok(scoped.slice(0, limit));
+          },
+        }),
+      }),
+    ).execute(actor, { limit: 1 });
+
+    expect(got.ok).toBe(true);
+    if (!got.ok) return;
+    expect(got.value.items.map((item) => item.variantId)).toEqual(["cv-review-allowed"]);
+  });
+
   it("0 件のときは、無言の空白ではなく期日内である旨を返す", async () => {
     const got = await createListReviewOverdueUseCase(deps()).execute(owner, {});
     if (!got.ok) throw got.error;
@@ -511,6 +716,17 @@ describe("見直しの時期が来たもの", () => {
 });
 
 describe("状態を進める", () => {
+  it("担当外ブランドの記事はIDを知っていても状態を進められない", async () => {
+    const store = variantsRemembering();
+    const got = await createAdvanceContentStateUseCase(deps({ variants: store.port })).execute(
+      outsideBrandOwner,
+      { variantId: FAILING_DRAFT, from: "GENERATED", to: "FACT_CHECK" },
+    );
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("TENANT_MISMATCH");
+    expect(store.states.size).toBe(0);
+  });
+
   it("決められた順路は通れて、進んだ先が読める言葉で返る", async () => {
     const store = variantsRemembering();
     const got = await createAdvanceContentStateUseCase(deps({ variants: store.port })).execute(
@@ -673,6 +889,17 @@ describe("状態を進める", () => {
 });
 
 describe("承認", () => {
+  it("担当外ブランドの記事はIDを知っていても承認できない", async () => {
+    const store = variantsRemembering({ [REVIEWABLE]: "COMPLIANCE_REVIEW" });
+    const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(
+      outsideBrandOwner,
+      { variantId: REVIEWABLE, reason: APPROVE_REASON },
+    );
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("TENANT_MISMATCH");
+    expect(store.saved.current).toBeNull();
+  });
+
   it("人が承認すると、承認済みとして保存される", async () => {
     const store = variantsRemembering();
     const got = await createApproveContentUseCase(deps({ variants: store.port })).execute(owner, {
@@ -1060,6 +1287,287 @@ describe("操作の記録", () => {
     expect(log.actions()).toEqual(["content.unpublished"]);
     expect(log.entries()[0]?.reason).toBe("紹介した商品の取り扱いが終わったため");
     expect(log.entries()[0]?.before).toEqual({ state: "PUBLISHED" });
+  });
+
+  it("公開中の記事を ARCHIVED にしたら、同じ公開先を読者から見えなくする", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const projection = articleProjection();
+
+    const got = await createAdvanceContentStateUseCase(
+      deps({
+        variants: store.port,
+        auditLog: log.port,
+        articles: projection.port,
+        publications: publicationsWith([ownSitePublication()]),
+      }),
+    ).execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "掲載内容を見直すため",
+    });
+    if (!got.ok) throw got.error;
+
+    expect(projection.visible.has("video-editing-gear/quiet-laptop")).toBe(false);
+    expect(log.actions()).toEqual(["content.unpublished"]);
+  });
+
+  it("読者向けの写しを外せなければ、段階も監査記録も動かさない", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const projection = articleProjection({
+      unpublish: async () => failing("公開記事の保存先に繋がりません。"),
+    });
+
+    const got = await createAdvanceContentStateUseCase(
+      deps({
+        variants: store.port,
+        auditLog: log.port,
+        articles: projection.port,
+        publications: publicationsWith([ownSitePublication()]),
+      }),
+    ).execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "掲載内容を見直すため",
+    });
+
+    expect(got.ok).toBe(false);
+    expect(store.states.get(FAILING_DRAFT)).toBe("PUBLISHED");
+    expect(log.entries()).toEqual([]);
+  });
+
+  it("複数公開先の途中で失敗しても、再試行で済んだURLを冪等に通して残りへ収束する", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const hidden = new Set<string>();
+    let secondFailed = false;
+    const articles = markEditorial({
+      async save() {
+        return ok(true as const);
+      },
+      async unpublish(_workspaceId: WorkspaceId, siteSlug: string, slug: string) {
+        const key = `${siteSlug}/${slug}`;
+        if (slug === "second-article" && !secondFailed) {
+          secondFailed = true;
+          return failing("2件目の取り下げだけ一時的に失敗しました。");
+        }
+        hidden.add(key);
+        return ok(true as const);
+      },
+    }) as EditorialPublishedArticleWriterPort;
+    const publications = publicationsWith([
+      ownSitePublication(),
+      {
+        ...ownSitePublication(),
+        id: "pub_second_article",
+        externalId: "second-article",
+        externalUrl: "/s/second-site/guides/second-article",
+      } as Publication,
+    ]);
+    const advance = createAdvanceContentStateUseCase(
+      deps({ variants: store.port, auditLog: log.port, articles, publications }),
+    );
+    const input = {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED" as const,
+      to: "ARCHIVED" as const,
+      reason: "複数公開先から取り下げるため",
+    };
+
+    const first = await advance.execute(owner, input);
+    expect(first.ok).toBe(false);
+    expect(hidden.has("video-editing-gear/quiet-laptop")).toBe(true);
+    expect(store.states.get(FAILING_DRAFT)).toBe("PUBLISHED");
+
+    const retried = await advance.execute(owner, input);
+    expect(retried.ok).toBe(true);
+    expect(hidden).toEqual(
+      new Set(["video-editing-gear/quiet-laptop", "second-site/second-article"]),
+    );
+    expect(store.states.get(FAILING_DRAFT)).toBe("ARCHIVED");
+    expect(log.actions()).toEqual(["content.unpublished"]);
+  });
+
+  it("写しを外した後に段階保存が失敗したら、済んだことを隠さない", async () => {
+    const log = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const variants = markEditorial({
+      ...store.port,
+      saveState: async () => failing("進行状態の保存先に繋がりません。"),
+    }) as AdvanceContentStateDeps["variants"];
+    const projection = articleProjection();
+
+    const got = await createAdvanceContentStateUseCase(
+      deps({
+        variants,
+        auditLog: log.port,
+        articles: projection.port,
+        publications: publicationsWith([ownSitePublication()]),
+      }),
+    ).execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "掲載内容を見直すため",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(projection.visible.has("video-editing-gear/quiet-laptop")).toBe(false);
+    expect(store.states.get(FAILING_DRAFT)).toBe("PUBLISHED");
+    expect(got.error.message).toContain("読者ページから外れ");
+    expect(got.error.message).toContain("進行状態");
+    expect(log.entries()).toEqual([]);
+  });
+
+  it("監査記録に失敗しても、取り下げ済みの事実と既存履歴を失わない", async () => {
+    const history = recordingAuditLog();
+    const priorStore = variantsRemembering({ [FAILING_DRAFT]: "GENERATED" });
+    const prior = await createAdvanceContentStateUseCase(
+      deps({ variants: priorStore.port, auditLog: history.port }),
+    ).execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "GENERATED",
+      to: "FACT_CHECK",
+    });
+    if (!prior.ok) throw prior.error;
+
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const projection = articleProjection();
+    const got = await createAdvanceContentStateUseCase(
+      deps({
+        variants: store.port,
+        articles: projection.port,
+        publications: publicationsWith([ownSitePublication()]),
+        auditLog: {
+          ...history.port,
+          append: async () => failing("監査記録の保存先に繋がりません。"),
+        },
+      }),
+    ).execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "掲載内容を見直すため",
+    });
+
+    expect(got.ok).toBe(false);
+    if (got.ok) return;
+    expect(projection.visible.has("video-editing-gear/quiet-laptop")).toBe(false);
+    expect(store.states.get(FAILING_DRAFT)).toBe("ARCHIVED");
+    expect(got.error.message).toContain("読者ページから外れ");
+    expect(got.error.message).toContain("記録");
+    expect(history.actions()).toEqual(["content.state_changed"]);
+  });
+
+  it("監査だけ失敗した取り下げは、同じ要求の再試行で補記し、その後も重複しない", async () => {
+    const history = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const projection = articleProjection();
+    let rejectNextAppend = true;
+    const auditLog: AdvanceContentStateDeps["auditLog"] = {
+      ...history.port,
+      async append(entry) {
+        if (rejectNextAppend) {
+          rejectNextAppend = false;
+          return failing("監査記録の保存先に一時的に繋がりません。");
+        }
+        return history.port.append(entry);
+      },
+    };
+    const advance = createAdvanceContentStateUseCase(
+      deps({
+        variants: store.port,
+        articles: projection.port,
+        publications: publicationsWith([ownSitePublication()]),
+        auditLog,
+      }),
+    );
+    const input = {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED" as const,
+      to: "ARCHIVED" as const,
+      reason: "掲載内容を見直すため",
+    };
+
+    const first = await advance.execute(owner, input);
+    expect(first.ok).toBe(false);
+    expect(store.states.get(FAILING_DRAFT)).toBe("ARCHIVED");
+    expect(projection.visible.has("video-editing-gear/quiet-laptop")).toBe(false);
+    expect(history.entries()).toEqual([]);
+
+    const resumed = await advance.execute(owner, input);
+    expect(resumed.ok, resumed.ok ? "" : resumed.error.message).toBe(true);
+    expect(history.actions()).toEqual(["content.unpublished"]);
+
+    const repeated = await advance.execute(owner, input);
+    expect(repeated.ok, repeated.ok ? "" : repeated.error.message).toBe(true);
+    expect(history.actions()).toEqual(["content.unpublished"]);
+  });
+
+  it.each([
+    {
+      label: "理由が違う",
+      retryActor: owner,
+      retryReason: "別の判断で取り下げるため",
+    },
+    {
+      label: "操作した人が違う",
+      retryActor: { ...owner, userId: "u_other_owner" },
+      retryReason: "掲載内容を見直すため",
+    },
+  ])("ARCHIVEDでも $label 要求を取り下げの再開として通さない", async ({ retryActor, retryReason }) => {
+    const history = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "PUBLISHED" });
+    const advance = createAdvanceContentStateUseCase(
+      deps({ variants: store.port, auditLog: history.port }),
+    );
+    const first = await advance.execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "掲載内容を見直すため",
+    });
+    if (!first.ok) throw first.error;
+
+    const unrelated = await advance.execute(retryActor, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: retryReason,
+    });
+
+    expect(unrelated.ok).toBe(false);
+    expect(history.actions()).toEqual(["content.unpublished"]);
+  });
+
+  it("別の公開段階からARCHIVEDにした履歴を、PUBLISHEDからの再開と取り違えない", async () => {
+    const history = recordingAuditLog();
+    const store = variantsRemembering({ [FAILING_DRAFT]: "MONITORING" });
+    const advance = createAdvanceContentStateUseCase(
+      deps({ variants: store.port, auditLog: history.port }),
+    );
+    const first = await advance.execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "MONITORING",
+      to: "ARCHIVED",
+      reason: "掲載の監視を終了するため",
+    });
+    if (!first.ok) throw first.error;
+
+    const unrelated = await advance.execute(owner, {
+      variantId: FAILING_DRAFT,
+      from: "PUBLISHED",
+      to: "ARCHIVED",
+      reason: "掲載の監視を終了するため",
+    });
+
+    expect(unrelated.ok).toBe(false);
+    expect(history.entries()).toHaveLength(1);
+    expect(history.entries()[0]?.before).toEqual({ state: "MONITORING" });
   });
 
   it("まだ読者に出ていない記事を没にするのは、取り下げとして記録しない", async () => {

@@ -71,6 +71,24 @@ describe("行き先の判定", () => {
 });
 
 describe("転送の追いかけ方", () => {
+  it("固定providerの許可リストを転送先にも再適用する", async () => {
+    const result = await guardedFetch("https://shop.provider.test/start", {
+      fetchImpl: fetcher({
+        "https://shop.provider.test/start": () =>
+          response({ status: 302, location: "https://unknown.example/final" }),
+      }),
+      validateHop: (url) =>
+        url.hostname === "shop.provider.test"
+          ? null
+          : "この提携先は自動取得に未対応です。",
+    });
+
+    expect(result.kind).toBe("rejected");
+    if (result.kind !== "rejected") return;
+    expect(result.url).toBe("https://unknown.example/final");
+    expect(result.reason).toContain("自動取得に未対応");
+  });
+
   it("転送先が社内アドレスなら、そこで止める", async () => {
     const result = await guardedFetch("https://example.com/start", {
       fetchImpl: fetcher({

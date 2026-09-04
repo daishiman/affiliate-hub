@@ -43,8 +43,26 @@ function hoistCommonRequired(schema: Record<string, unknown>): Record<string, un
   return { ...schema, required: [...new Set([...existing, ...common])] };
 }
 
+/**
+ * 宣言を、**素のオブジェクトだけでできた形**にする。
+ *
+ * `z.toJSONSchema()` の戻り値は、見た目は JSON でも素のオブジェクトではない。
+ * zod は仕上げに `Object.defineProperty(..., "~standard", { enumerable: false })` で
+ * **関数入りの隠し属性**を貼る（`zod/v4/core/to-json-schema.js` の `finalize`）。
+ *
+ * React はサーバーからブラウザへ渡す値に、列挙できない自前の属性があると
+ * 「plain object ではない」と判断して警告を出す。関数は境界を越えられないからである。
+ * 宣言は `webmcp-adapter.ts` からブラウザ側の AI へそのまま渡るので、
+ * **ここを通った時点で素にしておかないと、全ページで警告が出る。**
+ *
+ * `JSON.parse(JSON.stringify(...))` にしているのは、隠し属性を名指しで消すより
+ * **残る側を数える**ほうが強いからである。zod が次の版で別の隠し属性を足しても、
+ * 名指しの除去は取りこぼすが、こちらは JSON に写せるものしか通さない。
+ * 宣言は元から JSON Schema——JSON で表せないものが入っていたらそちらが誤りである。
+ */
 export function toJsonSchema(schema: z.ZodType): Readonly<Record<string, unknown>> {
-  return hoistCommonRequired(z.toJSONSchema(schema) as Record<string, unknown>);
+  const hoisted = hoistCommonRequired(z.toJSONSchema(schema) as Record<string, unknown>);
+  return JSON.parse(JSON.stringify(hoisted)) as Record<string, unknown>;
 }
 
 /** zod の英語メッセージのままでは利用者が直せないため、要点を日本語に置き換える。 */

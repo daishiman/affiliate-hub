@@ -1,0 +1,126 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-20260824-feat-blog-ui-builder",
+  "session_owner": "f4a3af55-blog-ui",
+  "generated_at": "2026-08-24T02:30:00Z",
+  "feature_id": "feat-blog-ui-builder",
+  "graph_node_id": "feat-blog-ui-builder",
+  "artifact_kind": "feature",
+  "purpose": "ブログごとにテンプレートと配色を選び、公開面・作成・保存・管理一覧のどの面でも「どのブログにどのアフィリエイトが載っているか」を迷わず把握できるブログ UI を提供する",
+  "goal": "テンプレートから新規ブログを作成でき、配色をブログ既定とページ単位で選べ、ヘッダー・サイドバー・フッターが常時表示され、運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせの固定ページと図解・比較などの表現ブロックを構築でき、公開面/作成/保存/管理一覧の各面でブログ×アフィリエイトの配置が一覧・逆引きできる状態になっている",
+  "scope_in": [
+    "ブログテンプレート (レビュー特化/比較特化/ハウツー/ニュース/ミニマル/ガジェット寄り の 6 種) からのブログ作成と差し替え (system-spec ui-ux §テンプレート)",
+    "配色の 2 層選択: ブログ既定テーマ (blog_theme) とページ単位上書き (page_theme_override)。decision-ui-theme-implementation (CSS light-dark()+data 属性) に従う",
+    "常時表示レイアウト: sticky ヘッダー・サイドバー・フッターと、狭幅でのサイドバー折りたたみ",
+    "固定ページ 6 種の構築 UI: 運営者情報 / 全カテゴリー / サイトポリシー / プライバシーポリシー / 特定商取引法に基づく表記 / お問い合わせ (legal_page)",
+    "記事表現ブロック: figure (図解) / comparison (比較表) / cta / summary / spec-table と、ガジェット依存部分の差し替え可能なスロット",
+    "ブログ×アフィリエイト配置 (blog_affiliate_placement) の管理一覧・逆引き (アフィリエイト→掲載ブログ/ページ) と、公開面・作成・保存の各面での表示",
+    "参考ブログ (makuring.jp) の構成・配置・表記法の参照を反映した情報設計 (丸パクリはしない。利用者説明を一次根拠とする)"
+  ],
+  "scope_out": [
+    "記事本文の AI 生成そのもの (feat-ai-content-studio)",
+    "アフィリエイト URL の登録・商品識別 (feat-affiliate-inbox / feat-affiliate-hub)",
+    "クリック計測・成果突合の分析基盤 (feat-analytics-insight)",
+    "管理画面全体の単一用途画面再編 (feat-uiux-overhaul)",
+    "独自ドメイン・DNS 運用、テーマの外部販売"
+  ],
+  "acceptance": [
+    "テンプレート 6 種のいずれかを選んで新規ブログを作成でき、作成後もテンプレートを差し替えても既存記事が壊れない",
+    "ブログ既定の配色を選べ、任意のページで配色を上書きでき、上書きを外すとブログ既定に戻る",
+    "公開面でヘッダー・サイドバー・フッターがスクロール中も常時表示され、狭幅ではサイドバーが折りたたまれる",
+    "運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせの 6 ページを管理画面から作成・編集・公開できる",
+    "記事内で図解・比較表・CTA・要約・スペック表のブロックを挿入でき、ガジェット依存部分はスロット差し替えで別カテゴリでも再利用できる",
+    "管理一覧でブログごとの掲載アフィリエイトが一覧でき、アフィリエイトから掲載ブログ/ページへ逆引きできる",
+    "作成・保存・公開面の各面で当該ページに反映されているアフィリエイトが表示され、保存前後で表示が一致する",
+    "配色・テンプレート・固定ページの設定は D1 (Drizzle) に永続化され、再読み込み後も保持される",
+    "公開面のレイアウト・配色は axe-core の重大違反 0 件で、light/dark 両方で本文コントラストが基準を満たす"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/database.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-blog-ui-builder.context.json",
+      "source_plugin": "dev-graph",
+      "source_digest": "sha256:50ca9e4ec8030e85d53fa988ddfc0270f9a526a4fff2f11991e61d3ea51a58f4",
+      "digest_note": "呼び出し元指示に記載の sha256 (C09 containment 検証済み) をそのまま記録した。本 agent の利用可能ツールセット (Read/Write/Glob/Grep のみ、Bash 不可) では shasum による独立再計算を実行できないため、再計算は未実施であり fail-closed 判定はできていない。値の改変・捏造は行っていない",
+      "updated_at": "2026-08-24T02:20:00Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-blog-ui-builder.md",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluated_digest": "7c28f632dc2de006d755a4c28a4948d1d76b06797ba43c105dc006f80c2a9464",
+        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "note": "feat-blog-ui-builder.md フロントマターの confirmation_status/evaluation_status/confirmation_evidence/source_lineage をそのまま転記した。source_lineage.source_path=system-spec/ui-ux.md, source_digest=sha256:1e0995ba4c805e9fe4826b6e03081c8372a3eacb91591c73b163f6651e952559 (feature.md 記載値、独立再計算はしていない)"
+    },
+    "system_spec_sources": [
+      {
+        "source_path": "system-spec/index.md",
+        "role": "章一覧・収集状態インデックス。8/8 章が確定 (database/auth/ui-ux/security/infrastructure/backend/frontend/maintenance-ops)。U3 の G1/G2 上位ゴールから本 feature の goal/purpose がトレース可能なことを確認",
+        "verdict": "確定 (8/8 章)"
+      },
+      {
+        "source_path": "system-spec/00-requirements-definition.md",
+        "role": "上位概念 U1-U9 正本。purpose/goal の上位ゴール (G1/G2) トレース元",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/ui-ux.md",
+        "role": "scope_in のテンプレート/配色2層/sticky常時表示/固定ページ6種/表現ブロックの技術投影。feature.md の source_lineage 正本",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "system-spec/frontend.md",
+        "role": "テーマ実装 (light-dark()+data属性)、ブログ別コンポーネント scaffold、表現ブロックのスロット差し替えの技術投影",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "system-spec/database.md",
+        "role": "blog_template / blog_theme / page_theme_override / legal_page / blog_affiliate_placement のデータモデルと D1 (Drizzle) 永続化の技術投影",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "architecture/system-spec-overview.md",
+        "role": "8章確定成果物の実装投影を単一 architecture context として参照",
+        "verdict": "generated (confirmed system-spec に接地)"
+      },
+      {
+        "source_path": "architecture/arch-two-layer-platform.md",
+        "role": "feat-blog-ui-builder.md フロントマター architecture_refs=[\"arch-system-spec-overview\",\"arch-two-layer-platform\"] の参照先。読者面 (公開ブログ) と運営者面 (作成・保存・管理一覧) の二層境界との整合確認用",
+        "verdict": "確定"
+      }
+    ],
+    "completeness_evaluation": {
+      "source_path": "system-spec/completeness-report.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "evaluator_version": "0.1.0",
+      "verdict": "PASS",
+      "note": "system-spec 全体を対象とした確定済み completeness-report.json (verdict=PASS、gaps=[]) を参照。feature 個別の evaluation_status は features/feat-blog-ui-builder.md フロントマター evaluation_status=\"pass\" (confirmation_evidence 参照) に基づく。completeness-report.json の findings は medium/low/info のみで PASS 判定に影響する fail はない"
+    }
+  },
+  "not_performed": [
+    "feature 分割 (macro feature のさらなる分解)",
+    "workstream 分解",
+    "P01..P13 task 生成 (exact-13 task spec 設計)",
+    "task-graph / DAG 構築",
+    "system-build-handoff 生成",
+    "readiness promotion (staging → published)",
+    "atomic-promotion-receipt 発行",
+    "既存 staging 成果物 (feature-package.json / workstream-inventory.json / task-graph.json / system-build-handoff.json / staging-manifest.json / task-specs/) の変更・再生成",
+    "tracker (beads) への起票",
+    "dev-graph ノード再登録・graph revision 更新",
+    "GitHub Issue / PR への反映",
+    "実装コードの変更",
+    "quality gate (test/lint/build) の実行",
+    "feature_context digest の独立再計算 (Bash 不可のため未実施)"
+  ]
+}

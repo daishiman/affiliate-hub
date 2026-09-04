@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 import subprocess
@@ -42,9 +43,6 @@ REQUIRED_ENTRY_POINTS = {
 }
 REQUIRED_ARTIFACT_ROLES = {"index", "requirements", "completeness"}
 REQUIRED_GATES = {"coverage", "source_citation", "evaluator"}
-RECEIPT_FIELDS = {
-    "schema_version", "producer", "verdict", "gates", "artifacts", "evaluator", "created_at"
-}
 PRODUCER_FIELDS = {"plugin", "version", "entry_point"}
 EVALUATOR_FIELDS = {"report_path", "report_sha256", "fork_ledger_path", "session_id"}
 GATE_RESULT_IDS = {"coverage": "G-matrix", "source_citation": "G-source-citation"}
@@ -60,6 +58,41 @@ AGGREGATE = (
 )
 COVERAGE = HARNESS_ROOT / "scripts" / "validate-coverage-matrix.py"
 SOURCE_CITATION = HARNESS_ROOT / "scripts" / "validate-source-citation.py"
+
+def load_inventory_api():
+    """Load the provider-owned API declared by the sibling import contract."""
+    contract = json.loads(IMPORT_CONTRACT_PATH.read_text(encoding="utf-8"))
+    api = contract.get("provider_api")
+    if not isinstance(api, dict):
+        raise RuntimeError("system-spec import contract lacks provider_api")
+    relative = api.get("path")
+    version = api.get("version")
+    symbols = api.get("symbols")
+    if (
+        not isinstance(relative, str)
+        or not isinstance(version, str)
+        or symbols != ["build_inventory"]
+    ):
+        raise RuntimeError("system-spec provider_api contract is invalid")
+    module_path = (HARNESS_ROOT / relative).resolve()
+    try:
+        module_path.relative_to(HARNESS_ROOT.resolve())
+    except ValueError as exc:
+        raise RuntimeError("system-spec provider API escapes plugin root") from exc
+    spec = importlib.util.spec_from_file_location("system_spec_inventory_api", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load system-spec provider API: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if getattr(module, "API_VERSION", None) != version:
+        raise RuntimeError("system-spec provider API version mismatch")
+    build = getattr(module, "build_inventory", None)
+    if not callable(build):
+        raise RuntimeError("system-spec provider API lacks build_inventory")
+    return build
+
+
+build_inventory = load_inventory_api()
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -122,6 +155,50 @@ def receipt_artifact_contract() -> tuple[set[str], str, str]:
         raise ValueError(f"resume receipt schema lacks gate artifact: {exc}") from exc
 
 
+def receipt_field_contract() -> tuple[set[str], str]:
+    """受領書の必須欄と版を、評価器が持つ schema から**読む** (写さない)。
+
+    ここを写していたあいだ、schema は 1.2 (inputs 必須) へ上がったのに再利用側は
+    1.1 を要求し続け、いま作った受領書が版違いで落ちていた。落ちるのは安全側だが、
+    理由が `receipt-schema-version-invalid` としか出ないので、
+    **束縛が入ったことと、束縛が効いていないことの区別がつかない**。
+    """
+    schema = load_json(RECEIPT_SCHEMA)
+    properties = schema.get("properties")
+    required = schema.get("required")
+    const = (
+        properties.get("schema_version", {}).get("const")
+        if isinstance(properties, dict) else None
+    )
+    if (
+        not isinstance(required, list)
+        or not all(isinstance(item, str) and item for item in required)
+        or not isinstance(const, str)
+        or not const
+    ):
+        raise ValueError("resume receipt schema lacks required fields or a schema_version const")
+    return set(required), const
+
+
+def input_binding_failures(root: Path, receipt: dict[str, Any]) -> list[str]:
+    """受領書が名乗る入力の指紋と、いま在る入力を突き合わせる。
+
+    受領書の `artifacts` は 5 本の成果物しか見ていない。仕様書の本文 (章ごとの
+    `.md`) はそこに入っていないので、**章を書き換えても artifacts の指紋は動かず、
+    評価前の PASS がそのまま再利用できてしまう**。ここで入力そのものを数え直す。
+    """
+    declared = receipt.get("inputs")
+    if not isinstance(declared, dict):
+        return ["receipt-inputs-missing"]
+    inventory = build_inventory(root)
+    failures: list[str] = []
+    if declared.get("sha256") != inventory["sha256"]:
+        failures.append("receipt-inputs-stale")
+    if declared.get("file_count") != inventory["file_count"]:
+        failures.append("receipt-inputs-count-stale")
+    return failures
+
+
 def validate(root: Path) -> dict[str, Any]:
     root = root.resolve(strict=True)
     import_contract = load_json(IMPORT_CONTRACT_PATH)
@@ -143,9 +220,11 @@ def validate(root: Path) -> dict[str, Any]:
     package = load_json(HARNESS_ROOT / "references" / "package-contract.json")
     declared = set(package.get("entry_points", {}).get("skills", []))
 
+    receipt_fields, receipt_schema_version = receipt_field_contract()
     failures: list[str] = []
-    if set(receipt) != RECEIPT_FIELDS:
+    if set(receipt) != receipt_fields:
         failures.append("receipt-field-set-invalid")
+    failures.extend(input_binding_failures(root, receipt))
     if not valid_datetime(receipt.get("created_at")):
         failures.append("receipt-created-at-invalid")
     if manifest.get("name") != "system-spec-harness":
@@ -167,7 +246,7 @@ def validate(root: Path) -> dict[str, Any]:
             failures.append("producer-version-stale")
         if producer.get("entry_point") != "assign-system-spec-completeness-evaluator":
             failures.append("producer-entry-point-invalid")
-    if receipt.get("schema_version") != "1.1":
+    if receipt.get("schema_version") != receipt_schema_version:
         failures.append("receipt-schema-version-invalid")
     if receipt.get("verdict") != "PASS":
         failures.append("receipt-verdict-not-pass")

@@ -242,6 +242,49 @@ describe("順位づけの性質", () => {
 });
 
 describe("報酬は順位の入力にならない", () => {
+  /**
+   * 使ってよい 7 つ・使ってはならない 6 つを、**仕様（ブログ層 §17.4）から手で写した表**。
+   *
+   * --- なぜ手で書くか ---
+   * 下の 2 件は `PROHIBITED_RANKING_CRITERIA` / `ALLOWED_RANKING_CRITERIA` を
+   * そのまま回しているので、**一覧そのものが変わっても回る対象が変わるだけ**で緑になる。
+   * 2026-08-21 の実測では、`ALLOWED_RANKING_CRITERIA` へ `sponsor_tier`
+   * （販売事情そのもの）を 1 語足しても、この一覧に触れる 4 ファイル・134 件が
+   * **すべて緑のまま**だった（＝`W03` 型）。`invariants.test.ts` の語句検査は
+   * `commission|reward|revenue|epc|payout|報酬|収益` しか見ないので、
+   * 「予算」「優先度」「ノルマ」「マージン」の類は素通りする。
+   */
+  const SPEC_ALLOWED: readonly string[] = [
+    "measured_performance",
+    "specification",
+    "usability",
+    "durability",
+    "support",
+    "price_value",
+    "repairability",
+  ];
+  const SPEC_PROHIBITED: readonly string[] = [
+    "affiliate_commission",
+    "advertiser_budget",
+    "campaign_priority",
+    "sales_quota",
+    "conversion_revenue",
+    "merchant_margin",
+  ];
+
+  it("使ってよい評価基準の顔ぶれが、仕様 §17.4 のとおり（勝手に増えない）", () => {
+    expect([...ALLOWED_RANKING_CRITERIA]).toEqual(SPEC_ALLOWED);
+  });
+
+  it("使ってはならない評価基準の顔ぶれが、仕様 §17.4 のとおり（勝手に減らない）", () => {
+    expect([...PROHIBITED_RANKING_CRITERIA]).toEqual(SPEC_PROHIBITED);
+  });
+
+  it("2 つの一覧は重ならない（同じ語が「使ってよい」と「だめ」の両方に無い）", () => {
+    const overlap = SPEC_ALLOWED.filter((k) => SPEC_PROHIBITED.includes(k));
+    expect(overlap).toEqual([]);
+  });
+
   it("禁止された評価基準は、重みや測定方法をどう書いても必ず拒否される", () => {
     fc.assert(
       fc.property(

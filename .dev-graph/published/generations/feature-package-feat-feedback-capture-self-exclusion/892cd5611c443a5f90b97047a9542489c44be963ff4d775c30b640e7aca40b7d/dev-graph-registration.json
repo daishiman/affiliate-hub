@@ -1,0 +1,1139 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+  "parent_feature": "feat-feedback-capture-self-exclusion",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-FB-CAPTURE-EXCLUSION-P01": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P02": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P03": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P04": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P05": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P06": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P07": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P08": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P09": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P10": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P11": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P12": "beads",
+    "SYS-FB-CAPTURE-EXCLUSION-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "改善要望の写しに送信 UI が写り込む条件の要求ベースライン確定",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/requirements-baseline.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-timeline.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-inventory.json"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "撮影と送信 UI 可視化を別の時点へ分ける設計の確定",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-sequence-design.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-contract.md"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "設計の独立レビューと退避経路の妥当性判定",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/design-review-findings.md"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "写り込み検査と退避経路のテスト設計",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/test-design.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-test-fixtures.md"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "撮影中だけ送信 UI を写しの対象から外す実装",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/presentation/ui/patterns"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "写り込み検査と回帰テストの実行と緑化",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/ui",
+        "tests/e2e"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入7件の受入判定",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/acceptance-report.md"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "浮遊要素の属性統一と重なり監査との共通化",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P07"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/presentation/ui/patterns",
+        "tests/e2e/app-routes.spec.ts"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "品質保証と非機能の確認",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/quality-report.md"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "最終レビューと反映漏れの判定",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/final-review.md"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "証跡の収集と保全",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P10"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/evidence"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "仕様書と運用手順の追補",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/12-改善要望フィードバック仕様.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/operations.md"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "dev への反映と公開",
+      "project_id": "feature-package-feat-feedback-capture-self-exclusion",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-30T12:31:04Z",
+      "updated_at": "2026-08-30T12:31:04Z",
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/release-notes.md",
+        "docs/spec/12-改善要望フィードバック仕様.md",
+        "system-spec/frontend.md"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json",
+        "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
+        "imported_at": "2026-08-30T12:31:04Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-feedback-capture-self-exclusion の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    }
+  ]
+}

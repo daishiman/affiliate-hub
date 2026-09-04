@@ -1,0 +1,33 @@
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 手で書いた組の指し先が、実物の規則を指している: 本文と背景 2ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 手で書いた組の指し先が、実物の規則を指している: 補足の文字と背景 1ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 手で書いた組の指し先が、実物の規則を指している: 見出しと一段上げた面 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 手で書いた組の指し先が、実物の規則を指している: 本文と沈めた面 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 手で書いた組の指し先が、実物の規則を指している: 操作の色と背景（リンクの文字として出る） 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 手で書いた組の指し先が、実物の規則を指している: 強い枠線と背景（操作の輪郭） 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 手で書いた組の指し先が、実物の規則を指している: 焦点の輪と背景（キーボード操作の現在地） 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 検査対象を実際に読めている 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 登録されている配色すべてが themes.css に自分の色を持っている 1ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 利用者が指定した 5 系統がそろっている 1ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 既定（グラファイト × アンバー）（明るい）が AA を満たす 1ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 既定（グラファイト × アンバー）（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > インディゴ × ティール（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > インディゴ × ティール（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > ティール × クレイ（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > ティール × クレイ（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > インディゴ × クレイ（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > インディゴ × クレイ（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 青系（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 青系（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > ピンク系（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > ピンク系（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > ホワイト系（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > ホワイト系（暗い）が AA を満たす 2ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > グレー系（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > グレー系（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > グリーン系（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > グリーン系（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > パープル系（明るい）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > パープル系（暗い）が AA を満たす 0ms
+ ✓ |normal| tests/ui/theme-contrast.test.ts > 配色 × 明暗のコントラスト（WCAG 2.2 AA） > 暗いときの色を明るいときの反転で済ませていない 0ms
+ Test Files  1 passed (1)
+      Tests  31 passed (31)

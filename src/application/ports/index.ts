@@ -1,8 +1,10 @@
 export * from "./analytics";
 export * from "./authoring";
+export * from "./blog-ops";
 export * from "./common";
 export * from "./compliance";
 export * from "./distribution";
+export * from "./distribution-audit";
 export * from "./evidence";
 export * from "./identity";
 export * from "./improvement";
@@ -12,4 +14,5 @@ export * from "./llm-usage";
 export * from "./monetization";
 export * from "./product";
 export * from "./ranking";
+export * from "./seo";
 export * from "./telemetry";

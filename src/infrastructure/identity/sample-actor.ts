@@ -60,6 +60,8 @@ export const SAMPLE_ACTOR: ActorContext = {
    * 足す前に、認証が入っているかを先に確かめること。
    */
   roles: ["analyst"],
+  // 見本は読み取り専用。範囲は workspace 全体だが、brand.manage は持たない。
+  scopedBrandIds: [],
   isAiServiceAccount: false,
   /**
    * **確かめていない。** `u_sample` は誰も指していない名前である。

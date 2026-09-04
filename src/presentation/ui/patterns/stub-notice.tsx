@@ -27,7 +27,12 @@ export function StubNotice({
   readonly blockedBy: string;
   /** 台帳の見出し。報告と突き合わせるための識別子。 */
   readonly stubId?: string;
-  /** 見本として出す中身（あれば）。 */
+  /**
+   * 見本として出す中身（あれば）。
+   *
+   * 包む要素はここが決める。画面側で `<span>` を書かせていた頃は、
+   * 包み忘れた画面だけ行が詰まって見えた。渡すのは中身だけでよい。
+   */
   readonly children?: React.ReactNode;
 }) {
   return (
@@ -39,7 +44,7 @@ export function StubNotice({
         {UI_COPY.stub.blockedByPrefix}
         {blockedBy}
       </span>
-      {children}
+      {children === undefined ? null : <span>{children}</span>}
     </div>
   );
 }
@@ -72,7 +77,7 @@ export function StorageNotice({ status }: { readonly status: StorageStatus }) {
   if (!status.persisted) {
     return (
       <StubNotice what={status.what} blockedBy={status.blockedBy} stubId={status.stubId}>
-        <span>{status.message}</span>
+        {status.message}
       </StubNotice>
     );
   }

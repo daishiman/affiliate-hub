@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "producer": {
     "plugin": "system-spec-harness",
     "version": "0.1.0",
@@ -12,17 +12,21 @@
     "evaluator": "PASS"
   },
   "artifacts": {
-    "system-spec/00-requirements-definition.md": "7417024d0735df8d693ac23f5fb358472804c87d9608bf02087b5c790cc95b5f",
-    "system-spec/completeness-report.json": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
-    "system-spec/fetched-references.json": "01acf2ab3fbd4a5e56600308a9025b894b09579788de409ed0abb018b9506e79",
-    "system-spec/index.md": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
-    "system-spec/spec-state.json": "7d9d82f9f8056393e9b9e3b227e54a48aa9d1ab95a8ca217d4bc169d3717293c"
+    "system-spec/00-requirements-definition.md": "3b82e6def629c233ff96e483e6eda6b141c34f5ab37113e460b91c99c723bb9a",
+    "system-spec/completeness-report.json": "097cf838e6b087dd5d1a8c2acec991552db34c41f44bebe53461d123a8f10b83",
+    "system-spec/fetched-references.json": "a363a2cfdde53686e29a91e9cfc1f2f85608e522608b979a5ff5a3a09dca7a02",
+    "system-spec/index.md": "752668f45bfb09a5a6339e30efd91333748dcd46f1837762af8571f7a9f48f9f",
+    "system-spec/spec-state.json": "2659c12f7cde8ddfc33919f47d943ae6f994eabcb787a23904a616174d612d43"
+  },
+  "inputs": {
+    "file_count": 177,
+    "sha256": "f9352685644e5fe311e09b0c7a81080a70a8bd7e462b088621086800a9091789"
   },
   "evaluator": {
     "report_path": "system-spec/completeness-report.json",
-    "report_sha256": "0615d70d74973bac98929d7e3ce7b444933ac7e7280718ebbb74b8fef7676ca6",
+    "report_sha256": "097cf838e6b087dd5d1a8c2acec991552db34c41f44bebe53461d123a8f10b83",
     "fork_ledger_path": "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
-    "session_id": "6f78de41-a1e7-45eb-b08c-d4a81a0becb9"
+    "session_id": "0da0f834-6891-4c37-93c6-6e719aa529fe"
   },
-  "created_at": "2026-08-16T12:07:59Z"
+  "created_at": "2026-09-04T13:56:40Z"
 }

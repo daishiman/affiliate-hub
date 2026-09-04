@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-P08 */
 import { describe, expect, it } from "vitest";
 import {
   availableChannels,
@@ -15,10 +15,12 @@ function input(overrides: Partial<ChannelPublishInput> = {}): ChannelPublishInpu
   return {
     connectionId: "conn_1" as ChannelConnectionId,
     idempotencyKey: "key_1",
+    providerDeliveryKey: null,
     title: "静かなノートPCの選び方",
     body: "本文です。",
     imageKeys: [],
     scheduledAt: null,
+    providerRecordCreatedAt: null,
     disclosureText: "この記事には広告が含まれます。",
     ...overrides,
   };
@@ -61,7 +63,9 @@ describe("配信チャネル", () => {
   });
 
   it("note の書き出しは広告表記を先頭に置き、消さないよう伝える", async () => {
-    const draft = await createChannelExporter("note").buildDraft(input());
+    // 出し先の種類は書き出すときに渡す（窓口は 1 つ）。
+    // 文面そのものの検査は tests/infrastructure/manual-export.test.ts にある。
+    const draft = await createChannelExporter().buildDraft("note", input());
     expect(draft.ok).toBe(true);
     if (!draft.ok) return;
 

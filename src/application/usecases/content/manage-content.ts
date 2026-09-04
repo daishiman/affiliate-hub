@@ -6,6 +6,8 @@ import type {
 import { auditActorOf } from "@/application/audit";
 import type { EventPublisherPort, IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort, PolicyRuleRepositoryPort } from "@/application/ports/compliance";
+import type { PublicationRepositoryPort } from "@/application/ports/distribution";
+import type { EditorialPublishedArticleWriterPort } from "@/application/ports/site";
 import {
   CONTENT_STATES,
   type ContentPackage,
@@ -22,6 +24,7 @@ import {
 } from "@/domain/authoring";
 import {
   type AuditAction,
+  type AuditLogEntry,
   type PolicyCheckResult,
   checkPolicies,
   createAuditLogEntry,
@@ -35,8 +38,8 @@ import {
   type ContentVariantId,
   type DomainError,
   type Result,
-  type UserId,
   assertSameTenant,
+  assertWorkspaceWideAccess,
   buildEvent,
   containsCommercial,
   domainError,
@@ -47,6 +50,11 @@ import {
 } from "@/domain/shared";
 import type { DomainEventName } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import {
+  assertContentVariantBrandScope,
+  brandScopeFilterFor,
+  filterContentVariantsByBrandScope,
+} from "./content-brand-access";
 
 /**
  * 記事（媒体別の文章）を運ぶユースケース。
@@ -87,6 +95,13 @@ export type ManageContentDeps = {
    * 受け手が増えても、この行より上のコードは変わらない。
    */
   readonly events: EventPublisherPort;
+};
+
+export type AdvanceContentStateDeps = ManageContentDeps & {
+  /** 公開中の自社サイト配信から、読者向けの写しを特定する。 */
+  readonly publications: PublicationRepositoryPort;
+  /** ARCHIVED へ進める前に、読者向けの公開写しを外す。 */
+  readonly articles: EditorialPublishedArticleWriterPort;
 };
 
 /**
@@ -261,15 +276,21 @@ export function createListContentBoardUseCase(
         const listed = await deps.variants.listByState(actor.workspaceId, state, {
           limit,
           cursor: null,
-        });
+        }, brandScopeFilterFor(actor));
         if (!listed.ok) return listed;
+        const visible = await filterContentVariantsByBrandScope(
+          deps.packages,
+          actor,
+          listed.value.items,
+        );
+        if (!visible.ok) return visible;
 
-        total += listed.value.items.length;
+        total += visible.value.length;
         const next = allowedNextStates(state);
         columns.push({
           state,
           label: CONTENT_STATE_LABEL[state],
-          items: listed.value.items.map(toCard),
+          items: visible.value.map(toCard),
           nextStates: next.map((s) => ({ state: s, label: CONTENT_STATE_LABEL[s] })),
           // AI だけでは進められない先。画面で灰色にするのではなく、理由を出すために渡す。
           humanOnlyNext: next.filter((s) => s === "APPROVED" || s === "SCHEDULED" || s === "PUBLISHED"),
@@ -570,7 +591,14 @@ async function loadVariant(
       }),
     );
   }
-  return assertSameTenant(actor, found.value, "記事");
+  const scoped = await assertContentVariantBrandScope(
+    deps.packages,
+    actor,
+    found.value,
+    "記事",
+  );
+  if (!scoped.ok) return err(scoped.error);
+  return ok(found.value);
 }
 
 // --- 見直しの時期が来たもの -------------------------------------------------
@@ -598,13 +626,16 @@ export function createListReviewOverdueUseCase(
         actor.workspaceId,
         new Date(),
         input.limit ?? DEFAULT_REVIEW_OVERDUE_LIMIT,
+        brandScopeFilterFor(actor),
       );
       if (!listed.ok) return listed;
+      const visible = await filterContentVariantsByBrandScope(deps.packages, actor, listed.value);
+      if (!visible.ok) return visible;
 
       return ok({
-        items: listed.value.map(toCard),
+        items: visible.value.map(toCard),
         emptyReason:
-          listed.value.length === 0
+          visible.value.length === 0
             ? "見直しの期日を過ぎた記事はありません。公開済みの記事はすべて期日内です。"
             : null,
       });
@@ -636,6 +667,101 @@ export type AdvanceContentOutput = {
   readonly label: string;
 };
 
+function hasOnlyState(
+  value: Readonly<Record<string, unknown>> | null,
+  state: ContentState,
+): boolean {
+  return value !== null && value.state === state && Object.keys(value).length === 1;
+}
+
+/**
+ * 保存済みの取り下げ記録が、いま再試行している操作と同じ判断か。
+ *
+ * ARCHIVED という現在地だけでは同じ操作とは言えない。別の公開段階、理由、担当者で
+ * 引っ込めた記事を「この要求は済んでいる」と返すと、誰の判断だったかを書き換えたのと
+ * 同じになるため、監査行の意味を構成する欄をすべて照合する。
+ */
+function isSameUnpublishAudit(
+  entry: AuditLogEntry,
+  actor: ActorContext,
+  variantId: string,
+  reason: string,
+): boolean {
+  const expectedActor = auditActorOf(actor);
+  return (
+    String(entry.workspaceId) === String(actor.workspaceId) &&
+    entry.action === "content.unpublished" &&
+    entry.targetType === "content_variant" &&
+    entry.targetId === variantId &&
+    hasOnlyState(entry.before, "PUBLISHED") &&
+    hasOnlyState(entry.after, "ARCHIVED") &&
+    entry.reason === reason &&
+    String(entry.actor.userId) === String(expectedActor.userId) &&
+    entry.actor.isAiServiceAccount === expectedActor.isAiServiceAccount &&
+    entry.actor.identified === expectedActor.identified &&
+    entry.actor.modelId === expectedActor.modelId
+  );
+}
+
+function describesArchiving(entry: AuditLogEntry, variantId: string): boolean {
+  return (
+    entry.targetType === "content_variant" &&
+    entry.targetId === variantId &&
+    (entry.action === "content.unpublished" || entry.action === "content.state_changed") &&
+    entry.after?.state === "ARCHIVED"
+  );
+}
+
+async function resumeUnpublishAudit(
+  deps: AdvanceContentStateDeps,
+  actor: ActorContext,
+  input: AdvanceContentInput,
+): Promise<Result<AdvanceContentOutput, DomainError>> {
+  const history = await deps.auditLog.listByTarget(
+    actor.workspaceId,
+    "content_variant",
+    input.variantId,
+  );
+  if (!history.ok) return history;
+
+  const reason = (input.reason ?? "").trim();
+  const archived = history.value.filter((entry) => describesArchiving(entry, input.variantId));
+  if (archived.length > 0) {
+    if (archived.every((entry) => isSameUnpublishAudit(entry, actor, input.variantId, reason))) {
+      return ok({
+        variantId: input.variantId,
+        state: "ARCHIVED",
+        label: CONTENT_STATE_LABEL.ARCHIVED,
+      });
+    }
+    return err(
+      domainError(
+        "CONFLICT",
+        "この記事は別の公開段階・理由・担当者による操作で取り下げ済みです。",
+        {
+          suggestedAction:
+            "画面を開き直し、操作の記録で取り下げ元・理由・担当者を確認してください。",
+        },
+      ),
+    );
+  }
+
+  const logged = await record(deps, actor, {
+    action: "content.unpublished",
+    targetId: input.variantId,
+    before: { state: "PUBLISHED" },
+    after: { state: "ARCHIVED" },
+    reason,
+    doneAlready: `記事は「${CONTENT_STATE_LABEL.ARCHIVED}」へ進みました`,
+  });
+  if (!logged.ok) return logged;
+  return ok({
+    variantId: input.variantId,
+    state: "ARCHIVED",
+    label: CONTENT_STATE_LABEL.ARCHIVED,
+  });
+}
+
 /**
  * 状態を進める。
  *
@@ -643,7 +769,7 @@ export type AdvanceContentOutput = {
  * AI サービスアカウントは承認・予約・公開へ進められない（そこで弾かれる）。
  */
 export function createAdvanceContentStateUseCase(
-  deps: ManageContentDeps,
+  deps: AdvanceContentStateDeps,
 ): UseCase<AdvanceContentInput, AdvanceContentOutput> {
   guardEditorial(deps, "記事の状態変更");
   return {
@@ -662,7 +788,9 @@ export function createAdvanceContentStateUseCase(
        */
       const stored = await deps.variants.findState(actor.workspaceId, loaded.value.id);
       if (!stored.ok) return stored;
-      if (stored.value !== null && stored.value !== input.from) {
+      const resumingUnpublish =
+        stored.value === "ARCHIVED" && input.from === "PUBLISHED" && input.to === "ARCHIVED";
+      if (stored.value !== null && stored.value !== input.from && !resumingUnpublish) {
         return err(
           domainError(
             "CONFLICT",
@@ -683,6 +811,10 @@ export function createAdvanceContentStateUseCase(
        * 引っ込める操作で、仕様書 §7 の必須記録対象（公開・削除）に当たる。
        */
       const unpublishing = isUnpublishing(input.from, moved.value);
+      if (unpublishing || moved.value === "PUBLISHED") {
+        const siteAccess = assertWorkspaceWideAccess(actor, "公開先のブログ");
+        if (!siteAccess.ok) return err(siteAccess.error);
+      }
 
       /*
        * 理由の欠けは、**保存より前に**、人の言葉にして断る。
@@ -706,13 +838,116 @@ export function createAdvanceContentStateUseCase(
         );
       }
 
+      if (resumingUnpublish) {
+        return resumeUnpublishAudit(deps, actor, input);
+      }
+
+      let unpublishedCount = 0;
+      if (unpublishing) {
+        const publications = await deps.publications.listByVariant(
+          actor.workspaceId,
+          loaded.value.id,
+        );
+        if (!publications.ok) return publications;
+
+        const targets = new Map<string, { readonly siteSlug: string; readonly slug: string }>();
+        for (const publication of publications.value) {
+          if (publication.channelKind !== "own_site" || publication.state !== "PUBLISHED") {
+            continue;
+          }
+          const samePublication = assertSameTenant(actor, publication, "この配信");
+          if (!samePublication.ok) return samePublication;
+          if (publication.externalUrl === null || publication.externalId === null) {
+            return err(
+              domainError(
+                "UPSTREAM_UNAVAILABLE",
+                "公開先の記録が欠けているため、記事を安全に取り下げられません。",
+                {
+                  suggestedAction:
+                    "配信の詳細で公開先 URL を確認し、保存先の状態を確認してください。",
+                },
+              ),
+            );
+          }
+
+          let pathname: string;
+          try {
+            pathname = new URL(publication.externalUrl, "https://local.invalid").pathname;
+          } catch {
+            return err(
+              domainError("UPSTREAM_UNAVAILABLE", "公開先 URL の記録が壊れています。", {
+                suggestedAction: "配信の詳細を確認し、保存先の状態を確認してください。",
+              }),
+            );
+          }
+          const match = /^\/s\/([^/]+)\//.exec(pathname);
+          if (match?.[1] === undefined) {
+            return err(
+              domainError("UPSTREAM_UNAVAILABLE", "公開先のブログを特定できませんでした。", {
+                suggestedAction: "配信の詳細で公開先 URL を確認してください。",
+              }),
+            );
+          }
+          let siteSlug: string;
+          try {
+            siteSlug = decodeURIComponent(match[1]);
+          } catch {
+            return err(
+              domainError("UPSTREAM_UNAVAILABLE", "公開先のブログ名の記録が壊れています。", {
+                suggestedAction: "配信の詳細で公開先 URL を確認してください。",
+              }),
+            );
+          }
+          const slug = publication.externalId;
+          targets.set(`${siteSlug}\u0000${slug}`, { siteSlug, slug });
+        }
+
+        for (const target of targets.values()) {
+          const removed = await deps.articles.unpublish(
+            actor.workspaceId,
+            target.siteSlug,
+            target.slug,
+          );
+          if (!removed.ok) {
+            if (unpublishedCount === 0) return removed;
+            return err(
+              domainError(
+                "UPSTREAM_UNAVAILABLE",
+                `${unpublishedCount} 件は読者ページから外れましたが、残りの取り下げに失敗しました。`,
+                {
+                  retryable: true,
+                  suggestedAction:
+                    "配信ごとの読者ページを確認し、まだ見える記事だけを取り下げ直してください。",
+                  details: removed.error.details,
+                },
+              ),
+            );
+          }
+          unpublishedCount += 1;
+        }
+      }
+
       /*
        * **進んだ位置を保存してから成功を返す。** 保存を省くと、押した直後だけ
        * 進んだように見えて、開き直すと元の列に戻る。これは画面から見ると
        * 「操作が効いていない」のか「保存が壊れている」のかを区別できない。
        */
       const kept = await deps.variants.saveState(actor.workspaceId, loaded.value.id, moved.value);
-      if (!kept.ok) return kept;
+      if (!kept.ok) {
+        if (unpublishedCount === 0) return kept;
+        return err(
+          domainError(
+            "UPSTREAM_UNAVAILABLE",
+            "記事は読者ページから外れましたが、進行状態を「取り下げ済み」に保存できませんでした。",
+            {
+              retryable: true,
+              suggestedAction:
+                "画面を開き直して、読者ページと記事の進行状態を確認してください。",
+              details: kept.error.details,
+            },
+          ),
+        );
+      }
 
       /*
        * 段階の移動を記録する。承認ほど重くはないが、
@@ -725,7 +960,10 @@ export function createAdvanceContentStateUseCase(
         before: { state: input.from },
         after: { state: moved.value },
         reason: unpublishing ? (input.reason ?? null) : null,
-        doneAlready: `記事は「${CONTENT_STATE_LABEL[moved.value]}」へ進みました`,
+        doneAlready:
+          unpublishedCount > 0
+            ? `記事は読者ページから外れ、「${CONTENT_STATE_LABEL[moved.value]}」へ進みました`
+            : `記事は「${CONTENT_STATE_LABEL[moved.value]}」へ進みました`,
       });
       if (!logged.ok) return logged;
 

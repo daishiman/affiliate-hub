@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import type { TelemetryEventKey } from "@/domain/analytics";
 import { TELEMETRY_ATTR } from "../ui/telemetry-attrs";
 
 /**
@@ -102,7 +103,18 @@ export function TelemetryCollector({
     /** 節ごとの累計滞在時間 (ミリ秒) と、いま見え始めた時刻。 */
     const dwell = new Map<string, { kind: string; total: number; since: number | null }>();
 
-    const push = (k: string, payload: Record<string, unknown>): void => {
+    /*
+     * `k` は `string` ではなく**登録表の名前だけ**を受ける。
+     *
+     * P 節の前書き①は「送る側・貯める側・数える側の型を登録表から導く」と
+     * 書いているが、2026-08-21 まで送る側だけは `k: string` で、
+     * 打ち間違いを型が 1 つも止めていなかった。実測では
+     * `tests/ui/telemetry-collector.test.tsx` が 8 つの名前すべてで赤を出したので
+     * 穴は空いていなかったが、**支えていたのは型ではなく検査**だった。
+     * 型は「送る側の名前が表から来る」を書いた時点で守る。
+     * 検査は「その名前で実際に何が作られるか」を見る。役が違う。
+     */
+    const push = (k: TelemetryEventKey, payload: Record<string, unknown>): void => {
       queue.push({ key: k, occurredAt: new Date().toISOString(), payload });
       if (queue.length >= MAX_QUEUE) flush(false);
     };

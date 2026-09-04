@@ -18,7 +18,7 @@
 
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
-import { TIERS, checksForTiers } from "../quality-gates.config.mjs";
+import { TIERS, checksForTiers, orderViolations, staticChecks } from "../quality-gates.config.mjs";
 
 /**
  * 目標時間を超えたかどうかの判定。**超過は警告どまりで、検査を落とさない**（`REQ-CI12`）。
@@ -103,14 +103,40 @@ function main() {
     process.exit(1);
   }
 
-  const CHECKS = checksForTiers(tiers);
+  const staticOnly = argv.includes("--static");
+  const selected = checksForTiers(tiers);
+  const CHECKS = staticOnly ? staticChecks(selected) : selected;
   if (CHECKS.length === 0) {
     process.stderr.write(`段 ${tierArg} に属する検査がありません。\n`);
     process.exit(1);
   }
+  if (staticOnly) {
+    // **通ったことを「通った」と言わせない。**
+    // ここで「すべて通りました」とだけ出すと、覗き窓が門の代わりに使われる。
+    // 何を見ていないかを、見たものと同じ大きさで先に出す。
+    const skipped = selected.filter((c) => !CHECKS.includes(c)).map((c) => c.label);
+    process.stdout.write(
+      `単独で答えを出せる ${CHECKS.length} 件だけを走らせます（push する前の覗き窓）。\n` +
+        `**これは門ではありません。** 走らせないもの: ${skipped.join(" / ")}\n`,
+    );
+  }
   if (tiers) {
     const label = tiers.map((id) => TIERS.find((t) => t.id === id).label).join(" + ");
     process.stdout.write(`段 ${tiers.join(", ")}（${label}）の検査だけを走らせます。\n`);
+  }
+
+  // 「安いものから先に落とす」を、**1 本目を走らせる前に**確かめる。
+  //
+  // 同じ判定は `tests/architecture/quality-gates.test.ts` にもあるが、あれは
+  // `test` の中で走る。並びが壊れたことを 858 秒の門の中で知るのでは、
+  // **この仕組みが直そうとしている遅さを、この仕組み自身が持つ**ことになる。
+  // ここは 0 秒で答えが出るので、ここで先に言う。
+  const misordered = orderViolations(CHECKS);
+  if (misordered.length > 0) {
+    process.stderr.write("\n検査の並びが「安いものから先に落とす」を守っていません。\n");
+    for (const v of misordered) process.stderr.write(`  - ${v.message}\n`);
+    process.stderr.write("quality-gates.config.mjs の CHECKS を並べ替えてください。\n");
+    process.exit(1);
   }
 
   const started = Date.now();
@@ -178,7 +204,13 @@ function main() {
         "**閾値を下げて緑にすることは禁止です。**\n",
     );
   }
-  if (verdict.exitCode === 0) process.stdout.write("\nすべて通りました。\n");
+  if (verdict.exitCode === 0) {
+    process.stdout.write(
+      staticOnly
+        ? "\n覗き窓は通りました。**門はまだ通っていません**（`pnpm run verify` が本番です）。\n"
+        : "\nすべて通りました。\n",
+    );
+  }
   process.exit(verdict.exitCode);
 }
 

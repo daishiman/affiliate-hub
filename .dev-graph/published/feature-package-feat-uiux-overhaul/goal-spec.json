@@ -1,0 +1,130 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-20260821-feat-uiux-overhaul",
+  "session_owner": "d1903854-uiux",
+  "generated_at": "2026-08-21T12:45:00Z",
+  "feature_id": "feat-uiux-overhaul",
+  "graph_node_id": "feat-uiux-overhaul",
+  "artifact_kind": "feature",
+  "purpose": "管理画面を単一用途画面へ再編し、共通コンポーネント化と投稿状態の可視化によって、複数ブログ・複数SNSへの展開作業を迷いなく完了できるようにする",
+  "goal": "全画面が単一用途に分割され、管理対象に基本管理機能(一覧・新規作成・編集・削除)とそのAPIが揃い、カード間隔・文章量・サイドバーが最適化され、各サイト・SNSへの投稿状態が画面へ反映され、1商品から複数ブログへコンセプト別文章を作成でき、X/Facebook等の新SNSをプロバイダ追加のみで拡張できる構成になっている",
+  "scope_in": [
+    "単一用途画面への分割 (1画面1タスクの画面再編と遷移設計)",
+    "基本管理機能: ブログ・記事・商品・SNS投稿の一覧/新規作成/編集/削除と対応API",
+    "カード間隔・文章量の最適化 (密度・余白・要約量の規則化)",
+    "サイドバーの整理 (用途別グルーピング・現在地表示・各項目のアイコン表示・アイコンクリックでの開閉)",
+    "認知負荷の最小化 (タスク遂行に不要な情報・文章の非表示、直感的に操作だけで完了できる画面設計)",
+    "全画面の見直し (既存画面の単一用途化・状態表現の統一適用)",
+    "各サイト・SNSへの投稿部分の画面反映 (投稿状態の一覧・詳細表示とAPI)",
+    "マルチSNS構成 (X/Facebook等へ追加実装のみで拡張できるプロバイダ抽象)",
+    "1商品→複数ブログのコンセプト別文章作成UI",
+    "UI共通コンポーネント化 (重複ハードコーディングの排除・共有部品への集約)",
+    "ブログ別コンポーネント作成仕様 (新規ブログ構築時のブログ固有コンポーネント scaffold)"
+  ],
+  "scope_out": [
+    "認証・Workspace基盤 (feat-auth-workspace)",
+    "記事生成エンジン本体 (feat-ai-content-studio)",
+    "SNS実配信・外部API接続の実行系 (feat-distribution-hub)",
+    "文章品質規則そのもの (feat-writing-method)",
+    "読者向け公開面 (feat-reader-surface)"
+  ],
+  "acceptance": [
+    "各管理画面が単一用途で、1画面に複数の主要タスクが混在しない",
+    "管理対象 (ブログ・記事・商品・SNS投稿) 全てに一覧・新規作成・編集・削除の操作と対応APIが存在する",
+    "各サイト・SNSへの投稿状態が管理画面の一覧・詳細に反映される",
+    "新しいSNSの追加がプロバイダ実装の追加のみで完了し、既存画面の改修を要しない",
+    "1商品から複数ブログへコンセプト別の文章を作成する導線が動作する",
+    "同等UIの重複実装が0件で、共通部品は共有コンポーネント経由で使用される",
+    "新規ブログ構築時にブログ別コンポーネント一式が仕様どおり scaffold される",
+    "カード間隔・文章量・サイドバー構成が規則として文書化され全画面へ適用されている",
+    "サイドバーの全項目にアイコンが付き、アイコンクリックで折りたたみ/展開が切り替わり、折りたたみ時もアイコンで項目を識別できる",
+    "各画面の表示情報がタスク遂行に必要な項目のみに絞られ、不要な文章・説明が非表示になっている (認知負荷の低減)"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "docs/spec/13-システム仕様-章別規範契約.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-uiux-overhaul.context.json",
+      "source_plugin": "dev-graph",
+      "source_digest": "sha256:187911ad75fd98ac95e63403e29882c25a23af190e9120583c5eac569fc595f2",
+      "digest_note": "本 agent が `shasum -a 256 features/feat-uiux-overhaul.context.json` を実行して再計算し、指示された source_digest と一致を確認した",
+      "updated_at": "2026-08-21T12:40:00Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-uiux-overhaul.md",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluated_digest": "5cab94d5f73d9d3b77cac74a61874e1be9377ab15e3ac08849cc84b1f75ab61d",
+        "evaluator": "system-spec-harness/audits-C07-C06-C08-double-pass",
+        "evidence_ref": "eval-log/system-spec-harness/completeness-exception-20260821.md"
+      },
+      "note": "feat-uiux-overhaul.md フロントマターの confirmation_evidence.evaluated_digest は同ファイル自身の sha256 (c7e40e46b9c6b3e8048a13d27f4467ce2048c52b8d480580c0754e85e0ebd4ad) ではなく、source_lineage.source_path=system-spec/ui-ux.md の sha256 と一致する。フロントマター記載値をそのまま転記した (改変せず)"
+    },
+    "system_spec_sources": [
+      {
+        "source_path": "system-spec/index.md",
+        "role": "章一覧・収集状態インデックス。8/8 章が確定 (database/auth/ui-ux/security/infrastructure/backend/frontend/maintenance-ops)",
+        "verdict": "確定 (8/8 章)"
+      },
+      {
+        "source_path": "system-spec/00-requirements-definition.md",
+        "role": "上位概念 U1-U9 正本。goal/purpose の上位ゴール (G1/G2) トレース元",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/ui-ux.md",
+        "role": "scope_in の単一用途画面分割・カード間隔/文章量最適化・サイドバー整理・認知負荷最小化の技術投影。feature.md の source_lineage 正本",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "system-spec/frontend.md",
+        "role": "UI共通コンポーネント化・ブログ別コンポーネント scaffold の技術投影",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "system-spec/backend.md",
+        "role": "基本管理機能API・投稿状態反映・マルチSNSプロバイダ抽象の技術投影",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "architecture/system-spec-overview.md",
+        "role": "8章確定成果物の実装投影を単一 architecture context として参照",
+        "verdict": "generated (confirmed system-spec に接地)"
+      },
+      {
+        "source_path": "architecture/arch-two-layer-platform.md",
+        "role": "feat-uiux-overhaul.md フロントマター architecture_refs=[\"arch-two-layer-platform\"] の参照先。二層構造プラットフォームとの整合確認用",
+        "verdict": "確定"
+      }
+    ],
+    "completeness_evaluation": {
+      "source_path": "system-spec/completeness-report.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "evaluator_version": "0.1.0",
+      "verdict": "PASS",
+      "note": "system-spec 全体 (28 入力ファイル) を対象とした確定済み completeness-report.json を参照。feature 個別の evaluation_status は features/feat-uiux-overhaul.md フロントマター evaluation_status=\"pass\" (confirmation_evidence 参照) に基づく"
+    }
+  },
+  "not_performed": [
+    "feature 分割 (macro feature のさらなる分解)",
+    "workstream 分解",
+    "P01..P13 task 生成 (exact-13 task spec 設計)",
+    "task-graph / DAG 構築",
+    "system-build-handoff 生成",
+    "readiness promotion (staging → published)",
+    "atomic-promotion-receipt 発行",
+    "既存 staging 成果物 (feature-package.json / workstream-inventory.json / task-graph.json / system-build-handoff.json / staging-manifest.json / task-specs/) の変更・再生成",
+    "tracker (beads) への起票",
+    "dev-graph ノード再登録・graph revision 更新",
+    "GitHub Issue / PR への反映",
+    "実装コードの変更",
+    "quality gate (test/lint/build) の実行"
+  ]
+}

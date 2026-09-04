@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-blog-ui-builder",
+  "parent_feature": "feat-blog-ui-builder",
+  "nodes": [
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P01"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P02"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P03"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P04"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P05"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P06"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P05"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P08"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P09"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P07",
+        "SYS-BLOG-UI-BUILDER-P09"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P10",
+        "SYS-BLOG-UI-BUILDER-P11"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-UI-BUILDER-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-blog-ui-builder",
+      "parent_feature": "feat-blog-ui-builder",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P12"
+      ]
+    }
+  ]
+}

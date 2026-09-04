@@ -291,6 +291,7 @@ import {
 import type { PublicationCalendarDeps } from "@/application/usecases/distribution/publication-calendar";
 import type { PublicationState } from "@/domain/distribution";
 import { ok } from "@/domain/shared/result";
+import { markEditorial } from "@/domain/shared";
 import { aChannelConnection, aPublication } from "../support/factories";
 import { OTHER_WORKSPACE, aPublisher, aWriter } from "../support/actors";
 import { failing, recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
@@ -322,9 +323,11 @@ function withPublications(rows: readonly ReturnType<typeof aPublication>[]) {
   return {
     ...base.publications,
     listRecent: async () => ok(rows),
+    listForCalendar: async () => ok(rows),
     findById: async (_ws: unknown, id: unknown) =>
       ok(rows.find((r) => String(r.id) === String(id)) ?? null),
     save: async (p: unknown) => ok(p),
+    compareAndSwap: async (_before: unknown, next: unknown) => ok(next),
   } as PublicationCalendarDeps["publications"];
 }
 
@@ -341,6 +344,209 @@ async function viewOf(deps: Partial<PublicationCalendarDeps>, actor = publisherA
   if (!result.ok) throw new Error(result.error.message);
   return result.value;
 }
+
+function brandOwnership(
+  brandByVariant: Readonly<Record<string, string | null>>,
+): Partial<PublicationCalendarDeps> {
+  const base = testDeps();
+  return {
+    contentVariants: markEditorial({
+      ...base.contentVariants,
+      findById: async (
+        _workspaceId: Parameters<PublicationCalendarDeps["contentVariants"]["findById"]>[0],
+        variantId: Parameters<PublicationCalendarDeps["contentVariants"]["findById"]>[1],
+      ) =>
+        ok(
+          Object.hasOwn(brandByVariant, String(variantId))
+            ? ({
+                workspaceId: publisherActor.workspaceId,
+                contentPackageId: `pkg-${String(variantId)}`,
+                status: "approved",
+                title: String(variantId),
+              } as never)
+            : null,
+        ),
+    }),
+    contentPackages: markEditorial({
+      ...base.contentPackages,
+      findById: async (
+        _workspaceId: Parameters<PublicationCalendarDeps["contentPackages"]["findById"]>[0],
+        packageId: Parameters<PublicationCalendarDeps["contentPackages"]["findById"]>[1],
+      ) => {
+        const brandId = brandByVariant[String(packageId).replace(/^pkg-/, "")];
+        return ok(
+          brandId == null
+            ? null
+            : ({ workspaceId: publisherActor.workspaceId, brandId, campaignId: null } as never),
+        );
+      },
+    }),
+  };
+}
+
+describe("ブランド限定担当者の投稿カレンダー境界", () => {
+  const limited = aPublisher({ scopedBrandIds: ["brand-allowed" as never] });
+
+  it("カレンダーは担当ブランドの配信だけを載せる", async () => {
+    const allowed = aPublication({
+      id: "pub-allowed" as never,
+      variantId: "cv-allowed" as never,
+      scheduledAt: new Date("2026-08-20T01:00:00Z"),
+    });
+    const outside = aPublication({
+      id: "pub-outside" as never,
+      variantId: "cv-outside" as never,
+      scheduledAt: new Date("2026-08-20T02:00:00Z"),
+    });
+    const view = await viewOf(
+      {
+        publications: withPublications([allowed, outside]),
+        ...brandOwnership({
+          "cv-allowed": "brand-allowed",
+          "cv-outside": "brand-outside",
+        }),
+      },
+      limited,
+    );
+
+    expect(view.days.flatMap((day) => day.entries).map((entry) => entry.publicationId)).toEqual([
+      "pub-allowed",
+    ]);
+  });
+
+  it("先頭200件が担当外でも、DB側brand-scope後の担当配信をカレンダーへ載せる", async () => {
+    const outside = Array.from({ length: 200 }, (_unused, index) =>
+      aPublication({
+        id: `pub-outside-${index}` as never,
+        variantId: `cv-outside-${index}` as never,
+        scheduledAt: new Date("2026-08-20T01:00:00Z"),
+      }),
+    );
+    const allowed = aPublication({
+      id: "pub-allowed-after-limit" as never,
+      variantId: "cv-allowed-after-limit" as never,
+      scheduledAt: new Date("2026-08-20T02:00:00Z"),
+    });
+    const rows = [...outside, allowed];
+    const brandByVariant = Object.fromEntries([
+      ...outside.map((publication) => [String(publication.variantId), "brand-outside"]),
+      [String(allowed.variantId), "brand-allowed"],
+    ]);
+    const publications = {
+      ...withPublications(rows),
+      listForCalendar: async (
+        _workspaceId: unknown,
+        _fromInclusive: Date,
+        _toExclusive: Date,
+        scope?: unknown,
+      ) => {
+        const scoped = Array.isArray(
+          (scope as { readonly brandIds?: readonly unknown[] } | undefined)?.brandIds,
+        );
+        return ok(scoped ? [allowed] : rows);
+      },
+    } as PublicationCalendarDeps["publications"];
+    const view = await viewOf(
+      {
+        publications,
+        ...brandOwnership(brandByVariant),
+      },
+      limited,
+    );
+
+    expect(view.days.flatMap((day) => day.entries).map((entry) => entry.publicationId)).toEqual([
+      "pub-allowed-after-limit",
+    ]);
+  });
+
+  it("限定担当者のカレンダーはworkspace共通接続を読まず、アカウント名も開示しない", async () => {
+    const connection = aChannelConnection({
+      id: "conn-brandless" as never,
+      accountLabel: "@workspace-secret-account",
+    });
+    const allowed = aPublication({
+      id: "pub-allowed" as never,
+      variantId: "cv-allowed" as never,
+      channelKind: "x",
+      connectionId: connection.id,
+      scheduledAt: new Date("2026-08-20T01:00:00Z"),
+    });
+    let connectionReads = 0;
+    const view = await viewOf(
+      {
+        publications: withPublications([allowed]),
+        connections: {
+          ...testDeps().channelConnections,
+          listByWorkspace: async () => {
+            connectionReads += 1;
+            return ok({ items: [connection], nextCursor: null });
+          },
+        } as PublicationCalendarDeps["connections"],
+        ...brandOwnership({ "cv-allowed": "brand-allowed" }),
+      },
+      limited,
+    );
+
+    const entry = view.days.flatMap((day) => day.entries)[0];
+    expect(connectionReads).toBe(0);
+    expect(entry.accountLabel).not.toContain("@workspace-secret-account");
+    expect(entry.accountLabel).toContain("表示されません");
+  });
+
+  it("同じ担当ブランドの月内配信が201件を超えても固定上限で欠落させない", async () => {
+    const rows = Array.from({ length: 201 }, (_unused, index) =>
+      aPublication({
+        id: `pub-allowed-${index}` as never,
+        variantId: `cv-allowed-${index}` as never,
+        scheduledAt: new Date("2026-08-20T01:00:00Z"),
+      }),
+    );
+    const brandByVariant = Object.fromEntries(
+      rows.map((publication) => [String(publication.variantId), "brand-allowed"]),
+    );
+    const publications = {
+      ...withPublications(rows),
+      listRecent: async (_workspaceId: unknown, limit: number) => ok(rows.slice(0, limit)),
+      listForCalendar: async () => ok(rows),
+    } as PublicationCalendarDeps["publications"];
+    const view = await viewOf(
+      {
+        publications,
+        ...brandOwnership(brandByVariant),
+      },
+      limited,
+    );
+
+    expect(view.totalEntries).toBe(201);
+    expect(view.days.flatMap((day) => day.entries)).toHaveLength(201);
+  });
+
+  it("担当外ブランドの配信は予定変更せず、存在も推測させない", async () => {
+    const outside = aPublication({
+      id: "pub-outside" as never,
+      variantId: "cv-outside" as never,
+      state: "QUEUED",
+    });
+    const saved: unknown[] = [];
+    const publications = {
+      ...withPublications([outside]),
+      save: async (publication: unknown) => {
+        saved.push(publication);
+        return ok(publication as never);
+      },
+    } as PublicationCalendarDeps["publications"];
+    const got = await createReschedulePublicationUseCase(
+      calendarDeps({
+        publications,
+        ...brandOwnership({ "cv-outside": "brand-outside" }),
+      }),
+    ).execute(limited, { publicationId: "pub-outside", scheduledAt: FUTURE });
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.message).not.toContain("brand-outside");
+    expect(saved).toHaveLength(0);
+  });
+});
 
 describe("状態ごとに、予定日を変えられるか", () => {
   const scheduled = new Date("2026-08-20T01:00:00Z");
@@ -402,7 +608,7 @@ describe("予定日を変えたあとの状態", () => {
     const deps = calendarDeps({
       publications: {
         ...withPublications([p]),
-        save: async (row: unknown) => {
+        compareAndSwap: async (_before: unknown, row: unknown) => {
           saved.push(row);
           return ok(row);
         },
@@ -416,6 +622,11 @@ describe("予定日を変えたあとの状態", () => {
     const stored = saved[0] as { state: PublicationState; scheduledAt: Date };
     expect(stored.state).toBe(c.to);
     expect(stored.scheduledAt.getUTCFullYear()).toBe(2099);
+    if (c.to === "RETRY_SCHEDULED") {
+      expect((stored as unknown as { retryAt: Date }).retryAt.getTime()).toBe(
+        stored.scheduledAt.getTime(),
+      );
+    }
   });
 
   it("日時を空にすると、予定を外して「承認され次第すぐ」に戻る", async () => {
@@ -425,7 +636,7 @@ describe("予定日を変えたあとの状態", () => {
       calendarDeps({
         publications: {
           ...withPublications([p]),
-          save: async (row: unknown) => {
+          compareAndSwap: async (_before: unknown, row: unknown) => {
             saved.push(row);
             return ok(row);
           },
@@ -463,11 +674,28 @@ describe("予定日を変えたあとの状態", () => {
       calendarDeps({
         publications: {
           ...withPublications([p]),
-          save: async () => failing("保存先につながりません。"),
+          compareAndSwap: async () => failing("保存先につながりません。"),
         } as PublicationCalendarDeps["publications"],
       }),
     ).execute(publisherActor, { publicationId: String(p.id), scheduledAt: FUTURE });
     expect(result.ok).toBe(false);
+  });
+
+  it("別処理が先にclaimした版へ予定日を上書きしない", async () => {
+    const p = aPublication({ state: "QUEUED", scheduledAt: new Date("2026-08-20T01:00:00Z") });
+    const result = await createReschedulePublicationUseCase(
+      calendarDeps({
+        publications: {
+          ...withPublications([p]),
+          compareAndSwap: async () => ok(null),
+        } as PublicationCalendarDeps["publications"],
+      }),
+    ).execute(publisherActor, { publicationId: String(p.id), scheduledAt: FUTURE });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("CONFLICT");
+    expect(result.error.suggestedAction).toContain("読み直");
   });
 
   it("配信の読み取りに失敗したら、見つからないことにしない", async () => {
@@ -622,7 +850,7 @@ describe("1 件に載る情報（つなぎ目を差し替えて）", () => {
       calendarDeps({
         publications: {
           ...testDeps().publications,
-          listRecent: async () => failing("配信を読めません。"),
+          listForCalendar: async () => failing("配信を読めません。"),
         } as PublicationCalendarDeps["publications"],
       }),
     ).execute(publisherActor, { month: "2026-08", at: AT });

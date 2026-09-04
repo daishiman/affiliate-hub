@@ -1,0 +1,25 @@
+{
+  "verb": "decompose",
+  "status": "PASS",
+  "feature_id": "feat-reference-blog-admin-ux",
+  "macro_nodes_added": ["feat-reference-blog-admin-ux"],
+  "architecture_nodes_added": [],
+  "depends_on": [
+    "feat-blog-ops-crud",
+    "feat-blog-ui-builder",
+    "feat-affiliate-inbox"
+  ],
+  "phase_task_nodes_added": 0,
+  "dag_acyclic": true,
+  "graph_schema_valid": true,
+  "confirmation_status": "confirmed",
+  "evaluation_status": "pass",
+  "implementation_readiness": "complete",
+  "feature_path": "features/feat-reference-blog-admin-ux.md",
+  "feature_context_path": "features/feat-reference-blog-admin-ux.context.json",
+  "ordered_handoff": {
+    "planner_deferred_to_next_explicit_verb": true,
+    "next_verb": "plan",
+    "reason": "user-required canonical verb order keeps exact-13 generation and registration inside /dev-graph plan"
+  }
+}

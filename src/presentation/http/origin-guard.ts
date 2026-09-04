@@ -1,3 +1,5 @@
+import { requestOriginFromWebRequest } from "@/presentation/composition";
+
 /**
  * 自分のオリジンの機能だけを公開する（ブログ層 §14.6、統合仕様 §3「オリジン制約」）。
  *
@@ -45,10 +47,8 @@ export function checkOrigin(
   // ブラウザ以外からの呼び出し。鍵で守られている経路なので、ここでは判定しない。
   if (origin === null || origin === "" || origin === "null") return { ok: true };
 
-  let selfOrigin: string;
-  try {
-    selfOrigin = new URL(request.url).origin;
-  } catch {
+  const selfOrigin = requestOriginFromWebRequest(request);
+  if (selfOrigin === null) {
     return { ok: false, reason: "呼び出し先の URL を読み取れませんでした。", origin };
   }
 

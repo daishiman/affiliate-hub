@@ -1,7 +1,14 @@
 /**
  * @tier 1
- * @req REQ-QC02, REQ-QC03, REQ-QC06, REQ-QC07, REQ-W12
- * @types decision-table, equivalence
+ * @req REQ-QC02, REQ-QC03, REQ-QC05, REQ-QC06, REQ-QC07, REQ-W08, REQ-W12
+ * @types boundary, decision-table, equivalence
+ *
+ * `boundary` の根拠は末尾の 2 つである。
+ * 「文体の決まりに書いた数が、実際に効いている」は、表が名乗る「1〜3 文」の
+ * 3 と 4 の境目そのものを当てどころにしている。
+ * 「価格の鮮度の上限が、実際に効いている」は 72 時間ちょうどと 73 時間の境目を当てる。
+ * **どちらも期待値を要件の側から手で書き写している**（実装の定数から組み立てると、
+ * 値を変えても入力が同じ側に居続けて永久に赤くならない）。
  *
  * 一覧で決めている検査を、一覧の全行に当てる。
  *
@@ -32,12 +39,14 @@ import {
 import {
   EXAGGERATION_PATTERNS,
   MEASURE_WORDS,
+  PRICE_STALE_HOURS,
   RELATIVE_DATE_PATTERNS,
   VAGUE_HEADING_PATTERNS,
   runQualityChecks,
   type ChannelConstraints,
 } from "@/domain/authoring/quality-check";
 import { createContentVariant } from "@/domain/authoring/content-variant";
+import { STYLE_RULES } from "@/domain/authoring/writing-style";
 import { taggedString } from "@/domain/shared";
 
 const WS = taggedString<"WorkspaceId">("ws_table");
@@ -69,8 +78,13 @@ function persona() {
   return r.value;
 }
 
-/** 本文だけを差し替えて品質検査に掛ける。根拠は付けておき、見たい検査だけを残す。 */
-function checksFor(body: string) {
+/**
+ * 本文だけを差し替えて品質検査に掛ける。根拠は付けておき、見たい検査だけを残す。
+ *
+ * `price` は価格の鮮度（QC-09）を当てるときだけ渡す。既定は「確認の記録が無い」で、
+ * 本文に価格を書かない限りこの検査は `skipped` に落ちるため他の表の邪魔をしない。
+ */
+function checksFor(body: string, price?: { checkedAt: Date; now: Date }) {
   const created = createContentVariant({
     id: taggedString<"ContentVariantId">("cv_1"),
     workspaceId: WS,
@@ -101,8 +115,8 @@ function checksFor(body: string) {
     hasVerifiedTestRun: true,
     knownFeatureNames: [],
     existingBodies: [],
-    priceCheckedAt: null,
-    now: new Date("2026-08-18T00:00:00Z"),
+    priceCheckedAt: price?.checkedAt ?? null,
+    now: price?.now ?? new Date("2026-08-18T00:00:00Z"),
   });
   return report.issues;
 }
@@ -310,5 +324,115 @@ describe("一人称の体験の言い回しの一覧（QC-11）", () => {
         `${body} が検証記録つきでも止まっています`,
       ).toEqual([]);
     }
+  });
+});
+
+/**
+ * 文体の決まりが名乗る数を、実検査へ当てる (REQ-W08 の端)。
+ *
+ * ── なぜこれが要るのか ────────────────────────────────
+ *
+ * `writing-style-tables.test.ts` には、表と実装を結び直す行が既にある。
+ *
+ *     expect(rule?.rule).toContain(`1〜${MAX_SENTENCES_PER_PARAGRAPH} 文`);
+ *
+ * これは「表の文言」と「実装の定数」が離れたときに落ちる。**離れなければ落ちない。**
+ * 両方そろえて 5 へ書き換えれば緑のままだし、`paragraph_shape` の検査そのものを
+ * 消しても緑である——文字列と定数を見ているだけで、**効いているかを見ていない**。
+ *
+ * `invariants.test.ts` の「1 段落は 3 文まで通し、4 文で知らせる」は効き目を見ているが、
+ * あれが名乗っているのは `REQ-QC02`（実検査の側）で、決まりの表とは繋がっていない。
+ *
+ * ここは 2 つを繋ぐ。**期待値を表から読む。**定数からでも手書きでもない。
+ * 表が「1〜5 文」と名乗り直したのに検査が 3 のままなら、ここが赤くなる。
+ * 逆に検査を消せば、上限側の主張（4 文で止まる）が赤くなる。
+ */
+describe("文体の決まりに書いた数が、実際に効いている（REQ-W08）", () => {
+  /** 表の文言から上限を読む。実装の定数は輸入しない（同じものを 2 度見ることになる）。 */
+  const declaredMax = (() => {
+    const rule = STYLE_RULES.find((r) => r.id === "1to3_sentences")?.rule ?? "";
+    const m = rule.match(/1〜(\d+) 文/);
+    return m ? Number(m[1]) : null;
+  })();
+
+  it("床: 表から上限を読めている（読めていないと下の 2 件は空振りする）", () => {
+    expect(declaredMax, `1to3_sentences の文言から数を読めない: ${declaredMax}`).toBeGreaterThan(0);
+  });
+
+  it("表が名乗る文数ちょうどの段落は通る", () => {
+    const n = declaredMax as number;
+    // 「デメリット」の 1 文は別の検査（長所だけの記事）を黙らせるために要る。
+    // それを含めてちょうど n 文にする。
+    const body = [...Array(n - 1).fill("軽いです。"), "デメリットは重さです。"].join("");
+    expect(checksFor(body).map((i) => i.check)).not.toContain("paragraph_shape");
+  });
+
+  it("表が名乗る文数より 1 つ多い段落は止まる", () => {
+    const n = declaredMax as number;
+    const body = [...Array(n).fill("軽いです。"), "デメリットは重さです。"].join("");
+    const hit = checksFor(body).find((i) => i.check === "paragraph_shape");
+    expect(hit, `${n + 1} 文の段落が止まっていない`).toBeDefined();
+    // 知らせ文が上限を名乗っていること。数だけ合っていて文言が別の値を言うと、
+    // 画面に出る指示（「何文までにせよ」）が嘘になる。
+    expect(hit?.message).toContain(`${n} 文まで`);
+  });
+});
+
+/**
+ * 価格の鮮度の上限が、実際に効いている（QC-09 / REQ-QC05）。
+ *
+ * ここを足した理由。**`PRICE_STALE_HOURS` を 72 から 9999 に変えても
+ * 7984 件すべて緑だった**（実測、2026-08-28）。
+ * 「価格の確認記録が無い」枝は見られていた（消すと 1 件赤）が、
+ * **72 時間という上限そのものは誰も見ていなかった。**
+ * 上限を実質無効化しても止まらない＝要件が名乗る数が飾りになっていた。
+ *
+ * **期待値を定数から組み立てない。**`PRICE_STALE_HOURS + 1` で入力を作ると、
+ * 定数をいくつに変えても入力が同じ側に居続けるので、永久に赤くならない。
+ * 要件（§20.3「価格の鮮度は 72 時間」）の数を**手で書き写す**。
+ * 実装が動いた日に、まずこの写した数との照合が落ちる。
+ */
+describe("価格の鮮度の上限が、実際に効いている（QC-09）", () => {
+  /** 要件 §20.3 が名乗る数。実装から輸入しない（同じものを 2 度見ることになる）。 */
+  const DECLARED_STALE_HOURS = 72;
+
+  const PRICE_BODY = "この構成は 128000 円です。デメリットは重さです。";
+  const NOW = new Date("2026-08-18T00:00:00Z");
+
+  /** `now` から `hours` だけ前に確認したことにする。 */
+  const checkedHoursAgo = (hours: number) =>
+    checksFor(PRICE_BODY, { checkedAt: new Date(NOW.getTime() - hours * 3_600_000), now: NOW });
+
+  it("床: 実装の上限が、要件に書いた数と一致している", () => {
+    expect(PRICE_STALE_HOURS, "実装と要件で価格の鮮度の上限が食い違っている").toBe(
+      DECLARED_STALE_HOURS,
+    );
+  });
+
+  it("床: 価格を書いた本文で、この検査が skipped に落ちていない", () => {
+    // 本文に「円」が無いと検査ごと飛ぶ。飛んでいると下の 2 件は何も測らない。
+    const issues = checkedHoursAgo(0);
+    expect(issues.some((i) => i.check === "unsourced_number")).toBe(false);
+  });
+
+  it("上限ちょうどに確認した価格は止めない", () => {
+    const checks = checkedHoursAgo(DECLARED_STALE_HOURS).map((i) => i.check);
+    expect(checks, `${DECLARED_STALE_HOURS} 時間ちょうどで止めている`).not.toContain("stale_price");
+  });
+
+  it("上限を超えて確認した価格は止まる", () => {
+    // 1 時間だけ超える。ここと上の 1 件が対になっていないと、
+    // 不等号を `>=` に変えても `>` に戻しても、どちらか片方は緑のまま通る。
+    const hit = checkedHoursAgo(DECLARED_STALE_HOURS + 1).find((i) => i.check === "stale_price");
+    expect(hit, `${DECLARED_STALE_HOURS + 1} 時間前の価格が止まっていない`).toBeDefined();
+    // 止め方は警告。error にすると記事が書けなくなる（取り直せば済む話である）。
+    expect(hit?.severity).toBe("warning");
+  });
+
+  it("止めるときは、何日経ったかを知らせ文が名乗る", () => {
+    // 画面に出るのはこの文だけである。日数が出ないと、書き手は
+    // 「取り直すか、確認日を併記するか」を決められない。
+    const hit = checkedHoursAgo(24 * 10).find((i) => i.check === "stale_price");
+    expect(hit?.message).toContain("10 日");
   });
 });

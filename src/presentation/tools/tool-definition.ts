@@ -23,9 +23,28 @@ export type ToolDefinition<Input, Output> = {
   /** 入力の形 (JSON Schema 相当)。3 つの入口で同じものを配る。 */
   readonly inputSchema: Readonly<Record<string, unknown>>;
   /**
-   * 読み取り専用か。
-   * WebMCP に載せてよいのは原則これが true のものだけ
-   * (ページ内の AI に状態を変えさせない)。
+   * 読み取り専用か。**これは「外への申告」であって、載せ先の決定ではない。**
+   *
+   * この値を 1 つ変えると、変わるのは次の 2 つだけである。
+   *
+   *   1. MCP の `readOnlyHint`（`mcp-adapter.ts`）。呼ぶ側への申告
+   *   2. 自サイトの画面からの実行可否（`http/tool-scope.ts`。
+   *      ログインしていない可能性がある呼び出しには読み取りだけを許す）
+   *
+   * **変わらないもの**（かつて黙って変わっていたもの）:
+   *
+   *   - **WebMCP に載るかどうか** … `webmcp-policy.ts` の `PAGE_TOOLS` が決める。
+   *     表に名前が無ければ載らない。ここを true にしても載らない
+   *   - **検査の対象に入るかどうか** … `tests/presentation/tool-inputs.ts` に
+   *     入力の見本があるかで決まる。ここを false にしても検査から外れない
+   *
+   * この 3 つは以前この 1 語が兼ねており、①のつもりで書いた `true` が③に効いて
+   * `export_manual_draft` が記事の本文をページ内の AI へ渡していた。逆に `false` へ
+   * 直すと②から外れ、テナント分離の検査対象から静かに消えた。分けたのはそのため。
+   *
+   * **この値が事実と合っているかは、旗を読む検査では分からない。**
+   * `tests/presentation/readonly-honesty.test.ts` が、`true` を名乗る道具を
+   * 実際に動かして記録の口へ手が伸びないことを測っている。
    */
   readonly readOnly: boolean;
   /**
@@ -44,6 +63,9 @@ export type ToolDefinition<Input, Output> = {
  *
  * 権限の最終判定はユースケース側で行う。ここでは
  * 「AI に人の承認が要る操作をさせない」という入口の門だけを見る。
+ * この入口拒否はユースケースを実行していないため、use case 拒否の監査へは記録しない。
+ * scope / 承認ゲートの監査が必要なら入口側で別の出来事として扱い、
+ * `withAccessDenialAudit` と同じ行へ二重計上しない。
  */
 export async function invokeTool<I, O>(
   tool: ToolDefinition<I, O>,

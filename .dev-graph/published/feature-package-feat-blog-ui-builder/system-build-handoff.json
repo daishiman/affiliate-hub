@@ -1,0 +1,226 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-BLOG-UI-BUILDER-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-BLOG-UI-BUILDER-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-BLOG-UI-BUILDER-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-BLOG-UI-BUILDER-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-BLOG-UI-BUILDER-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-BLOG-UI-BUILDER-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-BLOG-UI-BUILDER-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P05"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-BLOG-UI-BUILDER-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-BLOG-UI-BUILDER-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-BLOG-UI-BUILDER-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P07",
+        "SYS-BLOG-UI-BUILDER-P09"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-BLOG-UI-BUILDER-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P10",
+        "SYS-BLOG-UI-BUILDER-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-BLOG-UI-BUILDER-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-UI-BUILDER-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-BLOG-UI-BUILDER-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-blog-ui-builder",
+    "feature_package_id": "feature-package/feat-blog-ui-builder",
+    "parent_feature": "feat-blog-ui-builder",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:50ca9e4ec8030e85d53fa988ddfc0270f9a526a4fff2f11991e61d3ea51a58f4"
+  },
+  "kind": "system-build-handoff",
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "0f537cd7f8fd28c63eeb4ed6be64e1a7151eabc376c87e33b97089a3f7d82ed8"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "e01d5a88f2f47e23127e187f3c9c4463cb04f916f26251771877422fdad1571d"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "f014687d2810208a59662b5570df78dfa293206728c56d53bee957ef46b40ea6"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "6d5be1cfea28d0cde9ac271d8c2e292ca6e286d8ce6f04f46584ff89919741d6"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "315235f662531ac1229d1416aa0a0a4ebd55f03327295e9315b68e823997935f"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "8c2fae831acecb910a99d5ed0f748606fe3859935bde5bf094971cf9d02aa9a1"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "b5d16cbb5767dca1f30cdd6699751fcd3ab0d69df61256ffe9b26ca48c13a1f0"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "485d0a2373e02c89fd13ed8c218049650eeb1a7cc26df5ec6cb0a3cff5ee94f6"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "48a0410c9d6338a47e636d16508aa7fdc57a63ecea079c745457719f755b4f51"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "2c350d2f70b415551cfc8da14bb97cf38529291420cc405890ab7218ef1b83b7"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "cc6f7ef8a1f4b8d1ace6de1d4a412cf5a813a8f8c8c1d66aa5554ed1fe1857d2"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "93c765e0c7fc5949930297a3ab513870c2442725053081ed7508e7913fc2dba1"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "5684026c942c28ff32789c6bea86aee7652d52b4674b657a566d84b1265e909f"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "2ee2ad922483e2eba82547537ab227dd1c89e53495b43606a7308c94b40347a7"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "e7280ce4b1c0855e20a06d7b64cd1ffa86f3f169821cb8f953fc2633a742b043"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "b482cb744fc96f85f2a38a0857f2a3412ebfae4364330c8ece4fa8b7dcccb545"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:b3a94834d40494fd5779b9270fe00e951cce98552ab2d84ca44f466074d0173d",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "6371576adecdba20a4cab2d3daff070f67ead474f90d84463f3db79e64091429"
+  }
+}

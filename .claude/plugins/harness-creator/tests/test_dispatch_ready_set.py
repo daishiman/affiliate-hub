@@ -147,6 +147,58 @@ def test_main_integration_real_compute_ready_set(tmp_path, capsys):
     assert out["source"] == "compute-ready-set.py"
 
 
+def test_main_integration_projects_node_dependency_ssot(tmp_path, capsys):
+    """forward edge を検証後、node正本を ready-set 向きへ投影する。"""
+    graph = {
+        "schema_version": "1.0",
+        "nodes": [
+            {"id": "T1", "state": "pending", "write_scope": "a/T1", "depends_on": []},
+            {"id": "T2", "state": "pending", "write_scope": "a/T2", "depends_on": ["T1"]},
+            {"id": "T3", "state": "pending", "write_scope": "a/T3", "depends_on": ["T1", "T2"]},
+        ],
+        "edges": [
+            {"type": "depends_on", "from": "T1", "to": "T2"},
+            {"type": "depends_on", "from": "T1", "to": "T3"},
+            {"type": "depends_on", "from": "T2", "to": "T3"},
+        ],
+    }
+    gp = _write(tmp_path / "task-graph.json", graph)
+    sp = _write(tmp_path / "task-state.json", _task_state(T1="done"))
+
+    assert disp.main(["--task-graph", gp, "--task-state", sp]) == 0
+    assert json.loads(capsys.readouterr().out)["ready_batch"] == ["T2"]
+
+
+def test_main_rejects_unknown_and_cyclic_node_dependencies(tmp_path, capsys, monkeypatch):
+    def _must_not_run(planner_root, plan_dir, repo_root):
+        raise AssertionError("invalid node dependency graph must fail before compute-ready-set")
+
+    monkeypatch.setattr(disp, "invoke_ready_set", _must_not_run)
+    invalid_graphs = [
+        {
+            "nodes": [
+                {"id": "T1", "state": "pending", "write_scope": "a/T1", "depends_on": []},
+                {"id": "T2", "state": "pending", "write_scope": "a/T2", "depends_on": ["UNKNOWN"]},
+            ],
+            "edges": [],
+        },
+        {
+            "nodes": [
+                {"id": "T1", "state": "pending", "write_scope": "a/T1", "depends_on": ["T2"]},
+                {"id": "T2", "state": "pending", "write_scope": "a/T2", "depends_on": ["T1"]},
+            ],
+            "edges": [],
+        },
+    ]
+    for index, graph in enumerate(invalid_graphs):
+        case_dir = tmp_path / str(index)
+        case_dir.mkdir()
+        gp = _write(case_dir / "task-graph.json", graph)
+        sp = _write(case_dir / "task-state.json", _task_state())
+        assert disp.main(["--task-graph", gp, "--task-state", sp]) == 1
+    assert "task dependency" in capsys.readouterr().err
+
+
 # ─────────────────────── main(): --repo-root 伝搬 (M-02) ───────────────────────
 def test_main_integration_repo_root_resolves_relative_artifact(tmp_path, capsys):
     """--repo-root が実 compute-ready-set へ伝搬し、相対 write_scope の consumes 成果物が

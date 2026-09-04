@@ -1,0 +1,11 @@
+display-capture pixel probe
+date: 2026-08-30 JST
+environment: Playwright Chromium 1234 / headless / localhost secure context
+launch arguments:
+  --use-fake-ui-for-media-stream
+  --auto-select-desktop-capture-source=CaptureProbe
+  --allow-http-screen-capture
+operation: navigator.mediaDevices.getDisplayMedia({video:true,audio:false})
+result: NotReadableError: Could not start video source
+exit: probe process 0（API失敗をJSONへ記録したため）
+interpretation: OS screen recording境界で実capture sourceを開始できず、出力画素を取得していない。A1のPASS証跡には使わない。

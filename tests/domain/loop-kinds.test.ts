@@ -8,6 +8,8 @@ import { describe, expect, it } from "vitest";
 import {
   LOOP_DECISION_BASES,
   LOOP_KINDS,
+  LOOP_POLARITIES,
+  LOOP_POLARITY_LABELS,
   UNIVERSAL_GUARDRAILS,
   createLoopRun,
   findLoopKind,
@@ -28,6 +30,33 @@ import { asExperimentId, asWorkspaceId } from "@/domain/shared";
  */
 
 const PRODUCT_IMPROVEMENT = "product_improvement";
+
+/**
+ * ループの向き 5 種。
+ *
+ * ここを足した理由。**この一覧から 1 項目抜いても、5 項目のどれを抜いても
+ * 8007 件すべて緑だった**（実測、2026-08-28）。向きは登録表の 8 項目のうちの
+ * 1 つ（`polarity`）で、`LoopPolarity` 型の材料でもある。**一覧が縮むと型も縮む**ので、
+ * 「悪化に気づく」向きが消えれば、そのループは登録できなくなるだけで赤くならない。
+ * 「どの種類も同じ 8 項目で書く。書けないものはループにしない」という決めごとは、
+ * 選べる向きがそろっていることの上に載っている。
+ *
+ * **期待値を実装から組み立てない。**向きと説明を手で書き写して並べる。
+ */
+describe("ループの向きの品ぞろえ", () => {
+  it("向きは 5 種で、説明も同じ並びでそろっている", () => {
+    const expected = [
+      ["negative", "ずれを打ち消す"],
+      ["positive", "伸びているものを伸ばす"],
+      ["exploratory", "分からないものを試す"],
+      ["watch", "悪化に気づく"],
+      ["cost", "同じ結果を安く出す"],
+    ];
+    expect([...LOOP_POLARITIES]).toEqual(expected.map(([key]) => key));
+    // 説明が欠けると、登録表を読む人が向きの意味を推し量ることになる。
+    expect(Object.entries(LOOP_POLARITY_LABELS)).toEqual(expected);
+  });
+});
 
 describe("改善要望ループ（ループの 2 件目）", () => {
   it("登録表に入っている", () => {

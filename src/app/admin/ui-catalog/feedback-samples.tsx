@@ -39,6 +39,7 @@ export function FeedbackSamples() {
         screenName="部品の見本帳"
         route="/admin/ui-catalog"
         canSubmit
+        placement="inline"
         onSubmit={async (submission) => ({
           message: `見本のため記録していません（受け取った種類: ${submission.kind}）`,
         })}

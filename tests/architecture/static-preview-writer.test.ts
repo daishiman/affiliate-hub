@@ -8,7 +8,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -27,11 +27,17 @@ import {
   STATIC_NOTE,
   buildDocument,
   findModuleCss,
+  writeStaticPreview,
 } from "../../scripts/lib/static-preview.mjs";
 
 const ROOT = process.cwd();
 const PREVIEW_DIR = join(ROOT, "docs/product/preview");
 const INDEX_FILE = join(PREVIEW_DIR, "index.html");
+const RUNNER = "scripts/lib/static-preview.mjs";
+const WRITERS = readdirSync(join(ROOT, "scripts"))
+  .filter((name) => name.startsWith("write-") && name.endsWith("-preview.tsx"))
+  .sort()
+  .map((name) => `scripts/${name}`);
 
 /** そろっている入力。ここから 1 つずつ欠けさせて「止まる例」を作る。 */
 const COMPLETE = {
@@ -103,6 +109,51 @@ describe("静止した写しの組み立て", () => {
       expect(readFileSync(join(ROOT, path), "utf8").trim()).not.toBe("");
     }
   });
+
+  it("docs の外へは書き出さない", async () => {
+    for (const out of ["public/preview.html", "src/preview.html", "docs/../public/preview.html"]) {
+      await expect(
+        writeStaticPreview({
+          out,
+          bodyHtml: COMPLETE.bodyHtml,
+          htmlAttributes: COMPLETE.htmlAttributes,
+          generatedAt: COMPLETE.generatedAt,
+        }),
+      ).rejects.toThrow("docs/");
+    }
+  });
+
+  it("すべての writer が共通 runner を通り、出力先を重複させない", () => {
+    expect(WRITERS).toEqual(
+      expect.arrayContaining([
+        "scripts/write-static-preview.tsx",
+        "scripts/write-blog-preview.tsx",
+        "scripts/write-site-preview.tsx",
+      ]),
+    );
+
+    const outputs: string[] = [];
+    for (const path of WRITERS) {
+      const writer = readFileSync(join(ROOT, path), "utf8");
+      expect(writer, path).toContain("writeStaticPreview");
+      expect(writer, path).not.toContain('import tailwind from "@tailwindcss/postcss"');
+      expect(writer, path).not.toContain('from "postcss"');
+      expect(writer, path).not.toContain("buildDocument");
+      expect(writer, path).not.toContain("findModuleCss");
+      expect(writer, path).not.toContain("writeFileSync");
+      const matches = [...writer.matchAll(/const (?:OUT|INDEX_OUT|NAV_OUT) = "([^"]+)"/g)];
+      for (const match of matches) {
+        expect(match[1], path).toMatch(/^docs\//);
+        outputs.push(match[1] ?? "");
+      }
+    }
+    expect(new Set(outputs).size).toBe(outputs.length);
+
+    const runner = readFileSync(join(ROOT, RUNNER), "utf8");
+    expect(runner).toContain('const ENTRY_CSS = "src/app/globals.css"');
+    expect(runner).toContain('out.startsWith("docs/")');
+    expect(runner).toContain("postcss([tailwind()])");
+  });
 });
 
 type ExpectedArticle = {
@@ -173,7 +224,7 @@ describe("実際に書き出した静止冊子", () => {
       const generated = readFileSync(join(PREVIEW_DIR, "sites", `${slug}.html`), "utf8");
       const expectedContent = new JSDOM(sharedBody).window.document.body.firstElementChild;
       const generatedContent = new JSDOM(generated).window.document.querySelector(
-        "#site-main-content .siteContent > div",
+        "main.siteMain > div",
       );
 
       expect(generatedContent?.textContent).toBe(expectedContent?.textContent);
@@ -240,7 +291,12 @@ describe("実際に書き出した静止冊子", () => {
 
     expect(adminHtml).toContain("--color-surface-default");
     expect(adminHtml).toContain(".sectionTitle");
-    expect(adminHtml).toContain('class="sectionTitle"');
+    // 本文側の適用先は `subTitle` で見る（2026-08-31 に `sectionTitle` から変更）。
+    // `Card` が `claim` / `main` を受け取る形になり、器の中へ生の見出しを
+    // 置かなくなったため、この写しに `sectionTitle` の付く要素はもう出ない。
+    // **見たいのは「部品の CSS に、本文の側の当たり先があるか」**なので、
+    // 同じ `screen-parts.module.css` から出て実際に描かれる名前へ移す。
+    expect(adminHtml).toContain('class="subTitle"');
   });
 });
 

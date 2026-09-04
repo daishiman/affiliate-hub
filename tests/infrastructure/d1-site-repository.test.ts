@@ -24,7 +24,7 @@ function brokenDb(): DrizzleD1 {
   const boom = () => {
     throw new Error("D1_ERROR: no such table: site_blueprints");
   };
-  return { select: boom, insert: boom } as unknown as DrizzleD1;
+  return { select: boom, insert: boom, run: boom } as unknown as DrizzleD1;
 }
 
 describe("ブログの一覧（D1）が落ちたとき", () => {

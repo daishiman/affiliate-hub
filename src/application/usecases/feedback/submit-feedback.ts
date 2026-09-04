@@ -1,12 +1,13 @@
 import type { FeedbackCaptureStoragePort, FeedbackRepositoryPort } from "@/application/ports/feedback";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
+import type { BrandRepositoryPort } from "@/application/ports/identity";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import {
   type CaptureSubmission,
   type FeedbackKind,
   type FeedbackOrigin,
-  type TechnicalContext,
+  type TechnicalContextInput,
   assertCaptureIsStorable,
   createFeedbackReport,
 } from "@/domain/feedback";
@@ -15,12 +16,15 @@ import {
   type ActorContext,
   type DomainError,
   type Result,
+  assertBrandAccess,
+  assertBrandScope,
   asBrandId,
   asFeedbackCaptureId,
   asFeedbackReportId,
   asSiteId,
   asUserId,
   err,
+  notFound,
   ok,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
@@ -35,6 +39,8 @@ import type { UseCase } from "../usecase";
 export type SubmitFeedbackDeps = {
   readonly repository: FeedbackRepositoryPort;
   readonly captures: FeedbackCaptureStoragePort;
+  /** brandIdを文字列の形だけで信用せず、保存前にworkspace所有を確認する。 */
+  readonly brands: BrandRepositoryPort;
   readonly ids: IdGeneratorPort;
   /**
    * 誰がこの要望を出したかの記録。
@@ -51,7 +57,7 @@ export type SubmitFeedbackInput = {
   readonly body: string;
   readonly wish?: string | null;
   readonly origin: FeedbackOrigin;
-  readonly technical: TechnicalContext;
+  readonly technical: TechnicalContextInput;
   readonly brandId?: string | null;
   readonly siteId?: string | null;
   /** 画像。付けないことを常に選べる。 */
@@ -78,6 +84,17 @@ export function createSubmitFeedbackUseCase(
     ): Promise<Result<SubmitFeedbackOutput, DomainError>> {
       const allowed = requireCapability(actor, "feedback.submit", "改善要望の送信");
       if (!allowed.ok) return allowed;
+
+      const brandId = input.brandId ? asBrandId(input.brandId) : null;
+      const scoped = assertBrandScope(actor, brandId, "改善要望のブランド");
+      if (!scoped.ok) return scoped;
+      if (brandId !== null) {
+        const found = await deps.brands.findById(actor.workspaceId, brandId);
+        if (!found.ok) return found;
+        if (found.value === null) return err(notFound("ブランド", String(brandId)));
+        const accessible = assertBrandAccess(actor, found.value);
+        if (!accessible.ok) return accessible;
+      }
 
       const at = deps.now();
       const reportId = asFeedbackReportId(deps.ids.newId());
@@ -106,7 +123,7 @@ export function createSubmitFeedbackUseCase(
       const created = createFeedbackReport({
         id: reportId,
         workspaceId: actor.workspaceId,
-        brandId: input.brandId ? asBrandId(input.brandId) : null,
+        brandId,
         siteId: input.siteId ? asSiteId(input.siteId) : null,
         kind: input.kind,
         body: input.body,
@@ -134,8 +151,8 @@ export function createSubmitFeedbackUseCase(
         targetId: String(reportId),
         after: {
           kind: input.kind,
-          screenName: input.origin.screenName,
-          route: input.origin.route,
+          screenName: created.value.origin.screenName,
+          route: created.value.origin.route,
           captureStored: captureId !== null,
           // 画像を付けようとして落ちたことも残す。後から
           // 「画像が無い要望」を見たときに、付けなかったのか落ちたのかを分けられる。

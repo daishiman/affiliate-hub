@@ -46,7 +46,7 @@ export const LAUNCH_BARS: readonly LaunchBar[] = [
   {
     id: "LB-3",
     criterion: "全ケースで出力の形が決めた通りになる（3回以内の再試行を含む）",
-    threshold: "51/51",
+    threshold: "52/52",
     blocksActivation: true,
     status: "NOT RUN",
     blockedBy: NOT_CONNECTED,

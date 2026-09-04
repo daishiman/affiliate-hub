@@ -7,8 +7,14 @@ from pathlib import Path
 
 import pytest
 
+from plugin_layout_contract import (
+    optional_source_inventory,
+    repository_root,
+    source_inventory_path,
+)
 
 PLUGIN = Path(__file__).resolve().parents[1]
+REPO = repository_root(PLUGIN)
 SCRIPTS = PLUGIN / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
@@ -26,11 +32,14 @@ def load():
 
 def test_template_contract_copies_are_byte_identical():
     """HarnessHub-o4zi: 実行場所で heading 判定が分岐しない。"""
-    root = PLUGIN.parents[1]
     canonical = (PLUGIN / "templates/template-contract.json").read_bytes()
 
-    assert (root / ".dev-graph/templates/template-contract.json").read_bytes() == canonical
-    assert (root / "plugin-plans/dev-graph/templates/template-contract.json").read_bytes() == canonical
+    assert (REPO / ".dev-graph/templates/template-contract.json").read_bytes() == canonical
+    if optional_source_inventory(PLUGIN) is not None:
+        source_template = (
+            source_inventory_path(PLUGIN).parent / "templates" / "template-contract.json"
+        )
+        assert source_template.read_bytes() == canonical
 
 
 @pytest.mark.parametrize(

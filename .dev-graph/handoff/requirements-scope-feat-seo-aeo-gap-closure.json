@@ -1,0 +1,36 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-seo-aeo-gap-closure.md",
+  "package_current_pointer": null,
+  "promoted_generation": ".dev-graph/published/feature-package-feat-seo-aeo-gap-closure",
+  "selected_feature": "feat-seo-aeo-gap-closure",
+  "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform"
+  ],
+  "task_ids": [
+    "SYS-SEO-AEO-GAP-CLOSURE-P01",
+    "SYS-SEO-AEO-GAP-CLOSURE-P02",
+    "SYS-SEO-AEO-GAP-CLOSURE-P03",
+    "SYS-SEO-AEO-GAP-CLOSURE-P04",
+    "SYS-SEO-AEO-GAP-CLOSURE-P05",
+    "SYS-SEO-AEO-GAP-CLOSURE-P06",
+    "SYS-SEO-AEO-GAP-CLOSURE-P07",
+    "SYS-SEO-AEO-GAP-CLOSURE-P08",
+    "SYS-SEO-AEO-GAP-CLOSURE-P09",
+    "SYS-SEO-AEO-GAP-CLOSURE-P10",
+    "SYS-SEO-AEO-GAP-CLOSURE-P11",
+    "SYS-SEO-AEO-GAP-CLOSURE-P12",
+    "SYS-SEO-AEO-GAP-CLOSURE-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-seo-aeo-gap-closure-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-seo-aeo-gap-closure.json"
+  ],
+  "scope_digest": "sha256:9934c92a1f48b572a90b4e339be1b0f6d2db4ebfd69eaf6ba98ef6191e66e9a3"
+}

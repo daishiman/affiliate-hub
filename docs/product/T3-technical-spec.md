@@ -8,7 +8,7 @@
 
 ## データ
 
-正本は既存D1の`published_articles.article_json`と、検索・一覧用列である。`0019_gentle_archive.sql`でNULL可の`archived_at text`だけをadd-only追加した。NULL=公開中、ISO時刻=非表示とする。物理DELETEは口に定義しない。
+正本は既存D1の`published_articles.article_json`と、検索・一覧用列である。`0039_gentle_archive.sql`でNULL可の`archived_at text`だけをadd-only追加した。NULL=公開中、ISO時刻=非表示とする。物理DELETEは口に定義しない。
 
 `replace`は`archived_at`を変更せず、公開中/非表示を保つ。既存の公開writerのupsertだけが`archived_at=null`に戻せる。これにより再公開は既存の公開ゲートを必ず通る。
 

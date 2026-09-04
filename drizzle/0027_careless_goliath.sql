@@ -1,0 +1,1 @@
+ALTER TABLE `blog_tag` ADD `kind` text DEFAULT 'topic' NOT NULL;

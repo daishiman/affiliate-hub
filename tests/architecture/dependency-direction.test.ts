@@ -38,6 +38,40 @@ function listTsFiles(dir: string): string[] {
 
 const IMPORT_PATTERN = /(?:from|import)\s+["']([^"']+)["']/g;
 
+/**
+ * 素の取得の書き方。**別名で呼ぶ形も拾う。**
+ * `globalThis.fetch(` は `.` が前に付くので、否定先読みだけでは拾えない。
+ */
+const RAW_FETCH =
+  /(?<![.\w])fetch\s*\(|(?:globalThis|window|self)\s*(?:\.\s*fetch\s*\(|\[\s*["'`]fetch["'`]\s*\])/;
+
+/**
+ * guarded-fetch を通さなくてよいもの。**理由を 1 件ずつ書く。**
+ *
+ * ここに載るのは「行き先を人が決められない」ものだけで、
+ * SSRF が問題にしている「サーバーが外から渡された URL を取りに行く」形ではない。
+ * 形は 2 通り: ブラウザから自分のサイトの相対パスを叩くものと、
+ * コードに固定した相手へ**送る**もの。どちらも転送先を再検査する相手が居ない。
+ */
+const FETCH_EXEMPT: readonly { readonly file: string; readonly why: string }[] = [
+  {
+    file: "app/signin/google-signin-button.tsx",
+    why: "ブラウザから自分のサイトの `/api/auth/sign-in/social` を叩く。行き先は固定の相対パスで、外から渡された URL ではない",
+  },
+  {
+    file: "presentation/telemetry/collector.tsx",
+    why: "ブラウザから計測の受け口へ送る。送り先は自分のサイトの相対パスで、取りに行っているのではなく送っている",
+  },
+  {
+    file: "presentation/tools/webmcp-adapter.ts",
+    why: "ブラウザのページ内 AI が自分のサイトの道具の入口を叩く。行き先は同一オリジンの相対パス",
+  },
+  {
+    file: "infrastructure/indexnow/indexnow-client.ts",
+    why: "IndexNow への通知。行き先はコードに固定した https://api.indexnow.org だけで、外から渡された URL ではない。guardedFetch は取得（GET）専用なので、この送信（POST）は運べない",
+  },
+];
+
 function importsOf(file: string): string[] {
   const source = readFileSync(file, "utf8");
   const found: string[] = [];
@@ -65,7 +99,13 @@ const LEAST: Record<string, number> = {
   "domain/product": 3, // (5)
   "app/s": 10, // (21)
   "presentation/site": 5, // (9)
-  "app/admin": 15, // (37)
+  // 2026-08-31 に取り直した実数は 98（前の括弧書き 37 は 2026-08-19 時点）。
+  // 15 は実数の 15% で、管理画面が 8 割方消えても緑のままだった。
+  // 実数の 8 割にあたる 78 へ上げる。20 件ぶんの余裕があるので画面の増減では動かない。
+  // **`page.tsx` の数（86）ではない。**ここが数えるのは `listTsFiles`、
+  // つまり `.ts` / `.tsx` すべてである。取り直すときは同じ数え方ですること。
+  "app/admin": 78, // (98 @2026-08-31)
+  app: 40, // (71) 外部取得の走査に要る（2026-08-21 に足した）
 };
 
 /**
@@ -177,6 +217,40 @@ describe("依存方向", () => {
     );
     expect(found).toEqual([]);
   });
+
+  /**
+   * **逆向きも見る。**上の 3 件は domain・application・infrastructure から
+   * 外へ出る向きだけを見ていて、`presentation → infrastructure` は
+   * どこにも書かれていなかった。2026-08-21 に実測: `presentation/site/page-frame.tsx`
+   * へ `@/infrastructure/persistence/d1/telemetry-repository` の import を
+   * 1 行足しても、`dependency-direction` 24 件・`ui-layers` 9 件とも緑だった。
+   * `ui-layers.test.ts` が見ているのは `src/presentation/ui` の下だけで、
+   * `presentation/site` も `presentation/admin` も範囲の外にある。
+   *
+   * 差し込みの 1 箇所（`presentation/composition.ts`）だけが例外である。
+   * ここが増えると、画面から保存先を直接叩く道が開き、
+   * 差し替えの利かない結び付きが画面の中に散る。
+   */
+  it("presentation は infrastructure を差し込みの 1 箇所からしか読まない", () => {
+    const allowed = "src/presentation/composition.ts";
+    const found = violations(filesUnder("presentation"), (spec) =>
+      /^@\/infrastructure\b/.test(spec),
+    ).filter((v) => v.file.split("\\").join("/") !== allowed);
+    expect(
+      found,
+      `画面から保存先を直接読んでいます。差し込みは ${allowed} の 1 箇所です。`,
+    ).toEqual([]);
+
+    // **空振り防止。**許した 1 箇所が実際に読んでいることを見る。
+    // ここが 0 件になったら、上の 0 件は「誰も読んでいない」の 0 件である。
+    const viaComposition = violations(filesUnder("presentation"), (spec) =>
+      /^@\/infrastructure\b/.test(spec),
+    ).filter((v) => v.file.split("\\").join("/") === allowed);
+    expect(
+      viaComposition.length,
+      `${allowed} が infrastructure を 1 つも読んでいません。差し込みの場所が移ったか、走査先が外れています`,
+    ).toBeGreaterThan(0);
+  });
 });
 
 describe("Editorial と Commercial の分離", () => {
@@ -235,19 +309,61 @@ describe("Editorial と Commercial の分離", () => {
    * `fetch` を各所で直接呼ぶと、転送先の再検査を通らない経路ができる。
    * 社内アドレスへ転送する URL を渡された時点で守りが無くなるため、
    * 入口は `infrastructure/http/guarded-fetch.ts` だけにする。
+   *
+   * --- 2026-08-21 に測って分かった穴 2 つ ---
+   * 追跡表 REQ-SEC02 は「外部への取得は guarded-fetch だけが行う」と書いていたが、
+   * 実際には次の 2 通りが**素通りしていた**（どちらも実測）。
+   *   1. **走査が `infrastructure` と `application` にしか届いていなかった。**
+   *      `src/presentation/site/policy-page.tsx` へ
+   *      `fetch("http://169.254.169.254/latest/meta-data/")` を書いても緑。
+   *      サーバー側で動く画面のコードは `presentation` と `app` にある。
+   *   2. **`globalThis.fetch(` が判定の否定先読み `(?<![.\w])` に弾かれていた。**
+   *      走査範囲の中（`infrastructure/http/`）へ書いても緑。
+   * 対照として素の `fetch(` を同じ場所へ書くと赤になったので、
+   * 走査そのものは届いていた（「壊し方が届かなかった」ではない）。
    */
   it("外部への取得は guarded-fetch だけが行う", () => {
     const offenders: string[] = [];
-    for (const file of [...filesUnder("infrastructure"), ...filesUnder("application")]) {
+    const scanned = [
+      ...filesUnder("infrastructure"),
+      ...filesUnder("application"),
+      ...filesUnder("presentation"),
+      ...filesUnder("app"),
+    ];
+    // 母集団の床。走査が空になったら「違反 0 件」は常に成り立つ。
+    expect(scanned.length, "走査対象が消えています").toBeGreaterThan(200);
+    for (const file of scanned) {
       const rel = relative(process.cwd(), file);
       if (rel.endsWith("infrastructure/http/guarded-fetch.ts")) continue;
+      if (FETCH_EXEMPT.some((e) => rel.endsWith(e.file))) continue;
       const source = readFileSync(file, "utf8");
-      if (/(?<![.\w])fetch\s*\(/.test(source)) offenders.push(rel);
+      if (RAW_FETCH.test(source)) offenders.push(rel);
     }
     expect(
       offenders,
       "外部の取得は guardedFetch を通してください。転送先の再検査が抜けます。",
     ).toEqual([]);
+  });
+
+  /**
+   * 免除に、実在しない行が残っていないこと。
+   *
+   * 免除は理由つきで残るので、対象が消えたあとも気づかれずに居座る。
+   * 居座った行は、あとで同じ名前のファイルが生まれた日に**黙って穴になる**。
+   */
+  it("外部取得の免除に、実在しない行が残っていない", () => {
+    const files = [
+      ...filesUnder("infrastructure"),
+      ...filesUnder("application"),
+      ...filesUnder("presentation"),
+      ...filesUnder("app"),
+    ].map((f) => relative(process.cwd(), f));
+    expect(files.length, "走査対象が消えています").toBeGreaterThan(200);
+    const stale = FETCH_EXEMPT.filter((e) => !files.some((f) => f.endsWith(e.file)));
+    expect(stale.map((e) => e.file), "免除の相手が居ません。行を消してください").toEqual([]);
+    for (const e of FETCH_EXEMPT) {
+      expect(e.why.length, `${e.file} の理由が空です`).toBeGreaterThan(10);
+    }
   });
 });
 

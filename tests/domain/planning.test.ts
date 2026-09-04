@@ -1,6 +1,9 @@
 /** @tier 1 @req REQ-SEC07, REQ-E23 @types decision-table, equivalence */
 import { describe, expect, it } from "vitest";
 import {
+  CONTENT_LENGTHS,
+  CTA_TYPES,
+  FUNNEL_STAGES,
   canStartGeneration,
   createContentPackage,
   selectRepresentativeCells,
@@ -59,6 +62,70 @@ function blueprint(over: Partial<Parameters<typeof createSiteBlueprint>[0]> = {}
     ...over,
   });
 }
+
+/**
+ * 生成パターンの品ぞろえ（§15.3）。
+ *
+ * ここを足した理由。**`CONTENT_LENGTHS` から 1 項目抜いても、7 項目のどれを抜いても
+ * 8005 件すべて緑だった**（実測、2026-08-28）。この一覧は `ContentLength` 型の
+ * 材料でもあるので、**一覧が縮むと型も一緒に縮む**。「台本」が消えれば
+ * 台本を作る指定はコンパイル時に弾かれ、赤くはならず、ただ作れなくなる。
+ *
+ * **期待値を実装から組み立てない。**仕様の箇条書きを手で書き写す。
+ */
+describe("生成パターンの品ぞろえ", () => {
+  it("文章の長さは、仕様 §15.3 が並べた 7 種が順番どおりにそろっている", () => {
+    // `docs/spec/01-要求仕様書-v1.0.md` §15.3「文章の長さ」
+    // （一文・短文・標準・長文・スレッド・記事・台本）。実装から輸入しない。
+    expect([...CONTENT_LENGTHS]).toEqual([
+      "one_sentence",
+      "short",
+      "standard",
+      "long",
+      "thread",
+      "article",
+      "script",
+    ]);
+  });
+
+  it("CTA は、仕様 §15.3 が並べた 10 種が順番どおりにそろっている", () => {
+    // `docs/spec/01-要求仕様書-v1.0.md` §15.3「CTA」
+    // （詳細記事を読む・比較表を見る・公式情報を確認・販売店で価格確認・保存・
+    //   コメント・フォロー・メール登録・無料診断・資料請求）。実装から輸入しない。
+    //
+    // **ここを足した理由（実測、2026-08-29）。**`CTA_TYPES` から「資料請求」を
+    // 抜いたところ、**型検査 exit 0・テスト 9757 件すべて緑**だった。
+    // 要件表 REQ-P06 の判定欄は「CTA種別」を PASS の根拠に挙げているが、
+    // その主張に当たる検査が 1 件も無かった。
+    //
+    // 長さ・購買段階と違い、CTA は消費する側がほとんど居ない。渡り先は
+    // `z.enum(CTA_TYPES)` と `quality-check.ts` の 2 値の名指しだけで、
+    // **`z.enum` は与えられた集合をそのまま受け入れる**ので、集合が縮んでも
+    // 何も言わない。切り口が守られているのは、言い換え表が
+    // `Record<ContentAngle, string>` で全項目を要求しているからである
+    // （`checklist` を改名すると型検査が 5 件で止まることを実測）。
+    // **CTA にはその表が無い。**だからここで直接当てる。
+    expect([...CTA_TYPES]).toEqual([
+      "read_detail",
+      "view_comparison",
+      "check_official",
+      "check_price_at_merchant",
+      "save",
+      "comment",
+      "follow",
+      "email_signup",
+      "free_diagnosis",
+      "request_material",
+    ]);
+  });
+
+  it("購買段階は、仕様の 4 段が順番どおりにそろっている", () => {
+    // `docs/spec/01-要求仕様書-v1.0.md` L473 の `funnel_stage`。
+    // **4 項目とも、抜いても 8007 件すべて緑だった**（実測、2026-08-28）。
+    // 順番も見る。認知より先に決定が来る並びは、企画の意味が変わる。
+    expect([...FUNNEL_STAGES]).toEqual(["awareness", "consideration", "decision", "retention"]);
+  });
+});
 
 describe("ブログの設計図", () => {
   it("必要なものがそろえば作れて、信頼ページが最初から入っている", () => {

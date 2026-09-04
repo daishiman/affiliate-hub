@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-FD06 */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

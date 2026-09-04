@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|split-qa-bundle|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|attach-qa-design-applications|set-qa-scope-notes|split-qa-bundle|supersede-qa|retract-qa|set-chapter-note|set-qa-source|declare-excluded-category|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -57,6 +57,7 @@ from state_transition_matrix import (
     set_hearing_limit_policy,
     apply_cell_op,
     apply_turn,
+    attach_qa_design_applications,
     bootstrap_state,
     count_unresolved,
     derive_aggregate,
@@ -72,6 +73,11 @@ from state_transition_matrix import (
     set_qa_written_up,
     set_targets,
     split_qa_bundle,
+    set_chapter_note,
+    set_qa_source,
+    declare_excluded_category,
+    retract_qa,
+    supersede_qa,
 )
 from state_transition_matrix import enable_asks_for_contract
 
@@ -240,6 +246,18 @@ def main(argv: list[str]) -> int:
         help="design_applications JSON配列または JSON ファイル",
     )
     qa_design.add_argument("--out")
+    qa_attach = sub.add_parser(
+        "attach-qa-design-applications",
+        help="qa_refs から引かれている qa へ設計適用を後から結線",
+    )
+    qa_attach.add_argument("--state", required=True)
+    qa_attach.add_argument("--qa-id", required=True)
+    qa_attach.add_argument(
+        "--applications",
+        required=True,
+        help="design_applications JSON配列または JSON ファイル",
+    )
+    qa_attach.add_argument("--out")
     scope_notes = sub.add_parser(
         "set-qa-scope-notes",
         help="束ねた qa の論点範囲を、質問・回答を保ったまま注記として追記",
@@ -252,6 +270,98 @@ def main(argv: list[str]) -> int:
         help="scope_notes JSON object またはそれを収めた JSON ファイル",
     )
     scope_notes.add_argument("--out")
+    supersede = sub.add_parser(
+        "supersede-qa",
+        help="作り直しで引かれなくなった質疑に、後継 (superseded_by) を申告させる",
+        description=(
+            "**孤立を禁じるのではなく、名乗らせる。**質疑を作り直すと古い方は誰からも"
+            "引かれなくなる。それ自体は正しい。ところが正本にそれを言う欄が無いと、"
+            "機械には『置き換えた』のか『接地を忘れた』のかが区別できず、監査は毎回"
+            "同じ件を欠陥として報告し続ける。まだセルから引かれている質疑は封じられない。"
+        ),
+    )
+    supersede.add_argument("--state", required=True)
+    supersede.add_argument("--qa-id", required=True)
+    supersede.add_argument("--by", required=True, help="後継となる qa_log の id")
+    supersede.add_argument("--out")
+    retract = sub.add_parser(
+        "retract-qa",
+        help="正本の契約を満たしていなかった質疑を、理由を添えて qa_log から取り下げる",
+        description=(
+            "**後継の申告 (supersede-qa) とは扱う出来事が違う。**あちらは『決め直した』"
+            "経過を言い、こちらは『その記録は最初から契約を満たしていなかった』誤りを言う。"
+            "誤りを後継として残すと、守れていない契約を名乗る entry が正本に永久に残り、"
+            "それを見張る検査は二度と緑にならない——残るのは物差しを曲げる道だけになる。"
+            "**消さない。**entry は retracted_qa_log へ原文のまま移る。まだセルから"
+            "引かれている質疑、後継として名指しされている質疑、written_up を持つ質疑は"
+            "取り下げられない。"
+        ),
+    )
+    retract.add_argument("--state", required=True)
+    retract.add_argument("--qa-id", required=True)
+    retract.add_argument(
+        "--reason",
+        required=True,
+        help="なぜ契約を満たしていなかったのか。理由の無い取り下げは記録の削除と区別が付かない",
+    )
+    retract.add_argument("--out")
+    chapter_note = sub.add_parser(
+        "set-chapter-note",
+        help="章にしか居場所の無い散文へ、正本の居場所を与える (章の手書きを正本へ戻す)",
+        description=(
+            "章は正本の純関数なので、正本に無い散文は compile のたび消える。節の引き継ぎ "
+            "(`--on-handwritten preserve`) は `##` 単位でしか効かず、生成節の内側に書かれた"
+            "散文は原理上守れない。**守るのではなく、消えようのない場所へ移す。**"
+            "利用者の逐語 (`qa_log[].answer`) には足さない。後から気づいた突き合わせを"
+            "そこへ足すと、利用者が言っていないことが利用者の声の顔で残る。"
+        ),
+    )
+    chapter_note.add_argument("--state", required=True)
+    chapter_note.add_argument("--category", required=True)
+    chapter_note.add_argument("--heading", required=True)
+    chapter_note.add_argument(
+        "--body-file",
+        required=True,
+        help="本文の入ったファイル。**手で打ち直させないための欄である。**引数へ直に書かせると、"
+        "写し間違いが正本に入る",
+    )
+    chapter_note.add_argument("--reason", required=True, help="なぜこの散文を正本へ入れるのか")
+    chapter_note.add_argument("--out")
+    qa_source = sub.add_parser(
+        "set-qa-source",
+        help="既存の質疑へ『対話由来』という名乗りを後から与える (書面由来は set-qa-written-up)",
+        description=(
+            "`source` は長らく任意欄で、由来を名乗らずに質疑を作れた。作成側は塞いだが、"
+            "**塞ぐ前に入ったものは、塞いだ writer では直せない。**この writer が直す。"
+            "受け付けるのは `user-dialogue` の名乗りだけである。書面由来は "
+            "`set-qa-written-up` が原文の path/section と digest まで要求するので、"
+            "**名乗りだけで『書面に書いてある』と言える口は作らない。**"
+        ),
+    )
+    qa_source.add_argument("--state", required=True)
+    qa_source.add_argument("--qa-id", required=True)
+    qa_source.add_argument(
+        "--reason", required=True, help="なぜこの質疑が対話由来だと言えるのか"
+    )
+    qa_source.add_argument("--out")
+
+    excl = sub.add_parser(
+        "declare-excluded-category",
+        help="必須情報カタログの domain に、カテゴリ行を立てない理由を名乗らせる",
+        description=(
+            "`--require-catalog-domain-coverage` はカタログの in_scope domain に "
+            "『それを数えるカテゴリ行』を要求し、無い場合の逃げ道として "
+            "excluded_categories を案内する。**その逃げ道を書く道具が無かった。**"
+            "『対象外』は『作らない』ではなく『このカテゴリ行を立てない』である。"
+            "誤読を防ぐため --reason を必須にし、どこで数えているのかを書かせる。"
+        ),
+    )
+    excl.add_argument("--state", required=True)
+    excl.add_argument("--category", required=True)
+    excl.add_argument(
+        "--reason", required=True, help="なぜ行を立てないのか / その必須情報をどこで数えているのか"
+    )
+    excl.add_argument("--out")
     split_bundle = sub.add_parser(
         "split-qa-bundle",
         help="束ねた qa entry を論点ごとに解き、裏付けの範囲をセルの qa_refs[] へ移す",
@@ -381,6 +491,15 @@ def main(argv: list[str]) -> int:
                     if isinstance(value, dict) and "design_applications" in value
                     else value,
                 )
+            elif args.cmd == "attach-qa-design-applications":
+                value = load_json_arg(args.applications)
+                attach_qa_design_applications(
+                    state,
+                    args.qa_id,
+                    value["design_applications"]
+                    if isinstance(value, dict) and "design_applications" in value
+                    else value,
+                )
             elif args.cmd == "set-qa-scope-notes":
                 value = load_json_arg(args.scope_notes)
                 set_qa_scope_notes(
@@ -394,6 +513,22 @@ def main(argv: list[str]) -> int:
                 enable_asks_for_contract(
                     state,
                     [entry["id"] for entry in state.get("qa_log", []) if isinstance(entry, dict)],
+                )
+            elif args.cmd == "supersede-qa":
+                supersede_qa(state, args.qa_id, args.by)
+            elif args.cmd == "retract-qa":
+                retract_qa(state, args.qa_id, args.reason)
+            elif args.cmd == "declare-excluded-category":
+                declare_excluded_category(state, args.category, args.reason)
+            elif args.cmd == "set-qa-source":
+                set_qa_source(state, args.qa_id, args.reason)
+            elif args.cmd == "set-chapter-note":
+                set_chapter_note(
+                    state,
+                    args.category,
+                    args.heading,
+                    Path(args.body_file).read_text(encoding="utf-8"),
+                    args.reason,
                 )
             elif args.cmd == "split-qa-bundle":
                 split_qa_bundle(state, args.qa_id)

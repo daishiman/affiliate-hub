@@ -52,6 +52,8 @@ def _load_sibling(stem: str):
 # producer=plugin-dev-planner の既定 root。導出は TG-C02 (sync-task-state.resolve_planner_root)
 # を SSOT として再利用しローカル再定義しない (--planner-root 明示指定は従来通り優先)。
 _sts = _load_sibling("sync-task-state")
+_dependencies = _load_sibling("task-graph-dependencies")
+normalize_dependency_edges = _dependencies.normalize_dependency_edges
 _PLANNER_ROOT_DEFAULT = str(_sts.resolve_planner_root())
 _PLANNER_SCRIPTS_REL = ("skills", "run-plugin-dev-plan", "scripts")
 # repo root の既定 (本 script 位置から導出・cwd 非依存)。compute-ready-set の consumes 成果物
@@ -155,6 +157,11 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, json.JSONDecodeError) as exc:
         print(f"task-graph 読込/parse 失敗: {args.task_graph}: {exc}", file=sys.stderr)
         return 2
+    try:
+        graph = normalize_dependency_edges(graph)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
     try:
         task_state = json.loads(Path(args.task_state).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:

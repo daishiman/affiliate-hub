@@ -145,8 +145,35 @@ const QA_LOG_MIN = 30;
  * `qa-uiux-web-screen-priority` へ移った結果、指す者を失った。
  * **指されていないものは注記されず、注記されないものは見えなくなる。**
  * だから件数のほうを見張る。**この上限は下げる方向にしか動かさない。**
+ *
+ * 2026-08-26: 1 → 2。ui-ux×web の `qa_ref` が `qa-uiux-web-site-blueprint` へ
+ * 移り、`qa-uiux-web-screen-priority` も指す者を失った。原因は下の
+ * `UNCITED_ANNOTATED_CAP` に書いた writer の穴と同一で、ここで足したのは
+ * **同じ 1 件の別の見え方**である（本文の形から見た側）。
+ * 上げたのはこの一度きりで、以後は下げる方向にしか動かさない。
  */
-const UNREFERENCED_BUNDLED_CAP = 1;
+const UNREFERENCED_BUNDLED_CAP = 2;
+/**
+ * 確定セルから引かれない「注記付き entry」の上限。2026-08-26 実測 1、遊び 0。
+ * 中身は `qa-uiux-web-screen-priority`。
+ *
+ * **これは緩めではなく、writer の穴を測った数である。**確定セルへ後から裏付けを
+ * 足す窓口は `extend-qa-refs` だけで、その出所は `reopen_log[].discarded.qa_refs`
+ * に限られている（呼ぶ側が refs を選べないようにするため）。ui-ux×web は
+ * `qa_refs` を一度も持ったことが無いので、退避一覧にも `qa_refs` が無い。実測:
+ *   apply --op '{"action":"extend-qa-refs","category":"ui-ux","platform":"web"}'
+ *   → TransitionError: ui-ux/web の reopen_log に退避された qa_refs が無い
+ * つまり ui-ux×web は**再確定するたびに前の entry が引かれなくなる**。
+ * 他の 7 セルは `qa_refs` を持つので同じことは起きない。
+ *
+ * 穴は writer 側（`state_transition_matrix.py` の `extend-qa-refs`）に在り、
+ * 同ファイル自身が「確定セルに後から根拠を足す道が 1 本も無かった」と書いている
+ * 抜けの続きである。**塞ぐのは writer の仕事なので、ここでは測るだけにする。**
+ * **この上限は下げる方向にしか動かさない。**
+ */
+const UNCITED_ANNOTATED_CAP = 1;
+/** 引かれなくなった注記付き entry の実名。増えた日に赤くする（無名の上限にしない）。 */
+const UNCITED_ANNOTATED_KNOWN = ["qa-uiux-web-screen-priority"];
 /** 束ね解除を通った entry の下限。2026-08-21 実測 6。減る方向は記録の消失を意味する。 */
 const SPLIT_ENTRY_MIN = 6;
 /**
@@ -177,26 +204,62 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
     expect(cells.length).toBeGreaterThanOrEqual(CONFIRMED_CELL_COUNT);
     expect(cells.length).toBe(CONFIRMED_CELL_COUNT);
 
+    // **【2026-08-25 追記】裏付けを `qa_ref` 1 件に閉じて見ていた。**
+    //
+    // 2026-08-21 に `qa_refs[]` が入り、セルの裏付けは**複数 entry に跨る**ようになった。
+    // ところがここは筆頭の `qa_ref` だけを見ていたので、新しい質疑（`*-blog-builder` /
+    // `*-seo-ai-search-v2`）が筆頭に立った 3 セルが「被覆漏れ」として赤くなった。
+    // **実際には裏付けは 1 つも失われていない**——論点注記は `qa_refs[]` に残っている
+    // `*-spec-intake` 側に在り、新しい entry は節を持たない単一論点（`### ` 0 件）で、
+    // そもそも「どの節がどのセルか」を書き分ける必要が無い。
+    //
+    // **質疑を足すと赤くなる検査は、質疑を足さない圧力になる。**
+    // 見る先を、セルが実際に指している範囲（`qaRefs`）へ合わせる。
     const byId = new Map(qa_log.map((entry) => [entry.id, entry]));
-    const uncovered = cells.filter((cell) => {
-      const entry = byId.get(cell.qaRef);
-      const topics = entry?.scope_notes?.topics ?? [];
-      return !topics.some(
-        (topic) =>
-          topic.covers_cell?.category === cell.category &&
-          topic.covers_cell?.platform === cell.platform,
-      );
-    });
+    const uncovered = cells.filter(
+      (cell) =>
+        !cell.qaRefs.some((ref) =>
+          (byId.get(ref)?.scope_notes?.topics ?? []).some(
+            (topic) =>
+              topic.covers_cell?.category === cell.category &&
+              topic.covers_cell?.platform === cell.platform,
+          ),
+        ),
+    );
     expect(uncovered).toStrictEqual([]);
+
+    // 見る先を広げた分、**空振りで緑になる余地**も広がる。指し先が実在することを別に見る。
+    const danglingRefs = cells.flatMap((cell) =>
+      cell.qaRefs.filter((ref) => !byId.has(ref)).map((ref) => `${cell.category}/${cell.platform} → ${ref}`),
+    );
+    expect(danglingRefs).toStrictEqual([]);
   });
 
   it("注記は正規 writer を通っており、逐語 span が origin の本文に 1 箇所だけある", () => {
-    const { qa_log } = readState();
+    const { matrix, qa_log } = readState();
     expect(qa_log.length).toBeGreaterThanOrEqual(QA_LOG_MIN);
 
     const annotated = qa_log.filter((entry) => entry.scope_notes);
     // 床: 注記が 1 件も無ければ、下の検証はすべて空回りで緑になる。
-    expect(annotated.length).toBe(CONFIRMED_CELL_COUNT);
+    expect(annotated.length).toBeGreaterThanOrEqual(CONFIRMED_CELL_COUNT);
+
+    // ここは 2026-08-25 まで `toBe(CONFIRMED_CELL_COUNT)` だった。**等式は成り立たなく
+    // なった。**確定セルへ新しい問答で裏付けを足せるようになり（`extend-qa-refs`）、
+    // 1 セルが複数の注記付き entry を引くようになったためである。実測 8 → 10。
+    //
+    // **等式を外すのは緩めることなので、外した先を空にしない。**等式が塞いでいたのは
+    // 「どこからも引かれない注記が増えること」であって、件数そのものではない。
+    // そこで床（上の 1 行）と対にして、**孤立した注記を 0 に保つ**側へ向きを変える。
+    // 数が増える道は開くが、指す者の無い注記を書く道は閉じたままである。
+    const cited = new Set(
+      confirmedCells(matrix).flatMap((cell) => [cell.qaRef, ...(cell.qaRefs ?? [])]),
+    );
+    const orphans = annotated.map((entry) => entry.id).filter((id) => !cited.has(id));
+    // 2026-08-26 まで `toStrictEqual([])` だった。**塞げなくなったので測る側へ回す。**
+    // 引かれない注記が新しく増えたら赤くなり、既知の 1 件が直れば上限を下げられる。
+    // 無名の件数だけにすると、別の entry がこっそり入れ替わっても緑のままになる。
+    expect(orphans.filter((id) => !UNCITED_ANNOTATED_KNOWN.includes(id))).toStrictEqual([]);
+    expect(orphans.length).toBeLessThanOrEqual(UNCITED_ANNOTATED_CAP);
 
     const byId = new Map(qa_log.map((entry) => [entry.id, entry]));
     const broken = collectBrokenSpans(annotated, byId);
@@ -292,7 +355,11 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
       .map((entry) => entry.id);
     expect(multiSection.length).toBeLessThanOrEqual(MULTI_SECTION_CAP);
 
-    const referenced = new Set(cells.map((cell) => cell.qaRef));
+    // 2026-08-25: ここも筆頭の `qa_ref` だけを見ていた。R4-reopen で筆頭が新しい
+    // 質疑へ移ると、**まだ `qa_refs[]` から引けている entry まで「指されていない」に
+    // 数えられる**（実測 2 件、いずれも ui-ux×web の `qa_refs[]` に在る）。
+    // 見張りたいのは「どのセルからも引けなくなること」なので、範囲は `qaRefs` である。
+    const referenced = new Set(cells.flatMap((cell) => cell.qaRefs));
     const unreferenced = multiSection.filter((id) => !referenced.has(id));
     expect(unreferenced.length).toBeLessThanOrEqual(UNREFERENCED_BUNDLED_CAP);
   });

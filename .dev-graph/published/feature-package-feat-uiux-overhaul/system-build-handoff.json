@@ -1,0 +1,226 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-UIUX-OVERHAUL-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-UIUX-OVERHAUL-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-UIUX-OVERHAUL-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-UIUX-OVERHAUL-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-UIUX-OVERHAUL-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-UIUX-OVERHAUL-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-UIUX-OVERHAUL-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P05"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-UIUX-OVERHAUL-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-UIUX-OVERHAUL-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-UIUX-OVERHAUL-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P07",
+        "SYS-UIUX-OVERHAUL-P09"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-UIUX-OVERHAUL-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P10",
+        "SYS-UIUX-OVERHAUL-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-UIUX-OVERHAUL-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-UIUX-OVERHAUL-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-uiux-overhaul",
+    "feature_package_id": "feature-package/feat-uiux-overhaul",
+    "parent_feature": "feat-uiux-overhaul",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:187911ad75fd98ac95e63403e29882c25a23af190e9120583c5eac569fc595f2"
+  },
+  "kind": "system-build-handoff",
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "82ac9154decc6f6ad83ef171e0fe2e5f30c2eafb5233ff7449ed2ef309a882af"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "92784c1ef51063399bae463528f69acaa4998a2ed1e924aaa527de87ffc1feeb"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "76c5195befec376df94abd05f841190b6d54199b3a27cd0aa053c606f29dd2f0"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "44d8887498adf8154848e480c4617a17a28fe3f903d2efb580671dc370330ae0"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "bd6f6f61196c930bb347af6cec1cbd049ca7c54790968cf15364d84255c7b39a"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "5642514416e2177a7970f74ac3abe8de09f615db89cd906db30743730d4c9d22"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "09d68c4a4d6c0d654a2be901a1dba9f1081e2ef8b1c9936f83bafecb9d97c1d5"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "3aea399674371a3d72fe8eed8219dede178730e9275ca1353dbb425629100977"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "9c17e22ef2175ca10715b56ea8562b7bf0c8fb84a4f61f379965a4181f6aa49a"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "abce69033ad94b91282d2346d6a436f223a96b131d261218e5604e6f39840f01"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "604e335971d787224e93b68e1cd887d4c123042a9802c12000f08cea1bd162f2"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "97de570788e11607102de8ad8355f1a4a8fc049beb87b08217250d21e56da02b"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "c6cde77fbd71df657f746f05da5dacd3a0cba525a7bb37f574adc25ecf97f5cb"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "ccbbd16a56e6b68734c1c165475815f02da1774b17516cc948550cc18c0109bd"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "d99494f7c6fcbe4d55f42266dfb0ec5ad200191ba9717411fcd1d1d1d1ac9139"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "8ff2e00bb2ce20886f77d57a7bf7369706f53689d2196f9dfcfe2be9b4f47b77"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:f8d57b7f77c2b89ac9c6b5a8728d04c502949f38402bd324f415fca183843347",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "96ab5df9020df8bd133b18bd7516f7658795ea2fad64f14a62883114f5f7c5ef"
+  }
+}

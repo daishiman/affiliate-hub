@@ -124,6 +124,10 @@ CSS の `@media` と Tailwind の設定は `var()` を受け取れない。
 | `EvidenceList` / `ProvenanceNote` | 出典と確認日。**0 件のときに黙らない** |
 | `ApprovalFlow` | 承認の現在地。人の承認が必要であることの明示 |
 | `StubNotice` / `StubLabel` | 見本であることを隠さない。使えるようになる条件を必須にする |
+| `StackedList` / `StackedRow` | 縦に積む一覧。リンクの有無で名前を分けない。番号付きだけ `ordered` で `<ol>` にする |
+| `InlineNav` | 同格の行き先を横に並べる。区切りは読み上げる文字ではなく境界線。画面遷移は呼び出し側が渡す |
+| `Note` / `SeeAlso` | 注記と「あちらへ行け」は別の役。押せない灰色の文字をボタンに当てない |
+| `FeedbackButton` | 改善要望の起動は管理画面の骨格から 1 回だけ。見本帳だけ `placement="inline"` |
 
 画面がこれらを自前で書いていないことは `tests/ui/ui-layers.test.ts` が確認する
 （`rel="sponsored"` の直書き、開示文言の直書き、`data-stub` の直書きを検出）。

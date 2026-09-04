@@ -1,4 +1,4 @@
-import type { DomainError, DomainEventName, Result } from "@/domain/shared";
+import type { BrandId, DomainError, DomainEventName, Result } from "@/domain/shared";
 
 /**
  * ポート共通の型。
@@ -20,6 +20,16 @@ export type PortResult<T> = Promise<Result<T, DomainError>>;
 export type PageRequest = {
   readonly limit: number;
   readonly cursor: string | null;
+};
+
+/**
+ * membership のブランド範囲を保存先へ渡す共通一覧条件。
+ *
+ * `undefined` は workspace 全体、指定ありは列挙ブランドだけを表す。
+ * 保存先はこの条件を limit/cursor より前に適用しなければならない。
+ */
+export type BrandScopeFilter = {
+  readonly brandIds: readonly BrandId[];
 };
 
 export type Paged<T> = {

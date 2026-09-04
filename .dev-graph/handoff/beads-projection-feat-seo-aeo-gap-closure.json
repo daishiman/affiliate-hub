@@ -1,0 +1,140 @@
+{
+  "feature": {
+    "graph_node_id": "feat-seo-aeo-gap-closure",
+    "title": "SEO/AEO の未実装差分を埋める",
+    "description": "dev-graph feature projection: features/feat-seo-aeo-gap-closure.md / feature-package/feat-seo-aeo-gap-closure"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [],
+      "title": "SEO/AEO 未実装差分の要求ベースライン確定",
+      "description": "dev-graph P01 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p01.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P01"
+      ],
+      "title": "点検履歴の保持と定期再点検経路とJSON-LD導出の設計",
+      "description": "dev-graph P02 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p02.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P02"
+      ],
+      "title": "設計レビューと既存 SEO 実装との重複有無の独立検証",
+      "description": "dev-graph P03 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p03.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P03"
+      ],
+      "title": "受入6件に対応するテスト設計",
+      "description": "dev-graph P04 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p04.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P04"
+      ],
+      "title": "HowTo・Speakable 導出と点検履歴と定期再点検と管理画面一覧の実装",
+      "description": "dev-graph P05 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p05.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "title": "テスト全量実行と回帰0件の確認",
+      "description": "dev-graph P06 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p06.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P06"
+      ],
+      "title": "受入6件の受け入れ判定",
+      "description": "dev-graph P07 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p07.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "title": "既存 SEO 実装との統合整理とマイグレーションの前方互換確認",
+      "description": "dev-graph P08 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p08.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P08"
+      ],
+      "title": "品質保証と非機能検査",
+      "description": "dev-graph P09 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p09.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "title": "最終レビューと残課題の確定",
+      "description": "dev-graph P10 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p10.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P07",
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "description": "dev-graph P11 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p11.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P10",
+        "SYS-SEO-AEO-GAP-CLOSURE-P11"
+      ],
+      "title": "運用手順と文書化",
+      "description": "dev-graph P12 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p12.md (feature-package/feat-seo-aeo-gap-closure)"
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P12"
+      ],
+      "title": "開発環境へのリリースと system-spec への書き戻し",
+      "description": "dev-graph P13 projection: tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p13.md (feature-package/feat-seo-aeo-gap-closure)"
+    }
+  ],
+  "source_digest": "sha256:204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646"
+}

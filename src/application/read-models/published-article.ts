@@ -1,4 +1,5 @@
 import type { ArticleType } from "@/domain/authoring";
+import { UNKNOWN_ARTICLE_AUTHOR } from "@/domain/blogops";
 import { trackingPathForCode } from "@/domain/monetization";
 
 /**
@@ -29,6 +30,18 @@ export type PublishedEvidence = {
   /** いつ確認したか（YYYY-MM-DD）。 */
   readonly checkedAt: string;
   readonly expired?: boolean;
+};
+
+/**
+ * よくある質問 1 件（`EXPRESSION_BLOCK_KINDS` の `faq`）。
+ *
+ * 節（`PublishedSection`）と分けて持つ。節に混ぜると、問いと答えの対が
+ * 「見出しと段落」に崩れ、`FAQPage` の構造化データを作れなくなる
+ * （どの見出しが問いなのかを後から言い当てられない）。
+ */
+export type PublishedFaqItem = {
+  readonly question: string;
+  readonly answer: string;
 };
 
 /** 記事の 1 節。見出しと本文。 */
@@ -154,8 +167,26 @@ export type PublishedArticle = {
   /** 監修者。付いていない記事もある。 */
   readonly reviewedBy?: PublishedPerson;
   readonly disclosureRequired: boolean;
+  /**
+   * 記事の要点（`EXPRESSION_BLOCK_KINDS` の `key_points`）。
+   *
+   * 10 種の表現ブロックのうち、**置き場が他に無いのはこれだけ**である。
+   * 結論は `summary`、出典は `sections[].claims[].evidence`、更新日は
+   * `updatedAt`、質問は `faq` に既に住んでいるので、それらを別欄で
+   * 二重に持たない（`docs/product/design-decisions.md` §6）。
+   *
+   * **空配列では入れない**（`faq` と同じ扱い）。
+   */
+  readonly keyPoints?: readonly string[];
   readonly sections: readonly PublishedSection[];
   readonly conversation?: readonly PublishedConversationLine[];
+  /**
+   * よくある質問。無い記事もあるので任意。
+   *
+   * **空配列では入れない。** 空で入れると画面の「あるか」の判定が真になり、
+   * 見出しだけの空欄が読者に出る（商品カードと同じ扱い）。
+   */
+  readonly faq?: readonly PublishedFaqItem[];
   /** 商品カード。順位・レビュー・比較のどの型でも使う。 */
   readonly productCards?: readonly PublishedProductCard[];
   /** 順位記事のときだけ入る。 */
@@ -208,6 +239,62 @@ export function articleHref(article: Pick<ArticleSummary, "type" | "slug">): str
 }
 
 /**
+ * BlogOps の編集 aggregate を、公開時点の rich projection へ決定的に写す。
+ *
+ * この変換を D1 adapter に書くと migration と公開操作で本文の形が分かれる。
+ * 入力に無い経歴・根拠・カテゴリは作り話で補わない。
+ */
+export function projectBlogArticle(input: {
+  readonly id: string;
+  readonly siteSlug: string;
+  readonly slug: string;
+  readonly type: ArticleType;
+  readonly title: string;
+  readonly lead: string;
+  readonly authorName: string;
+  readonly publishedAt: Date;
+  readonly updatedAt: Date;
+  readonly categorySlug: string;
+  readonly blocks: readonly {
+    readonly id: string;
+    readonly kind: string;
+    readonly heading: string;
+    readonly body: string;
+  }[];
+}): PublishedArticle {
+  const author =
+    input.authorName.trim() === ""
+      ? UNKNOWN_ARTICLE_AUTHOR
+      : { slug: `source-${input.id}`, name: input.authorName.trim() };
+  const summary = input.lead.trim() === "" ? input.title : input.lead.trim();
+  const sections =
+    input.blocks.length === 0
+      ? [{ id: `${input.id}-body`, heading: "本文", paragraphs: [summary] }]
+      : input.blocks.map((block) => ({
+          id: block.id,
+          heading: block.heading.trim() === "" ? "本文" : block.heading.trim(),
+          paragraphs: [block.body],
+        }));
+  return {
+    slug: input.slug,
+    siteSlug: input.siteSlug,
+    type: input.type,
+    title: input.title,
+    summary,
+    categorySlug: input.categorySlug,
+    publishedAt: input.publishedAt.toISOString(),
+    updatedAt: input.updatedAt.toISOString(),
+    author: {
+      ...author,
+      bio: "",
+      credentials: [],
+    },
+    disclosureRequired: input.blocks.some((block) => block.kind === "disclosure-notice"),
+    sections,
+  };
+}
+
+/**
  * 読者を送り出す先を決める。
  *
  * 合言葉があるときは転送の入口（`/go/<合言葉>`）へ、無いときは ASP の URL へ。
@@ -239,4 +326,39 @@ export function toSummary(article: PublishedArticle): ArticleSummary {
     updatedAt: article.updatedAt,
     authorName: article.author.name,
   };
+}
+
+/**
+ * 記事の束から、ブランドと本数を数える。
+ *
+ * **保存先の実装ごとに数え方を書かない。** D1 と見本の両方が同じ関数を通る。
+ * 別々に書くと、開発中の画面と公開後の画面でブランドの並びが変わり、
+ * どちらが正しいのかを人が判断できなくなる。
+ *
+ * --- 数え方の決まり ---
+ * 1 本の記事が同じブランドを何枚出していても 1 本と数える。
+ * 読者が知りたいのは「読める記事が何本あるか」であり、
+ * 商品カードの枚数ではない。
+ *
+ * 並びは「本数の多い順 → 同数なら名前順」。名前順を後ろに置くのは、
+ * 同数のときに並びが実行ごとに変わると、読者が前回見た位置を頼りにできないため。
+ */
+export function tallyBrands(
+  articles: readonly PublishedArticle[],
+): readonly { readonly name: string; readonly articleCount: number }[] {
+  const counts = new Map<string, number>();
+  for (const article of articles) {
+    // 同じ記事の中の重複をここで潰す。潰さないと商品カードの枚数を数えることになる。
+    const brandsInArticle = new Set(
+      (article.productCards ?? [])
+        .map((card) => card.brand.trim())
+        .filter((brand) => brand !== ""),
+    );
+    for (const brand of brandsInArticle) {
+      counts.set(brand, (counts.get(brand) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .map(([name, articleCount]) => ({ name, articleCount }))
+    .sort((a, b) => b.articleCount - a.articleCount || a.name.localeCompare(b.name));
 }

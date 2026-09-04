@@ -10,11 +10,11 @@ import jsonschema
 import pytest
 import yaml
 
+from plugin_layout_contract import built_component_contracts, optional_source_inventory
+
 
 PLUGIN = Path(__file__).resolve().parents[1]
 REPO = PLUGIN.parents[1]
-INVENTORY = REPO / "plugin-plans" / "dev-graph" / "component-inventory.json"
-EVALS = PLUGIN / "EVALS.json"
 LINT = REPO / "scripts" / "lint-content-review.py"
 CRITERIA_SCHEMA = PLUGIN / "schemas" / "criteria-scenario-verdict.schema.json"
 LIVE_TRIAL_ROOT = (
@@ -23,6 +23,7 @@ LIVE_TRIAL_ROOT = (
 LIVE_TRIAL_SCHEMA = LIVE_TRIAL_ROOT / "schemas" / "live-trial-verdict.schema.json"
 LIVE_TRIAL_VERDICT = LIVE_TRIAL_ROOT / "scripts" / "live-trial-verdict.py"
 POSITIVE_SCENARIOS = PLUGIN / "tests" / "fixtures" / "live-trial-positive-scenarios.json"
+SOURCE_INVENTORY = optional_source_inventory(PLUGIN)
 
 
 def _load_content_lint():
@@ -76,18 +77,35 @@ def _contained_run_evidence(verdict_path: Path, value: str) -> Path:
 
 
 def _targets() -> list[tuple[str, str, Path, set[str]]]:
-    inventory = json.loads(INVENTORY.read_text(encoding="utf-8"))
-    by_id = {item["id"]: item for item in inventory["components"]}
-    evals = json.loads(EVALS.read_text(encoding="utf-8"))["criteria_tests"]["components"]
-    return [
-        (
-            component_id,
-            Path(contract["skill"]).parent.name,
-            PLUGIN / contract["skill"],
-            {item["id"] for item in by_id[component_id]["feedback_contract"]["criteria"]},
+    source_components = (
+        {item["id"]: item for item in SOURCE_INVENTORY["components"]}
+        if SOURCE_INVENTORY is not None
+        else None
+    )
+    targets: list[tuple[str, str, Path, set[str]]] = []
+    for component in built_component_contracts(PLUGIN):
+        component_id = component["id"]
+        built_ids = {
+            item["id"]
+            for item in component["frontmatter"]["feedback_contract"]["criteria"]
+        }
+        declared = set(component["evaluation"]["criteria"])
+        assert declared == built_ids, f"{component_id}: built criteria evidence mapping drift"
+        if source_components is not None:
+            assert component_id in source_components, (
+                f"{component_id}: source inventory component is missing"
+            )
+            source_ids = {
+                item["id"]
+                for item in source_components[component_id]["feedback_contract"]["criteria"]
+            }
+            assert declared == source_ids, (
+                f"{component_id}: source inventory criteria evidence mapping drift"
+            )
+        targets.append(
+            (component_id, component["name"], component["skill_path"], built_ids)
         )
-        for component_id, contract in sorted(evals.items())
-    ]
+    return targets
 
 
 def _assert_scenario_contract(
@@ -150,6 +168,12 @@ def test_independent_scenario_receipt_covers_exact_criteria(
     skill_path: Path,
     criteria_ids: set[str],
 ) -> None:
+    if SOURCE_INVENTORY is None:
+        # criteria/live-trial receipt は source QA artifact で配布対象外。downstream では
+        # built SKILL 自身の exact criteria が EVALS mapping と一致することを維持する。
+        assert set(_skill_criteria(skill_path)) == criteria_ids
+        return
+
     receipt_path = (
         REPO / "eval-log" / "dev-graph" / skill_name / "criteria-test" / "scenario-verdict.json"
     )
@@ -242,16 +266,23 @@ def test_independent_scenario_receipt_covers_exact_criteria(
 
 def test_live_trial_acceptance_rejects_missing_or_incomplete_scenario_contract() -> None:
     """旧形式の field 欠落と、observed の自己申告欠落を負例で固定する。"""
-    receipt_path = (
-        REPO
-        / "eval-log/dev-graph/run-dev-graph-schedule/criteria-test/scenario-verdict.json"
-    )
-    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
-    verdict_path = _contained_repo_ref(
-        receipt["criteria_results"]["OUT1"]["live_trial_verdict_ref"]
-    )
-    verdict = json.loads(verdict_path.read_text(encoding="utf-8"))
     scenario = _positive_scenario_by_skill()["run-dev-graph-schedule"]
+    required = scenario["required_observations"]
+    verdict_path = POSITIVE_SCENARIOS
+    verdict = {
+        "scenario_id": scenario["scenario_id"],
+        "scenario_contract": {
+            "scenario_id": scenario["scenario_id"],
+            "scenario_file": POSITIVE_SCENARIOS.relative_to(REPO).as_posix(),
+            "unobserved": [],
+            "required_observations": required,
+            "observed": [
+                {"index": index, "observation": observation, "evidence_ref": "unused"}
+                for index, observation in enumerate(required, start=1)
+            ],
+            "args_divergence": {"matches": True},
+        },
+    }
 
     missing_contract = json.loads(json.dumps(verdict))
     missing_contract.pop("scenario_contract")
@@ -336,6 +367,12 @@ def test_canonical_content_reviews_are_current_and_complete(
     skill_path: Path,
     criteria_ids: set[str],
 ) -> None:
+    if SOURCE_INVENTORY is None:
+        # content-review verdict と lint は source QA artifact。配布 plugin の自己完結した
+        # criteria contract は built SKILL + EVALS の一致で fail-closed に検査する。
+        assert set(_skill_criteria(skill_path)) == criteria_ids
+        return
+
     lint = _load_content_lint()
     review_dir = REPO / "eval-log" / "dev-graph" / skill_name / "content-review"
     for filename in ("elegance-verdict.json", "rubric-verdict.json"):

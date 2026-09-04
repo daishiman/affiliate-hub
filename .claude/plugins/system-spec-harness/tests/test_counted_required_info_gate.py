@@ -95,10 +95,16 @@ def _matrix(*, counted: bool) -> dict:
                         for i in block
                     ]
                 else:
+                    # 2026-08-25: `unmet_blocking_items` を足した。**検査を通すために
+                    # 資材を書き換えたのではない** — writer (`record-required-info-check`)
+                    # は 2 欄を分けて書くようになっており、この資材は writer の出力の
+                    # 姿を真似たものである。片方だけ古い姿のまま残ると、資材のほうが
+                    # 「writer が書かない形」を正しいと言い続ける。
                     cell["required_info_checks"] = [{
                         "checked_on": "2026-08-21",
                         "checked_with": "record-required-info-check",
                         "blocking_item_count": 0,
+                        "unmet_blocking_items": 0,
                     }]
             row[pf] = cell
         matrix[cat] = row
@@ -144,6 +150,41 @@ def test_the_gate_fires_on_a_state_that_never_counted(tmp_path, capsys) -> None:
 
 def test_a_counted_state_passes(tmp_path) -> None:
     m = _write(tmp_path, _matrix(counted=True))
+    assert c12.main(["--matrix", m, "--require-complete", "--require-counted-required-info"]) == 0
+
+
+def test_the_newest_record_must_separate_total_from_unmet(tmp_path, capsys) -> None:
+    """**上の資材変更が、検査を緩めたのではないことの陽性対照。**
+
+    2026-08-24 の監査が `blocking_item_count` を未充足数と読み違え、充足済みの
+    4 セルを差し戻し対象に挙げた (本人撤回)。総数と未充足数が 1 つの欄に
+    同居していると、読む側が毎回どちらかに賭けることになる。
+
+    直し方は再計測 (`record-required-info-check` の再実行) であって古い記録の
+    書き換えではないので、**最新の 1 件にだけ**要求する。ここが緑のまま
+    `unmet_blocking_items` を消せてしまうなら、資材へ足した 1 行は
+    「赤を消すために書いた行」でしかない。
+    """
+    data = _matrix(counted=True)
+    del data["matrix"]["database"]["web"]["required_info_checks"][0]["unmet_blocking_items"]
+    m = _write(tmp_path, data)
+    assert c12.main(["--matrix", m, "--require-complete", "--require-counted-required-info"]) == 1
+    err = capsys.readouterr().err
+    assert "unmet_blocking_items が無い" in err
+    assert "matrix[database][web]" in err
+
+
+def test_an_older_record_without_the_field_is_left_alone(tmp_path) -> None:
+    """**過去の記録は書き換えさせない。**古い姿の記録が最新でなければ通る。
+    ここを赤くすると、直し方が「数え直す」ではなく「履歴を直す」になる。"""
+    data = _matrix(counted=True)
+    checks = data["matrix"]["database"]["web"]["required_info_checks"]
+    checks.insert(0, {
+        "checked_on": "2026-08-20",
+        "checked_with": "record-required-info-check",
+        "blocking_item_count": 0,
+    })
+    m = _write(tmp_path, data)
     assert c12.main(["--matrix", m, "--require-complete", "--require-counted-required-info"]) == 0
 
 

@@ -20,7 +20,7 @@
 
 // @ts-expect-error: ビルド後にだけ存在する
 import openNextWorker from "./.open-next/worker.js";
-import { sweepExpiredCaptures } from "./src/infrastructure/platform/feedback-capture-r2.ts";
+import { scheduleMaintenanceJobs } from "./src/infrastructure/platform/scheduled-maintenance.ts";
 
 // キャッシュの仕組みが使う入れ物。生成物が公開しているものをそのまま通す。
 // ここで落とすと、公開時に「宣言された入れ物が見つからない」で失敗する。
@@ -37,24 +37,8 @@ const handlers = {
    * 投げると Cloudflare 側で再実行が積まれるが、掃除は次の回で拾えるので必要ない。
    */
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil(
-      (async () => {
-        if (env.BUCKET === undefined) {
-          console.warn("[sweep] 置き場がつながっていないので、掃除を行いませんでした");
-          return;
-        }
-        try {
-          const result = await sweepExpiredCaptures(env.BUCKET, new Date(controller.scheduledTime));
-          console.log(
-            `[sweep] 期限切れの画面の写しを ${result.deleted} 件消しました` +
-              (result.finished ? "" : "（上限に達したため、続きは次の回で消します）"),
-          );
-        } catch (error) {
-          // 掃除できなくても、読み出し側が期限切れを渡さないので外へは出ない。
-          console.error("[sweep] 掃除に失敗しました", error);
-        }
-      })(),
-    );
+    const now = new Date(controller.scheduledTime);
+    scheduleMaintenanceJobs(env, ctx, now);
   },
 };
 

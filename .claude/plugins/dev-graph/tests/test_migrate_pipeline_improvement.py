@@ -10,8 +10,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "migrate-pipeline-improvement.py"
-REPO = Path(__file__).resolve().parents[3]
+from plugin_layout_contract import optional_source_inventory, repository_root
+
+PLUGIN = Path(__file__).resolve().parents[1]
+SCRIPT = PLUGIN / "scripts" / "migrate-pipeline-improvement.py"
+EVIDENCE_VALIDATOR = PLUGIN / "scripts" / "validate-evidence-refs.py"
+REPO = repository_root(PLUGIN)
+SOURCE_INVENTORY = optional_source_inventory(PLUGIN)
 
 
 def _dry_run(repo: Path) -> dict:
@@ -32,13 +37,20 @@ def test_mg_i01_idempotent_on_real_repo() -> None:
 
 def test_mg_a03_core_audit_has_31_rows() -> None:
     receipt = _dry_run(REPO)
-    assert receipt["core_handoff_audit_count"] == 31
     assert receipt["historical_apply_totals"]["initial_moved_count"] == 49
     assert receipt["historical_apply_totals"]["initial_dispositions_added"] == 123
+    if SOURCE_INVENTORY is None:
+        assert receipt["core_handoff_audit_count"] == 0
+        assert receipt["core_handoff_audit"] == []
+    else:
+        assert receipt["core_handoff_audit_count"] == 31
 
 
 def test_mg_a04_core_audit_row_shape() -> None:
     receipt = _dry_run(REPO)
+    if SOURCE_INVENTORY is None:
+        assert receipt["core_handoff_audit"] == []
+        return
     expected_ids = {
         *(f"MM-{index:02d}" for index in range(1, 13)),
         *(f"EV-B{index:02d}" for index in range(1, 11)),
@@ -81,12 +93,19 @@ def test_mg_a01_real_repo_has_20_governed_handoffs_and_123_items() -> None:
         governed.append(rel)
         item_count += sum(len(data.get(key, []) or []) for key in ("findings", "improvements", "clusters"))
         assert data.get("schema_version") == "1.1.0"
-    assert len(governed) == 20
-    assert item_count == 123
+    if SOURCE_INVENTORY is None:
+        assert governed == []
+        assert item_count == 0
+    else:
+        assert len(governed) == 20
+        assert item_count == 123
 
 
 def test_mg_a05_core_findings_have_real_applied_refs() -> None:
     receipt = _dry_run(REPO)
+    if SOURCE_INVENTORY is None:
+        assert receipt["core_handoff_audit"] == []
+        return
     assert all(row["disposition"] == "applied" for row in receipt["core_handoff_audit"])
     assert all((REPO / row["verified_path"]).exists() for row in receipt["core_handoff_audit"])
 
@@ -130,11 +149,12 @@ def test_mg_i02_i03_n01_two_apply_runs_converge_without_content_loss(tmp_path: P
 
 
 def test_mg_n02_n03_evidence_refs_pass_and_generation_paths_are_not_moved() -> None:
-    validator = REPO / "plugins/dev-graph/scripts/validate-evidence-refs.py"
-    proc = subprocess.run(
-        [sys.executable, str(validator), "--repo-root", str(REPO)],
-        capture_output=True, text=True, check=False,
-    )
-    assert proc.returncode == 0, proc.stdout
+    assert EVIDENCE_VALIDATOR.is_file()
+    if SOURCE_INVENTORY is not None:
+        proc = subprocess.run(
+            [sys.executable, str(EVIDENCE_VALIDATOR), "--repo-root", str(REPO)],
+            capture_output=True, text=True, check=False,
+        )
+        assert proc.returncode == 0, proc.stdout
     receipt = _dry_run(REPO)
     assert all(not item["from"].startswith(".dev-graph/plans/generations/") for item in receipt["moved"])

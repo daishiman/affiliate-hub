@@ -24,9 +24,10 @@ from pathlib import Path
 
 import pytest
 
+from plugin_layout_contract import repository_root
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = repository_root(PLUGIN_ROOT)
 SCRIPT = Path(__file__).parent / "fixtures" / "audit_decompose_live_trial.py"
 SCENARIO_PATH = Path(__file__).parent / "fixtures" / "live-trial-positive-scenarios.json"
 SPEC = importlib.util.spec_from_file_location("audit_decompose_live_trial", SCRIPT)

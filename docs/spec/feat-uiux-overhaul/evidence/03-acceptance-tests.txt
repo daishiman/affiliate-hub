@@ -1,0 +1,18 @@
+
+ RUN  v4.1.10 /Users/dm/orca/workspaces/affiliate-hub/ui-ux調整
+
+ ✓ tests/ui/uiux-duplicate-implementation.test.ts (4 tests) 3ms
+ ✓ tests/ui/uiux-screen-single-purpose.test.ts (20 tests) 9ms
+ ✓ tests/ui/uiux-spacing-and-copy.test.ts (111 tests) 10ms
+ ✓ tests/ui/uiux-blog-scaffold.test.ts (11 tests) 22ms
+ ✓ tests/ui/uiux-channel-status.test.tsx (41 tests) 179ms
+ ✓ tests/ui/uiux-concept-matrix.test.tsx (7 tests) 265ms
+ ✓ tests/ui/uiux-sidebar-icons.test.tsx (31 tests) 129ms
+ ✓ tests/ui/uiux-admin-api-contract.test.ts (48 tests) 6ms
+
+ Test Files  8 passed (8)
+      Tests  273 passed (273)
+   Start at  04:18:06
+   Duration  1.22s (transform 1.52s, setup 240ms, import 2.29s, tests 624ms, environment 0ms)
+
+exit=0

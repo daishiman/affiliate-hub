@@ -25,8 +25,10 @@ from pathlib import Path
 
 import pytest
 
+from plugin_layout_contract import optional_source_inventory, repository_root
+
 PLUGIN = Path(__file__).resolve().parents[1]
-REPO = Path(__file__).resolve().parents[3]
+REPO = repository_root(PLUGIN)
 LINT = PLUGIN / "scripts" / "lint-live-trial-task-contract.py"
 BUILDER = PLUGIN / "tests" / "fixtures" / "build_live_trial_fixture.py"
 TRIALS = REPO / "eval-log" / "dev-graph" / "run-dev-graph-system-spec" / "live-trial"
@@ -112,9 +114,26 @@ Verify source_lineage and confirmation_evidence.
 # --- MUST_DETECT: 旧前提の拒否 (受入条件 3) ---------------------------------------
 
 
-def test_stale_real_task_is_rejected() -> None:
-    """旧 build-mode task は bounded scenario の current task を名乗れない。"""
-    code, report = _lint("--task", str(STALE_TASK))
+def test_stale_real_task_is_rejected(tmp_path: Path) -> None:
+    """旧 build-mode task は bounded scenario の current task を名乗れない。
+
+    固定 run の task は source checkout の QA 証跡であり配布物には含めない。配布先では
+    同じ旧前提（scenario と placed input の欠落）を最小 fixture で検査する。
+    """
+    if STALE_TASK.is_file():
+        task = STALE_TASK
+    else:
+        assert optional_source_inventory(PLUGIN) is None, (
+            f"source checkout lost its regression evidence: {STALE_TASK}"
+        )
+        task = tmp_path / "stale-task.md"
+        task.write_text(
+            "# stale build-mode trial\n\n"
+            'Skill({skill: "dev-graph:run-dev-graph-system-spec", '
+            'args: "--repo-root /tmp/fixture --resume"})\n',
+            encoding="utf-8",
+        )
+    code, report = _lint("--task", str(task), "--shape", SHAPE)
     assert code == 2
     rules = _rules(report)
     assert "LT-001" in rules, report["violations"]
@@ -299,16 +318,25 @@ def test_all_mode_reports_real_repo_state_without_fixed_run_id() -> None:
     assert code in {0, 2}
     assert isinstance(report["violations"], list)
     if code == 2:
-        assert {finding["rule"] for finding in report["violations"]} <= {"LT-003", "LT-011"}
+        assert {finding["rule"] for finding in report["violations"]} <= {
+            "LT-003", "LT-011", "LT-014",
+        }
         assert all(
-            "eval-log/dev-graph/run-dev-graph-system-spec/live-trial/" in finding["task"]
+            finding["rule"] == "LT-014"
+            or "eval-log/dev-graph/run-dev-graph-system-spec/live-trial/" in finding["task"]
             for finding in report["violations"]
         )
-    assert report["checked_count"] >= 1
+    missing_evidence = sum(
+        finding["rule"] == "LT-014" for finding in report["violations"]
+    )
+    assert report["checked_count"] + missing_evidence == len(
+        MODULE.load_shape_contracts(REPO)
+    )
     assert all(entry["scenario_id"] for entry in report["checked"])
-    selected = REPO / report["checked"][0]["task"]
-    assert selected.is_file()
-    assert selected.name == "task.md"
+    for entry in report["checked"]:
+        selected = REPO / entry["task"]
+        assert selected.is_file()
+        assert selected.name == "task.md"
 
 
 # --- 契約: fixture 実体との一致 (受入条件 1) ---------------------------------------
@@ -375,7 +403,7 @@ def test_required_entry_points_match_harness_package_contract() -> None:
     task 前提だけ旧世代のまま残ることを防ぐ。
     """
     contract_path = (
-        REPO / "plugins" / "system-spec-harness" / "references" / "package-contract.json"
+        PLUGIN.parent / "system-spec-harness" / "references" / "package-contract.json"
     )
     declared = json.loads(contract_path.read_text(encoding="utf-8"))["entry_points"]["skills"]
     assert set(_contract()["required_entry_points"]) <= set(declared)

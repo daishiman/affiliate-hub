@@ -37,6 +37,9 @@ function toMembership(row: MembershipRow): Membership | null {
     id: row.id as MembershipId,
     workspaceId: asWorkspaceId(row.workspaceId) as WorkspaceId,
     userId: asUserId(row.userId) as UserId,
+    // 招待したアドレス。ここでは**判定に使わない**（判定は上の `user_id` だけ）。
+    // 持ち回るのは、書く側と同じ 1 つの型で扱うため。
+    invitedEmail: row.invitedEmail,
     roles: row.roles as readonly Role[],
     scopedBrandIds: row.scopedBrandIds.map((id) => asBrandId(id) as BrandId),
     displayName: row.displayName,

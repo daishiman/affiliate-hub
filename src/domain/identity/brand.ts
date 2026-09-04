@@ -130,3 +130,72 @@ export function missingPublishReadiness(brand: Brand): readonly string[] {
   if (!brand.contactEmail) missing.push("問い合わせ先メールアドレス");
   return missing;
 }
+
+/**
+ * ブランドの標準値のうち、記事生成の入力へそのまま渡すもの。
+ *
+ * 生成側の型（`GenerationInput`）を **import しない**。
+ * ブランドは身元の文脈、生成は制作の文脈で、どちらも相手を知らないでよい。
+ * 形だけを合わせておけば、受け取る側が構造的に受け取れる。
+ * import すると、生成側の都合でブランドが動かされるようになる。
+ */
+export type BrandGenerationDefaults = {
+  readonly cta: { readonly kind: string; readonly phrase: string } | null;
+  readonly disclosure: string | null;
+};
+
+/**
+ * ブランド設定 → 記事生成の既定値。
+ *
+ * **免責が未設定なら埋めない。** ここで既定文を入れると、
+ * 「書いていないのに広告表記が付いた記事」が公開まで通る。
+ * `null` のまま返し、生成の手前（`missingInputFields`）で止まらせる。
+ * 呼びかけ文のほうは `createBrand` が必ず既定を入れるので、常に埋まる。
+ */
+export function brandGenerationDefaults(brand: Brand): BrandGenerationDefaults {
+  return {
+    cta: { kind: "brand_default", phrase: brand.defaultCta },
+    disclosure: brand.disclaimer,
+  };
+}
+
+/**
+ * 呼び出し側が明示しなかったところだけを、ブランドの標準値で埋める。
+ *
+ * **明示した値が勝つ。** 記事ごとに呼びかけを変えたい場面はあり、
+ * そこでブランドの標準値が上書きしてしまうと、指定した意味が無くなる。
+ *
+ * ブランドが取れないとき（保存先へ届かない等）は `null` を渡す。
+ * 何も足さずに返し、足りなければ生成の手前で止まる。
+ * ここで見本の値をでっち上げると、**設定していないのに動いてしまう**。
+ *
+ * `cta` を `??` で倒してよいのは、このコードベースで `cta: null` が
+ * 「呼びかけを置かない」を意味しないためである。`missingInputFields` は
+ * `null` を欠落として数える（`isEmpty(null)` が真）。置かない意図は
+ * `{ kind: "none", phrase: ... }` と明示するしかなく、明示されたものは
+ * ここで上書きされない。この前提が変わったら、ここも変える必要がある。
+ */
+export type BrandDefaultable = {
+  readonly cta?: { readonly kind: string; readonly phrase: string } | null;
+  /**
+   * 受け取る側は `null` を持たない。**未設定は `undefined` で表す。**
+   *
+   * `brandGenerationDefaults` は `null`（＝ブランドが免責を決めていない）を返すが、
+   * それをそのまま流すと、受け取る型（`GenerationInput`）と食い違う。
+   * 境目をここに置き、`null` は `undefined` へ落として渡す。
+   */
+  readonly disclosure?: string;
+};
+
+export function withBrandDefaults<T extends BrandDefaultable>(
+  brand: Brand | null,
+  provided: T,
+): T & BrandDefaultable {
+  if (brand === null) return provided;
+  const d = brandGenerationDefaults(brand);
+  return {
+    ...provided,
+    cta: provided.cta ?? d.cta,
+    disclosure: provided.disclosure ?? d.disclosure ?? undefined,
+  };
+}

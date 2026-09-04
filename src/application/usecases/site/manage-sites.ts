@@ -5,9 +5,7 @@ import {
   type SiteBlueprint,
   type SitePattern,
   type SiteRoute,
-  type StandardPage,
   differentiationGap,
-  missingTrustPages,
   routesFor,
 } from "@/domain/authoring";
 import {
@@ -15,6 +13,7 @@ import {
   type DomainError,
   type Result,
   containsCommercial,
+  assertWorkspaceWideAccess,
   domainError,
   err,
   ok,
@@ -75,9 +74,22 @@ export type ManagedSiteSummary = {
   readonly brandTheme: string;
   readonly categoryCount: number;
   readonly routeCount: number;
-  /** 揃っていない信頼ページ。空でないブログは公開できない。 */
-  readonly missingTrustPages: readonly StandardPage[];
-  readonly launchBlockedReason: string | null;
+  /**
+   * 10 軸のうち、書き分けの判断に要る 3 つ (A5)。
+   *
+   * 一覧に持たせているのは、書き分ける先を選ぶ画面がブログ 1 本ずつ
+   * 設計図を引き直さずに済むようにするため。1 本ずつ引くと、
+   * 選ぶ本数だけ問い合わせが増え、しかも途中で失敗した 1 本だけ
+   * 切り口が空のまま並ぶ。
+   *
+   * 10 軸すべてを持たせない。選ぶ場で読むのはこの 3 つで、
+   * 残り 7 つは設計図の画面で読む。
+   */
+  readonly differentiation: {
+    readonly targetReader: string;
+    readonly searchIntent: string;
+    readonly conclusionStance: string;
+  };
 };
 
 /**
@@ -104,12 +116,6 @@ export type ListManagedSitesOutput = {
   readonly emptyReason: string | null;
 };
 
-function launchBlockedReason(blueprint: SiteBlueprint): string | null {
-  const missing = missingTrustPages(blueprint);
-  if (missing.length === 0) return null;
-  return `信頼のための固定ページが揃っていません（${missing.join(" / ")}）。広告表記の説明先が無い記事を公開させないため、ここが空になるまで公開できません。`;
-}
-
 function summarize(slug: string, blueprint: SiteBlueprint): ManagedSiteSummary {
   return {
     slug,
@@ -121,8 +127,11 @@ function summarize(slug: string, blueprint: SiteBlueprint): ManagedSiteSummary {
     brandTheme: blueprint.theme.brandTheme,
     categoryCount: blueprint.categories.length,
     routeCount: routesFor(blueprint).length,
-    missingTrustPages: missingTrustPages(blueprint),
-    launchBlockedReason: launchBlockedReason(blueprint),
+    differentiation: {
+      targetReader: blueprint.differentiation.targetReader,
+      searchIntent: blueprint.differentiation.searchIntent,
+      conclusionStance: blueprint.differentiation.conclusionStance,
+    },
   };
 }
 
@@ -133,6 +142,8 @@ export function createListManagedSitesUseCase(
   guardEditorial(deps);
   return {
     async execute(actor: ActorContext): Promise<Result<ListManagedSitesOutput, DomainError>> {
+      const scoped = assertWorkspaceWideAccess(actor, "ブログ");
+      if (!scoped.ok) return scoped;
       const listed = await deps.sites.list();
       if (!listed.ok) return listed;
       const items = ownedBy(actor, listed.value).map((s) => summarize(s.slug, s.blueprint));
@@ -165,6 +176,8 @@ export function createGetManagedSiteUseCase(
       actor: ActorContext,
       input: GetManagedSiteInput,
     ): Promise<Result<GetManagedSiteOutput, DomainError>> {
+      const scoped = assertWorkspaceWideAccess(actor, "ブログ");
+      if (!scoped.ok) return scoped;
       const found = await deps.sites.findBySlug(input.siteSlug);
       if (!found.ok) return found;
       const blueprint = found.value;
@@ -219,6 +232,8 @@ export function createCheckSiteDifferentiationUseCase(
   guardEditorial(deps);
   return {
     async execute(actor: ActorContext): Promise<Result<CheckSiteDifferentiationOutput, DomainError>> {
+      const scoped = assertWorkspaceWideAccess(actor, "ブログ");
+      if (!scoped.ok) return scoped;
       const listed = await deps.sites.list();
       if (!listed.ok) return listed;
       // 比べる相手も自分の会社のブログだけ。他社と比べて「似ている」と言われても直せない。

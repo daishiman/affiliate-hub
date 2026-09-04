@@ -33,7 +33,7 @@ let approveResult: unknown = { status: "idle", message: "" };
 let startResult: unknown = { status: "idle", message: "" };
 let advanceResult: unknown = { status: "idle", message: "" };
 
-vi.mock("@/presentation/admin/improvement-action", () => ({
+vi.mock("@/presentation/admin/observe/improvement-action", () => ({
   draftVariantSpecAction: async () => draftResult,
   approveVariantSpecAction: async () => approveResult,
   startLoopRunAction: async () => startResult,
@@ -45,7 +45,7 @@ const {
   ApproveVariantSpecForm,
   DraftVariantSpecForm,
   StartLoopRunForm,
-} = await import("@/presentation/admin/improvement-forms");
+} = await import("@/presentation/admin/observe/improvement-forms");
 
 const DIMENSIONS = [
   { value: "section_order", label: "記事の中身／並べる順番" },

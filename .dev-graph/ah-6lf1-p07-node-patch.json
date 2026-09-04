@@ -1,0 +1,24 @@
+{
+  "graph_node_id": "SYS-BLOG-UI-BUILDER-P07",
+  "patch": {
+    "title": "受入全件の受け入れ判定",
+    "purpose": "feat-blog-ui-builderの受入全件 (受入正本レジストリの canonical ID) すべてについて実物 (pnpm run preview上のWorkersランタイム) での判定が完了し、判定結果と根拠が記録された状態を成立させる。",
+    "goal": "feat-blog-ui-builderの受入全件 (受入正本レジストリの canonical ID) すべてについて実物 (pnpm run preview上のWorkersランタイム) での判定が完了し、判定結果と根拠が記録された状態を成立させる。",
+    "scope_in": [
+      "Produced artifacts: docs/spec/feat-blog-ui-builder/acceptance-report.md (受入全件の判定結果と根拠)",
+      "Consumed artifacts: docs/spec/feat-blog-ui-builder/test-run-report.md, docs/spec/feat-blog-ui-builder/requirements-baseline.md",
+      "Write scope/touches: docs/spec/feat-blog-ui-builder/acceptance-report.md"
+    ],
+    "scope_out": [
+      "feat-blog-ui-builder の scope_out に該当する変更",
+      "判定でFAILとなった場合の実装修正 (write_scope外であり、必要な場合はP05へ差し戻す)"
+    ],
+    "acceptance": [
+      "Automated commands: `pnpm run preview` (Workersランタイム, localhost:8787) 上で受入全件を実物確認する",
+      "Automated commands: `pnpm run test:e2e` (E2E受入シナリオを実行する)",
+      "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ui-builder` (本 package の C12 決定論検証を世代非依存に再実行する)",
+      "Required evidence: P07 の 成果物 section に記載した produced artifacts のパス"
+    ],
+    "architecture_refs": ["arch-two-layer-platform"]
+  }
+}

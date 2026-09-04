@@ -1,0 +1,69 @@
+# A4（新しい配信先の追加が、記述の追加だけで済むこと）の実測
+
+実施日: 2026-08-22
+
+## 測り方を変えた理由
+
+最初は `git diff --stat` で「何ファイル触ったか」を測ろうとしたが、これは使えない。
+作業ツリーはベース（HEAD = 43a12ce）から 76 ファイル分の差分を持っており、
+その中に A4 の実験で足した 1 エントリが埋もれる。差分の大きさは
+「1 チャネル追加で生じた変更」を表さない。
+
+そこで、変更量ではなく **機械が判定できる 2 つの問い** に置き換えた。
+
+  (a) 画面側を 1 行も直さずに、型検査が通るか
+  (b) 画面側を 1 行も直さずに、UI 系テストが緑のまま新チャネルを扱うか
+
+## 手順（そのまま再現できる）
+
+1. `src/domain/distribution/channel.ts` を退避する
+   （退避前の指紋 sha1: d6b7545af69b2e4a4429d300fc7d8ba0b48a491b）
+2. `CHANNEL_CAPABILITIES` へ `mastodon` を 1 エントリだけ足す。
+   `accentToken` は既存の `--channel-mode-api-publish` を指す
+   （配信先ごとの別名を作ると `semantic.css` を触ることになり、測定が濁る）
+3. `npx tsc --noEmit`
+4. `npx vitest run tests/ui tests/presentation`
+5. 退避したファイルへ戻し、指紋の一致と `npx tsc --noEmit` の 0 件を確認する
+
+## 結果
+
+### 手順 3: 型検査
+
+    src/infrastructure/channels/channel-registry.ts(78,7): error TS2741:
+      Property 'mastodon' is missing in type
+      '{ own_site: ...; x: ...; ... 8 more ...; bluesky: ... }'
+      but required in type 'Readonly<Record<"own_site" | "x" | "instagram" |
+      "youtube" | "tiktok" | "threads" | "facebook" | "mastodon" | "note" |
+      "newsletter" | "wordpress" | "bluesky", ConnectorFactory>>'.
+    tsc exit=2
+
+**エラーは 1 件だけ。** 場所は接続実装の登録所ただ 1 つ。
+`src/app/admin/**` と `src/presentation/**` は 1 行も要求されなかった。
+
+### 手順 4: UI 系テスト
+
+    Test Files  80 passed (80)
+    Tests     2514 passed (2514)
+
+**画面側を 1 行も直さずに全通過。** 新しい配信先は選択肢へ自動で並んだ。
+
+### 手順 5: 復元
+
+    復元後の sha1: d6b7545af69b2e4a4429d300fc7d8ba0b48a491b  （退避前と一致）
+    grep -c "mastodon" src/domain/distribution/channel.ts → 0
+    npx tsc --noEmit → exit=0
+
+## 読み取れること
+
+「記述を足すだけ」が成り立つのは **画面まで**。接続実装（コネクタ）は自動では生えない。
+
+これは欠陥ではなく設計である。`channel-registry.ts` の
+`Readonly<Record<ChannelKind, ConnectorFactory>>` が投稿手段を型で要求するので、
+書かなければコンパイルが通らない。もしここが緩ければ、
+画面から選べるのに押した瞬間に失敗する配信先を作れてしまう。
+
+`ChannelKind = keyof typeof CHANNEL_CAPABILITIES` なので、表が唯一の正本であり、
+画面側に配信先名の書き起こしが存在しない。それが (b) の結果に出ている。
+
+なお `facebook` エントリのコメント（channel.ts:237-250）に、
+この同じ実験を通した記録が既にある。本証跡はその再現である。

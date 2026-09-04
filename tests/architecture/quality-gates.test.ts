@@ -5,9 +5,12 @@ import { describe, expect, it } from "vitest";
 import {
   AI_EVAL_BUDGET,
   CHECKS,
+  GENERATED_DOC_CHECKS,
   GLOBAL_COVERAGE,
   LAYER_COVERAGE,
+  LAYER_EXEMPTION_RULES,
   MAX_STUB_GAP_POINTS,
+  MAX_UNFLOORED_LAYERS,
   RELEASE_GATES,
   REQUIRED_TEST_TYPES,
   STUB_PATTERNS,
@@ -19,12 +22,18 @@ import {
   TIER_IDS,
   COVERAGE_AXES,
   checksForTiers,
+  isMeasuredSource,
   judgeLayerCoverage,
+  layerCoverageMargins,
+  judgeLayerInventory,
   judgeStubGap,
+  orderViolations,
 } from "../../quality-gates.config.mjs";
 import { readTier, scanTiers } from "../../scripts/tier-scan.mjs";
 
 /**
+ * @req REQ-CI02, REQ-CI03, REQ-CI09, REQ-TS09, REQ-TS10
+ *
  * 品質ゲートの正本が 1 つであり続けることを見る。
  *
  * 閾値や検査名が 2 か所に書かれると、**手元と機械で別々の基準**が育つ。
@@ -32,6 +41,25 @@ import { readTier, scanTiers } from "../../scripts/tier-scan.mjs";
  * ここで見ているのは「数字が正しいか」ではなく「数字の置き場所が 1 つか」である。
  *
  * 規範: docs/spec/11-CI-CD・品質ゲート仕様.md §2
+ *
+ * **印はヘッダの先頭に置くこと。`scripts/traceability.mjs` は先頭 40 行しか読まない
+ * （`HEADER_LINES = 40`）。**一度この doc の末尾に置いたら、ちょうど 40 行目に載った。
+ * 通ってはいたが、**この上に説明を 1 行足すだけで印が範囲外へ落ちて由来不明に戻る**。
+ * しかも落ちても TypeScript も vitest も何も言わない — 気づくのは
+ * `TRACEABILITY_MAX_UNLINKED` を超えた日で、そのとき原因は「1 行足したこと」に見えない。
+ *
+ * **この印は 2026-08-21 に足した。それまでこのファイルは由来の無いテスト 3 件の 1 つで、
+ * `TRACEABILITY_MAX_UNLINKED`（上限 2）を超えさせていた**（残課題 132）。
+ * 由来が無いテストは実装をなぞっているだけなので、実装が間違っていても緑になる。
+ * **表の側には最初から載っていた**（`REQ-TS09` と `REQ-CI02` の実装欄がこのファイルを名指ししている）。
+ * 欠けていたのは逆向き — テストから要件を指す印だけである。
+ * **片側だけの結線は、表を見ているかぎり結ばれて見える。**
+ *
+ * 5 つ挙げているのは、この 1 ファイルが実際に 5 つを見ているため:
+ * `REQ-CI02`（「閾値の置き場所」「正本がひとつであること」）、
+ * `REQ-CI03`（「検査の一覧」の並び順）、`REQ-CI09`（「検査の段」）、
+ * `REQ-TS09`（契約検査そのもの）、`REQ-TS10`（「層別カバレッジの床」「スタブの扱い」）。
+ * 通すためだけに 1 つへ絞ると、残り 4 つが「テストの無い要件」に見える。
  */
 
 const ROOT = process.cwd();
@@ -54,6 +82,8 @@ describe("閾値の置き場所", () => {
   });
 
   it("層の一覧が src の実際の作りと一致する", () => {
+    // これは**片方向**である（表 → src）。逆向き（src → 表）は
+    // 下の「層の一覧の向き」が見る。片方だけだと、src に層が増えた日に緑が返る。
     for (const layer of LAYER_COVERAGE) {
       expect(existsSync(join(ROOT, layer.dir)), `${layer.dir} がありません`).toBe(true);
     }
@@ -64,6 +94,130 @@ describe("閾値の置き場所", () => {
     for (const layer of LAYER_COVERAGE) {
       expect(layer.why.length, `${layer.layer} に理由がありません`).toBeGreaterThan(10);
     }
+  });
+});
+
+/**
+ * 向きを 1 本足す——**`src` の側から表を突き合わせる。**
+ *
+ * 上の「層の一覧が `src` の実際の作りと一致する」は `LAYER_COVERAGE` を回って
+ * `dir` の存在だけを見ていた。向きが片方しかないので、`src` の下に層が増えて
+ * 表に無い場合、その層は**カバレッジの下限を持たないまま**検査は緑を返す。
+ * 測られていない層は、カバレッジの数字の外側で育つ。
+ *
+ * 除く条件は**名前の一覧ではなく規則**で書く（`LAYER_EXEMPTION_RULES`）。
+ * 一覧にすると、置き場が増えた日にそこへ名前を足すだけで緑にできてしまい、
+ * 「守っている形」だけが残る。
+ *
+ * 規範: tasks/task-layer-coverage-one-way.md、docs/product/backlog.md 項目 78
+ */
+describe("層の一覧の向き", () => {
+  /** ディレクトリ配下の全ファイルを、そのディレクトリからの相対で返す。 */
+  const filesUnder = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? filesUnder(join(dir, e.name)).map((f) => `${e.name}/${f}`) : [e.name],
+    );
+
+  /** `src` 直下のディレクトリ。**ファイルは層ではない**ので取らない。 */
+  const scanSrc = () =>
+    readdirSync(join(ROOT, "src"), { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => ({ name: e.name, files: filesUnder(join(ROOT, "src", e.name)) }));
+
+  it("突き合わせる元の集合が空でない（空振り防止）", () => {
+    // **0 件を返す検査は、対象が消えても 0 件を返す。**`src` を読み損ねた日に
+    // 「未対応の層は 0 件」が出ると、それは健全さではなく走査の故障である。
+    // 下限を数で書かず床の数から取るのは、層を増やした日に一緒に上がるため。
+    const entries = scanSrc();
+    expect(
+      entries.length,
+      "src 直下のディレクトリが床の数より少なく見えています。走査が壊れている疑いがあります",
+    ).toBeGreaterThanOrEqual(LAYER_COVERAGE.length);
+  });
+
+  it("床が宙に浮いていない（表にあって src に無い層が無い）", () => {
+    // **この 0 件は 2 通りの理由で出る**——本当に宙に浮いた床が無いときと、
+    // 走査か表が壊れて `LAYER_COVERAGE` を 1 件も突き合わせなかったとき。
+    // 後者でも `missing` は `[]` になるので、**母集団の件数の床を同居させる**（残課題 102 の形）。
+    //
+    // 床を `LAYER_COVERAGE.length` で書かないのは、表が空になった日に
+    // `0 >= 0` で通ってしまい、**まさに見分けたかった側を見逃す**ため。
+    // ここは実測の数で書く（2026-08-21 実測: 突き合わせた層は 5 件）。
+    // **上げる向きにしか動かさない**（層を減らしたなら、減らした理由をここに書いてから下げる）。
+    const entries = scanSrc();
+    const matched = entries.filter((e) => LAYER_COVERAGE.some((l) => l.dir === `src/${e.name}`));
+    expect(
+      matched.length,
+      "突き合わせた層が 5 件を割っています。0 件の主張ではなく、走査か LAYER_COVERAGE のほうを疑ってください",
+    ).toBeGreaterThanOrEqual(5);
+    expect(judgeLayerInventory(entries).missing).toEqual([]);
+  });
+
+  it("床を持たない置き場が、宣言した上限を超えていない", () => {
+    // ここが赤くなる典型は「`src` の下に層を 1 つ増やした」である。
+    // **上限を上げて緑にしない。**上げる行為は、床の無い場所を増やすことそのもの。
+    // 床を置くか、`LAYER_EXEMPTION_RULES` に**規則として**除く理由を書くか、どちらか。
+    const { unfloored, exempt } = judgeLayerInventory(scanSrc());
+    expect(
+      unfloored.length,
+      `床を持たない置き場: ${unfloored.map((n) => `src/${n}`).join(", ") || "なし"}` +
+        `（上限 ${MAX_UNFLOORED_LAYERS}）。` +
+        "上限を上げて緑にするのは禁止です。床を置くか、規則で除いてください。" +
+        `規則で除かれているもの: ${exempt.map((e) => `src/${e.layer}=${e.rule}`).join(", ") || "なし"}`,
+    ).toBeLessThanOrEqual(MAX_UNFLOORED_LAYERS);
+  });
+
+  it("未知の層を混ぜると検出する（合成例による陽性対照）", () => {
+    // **実際に `src` の下に置き場を作って赤を見た**（2026-08-21、`src/zz_probe_layer/probe.ts`
+    // を 1 枚置いたところ、上の検査が「床を持たない置き場: src/db, src/zz_probe_layer（上限 1）」
+    // で赤になった）。同じ置き場の中身を `probe.d.ts` へ替えると規則で除かれて緑に戻ることも見た
+    // ——除外が名前ではなく中身で効いている。置き場は作業場所の外へ退けたので、
+    // ここでは同じ形を合成値で固定する（**消す操作は使っていない**）。
+    const before = judgeLayerInventory(scanSrc()).unfloored;
+    const { unfloored } = judgeLayerInventory([
+      ...scanSrc(),
+      { name: "zz-未知の層", files: ["a.ts"] },
+    ]);
+    expect(unfloored, "src に層を増やしたのに検出されません").toContain("zz-未知の層");
+    // 上限そのものと比べない。比べると、実際に層が増えた日に**この検査まで一緒に赤くなり**、
+    // 「判定側が壊れた」のか「層が増えた」のかが読み分けられなくなる。増えた分だけを見る。
+    expect(unfloored.length, "1 つ増やしたのに検出は 1 件増えていません").toBe(before.length + 1);
+  });
+
+  it("除外の規則が、名前ではなく性質を見ている", () => {
+    // 規則が名前の一覧に退化していないことを、**同じ中身で名前だけ変えて**確かめる。
+    // 名前で除いているなら、名前を変えた瞬間に判定が変わる。
+    const measured = { files: ["index.ts"] };
+    const declarationsOnly = { files: ["env.d.ts"] };
+    for (const name of ["types", "zz-別の名前"]) {
+      expect(judgeLayerInventory([{ name, ...measured }]).unfloored).toEqual([name]);
+      expect(judgeLayerInventory([{ name, ...declarationsOnly }]).unfloored).toEqual([]);
+    }
+    // 二重下線の規則も、囲みの形だけを見る（`__tests__` という綴りを数えない）。
+    expect(judgeLayerInventory([{ name: "__any__", files: ["a.ts"] }]).unfloored).toEqual([]);
+    expect(judgeLayerInventory([{ name: "__片方だけ", files: ["a.ts"] }]).unfloored).toEqual([
+      "__片方だけ",
+    ]);
+    // 空の置き場は除かない。中身が無いことを理由に通すと、後から足された日に気づけない。
+    expect(judgeLayerInventory([{ name: "zz-空", files: [] }]).unfloored).toEqual(["zz-空"]);
+  });
+
+  it("すべての除外の規則に、除く理由が書かれている", () => {
+    for (const rule of LAYER_EXEMPTION_RULES) {
+      expect(rule.why.length, `${rule.id} に理由がありません`).toBeGreaterThan(10);
+    }
+  });
+
+  it("「測られる中身」の判定が vitest の設定と食い違っていない", () => {
+    // `isMeasuredSource` は `vitest.config.mts` の写しである。向こうが `.d.ts` を
+    // 計測に入れた日、こちらは「型宣言だけの置き場は層でない」と言い続けてしまう。
+    const config = read("vitest.config.mts");
+    expect(config, "coverage.exclude から .d.ts が消えています").toContain("src/**/*.d.ts");
+    expect(config, "coverage.include が src の .ts を見ていません").toContain("src/**/*.ts");
+    expect(isMeasuredSource("a.ts")).toBe(true);
+    expect(isMeasuredSource("a.tsx")).toBe(true);
+    expect(isMeasuredSource("a.d.ts")).toBe(false);
+    expect(isMeasuredSource("a.css")).toBe(false);
   });
 });
 
@@ -148,6 +302,74 @@ describe("層別カバレッジの床", () => {
     ).toHaveLength(1);
   });
 
+  it("下限をわずかに割った実測を、丸めで通さない", () => {
+    // **これは実際に通っていた。**2026-09-02、presentation の分岐は
+    // 3247/4061 = 79.956% で、表示も判定も「80」だった。下限 80 に
+    // 1.8 本足りないまま「すべての層が下限を満たしています」と出ていた。
+    //
+    // 直したのは判定側ではなく**渡す値**である。判定は昔から `<` で正しく、
+    // 呼ぶ側が丸めた値を渡していた。だからここでは、丸めていない値を渡せば
+    // 噛むことを固定する。呼ぶ側が丸めに戻ったら、次の検査が捕まえる。
+    const layer = LAYER_COVERAGE.find((l) => l.layer === "app");
+    if (!layer) throw new Error("app 層が LAYER_COVERAGE にありません");
+
+    const justBelow = Object.fromEntries(AXES.map((a) => [a, layer.floors[a] - 0.04]));
+    for (const axis of AXES) {
+      const found = judgeLayerCoverage({ ...justBelow }, layer);
+      expect(found.length, `${axis} 軸を含め、床をわずかに割った 4 軸が検出されません`).toBe(
+        AXES.length,
+      );
+    }
+    // 文面に出す数字のほうは丸める。79.95999999 と印刷しても読めない。
+    expect(judgeLayerCoverage({ ...justBelow }, layer)[0]).not.toMatch(/\d\.\d\d/);
+  });
+
+  it("判定へ渡す実測が、表示用に丸めた値ではない", () => {
+    // 上の検査は判定関数だけを見ている。**丸めた値を渡す側**が戻ると素通りする。
+    // 呼び出しの形をここで固定する。`row` は表示用（1 桁）、`exact` は判定用。
+    const script = read("scripts/coverage-report.mjs");
+    const calls = script
+      .split("\n")
+      .filter((line) => !line.trimStart().startsWith("//"))
+      .filter((line) => line.includes("judgeLayerCoverage("));
+    expect(calls.length, "judgeLayerCoverage の呼び出しが見つかりません").toBeGreaterThan(0);
+    for (const call of calls) {
+      expect(call, "丸めた row(...) を判定へ渡しています").toContain("exact(");
+    }
+  });
+
+  it("余裕を本数で数え、下限ちょうどを 0 本と言う", () => {
+    // 割合で出すと「80.3%」の猶予が 12 本なのか 1 本なのか読めない。
+    // 増える側はいつも本数で来るので、単位を揃える。
+    const layer = { layer: "合成", floors: { lines: 80, branches: 80, functions: 80, statements: 80 } };
+    const box = (covered: number) => ({ covered, total: 100 });
+
+    const atFloor = layerCoverageMargins(
+      { lines: box(80), branches: box(80), functions: box(80), statements: box(80) },
+      layer,
+    );
+    for (const m of atFloor) expect(m.margin, `${m.axis} の床ちょうど`).toBe(0);
+
+    // 1 本足りなければ負。ここが 0 のままだと「不足」と「ぎりぎり」が同じ顔になる。
+    const below = layerCoverageMargins(
+      { lines: box(79), branches: box(79), functions: box(79), statements: box(79) },
+      layer,
+    );
+    for (const m of below) expect(m.margin).toBe(-1);
+
+    // 床は切り上げる。33/40 は 82.5% で通るが、80% ちょうどに要るのは 32 本。
+    const [rounded] = layerCoverageMargins(
+      {
+        lines: { covered: 33, total: 40 },
+        branches: box(80),
+        functions: box(80),
+        statements: box(80),
+      },
+      layer,
+    );
+    expect(rounded.margin).toBe(1);
+  });
+
   it("既知の不足: app の分岐の床は、宣言した target に届いていない", () => {
     // **塞げていないことを、文章ではなく検査にする。**
     // 2026-08-21 の穴を塞ぐとき、直し方を 2 つ比べて (B)「4 列に床を張り、
@@ -211,12 +433,101 @@ describe("検査の一覧", () => {
     }
   });
 
-  it("安いものから順に並んでいる", () => {
-    // 型が合っていないコードのテストを 30 秒かけて走らせても、分かるのは同じことである。
+  it("すべての検査に費用の分類が付いている", () => {
+    // 分類の無い検査があると、下の性質検査はそれを**黙って見逃す**。
+    // 「全件を見ている」と言えなくなる穴は、ここで塞ぐ。
+    for (const check of CHECKS) {
+      expect(
+        ["static", "heavy"],
+        `${check.id} に cost がありません（static か heavy を書いてください）`,
+      ).toContain((check as { cost?: string }).cost);
+    }
+  });
+
+  it("安いものから順に並んでいる（全件）", () => {
+    // **以前ここは 3 組を名指しするだけだった。**
+    // 名指ししなかった検査は素通りし、実測 0.1 秒の spec-freshness が
+    // 858 秒の test の後ろに居座って、0.1 秒で分かる事実に毎回 14 分かかっていた。
+    // 例示で守った不変条件は、要素が増えた日に守られなくなる。
+    const violations = orderViolations(CHECKS);
+    expect(violations.map((v) => v.message).join("\n")).toBe("");
+    expect(violations).toEqual([]);
+  });
+
+  it("並びの判定が、1 本目を走らせる前に置かれている", () => {
+    // **この検査自身が `test` の中に居る。** つまり並びが壊れたことを
+    // 858 秒の門の中で知ることになり、直そうとしている遅さをそのまま持つ。
+    // なので `verify.mjs` の側にも同じ判定を置き、ここではその存在を見る。
+    const source = read("scripts/verify.mjs");
+    expect(source, "verify.mjs が orderViolations を取り込んでいません").toContain(
+      "orderViolations",
+    );
+    // 「取り込んだが呼んでいない」を塞ぐ。答えを捨てる形は、このリポジトリで
+    // 3 回起きている（spec-freshness.mjs の冒頭に記録がある）。
+    expect(source).toMatch(/orderViolations\(CHECKS\)/);
+    // 呼ぶ位置。検査を回す for より後ろだと、0 秒で言えることを最後に言う。
+    expect(
+      source.indexOf("orderViolations(CHECKS)"),
+      "並びの判定が、検査を回す for より後ろにあります",
+    ).toBeLessThan(source.indexOf("for (const check of CHECKS)"));
+  });
+
+  it("重い検査の後ろへ静的な検査を移すと検出する（合成例による陽性対照）", () => {
+    // 落ちない検査は、無い検査と見分けが付かない。
+    // 実際に違反を作って、上の検査が本当に反応することを確かめる。
+    const heavy = { id: "heavy-example", cost: "heavy" as const };
+    const cheap = { id: "cheap-example", cost: "static" as const };
+    const broken = [heavy, cheap] as unknown as typeof CHECKS;
+
+    const violations = orderViolations(broken);
+    expect(violations.length, "重い検査の後ろの静的検査を見逃しています").toBeGreaterThan(0);
+    expect(violations[0].id).toBe("cheap-example");
+    expect(violations[0].after).toBe("heavy-example");
+  });
+
+  it("成果物を要る検査は、重い検査の後ろに居てよい", () => {
+    // coverage-report は coverage/coverage-summary.json を読む。
+    // 前に出すと読むものが無くて落ちる。**規則が現実を壊さない**ことを確かめる。
+    const heavy = { id: "heavy-example", cost: "heavy" as const, produces: ["artifact"] };
+    const consumer = { id: "consumer-example", cost: "static" as const, needs: ["artifact"] };
+    const legit = [heavy, consumer] as unknown as typeof CHECKS;
+
+    expect(orderViolations(legit)).toEqual([]);
+  });
+
+  it("生成物を作り直す検査が、テストより前に並んでいる", () => {
+    // **この並びは好みではなく、直せるかどうかを決めている。**
+    //
+    // 生成物の鮮度を見張っているのはテストの中
+    // （`tests/architecture/generated-doc-freshness.test.ts`）である。
+    // 生成し直すのはこの 3 件である。後ろに置くと、こうなる。
+    //
+    //   テストを 1 本足す → 生成物が古くなる → 鮮度のテストが落ちる
+    //   → 止める検査なので `verify` はそこで終わる
+    //   → **生成し直す 3 件に到達しない**
+    //
+    // 失敗の文面には直し方が書いてあるのに、`verify` を何度走らせても直らない。
+    // 実際そうなっていて、CI が毎回この形で落ちていた。
+    // 元の並びへ戻すと、同じ行き止まりがそのまま戻る。
     const order = CHECKS.map((c) => c.id);
-    expect(order.indexOf("typecheck")).toBeLessThan(order.indexOf("test"));
-    expect(order.indexOf("lint")).toBeLessThan(order.indexOf("test"));
-    expect(order.indexOf("test")).toBeLessThan(order.indexOf("coverage-report"));
+    for (const id of GENERATED_DOC_CHECKS) {
+      expect(
+        order.indexOf(id),
+        `${id} は test より前に置いてください（後ろだと鮮度の赤を自分で直せなくなります）`,
+      ).toBeLessThan(order.indexOf("test"));
+    }
+  });
+
+  it("生成物を作り直す検査の名簿が、実在する検査だけを指している", () => {
+    // 名簿と検査が別々に育つと、`pnpm run generate` が
+    // **走らせたつもりで 1 本も走らせない**状態になれる。
+    for (const id of GENERATED_DOC_CHECKS) {
+      expect(
+        CHECKS.map((c) => c.id),
+        `GENERATED_DOC_CHECKS の ${id} に対応する検査がありません`,
+      ).toContain(id);
+    }
+    expect(GENERATED_DOC_CHECKS.length).toBeGreaterThan(0);
   });
 
   it("止める検査と警告どまりの検査が、どちらも 1 つ以上ある", () => {
