@@ -7,26 +7,27 @@
 --
 -- 保持は記事ごと直近 30 件。刈り取りは追記と同じトランザクションで行うので、
 -- 夜間バッチは要らない（retention-policy.md の R4）。
+--
+-- 列の意味:
+--   trigger          'publish' | 'scheduled'。表は分けず、どちらの経路で入った行かを列で区別する。
+--   passed_count     7 チェックのうち ok だった数。一覧の並べ替えに使うので列に出す。
+--   total_count      7 チェックの総数。checks の形が変わった行を後から見分けられる。
+--   checks_json      AiSearchCheck[] をそのまま入れた JSON。
+--   analyzer_version 解析ロジックの版。版が変わった前後の行を混ぜて比べないための印。
 CREATE TABLE `ai_search_audit_history` (
-  `id` text PRIMARY KEY NOT NULL,
-  `workspace_id` text NOT NULL,
-  `site_slug` text NOT NULL,
-  `slug` text NOT NULL,
-  -- 'publish' | 'scheduled'。表は分けず、どちらの経路で入った行かを列で区別する。
-  `trigger` text NOT NULL,
-  -- 7 チェックのうち ok だった数。一覧の並べ替えに使うので列に出す。
-  `passed_count` integer NOT NULL,
-  -- 7 チェックの総数。checks の形が変わった行を後から見分けられる。
-  `total_count` integer NOT NULL,
-  -- AiSearchCheck[] をそのまま入れた JSON。
-  `checks_json` text NOT NULL,
-  -- 解析ロジックの版。版が変わった前後の行を混ぜて比べないための印。
-  `analyzer_version` text NOT NULL,
-  `checked_at` integer DEFAULT (unixepoch()) NOT NULL
-);--> statement-breakpoint
+	`id` text PRIMARY KEY NOT NULL,
+	`workspace_id` text NOT NULL,
+	`site_slug` text NOT NULL,
+	`slug` text NOT NULL,
+	`trigger` text NOT NULL,
+	`passed_count` integer NOT NULL,
+	`total_count` integer NOT NULL,
+	`checks_json` text NOT NULL,
+	`analyzer_version` text NOT NULL,
+	`checked_at` integer DEFAULT (unixepoch()) NOT NULL
+);
+--> statement-breakpoint
 -- 記事ごとの新しい順。刈り取りと一覧の両方がこの並びを引く。
-CREATE INDEX `ai_search_audit_history_article_idx`
-  ON `ai_search_audit_history` (`site_slug`, `slug`, `checked_at`);--> statement-breakpoint
+CREATE INDEX `ai_search_audit_history_article_idx` ON `ai_search_audit_history` (`site_slug`,`slug`,`checked_at`);--> statement-breakpoint
 -- 管理画面は workspace 単位で「落ちている記事」を新しい順に読む。
-CREATE INDEX `ai_search_audit_history_workspace_idx`
-  ON `ai_search_audit_history` (`workspace_id`, `checked_at`);
+CREATE INDEX `ai_search_audit_history_workspace_idx` ON `ai_search_audit_history` (`workspace_id`,`checked_at`);
