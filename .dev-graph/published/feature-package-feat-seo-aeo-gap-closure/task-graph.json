@@ -1,0 +1,124 @@
+{
+  "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P01",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P01"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P02",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P02"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P03",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P03"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P04",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P04"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P05",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P06",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P06"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P07",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P08",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P08"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P09",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P10",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P07",
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P11",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P10",
+        "SYS-SEO-AEO-GAP-CLOSURE-P11"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P12",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P12"
+      ],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P13",
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-seo-aeo-gap-closure",
+  "schema_version": "1.0.0"
+}

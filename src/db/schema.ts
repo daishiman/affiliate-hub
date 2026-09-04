@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   integer,
   primaryKey,
@@ -30,7 +31,11 @@ import {
   POLICY_DOMAIN_SCOPES,
   POLICY_SEVERITIES,
 } from "@/domain/compliance";
-import type { SiteDocumentKey } from "@/domain/authoring/site-routes";
+import { AUDIT_TRIGGERS } from "@/domain/seo/ai-search-audit-trigger";
+import {
+  AI_SEARCH_REAUDIT_FAILURE_CODES,
+  AI_SEARCH_REAUDIT_RUN_STATUSES,
+} from "@/domain/seo/ai-search-reaudit-run";
 import {
   COMPLIANCE_STATUSES,
   CONTENT_ANGLES,
@@ -2837,6 +2842,84 @@ export const blogArticleRatings = sqliteTable(
   ],
 );
 
+/**
+ * AI 検索適合の点検履歴（feat-seo-aeo-gap-closure / REQ-SEO07）。
+ *
+ * 記事の識別子は `published_articles` と同じ (site_slug, slug) の対。
+ * **外部キーを張らない。** 記事が取り下げられても「そのとき何が落ちていたか」は
+ * 監査の記録として残す必要がある。連鎖削除されると、取り下げの理由を後から辿れない。
+ *
+ * 保持は記事ごと直近 30 件（`AUDIT_HISTORY_WINDOW`）。刈り取りは追記と
+ * 同じトランザクションで行う。
+ */
+export const aiSearchAuditHistory = sqliteTable(
+  "ai_search_audit_history",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    slug: text("slug").notNull(),
+    trigger: text("trigger", { enum: AUDIT_TRIGGERS }).notNull(),
+    /** 7 チェックのうち ok だった数。一覧の並べ替えに使うので列に出す。 */
+    passedCount: integer("passed_count").notNull(),
+    /** 7 チェックの総数。checks の形が変わった行を後から見分けられる。 */
+    totalCount: integer("total_count").notNull(),
+    /** AiSearchCheck[] をそのまま入れた JSON。 */
+    checksJson: text("checks_json").notNull(),
+    /** 解析ロジックの版。版をまたいだ行を混ぜて比べないための印。 */
+    analyzerVersion: text("analyzer_version").notNull(),
+    checkedAt: integer("checked_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("ai_search_audit_history_article_idx").on(t.siteSlug, t.slug, t.checkedAt),
+    index("ai_search_audit_history_workspace_idx").on(t.workspaceId, t.checkedAt),
+  ],
+);
+
+/**
+ * AI 検索の定期再点検の、workspace ごとの直近の最終状態。
+ * 実行履歴を無限に持つ表ではなく、管理画面が今の健全性を読むための 1 行の投影。
+ */
+export const aiSearchReauditRuns = sqliteTable(
+  "ai_search_reaudit_runs",
+  {
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id),
+    status: text("status", { enum: AI_SEARCH_REAUDIT_RUN_STATUSES }).notNull(),
+    startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
+    completedAt: integer("completed_at", { mode: "timestamp" }).notNull(),
+    scanned: integer("scanned").notNull(),
+    recorded: integer("recorded").notNull(),
+    failed: integer("failed").notNull(),
+    failureCode: text("failure_code", { enum: AI_SEARCH_REAUDIT_FAILURE_CODES }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId] }),
+    check(
+      "ai_search_reaudit_runs_counts_check",
+      sql`${t.scanned} >= 0 AND ${t.recorded} >= 0 AND ${t.failed} >= 0 AND ${t.scanned} = ${t.recorded} + ${t.failed}`,
+    ),
+    check(
+      "ai_search_reaudit_runs_time_check",
+      sql`${t.completedAt} >= ${t.startedAt}`,
+    ),
+    check(
+      "ai_search_reaudit_runs_state_check",
+      sql`(
+        (${t.status} = 'succeeded' AND ${t.failureCode} IS NULL AND ${t.failed} = 0)
+        OR (${t.status} = 'partial' AND ${t.failureCode} = 'article_audit_failed' AND ${t.recorded} > 0 AND ${t.failed} > 0)
+        OR (${t.status} = 'failed' AND ${t.failureCode} = 'article_audit_failed' AND ${t.recorded} = 0 AND ${t.failed} > 0)
+        OR (${t.status} = 'failed' AND ${t.failureCode} = 'target_list_unavailable' AND ${t.scanned} = 0)
+      )`,
+    ),
+  ],
+);
+
+export type AiSearchAuditHistoryRow = typeof aiSearchAuditHistory.$inferSelect;
+export type AiSearchReauditRunRow = typeof aiSearchReauditRuns.$inferSelect;
 export type SiteNetworkNodeRow = typeof siteNetworkNodes.$inferSelect;
 export type BlogLayoutSlotRow = typeof blogLayoutSlots.$inferSelect;
 export type BlogLayoutBandRow = typeof blogLayoutBands.$inferSelect;

@@ -1,0 +1,26 @@
+{
+  "target_id": "w3c-wai-aria",
+  "source_url": "https://www.w3.org/TR/wai-aria-1.2/",
+  "requested_url": "https://www.w3.org/TR/wai-aria-1.2/",
+  "retrieved_at": "2026-09-04T05:01:57Z",
+  "http_status": 200,
+  "content_bytes": 1410696,
+  "content_sha256": "c0fea16fc747779569ab754d2d25bca3e2b7e8a673b8ef5362aeb9ebc73a4849",
+  "page_title": "Accessible Rich Internet Applications (WAI-ARIA) 1.2",
+  "retrieval_method": "curl --compressed",
+  "retrieval_method_note": "2026-09-03 の初回記録は WebFetch 経由で content_bytes / content_sha256 を持たなかった。2026-09-04 に直接取得で本文を byte 単位で取り直し、他の証跡と同じ強さへ揃えた。content_sha256 は Content-Encoding を復号した本文の SHA-256 である。",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "2023-06-06",
+    "found_in": [
+      "Accessible Rich Internet Applications (WAI-ARIA) 1.2 — W3C Recommendation 06 June 2023",
+      "https://www.w3.org/TR/2023/REC-wai-aria-1.2-20230606/"
+    ],
+    "note": "2026-09-03 に latest version URL (https://www.w3.org/TR/wai-aria/) も取得し、現行 Recommendation が 1.2 (2023-06-06) のままであることを確認した。日付が古いのは仕様が安定しているためであり、取得漏れではない。2026-09-04 の再取得時に、この値の文字列が取得した本文の中に実在することを機械で確認した。"
+  },
+  "extracted_claims": [
+    "ロール・状態・プロパティは要素の意味を支援技術へ伝える枠組みである。",
+    "ユーザーエージェントが WAI-ARIA マークアップをプラットフォームのアクセシビリティ API へ変換する。",
+    "ホスト言語が同じ機能を提供する場合は WAI-ARIA ではなくその機能を使うべきであり、ARIA はネイティブ HTML の不足を補うもの。"
+  ]
+}

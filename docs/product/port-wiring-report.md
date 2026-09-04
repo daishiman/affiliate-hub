@@ -6,13 +6,15 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 77 件 / 手続き 277 件
-- 呼ばれていない 50 件（上限 79）
+- ポート 79 件 / 手続き 285 件
+- 呼ばれていない 52 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
 | --- | --- | --- |
 | `AffiliateLinkRepositoryPort` | `save` | `src/application/ports/monetization.ts` |
+| `AiSearchReauditRunPort` | `save` | `src/application/ports/seo.ts` |
+| `AiSearchReauditRunPort` | `listKnownWorkspaceIds` | `src/application/ports/seo.ts` |
 | `AspAdapterPort` | `searchProducts` | `src/application/ports/monetization.ts` |
 | `AspAdapterPort` | `fetchConversions` | `src/application/ports/monetization.ts` |
 | `AspAdapterPort` | `createLink` | `src/application/ports/monetization.ts` |
@@ -94,4 +96,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:435` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:527` |
-<!-- 生成物の指紋 sha256:b43df0e5ad174ad154531c4fd14e3c5fe58b45029c13db9cb0e2d85b7f1039c1 -->
+<!-- 生成物の指紋 sha256:722c5d1ed00d3c8042dd875e2b2cfb27dd3bc98b757c78e7b9a53cfab37cb27f -->

@@ -481,11 +481,12 @@ export function createAuditArticleDraftUseCase(
 ): UseCase<PublishArticleInput, AuditArticleDraftOutput> {
   return {
     async execute(actor, input) {
-      const draft = await resolveArticleDraft(deps, actor, input, new Date());
+      const now = new Date();
+      const draft = await resolveArticleDraft(deps, actor, input, now);
       if (!draft.ok) return draft;
       const { article, gate, missing } = draft.value;
       return ok({
-        aiSearch: auditArticleForAiSearch(article),
+        aiSearch: auditArticleForAiSearch(article, now),
         skipped: articleDraftWarnings(gate.skipped, missing),
       });
     },

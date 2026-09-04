@@ -1,0 +1,56 @@
+{
+  "schema": "dev-graph-requirements-readiness/v1",
+  "feature_id": "feat-seo-aeo-gap-closure",
+  "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+  "scope_digest": "sha256:9934c92a1f48b572a90b4e339be1b0f6d2db4ebfd69eaf6ba98ef6191e66e9a3",
+  "graph_revision": 415,
+  "graph_snapshot_digest": "sha256:cfbcf06ac82c1ff954cb75f41a686370f84a2eece3eb6d97e2e7f46cb3fd6c03",
+  "package_digest": "sha256:204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646",
+  "verdict": "ready",
+  "ready": true,
+  "blocked": false,
+  "stale": false,
+  "missing_sections": [],
+  "remediation_owner": null,
+  "closure_count": 16,
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "source_digest": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-source-digest.py --repo-root . --registered [scope14-node-ids]",
+      "exit": 0,
+      "checked": 14,
+      "registered_mismatch": 0
+    },
+    "C02_saved_state": {
+      "checked": 16,
+      "confirmed_pass_complete": 16,
+      "missing_sections": []
+    },
+    "validate_system_plan": {
+      "command": "python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --staging .dev-graph/published/feature-package-feat-seo-aeo-gap-closure",
+      "exit": 0,
+      "status": "pass",
+      "phase_refs": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "violations": 0
+    }
+  }
+}

@@ -144,19 +144,6 @@
       "summary": "MDN の light-dark() CSS 関数リファレンス。決定 decision-ui-theme-implementation (明暗テーマをどう実装するか) の authority。prefers-color-scheme メディア特性を使わずに配色を切り替える構文と、Baseline 2024 Newly available (2024-05 以降の主要ブラウザで利用可) の対応状況を出典自身が申告している。HTTP Last-Modified は日次再生成の配信時刻なので採らず、本文の <time> が示す 2026-04-18 を採る。"
     },
     {
-      "target_id": "vitest",
-      "retrieved_at": "2026-08-24T11:38:56Z",
-      "source_url": "https://vitest.dev/guide/",
-      "official_publisher": "Vitest",
-      "official_host": "vitest.dev",
-      "version": "4.1.11",
-      "freshness_source": "publisher-registry",
-      "latest_checked_at": "2026-08-24T11:38:55Z",
-      "evidence_ref": "system-spec/retrieval-evidence/vitest.json",
-      "evidence_sha256": "59cd11c79f1052aeb64e0d74e420cebd15afaa61f96257b676aab0b83a4d9d97",
-      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。配信中 HTML は Last updated 2026-04-08 のままだが、公式 repository の同ファイル履歴は 2026-06-18 まで進んでいるため、その日付は鮮度根拠に採らない。2026-08-24T11:38:55Z に publisher registry を照合し、version / dist-tags.latest とも現行版 4.1.11 であることを確認した。"
-    },
-    {
       "target_id": "github-actions",
       "retrieved_at": "2026-08-22T15:05:16Z",
       "source_url": "https://docs.github.com/en/actions",
@@ -194,6 +181,72 @@
       "evidence_ref": "system-spec/retrieval-evidence/stryker-mutator.json",
       "evidence_sha256": "3ae09df999fec24351fd7e38a441c870a26de4699644970612168e52b3ced2a9",
       "summary": "StrykerJS 公式ドキュメント導入章。決定 decision-test-ci-tooling のミューテーション試験側 authority。TypeScript/React/Angular/Vue/Svelte/Node を対象に、試験そのものの有効性を変異で測る枠組み。docs は rolling で版も日付も表明しないため version は配布 registry の現行版 10.0.0 (`npm view @stryker-mutator/core` を 2026-08-22T21:19:48Z に照会)。HTTP Last-Modified は取得日と同日で Docusaurus のデプロイ時刻でしかないため採らず、退けた理由を証跡の rejected_candidate に残してある。"
+    },
+    {
+      "target_id": "google-search-central",
+      "retrieved_at": "2026-09-04T05:01:57Z",
+      "source_url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+      "official_publisher": "Google",
+      "official_host": "developers.google.com",
+      "last_updated": "2025-12-10",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-04T05:01:57Z",
+      "evidence_ref": "system-spec/retrieval-evidence/google-search-central.json",
+      "evidence_sha256": "0d88ecd80fefbefeb0eaf317245efa2f66ddf5ac14810ba8ebf57e00b4e8d399",
+      "summary": "Google Search Central の構造化データ導入ガイド。G3 (SEO/AEO の機械可読構造) の authority。ページ自身が Last updated 2025-12-10 UTC を表明し、版番号は表明しない。要点: Google Search が受け付ける形式は JSON-LD / Microdata / RDFa の3種で、公式は JSON-LD を一般に推奨する (マークアップが読者に見える文章へ混ざらないため)。リッチリザルトは型ごとの必須プロパティを全て満たすことを条件とし、推奨プロパティは多く正確に満たすほど表示機会が増えるが、『不完全で不正確な全部より、完全で正確な少数』を優先すると明記する。語彙は schema.org を使うが、Google Search の挙動については Search Central の記述を決定的な参照とするよう本文が指示している。一般ガイドラインおよび型別ガイドラインへの違反はリッチリザルト対象外となりうる。"
+    },
+    {
+      "target_id": "schema-org",
+      "retrieved_at": "2026-09-04T05:01:57Z",
+      "source_url": "https://schema.org/docs/releases.html",
+      "official_publisher": "Schema.org Community Group (W3C)",
+      "official_host": "schema.org",
+      "version": "30.0",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-04T05:01:57Z",
+      "evidence_ref": "system-spec/retrieval-evidence/schema-org.json",
+      "evidence_sha256": "731b2442e88e0fcbdf39f5bce45f90fa3759a032d23d6cf03140ff709a52f6bc",
+      "summary": "schema.org のリリース一覧。構造化データの型と必須プロパティの語彙 authority。一覧最上部が表明する現行版は 30.0 (リリース日 2026-03-19、内容は equivalence annotations の追加・EU Digital Product Passport の例追加・語彙/文書/基盤の細部更新)。Article/BlogPosting・Person・Organization・BreadcrumbList・FAQPage・HowTo・SpeakableSpecification の型定義はこの語彙が正本であり、Google 固有の要件は google-search-central 側を参照する。"
+    },
+    {
+      "target_id": "w3c-wai-aria",
+      "retrieved_at": "2026-09-04T05:01:57Z",
+      "source_url": "https://www.w3.org/TR/wai-aria-1.2/",
+      "official_publisher": "W3C",
+      "official_host": "www.w3.org",
+      "version": "1.2 (W3C Recommendation)",
+      "last_updated": "2023-06-06",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-04T05:01:57Z",
+      "evidence_ref": "system-spec/retrieval-evidence/w3c-wai-aria.json",
+      "evidence_sha256": "315738077ae0d6bda38d8c52216eb778b77fbaa4036d05b082118787a32b89c3",
+      "summary": "Accessible Rich Internet Applications (WAI-ARIA) 1.2。W3C Recommendation・2023-06-06。ui-ux 章で『追従目次と本文内目次を両方出しても、支援技術へ露出する見出しリストは1つに保つ』『装飾画像だけが空 alt を許される』を判断する根拠の authority。要点: ロール・状態・プロパティは要素の意味を支援技術へ伝える枠組みであり、ユーザーエージェントがプラットフォームのアクセシビリティ API へ変換する。仕様自身が『ホスト言語が同じ機能を提供する場合は WAI-ARIA ではなくその機能を使うべき』と明記しており、ARIA はネイティブ HTML に不足があるときの補完に位置づけられる。2026-09-03 に latest version URL (https://www.w3.org/TR/wai-aria/) を照合し、現行 Recommendation が 1.2 のままであることを確認した。"
+    },
+    {
+      "target_id": "vitest",
+      "retrieved_at": "2026-09-03T23:21:10Z",
+      "source_url": "https://vitest.dev/guide/",
+      "official_publisher": "Vitest",
+      "official_host": "vitest.dev",
+      "version": "5.0.0",
+      "freshness_source": "publisher-registry",
+      "latest_checked_at": "2026-09-03T23:21:10Z",
+      "evidence_ref": "system-spec/retrieval-evidence/vitest.json",
+      "evidence_sha256": "38de2642a249399e36c5797d947b36da5d3e21cb6445a03514067e991f17cd3c",
+      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。2026-09-03T23:21:10Z に publisher registry を照合し、現行版が 5.0.0 (公開 2026-09-03T12:24:30.312Z) であることを確認した。前回記録 4.1.11 から 1 メジャー進んでおり、C08 鮮度監査の指摘を受けて取り直した。配信 HTML の本文更新日 2026-06-18 は鮮度根拠に採らない。"
+    },
+    {
+      "target_id": "web-dev-core-web-vitals",
+      "retrieved_at": "2026-09-03T23:21:19Z",
+      "source_url": "https://web.dev/articles/vitals",
+      "official_publisher": "Google",
+      "official_host": "web.dev",
+      "last_updated": "2024-10-31",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T23:21:19Z",
+      "evidence_ref": "system-spec/retrieval-evidence/web-dev-core-web-vitals.json",
+      "evidence_sha256": "47b36f0f3c620f556a0ae45dd39ca82e2293871caf1d6b8dd722fc016c2a8dad",
+      "summary": "Google 公式 web.dev の Web Vitals 記事。G3 (SEO/AEO) が要求する読み込み性能の指標定義の authority で、LCP / INP / CLS の 3 指標と good 閾値 (2.5s / 200ms / 0.1)、実利用者 75 パーセンタイルという判定方法を定める。版番号を持たない文書のため last_updated 2024-10-31 を鮮度根拠とする。"
     }
   ]
 }

@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|set-qa-scope-notes|split-qa-bundle|supersede-qa|set-chapter-note|set-qa-source|declare-excluded-category|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|attach-qa-design-applications|set-qa-scope-notes|split-qa-bundle|supersede-qa|retract-qa|set-chapter-note|set-qa-source|declare-excluded-category|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -57,6 +57,7 @@ from state_transition_matrix import (
     set_hearing_limit_policy,
     apply_cell_op,
     apply_turn,
+    attach_qa_design_applications,
     bootstrap_state,
     count_unresolved,
     derive_aggregate,
@@ -75,6 +76,7 @@ from state_transition_matrix import (
     set_chapter_note,
     set_qa_source,
     declare_excluded_category,
+    retract_qa,
     supersede_qa,
 )
 from state_transition_matrix import enable_asks_for_contract
@@ -244,6 +246,18 @@ def main(argv: list[str]) -> int:
         help="design_applications JSON配列または JSON ファイル",
     )
     qa_design.add_argument("--out")
+    qa_attach = sub.add_parser(
+        "attach-qa-design-applications",
+        help="qa_refs から引かれている qa へ設計適用を後から結線",
+    )
+    qa_attach.add_argument("--state", required=True)
+    qa_attach.add_argument("--qa-id", required=True)
+    qa_attach.add_argument(
+        "--applications",
+        required=True,
+        help="design_applications JSON配列または JSON ファイル",
+    )
+    qa_attach.add_argument("--out")
     scope_notes = sub.add_parser(
         "set-qa-scope-notes",
         help="束ねた qa の論点範囲を、質問・回答を保ったまま注記として追記",
@@ -270,6 +284,27 @@ def main(argv: list[str]) -> int:
     supersede.add_argument("--qa-id", required=True)
     supersede.add_argument("--by", required=True, help="後継となる qa_log の id")
     supersede.add_argument("--out")
+    retract = sub.add_parser(
+        "retract-qa",
+        help="正本の契約を満たしていなかった質疑を、理由を添えて qa_log から取り下げる",
+        description=(
+            "**後継の申告 (supersede-qa) とは扱う出来事が違う。**あちらは『決め直した』"
+            "経過を言い、こちらは『その記録は最初から契約を満たしていなかった』誤りを言う。"
+            "誤りを後継として残すと、守れていない契約を名乗る entry が正本に永久に残り、"
+            "それを見張る検査は二度と緑にならない——残るのは物差しを曲げる道だけになる。"
+            "**消さない。**entry は retracted_qa_log へ原文のまま移る。まだセルから"
+            "引かれている質疑、後継として名指しされている質疑、written_up を持つ質疑は"
+            "取り下げられない。"
+        ),
+    )
+    retract.add_argument("--state", required=True)
+    retract.add_argument("--qa-id", required=True)
+    retract.add_argument(
+        "--reason",
+        required=True,
+        help="なぜ契約を満たしていなかったのか。理由の無い取り下げは記録の削除と区別が付かない",
+    )
+    retract.add_argument("--out")
     chapter_note = sub.add_parser(
         "set-chapter-note",
         help="章にしか居場所の無い散文へ、正本の居場所を与える (章の手書きを正本へ戻す)",
@@ -456,6 +491,15 @@ def main(argv: list[str]) -> int:
                     if isinstance(value, dict) and "design_applications" in value
                     else value,
                 )
+            elif args.cmd == "attach-qa-design-applications":
+                value = load_json_arg(args.applications)
+                attach_qa_design_applications(
+                    state,
+                    args.qa_id,
+                    value["design_applications"]
+                    if isinstance(value, dict) and "design_applications" in value
+                    else value,
+                )
             elif args.cmd == "set-qa-scope-notes":
                 value = load_json_arg(args.scope_notes)
                 set_qa_scope_notes(
@@ -472,6 +516,8 @@ def main(argv: list[str]) -> int:
                 )
             elif args.cmd == "supersede-qa":
                 supersede_qa(state, args.qa_id, args.by)
+            elif args.cmd == "retract-qa":
+                retract_qa(state, args.qa_id, args.reason)
             elif args.cmd == "declare-excluded-category":
                 declare_excluded_category(state, args.category, args.reason)
             elif args.cmd == "set-qa-source":

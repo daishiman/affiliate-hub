@@ -464,6 +464,17 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         既存データは消さず、曖昧な所有権・URL競合・墓標共存では適用を停止する。
       */
       "0043_canonical_public_articles",
+      /*
+        AI 検索適合の点検履歴（記事ごと直近 30 件）。既存の表には触らず、
+        表 1 つと索引 2 本を足すだけ。外部キーは張らない——記事を消したときに
+        履歴の削除が失敗して公開の取り下げごと止まる形にしないため。
+      */
+      "0044_ai_search_audit_history",
+      /*
+        workspace ごとの直近 1 回の定期再点検状態。
+        記事 0 件の正常完了と対象取得失敗を、固定 code で区別する。
+      */
+      "0045_ai_search_reaudit_runs",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

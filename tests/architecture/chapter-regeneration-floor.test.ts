@@ -365,7 +365,10 @@ const CHAPTERS_BECAME_PURE_ON = "2026-08-22";
 const CHAPTERS: readonly Chapter[] = [
   {
     name: "auth",
-    sections: SHAPE_A_WITH_CELL_RECORD,
+    // 2026-09-04: 意思決定を正本 `decisions[]` から各章へ描くようにした際、
+    // 「その決定が本章にどう効くか」を正本 `chapter_notes` へ入れた。
+    // 結果この節が 3 章 → 8 章へ増えた。**床を上げる方向の更新である。**
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
     tables: [
       ["To-Be", 5],
       ["Acceptance evidence", 6],
@@ -381,7 +384,8 @@ const CHAPTERS: readonly Chapter[] = [
   },
   {
     name: "backend",
-    sections: SHAPE_B,
+    // 2026-09-04: auth と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
+    sections: [...SHAPE_B, "章の注記 (chapter_notes)"],
     tables: [
       ["カテゴリ別収集状態", 7],
       ["上流指針 (doctrine anchor)", 3],
@@ -397,8 +401,22 @@ const CHAPTERS: readonly Chapter[] = [
       余裕が 150 行へ広がる）。この章がその時点で持っていた余裕は
       442 - 401 = 41 行だったので、**その 41 行を位置ごと移す**（446 + 41 = 487）。
       緩めたのではなく、余裕の量を変えずに置き直した。ui-ux と同じやり方。
+
+      2026-09-04: `## 意思決定 (decisions)` が手書きから生成へ移り、正本
+      `decisions[]` の主担当分と `chapter_notes` の「本章に効く形」が載って
+      実測 510 行になった。**床 292 も余裕 41 行も動かさない。**
+      同じ 41 行を置き直す（510 + 41 = 551）。
+
+      2026-09-04（同日 2 度目）: feat-seo-aeo-gap-closure P13 の書き戻しで
+      確定質疑 `qa-backend-web-seo-audit-writeback-p13-v2` が正本へ入り、
+      その本文と接地根拠が生成節として載って実測 575 行になった。
+      同じ便で `chapter_notes` へ「本節を「転記」に留めた理由」を移している
+      （章にだけ在った 4 行が、同名の `## 章にしか無い記述` が 2 つできた結果
+      `##` 単位の引き継ぎで衝突して落ちたため。守るのではなく落ちようのない
+      場所へ移した）。**痩せた結果ではなく、正本が増えた結果である。**
+      **床 292 も余裕 41 行も動かさない。**同じ 41 行を置き直す（575 + 41 = 616）。
     */
-    ceiling: 487,
+    ceiling: 616,
     headings: 35,
     principles: 2,
     answers: [1, 111], // 2026-08-23: 0 件だったが 1 件載ったので、張れるようになった。
@@ -445,8 +463,18 @@ const CHAPTERS: readonly Chapter[] = [
       4 行を足した 373 だった。**合流後の章には両方の増分が載る**ので、
       片方の天井ではどちらも通らない。**余裕は広げない**——dev の 593 に
       こちらの実増分 4 行だけを置き直す（593 + 4 = 597）。
+
+      2026-09-04: 4 度目。backend と同じ便（意思決定の生成化）で実測 659 行。
+      **床 219 も余裕 15 行も動かさない。**同じ 15 行を置き直す（659 + 15 = 674）。
+
+      2026-09-04（同日 2 度目）: 5 度目。feat-seo-aeo-gap-closure P13 の書き戻しで
+      確定質疑 `qa-database-web-audit-history-window-p13-v2`（点検履歴の保持窓を
+      件数 30 で切る根拠・刈り取りを追記と同一トランザクションに入れた理由・
+      履歴に外部キーを張らない理由）が正本へ入り、その本文と接地根拠が生成節として
+      載って実測 713 行になった。**床 219 も余裕 15 行も動かさない。**
+      同じ 15 行を置き直す（713 + 15 = 728）。
     */
-    ceiling: 597,
+    ceiling: 728,
     headings: 21,
     principles: 2,
     answers: [2, 102],
@@ -496,14 +524,18 @@ const CHAPTERS: readonly Chapter[] = [
     // 確定質疑が収集マトリクスへ入って生成器から載ったもの。基準 405 に対する
     // 実増分は 26 行 (431 - 405)。**床 172 も余裕 22 行も動かさない。**
     // dev の 546 へ、こちらの実増分 26 行だけを置き直す (546 + 26 = 572)。
-    ceiling: 572,
+    //
+    // 2026-09-04: backend / database と同じ便 (意思決定の生成化) で実測 621 行。
+    // **床 172 も余裕 22 行も動かさない。**同じ 22 行を置き直す (621 + 22 = 643)。
+    ceiling: 643,
     headings: 21,
     principles: 2,
     answers: [2, 95],
   },
   {
     name: "infrastructure",
-    sections: SHAPE_B,
+    // 2026-09-04: auth と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
+    sections: [...SHAPE_B, "章の注記 (chapter_notes)"],
     tables: [
       ["カテゴリ別収集状態", 7],
       ["上流指針 (doctrine anchor)", 3],
@@ -528,7 +560,8 @@ const CHAPTERS: readonly Chapter[] = [
   },
   {
     name: "maintenance-ops",
-    sections: SHAPE_A_WITH_CELL_RECORD,
+    // 2026-09-04: auth と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
     tables: [
       ["To-Be", 8],
       ["Acceptance evidence", 8],
@@ -552,7 +585,8 @@ const CHAPTERS: readonly Chapter[] = [
   },
   {
     name: "security",
-    sections: SHAPE_A_WITH_CELL_RECORD,
+    // 2026-09-04: auth と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
     tables: [
       ["To-Be", 6],
       ["Acceptance evidence", 6],
@@ -623,7 +657,31 @@ const CHAPTERS: readonly Chapter[] = [
     //
     // **上の宿題は 2 つとも生きている。**注記の置き場を疑うことと、
     // 原則の採否表を別ファイルへ切り出すこと。次に当たったときは天井を動かさない。
-    ceiling: 733,
+    //
+    // ── 【2026-09-04】5 度目。**上の「天井を動かさない」を守れなかった。**
+    //    守れなかったことをまず書く。そのうえで、宿題 2 つに何をしたかを残す。
+    //
+    // 宿題 1（注記の置き場を疑う）: **答えを出して実行した。**
+    //   この日、`## 意思決定 (decisions)` を手書きから生成へ移した際、初版は
+    //   正本の全 12 件を 8 章すべてへ描いた。`00-requirements-definition.md` が
+    //   既に全件表を持つので、同じ表が 9 か所に出る形だった。それが 4 章を
+    //   同時に天井へ当てた。**置き場を疑った答えが「章が持つのは主担当分だけ、
+    //   全体の一覧は 00 章」である**（`spec_docset_chapters.render_decisions`）。
+    //   実測でこの章は 793 → 782 行になった。11 行だけだが、方向は正しい。
+    //
+    // 宿題 2（原則の採否表を別ファイルへ切り出す）: **単独では実行できない。**
+    //   対象は `## 適用された設計知識`（この章で 280 行 = 章の 1/3、8 章合計
+    //   1304 行）。カード本文は C04 の references に正本があり、章はそれを
+    //   写している。切り出しは筋が通る。**しかし切り出すと章は 60〜270 行痩せ、
+    //   同じテストの床（`lines` の下限、2026-08-19 実測）を割る。**
+    //   床は「章が痩せないこと」を守るために在るのだから、切り出しは
+    //   床の定義ごと測り直す作業とセットでしか成立しない。
+    //   **だから今日はやらない。宿題 2 は生きたまま残す。**
+    //
+    // 置き直しは 4 度目までと同じ、余裕も 22 行のまま (782 + 22 = 804)。
+    // **次に当たったときは、天井の前に宿題 2 を片付けること。**
+    // 床と天井を同じ便で測り直してよい——それが宿題 2 の正しい形である。
+    ceiling: 804,
     headings: 28,
     principles: 2,
     answers: [2, 49],
@@ -636,9 +694,35 @@ const CHAPTERS: readonly Chapter[] = [
  * 手書きの節は `--on-handwritten preserve` で生成本文の**末尾へ**引き継がれる。
  * つまり再生成後の並びは「生成節 → 手書き節」であり、章を書いた人が置いた
  * 位置は保たれない。
+ *
+ * ── 【2026-09-04】`意思決定 (decisions)` が手書きから生成へ移った ──────────
+ * この節は 2026-09-04 まで 8 章すべてに手で書かれており、同日の再生成で
+ * **8 章すべてから節ごと消えた**（下の「意思決定表が空」で 8 件が赤くなった）。
+ * 章は `status: confirmed` なので C11 hook が Edit を遮断し、人が直す正規経路は
+ * 存在しない。そこで正本 `decisions[].owner_category` に主担当章の欄を足し
+ * （C01 writer が実在カテゴリを検める）、`spec_docset_chapters.render_decisions`
+ * が全件を描くようにした。**この行が生成側へ移ったことが根治である。**
+ * 以後この節は正本の純関数であり、preserve の引き継ぎに命を預けていない。
+ *
+ * ── 【2026-09-04・同日 2 便目】`確定セルの記録` も生成へ移った ────────────
+ * こちらは 2026-08-20 に「再生成ではなく手編集で」8 章へ入れた節で、節の冒頭は
+ * 自分で「本節は正本の**転記**である」と断っていた。**断り書きに追従の機械は
+ * 無かった。**結果、2026-08-30 に 8 章中 5 章が古く
+ * （`chapter-confirmed-cell-transcript.test.ts` に実測表がある）、手で直した
+ * 5 日後の 2026-09-04 に再び 4 章が `serves_goals` でずれた。腐るのに直せない。
+ *
+ * 移せた根拠は「正本に無い欄が 1 つも無かった」ことである。セル / 状態 /
+ * `qa_ref` / `serves_goals` / `required_info` は `matrix[cat][platform]` が、
+ * 出典 kind / path / 節 / sha256 と `design_applications` の件数は
+ * `qa_log[qa_ref]` が持つ（`spec_docset_chapters.render_confirmed_cell`）。
+ * **「出典は正本に無いから移せない」は調べる前の思い込みだった。**
+ * その思い込みの間、出典行だけは検査の外に在り、4 章が実在しない sha256 で
+ * 「書面で裏取り済み」を騙っていた（正本の当該 `qa_ref` は `user-dialogue`）。
  */
 const GENERATED_SECTIONS = [
   "カテゴリ別収集状態",
+  "確定セルの記録 (正本 spec-state.json)",
+  "意思決定 (decisions)",
   "確定内容 (質疑録)",
   "章の注記 (chapter_notes)",
   "上流指針 (doctrine anchor)",
@@ -674,12 +758,19 @@ function read(name: string): string {
   return readFileSync(join(SPEC_DIR, `${name}.md`), "utf8");
 }
 
-/** 正本 `spec-state.json` の decisions[] の ID を、正本の並びのまま返す。 */
-function decisionIds(): string[] {
+/**
+ * 正本 `spec-state.json` の decisions[] の ID を、正本の並びのまま返す。
+ *
+ * `owner` を渡すと、その章を `owner_category` に持つ分だけへ絞る（並びは正本のまま）。
+ * 章の意思決定表は 2026-09-04 から主担当分だけを描くので、章側の期待値はこちら。
+ */
+function decisionIds(owner?: string): string[] {
   const state = JSON.parse(readFileSync(join(ROOT, "system-spec/spec-state.json"), "utf8")) as {
-    decisions: Array<{ id: string }>;
+    decisions: Array<{ id: string; owner_category?: string }>;
   };
-  return state.decisions.map(({ id }) => id);
+  return state.decisions
+    .filter((d) => owner === undefined || d.owner_category === owner)
+    .map(({ id }) => id);
 }
 
 function decisionIdsInSection(text: string, heading: string): string[] {
@@ -796,6 +887,23 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
     それは plugin 領域 (`spec_docset_chapters.py`) の変更になるため、
     このリポジトリの作業範囲の外にある。follow-up として別に立てる。
     描かせた日に、下の 8 章側の検査は 00 章と同じ `toEqual` へ戻すこと。
+
+    ── 【2026-09-04】その日が来た。上の段落はもう過去形である ──────────
+    先送りの根拠は「plugin 領域だから作業範囲の外」だった。**それが崩れたのは、
+    先送りしている間に節そのものが消えたからである。** 2026-09-04 の再生成で
+    `## 意思決定 (decisions)` は 8 章すべてから丸ごと落ち、この検査は
+    「表が空」で 8 件、合成の床で 25 件、計 33 件が赤くなった。preserve に
+    命を預けた節は、preserve が効かない日に黙って消える。
+
+    直した内容:
+      - 正本 `decisions[]` に `owner_category` (主担当章) を足した。
+        C01 writer (`state_transition_foundation._validate_owner_category`) が
+        実在カテゴリを指すことを検めるので、幽霊の章名は入らない。
+      - `spec_docset_chapters.render_decisions` が全 12 件を各章へ描く。
+        主担当の行だけ太字にする。章側に判断は残らない = 正本の純関数。
+
+    よって欠落も測れるようになった。下の検査は 00 章と同じ `toEqual` である。
+    **緩めないこと。** 緩めた瞬間、この節はまた手書きへ戻れる場所を得る。
   */
   it("00章の意思決定表が正本 decisions[] と全件一致する（compile が描く側）", () => {
     // ここは compile の生成物なので、欠落も順序も落とせる。緩めない。
@@ -806,22 +914,25 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
 
   // 章名は `%s` で入れる。`$name` 記法はこの vitest では展開されず、
   // 落ちた章が `undefined` としか出ないので、どの章かが分からなくなる。
-  it.each(CHAPTERS.map((c) => c.name))("%s.md の意思決定表に幽霊 ID が無く、順序が正本に従う（手書き側）", (name) => {
-    const expected = decisionIds();
-    const listed = decisionIdsInSection(read(name), "## 意思決定 (decisions)");
+  it.each(CHAPTERS.map((c) => c.name))("%s.md の意思決定表が正本の主担当分と一致する（compile が描く側）", (name) => {
+    // 2026-09-04 に生成側へ移った。よって 00 章と同じ `toEqual` で測れる —
+    // 幽霊も、欠落も、並びの崩れも、節ごとの消失も、この 1 行が全部捕まえる。
+    // 期待値が全件でなく主担当分なのは、全件の一覧を 00 章へ一本化したからである
+    // （同じ表が 9 か所に出て 4 章を天井へ押し上げた。下の「和が全件」が受け皿）。
+    expect(decisionIdsInSection(read(name), "## 意思決定 (decisions)"), `${name}.md`).toEqual(
+      decisionIds(name),
+    );
+  });
 
-    // (1) 幽霊が無い: 章に載っている ID は全て正本に実在する。
-    //     消えた決定や綴り違いを、手書きの表に残したままにしない。
-    expect(listed.filter((id) => !expected.includes(id)), `${name}.md に正本に無い ID`).toEqual([]);
-
-    // (2) 順序が正本に従う: 載っている分は正本の並びの**部分列**である。
-    //     表を書き足すときに、既にある行の順を崩す形を止める。
-    expect(listed, `${name}.md の並び`).toEqual(expected.filter((id) => listed.includes(id)));
-
-    // (3) 空でない: 節ごと消える形 / 見出しが変わって 0 件になる形を止める。
-    //     `decisionIdsInSection` は見出しが見つからないと [] を返すので、
-    //     ここが無いと「節が消えた章」が全部緑で黙る。
-    expect(listed.length, `${name}.md の意思決定表が空`).toBeGreaterThan(0);
+  it("8 章の意思決定表の和が正本 decisions[] の全件になる（どの章にも載らない決定を出さない）", () => {
+    /*
+      章ごとの `toEqual` だけだと、`owner_category` が抜けた決定は
+      **どの章の期待値にも現れない**ので 8 件とも緑のまま消える。
+      章の表を主担当分へ絞った代償はここで払う。00 章の全件表と合わせて、
+      決定は必ず「全体の一覧」と「担当章」の 2 か所から辿れる。
+    */
+    const listed = CHAPTERS.flatMap((c) => decisionIdsInSection(read(c.name), "## 意思決定 (decisions)"));
+    expect([...listed].sort()).toEqual([...decisionIds()].sort());
   });
 
   it("gap 1 の 2 節は 8 章すべてに載っている（旧 11 節の形を指す章は 0 件）", () => {

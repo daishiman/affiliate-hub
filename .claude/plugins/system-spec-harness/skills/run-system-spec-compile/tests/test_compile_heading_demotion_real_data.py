@@ -27,8 +27,10 @@
 ── 拒否も正規化もしない、という判断 (2026-08-30 / ah-b2m) ─────────
 
 ah-b2m の起票文は「writer が拒否するか、記録時に正規化するかの判断が要る」
-だった。**実測が判断を決めた。**`qa_log` 48 件のうち `## ` 以浅の見出しを含む
-行が **16 行**在り、その多くは書面要件からの**逐語引用**である——
+だった。**実測が判断を決めた。**`qa_log` 58 件のうち `## ` 以浅の見出しを含む
+行が **40 行**在り (2026-09-04 再測。G3/AEO の質疑 4 件と
+feat-seo-aeo-gap-closure P13 の書き戻し 2 件が加わって
+2026-08-30 の 48 件 / 16 行から動いた)、その多くは書面要件からの**逐語引用**である——
 
     ## 2.3 発信者に対する価値      (qa-foundation-u6)
     ## 6.1 含むもの / ## 6.2 含まないもの  (qa-foundation-u7)
@@ -117,9 +119,9 @@ def test_the_canonical_source_still_contains_the_shallow_headings_we_guard() -> 
         for line in answer.split("\n")
         if _HEADING.match(line) and len(_HEADING.match(line).group(1)) <= 2
     ]
-    assert len(ANSWERS) == 48, "qa_log の件数が動いた。下の実測値を取り直すこと"
-    assert len(shallow) == 16, f"`## ` 以浅の見出し行が 16 行から動いた: {len(shallow)}"
-    assert len(WITH_HEADINGS) == 12
+    assert len(ANSWERS) == 58, "qa_log の件数が動いた。下の実測値を取り直すこと"
+    assert len(shallow) == 40, f"`## ` 以浅の見出し行が 40 行から動いた: {len(shallow)}"
+    assert len(WITH_HEADINGS) == 18
 
     # 逐語引用であることの証拠を 1 件だけ名指しで残す。
     # 「拒否しない」判断の根拠が、検査を読むだけで辿れるようにする。
@@ -140,12 +142,12 @@ def test_no_real_answer_can_take_over_the_chapter_hierarchy(floor: int) -> None:
 
 
 def test_the_guard_is_actually_doing_the_work() -> None:
-    """陽性対照。**押し下げを通さなければ 21 行が漏れる。**
+    """陽性対照。**押し下げを通さなければ 45 行が漏れる。**
 
     これが無いと、上の検査は「実データがもともと安全だった」場合でも通る——
     つまり押し下げが外れた日に気づけない。
 
-    母数の 16 行 (`## ` 以浅) より多いのは、**`### ` も h4 経路では乗っ取る**
+    母数の 40 行 (`## ` 以浅) より多いのは、**`### ` も h4 経路では乗っ取る**
     からである。質疑 1 件の節そのものが `### {ref} (対応セル: …)` なので、
     回答本文の `### ` は章の上で**節の見出しと同じ深さに並ぶ**。
     「どの質疑に属する主張か」が消えるのは `## ` と同じである。
@@ -157,8 +159,8 @@ def test_the_guard_is_actually_doing_the_work() -> None:
         if _HEADING.match(line) and len(_HEADING.match(line).group(1)) < 4
     ]
     shallowest = [l for _, l in raw if l.startswith("## ")]
-    assert len(raw) == 21
-    assert len(shallowest) == 16, "母数の 16 行がこちらからも同じ数で見えること"
+    assert len(raw) == 45
+    assert len(shallowest) == 40, "母数の 40 行がこちらからも同じ数で見えること"
 
 
 @pytest.mark.parametrize("floor", FLOORS)
@@ -178,7 +180,7 @@ def test_demotion_changes_nothing_but_the_hash_count(floor: int) -> None:
 def test_relative_depth_is_preserved_except_where_it_hits_h6() -> None:
     """見出し同士の深さの差が保たれること。潰れる 1 件は隠さず注記が出ること。
 
-    h4 経路では 12 件とも差が保たれる。h6 経路では
+    h4 経路では 16 件とも差が保たれる。h6 経路では
     `qa-uiux-web-screen-priority` (h2 と h3 を持つ) だけが上限に当たって潰れる。
     **潰れること自体は不具合ではない**——隠されることが不具合なので、
     そのときに注記が出るところまで見る。

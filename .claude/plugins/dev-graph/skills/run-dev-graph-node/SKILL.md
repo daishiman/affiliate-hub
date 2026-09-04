@@ -10,7 +10,7 @@ hierarchy: L1
 user-invocable: true
 argument-hint: "<upsert|register-package> [--repo-root PATH] --input PATH [--body-file PATH] [--regenerate-body] [--dry-run]"
 allowed-tools: [Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, Skill, Agent]
-script_refs: [../../scripts/resolve-repo-context.py, ../../scripts/validate-graph-schema.py, ../../scripts/upsert-node.py, ../../scripts/node_transaction.py, ../../scripts/register-package.py, ../../scripts/bd-bridge.py, ../../scripts/lint-open-residue.py]
+script_refs: [../../scripts/resolve-repo-context.py, ../../scripts/validate-graph-schema.py, ../../scripts/upsert-node.py, ../../scripts/node_transaction.py, ../../scripts/register-package.py, ../../scripts/bd-bridge.py, ../../scripts/lint-open-residue.py, ../../scripts/lint-lineage-freshness.py]
 schema_refs: [../../schemas/graph-node.schema.json, ../../schemas/package-registration-receipt.schema.json]
 reference_refs: [../../schemas/graph-node.schema.json, ../../templates/template-contract.json, ../../../system-dev-planner/references/feature-execution-package-contract.md]
 responsibility_refs:
@@ -127,6 +127,18 @@ system-dev-planner の package は P01..P13 exact set、13 node、共通 `parent
 Beads binding の完了ループは、C28 `bd-bridge.py --op close` で課題を close した後、通常 node の upsert で `completion_evidence` を `policy=manual`、`status=done`、`source=manual`、`completed_at=<Beads closed_at>`、`reconciled_at=<反映時刻>`、空でない `evidence_refs` へ更新し、`lint-open-residue.py` の OR-003 が 0 になるところまでとする。`status` は文書ライフサイクルのため、この操作で無条件に `done` へ変更しない。
 
 `tracker_binding=none` は Beads 課題を持たないため C28 close と OR-003 の対象外である。完了時は C02 upsert で同じ `policy=manual`、`status=done`、`source=manual`、`completed_at`、`reconciled_at`、`evidence_refs` を記録し、graph と artifact frontmatter の一致を `validate-graph-schema.py` で確認する。
+
+## 登録後の lineage 検査 (LF-001/002/003)
+
+`validate-source-digest.py` は登録時にしか digest を見ない (自らの docstring で「既存 node の digest は本 run の責務外」と宣言している)。よって仕様章が再生成されると、その章に接地していた既存 node の `source_digest` は誰にも気づかれないまま古くなる。同様に、`status` を `closed`/`done` へ動かす際に `confirmation_status`/`evaluation_status` が確定側であることを要求する検査はどこにも無い。
+
+`lint-lineage-freshness.py --repo-root <root>` を node 登録・完了ループの後に実行し、exit 0 を確認する。検査は graph 全体を毎回見るため、他 run が持ち込んだ腐食もここで表面化する。
+
+- **LF-001** — `closed`/`done` なのに `confirmation_status != confirmed` または `evaluation_status != pass`。確定手続きを通らずに閉じた node。
+- **LF-002** — feature/architecture/specification の `source_digest` が `source_path` の現在の sha256 と不一致。
+- **LF-003** — `source_path` が実在しない。
+
+導入時点で既に溜まっていた分は `scripts/dev-graph-lineage-baseline.json` で凍結され exit code に寄与しない。凍結の鍵は `<node_id>:<記録digest>:<実際digest>` の三つ組で、同じ node の章がもう一度書き換われば別の鍵になり再び鳴る。**凍結は縮小のみが正**で、増やす変更は本検査の目的を無効化する。既知分を解消するときは digest を書き換えるのではなく、確定手続き (evaluator PASS と confirmation) を通し直してから baseline から外す。
 
 ## Execution-context consumer
 

@@ -38,6 +38,10 @@ import {
   createD1PublishedArticleWriter,
 } from "./persistence/d1/published-article-repository";
 import { createD1SiteDocumentRepository } from "./persistence/d1/site-document-repository";
+import { createD1AiSearchAuditHistoryRepository } from "./persistence/d1/ai-search-audit-history-repository";
+import { createD1AiSearchReauditRunRepository } from "./persistence/d1/ai-search-reaudit-run-repository";
+import { createSampleAiSearchAuditHistoryRepository } from "./persistence/sample/ai-search-audit-history-sample";
+import { createSampleAiSearchReauditRunRepository } from "./persistence/sample/ai-search-reaudit-run-sample";
 import {
   createD1FeedbackRepository,
   createD1IntegrationKeyStore,
@@ -308,6 +312,16 @@ export function createDeps(
       db === null
         ? createSamplePublishedArticleAdminRepository()
         : createD1PublishedArticleAdminRepository(db),
+    // AI 検索点検の履歴。公開時と定期再点検が書き、管理画面が読む。
+    // 保存先が無い実行では記録を成功と偽らない（sample 側に理由）。
+    aiSearchAuditHistory:
+      db === null
+        ? createSampleAiSearchAuditHistoryRepository()
+        : createD1AiSearchAuditHistoryRepository(db),
+    aiSearchReauditRuns:
+      db === null
+        ? createSampleAiSearchReauditRunRepository()
+        : createD1AiSearchReauditRunRepository(db),
     // 気になる商品は、保存先が用意できていれば本物（D1）。
     // **KV を待たずに D1 で作った。** 見本版は処理中のメモリに置くので、
     // 読者から見ると「保存できたのに翌日消えている」。何も知らせずに消える。

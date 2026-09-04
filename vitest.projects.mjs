@@ -21,6 +21,7 @@ export const A11Y_TEST_FILES = [
   "tests/ui/page-empty.test.tsx",
   "tests/ui/page-render.test.tsx",
   "tests/ui/prose-editor.test.tsx",
+  "tests/ui/published-articles-failing-audits.test.tsx",
 ];
 
 /**

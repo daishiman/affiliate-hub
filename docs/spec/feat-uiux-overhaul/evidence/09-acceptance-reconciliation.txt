@@ -1,13 +1,13 @@
 # acceptance reconciliation（自動生成）
 
-- generated_at: 2026-09-02T09:10:31.719Z
+- generated_at: 2026-09-04T12:08:17.185Z
 - feature_id: feat-uiux-overhaul
 - implementation_status: pass
 - release_status: unpublished
 - tracking_status: active
 - acceptance_count: 10
-- evidence_file_count: 205
-- evaluated_digest: sha256:2b80d8c94d52abca9ed4f7904271321f6dc103e56861ca6bc3e327c6da0eab6b
+- evidence_file_count: 206
+- evaluated_digest: sha256:b5e81fbaf954c8eb7171a052403ecd4edd37f424c918ea40196ebe8cc626cf39
 - verdict: PASS
 
 ## 検査対象パターンと実測（下限 / 実測）
@@ -18,7 +18,7 @@
 - `src/app/admin/{content,products,sites,distribution}/**/page.tsx`: min 16 / actual 27
 - `src/app/admin/**/page.tsx`: min 49 / actual 88
 - `src/presentation/admin/**/*form*.tsx`: min 10 / actual 43
-- `src/presentation/ui/**/*.tsx`: min 30 / actual 49
+- `src/presentation/ui/**/*.tsx`: min 30 / actual 50
 
 A1〜A10は、仕様・runtime・test・report・trackingの共通IDでjoin済み。
 この証跡はreconciliationの結果であり、テスト実行件数の代替ではない。

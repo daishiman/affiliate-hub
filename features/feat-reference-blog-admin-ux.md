@@ -12,7 +12,7 @@ iteration: null
 title: "参照ブログ解析と低認知負荷の運用 UX"
 owners: ["daishiman"]
 created_at: "2026-08-29T14:36:00Z"
-updated_at: "2026-08-29T14:36:00Z"
+updated_at: "2026-09-04T06:01:14.811140Z"
 status: "active"
 depends_on: ["feat-blog-ops-crud","feat-blog-ui-builder","feat-affiliate-inbox"]
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview","feat-affiliate-hub","feat-reader-surface"]
@@ -31,8 +31,8 @@ template_id: "feature"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
-confirmation_evidence: {"evaluated_digest":"aebfe3781f374c60b41c2a6698ec24c90e9aa58bed3903675e1b174fc75597a1","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-08-29T14:36:00Z","origin_kind":"generated","source_digest":"8f2dd8dc377e624cd882aadb912d57638f3e6e41c268cc68845e4da5b84ed1d4","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+confirmation_evidence: {"evaluated_digest":"a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"}
+source_lineage: {"imported_at":"2026-08-29T14:36:00Z","origin_kind":"generated","source_digest":"832eb4a42809637b35a5619a2d058cc4c8a184d2b770fd0693e94aeb0c497d00","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.98
 classification_reason: "今回の新規要望を、参照サイトの全URL台帳と画面型別詳細解析、非模倣の公開面ブループリント、低認知負荷の管理CRUD、アフィリエイト即時プレビュー/掲載先逆引きを一体の観測可能なenhancement featureにマクロ分解した。既存CRUD基盤は再定義せずdepends_onで再利用する"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-reference-blog-admin-ux.md","confidence":0.98}]
@@ -41,10 +41,10 @@ tracker_binding: "beads"
 beads_linkage: null
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
-pull_request_linkages: ["https://github.com/daishiman/affiliate-hub/pull/41"]
+pull_request_linkages: []
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
-implementation_readiness: {"checked_at":"2026-08-29T14:36:00Z","missing_sections":[],"status":"complete"}
+implementation_readiness: {"checked_at":"2026-08-29T14:38:12Z","missing_sections":[],"status":"complete"}
 ---
 
 # 目的
