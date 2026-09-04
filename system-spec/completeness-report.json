@@ -6,8 +6,8 @@
   },
   "spec_dir": "/Users/dm/orca/workspaces/affiliate-hub/ブログページの改善/system-spec",
   "inputs": {
-    "file_count": 160,
-    "sha256": "fdd82bf4195eec577b0b88ecdf6300be9d92e3e157130dd25753e5c044465359",
+    "file_count": 177,
+    "sha256": "f9352685644e5fe311e09b0c7a81080a70a8bd7e462b088621086800a9091789",
     "files": [
       {
         "path": "docs/spec/00-README.md",
@@ -101,8 +101,8 @@
       },
       {
         "path": "docs/spec/dialogue-confirmations.md",
-        "sha256": "1312a2372403173dc8b57112ae0178d713c93a05471124e201e084bf0da8daa1",
-        "mtime": 1788421952
+        "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
+        "mtime": 1788528829
       },
       {
         "path": "docs/spec/disclosures-ownership-before-0023.md",
@@ -660,9 +660,94 @@
         "mtime": 1788425266
       },
       {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/acceptance.md",
+        "sha256": "949180110175251989acf148cc5cac516ddb3dc883e5ae12c3ee61b078aac766",
+        "mtime": 1788508014
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/api-contract.md",
+        "sha256": "75e9f47320613111cbfefdef395874e692ce8a0b5ddf5dcde7be04e877ebf050",
+        "mtime": 1788496365
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/architecture.md",
+        "sha256": "2e169e89780c5af53127e02ce0a700d02440ce35a16c150ec35bd1e8ee114051",
+        "mtime": 1788496267
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/data-model.md",
+        "sha256": "e9335f94c65bd141bfa0b43b33d82eea90ef3aae50327aadea6a9b7ce0a76ff6",
+        "mtime": 1788496323
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md",
+        "sha256": "9c33767dd95b06b0ffbbc2e521166b4612ac5d3d76b797f12f2a7cd85872f0c1",
+        "mtime": 1788494258
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/design-review.md",
+        "sha256": "c4b1683a1bf96518b38ab01efd5c63d7f84cc6e7ca48ed267697db457e2c9a33",
+        "mtime": 1788496834
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/documentation.md",
+        "sha256": "ef5522af5f3f8dbb5d0cc90552bf6543b3181bb94106cb2d111424df0cdd7be1",
+        "mtime": 1788511037
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/evidence.md",
+        "sha256": "df84c8cf9a4ddd19adc0532fffe138dd9bcc94d0ec7327f7818dbacd2b5f19df",
+        "mtime": 1788520311
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/final-review.md",
+        "sha256": "89969d6de5052400aba6c698d19617e24b4c837b3a3634c71b6906f127f0846e",
+        "mtime": 1788510602
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/migration-compatibility.md",
+        "sha256": "f309692a2a9668898897db4eae29dca70a48c7ede7e4bd4a0cd2892538cc57cd",
+        "mtime": 1788520045
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/operations.md",
+        "sha256": "6f60c3bcbd05addfc93e8c3c35249f3ee63d9c4443cab9ea14f9b2c73aeb4627",
+        "mtime": 1788520276
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md",
+        "sha256": "a17f06fa41fe97177e770ea78e983b3e151cf5d7232c8852a9e0a69edeb1e731",
+        "mtime": 1788509142
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/release.md",
+        "sha256": "ba6c64c333cb1dc47f973821917a6b16c543f58f87fc4f6f1e07a247d6ab9df4",
+        "mtime": 1788511584
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md",
+        "sha256": "1c924f7e35770c9fab4567c155438d87a4d12a482f5f19ce713c5320816d9afd",
+        "mtime": 1788494215
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/retention-policy.md",
+        "sha256": "563707b37afc46fdc7a9cee8e55038b93687c6e23161b6e6d2a8170896d6e1d3",
+        "mtime": 1788494300
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/test-design.md",
+        "sha256": "0e1dac08cee5d0b2bf7be97b3adc3d3e2ab770742647526ce5242cf02c5ba9fd",
+        "mtime": 1788502101
+      },
+      {
+        "path": "docs/spec/feat-seo-aeo-gap-closure/test-run.md",
+        "sha256": "04ec2de199481b4d4713d46b5f63208b3c55e38596ffb49c79d558a6293e57d2",
+        "mtime": 1788507895
+      },
+      {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
-        "sha256": "8786c7fbb7430e2bc1fff4080ee9ceaae260372210a2d4559c59d871a75ec953",
-        "mtime": 1788425266
+        "sha256": "92601820e3c870513070e12111177f4323529b1703f76445b58c44845e780c41",
+        "mtime": 1788523697
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
@@ -691,8 +776,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
-        "sha256": "9109e47005c310a5e32690cf982f12e354e21ff77d8ef4ad4f90c0a220f11007",
-        "mtime": 1788425266
+        "sha256": "09e37ce9113f3fa8086a0a594667767ccf7c279487929aadce07e088c27a9c40",
+        "mtime": 1788523697
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
@@ -711,8 +796,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
-        "sha256": "326d42e43305e952d6939b4768df9b3a00bd0f3cddfd605e19b2d78e8e1f04c1",
-        "mtime": 1788425266
+        "sha256": "42cb1b32238b60fc13cb8f23e3ecd49f37bb38f8e023c7206a7c79bb5fe29de6",
+        "mtime": 1788523697
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
@@ -757,57 +842,57 @@
       {
         "path": "system-spec/00-requirements-definition.md",
         "sha256": "3b82e6def629c233ff96e483e6eda6b141c34f5ab37113e460b91c99c723bb9a",
-        "mtime": 1788477836
+        "mtime": 1788501345
       },
       {
         "path": "system-spec/auth.md",
-        "sha256": "1a16a6ff724d54c20dfebe9e270bcd46078da5a4f47c7d3e6635cd95b53131cc",
-        "mtime": 1788477836
+        "sha256": "46b7b5d2fd5ccc313324d6c4b745c55420c31d25a667fcb3cde8dbeef3357358",
+        "mtime": 1788501345
       },
       {
         "path": "system-spec/backend.md",
-        "sha256": "29c9e6c7be6c64d71cc39c3575795f6211a47129a089deb10f0a5971c9002f2c",
-        "mtime": 1788477836
+        "sha256": "b629bd5f0f2c8ffdaf6d41e4ac22f95d568b0d2c30a183c5b21ebcd3ae744c3e",
+        "mtime": 1788530188
       },
       {
         "path": "system-spec/database.md",
-        "sha256": "3432eb661dab7612fca537905fb458ba177872b529dadeb5aa5fbdc0980623b5",
-        "mtime": 1788477836
+        "sha256": "74fc0cd2353141fd67196b798caff84caf8d9266699a33b7eadd6e38269eb6f2",
+        "mtime": 1788520869
       },
       {
         "path": "system-spec/frontend.md",
-        "sha256": "6c9b17fe84e10e0d2d01603fdd1c45c47bdcd75ecf4f1d34ed8ee00e6075f74a",
-        "mtime": 1788477836
+        "sha256": "832eb4a42809637b35a5619a2d058cc4c8a184d2b770fd0693e94aeb0c497d00",
+        "mtime": 1788501345
       },
       {
         "path": "system-spec/index.md",
         "sha256": "752668f45bfb09a5a6339e30efd91333748dcd46f1837762af8571f7a9f48f9f",
-        "mtime": 1788477836
+        "mtime": 1788501345
       },
       {
         "path": "system-spec/infrastructure.md",
-        "sha256": "7db4c997c036658f50ded2e46454870386c5b9c47cce290fcb0ffae7057a39a7",
-        "mtime": 1788477836
+        "sha256": "cd6f3b9cd1d699263a3d67c655d8a817523cb3fc498ce1d63b9586e7f31fe3aa",
+        "mtime": 1788501345
       },
       {
         "path": "system-spec/maintenance-ops.md",
-        "sha256": "079809e211a6704f37df08567d24aac55aec16ea909793a3f2b80c4255017ea0",
-        "mtime": 1788477836
+        "sha256": "a7f5c96e862cb4b028e71b2cb039c59e3e17c56972775c10167a98149e2b52ad",
+        "mtime": 1788501345
       },
       {
         "path": "system-spec/security.md",
-        "sha256": "9cbbbf835bd0fff8e85bcef17072f4a53e483085e12b0c9ce6082f0cbc9b7ba4",
-        "mtime": 1788477836
+        "sha256": "f02c53339f3740b240e13632453292fbae5fb94ad8b33478fa3e72a5bb6dc593",
+        "mtime": 1788501345
       },
       {
         "path": "system-spec/spec-state.json",
-        "sha256": "5622166d5af6b6d476f5cb34827b9feaa4896e61f54f99f9a4042b08fa14b79a",
-        "mtime": 1788477638
+        "sha256": "2659c12f7cde8ddfc33919f47d943ae6f994eabcb787a23904a616174d612d43",
+        "mtime": 1788528945
       },
       {
         "path": "system-spec/ui-ux.md",
-        "sha256": "c3b797019d4e6a44859a1e502255b51ee723bdc471d184e6f5b3a625728c7089",
-        "mtime": 1788477836
+        "sha256": "33d644c2cb19eee116a4d365c0a50c84c697f9a2e9afcc7afef6f06a3d9ad527",
+        "mtime": 1788501345
       }
     ]
   },
@@ -817,11 +902,12 @@
       "verdict": "PASS",
       "auditor": "assign-system-spec-completeness-evaluator",
       "component": "C05",
-      "summary": "前回 high だった foundation_provenance を解消した。requirements_foundation.provenance.field_sources は 24→33 件へ増え、G3 追加分 (goals[2] / objectives[2] / success_criteria[3,4] / concrete_intents[4..7]) も既存 24 件と同じ seal-foundation-sources 手続きで 実ファイル sha256 へ接地している。--require-foundation は exit 0 で、8 確定セルの serves_goals はいずれも G1/G2/G3 のどれかを指し、どのゴールにも資さない収集 (drift) は 0 件である。",
+      "summary": "C06 が指摘した『上位概念の出所が、封を掛けられない対話 entry だけに載っている』状態を、門を緩めずに解消した。v4 の 3 質疑 (ui-ux / frontend / backend × web) を docs/spec/dialogue-confirmations.md へ**一字も変えずに**書き起こし、該当 12 件の field_sources を kind=written-requirements へ移して seal-foundation-sources で実ファイル sha256 へ接地させた。結果 field_sources は 36 件すべてが書面参照で、封の無い対話由来は 0 件である。qa_log の当該 3 entry には written_up を追記し、source (対話で聞いた事実) は書き換えていない — 書き起こしは一次入力の置換ではなく、それを機械が確かめられる形へ写した二次記録である。",
       "evidence": [
         "G-matrix exit 0 (--require-foundation 込み)",
-        "spec-state.json requirements_foundation.provenance.field_sources = 33 件",
-        "system-spec/00-requirements-definition.md の U3/U4/U9 表に G3 / O3 / I5-I8 が載る"
+        "spec-state.json requirements_foundation.provenance.field_sources = 36 件 (written-requirements 36 / user-dialogue 0)",
+        "docs/spec/dialogue-confirmations.md §3-§5 (v4 質疑の逐語書き起こし)",
+        "qa_log の v4 3 entry に written_up を追記 (source は不変)"
       ]
     },
     "decision_guidance": {
@@ -839,7 +925,7 @@
       "verdict": "PASS",
       "auditor": "system-spec-matrix-auditor",
       "component": "C07",
-      "summary": "C07 の独立監査が PASS。48 セル中 未収集 0 / 確定 8 (web) / 対象外 40 で、対象外はすべて approval-platform-web-only に接地する。C06 (ヒアリング) を sub_input として併走させ、そちらも PASS。決定論ゲートは opt-in 5 種 (counted-required-info / catalog-domain-coverage / grounded-design-applications / declared-qa-supersession / foundation) をすべて足しても exit 0 である。前回 medium だった required_info_check_stale は、frontend.web と database.web を 2026-09-04 に数え直して解消した。",
+      "summary": "C07 の独立監査が PASS。48 セル中 未収集 0 / 確定 8 (web) / 対象外 40 で、対象外はすべて approval-platform-web-only に接地する。C06 (ヒアリング) を sub_input として併走させ、そちらも PASS。決定論ゲートは opt-in 5 種 (counted-required-info / catalog-domain-coverage / grounded-design-applications / declared-qa-supersession / foundation) をすべて足しても exit 0 である。",
       "evidence": [
         "G-matrix / G-matrix-optin とも exit 0",
         "frontend.web・database.web の required_info_checks 最新行が checked_on=2026-09-04",
@@ -860,11 +946,11 @@
       "verdict": "PASS",
       "auditor": "system-spec-doc-freshness-auditor",
       "component": "C08",
-      "summary": "C08 の独立監査が PASS。前回 INDETERMINATE の事由は 2 つあり、どちらも記録の書き換えではなく取り直しで解消した。(1) vitest が 4.1.11 記録に対し 公式 registry の現行版は 5.0.0 (公開 2026-09-03T12:24:30Z) だったので C02 で再取得した。(2) 内容鮮度層を 9 target ぶん未実施のまま残していたので、19 target 全件の 独立再照合を完了させた。前回 medium だった missing_citation_core_web_vitals は、Google 公式 web.dev の Web Vitals 記事を target へ足して取得することで解消した (LCP 2.5s / INP 200ms / CLS 0.1 と 75 パーセンタイル判定を出典自身が申告している)。",
+      "summary": "C08 は 1 回目 FAIL、修正後の再実行で PASS。FAIL の事由は記録の誤りではなく上流の変化で、openai-platform が version=gpt-5.6 と名乗ったままなのに対し、公式 developers.openai.com/api/docs/models は GPT-6 Astra を flagship として掲載していた。転記層 (G-transcription) と形式層 (G-source-citation) はどちらもこの時点で exit 0 であり、決定論ゲートでは原理的に捕まらない種類のずれである。記録を書き換えるのではなく公式ページを実際に取り直し、本文 365,152 bytes の実バイト列から sha256 と本文長を計算し直して直した。再実行では 19 target 全件の内容鮮度 4 軸がいずれも 0 件、鮮度未確認 0 件。",
       "evidence": [
-        "G-citation / G-transcription とも exit 0 (targets 19 件 ↔ references 19 件)",
-        "system-spec/retrieval-evidence/vitest.json の reverification に 2026-09-03T23:21:10Z の再取得行 (前回 sha256 と不一致= 本文が入れ替わった証跡)",
-        "system-spec/retrieval-evidence/web-dev-core-web-vitals.json (新規)"
+        "G-source-citation / G-transcription とも exit 0 (targets 19 件 ↔ references 19 件)",
+        "system-spec/retrieval-evidence/openai-platform.json content_bytes=365152 / freshness_extraction.value=gpt-6-astra",
+        "台帳: toolu_016tPxjF3WhDjGXCEFjtBtuQ=FAIL → 修正 → toolu_01SKi7y2Q1YrXH5jKJPVfaJ3=PASS"
       ]
     },
     "prompt_quality": {
@@ -886,14 +972,14 @@
       "component": "C07",
       "dispatch": {
         "tool": "Agent",
-        "tool_use_id": "toolu_01CXHYag2yP3TyfMx4kfHhht",
+        "tool_use_id": "toolu_01W4bXWaTxuxFksHDmWzBZqg",
         "subagent_type": "system-spec-matrix-auditor",
         "session_id": "0da0f834-6891-4c37-93c6-6e719aa529fe",
-        "response_sha256": "5fc14208da97f1bda78d1f12cbc97af68b612d15092760ff544e1ff682ff782f"
+        "response_sha256": "1f8657896c29ffa7860e94dc8433b02bd5b887f1e5065d17f90debb064399f1f"
       },
       "verdict": "PASS",
       "evidence": [
-        "fork 台帳 eval-log/system-spec-harness/audit-fork-ledger.jsonl の (session 0da0f834-6891-4c37-93c6-6e719aa529fe, tool_use_id toolu_01CXHYag2yP3TyfMx4kfHhht) 行。verdict_state=resolved / audit_verdict=PASS"
+        "fork 台帳 eval-log/system-spec-harness/audit-fork-ledger.jsonl の (session 0da0f834-6891-4c37-93c6-6e719aa529fe, tool_use_id toolu_01W4bXWaTxuxFksHDmWzBZqg) 行。record_kind=resolution / verdict_state=resolved / audit_verdict=PASS / ts=2026-09-04T13:40:50Z"
       ]
     },
     {
@@ -903,14 +989,14 @@
       "component": "C06",
       "dispatch": {
         "tool": "Agent",
-        "tool_use_id": "toolu_0133jHWNoV9P2r2VHQQXWDED",
+        "tool_use_id": "toolu_01Ddu4sjoFsP6sRgHLD4LbXT",
         "subagent_type": "system-spec-hearing-auditor",
         "session_id": "0da0f834-6891-4c37-93c6-6e719aa529fe",
-        "response_sha256": "c4a4edbcc6ea9ff97f612d3de4ca729ebe652c720fb182a98f3493881a2e1003"
+        "response_sha256": "903356c612af62b8276ff76b88bd1dbc656e0e46fdf8bba712e5b5e4b2f0a71f"
       },
       "verdict": "PASS",
       "evidence": [
-        "fork 台帳 eval-log/system-spec-harness/audit-fork-ledger.jsonl の (session 0da0f834-6891-4c37-93c6-6e719aa529fe, tool_use_id toolu_0133jHWNoV9P2r2VHQQXWDED) 行。verdict_state=resolved / audit_verdict=PASS"
+        "fork 台帳 eval-log/system-spec-harness/audit-fork-ledger.jsonl の (session 0da0f834-6891-4c37-93c6-6e719aa529fe, tool_use_id toolu_01Ddu4sjoFsP6sRgHLD4LbXT) 行。record_kind=resolution / verdict_state=resolved / audit_verdict=PASS / ts=2026-09-04T13:38:25Z"
       ]
     },
     {
@@ -920,14 +1006,14 @@
       "component": "C08",
       "dispatch": {
         "tool": "Agent",
-        "tool_use_id": "toolu_017rMRNi7HLoE6qNp79ppcEU",
+        "tool_use_id": "toolu_01SKi7y2Q1YrXH5jKJPVfaJ3",
         "subagent_type": "system-spec-doc-freshness-auditor",
         "session_id": "0da0f834-6891-4c37-93c6-6e719aa529fe",
-        "response_sha256": "e9e18a6d36c1c718b38185699701be197ccc4587435e441d906a32e8657133b7"
+        "response_sha256": "1b3dce4b6d4f42b9a403aa21af0939a42bdc69072e7e028f14c503bd32bd6586"
       },
       "verdict": "PASS",
       "evidence": [
-        "fork 台帳 eval-log/system-spec-harness/audit-fork-ledger.jsonl の (session 0da0f834-6891-4c37-93c6-6e719aa529fe, tool_use_id toolu_017rMRNi7HLoE6qNp79ppcEU) 行。verdict_state=resolved / audit_verdict=PASS"
+        "fork 台帳 eval-log/system-spec-harness/audit-fork-ledger.jsonl の (session 0da0f834-6891-4c37-93c6-6e719aa529fe, tool_use_id toolu_01SKi7y2Q1YrXH5jKJPVfaJ3) 行。record_kind=resolution / verdict_state=resolved / audit_verdict=PASS / ts=2026-09-04T13:46:30Z"
       ]
     }
   ],
@@ -1019,8 +1105,8 @@
     {
       "severity": "medium",
       "bucket": "asks_for_writer_gap",
-      "observation": "qa_log 56 件のうち asks_for を持たないのが 36 件。うち 30 件は asks_for_contract v1.0 が凍結した legacy_ids なので設計どおりだが、残る 6 件 (v4 質疑 4 件 + qa-uiux-web-seo-ai-search + qa-frontend-web-seo-ai-search) は legacy ではなく、契約上は asks_for を持つべき entry である。enable-asks-for は起動時に名簿を凍結するだけで id 引数を取らず、既存 entry へ asks_for を書ける writer op は 1 つも無い。validate-coverage-matrix も JSON schema もこの欄を見ないので、**この穴は現状どこも赤くならない。**",
-      "suggested_fix": "harness 側に『既存 entry へ asks_for を後から結線する』writer op を足す (attach-qa-design-applications が design_applications に対してやったのと同じ形)。同時に validate-coverage-matrix へ opt-in flag を足し、legacy_ids 以外で asks_for を欠く entry を赤にする。id を引数で受け取らせない設計は維持すること — 渡す側が除外先を選べる形にしない。",
+      "observation": "qa_log 60 件のうち asks_for を持たないのが 36 件。うち 30 件は asks_for_contract v1.0 が凍結した legacy_ids なので設計どおりだが、残る 6 件は legacy ではなく、契約上は asks_for を持つべき entry である。enable-asks-for は起動時に名簿を凍結するだけで id 引数を取らず、既存 entry へ asks_for を書ける writer op は 1 つも無い。validate-coverage-matrix も JSON schema もこの欄を見ないので、**この穴は現状どこも赤くならない。**",
+      "suggested_fix": "harness 側に『既存 entry へ asks_for を後から結線する』writer op を足す (attach-qa-design-applications が design_applications に対してやったのと同じ形)。同時に validate-coverage-matrix へ opt-in flag を足し、legacy_ids 以外で asks_for を欠く entry を赤にする。id を引数で受け取らせない設計は維持すること。",
       "evidence": [
         "spec-state.json asks_for_contract.legacy_ids = 30 件",
         "asks_for を持たない qa = 36 件 (36 - 30 = 6 件が契約外)"
@@ -1028,13 +1114,32 @@
     },
     {
       "severity": "info",
-      "bucket": "runtime_harness_drift",
-      "observation": "host が読み込む system-spec-harness の実体 (/Users/dm/dev/dev/個人開発/harness/plugins/system-spec-harness および marketplaces/local 配下の複製) には record-audit-fork.py が無く、hooks.json にも PostToolUse / SubagentStop の登録が無い。repo 内の .claude/plugins/system-spec-harness/ にはどちらも在るが、そちらは host から読まれていなかった。このため本 run の最初の 3 本の監査 fork は台帳へ 1 行も残せず、帰属の裏取りができない状態だった (前回レポートに audit_delegations が無いのも同じ理由と考えられる)。.claude/settings.local.json へ repo 側 hook を登録して解消し、監査を取り直した。",
-      "suggested_fix": "settings.local.json の登録は当該 clone 限りの手当てである。恒久的には /plugin で system-spec-harness を入れ直し、runtime の実体を repo 側と同じ版へ揃えること。",
+      "bucket": "deterministic_gates_cannot_see_upstream_drift",
+      "observation": "本 run で C08 が最初に FAIL したのは、決定論ゲート 4 種がすべて exit 0 の状態でだった。G-transcription は『記録と証跡が逐語で一致するか』を見るが、『証跡そのものが古びていないか』は明示的に対象外と宣言している (混ぜると再取得でしか直せない事柄が転記の失敗として赤くなるため)。つまり上流の版が進んだことは、原理的に監査 fork でしか捕まらない。",
+      "suggested_fix": "この分離は設計として正しいので変えない。代わりに『前回取得から N 日経った reference を一覧する』読み取り専用の補助を足し、C08 の走査対象を絞れるようにすると再取得の判断が早くなる。",
       "evidence": [
-        "runtime hooks.json は PreToolUse 1 件のみ (record-audit-fork.py 不在)",
-        "repo hooks.json は PostToolUse:Task|Agent と SubagentStop を登録している",
-        ".claude/settings.local.json (git 管理外) に repo 側 hook を登録"
+        "validate-evidence-transcription.py の宣言: 上流ページが取得後に変わったかは本検査の対象外",
+        "C08 1 回目 FAIL 時点の G-source-citation / G-transcription はいずれも exit 0"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "audit_hook_double_registration",
+      "observation": ".claude/settings.local.json が、plugin 側 hooks.json が既に登録している PostToolUse(Task|Agent) と SubagentStop へ record-audit-fork.py を重ねて登録していた。結果 1 回の fork につき launch 行が 2 行書かれ、audit_fork_attribution が `len(launches) != 1` を malformed として弾き、resolution 行が 1 行も畳み込めなかった。settings.local.json を空にして解消し、以後の 4 起動はいずれも launch 1 行 + resolution 1 行で畳み込めている。",
+      "suggested_fix": "台帳の書き手を hook 1 か所に保つため、settings.local.json へ plugin hook と同じ script を足さない。runtime と repo の版ずれは /plugin の入れ直しで揃える。",
+      "evidence": [
+        "eval-log/system-spec-harness/audit-fork-ledger.jsonl の toolu_01B1CY5rvr6S7se8DHm25LN1 / toolu_013zi8gNAF8ZAD8YPYqLbKqa は launch 2 行 + resolution 0 行",
+        "解消後の toolu_01W4bXWaTxuxFksHDmWzBZqg / toolu_01Ddu4sjoFsP6sRgHLD4LbXT / toolu_01SKi7y2Q1YrXH5jKJPVfaJ3 は launch 1 行 + resolution 1 行"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "dialogue_transcription_backlog",
+      "observation": "docs/spec/dialogue-confirmations.md へ書き起こしたのは user-dialogue 37 件のうち 5 件で、残り 32 件は対話 entry のまま残る。今回は上位概念 (U1-U9) を裏付ける経路だけを書面へ移したので foundation は全件封済みになったが、セル確定の qa_ref が指す先は依然として封の掛からない対話 entry を含む。",
+      "suggested_fix": "書き起こしていない entry は written_up の有無で機械的に判別できる。セル単位の裏取りが要る局面で、その都度この文書へ足していく。",
+      "evidence": [
+        "docs/spec/dialogue-confirmations.md 末尾『書き起こしていないもの』節",
+        "qa_log の written_up を持つ entry = 5 件"
       ]
     },
     {

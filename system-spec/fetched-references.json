@@ -119,16 +119,16 @@
     },
     {
       "target_id": "openai-platform",
-      "retrieved_at": "2026-08-22T15:05:04Z",
+      "retrieved_at": "2026-09-04T13:41:59Z",
       "source_url": "https://developers.openai.com/api/docs/models",
       "official_publisher": "OpenAI",
       "official_host": "developers.openai.com",
-      "version": "gpt-5.6",
+      "version": "gpt-6-astra",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-22T15:05:04Z",
+      "latest_checked_at": "2026-09-04T13:41:59Z",
       "evidence_ref": "system-spec/retrieval-evidence/openai-platform.json",
-      "evidence_sha256": "7c25b37bf000f16da095044fe18ea9f3ec2cd0f74fed1a05241f51770a97b427",
-      "summary": "OpenAI API 公式モデル一覧。決定 decision-llm-provider の対抗候補 authority。現行世代 GPT-5.6 系 (Cyber / Luna / Sol / Terra) と Responses API・会話状態の仕様を示す。要求した platform.openai.com は developers.openai.com へ移送されたため最終 URL を採る。ページは更新日を表明しないので、鮮度は説明対象の版で表す。"
+      "evidence_sha256": "25ec24eb4f28e281a57f748a26ccbe2ef665f1def865bcb93a28731d428df190",
+      "summary": "OpenAI API 公式モデル一覧。決定 decision-llm-provider の対抗候補 authority。現行の flagship は GPT-6 Astra (gpt-6-astra) で、GPT-5.6 系 (Sol / Terra / Luna) は費用と知能の釣り合いを取る選択肢として併載される。Responses API・会話状態の仕様も示す。要求した platform.openai.com は developers.openai.com へ移送されたため最終 URL を採る。ページは更新日を表明しないので、鮮度は説明対象の版で表す。"
     },
     {
       "target_id": "mdn-light-dark",
