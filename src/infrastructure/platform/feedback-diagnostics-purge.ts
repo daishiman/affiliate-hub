@@ -2,8 +2,8 @@ import { drizzle } from "drizzle-orm/d1";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { FeedbackRepositoryPort } from "@/application/ports/feedback";
 import * as schema from "@/db/schema";
-import { createAuditLogEntry } from "@/domain/compliance";
-import { DIAGNOSTICS_RETENTION_DAYS } from "@/domain/feedback";
+import { createAuditLogEntry } from "@/domain/compliance/audit-log";
+import { DIAGNOSTICS_RETENTION_DAYS } from "@/domain/feedback/diagnostics-retention";
 import {
   type AuditLogId,
   type UserId,

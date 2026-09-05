@@ -12,14 +12,7 @@ import type {
   MetricsRollupPort,
   ReaderInteractionIntakePort,
 } from "@/application/ports";
-import {
-  READER_SEGMENTS,
-  VIEWPORT_BANDS,
-  toRollupDay,
-  type DailyMetrics,
-  type ReaderSegment,
-  type ViewportBand,
-} from "@/domain/analytics";
+import { READER_SEGMENTS, VIEWPORT_BANDS, toRollupDay, type DailyMetrics, type ReaderSegment, type ViewportBand } from "@/domain/analytics/reader-interaction";
 import {
   markCommercial,
   markEditorial,

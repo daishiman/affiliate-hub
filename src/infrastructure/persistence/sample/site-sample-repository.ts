@@ -1,5 +1,5 @@
 import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
-import { type SiteBlueprint, createSiteBlueprint } from "@/domain/authoring";
+import { createSiteBlueprint, type SiteBlueprint } from "@/domain/authoring/site-blueprint";
 import { type WorkspaceId, markEditorial, ok, taggedString } from "@/domain/shared";
 import { registerStub, stubReason } from "../../stub-registry";
 import {

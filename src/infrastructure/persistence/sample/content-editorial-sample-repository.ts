@@ -4,18 +4,12 @@ import type {
   EditorialPersonaRepositoryPort,
 } from "@/application/ports/authoring";
 import type { BrandScopeFilter, PageRequest, Paged } from "@/application/ports/common";
-import {
-  type AudiencePersona,
-  type AuthorPersona,
-  type ContentPackage,
-  type ContentState,
-  type ContentVariant,
-  createAudiencePersona,
-  createAuthorPersona,
-  createContentPackage,
-  createContentVariant,
-} from "@/domain/authoring";
-import { buildVisibleMessage } from "@/domain/compliance";
+import { createAudiencePersona, type AudiencePersona } from "@/domain/authoring/audience-persona";
+import { createAuthorPersona, type AuthorPersona } from "@/domain/authoring/author-persona";
+import { createContentPackage, type ContentPackage } from "@/domain/authoring/content-package";
+import type { ContentState } from "@/domain/authoring/content-state";
+import { createContentVariant, type ContentVariant } from "@/domain/authoring/content-variant";
+import { buildVisibleMessage } from "@/domain/compliance/disclosure";
 import {
   type AudiencePersonaId,
   type AuthorPersonaId,

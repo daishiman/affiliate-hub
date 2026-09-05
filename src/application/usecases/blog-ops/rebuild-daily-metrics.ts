@@ -2,7 +2,7 @@ import type { MetricsRollupPort } from "@/application/ports/blog-observability";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import { validateRollupTargetDay } from "@/domain/analytics";
+import { validateRollupTargetDay } from "@/domain/analytics/reader-interaction";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

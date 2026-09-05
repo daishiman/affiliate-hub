@@ -1,6 +1,6 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import type { SiteWizardStep } from "@/domain/authoring";
-import { SITE_WIZARD_STEPS } from "@/domain/authoring";
+import { SITE_WIZARD_STEPS } from "@/domain/authoring/site-draft";
 import { startSiteDraftAction } from "@/presentation/admin/publish/site-wizard-action";
 import { SiteWizardStepForm } from "@/presentation/admin/publish/site-wizard-form";
 import { currentActor, siteBuilderUseCases, siteDraftNotice } from "@/presentation/composition";

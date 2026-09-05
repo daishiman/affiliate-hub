@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { type SiteAeoProfile } from "@/domain/aeo";
+import type { SiteAeoProfile } from "@/domain/aeo/answer-unit";
 import { SEO_CHECK_LABEL, SEO_SEVERITY_LABEL, type SeoFinding } from "@/domain/seo";
 import {
   Button,

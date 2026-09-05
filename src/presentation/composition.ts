@@ -214,7 +214,7 @@ import {
 import { createGetDashboardUseCase } from "@/application/usecases/dashboard/read-dashboard";
 import type { ActorContext } from "@/domain/shared";
 import { asFeedbackCaptureId, taggedString } from "@/domain/shared";
-import { type KeyScope, authorize } from "@/domain/feedback";
+import { authorize, type KeyScope } from "@/domain/feedback/integration-access";
 import type { StorageStatus } from "@/presentation/ui/patterns/stub-notice";
 import { createDeps, createLlmCredentialManagement } from "@/infrastructure/composition";
 import { auditDenials } from "@/application/access-denial";
@@ -371,7 +371,7 @@ import {
 } from "@/application/usecases/blog-ops";
 import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
 import { submitToIndexNow } from "@/infrastructure/indexnow/indexnow-client";
-import { CAPTURE_RETENTION_DAYS } from "@/domain/feedback";
+import { CAPTURE_RETENTION_DAYS } from "@/domain/feedback/capture-policy";
 import type { ArticleRatingPort, PublicBlogPort } from "@/application/ports/blog-ops";
 import {
   readPublicSiteComposition,

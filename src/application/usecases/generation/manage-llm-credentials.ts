@@ -7,7 +7,7 @@ import type {
   LlmModelDescriptor,
   LlmProviderCatalogPort,
 } from "@/application/ports/llm-credential";
-import { createAuditLogEntry } from "@/domain/compliance";
+import { createAuditLogEntry } from "@/domain/compliance/audit-log";
 import type { LlmCredentialSummary } from "@/domain/generation/llm-credential";
 import { requireCapability } from "@/domain/identity";
 import {

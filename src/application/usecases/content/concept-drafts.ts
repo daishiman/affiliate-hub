@@ -1,4 +1,4 @@
-import { READER_DISCLOSURE_TEXT } from "@/domain/compliance";
+import { READER_DISCLOSURE_TEXT } from "@/domain/compliance/disclosure";
 import { requireCapability } from "@/domain/identity";
 import {
   type ContentPackageId,

@@ -17,7 +17,7 @@ import {
   createGetManagedSiteUseCase,
   createListManagedSitesUseCase,
 } from "@/application/usecases/site/manage-sites";
-import { SITE_WIZARD_STEPS } from "@/domain/authoring";
+import { SITE_WIZARD_STEPS } from "@/domain/authoring/site-draft";
 import { readPublicSiteComposition } from "@/presentation/site/public-site-projection";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";

@@ -1,6 +1,6 @@
 import type { PolicyRuleRepositoryPort } from "@/application/ports/compliance";
 import type { PolicyRule } from "@/domain/compliance";
-import { buildSeedPolicyRules } from "@/domain/compliance";
+import { buildSeedPolicyRules } from "@/domain/compliance/policy-rule-seed";
 import type { WorkspaceId } from "@/domain/shared";
 import { ok } from "@/domain/shared";
 import { registerStub, stubCall } from "../../stub-registry";

@@ -1,6 +1,6 @@
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
-import { type AuditAction, createAuditLogEntry } from "@/domain/compliance";
+import { createAuditLogEntry, type AuditAction } from "@/domain/compliance/audit-log";
 import {
   type ActorContext,
   type AuditLogId,

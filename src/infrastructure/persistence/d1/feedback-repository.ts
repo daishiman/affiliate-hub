@@ -5,20 +5,11 @@ import type {
   IntegrationKeyPort,
 } from "@/application/ports/feedback";
 import type { PortResult } from "@/application/ports/common";
-import {
-  type DispositionRecord,
-  type FeedbackHistoryEntry,
-  type FeedbackOrigin,
-  type FeedbackReport,
-  type HandoffState,
-  type IntegrationKey,
-  type KeyScope,
-  type KeyUsageRecord,
-  type TechnicalContext,
-  diagnosticsPurgeCutoff,
-  isDiagnosticsPurged,
-  purgeDiagnostics,
-} from "@/domain/feedback";
+import type { DispositionRecord } from "@/domain/feedback/disposition";
+import type { FeedbackHistoryEntry, FeedbackOrigin, FeedbackReport, TechnicalContext } from "@/domain/feedback/report";
+import type { HandoffState } from "@/domain/feedback/handoff";
+import type { IntegrationKey, KeyScope, KeyUsageRecord } from "@/domain/feedback/integration-access";
+import { diagnosticsPurgeCutoff, isDiagnosticsPurged, purgeDiagnostics } from "@/domain/feedback/diagnostics-retention";
 import {
   type IntegrationKeyId,
   type WorkspaceId,

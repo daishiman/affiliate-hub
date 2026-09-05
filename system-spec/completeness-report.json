@@ -6,7 +6,7 @@
   },
   "spec_dir": "/Users/dm/orca/workspaces/affiliate-hub/サイトごとの管理/system-spec",
   "inputs": {
-    "sha256": "bea674ba913baa92ab8faacb45dc765f34cec9dff22c417c9bbc3f845c534f28",
+    "sha256": "48916ce60ce49d2278c0b83259f3a8612c84c901b3d7d96e464b932a7feed5e6",
     "file_count": 288,
     "files": [
       {
@@ -1301,8 +1301,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
-        "sha256": "39b2685ef53f855684db68b0563b677240a5cc26df8e80b9c4ee374fac174054",
-        "mtime": 1788566104
+        "sha256": "83972dd4dbebd794117ef9c2c8bfeb2051b5f59802495544b082451ba9543546",
+        "mtime": 1788610919
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
@@ -1331,8 +1331,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
-        "sha256": "711451c7d2d3cf08c7aeff4195ec40a0858b33740f1e2e031636c513fa2e54bc",
-        "mtime": 1788566104
+        "sha256": "a122bdd2d27e63aeb4b1d4561ce4b82a6ad97495e85b1de0a2f3931438e1befd",
+        "mtime": 1788610919
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
@@ -1351,8 +1351,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
-        "sha256": "a64947c9bd8a894f695456f6d41c0281dbc79beb9777517569adde0c7115f515",
-        "mtime": 1788566104
+        "sha256": "b61b6c6279071939a7800248de740c2c573320502f3c206fffacbc4a3a78329b",
+        "mtime": 1788610919
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
@@ -1450,7 +1450,7 @@
         "mtime": 1788566309
       }
     ],
-    "pinned_at": "2026-09-05T01:20:22.542Z"
+    "pinned_at": "2026-09-05T12:29:10.480Z"
   },
   "verdict": "PASS",
   "aspects": {

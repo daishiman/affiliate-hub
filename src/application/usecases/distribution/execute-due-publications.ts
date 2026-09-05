@@ -8,19 +8,10 @@ import type {
   PublicationDeliveryAuditOutboxPort,
   PublicationRepositoryPort,
 } from "@/application/ports";
-import { evaluateExternalPublicationGate } from "@/domain/compliance";
-import {
-  type Publication,
-  MAX_SEND_ATTEMPTS,
-  advance,
-  canRetry,
-  claimPublicationForDelivery,
-  createPublicationDeliveryAudit,
-  isConnectionUsable,
-  recordSendFailure,
-  recordSendSuccess,
-  scheduleSendRetry,
-} from "@/domain/distribution";
+import { evaluateExternalPublicationGate } from "@/domain/compliance/external-publication-gate";
+import { MAX_SEND_ATTEMPTS, advance, canRetry, claimPublicationForDelivery, recordSendFailure, recordSendSuccess, scheduleSendRetry, type Publication } from "@/domain/distribution/publication";
+import { createPublicationDeliveryAudit } from "@/domain/distribution/delivery-audit";
+import { isConnectionUsable } from "@/domain/distribution/channel";
 import {
   type AuditLogId,
   type ChannelConnectionId,

@@ -8,7 +8,7 @@ import type {
   EditorialSeoAssessmentPort,
   SeoAssessmentPort,
 } from "@/application/ports";
-import { detectGaps, validateAnswerUnit, type AnswerUnit, type SiteAeoProfile } from "@/domain/aeo";
+import { detectGaps, validateAnswerUnit, type AnswerUnit, type SiteAeoProfile } from "@/domain/aeo/answer-unit";
 import { rankFindings, validateFinding, type SeoFinding } from "@/domain/seo/assessment";
 import { domainError, err, isErr, markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import {

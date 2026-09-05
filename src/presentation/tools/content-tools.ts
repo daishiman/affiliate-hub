@@ -24,8 +24,9 @@ import {
   createGetGenerationMatrixUseCase,
 } from "@/application/usecases/authoring/plan-generation-matrix";
 import { createReadWritingMethodUseCase } from "@/application/usecases/authoring/read-writing-method";
-import { ARTICLE_TYPES, CONTENT_ANGLES, CTA_TYPES } from "@/domain/authoring";
-import { CONTENT_STATES } from "@/domain/authoring";
+import { ARTICLE_TYPES } from "@/domain/authoring/article-structure";
+import { CONTENT_ANGLES, CTA_TYPES } from "@/domain/authoring/content-package";
+import { CONTENT_STATES } from "@/domain/authoring/content-state";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 

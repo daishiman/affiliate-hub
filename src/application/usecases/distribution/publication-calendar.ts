@@ -7,15 +7,8 @@ import type {
   ChannelConnectionRepositoryPort,
   PublicationRepositoryPort,
 } from "@/application/ports/distribution";
-import {
-  CHANNEL_CAPABILITIES,
-  type ChannelKind,
-  type Publication,
-  type PublicationState,
-  RESCHEDULABLE_PUBLICATION_STATES,
-  changePublicationSchedule,
-  publicationMutationConflict,
-} from "@/domain/distribution";
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution/channel";
+import { RESCHEDULABLE_PUBLICATION_STATES, changePublicationSchedule, publicationMutationConflict, type Publication, type PublicationState } from "@/domain/distribution/publication";
 import { can, requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

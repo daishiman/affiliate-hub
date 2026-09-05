@@ -3,25 +3,11 @@ import type { AuditLogPort } from "@/application/ports/compliance";
 import type { ImprovementRepositoryPort } from "@/application/ports/improvement";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { AuditAction } from "@/domain/compliance";
-import {
-  type LoopRun,
-  type MetricKey,
-  type VariantSetting,
-  type VariantSpec,
-  type VariantValue,
-  DEFAULT_MINIMUM_SAMPLES,
-  METRIC_DEFINITIONS,
-  approveVariantSpec,
-  assertComparable,
-  concludeLoopRun,
-  createLoopRun,
-  createVariantSpec,
-  findOptimizationDimension,
-  judgeComparison,
-  metricDefinition,
-  startLoopRun,
-  stopLoopRun,
-} from "@/domain/analytics";
+import { concludeLoopRun, createLoopRun, startLoopRun, stopLoopRun, type LoopRun } from "@/domain/analytics/loop-run";
+import { METRIC_DEFINITIONS, metricDefinition, type MetricKey } from "@/domain/analytics/metrics";
+import { approveVariantSpec, assertComparable, createVariantSpec, type VariantSetting, type VariantSpec, type VariantValue } from "@/domain/analytics/variant-spec";
+import { DEFAULT_MINIMUM_SAMPLES, judgeComparison } from "@/domain/analytics/improvement";
+import { findOptimizationDimension } from "@/domain/analytics/optimization";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

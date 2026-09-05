@@ -8,7 +8,8 @@ import type {
   PublishedArticle,
   PublishedPerson,
 } from "@/application/read-models/published-article";
-import { type SiteBlueprint, routesFor } from "@/domain/authoring";
+import type { SiteBlueprint } from "@/domain/authoring/site-blueprint";
+import { routesFor } from "@/domain/authoring/site-routes";
 import { UNCATEGORIZED_ARTICLE_CATEGORY } from "@/domain/blogops";
 import {
   type ActorContext,

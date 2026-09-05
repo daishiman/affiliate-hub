@@ -230,6 +230,23 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
     intent: "誰でも",
     what: "手元で画面を確かめるための入口（積んだ環境には存在しない）",
   },
+  "src/app/internal-cron/route.ts": {
+    // 定期実行の中身の置き場。**この道は外の世界に存在しない。**
+    //
+    // Cloudflare へ来た要求は必ず入口（`worker-entry.js`）の `fetch` を通り、
+    // そこがこの道筋を 404 で落とす。入口が `scheduled` から生成物の `fetch` へ
+    // 直に要求を渡すときだけ、ここへ届く。だから門を置く相手が居ない。
+    //
+    // ここで「誰でも」と書いているのは、**この 1 枚だけを読んだときの姿**である
+    // （`dev-signin` と同じ書き方）。門で守っていないのは、合言葉は漏れうるが
+    // 通らない道は漏れようがないためで、塞いでいることは
+    // `worker-entry-weight.test.ts` の要件 5 が入口の側から確かめている。
+    //
+    // なぜ画面側の束に置くのか: 入口がここの TypeScript を直に読むと、
+    // 同じものが Worker に 2 部入る（2026-09-05 の実測で 82 ファイル 791 KiB）。
+    intent: "誰でも",
+    what: "定期実行の中身（入口の fetch が 404 で塞ぐので、外からは届かない）",
+  },
   "src/app/api/telemetry/route.ts": {
     intent: "誰でも",
     what: "読者の画面から届く計測（未ログインの読者が送るので、門は置けない）",

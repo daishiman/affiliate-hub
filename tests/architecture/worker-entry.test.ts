@@ -228,17 +228,36 @@ describe("Worker の入口と定期実行の配線", () => {
     }
   });
 
-  it("入口は、定期メンテナンスへ実行環境と cron の起動時刻を渡している", () => {
+  it("入口は、定期メンテナンスへ cron の起動時刻を渡して呼んでいる", () => {
     const entry = readFileSync(join(ROOT, config.main as string), "utf8");
     expect(entry, "定期実行の受け口がありません").toContain("scheduled");
-    // 入口はOpenNextの生成物を包むだけに保ち、型で守る配線は src 側へ置く。
-    expect(entry, "定期メンテナンスの配線を読み込んでいません").toContain(
+    // 入口は生成物を包むだけに保ち、型で守る配線は src 側へ置く。
+    // 中身をここから直に読むと同じ TypeScript が Worker に 2 部入るので
+    // （tests/architecture/worker-entry-weight.test.ts 要件 4）、
+    // 画面側の束にある内部の道筋を叩く形で呼ぶ。
+    expect(entry, "定期メンテナンスの内部の道筋を叩いていません").toContain("/internal-cron");
+    expect(
+      entry,
+      "生成物の fetch へ渡していません（包むだけになっています）",
+    ).toMatch(/openNextWorker\.fetch\(\s*request\s*,\s*env\s*,\s*ctx\s*\)/);
+    // 受け側が時刻を取り直すと、実行が遅れた分だけ集計の区切りがずれる。
+    expect(
+      entry,
+      "cron の起動時刻を渡していません。受け側が取り直すと集計の区切りがずれます",
+    ).toContain("controller.scheduledTime");
+  });
+
+  it("定期メンテナンスの内部の道筋は、実行環境と起動時刻を配線へ渡している", () => {
+    const route = readFileSync(join(ROOT, "src", "app", "internal-cron", "route.ts"), "utf8");
+    expect(route, "定期メンテナンスの配線を読み込んでいません").toContain(
       "scheduleMaintenanceJobs",
     );
     expect(
-      entry,
+      route,
       "定期メンテナンスへ実行環境・実行文脈・cron の起動時刻を渡していません",
-    ).toMatch(/scheduleMaintenanceJobs\s*\(\s*env\s*,\s*ctx\s*,\s*now\s*\)/);
+    ).toMatch(/scheduleMaintenanceJobs\(env,[\s\S]{0,120}?, now\)/);
+    // 応答を返したあとに仕事が消えると、cron は成功したのに何も起きない。
+    expect(route, "登録した仕事を待ち切っていません").toContain("Promise.allSettled(pending)");
   });
 
   it("定期メンテナンスは、仕事ごとに独立した待ち行列へ載せている", () => {

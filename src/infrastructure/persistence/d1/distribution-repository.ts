@@ -18,7 +18,8 @@ import type {
   PublicationRepositoryPort,
 } from "@/application/ports/distribution";
 import type { ChannelConnection, Publication } from "@/domain/distribution";
-import { EXTERNAL_DIRECT_CHANNEL_KINDS, samePublicationVersion } from "@/domain/distribution";
+import { EXTERNAL_DIRECT_CHANNEL_KINDS } from "@/domain/distribution/channel";
+import { samePublicationVersion } from "@/domain/distribution/publication";
 import {
   type ChannelConnectionId,
   type BrandId,

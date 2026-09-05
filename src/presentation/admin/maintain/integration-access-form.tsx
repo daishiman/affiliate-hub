@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { KEY_SCOPES, KEY_SCOPE_LABELS } from "@/domain/feedback";
+import { KEY_SCOPES, KEY_SCOPE_LABELS } from "@/domain/feedback/integration-access";
 import { Button, Callout, CheckboxGroup, Field, FormValue, HumanOnlyForm } from "@/presentation/ui";
 import { manageIntegrationAccessAction } from "../feedback-action";
 import { INITIAL_INTEGRATION_ACCESS_STATE } from "../feedback-state";

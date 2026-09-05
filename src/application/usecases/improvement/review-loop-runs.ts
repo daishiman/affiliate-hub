@@ -1,19 +1,10 @@
 import type { ImprovementRepositoryPort } from "@/application/ports/improvement";
-import {
-  type ComparisonResult,
-  type ImprovementSuggestion,
-  type LoopRun,
-  type LoopRunStatus,
-  COMPARISON_VERDICT_LABELS,
-  DEFAULT_MINIMUM_SAMPLES,
-  LOOP_RUN_STATUS_LABELS,
-  buildSuggestions,
-  diffVariantSpecs,
-  findLoopKind,
-  findOptimizationDimension,
-  judgeComparison,
-  metricDefinition,
-} from "@/domain/analytics";
+import { COMPARISON_VERDICT_LABELS, DEFAULT_MINIMUM_SAMPLES, buildSuggestions, judgeComparison, type ComparisonResult, type ImprovementSuggestion } from "@/domain/analytics/improvement";
+import { LOOP_RUN_STATUS_LABELS, type LoopRun, type LoopRunStatus } from "@/domain/analytics/loop-run";
+import { diffVariantSpecs } from "@/domain/analytics/variant-spec";
+import { findLoopKind } from "@/domain/analytics/loop-kinds";
+import { findOptimizationDimension } from "@/domain/analytics/optimization";
+import { metricDefinition } from "@/domain/analytics/metrics";
 import { requireCapability } from "@/domain/identity";
 import { type ActorContext, type DomainError, type Result, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";

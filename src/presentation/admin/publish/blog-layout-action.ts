@@ -6,7 +6,7 @@ import {
   LAYOUT_REGIONS,
   TOP_BANDS,
 } from "@/domain/blogops";
-import { siteBasePathBySlug } from "@/domain/authoring";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { blogOpsEntry, siteUseCases, signedInActor } from "@/presentation/composition";
 import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 import {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution";
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution/channel";
 import { Button, Callout, Field, FormResult, FormValue, Select, ToolForm } from "@/presentation/ui";
 import { updatePublicationAction } from "./publication-form-action";
 import { INITIAL_PUBLICATION_FORM_STATE } from "./publication-form-state";

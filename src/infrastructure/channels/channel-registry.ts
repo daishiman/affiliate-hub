@@ -7,7 +7,7 @@ import type {
   SecretResolverPort,
 } from "@/application/ports";
 import type { ChannelConnection, ChannelKind } from "@/domain/distribution";
-import { CHANNEL_CAPABILITIES, supportsDirectPublish } from "@/domain/distribution";
+import { CHANNEL_CAPABILITIES, supportsDirectPublish } from "@/domain/distribution/channel";
 import { domainError, err, ok } from "@/domain/shared";
 import type { DomainError, Result } from "@/domain/shared";
 import { registerStub, stubCall } from "../stub-registry";

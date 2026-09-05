@@ -3,7 +3,7 @@ import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { EditorialPublishedArticleAdminPort } from "@/application/ports/site";
 import type { PublishedArticle } from "@/application/read-models/published-article";
-import { parseNonEmptyParagraphs } from "@/domain/authoring";
+import { parseNonEmptyParagraphs } from "@/domain/authoring/non-empty-paragraphs";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

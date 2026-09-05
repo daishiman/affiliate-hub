@@ -9,7 +9,7 @@ import type {
 } from "@/application/ports/monetization";
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
 import type { EditorialProductRepositoryPort } from "@/application/ports/product";
-import { CHANNEL_CAPABILITIES } from "@/domain/distribution";
+import { CHANNEL_CAPABILITIES } from "@/domain/distribution/channel";
 import { can, requireWorkspaceWideCapability } from "@/domain/identity";
 import { effectiveReward } from "@/domain/monetization";
 import {
