@@ -3,7 +3,7 @@ status: confirmed
 category: security
 aggregate: 確定
 spec_cells: [security.web, security.mobile, security.tablet, security.desktop-windows, security.desktop-linux, security.desktop-macos]
-serves_goals: [G1]
+serves_goals: [G1, G2]
 ---
 
 # セキュリティ (security)
@@ -15,7 +15,7 @@ serves_goals: [G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-security-web-spec-intake。裏付け質疑 (`qa_refs`): `qa-security-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-security-web-domain-behavior-privacy。裏付け質疑 (`qa_refs`): `qa-security-web-spec-intake`, `qa-security-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -30,13 +30,13 @@ serves_goals: [G1]
 |---|---|
 | セル | security × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-security-web-spec-intake` |
-| 資するゴール (serves_goals) | G1 |
-| required-info | `security-posture` — missing_effect: block / 接地: 済 (`qa-security-web-spec-intake`) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/11-CI-CD・品質ゲート仕様.md` |
-| 出典 節 | §5 秘密情報 |
-| 出典 sha256 | `ce690b428667e8c2a2aca891acc9bf3725852f7d9edfdd5a812365a06d4aaadf` |
+| 確定質疑 (qa_ref) | `qa-security-web-domain-behavior-privacy` |
+| 資するゴール (serves_goals) | G1, G2 |
+| required-info | `security-posture` — missing_effect: block / 接地: 済 (`qa-security-web-domain-behavior-privacy`) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
 | 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
 
 ## 意思決定 (decisions)
@@ -47,7 +47,13 @@ serves_goals: [G1]
 
 ## 確定内容 (質疑録)
 
-### qa-security-web-spec-intake (対応セル: web)
+### qa-security-web-domain-behavior-privacy (対応セル: web)
+
+**質問**: security×web: 他人のドメインを勝手に接続されないようにし、座標まで採る読者行動データで読者を特定できないようにするには、何を課すか
+
+**回答**: ドメインは、所有権の確認が済むまで active にしない。管理画面で登録しただけでは pending であり、こちらが発行したトークンを利用者が自分の DNS へ置き、Cloudflare が検証して初めて配信へ結びつく。これにより、他人が所有するドメインを名前だけ入力して奪うことができない。同じホスト名を 2 つの workspace が同時に active にできないよう、hostname に一意制約を置く。切断後も行を revoked として残すのは、直後に別の workspace が同じ名前を取り、失効前のリンクの行き先を差し替えることを防ぐためである。読者行動は、同意が無ければ reader_key を null のまま記録する (既存 telemetry_events と同じ扱いを踏襲する)。座標は端末画面の絶対位置ではなく要素基準の比率で持ち、端末の解像度から個人を絞り込む手がかりにしない。ポインタの軌跡は連続的に採らず、クリックと一定間隔の標本のみとする。連続軌跡は筆跡に近い個人性を持ちうるためである。管理画面のヒートマップは常に集計後の分布だけを描き、個々の読者の 1 回ぶんの軌跡を再生する機能は作らない。読者からの削除依頼は既存の reader_key 索引でまとめて消せる状態を保つ
+
+### qa-security-web-spec-intake (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: security×web: 秘密情報をどこに置き、誰が登録するか (書面入力 docs/spec/11 §5)
 
@@ -179,12 +185,23 @@ serves_goals: [G1]
 
 #### 本章での適用
 
-##### 確定内容 qa-security-web-spec-intake (対応セル: web)
+##### 確定内容 qa-security-web-domain-behavior-privacy (対応セル: web)
 
-- 確定要件: - API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。
-- **リポジトリのファイル、コマンドライン、AI が読める場所に置かない。**
-  登録は利用者本人が、ブラウザまたは本人のターミナルで行う。代行しない。
-- ログに秘密情報を出さない（`echo ${{ secrets.X }}` を書かない）。
+- 確定要件: ドメインは、所有権の確認が済むまで active にしない。管理画面で登録しただけでは pending であり、こちらが発行したトークンを利用者が自分の DNS へ置き、Cloudflare が検証して初めて配信へ結びつく。これにより、他人が所有するドメインを名前だけ入力して奪うことができない。同じホスト名を 2 つの workspace が同時に active にできないよう、hostname に一意制約を置く。切断後も行を revoked として残すのは、直後に別の workspace が同じ名前を取り、失効前のリンクの行き先を差し替えることを防ぐためである。読者行動は、同意が無ければ reader_key を null のまま記録する (既存 telemetry_events と同じ扱いを踏襲する)。座標は端末画面の絶対位置ではなく要素基準の比率で持ち、端末の解像度から個人を絞り込む手がかりにしない。ポインタの軌跡は連続的に採らず、クリックと一定間隔の標本のみとする。連続軌跡は筆跡に近い個人性を持ちうるためである。管理画面のヒートマップは常に集計後の分布だけを描き、個々の読者の 1 回ぶんの軌跡を再生する機能は作らない。読者からの削除依頼は既存の reader_key 索引でまとめて消せる状態を保つ
+- 設計解釈の記録経路: `dialogue`
+- 原則: 名乗りを信用せず、所有していることの証明を求める (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ドメイン名は入力欄に打てば誰でも名乗れる。検証なしで配信へ結びつけると、他人のドメイン宛の通信を自分の内容で受けられてしまう。DNS へレコードを置けるのは実際にそのドメインを管理している者だけなので、これを証明の手段にする
+  - トレードオフ:
+    - 利用者は DNS の操作という手間を負い、接続が即座に完了しない。手間を省く方式は、そのまま乗っ取りの経路になる
+- 原則: 集めない情報は漏れない。目的に対して過剰な粒度を最初から採らない (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 『どこに時間をかけて見ているか』を知るのに、連続的なポインタ軌跡は要らない。到達深度・滞在・クリック位置で足りる。連続軌跡は個人性が高く、いったん保存すれば漏洩時の被害が大きい。標本化とクリックに絞れば、目的を満たしたまま持つ情報を減らせる
+  - トレードオフ:
+    - マウスの迷いや戻りといった細かい挙動は見えなくなる。詳細な軌跡が要る調査は別途、同意を明示的に取る設計が必要になる
+##### 接地根拠 qa-security-web-spec-intake (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-security-web-spec-intake` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 秘密情報はリポジトリのファイル・コマンドライン・AI が読める場所に置かない。登録は利用者本人がブラウザまたは本人のターミナルで行い、代行しない (`docs/spec/11-CI-CD・品質ゲート仕様.md#§5`)
   - 採否: `applied`
@@ -210,7 +227,7 @@ serves_goals: [G1]
   - 章固有の根拠: 外部アカウント秘密はテナント別に暗号化分離し、取得ページ本文をAI命令として実行しない(情報源と命令の分離)
   - トレードオフ:
     - 命令分離により柔軟な自動抽出は制限されるが、乗っ取り型攻撃を構造的に遮断できる
-- 資するゴール: G1
+- 資するゴール: G1, G2
 
 ## 最新ドキュメント出典
 
@@ -270,3 +287,25 @@ serves_goals: [G1]
 ### 本節を「転記」に留めた理由
 
 C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+## dev 合流で章から落ちた確定内容 (2026-09-05)
+
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
+
+- `serves_goals: [G1]`
+- `| Web (web) | 確定 | 確定質疑: qa-security-web-spec-intake。裏付け質疑 (`qa_refs`): `qa-security-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-security-web-spec-intake` |`
+- `| 資するゴール (serves_goals) | G1 |`
+- `| required-info | `security-posture` — missing_effect: block / 接地: 済 (`qa-security-web-spec-intake`) |`
+- `| 出典 kind | written-requirements |`
+- `| 出典 path | `docs/spec/11-CI-CD・品質ゲート仕様.md` |`
+- `| 出典 節 | §5 秘密情報 |`
+- `| 出典 sha256 | `ce690b428667e8c2a2aca891acc9bf3725852f7d9edfdd5a812365a06d4aaadf` |`
+- `### qa-security-web-spec-intake (対応セル: web)`
+- `##### 確定内容 qa-security-web-spec-intake (対応セル: web)`
+- `- 確定要件: - API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。`
+- `- 資するゴール: G1`

@@ -183,6 +183,32 @@
       "summary": "StrykerJS 公式ドキュメント導入章。決定 decision-test-ci-tooling のミューテーション試験側 authority。TypeScript/React/Angular/Vue/Svelte/Node を対象に、試験そのものの有効性を変異で測る枠組み。docs は rolling で版も日付も表明しないため version は配布 registry の現行版 10.0.0 (`npm view @stryker-mutator/core` を 2026-08-22T21:19:48Z に照会)。HTTP Last-Modified は取得日と同日で Docusaurus のデプロイ時刻でしかないため採らず、退けた理由を証跡の rejected_candidate に残してある。"
     },
     {
+      "target_id": "cloudflare-for-saas",
+      "retrieved_at": "2026-09-03T12:55:14Z",
+      "source_url": "https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/",
+      "official_publisher": "Cloudflare",
+      "official_host": "developers.cloudflare.com",
+      "last_updated": "2026-04-29",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T12:55:14Z",
+      "evidence_ref": "system-spec/retrieval-evidence/cloudflare-for-saas.json",
+      "evidence_sha256": "6bea06beda700f7c2f63a27427c55b5bccb7bf23846e2798feb147e2727f5a5b",
+      "summary": "Cloudflare for SaaS 公式ドキュメント。利用者が持ち込んだドメインを提供者の zone 配下の custom hostname として引き受け、証明書発行・暗号化接続・分析を提供者側の設定だけで賄う仕組み。確定質疑 qa-infra-web-custom-hostname、database の site_custom_domains.provider_hostname_id、backend の connect-custom-domain ユースケースが依拠する authority。"
+    },
+    {
+      "target_id": "cloudflare-r2",
+      "retrieved_at": "2026-09-03T12:55:14Z",
+      "source_url": "https://developers.cloudflare.com/r2/",
+      "official_publisher": "Cloudflare",
+      "official_host": "developers.cloudflare.com",
+      "last_updated": "2026-08-07",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T12:55:14Z",
+      "evidence_ref": "system-spec/retrieval-evidence/cloudflare-r2.json",
+      "evidence_sha256": "3ca9c2d97010c5fad13a0bf2fd4385ce498cb038f88828df3d7101b3f195ee81",
+      "summary": "Cloudflare R2 公式ドキュメント。egress 帯域課金を取らないオブジェクトストレージ。確定決定 decision-redirect-measurement-async (採用 opt-waituntil-fallback-cron) の D1 書込失敗時の退避先であり、infrastructure 章 As-Is の R2 binding BUCKET が依拠する authority。"
+    },
+    {
       "target_id": "google-search-central",
       "retrieved_at": "2026-09-04T05:01:57Z",
       "source_url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",

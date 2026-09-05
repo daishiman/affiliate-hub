@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-composition-visibility。裏付け質疑 (`qa_refs`): `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-scoped-admin。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -30,14 +30,14 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | frontend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-frontend-web-blog-composition-visibility` |
+| 確定質疑 (qa_ref) | `qa-frontend-web-blog-scoped-admin` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
 
 ## 意思決定 (decisions)
 
@@ -54,7 +54,13 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-frontend-web-blog-composition-visibility (対応セル: web)
+### qa-frontend-web-blog-scoped-admin (対応セル: web)
+
+**質問**: frontend×web: 管理画面 88 ページを『記事ごと』ではなく『ブログごと』に扱えるようにするには、画面の構造をどう組み替えるか。ヒートマップの描画はどう実現するか
+
+**回答**: ブログを選ぶ操作を、画面ごとの絞り込みではなく URL の階層そのものにする。/admin/sites/[site]/ の下へ、そのブログに閉じた画面 (記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信) を集め、いま /admin/blog/* や /admin/analytics にある横断画面は『全ブログの比較』として別に残す。どちらの画面を見ているのかが URL とパンくずで分かる状態にし、絞り込みの選択が画面遷移で消えないようにする。既存 /admin/blog/* は当面残して /admin/sites/[site]/ へ転送し、リンク切れを作らない。ヒートマップは読者側と管理側の 2 つに分ける。読者側は IntersectionObserver で到達深度を、visibilitychange と滞在タイマーで滞在を、クリックは委譲したリスナ 1 つで要素基準の比率へ変換して送る。送信は個別ではなく sendBeacon でまとめて送り、読者の体感を落とさない。管理側は記事のプレビューを背景に、比率で受け取った点を canvas へ重ねて描く。端末幅ごとに重ねると意味が壊れるので、viewport_bucket (狭い/中/広い) を切り替えて表示する。同意が無い読者の点も (reader_key を持たないまま) 描画対象に含める
+
+### qa-frontend-web-blog-composition-visibility (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: 作ったブログが何で構成されているかが見えず改善に着手できない。どこまで見えれば解決とみなすか。
 
@@ -418,9 +424,23 @@ site_blueprint.theme（設計図の既定）
 
 #### 本章での適用
 
-##### 確定内容 qa-frontend-web-blog-composition-visibility (対応セル: web)
+##### 確定内容 qa-frontend-web-blog-scoped-admin (対応セル: web)
 
-- 確定要件: 4つすべてを満たす。(a) 作成直後に読者側の住所が実際に開き、404にならない。(b) 管理画面にそのブログの構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) を実データの件数と各実体へのリンク付きで一覧する。(c) 管理画面の中で読者と同じ見た目をプレビューでき、公開前に確認できる。(d) 作成時点で公開に必要なのに無い要素を名指しで提示し、その場へ移動できる。描画は既存の SiteFrame と public-site-projection を通し、読者用と別の描画経路を作らない。作ると管理画面で見える姿と読者が見る姿がずれる。
+- 確定要件: ブログを選ぶ操作を、画面ごとの絞り込みではなく URL の階層そのものにする。/admin/sites/[site]/ の下へ、そのブログに閉じた画面 (記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信) を集め、いま /admin/blog/* や /admin/analytics にある横断画面は『全ブログの比較』として別に残す。どちらの画面を見ているのかが URL とパンくずで分かる状態にし、絞り込みの選択が画面遷移で消えないようにする。既存 /admin/blog/* は当面残して /admin/sites/[site]/ へ転送し、リンク切れを作らない。ヒートマップは読者側と管理側の 2 つに分ける。読者側は IntersectionObserver で到達深度を、visibilitychange と滞在タイマーで滞在を、クリックは委譲したリスナ 1 つで要素基準の比率へ変換して送る。送信は個別ではなく sendBeacon でまとめて送り、読者の体感を落とさない。管理側は記事のプレビューを背景に、比率で受け取った点を canvas へ重ねて描く。端末幅ごとに重ねると意味が壊れるので、viewport_bucket (狭い/中/広い) を切り替えて表示する。同意が無い読者の点も (reader_key を持たないまま) 描画対象に含める
+- 設計解釈の記録経路: `dialogue`
+- 原則: いま何を操作しているのかを、画面自身が示し続ける (`usability-accessibility.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ブログの選択を画面内の絞り込みに置くと、別画面へ移った瞬間に何のブログを見ているかが消える。複数ブログを並行運営すると、これは『どのブログの記事を消したか分からない』事故に直結する。選択を URL 階層へ上げると、パンくず・戻る操作・共有した URL のすべてが対象を保つ
+  - トレードオフ:
+    - 全ブログ横断で見たい場面 (収益比較など) が別画面に分かれ、行き来が増える。単一画面で切り替える方式なら往復は減るが、いま見ている対象が曖昧になる
+- 原則: 計測が読者の体験を損なわない (`usability-accessibility.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: 座標まで採ると送信回数が増える。1 イベント 1 リクエストにすると、読者の回線が細いときに記事本文の読み込みと競合する。まとめて sendBeacon で送れば、画面遷移時にも取りこぼさず、描画を待たせない
+  - トレードオフ:
+    - まとめる間に離脱すると直近ぶんが欠ける。sendBeacon は遷移時にも送るので大半は救えるが、完全ではない。取りこぼしを 0 にするには同期送信が要り、それは読者を待たせる
+##### 接地根拠 qa-frontend-web-blog-composition-visibility (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-blog-composition-visibility` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 表示モデル — domain model (正本の意味と値) から view model への変換規則を明示し、表示層は勝手に再計算しない (`information-design.md#中核概念`)
   - 採否: `applied`
@@ -634,3 +654,18 @@ site_blueprint.theme（設計図の既定）
 ### 本節を「転記」に留めた理由
 
 C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+## dev 合流で章から落ちた確定内容 (2026-09-05)
+
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
+
+- `| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-composition-visibility。裏付け質疑 (`qa_refs`): `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-frontend-web-blog-composition-visibility` |`
+- `| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |`
+- `### qa-frontend-web-blog-composition-visibility (対応セル: web)`
+- `##### 確定内容 qa-frontend-web-blog-composition-visibility (対応セル: web)`
+- `- 確定要件: 4つすべてを満たす。(a) 作成直後に読者側の住所が実際に開き、404にならない。(b) 管理画面にそのブログの構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) を実データの件数と各実体へのリンク付きで一覧する。(c) 管理画面の中で読者と同じ見た目をプレビューでき、公開前に確認できる。(d) 作成時点で公開に必要なのに無い要素を名指しで提示し、その場へ移動できる。描画は既存の SiteFrame と public-site-projection を通し、読者用と別の描画経路を作らない。作ると管理画面で見える姿と読者が見る姿がずれる。`

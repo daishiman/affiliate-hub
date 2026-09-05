@@ -16,6 +16,29 @@ const metadataRequest = vi.hoisted(() => ({
 */
 const reads = vi.hoisted(() => ({ article: true, site: true }));
 
+/*
+  住所の付け方は 3 通りある（独自ドメイン / 既定のサブドメイン / path 形）。
+  canonical は**どれで来ても同じ 1 本**を指さなければならないので、
+  住所表と基底ドメインの両方を試験から倒せるようにしておく。
+*/
+const addressing = vi.hoisted(() => ({
+  canonicalHostname: null as string | null,
+  baseDomain: null as string | null,
+  throwsOnLookup: false,
+}));
+
+vi.mock("@/infrastructure/domains/resolve-custom-host", () => ({
+  resolveCanonicalHostForSite: async () => {
+    if (addressing.throwsOnLookup) throw new Error("D1 down");
+    return addressing.canonicalHostname;
+  },
+  lookupCanonicalHostInD1: async () => null,
+}));
+
+vi.mock("@/infrastructure/platform/site-base-domain", () => ({
+  readSiteBaseDomain: async () => addressing.baseDomain,
+}));
+
 vi.mock("next/headers", () => ({
   headers: async () => metadataRequest.headers,
 }));
@@ -73,6 +96,52 @@ beforeEach(() => {
   metadataRequest.headers = new Headers({ host: "example.com", "x-forwarded-proto": "https" });
   reads.article = true;
   reads.site = true;
+  addressing.canonicalHostname = null;
+  addressing.baseDomain = null;
+  addressing.throwsOnLookup = false;
+});
+
+describe("canonicalは住所の付け方で揺れない", () => {
+  it("生きた独自ドメインがあれば、どの住所で来てもそこを正本にする", async () => {
+    addressing.canonicalHostname = "blog.example.jp";
+    addressing.baseDomain = "example.com";
+    // 既定のサブドメインで届いた要求。
+    metadataRequest.headers = new Headers({
+      host: "gadget.example.com",
+      "x-forwarded-proto": "https",
+    });
+
+    const metadata = await siteHomeMetadata("gadget");
+
+    expect(metadata.alternates?.canonical).toBe("https://blog.example.jp");
+    expect(metadata.openGraph).toMatchObject({ url: "https://blog.example.jp" });
+  });
+
+  it("独自ドメインが無ければ既定のサブドメインを正本にする", async () => {
+    /*
+      ここが要点。基底ドメインが設定された環境では、入口が `/s/<URL名>` を
+      外から開けない形にしている。旧実装のように要求 host + `/s/<URL名>` を
+      canonical にすると、**自分で 404 を指す**ことになる。
+    */
+    addressing.baseDomain = "example.com";
+    metadataRequest.headers = new Headers({
+      host: "gadget.example.com",
+      "x-forwarded-proto": "https",
+    });
+
+    await expect(siteMetadataUrl("gadget", "/guides/x")).resolves.toBe(
+      "https://gadget.example.com/guides/x",
+    );
+  });
+
+  it("住所表が読めないときは既定の住所へ倒す（canonicalごと落とさない）", async () => {
+    addressing.throwsOnLookup = true;
+    addressing.baseDomain = "example.com";
+
+    await expect(siteMetadataUrl("gadget", "/guides/x")).resolves.toBe(
+      "https://gadget.example.com/guides/x",
+    );
+  });
 });
 
 describe("公開ページのmetadata共通アダプター", () => {

@@ -43,9 +43,9 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: [{"base_branch":"dev","closing_reference_verified":false,"head_branch":"devgraph/feat-uiux-overhaul","linked_at":"2026-08-23T11:34:01Z","merge_commit_sha":"eccadc2c44c598119c3dfa18bb65e202ddef4296","merged_at":"2026-08-23T19:41:21Z","pr_number":23,"repo":"daishiman/affiliate-hub","state":"merged","url":"https://github.com/daishiman/affiliate-hub/pull/23"}]
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"],"policy":"manual","reconciled_at":null,"source":"reconciliation","status":"open"}
+completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"],"policy":"reconciliation-gate","reconciled_at":null,"source":"acceptance-reconciliation","status":"open"}
 implementation_readiness: {"checked_at":"2026-08-21T12:00:00Z","missing_sections":[],"status":"complete"}
-acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:b5e81fbaf954c8eb7171a052403ecd4edd37f424c918ea40196ebe8cc626cf39","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
+acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:f8f7c71df86562e1ac4f4311981041b722dfcb931464d95c921884f16651582d","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
 ---
 
 # 目的

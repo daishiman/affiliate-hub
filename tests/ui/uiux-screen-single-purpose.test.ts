@@ -3,7 +3,7 @@
  * @req REQ-UX01
  * @types code-boundary
  *
- * A1: 51 管理画面の primary task と、画面から実行できる全 Server Action を
+ * A1: 全管理画面の primary task と、画面から実行できる全 Server Action を
  * production manifest で結ぶ。component の数や配置を task の数として扱わない。
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
@@ -370,7 +370,7 @@ describe("A1 §1 全管理画面は primary task をちょうど 1 つ持つ", (
     **直す画面**を割ってある。訂正は取り返しがつかないので、探している最中に
     書き換えの口が出ていない形を保つ。
   */
-  it("実在route・route metadata・task manifest・priority mapが86件で1対1になる", () => {
+  it("実在route・route metadata・task manifest・priority mapが1対1になる", () => {
     const priority = JSON.parse(readFileSync(PRIORITY_MAP, "utf8")) as {
       readonly screens: readonly { readonly route: string; readonly primary_task: string }[];
     };
@@ -418,13 +418,25 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       `PageThemeOverrideForm`）を `reachableInFile` が辿るようになった。
       申告は前から正しく、discovery が届いていなかった側である。
     */
-    expect(discovered).toHaveLength(65);
+    /*
+      2026-09-04: 65 → 68。ブログ運営コンソールの住所層と改善層を足した。
+      増えた action は 3 本（`manageBlogDomainAction`・`manageBlogSeoAction`・
+      `manageBlogAeoAction`）で、下の意味 entry が 6 件増えるのに対しここが 3 件
+      なのは、同じ action を 2 つの form が別々の用途で呼んでいるためである。
+    */
+    /*
+      2026-09-04: 68 → 69。観測層に日次集計のやり直し口を足した
+      （`metrics-rebuild-form.tsx` → `rebuildDailyMetricsAction`）。
+      読む画面の中に置いた唯一の保存操作で、1 form 1 action なので
+      下の意味 entry も同じく 1 件だけ増える。
+    */
+    expect(discovered).toHaveLength(69);
     expect(declared, "未申告または実在しないexecution siteがあります").toEqual(discovered);
     expect(new Set(
       ADMIN_SCREEN_RUNTIME_ENTRIES
         .filter((entry) => entry.classification === "business-mutation")
         .map((entry) => edgeKey(entry.action)),
-    ).size).toBe(62);
+    ).size).toBe(66);
   });
 
   it("同じactionの複数route・複数form用途を畳まず、意味entry 81件を床固定する", () => {
@@ -445,11 +457,16 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
     // 2026-08-30: 79 → 81。公開済み記事の訂正と取り下げが合流した。
     // 同じ form が 2 つの action を持つが、後戻りの仕方が違うので畳まない。
     // 2026-08-31: 81 → 83。上の 63 → 65 と同じ 2 件。画面ではなく discovery が増えた。
-    expect(discovered).toHaveLength(83);
+    // 2026-09-04: 83 → 89。住所層 2 件（登録する欄と、登録済み 1 件を操作する行）と
+    // 改善層 4 件（SEO の診断・指摘の処理、AEO の構えの保存・引用単位の取り出し）。
+    // 改善層は読者に出ているものを 1 つも変えない (AD-3) が、押した結果が保存される
+    // 操作なので数える。数えないと「押しても何も起きない画面」として追跡から漏れる。
+    // 2026-09-04: 89 → 90。観測層の日次集計やり直し口。読む画面の中の唯一の保存操作。
+    expect(discovered).toHaveLength(90);
     // 2026-08-31: 82 → 84。manifest は dev の合流で先に 84 件になっていたが、
     // ここの床だけが古い数のまま残っていた（申告漏れではなく数え漏れ）。
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(84);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(84);
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(91);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(91);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -464,7 +481,7 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(83);
+    expect(new Set(declared).size).toBe(90);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }

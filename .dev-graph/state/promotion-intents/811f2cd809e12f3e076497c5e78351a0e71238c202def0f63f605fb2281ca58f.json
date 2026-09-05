@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-aeo-answer-optimization",
+  "destination": ".dev-graph/published/generations/feature-package-feat-aeo-answer-optimization/28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "digest": "sha256:28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+  "package_slug": "feature-package-feat-aeo-answer-optimization",
+  "generation_id": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "supersedes": null,
+  "receipt": ".dev-graph/published/generations/feature-package-feat-aeo-answer-optimization/28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03/atomic-promotion-receipt.json",
+  "completed_at": "2026-09-03T23:50:39Z"
+}

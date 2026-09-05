@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-blog-custom-domain",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "13 task 全件の目的/背景/成果物/スコープ外が feature context の purpose/goal/scope_in/scope_out/depends_on と矛盾せず、受入10件・connect-verify-disconnectの3ユースケース・既定住所と独自ドメイン同時生存の不変条件が全 phase で一貫して言及されている。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#目的",
+        "task-specs/phase-05-implementation.md#背景",
+        "task-specs/phase-08-refactoring-migration.md#成果物"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "acceptance 10件 (未検証ホスト非配信/UNIQUE制約/active 200/既定住所200同時生存/canonical切替/revoked残存・履歴/Publisher権限・ブログ名一致入力/audit_logs/failure_reason文言/冪等) の全件と従属句が P02設計・P04テスト設計・P05実装・P07/P09検証のいずれかに具体的に写像されている。canonical/og:url/sitemapの絶対URL切替は src/presentation/site/site-metadata.ts 等が既にリクエストHostヘッダ由来で汎用に絶対URLを組み立てる既存実装であることをコードで確認し、P05のmiddleware Host解決追加のみで受入条件が構造的に満たされることを確認した。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-04-test-design.md#目的",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-07-acceptance.md#背景",
+        "task-specs/phase-09-quality-assurance.md#テスト戦略"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "前回FAILの原因だった P05 write scope の src/app/api/admin/ は features/feat-blog-custom-domain.context.json の resource_scope へ追加済みで解消。P01-P13 全 phase の Write scope/touches (docs/spec/feat-blog-custom-domain/*, tests/, src/db/schema.ts, drizzle/, src/domain/domains/, src/application/domains/, src/infrastructure/cloudflare/custom-hostname.ts, src/middleware.ts, src/app/admin/sites/[site]/domain/, src/app/api/admin/, system-spec/infrastructure.md, system-spec/database.md) はいずれも resource_scope 内に包含され、逆方向の過大宣言も実害のある乖離はない。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#成果物",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-06-test-run.md#成果物",
+        "task-specs/phase-08-refactoring-migration.md#成果物",
+        "task-specs/phase-13-release-deploy.md#成果物"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json の13 node/14 edge は P01→P02→P03→P04→P05 を主軸に P05 から P06→P07 と P08→P09→P10 が分岐し、P07・P09 が P11 で合流、P10・P11 が P12 で合流して P13 へ収束する非循環 DAG であり、各 task spec 末尾の Dependencies および Handoff の ready_when と整合する。entry gate (直前 phase 完了) と P01 upstream entry gate (parent_feature.depends_on all done|closed) も全 phase で一貫している。",
+      "evidence": [
+        "task-graph.json#edges",
+        "task-graph.json#nodes",
+        "task-specs/phase-11-evidence.md#参照情報",
+        "task-specs/phase-12-documentation-operations.md#参照情報",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-blog-custom-domain"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581\",\n  \"feature_package_id\": \"feature-package/feat-blog-custom-domain\",\n  \"parent_feature\": \"feat-blog-custom-domain\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}\n",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "b45eb2c4130483ab9b5e442300b957c1f320f43e57966fe0d29a5676575b863f"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "5f9986f1a51b489bfbd04f3c5c2763bb737bfcf14bc1dee26d161b16a671192e"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "e7ec337f2ec88cfe56aa29e64a9a2cfe7f4fc1a812160919ab333e55a6398ab6"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "70770f5423e19facc2c3778921701365cfd52f000abc903a4c3355be068d580d"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "12d94a3cca7248942c7803ee44697af2e9a3c608843852b4691464523afe97ec"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "1f02ecbd2a4ded39d4974d88bb63c8a3772a6a3884e8d3a46cfb13e4591f4ddf"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "936b5cbd69569bca3f73802aa4b7a956f5a6b097ab3e2ea22996ef1ba08f3c37"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "3cd3e226f62a7bd2f000f1ea6d7b696cf39bb27fd1b63a025352b69ee0096aa5"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "d3bd2648a45f144cbc1400d5b61f846f8875ada55840c74420f3d438d43474e1"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "60711e09ee538eea2280d5e43da4ca97471df282e8cdf9643977088d41aa5108"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "0bf41b04cbe49f4c3bbbae28e9d605cb20303facc2dc8a34005c25fe1fe1c676"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "a714dbe2a723baac21dee68aafd069e0475aac9149ff25b43d3a50cd1a973d4f"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "bc1a6fc92138c31c7d4d75ba6e5abb6d89647a237776d5cf7f32c1a199be8856"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "4c74b81dec32a2071195de03581b338bf15c40257a7da6284ecf2f90f92df0cd"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "8fb712a02598d23dbfcda64fc6a55279c5c2667a40755f7cdd31bd1d28b9fd58"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "a4bb7e8302a69cd8e0cb551c977bcaf3a57d38aabb8c16240788ed577d88f6f2"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "b48cf839492d346f9da59976e2c789c3219f03c5a1ee9b655f3120728f46ad4f"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "500b9de5f282d690ba448bf632becc95fad3fb3ec7b571dce48f7d3ccf638e31"
+    }
+  ],
+  "staleness_rule": "evaluated_inputs の path 集合と各 sha256 が promotion 時点の staging bytes と完全一致しない場合、本 findings は失効とみなし再評価する。",
+  "findings": []
+}

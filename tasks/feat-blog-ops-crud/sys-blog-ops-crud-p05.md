@@ -1,51 +1,52 @@
 ---
+graph_node_id: "SYS-BLOG-OPS-CRUD-P05"
 artifact_kind: "task"
 artifact_subtypes: []
-beads_linkage: null
-classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md","confidence":1.0}]
-classification_confidence: 1.0
-classification_reason: "feat-blog-ops-crud の P05 lifecycle 責務への確定写像"
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr_merged_all","reconciled_at":null,"source":null,"status":"in_progress"}
-confirmation_evidence: {"evaluated_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json"}
-confirmation_status: "confirmed"
-created_at: "2026-08-25T14:00:26Z"
-depends_on: ["SYS-BLOG-OPS-CRUD-P04"]
-domain: "backend"
-evaluation_status: "pass"
-execution_contexts: []
-feature_package_id: "feature-package/feat-blog-ops-crud"
-file_path: "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md"
-github_project_linkages: []
-github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
-graph_node_id: "SYS-BLOG-OPS-CRUD-P05"
-implementation_readiness: {"checked_at":"2026-08-25T13:19:00Z","missing_sections":[],"status":"complete"}
-issue_linkage: null
-iteration: null
-owners: ["daishiman"]
-parent_feature: "feat-blog-ops-crud"
-phase_ref: "P05"
-priority: null
 project_id: "feature-package-feat-blog-ops-crud"
-pull_request_linkages: []
+domain: "backend"
+tags: ["p05","feat-blog-ops-crud"]
+priority: null
+start_date: null
+target_date: null
+iteration: null
+title: "サイト網・記事CRUD・固定ページ・配信部品・評価機能の実装"
+owners: ["daishiman"]
+created_at: "2026-08-25T14:00:26Z"
+updated_at: "2026-09-04T03:07:10.218381Z"
+status: "active"
+depends_on: ["SYS-BLOG-OPS-CRUD-P04"]
 related_nodes: []
 resource_scope: ["src/app/admin/site-network/","src/app/admin/site-network/[site]/","src/app/admin/site-network/new/","src/app/admin/blog/articles/","src/app/admin/blog/articles/[article]/","src/app/admin/blog/articles/new/","src/app/admin/blog/pages/","src/app/admin/blog/tags/","src/app/admin/blog/evaluate/","src/app/api/admin/site-network/","src/app/api/admin/blog/","src/app/s/[site]/","src/app/s/[site]/best/","src/app/s/[site]/reviews/","src/app/s/[site]/guides/","src/app/s/[site]/feed.xml","src/app/s/[site]/sitemap.xml","src/app/s/[site]/llms.txt","src/presentation/ui/templates/","src/presentation/ui/patterns/","src/application/usecases/","src/application/read-models/","src/infrastructure/persistence/d1/","src/db/schema.ts","drizzle/","scripts/check-reference-site-reuse.mjs"]
-source_lineage: {"imported_at":"2026-08-25T14:00:26Z","origin_kind":"system-dev-planner","source_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","source_path":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-05-implementation.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
-start_date: null
-status: "active"
-tags: ["p05","feat-blog-ops-crud"]
-target_date: null
-template_id: "task"
-template_version: "1.1.0"
-title: "サイト網・記事CRUD・固定ページ・配信部品・評価機能の実装"
-tracker_binding: "beads"
-updated_at: "2026-08-25T14:00:26Z"
 purpose: "受入14件 (A1-A14) に対応する実装 (site-network CRUD、ハブトップ構成、レイアウトスロット、T1-T4記事CRUD、固定ページ8種、ブランドタグ、配信部品9種、評価列+閲覧者評価、監査+edge cache、転用禁止grepゲート) を完了し、P04のテストを緑化した状態を成立させる。"
 goal: "受入14件 (A1-A14) に対応する実装 (site-network CRUD、ハブトップ構成、レイアウトスロット、T1-T4記事CRUD、固定ページ8種、ブランドタグ、配信部品9種、評価列+閲覧者評価、監査+edge cache、転用禁止grepゲート) を完了し、P04のテストを緑化した状態を成立させる。"
 scope_in: ["Produced artifacts: src/app/admin/site-network/ 配下のサイト網CRUD画面; src/app/admin/blog/articles/ 配下のT1-T4記事CRUD画面; src/app/admin/blog/pages/ 配下の固定ページ8種CRUD画面; src/app/admin/blog/tags/ 配下のブランドタグCRUD画面; src/app/admin/blog/evaluate/ 配下の評価一覧画面; src/app/api/admin/site-network・src/app/api/admin/blog 配下の管理API; src/app/s/[site]/ 配下のT1-T4公開面レンダリング・サブサイト別feed/sitemap parts; src/application/usecases・read-models 配下のサイト網/記事/固定ページ/配信部品/評価ユースケース; src/infrastructure/persistence/d1 配下のsite_network/blog_hero_config/blog_layout_config/article_block/legal_pages/delivery_snapshotsリポジトリ; src/db/schema.tsへの拡張とdrizzle/配下のmigration 0023以降; scripts/check-reference-site-reuse.mjs (転用禁止grepゲート)","Consumed artifacts: docs/spec/feat-blog-ops-crud/data-model.md, docs/spec/feat-blog-ops-crud/api-contract.md, docs/spec/feat-blog-ops-crud/component-contract.md, docs/spec/feat-blog-ops-crud/migration-plan.md, docs/spec/feat-blog-ops-crud/test-design.md","Write scope/touches: src/app/admin/site-network/, src/app/admin/site-network/[site]/, src/app/admin/site-network/new/, src/app/admin/blog/articles/, src/app/admin/blog/articles/[article]/, src/app/admin/blog/articles/new/, src/app/admin/blog/pages/, src/app/admin/blog/tags/, src/app/admin/blog/evaluate/, src/app/api/admin/site-network/, src/app/api/admin/blog/, src/app/s/[site]/, src/app/s/[site]/best/, src/app/s/[site]/reviews/, src/app/s/[site]/guides/, src/app/s/[site]/feed.xml, src/app/s/[site]/sitemap.xml, src/app/s/[site]/llms.txt, src/presentation/ui/templates/, src/presentation/ui/patterns/, src/application/usecases/, src/application/read-models/, src/infrastructure/persistence/d1/, src/db/schema.ts, drizzle/, scripts/check-reference-site-reuse.mjs"]
 scope_out: ["feat-blog-ops-crud の scope_out に該当する変更","feat-blog-ui-builder が所有するブログ既定テーマ・ページ単位配色・テンプレート6種選択UIの変更","feat-site-blueprint が所有するBlueprint複製規則・article_template検証規則そのものの定義変更","feat-site-builder が所有するブログ作成ウィザードの入口変更","アフィリエイトURL登録・商品識別・配置逆引き (feat-affiliate-inbox / feat-affiliate-hub)","write_scope外のパスへの変更"]
 acceptance: ["Automated commands: `pnpm test` (P04で設計したテストの緑化を確認する)","Automated commands: `pnpm run typecheck` (型検査)","Automated commands: `pnpm run db:generate` (drizzleスキーマ変更からのmigration 0023以降の生成を確認する)","Automated commands: `node scripts/check-reference-site-reuse.mjs` (転用禁止grepゲートを実行する)","Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ops-crud` (本 package の C12 決定論検証を世代非依存に再実行する)","Required evidence: P05 の 成果物 section に記載した produced artifacts のパス"]
 architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
+parent_feature: "feat-blog-ops-crud"
+feature_package_id: "feature-package/feat-blog-ops-crud"
+phase_ref: "P05"
+file_path: "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md"
+template_id: "task"
+template_version: "1.1.0"
+confirmation_status: "confirmed"
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json"}
+source_lineage: {"imported_at":"2026-08-25T14:00:26Z","origin_kind":"system-dev-planner","source_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","source_path":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-05-implementation.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
+classification_confidence: 1.0
+classification_reason: "feat-blog-ops-crud の P05 lifecycle 責務への確定写像"
+classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ops-crud/sys-blog-ops-crud-p05.md","confidence":1.0}]
+issue_linkage: null
+tracker_binding: "beads"
+beads_linkage: {"bd_issue_id":"ah-85cn.5","github_mirror":null,"linked_at":"2026-08-25T14:30:00Z","sync_state":"linked"}
+github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
+github_project_linkages: []
+pull_request_linkages: []
+execution_contexts: []
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr_merged_all","reconciled_at":null,"source":null,"status":"in_progress"}
+implementation_readiness: {"checked_at":"2026-08-25T13:19:00Z","missing_sections":[],"status":"complete"}
 ---
+
 # System task overlay: サイト網・記事CRUD・固定ページ・配信部品・評価機能の実装
 
 ## Machine-readable registration fields
@@ -172,4 +173,3 @@ architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
 - Feature: feat-blog-ops-crud
 - Phase doc: system-plan-phase-names.md#P05
 - Dependencies: SYS-BLOG-OPS-CRUD-P04
-

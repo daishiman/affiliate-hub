@@ -1,0 +1,234 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P05"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P07",
+        "SYS-BLOG-METRICS-ROLLUP-P09"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P10",
+        "SYS-BLOG-METRICS-ROLLUP-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-BLOG-METRICS-ROLLUP-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-blog-metrics-rollup",
+    "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+    "parent_feature": "feat-blog-metrics-rollup",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:3b6edcea2fee5afab2fd5c22ef2d01691ed3849214a7f292856f69f7c9888ab5"
+  },
+  "kind": "system-build-handoff",
+  "p01_entry_gate": {
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ],
+    "selector": "parent_feature.depends_on"
+  },
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "51d4892e07a79a7532e35f2537c7ace60aa5f0cf0e26bd95d1cabf8f41f9296f"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "cd91a285023f59ab6e182eb5fa8d0dde7637f686d0ca9a24fd4199dafa480ac8"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "4df523482be5d375a19fc5a80aa548d2dcd69b1f0e2d351d88f6678570b73053"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "942e172d64cc76a2c34e5e80ff676f905640ef09b858844d27c82a0d60bbed95"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "cbc12305ad1bb83077d525a92e4f224e751b496744f48257bebd8183f5f09170"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "6ce5b7ff446aa2b43f3a589b8223304842e236563475a2ed6708ff7957a0a020"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "c24579ead7de91e3b50e561db15c454a85b260c9b6bba44f09fce759d5faf7e2"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "5079d8826e44a2074bd9a3fee7b6f5ac3028f4aa830e26f69f2b603997016c1f"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "ce8db6d6f71b37620dad6818ac87cf51719b8069a74bbca95e2bbf7c11a7e868"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "421cba3ea7d14a59770aa2567fa70dc552bcd3ae3fcdf66a2d1a7483663e21f1"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "98c9c9b4d9803e11a619c1a81a51d2f36e41e58c4d09063292fb764776036a40"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "2aabb2e5ecfffd2229128ba0d95612417fa958f6a3d3658daea813e312af7988"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "92869f42c928cc15e29f08472ae9652cfb88403be2d89a2e965295d1ff987315"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "169a6b5cb7096df00a45ec6ed3c834ac2309f1773d9c03c1cc9adbf372751f14"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "f538fbdc2c0c51e2c81d0c34a4e371d43df31f90dcd1139ba934cd631ebaec60"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "7b3948bf730a647cca45dc7211e2c722782d4adbc48bdb30ac8f472b9d8d841b"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:0ae4f9e3e9358e871f1cd3f656c43b6f6f69f2ae6920bba8905b4bc3019468cc",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "1630fcbd32e36aa607d56b8f82761682c66eabe52600013acfa70764e7b487b8"
+  }
+}

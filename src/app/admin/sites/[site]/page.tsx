@@ -88,6 +88,25 @@ export default async function SiteDetailPage({
           <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/placements`}>
             掲載の台帳
           </TextLink>
+          {/*
+            ブログ運営コンソールの 4 層（住所・観測・改善）への口。
+            **足したら同時にここへ出す。** 上の P08 の注記にある通り、
+            画面だけ足して入口を足さないと、住所を知っている人しか
+            開けない画面になり、無いのと変わらない。
+          */}
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/domains`}>
+            住所（独自ドメイン）
+          </TextLink>
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/audience`}>
+            読者の行動
+          </TextLink>
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/revenue`}>
+            記事ごとの成果
+          </TextLink>
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/seo`}>SEO 診断</TextLink>
+          <TextLink href={`/admin/sites/${encodeURIComponent(siteSlug)}/aeo`}>
+            AEO（回答エンジン）
+          </TextLink>
           <TextLink href="/admin/sites">ブログの一覧へ戻る</TextLink>
         </>
       }

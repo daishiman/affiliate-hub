@@ -1,0 +1,169 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-seo-assessment-reflection",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "P01〜P13 全 task spec の目的/背景/スコープ外は feature context の purpose/goal/scope_in/scope_out/depends_on と件数・固有名を含めて矛盾がない。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#目的",
+        "task-specs/phase-05-implementation.md#目的",
+        "task-specs/phase-08-refactoring-migration.md#背景",
+        "task-specs/phase-13-release-deploy.md#目的",
+        "feature-package.json#parent_feature"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "受入10件は各々 P02(設計)/P04(テスト設計)/P05(実装)/P07・P09(検証) のいずれかに具体的成果物として写像されており、従属句(純関数境界・外部通信なし・下書きにだけ書く・承認経路を迂回しない・漏れなく列挙・ブログ単位拒否・90日見直し)まで個別成果物名で追跡できる。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-04-test-design.md#成果物",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-07-acceptance.md#成果物",
+        "task-specs/phase-09-quality-assurance.md#成果物",
+        "task-specs/phase-12-documentation-operations.md#成果物"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "前回指摘 (P05/P08 の src/app/(reader)/・drizzle/ 未宣言、P12 の裸 docs/) は resource_scope への追加および P12 write scope の docs/spec/feat-seo-assessment-reflection/ への絞り込みで解消済み。全13 phase の Write scope/touches は resource_scope に包含され、resource_scope に対して実態が過大な項目も無い。",
+      "evidence": [
+        "task-specs/phase-05-implementation.md#write-scope-touches",
+        "task-specs/phase-08-refactoring-migration.md#write-scope-touches",
+        "task-specs/phase-12-documentation-operations.md#write-scope-touches",
+        "task-specs/phase-13-release-deploy.md#write-scope-touches",
+        "workstream-inventory.json#tasks"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph の13ノードは単一始点(P01)・単一終点(P13)の非巡回 DAG を形成し、entry gate (直前 phase 完了 + P01 upstream parent_feature.depends_on gate) と各 task spec の ready_when が整合する。",
+      "evidence": [
+        "task-graph.json#edges",
+        "task-specs/phase-11-evidence.md#前提条件",
+        "task-specs/phase-12-documentation-operations.md#依存関係",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-seo-assessment-reflection"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49\",\n  \"feature_package_id\": \"feature-package/feat-seo-assessment-reflection\",\n  \"parent_feature\": \"feat-seo-assessment-reflection\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}\n",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "596a56842a4fb8f91076ed7ec493403374c16cc33f630f1f2da634a6a10bda39"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "96ba2160bfeaf85a62f82fbcfef8d3edcde652fd14d3d36c3a54e86e09b0dd0a"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "e2ddeb4363bafb8bd5c6c7dfada4b32142030fef461c59e7fee6f28da0e5abd2"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "62ed4acbfbd93e6f4dd179cf2955d91493353ac4adc59e9fb28e7d503974da11"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "a4b694d87b786427008e404ab5131dd8d51dac1ce01aaec05c211ad595e9cef6"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "5c2edd3cb847c8806469b3db9a4d3d7c548bdbbeb4c1b892c6bd7f08a2005c6f"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "156e2840f1d3224645b343485ba972062316dc5e8b4adc3dbb14accd5f67c321"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "140075b32cc8db37f92e8d238f6e3e9d2dd770105eada0d95e9ded373e7bf15f"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "208f35eaf661b91c0e07765574752422017874e1a0829c788cd0959f4c4b994a"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "cee02d0fb842e31e6da7d6386dceab1dee1638a4d2dd9fba5f892267eed9a710"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "24b739b6d20aa1cc01081ca631327f5f7b37bcd5c6f7c70cafb2a09d32cd7cbb"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "05c6034615078d5309852082a76a468844de1099f267c22de4581c5b1873bfc8"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "eee6ebcfe495b092563288176428831397ee7ee1fa7c779bd6085c4a923fdd9d"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "e546bff997b81f0b642411e1066aee7417e3b3e38afac54a589275e7f50dac82"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "38e9a95e0e381911008d8c4060d26d929668b0b204a3c93b7850ebaf880b3643"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "45bd3e87402fc90b1735483b0416675e27669cf22ca4cce38250e03bf11d4d77"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "a7ce628f94da7085fdb3ad7e70ca2b9694b12fad92fd051d17453e8d10fbd00b"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "0ff2f6aab7c58ba15a105f587ea05555c30f23fe3e27ff140a4fb6820a2fe23f"
+    }
+  ],
+  "staleness_rule": "evaluated_inputs の path 集合と各 sha256 が promotion 時点の staging bytes と完全一致しない場合、本 findings は失効とみなし再評価する。",
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "C3",
+      "observation": "resource_scope 配列に src/application/seo/ が2回、src/domain/seo/ と src/domain/seo/guideline-reference.ts のように親子が重複列挙されている。 — feature context の resource_scope 配列は containment 判定には影響しないが、src/application/seo/ の重複要素や src/domain/seo/ 配下の個別ファイル列挙は冗長であり、将来の diff レビューを誤読させる余地がある。修正は必須ではない。",
+      "evidence": [
+        "features/feat-seo-assessment-reflection.context.json#resource_scope"
+      ]
+    }
+  ]
+}

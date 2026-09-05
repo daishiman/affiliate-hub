@@ -117,9 +117,34 @@ const PATHS = [...REACHED.keys()].map((p) => relative(ROOT, p).replaceAll("\\", 
  * 上げてよい場合はある（cron の仕事が本当に増えたとき）。そのときは
  * **上げた理由をここへ書く**。理由の無い引き上げが 1 度通ると、この検査は
  * 「赤くなったら上げるもの」になり、何も守らなくなる。
+ *
+ * ── 【2026-09-05】130 → 155 ファイル / 1050 → 1250 KiB へ上げた。
+ * **上げた理由をここへ書く。**
+ *
+ * cron の仕事が実際に 2 つ増えた。読者行動の日次ロールアップ
+ * (`runReaderMetricsRollup`) と、SEO/AEO の定期評価 (`runScheduledSeoAssessment`)
+ * である。どちらも「口を 1 つ足す」ではなく、集計表と評価表という**新しい
+ * 置き場を伴う口**なので、上の見積り (1 口あたり 5〜10 ファイル) より重い。
+ * 実測は 107 → 133 ファイル（+26）、889 → 1089 KiB（+200）。
+ * **両方の上限を超えた。**片方だけ上げて済ませると、次に量で気づく手がかりが
+ * 1 本になるので、両方をこの回の実測から置き直す。
+ *
+ * 新しい上限を 155 / 1250 にしたのは、この検査が分けたい 2 つの出来事が
+ * **133 / 1089 を基点にしても依然として量の桁で分かれる**からである。
+ *
+ *   ふつうの追加   … cron に口を 1 つ。5〜10 ファイル / 50〜80 KiB。
+ *                    2 回ぶん足しても 153 ファイル / 1249 KiB で、どちらも届かない。
+ *   総目録の復活   … `createDeps()` が戻ると +88 ファイル / +775 KiB。
+ *                    133 + 88 = 221、1089 + 775 = 1864 で、どちらも必ず超える。
+ *
+ * **この引き上げは「赤くなったから上げた」ではない。**上げる前に、増えた 26 が
+ * cron の 2 job から実際に引かれているものかを一件ずつ見た。見本実装や
+ * 取りまとめの import が紛れ込んだのではないことは、下の「要件 2」
+ * (`createDeps` を引いていない) が引き続き緑であることでも裏が取れている。
+ * 次に赤くなったときも、まずこの 2 つを確かめること。
  */
-const MAX_FILES = 130;
-const MAX_KIB = 1050;
+const MAX_FILES = 155;
+const MAX_KIB = 1250;
 
 describe("Worker の入口が引き込む量", () => {
   it("要件 1: 入口から手が届く範囲が上限を超えていない", () => {
@@ -144,12 +169,17 @@ describe("Worker の入口が引き込む量", () => {
       "入口が src/infrastructure/composition.ts を引いています。\n" +
         "cron に要る口だけを直に組んでください（distribution-scheduler.ts の注記を参照）。",
     ).not.toContain("src/infrastructure/composition.ts");
+    expect(
+      PATHS,
+      "SEO scheduler が画面用の composition を引いています。cron に要る依存だけを直に組んでください。",
+    ).not.toContain("src/presentation/composition.ts");
   });
 
   it("要件 3: 数えられている（たどれずに 0 件で緑になっていない）", () => {
     // 解決に失敗して空になれば、上限は必ず満たされる。**測っていないのに緑**を塞ぐ。
     expect(PATHS.length, "入口からたどれたファイルが少なすぎます").toBeGreaterThan(50);
     expect(PATHS).toContain("src/infrastructure/platform/distribution-scheduler.ts");
+    expect(PATHS).toContain("src/infrastructure/platform/seo-assessment-scheduler.ts");
     expect(PATHS).toContain("src/db/schema.ts");
   });
 });

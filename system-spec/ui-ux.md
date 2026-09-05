@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-ui-ux-web-creation-completion-feedback。裏付け質疑 (`qa_refs`): `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-uiux-web-blog-scoped-admin。裏付け質疑 (`qa_refs`): `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -30,14 +30,14 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | ui-ux × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-ui-ux-web-creation-completion-feedback` |
+| 確定質疑 (qa_ref) | `qa-uiux-web-blog-scoped-admin` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
-| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-screen-priority`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |
+| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-blog-scoped-admin`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
 
 ## 意思決定 (decisions)
 
@@ -51,7 +51,13 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-ui-ux-web-creation-completion-feedback (対応セル: web)
+### qa-uiux-web-blog-scoped-admin (対応セル: web)
+
+**質問**: ui-ux×web: ブログを運営・分析するうえで必要な情報を、どの画面に何を残し・何を落として並べるか。優先順位は何を根拠に決めるか
+
+**回答**: 順位は『その作業をどれだけ頻繁にするか』と『間違えたときにどれだけ痛いか』の積で決める。ブログ 1 つのダッシュボード (/admin/sites/[site]) の先頭には、収益・PV・成果率の推移と、住所 (ドメイン) が生きているかを置く。ドメインが失効すればブログ全体が読者から見えなくなり、失敗コストが最大で、しかも普段は見に行かないためである。次に『いま伸びている記事・落ちている記事』を置く。ここが日々の判断の入口になる。個々の記事の細部 (滞在・到達深度・ヒートマップ) は記事の画面へ落とし、ダッシュボードには順位と変化だけを出す。全ブログ横断の画面には、ブログ間の比較 (収益・PV・成果率) と、どのブログが手を入れるべきかだけを出し、記事単位の数字は出さない。同じ数字を 2 か所で違う粒度で見せると、どちらが正しいか分からなくなるためである。SEO/AEO の指摘は、記事の画面では『この記事の直し方』として、ブログの画面では『何件残っているか』として出す。分析画面で数字を見せるときは、根拠の件数が少ない場合に発見として表示しない (既存の成功基準『根拠のない発見を表示しない』を踏襲する)。この方針までを要件として確定し、表現物ごとの情報優先度マップの作成は下流の生成工程に委ねる
+
+### qa-ui-ux-web-creation-completion-feedback (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: 作成の完了と失敗をどう伝えるか。ブログの住所はどう見せるか。
 
@@ -524,9 +530,23 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 
 #### 本章での適用
 
-##### 確定内容 qa-ui-ux-web-creation-completion-feedback (対応セル: web)
+##### 確定内容 qa-uiux-web-blog-scoped-admin (対応セル: web)
 
-- 確定要件: 成功と表示してよいのは、読者が実際に開ける状態になったときだけ。現状は作成済みと告げてから404を出しており、押した人は自分の入力を疑って13問をやり直す。作れなかったときは何が足りないかと次に押す場所を書く。住所は割り当てたサブドメインを正として表示し、パス形式は併記に留める。情報の優先順位は『開けるか』>『不足している要素』>『構成の内訳』とし、この順で画面上の位置と強さを決める。根拠は失敗コスト (開けないブログは全作業が無駄になる) が最大であること。
+- 確定要件: 順位は『その作業をどれだけ頻繁にするか』と『間違えたときにどれだけ痛いか』の積で決める。ブログ 1 つのダッシュボード (/admin/sites/[site]) の先頭には、収益・PV・成果率の推移と、住所 (ドメイン) が生きているかを置く。ドメインが失効すればブログ全体が読者から見えなくなり、失敗コストが最大で、しかも普段は見に行かないためである。次に『いま伸びている記事・落ちている記事』を置く。ここが日々の判断の入口になる。個々の記事の細部 (滞在・到達深度・ヒートマップ) は記事の画面へ落とし、ダッシュボードには順位と変化だけを出す。全ブログ横断の画面には、ブログ間の比較 (収益・PV・成果率) と、どのブログが手を入れるべきかだけを出し、記事単位の数字は出さない。同じ数字を 2 か所で違う粒度で見せると、どちらが正しいか分からなくなるためである。SEO/AEO の指摘は、記事の画面では『この記事の直し方』として、ブログの画面では『何件残っているか』として出す。分析画面で数字を見せるときは、根拠の件数が少ない場合に発見として表示しない (既存の成功基準『根拠のない発見を表示しない』を踏襲する)。この方針までを要件として確定し、表現物ごとの情報優先度マップの作成は下流の生成工程に委ねる
+- 設計解釈の記録経路: `dialogue`
+- 原則: 情報の順位は、作業の頻度と失敗コストの積で決める (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ドメインの失効は頻度こそ低いが、起きればブログ全体が読者から消える。頻度だけで並べるとページ下部へ沈み、気づくのが遅れる。積で測ると先頭に来る。逆にヒートマップは見る頻度が低く失敗コストも低いので、記事の画面へ落として良い
+  - トレードオフ:
+    - 失敗コストの見積もりは主観が入る。運用してから順位が違うと分かる場合があり、そのときは実際の利用ログで測り直す必要がある
+- 原則: 同じ指標を複数の画面で違う粒度で見せない (`information-design.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: ブログ横断の画面とブログ個別の画面で同じ『収益』を違う集計期間や粒度で出すと、数字が食い違って見え、どちらを信じるか判断できなくなる。横断は比較だけ、個別は内訳だけ、と役割を分ける
+  - トレードオフ:
+    - 横断画面から記事の数字を見るには 1 階層降りる必要がある。全部を 1 画面に出せば往復は減るが、粒度の混在という代償が戻る
+##### 接地根拠 qa-ui-ux-web-creation-completion-feedback (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-ui-ux-web-creation-completion-feedback` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: システム状態の可視性 — 進行・成功・失敗・権限不足を明示する (`usability-accessibility.md#中核概念`)
   - 採否: `applied`
@@ -791,3 +811,19 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
 
 - **ただし本章の `## 確定内容 (質疑録)` には `qa-uiux-web-screen-priority` の本文を載せてある。**上の「複製するな」と矛盾して見えるので理由を書く。複製が退行を招くのは、正本の側が章より**古い**場合である。この 1 件は 2026-08-20 に正本へ書かれたばかりで、章に古い版が存在しない。退行の向きが無い。**判定の基準は「複製したかどうか」ではなく「どちらが古いか」である。**
+
+## dev 合流で章から落ちた確定内容 (2026-09-05)
+
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
+
+- `| Web (web) | 確定 | 確定質疑: qa-ui-ux-web-creation-completion-feedback。裏付け質疑 (`qa_refs`): `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-ui-ux-web-creation-completion-feedback` |`
+- `| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-screen-priority`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |`
+- `| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |`
+- `### qa-ui-ux-web-creation-completion-feedback (対応セル: web)`
+- `##### 確定内容 qa-ui-ux-web-creation-completion-feedback (対応セル: web)`
+- `- 確定要件: 成功と表示してよいのは、読者が実際に開ける状態になったときだけ。現状は作成済みと告げてから404を出しており、押した人は自分の入力を疑って13問をやり直す。作れなかったときは何が足りないかと次に押す場所を書く。住所は割り当てたサブドメインを正として表示し、パス形式は併記に留める。情報の優先順位は『開けるか』>『不足している要素』>『構成の内訳』とし、この順で画面上の位置と強さを決める。根拠は失敗コスト (開けないブログは全作業が無駄になる) が最大であること。`

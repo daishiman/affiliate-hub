@@ -1,0 +1,1150 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+  "parent_feature": "feat-seo-assessment-reflection",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-SEO-ASSESSMENT-REFLECTION-P01": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P02": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P03": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P04": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P05": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P06": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P07": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P08": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P09": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P10": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P11": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P12": "beads",
+    "SYS-SEO-ASSESSMENT-REFLECTION-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断と書き戻しの要求ベースライン確定",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/requirements-baseline.md",
+        "docs/spec/feat-seo-assessment-reflection/assessment-catalog.md",
+        "docs/spec/feat-seo-assessment-reflection/writeback-constraints.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "診断テーブルと構造化データ検証の契約確定",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/data-model.md",
+        "docs/spec/feat-seo-assessment-reflection/validation-design.md",
+        "docs/spec/feat-seo-assessment-reflection/writeback-design.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断設計の独立レビューと着手可否判定",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/design-review-findings.md",
+        "docs/spec/feat-seo-assessment-reflection/approval-path-diagram.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断の受入テスト設計",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/test-plan.md",
+        "docs/spec/feat-seo-assessment-reflection/test-cases.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断と推奨書き戻しの実装",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/domain/seo/",
+        "src/application/seo/",
+        "src/app/(reader)/",
+        "src/app/admin/sites/[site]/articles/[article]/seo/"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断のテスト実行と緑化",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/",
+        "docs/spec/feat-seo-assessment-reflection/test-run-report.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断の受入10件の判定",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/acceptance-report.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存公開面生成経路との重複解消と移行",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/app/(reader)/",
+        "src/application/seo/",
+        "docs/spec/feat-seo-assessment-reflection/migration-notes.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断の非機能検査",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/quality-report.md",
+        "tests/"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断の最終レビュー",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/final-review.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断の証跡集約",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+        "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/evidence-index.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断の運用手順と指針出典の説明",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+        "SYS-SEO-ASSESSMENT-REFLECTION-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-assessment-reflection/operations-runbook.md",
+        "docs/spec/feat-seo-assessment-reflection/"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-ASSESSMENT-REFLECTION-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "SEO 診断のリリースと仕様書への書き戻し",
+      "project_id": "feature-package-feat-seo-assessment-reflection",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-seo-assessment-reflection"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:47:29Z",
+      "updated_at": "2026-09-03T23:47:29Z",
+      "depends_on": [
+        "SYS-SEO-ASSESSMENT-REFLECTION-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "docs/spec/feat-seo-assessment-reflection/release-notes.md"
+      ],
+      "parent_feature": "feat-seo-assessment-reflection",
+      "feature_package_id": "feature-package/feat-seo-assessment-reflection",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json",
+        "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
+        "imported_at": "2026-09-03T23:47:29Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-assessment-reflection の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-assessment-reflection/sys-seo-assessment-reflection-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    }
+  ]
+}

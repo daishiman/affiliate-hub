@@ -475,6 +475,27 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         記事 0 件の正常完了と対象取得失敗を、固定 code で区別する。
       */
       "0045_ai_search_reaudit_runs",
+      /*
+        2026-09-05: ブログ運営コンソールの 4 層（`arch-blog-operations-console`）の
+        8 表。住所（`site_custom_domain`）・観測（`reader_interaction_event` と
+        日次の `site_daily_metric` / `article_daily_metric`）・改善
+        （`article_seo_assessment` / `site_aeo_profile` / `article_answer_unit`）と、
+        月次 SEO 診断の進捗（`site_seo_assessment_progress`）。
+
+        **既存の表は 1 つも触らない。** 生成された SQL は `CREATE TABLE` 8 本だけで
+        `ALTER` も `DROP` も無い。足すだけなので、流す前後で
+        いま動いている読み書きの意味は変わらない。観測の生の行は
+        90 日で消える側（AD-4）なので、増え続ける表は入っていない。
+
+        日次集計の 2 表が持つ `sample_count` は、**足りない観測から示唆を出さない**
+        ための足切り（`MIN_EVIDENCE_SAMPLES = 30`）に使う。
+
+        当初 0044〜0046 の 3 本に分けていたが、dev が先に 0044/0045 を使っており
+        番号が衝突した。まだどこにも流していないので、dev の 2 本を正として
+        `drizzle-kit generate` で 1 本に作り直した（snapshot の prevId を
+        手で繋ぎ直すと、間違えても流すまで気づけない）。
+      */
+      "0046_blog_operations_console",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

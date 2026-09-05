@@ -20,10 +20,10 @@ kind: index
 | カテゴリ | 章 | 集約状態 | 確定マーカー | 資するゴール | 対応セル |
 |---|---|---|---|---|---|
 | データベース (database) | [database.md](./database.md) | 確定 | `confirmed` | G1 G2 G3 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
-| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `confirmed` | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
+| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `confirmed` | G1 G2 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
 | UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `confirmed` | G1 G2 G3 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
-| セキュリティ (security) | [security.md](./security.md) | 確定 | `confirmed` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
-| インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `confirmed` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
+| セキュリティ (security) | [security.md](./security.md) | 確定 | `confirmed` | G1 G2 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
+| インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `confirmed` | G1 G2 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |
 | バックエンド (backend) | [backend.md](./backend.md) | 確定 | `confirmed` | G1 G2 G3 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |
 | フロントエンド (frontend) | [frontend.md](./frontend.md) | 確定 | `confirmed` | G1 G2 G3 | frontend.web frontend.mobile frontend.tablet frontend.desktop-windows frontend.desktop-linux frontend.desktop-macos |
 | 保守運用管理 (maintenance-ops) | [maintenance-ops.md](./maintenance-ops.md) | 確定 | `confirmed` | G1 G2 | maintenance-ops.web maintenance-ops.mobile maintenance-ops.tablet maintenance-ops.desktop-windows maintenance-ops.desktop-linux maintenance-ops.desktop-macos |
@@ -67,3 +67,15 @@ kind: index
 ```
 
 この順序を飛ばして後続を実装した場合、`implementation_status` は上げない。各章の Acceptance evidence が揃ったときだけ `verification_status=pass` とする。
+
+## dev 合流で章から落ちた確定内容 (2026-09-05)
+
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
+
+- `| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `confirmed` | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |`
+- `| セキュリティ (security) | [security.md](./security.md) | 確定 | `confirmed` | G1 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |`
+- `| インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `confirmed` | G2 G1 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |`

@@ -282,6 +282,10 @@
 | REQ-BOPS12 | has-enumerated-input, has-screen | — |
 | REQ-BOPS13 | has-code-placement-rule | — |
 | REQ-BOPS14 | has-tenant, has-screen, has-code-placement-rule | — |
+| REQ-BOPC01 | has-input, has-state, has-permission, has-tenant, has-external, has-screen, has-db-table, has-recorded-operation | — |
+| REQ-BOPC02 | has-input, has-enumerated-input, has-tenant | — |
+| REQ-BOPC03 | has-input, has-enumerated-input, has-permission, has-tenant, has-screen, has-db-table | — |
+| REQ-BOPC04 | has-input, has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |

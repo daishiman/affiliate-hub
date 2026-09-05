@@ -1,0 +1,37 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-blog-scoped-admin-console.md",
+  "package_current_pointer": ".dev-graph/state/current/feature-package-feat-blog-scoped-admin-console.json",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+  "selected_feature": "feat-blog-scoped-admin-console",
+  "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "arch-blog-operations-console"
+  ],
+  "task_ids": [
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-blog-scoped-admin-console-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-blog-scoped-admin-console.json"
+  ],
+  "scope_digest": "sha256:243f05cf690ec41c0874592b709e4ca68e505e9fe8e3d83211058fe47b48b108"
+}

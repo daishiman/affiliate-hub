@@ -12,9 +12,9 @@ iteration: null
 title: "広告表示・コンプライアンス"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-24T13:18:17Z"
+updated_at: "2026-08-30T15:16:07Z"
 status: "closed"
-depends_on: []
+depends_on: ["feat-affiliate-hub","feat-data-model"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "広告であることの表示を、記事・AI回答・WebMCP のどこから見ても同じにする"

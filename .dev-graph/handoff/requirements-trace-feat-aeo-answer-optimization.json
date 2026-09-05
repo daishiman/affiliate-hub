@@ -1,0 +1,262 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-aeo-answer-optimization",
+  "scope_digest": "sha256:630f8738db5bec184444d3f972e2d21a6437933e5555652a23a794c63a0a056f",
+  "trace_plan_digest": "sha256:3c9e19546c779881c9581ef82489d4e7691b2b4679be2e815c924aeb20bd3cab",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)",
+  "derivation_rule": "base=[P01,P04,P05,P06,P07,P11]。受入条件本文の語で加算する: テーブル/列/制約/契約/モデル→P02、移行/重複解消/既存→P08、冪等/失敗/性能/権限/audit/削除/期限→P09、手順/説明/文言/画面に出る→P12、配信/公開面/リリース→P13。加算後に昇順で一意化する。",
+  "verdict": "PASS",
+  "entry_count": 9,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "記事に結論・要点・FAQ・出典・最終更新日の回答単位が構造として存在し、欠落が機械的に検出される",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[0]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "FAQ ブロックがある記事の FAQPage 構造化データが妥当性検証を通る",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[1]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "llms.txt が配信され、ブログごとの方針が反映される",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[2]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "AI クローラを拒否したブログで robots.txt の該当 user-agent が拒否になる",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[3]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "既定 (拒否設定なし) では AI クローラが許可される",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[4]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "著者プロフィール面が存在し、記事から Person として辿れる",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[5]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "AEO 出力が既存の公開面生成経路を通り、別系統の配信路が増えない",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[6]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P08|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "引用状況の観測が日付付きで残り、前後期間で比較できる",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[7]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A8",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A9",
+      "requirement": "回答単位の本文が下書き経由でしか公開面へ入らない",
+      "confirmed_sources": [
+        "feature:feat-aeo-answer-optimization#acceptance[8]",
+        "context:feat-aeo-answer-optimization",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A9",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    }
+  ]
+}

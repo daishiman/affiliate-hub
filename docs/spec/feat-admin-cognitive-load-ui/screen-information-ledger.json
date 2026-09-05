@@ -2,7 +2,7 @@
   "featureId": "feat-admin-cognitive-load-ui",
   "generatedFrom": "ADMIN_ROUTE_METADATA",
   "generatedAt": "2026-08-31",
-  "routeCount": 88,
+  "routeCount": 93,
   "undecidedCount": 0,
   "allowedRepresentations": [
     "summary",
@@ -2398,6 +2398,221 @@
       }
     },
     {
+      "routeId": "sites/[site]/domains",
+      "path": "/admin/sites/[site]/domains",
+      "file": "src/app/admin/sites/[site]/domains/page.tsx",
+      "screenName": "住所（独自ドメイン）",
+      "purpose": "ブログが名乗る住所を登録し、所有権と証明書がどこまで進んだかを見る",
+      "primaryAction": "独自ドメインを登録し、読者へ見せる住所を切り替える",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この住所を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/audience",
+      "path": "/admin/sites/[site]/audience",
+      "file": "src/app/admin/sites/[site]/audience/page.tsx",
+      "screenName": "読者の行動",
+      "purpose": "どんな読者がどこで時間を使い、どこがよく押されているかを日ごとに見る",
+      "primaryAction": "読み方の偏りから、次に直す記事を決める",
+      "permission": "content.read",
+      "representation": {
+        "primary": "graph",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "graph"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "このブログへ戻る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/revenue",
+      "path": "/admin/sites/[site]/revenue",
+      "file": "src/app/admin/sites/[site]/revenue/page.tsx",
+      "screenName": "記事ごとの成果",
+      "purpose": "記事ごとの売上と PV を同じ期間で並べ、伸ばす記事と畳む記事を決める",
+      "primaryAction": "売上と PV の組から、伸ばす記事を選ぶ",
+      "permission": "content.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "graph"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "このブログへ戻る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/seo",
+      "path": "/admin/sites/[site]/seo",
+      "file": "src/app/admin/sites/[site]/seo/page.tsx",
+      "screenName": "SEO 診断",
+      "purpose": "検索から届かない原因を診断し、直す価値のある指摘から順に手を付ける",
+      "primaryAction": "診断を回し、指摘を 1 件選んで直しに行く",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "診断する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/aeo",
+      "path": "/admin/sites/[site]/aeo",
+      "file": "src/app/admin/sites/[site]/aeo/page.tsx",
+      "screenName": "AEO（回答エンジン）",
+      "purpose": "回答エンジンに引用される構えを決め、記事から引用できる答えを取り直す",
+      "primaryAction": "このブログの AEO の構えを保存する",
+      "permission": "content.read",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "summary"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この構えを保存する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
       "routeId": "sites/new",
       "path": "/admin/sites/new",
       "file": "src/app/admin/sites/new/page.tsx",
@@ -3875,7 +4090,7 @@
     "timeline": "日付の並びの上に予定を置く (ScheduleCalendar)"
   },
   "plannedPrimaryPolicy": "primary は実装に結線されている現在の主表現、plannedPrimary は src/presentation/admin/admin-screen-task-manifest.ts の primary task から導いたあるべき主表現。2 つが食い違う route は plannedPrimaryGapRouteIds に列挙し、画面実装が追いつくまで乖離として数える。decision は表現方式を決めたかどうかを指すため decided のままとし、実装の遅れは undecidedCount へ混ぜない。",
-  "plannedPrimaryGapCount": 21,
+  "plannedPrimaryGapCount": 22,
   "plannedPrimaryGapRouteIds": [
     "affiliate/links",
     "blog/articles",
@@ -3897,6 +4112,7 @@
     "settings/seo",
     "site-network",
     "sites",
-    "sites/[site]/documents"
+    "sites/[site]/documents",
+    "sites/[site]/revenue"
   ]
 }

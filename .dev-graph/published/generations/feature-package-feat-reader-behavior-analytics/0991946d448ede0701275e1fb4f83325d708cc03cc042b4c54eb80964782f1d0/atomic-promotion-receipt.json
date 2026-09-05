@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "status": "promoted",
+  "promoted_at": "2026-09-03T23:47:24Z",
+  "generation_id": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "supersedes": null,
+  "repo_identity": "github:daishiman/affiliate-hub",
+  "staging_digest": "sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "evaluated_digest": "sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "published_digest": "sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "implementation_readiness": "complete",
+  "quality_conditions": {
+    "no_contradiction": "PASS",
+    "no_missing": "PASS",
+    "consistent": "PASS",
+    "dependency_integrity": "PASS"
+  },
+  "promotion_method": "same-filesystem-atomic-rename",
+  "registration_manifest": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/dev-graph-registration.json"
+}

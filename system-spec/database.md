@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-database-web-audit-history-window-p13-v3。裏付け質疑 (`qa_refs`): `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-database-web-domain-aeo-behavior。裏付け質疑 (`qa_refs`): `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -30,7 +30,7 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | database × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-database-web-audit-history-window-p13-v3` |
+| 確定質疑 (qa_ref) | `qa-database-web-domain-aeo-behavior` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
@@ -54,7 +54,13 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-database-web-audit-history-window-p13-v3 (対応セル: web)
+### qa-database-web-domain-aeo-behavior (対応セル: web)
+
+**質問**: database×web: ブログごとに独自ドメインを接続でき、読者がどこに時間をかけ・どこを押したかを座標まで含めて解析でき、AEO (回答エンジン最適化) の状態を管理でき、ブログ横断で売上と PV を集約できるようにするには、データをどう持つか。既存の『読者向けホスト名は DB に保存せず SITE_BASE_DOMAIN から導出する』という site_blueprints の判断はどう扱うか
+
+**回答**: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
+
+### qa-database-web-audit-history-window-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: database×web: 点検履歴と定期再点検の最新実行状態を D1 にどう分けて保存し、workspace 境界と状態整合を保証するか (P13 書き戻し・v3)。
 
@@ -510,15 +516,23 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 
 #### 本章での適用
 
-##### 確定内容 qa-database-web-audit-history-window-p13-v3 (対応セル: web)
+##### 確定内容 qa-database-web-domain-aeo-behavior (対応セル: web)
 
-- 確定要件: 記事単位の点検履歴は既存 0044 の `ai_search_audit_history` に保持し、記事ごと直近 30 件、追記と刈り取りを同一トランザクション、記事への外部キー無しという規則は変えない。刈り取り単体の実行マーカーは不要だが、それは cron 全体の成否を記録しないという意味ではない。
+- 確定要件: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
+- 設計解釈の記録経路: `dialogue`
+- 原則: 集約境界は不変条件の単位で引き、寿命と変更頻度が違うものを同じ集約へ入れない (`ddd.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 読者の座標イベントは 1 閲覧で数百行・保持は短期、ブログの住所は 1 サイト 1 行・寿命はサイトと同じで、不変条件も『同意が無ければ reader_key を持たない』と『同じホスト名を 2 サイトが持たない』で別物である。既存 telemetry_events へ相乗りさせると、保持期間の削除がサイト設定まで巻き込む。よって reader_interaction_events / site_custom_domains を別表に切る
+  - トレードオフ:
+    - 表が増え、読者 1 人の行動をたどるのに 2 表の突合が要る。単一表なら結合は不要だが、削除依頼のたびに設定行まで走査対象になり、保持期間の異なるデータが同じ索引に載る
+- 原則: 導出できる値を行へ焼き込まない (`ddd.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: 既存 site_blueprints が住所を保存しないのは、dev/prod でデータを移すと住所が古くなるためである。この理由はカスタムドメインには当たらない。カスタムドメインは環境から導出できず、利用者が外部で取得した固有の値だからである。よって既定の住所は導出のまま残し、カスタムドメインだけを行として持つ
+  - トレードオフ:
+    - 1 つのサイトが『導出される既定の住所』と『保存されたカスタムドメイン』の 2 つを持ち、どちらを正規 URL とするかの判断が要る。全部を行へ移せば単純になるが、既存判断が避けた dev/prod 移送時の陳腐化が戻る
+##### 接地根拠 qa-database-web-audit-history-window-p13-v3 (対応セル: web)
 
-0044 を編集せず、0045 で SEO 再点検専用の `ai_search_reaudit_runs` を追加する。これは履歴を無限に追記する表ではなく、1 workspace に直近の最終状態 1 行を上書き保存する投影である。`workspace_id` を主キーとして `workspaces.id` へ外部キーを持ち、管理画面の取得 SQL は必ず actor の `workspace_id` で絞る。
-
-`status` は `succeeded | partial | failed`、`failure_code` は `target_list_unavailable | article_audit_failed | null`。非負整数と `scanned = recorded + failed`、完了時刻が開始時刻以上、status・failure code・件数の正しい組み合わせを D1 CHECK 制約で保証する。時刻は UTC epoch 秒の integer timestamp で、`started_at` と `completed_at` を持つ。実行結果に自由文や秘匿情報は保存しない。
-
-0045 適用時に過去の cron を推定して backfill せず、初期は「未実行」と読む。次の cron 完了後に初めて最終状態と時刻が入る。巻き戻しは 0045 の表を先に落とし、その後に必要なら 0044 を落とす。記事本体は変更しない。
+- 本文: 「確定内容 (質疑録)」の `qa-database-web-audit-history-window-p13-v3` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 記事の監査履歴とジョブの最新健全性投影を、異なるライフサイクルとして分ける (`ddd.md#中核概念`)
   - 採否: `applied`
@@ -726,3 +740,17 @@ C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[]
 **理由 3: 章が名指す確定質疑が正本の `qa_ref` と食い違っていた。** 8 カテゴリ中 **7 件で不一致**、一致は auth のみだった (分母 = `coverage_matrix` の web セル 8 件)。章側は `qa-*-analytics` / `qa-*-web` を、正本側は `qa-*-spec-intake` を名指していた。本節と `## カテゴリ別収集状態` の Web 行は**正本の値を正**として書き直した。章側の旧 ID が指していた質疑録の本文は `## 確定内容 (質疑録)` にそのまま残してあり、**消していない** (理由 2 のとおり、章側の本文のほうが新しいため)。
 
 以上より gaps[0] は、**本文を増やさず「確定の根拠がどこにあるか」を章に載せる**形で実行した。正本の所在は 2 つに分かれる — **規範本文の正本は章、確定セルの状態の正本は `spec-state.json`**。食い違ったら、本節の表は `spec-state.json` を正とし、規範本文は章を正とする。
+
+## dev 合流で章から落ちた確定内容 (2026-09-05)
+
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
+
+- `| Web (web) | 確定 | 確定質疑: qa-database-web-audit-history-window-p13-v3。裏付け質疑 (`qa_refs`): `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-database-web-audit-history-window-p13-v3` |`
+- `### qa-database-web-audit-history-window-p13-v3 (対応セル: web)`
+- `##### 確定内容 qa-database-web-audit-history-window-p13-v3 (対応セル: web)`
+- `- 確定要件: 記事単位の点検履歴は既存 0044 の `ai_search_audit_history` に保持し、記事ごと直近 30 件、追記と刈り取りを同一トランザクション、記事への外部キー無しという規則は変えない。刈り取り単体の実行マーカーは不要だが、それは cron 全体の成否を記録しないという意味ではない。`

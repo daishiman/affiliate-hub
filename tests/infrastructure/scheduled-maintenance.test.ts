@@ -8,6 +8,8 @@ const mocked = vi.hoisted(() => ({
   auditFlush: vi.fn(),
   distribution: vi.fn(),
   reaudit: vi.fn(),
+  rollup: vi.fn(),
+  seoAssessment: vi.fn(),
 }));
 
 vi.mock("@/infrastructure/platform/feedback-capture-r2", () => ({
@@ -22,6 +24,12 @@ vi.mock("@/infrastructure/platform/distribution-scheduler", () => ({
 }));
 vi.mock("@/infrastructure/platform/ai-search-reaudit-scheduler", () => ({
   runScheduledAiSearchReaudit: mocked.reaudit,
+}));
+vi.mock("@/infrastructure/platform/reader-metrics-scheduler", () => ({
+  runReaderMetricsRollup: mocked.rollup,
+}));
+vi.mock("@/infrastructure/platform/seo-assessment-scheduler", () => ({
+  runScheduledSeoAssessment: mocked.seoAssessment,
 }));
 
 const NOW = new Date("2026-09-04T00:00:00.000Z");
@@ -56,32 +64,49 @@ describe("Worker の定期メンテナンス配線", () => {
     });
     mocked.purge.mockResolvedValue({ workspaces: 0, purged: 0, unfinished: [], failures: [] });
     mocked.reaudit.mockResolvedValue({ scanned: 0, recorded: 0, failed: 0 });
+    mocked.rollup.mockResolvedValue({ rolled: 0, purged: 0, failed: 0, truncated: false });
+    mocked.seoAssessment.mockResolvedValue({
+      scanned: 0,
+      completed: 0,
+      failed: 0,
+      truncated: false,
+    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("5 つの仕事を独立した Promise として登録し、同じ起動時刻を渡す", async () => {
+  // 2026-09-05: 5 → 7。ブログ運営コンソールが cron に 2 つ足した。
+  // 読者の生の記録を日次へたたむ集計 (reader-metrics) と、SEO の月次再診断
+  // (seo-assessment) である。**数を 7 に書き換えるだけでは足りない。**
+  // この検査の要点は「因果のない仕事が互いへ波及しない」ことなので、
+  // 足した 2 つも独立した Promise として登録され、同じ起動時刻を受け取り、
+  // binding が無いときは自分の名札で警告することを、下の 3 つで揃えて見る。
+  it("7 つの仕事を独立した Promise として登録し、同じ起動時刻を渡す", async () => {
     const promises = schedule({ DB, BUCKET });
 
-    expect(promises).toHaveLength(5);
+    expect(promises).toHaveLength(7);
     await Promise.all(promises);
     expect(mocked.sweep).toHaveBeenCalledWith(BUCKET, NOW);
     expect(mocked.auditFlush).toHaveBeenCalledWith(DB);
     expect(mocked.distribution).toHaveBeenCalledWith(DB, { DB, BUCKET }, NOW);
     expect(mocked.purge).toHaveBeenCalledWith(DB, NOW);
     expect(mocked.reaudit).toHaveBeenCalledWith(DB, NOW);
+    expect(mocked.rollup).toHaveBeenCalledWith(DB, NOW);
+    expect(mocked.seoAssessment).toHaveBeenCalledWith(DB, NOW);
   });
 
   it("再点検対象の取得に失敗しても retry を要求せず、成功ログを残さない", async () => {
     mocked.reaudit.mockRejectedValue(new Error("DB response must not be logged"));
 
-    await expect(Promise.all(schedule({ DB, BUCKET }))).resolves.toHaveLength(5);
+    await expect(Promise.all(schedule({ DB, BUCKET }))).resolves.toHaveLength(7);
     expect(mocked.sweep).toHaveBeenCalledOnce();
     expect(mocked.auditFlush).toHaveBeenCalledOnce();
     expect(mocked.distribution).toHaveBeenCalledOnce();
     expect(mocked.purge).toHaveBeenCalledOnce();
+    expect(mocked.rollup).toHaveBeenCalledOnce();
+    expect(mocked.seoAssessment).toHaveBeenCalledOnce();
     expect(console.error).toHaveBeenCalledWith("[ai-search-reaudit] 再点検に失敗しました");
     expect(console.log).not.toHaveBeenCalledWith(
       "[ai-search-reaudit] 記事を再点検しました",
@@ -94,7 +119,9 @@ describe("Worker の定期メンテナンス配線", () => {
 
     expect(mocked.sweep).not.toHaveBeenCalled();
     expect(mocked.reaudit).not.toHaveBeenCalled();
-    expect(console.warn).toHaveBeenCalledTimes(5);
+    expect(mocked.rollup).not.toHaveBeenCalled();
+    expect(mocked.seoAssessment).not.toHaveBeenCalled();
+    expect(console.warn).toHaveBeenCalledTimes(7);
     expect(vi.mocked(console.warn).mock.calls.map(([message]) => message)).toEqual(
       expect.arrayContaining([
         expect.stringContaining("[sweep]"),
@@ -102,6 +129,8 @@ describe("Worker の定期メンテナンス配線", () => {
         expect.stringContaining("[distribution]"),
         expect.stringContaining("[retention]"),
         expect.stringContaining("[ai-search-reaudit]"),
+        expect.stringContaining("[reader-metrics]"),
+        expect.stringContaining("[seo-assessment]"),
       ]),
     );
   });

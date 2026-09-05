@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-backend-web-seo-audit-writeback-p13-v3。裏付け質疑 (`qa_refs`): `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-backend-web-domain-aeo-behavior。裏付け質疑 (`qa_refs`): `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
@@ -30,9 +30,9 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | backend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-backend-web-seo-audit-writeback-p13-v3` |
+| 確定質疑 (qa_ref) | `qa-backend-web-domain-aeo-behavior` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
-| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
+| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-domain-aeo-behavior`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
@@ -54,7 +54,13 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)
+### qa-backend-web-domain-aeo-behavior (対応セル: web)
+
+**質問**: backend×web: カスタムドメインの接続・検証・証明書、読者行動の受け口、日次ロールアップ、SEO/AEO の評価と記事への反映は、どの処理単位でどう並べるか
+
+**回答**: 4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない
+
+### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: backend×web: 定期 SEO/AEO 再点検の対象 0 件成功、一部失敗、全件失敗、対象取得失敗をどう区別し、最終実行時刻をどの workspace の管理画面に表示するか (P13 書き戻し・v3)。
 
@@ -361,15 +367,23 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 
 #### 本章での適用
 
-##### 確定内容 qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)
+##### 確定内容 qa-backend-web-domain-aeo-behavior (対応セル: web)
 
-- 確定要件: 2026-09-04 時点の実装では、記事単位の点検結果と cron 自体の実行結果を別の状態として扱う。記事は未点検／全合格／要修正／取得不能、定期再点検は未実行／成功／一部失敗／失敗／状態取得不能を区別する。成功は失敗 0 件で対象 0 件も含み、一部失敗は保存の成功と失敗が混在、全件の保存失敗と対象取得失敗は失敗とする。固定 failure code で後ろ 2 つも区別し、自由文の例外は保存しない。
+- 確定要件: 4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない
+- 設計解釈の記録経路: `dialogue`
+- 原則: 依存は内側へ向け、外部サービスはポートの向こうに置く (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 証明書の発行や DNS の検証は Cloudflare 側の都合で状態が変わる。これをユースケースの中へ直接書くと、provider の応答形式が変わるたびに業務手順が壊れる。状態を問う口をポートにし、こちらは status の遷移だけを持つ
+  - トレードオフ:
+    - provider 固有の詳細な失敗理由が抽象化で落ちる。failure_reason を素通しする列を 1 つ持って補うが、それでも provider の管理画面を見ないと分からない場面は残る
+- 原則: 再実行しても同じ結果になる形で書く (`continuous-delivery.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 日次ロールアップは失敗して途中で止まりうる。差分を足し込む形にすると、再実行のたびに二重計上して数字が膨らむ。対象日を丸ごと置き換えれば、何度流しても同じ数字に落ち着く
+  - トレードオフ:
+    - 1 日ぶんを毎回作り直すので、差分更新より計算量が多い。日次かつサイト単位の粒度では許容範囲だが、時間単位まで細かくするなら見直しが要る
+##### 接地根拠 qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)
 
-scheduler は非停止 workspace を列挙した後、既存の古い順の全体バッチを 1 回だけ取得する。1 起動の上限 50 件は変えず、処理結果だけを workspace 別に集計する。対象取得自体が失敗したときも、列挙済みの各 workspace へ失敗と開始／完了時刻を残してから入口へ失敗を返す。run-state の保存失敗も成功に潰さない。Worker はジョブごとの独立 `waitUntil` と catch を維持し、失敗時は成功ログを出さず retry も要求しない。DB binding が無い場合は警告ログのみとする。
-
-管理画面は actor の `workspaceId` だけを読み口へ渡し、隣の workspace の状態や件数を表示しない。各最終状態に開始時刻と最終完了時刻、この回の対象／保存／失敗件数を表示する。対象 0 件は「この回で再点検した記事は無い」という事実だけを示し、未実行や失敗と混ぜない。
-
-HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上、1 起動 50 件、毎日 `0 17 * * *` の既存値は変えない。実 D1 での所要時間と記事 350 本超の挙動は引き続き未測定である。
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-seo-audit-writeback-p13-v3` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 落ちても利用者の画面に何も起きない処理は、成功 0 件と未実行・失敗を同じ見た目にしない (`site-reliability-engineering.md#中核概念`)
   - 採否: `applied`
@@ -556,3 +570,18 @@ HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上
 - 異なる Workspace の actor が同じ resource ID を指定しても参照・変更できず、role 不足が拒否される API/MCP 共通の認可テスト。
 - 生イベントから rollup を全再計算した結果が増分集計と一致する fixture テスト。`approval_status=approved, payment_status=unpaid` では `revenue_approved` のみ、`payment_status=paid` への変更後は `revenue_paid` も計上され、承認報酬が二重加算されないこと。
 - MCP の tool call と通常 API が同一 use case / KPI 定義 / 監査記録を使うことを示す contract test。
+
+## dev 合流で章から落ちた確定内容 (2026-09-05)
+
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
+
+- `| Web (web) | 確定 | 確定質疑: qa-backend-web-seo-audit-writeback-p13-v3。裏付け質疑 (`qa_refs`): `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-backend-web-seo-audit-writeback-p13-v3` |`
+- `| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |`
+- `### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)`
+- `##### 確定内容 qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)`
+- `- 確定要件: 2026-09-04 時点の実装では、記事単位の点検結果と cron 自体の実行結果を別の状態として扱う。記事は未点検／全合格／要修正／取得不能、定期再点検は未実行／成功／一部失敗／失敗／状態取得不能を区別する。成功は失敗 0 件で対象 0 件も含み、一部失敗は保存の成功と失敗が混在、全件の保存失敗と対象取得失敗は失敗とする。固定 failure code で後ろ 2 つも区別し、自由文の例外は保存しない。`

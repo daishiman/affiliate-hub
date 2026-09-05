@@ -1,0 +1,26 @@
+{
+  "verb": "init",
+  "repository_id": "github:daishiman/affiliate-hub",
+  "generated_at": "2026-09-03T09:27:32.157110Z",
+  "head_sha": "f6ad882fa4a0bc8189a3c231d522adee9ad9a0a6",
+  "content_roots_preserved": [
+    "issues",
+    "tasks",
+    "specs",
+    "architecture",
+    "features",
+    "docs"
+  ],
+  "content_roots_created": [],
+  "local_state_planned_changes": [],
+  "templates_total": 21,
+  "templates_missing": [],
+  "templates_user_edited_preserved": [],
+  "hook_source": "plugin",
+  "github_enabled": false,
+  "schema_result": {
+    "config_valid": true,
+    "graph_valid": true,
+    "implementation_readiness": "complete"
+  }
+}

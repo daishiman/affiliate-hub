@@ -12,8 +12,8 @@ iteration: null
 title: "UI/UX 共通基盤"
 owners: ["daishiman"]
 created_at: "2026-08-16T13:20:00Z"
-updated_at: "2026-08-30T00:00:00Z"
-status: "active"
+updated_at: "2026-08-29T16:39:49Z"
+status: "closed"
 depends_on: ["feat-auth-workspace"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]

@@ -234,6 +234,43 @@ export function FactList({ rows }: { readonly rows: readonly FactRow[] }) {
 }
 
 /**
+ * 操作できる 1 件の見出しと、その件の状態を述べる行。
+ *
+ * 「住所 1 件」「SEO の指摘 1 件」のように、**1 件に対する押しボタンが
+ * 同じ枠に並ぶ**形で繰り返し要る。名前を強調し、添え字で今の位置づけを
+ * 言い、その下に状態を数行で述べる、という並びは 2 か所で同じだった。
+ *
+ * 表 (`DataTable`) にしないのは、行どうしを比べる場面ではないため。
+ * ここは 1 件を読んで、その 1 件に手を打つ場所である。
+ */
+export function RowSummary({
+  heading,
+  aside,
+  lines,
+}: {
+  /** その件の名前。読者や運営者がこの件を呼ぶときの言い方。 */
+  readonly heading: string;
+  /** 名前に添える一言。今の位置づけ（正規の住所である、どの記事の指摘か）。 */
+  readonly aside?: string | null;
+  /** 状態を述べる行。空文字は渡さず、出さない行は呼ぶ側で落とす。 */
+  readonly lines: readonly string[];
+}) {
+  return (
+    <div className={styles.subSection}>
+      <p className={styles.lead}>
+        <strong>{heading}</strong>
+        {aside === undefined || aside === null ? null : aside}
+      </p>
+      {lines.map((line) => (
+        <p key={line} className={styles.note}>
+          {line}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+/**
  * 表の 1 行を選ぶための印。
  *
  * ラベルを省けない形にしてある。印だけを置くと、読み上げでは

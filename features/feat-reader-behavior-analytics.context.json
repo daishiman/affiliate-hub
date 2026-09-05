@@ -1,0 +1,40 @@
+{
+  "graph_node_id": "feat-reader-behavior-analytics",
+  "artifact_kind": "feature",
+  "purpose": "読者が記事のどこで時間を使い、どこを押しているのかを、個人を追跡せずに分布として観測できるようにする",
+  "goal": "読者面が滞在・スクロール到達・要素クリック・ポインタ標本を要素相対比率で束ねて送り、reader_interaction_events へ追記され、管理画面が viewport_bucket ごとの集計分布としてヒートマップを描き、同意が無い読者は reader_key を持たず 90 日で生データが消える状態になっている",
+  "scope_in": [
+    "reader_interaction_events テーブル (workspace_id / site_slug / article_slug / occurred_at / reader_key nullable / kind scroll_depth|dwell|element_click|pointer_sample / viewport_bucket / element_ref / x_ratio / y_ratio / value)",
+    "読者面の計測: IntersectionObserver によるスクロール到達、visibilitychange + 滞在タイマーによる dwell、委譲した単一 click リスナ、間隔標本のポインタ位置",
+    "座標は要素相対比率 (element_ref + x_ratio/y_ratio) で記録し、絶対座標を残さない",
+    "sendBeacon による束ね送信と、ingest-reader-interactions の追記専用受入 (バッチ・重複耐性)",
+    "同意が無い場合 reader_key を null にし、読者個人へ戻せる列を持たない",
+    "管理画面の記事プレビュー上への canvas 重ね描画と viewport_bucket (narrow/medium/wide) 切替",
+    "reader_interaction_events の 90 日削除と、reader_key 指定での抽出・削除 (Owner 限定)"
+  ],
+  "scope_out": [
+    "1 読者の行動を時系列で再生する機能 (作らない)",
+    "日次ロールアップと収益・PV との突合 (feat-blog-metrics-rollup)",
+    "行動指標を使った示唆生成と提示順序 (feat-blog-scoped-admin-console)",
+    "既存の汎用イベント/KPI 基盤そのもの (feat-analytics-insight)"
+  ],
+  "acceptance": [
+    "同意が無い読者の行から reader_key が常に null で、個人へ戻せる列が他に無い",
+    "保存される位置が element_ref + x_ratio/y_ratio の比率で、絶対座標の列が存在しない",
+    "ポインタは全軌跡ではなくクリックと間隔標本だけが記録される",
+    "ヒートマップが常に集計分布として描かれ、単一 reader_key の再生経路が UI にもクエリにも存在しない",
+    "viewport_bucket を切り替えると同じ記事で別の分布が描かれる",
+    "ページ離脱時にも計測が欠落せず sendBeacon で送出される",
+    "同じバッチを二度受け取っても件数が二重にならない",
+    "reader_interaction_events が 90 日を超えると削除され、集計側は残る",
+    "reader_key を指定した抽出・削除が Owner だけで実行でき、audit_logs に残る",
+    "計測 script の失敗が読者面の描画を壊さない"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "architecture/arch-blog-operations-console.md",
+    "system-spec/index.md"
+  ],
+  "updated_at": "2026-09-04T00:00:00Z"
+}

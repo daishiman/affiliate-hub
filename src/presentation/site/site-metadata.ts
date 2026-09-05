@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { articleHref } from "@/application/read-models/published-article";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
+import { siteCanonicalUrl } from "@/domain/authoring/site-public-url";
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 
@@ -38,16 +39,49 @@ export function siteCanonicalPath(siteSlug: string, path = ""): string {
 }
 
 /**
- * 公開URLはリクエストごとのhostから作る。
+ * 公開URLは**ブログの正本の住所**から作る。
  *
  * このアプリは同じ実装で複数ブログhostを扱うため、固定のmetadataBaseを
- * 置けない。Next.jsのmetadata URLへ相対pathを渡すこともできないので、
- * proxyが伝えた公開hostを優先して絶対URLへ変換する。hostが無い・壊れて
- * いる場合は、推測したcanonicalを配らずnullにする。
+ * 置けない。かつては要求ごとの host から組んでいたが、それだと
+ * 「どの住所で来たか」で canonical が変わり、同じ記事が住所の数だけ
+ * 別ページとして扱われる。組み立ての規則は `siteCanonicalUrl` にあり、
+ * ここは引数を集めるだけ。hostも基底ドメインも独自ドメインも無い場合は、
+ * 推測したcanonicalを配らずnullにする。
  */
 export async function siteMetadataUrl(siteSlug: string, path = ""): Promise<string | null> {
-  const origin = await requestOriginFromNextHeaders();
-  return origin === null ? null : `${origin}${siteCanonicalPath(siteSlug, path)}`;
+  const [canonicalHostname, baseDomain, requestOrigin] = await Promise.all([
+    tryResolveCanonicalHost(siteSlug),
+    tryReadSiteBaseDomain(),
+    requestOriginFromNextHeaders(),
+  ]);
+  return siteCanonicalUrl({ slug: siteSlug, path, canonicalHostname, baseDomain, requestOrigin });
+}
+
+/**
+ * 正本の住所を引く。引けなければ `null`（＝既定の住所を正本とする）。
+ *
+ * 住所表が読めないことを canonical 全体の失敗にしない。読めなくても
+ * 既定の住所という正しい答えがあるので、そちらへ倒すほうが害が小さい。
+ */
+async function tryResolveCanonicalHost(siteSlug: string): Promise<string | null> {
+  try {
+    const { resolveCanonicalHostForSite, lookupCanonicalHostInD1 } = await import(
+      "@/infrastructure/domains/resolve-custom-host"
+    );
+    return await resolveCanonicalHostForSite(siteSlug, lookupCanonicalHostInD1);
+  } catch {
+    return null;
+  }
+}
+
+/** 基底ドメイン。読めなければ `null`（＝未設定の環境と同じ扱い）。 */
+async function tryReadSiteBaseDomain(): Promise<string | null> {
+  try {
+    const { readSiteBaseDomain } = await import("@/infrastructure/platform/site-base-domain");
+    return await readSiteBaseDomain();
+  } catch {
+    return null;
+  }
 }
 
 export async function siteHomeMetadata(siteSlug: string): Promise<Metadata> {

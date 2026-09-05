@@ -26,8 +26,8 @@ const DEDICATED_ROUTES = new Map<AdminRouteId, AdminRouteId>([
 ]);
 
 /**
- * 全86 routeを「たたむ」「専用画面へ送る」「開示なし」のいずれかへ1回だけ分類する。
- * 子routeがあるだけで dedicated にせず、一覧に実リンクがある7画面だけを明示する。
+ * ADMIN_ROUTE_METADATA の全routeを「たたむ」「専用画面へ送る」「開示なし」のいずれかへ1回だけ分類する。
+ * 子routeがあるだけで dedicated にせず、一覧に実リンクがあるrouteだけを明示する。
  */
 export const ADMIN_DISCLOSURE_CONTRACTS: readonly AdminDisclosureContract[] =
   ADMIN_ROUTE_METADATA.map((route) => {
