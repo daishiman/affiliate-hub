@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import type { ArticleType } from "@/domain/authoring";
 import type { RelationshipType } from "@/domain/compliance";
 import { auditArticleForAiSearch } from "@/application/seo/ai-search-audit";
+import { recordAiSearchAudit } from "@/application/usecases/seo/record-ai-search-audit";
 import {
+  aiSearchAuditDeps,
   distributionUseCases,
   notifyIndexNowOfPublish,
   readerActor,
@@ -182,12 +184,44 @@ export async function publishArticleAction(
   // 点検は公開の条件ではない。読み直せなかったときは点検ごと出さない
   // （送った値から推測で点検すると、保存で変わった形とずれた診断を出す）。
   let aiSearch: PublishArticleFormState["aiSearch"];
+  let aiSearchAuditRecord: PublishArticleFormState["aiSearchAuditRecord"];
   if (siteSlug !== "" && slug !== "") {
     const published = await (await siteUseCases()).getArticle.execute(readerActor(), {
       siteSlug,
       slug,
     });
-    if (published.ok) aiSearch = auditArticleForAiSearch(published.value);
+    if (published.ok) {
+      const auditDeps = await aiSearchAuditDeps();
+      const checkedAt = auditDeps.now();
+      aiSearch = auditArticleForAiSearch(published.value, checkedAt);
+      /*
+        画面に出したのと**同じ判定**を履歴へ残す（受入 A3）。
+        ここで判定し直さないのは、出した結果と残る結果が別々に作られるのを
+        避けるため。記録が失敗しても公開は巻き戻さない——公開はもう済んでおり、
+        「記録できなかったから記事を取り下げる」は読者にとって理不尽な壊れ方になる。
+      */
+      const recorded = await recordAiSearchAudit(
+        { ...auditDeps, now: () => checkedAt },
+        {
+          workspaceId: actor.workspaceId,
+          article: published.value,
+          trigger: "publish",
+          checks: aiSearch,
+        },
+      );
+      aiSearchAuditRecord = recorded.ok
+        ? { status: "recorded", detail: "公開時の点検履歴を保存しました。" }
+        : {
+            status: "failed",
+            detail: [
+              "点検は完了しましたが、点検履歴を保存できませんでした。",
+              recorded.error.message,
+              recorded.error.suggestedAction,
+            ]
+              .filter((part): part is string => part !== undefined && part !== "")
+              .join(" "),
+          };
+    }
   }
 
   return {
@@ -197,6 +231,7 @@ export async function publishArticleAction(
     url: result.value.url,
     skipped: result.value.skipped,
     aiSearch,
+    aiSearchAuditRecord,
     indexNow,
   };
 }

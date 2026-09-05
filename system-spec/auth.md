@@ -22,6 +22,33 @@ serves_goals: [G1, G2]
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
+
+| 項目 | 値 |
+|---|---|
+| セル | auth × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-auth-web-domain-analytics-authority` |
+| 資するゴール (serves_goals) | G1, G2 |
+| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web-domain-analytics-authority`) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
+
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`auth`) を主担当とする **1 件**。全 12 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
+|---|---|---|---|---|
+| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 |
+
+- **`decision-auth-method` の caveat**: ライブラリ更新の追従を保守運用 (maintenance-ops) に組み込むこと / 組織 (Workspace) 管理UIは自作となる
+
 ## 確定内容 (質疑録)
 
 ### qa-auth-web-domain-analytics-authority (対応セル: web)
@@ -35,6 +62,38 @@ serves_goals: [G1, G2]
 **質問**: 認証 (auth) × web の方式は何か (2026-08-16 対話ヒアリング)
 
 **回答**: A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Drizzle アダプタにより現行の Next.js + Cloudflare Workers + D1 スタックと同居できる。Google ログインを初期提供し、メール/パスワード・パスキーは後続拡張とする。セッションは D1 に保存し、Workspace 単位のマルチテナント分離と §25 のロール (Owner/Admin/Researcher/Writer/Reviewer/Publisher/Analyst) 権限をアプリ層で紐付ける。外部公開・予約投稿等の重要操作は認証済みユーザーの明示承認を必須とする。
+
+## 章の注記 (chapter_notes)
+
+> 正本 `spec-state.json` の `chapter_notes` を描く。**利用者の回答ではない。**確定内容 (質疑録) と混ぜて読まないために節を分けてある。
+
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+
+本章に効くのは 1 件だけである。
+
+- **`decision-auth-method` の caveat**: ライブラリ更新の追従を maintenance-ops に
+  組み込むこと。採用は「費用ゼロ・ロックインなし」で得たので、追従を止めた時点で
+  その前提が消える。
+- **G3 (AEO/SEO) の 4 決定は本章を主担当としない。**構造化データの生成・解析・
+  基準の再確認・履歴保持は、いずれも認証の境界の内側で動く既存の管理画面経路に
+  乗る。認証方式そのものを動かす論点は含まれていない。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
+### 章の規範本文を正本から再生成しない理由
+
+`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。
+一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は
+正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /
+正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が
+8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。
+**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+- 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
 
 ## 上流指針 (doctrine anchor)
 
@@ -194,41 +253,29 @@ serves_goals: [G1, G2]
 | AUTH-ACC-004 | ログアウト後に旧セッションを再利用 | `401`、セッション無効化レコードと自動テスト結果を保存 |
 | AUTH-ACC-005 | 未認証 `same-origin` と Workspace A 限定の service identity で保護ツールを呼ぶ | `same-origin` に保護ツールを公開せず、service identity は A のみ成功、B は拒否。`tools/list` / `tools/call` の契約テストと監査記録を保存 |
 
-## 確定セルの記録 (正本 spec-state.json)
+## 章にしか無い記述 (正本へ未接続)
 
-> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.auth.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | auth × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-auth-web-domain-analytics-authority` |
-| 資するゴール (serves_goals) | G1, G2 |
-| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web-domain-analytics-authority`) |
-| 出典 kind | user-dialogue |
-| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
-| 出典 節 | — |
-| 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
-
-- **出典が `user-dialogue` なのは本章だけ**である (分母 = `coverage_matrix` の web セル 8 件。残り 7 件は `written-requirements`)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。これは穴だが、対話由来の確定に後から path を与えると出典を偽ることになるため塞がない。塞がる条件は、この確定内容が `docs/spec` のいずれかの節として書き起こされたとき。
+> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
 
 ### 本節を「転記」に留めた理由
 
 C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
 
-## 意思決定 (decisions)
+## dev 合流で章から落ちた確定内容 (2026-09-05)
 
-> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
 
-| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
-|---|---|---|---|---|---|
-| **`decision-auth-method`** | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | **auth** |
-| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |
-| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
-| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
-| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
-| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
-| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
-
-- **`decision-auth-method` の caveat**: ライブラリ更新の追従を maintenance-ops に組み込むこと。採用は「費用ゼロ・ロックインなし」で得たので、追従を止めた時点でその前提が消える。
+- `serves_goals: [G1]`
+- `| Web (web) | 確定 | 確定質疑: qa-auth-web |`
+- `| 確定質疑 (qa_ref) | `qa-auth-web` |`
+- `| 資するゴール (serves_goals) | G1 |`
+- `| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web`) |`
+- `| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |`
+- `### qa-auth-web (対応セル: web)`
+- `##### 確定内容 qa-auth-web (対応セル: web)`
+- `- 確定要件: A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Drizzle アダプタにより現行の Next.js + Cloudflare Workers + D1 スタックと同居できる。Google ログインを初期提供し、メール/パスワード・パスキーは後続拡張とする。セッションは D1 に保存し、Workspace 単位のマルチテナント分離と §25 のロール (Owner/Admin/Researcher/Writer/Reviewer/Publisher/Analyst) 権限をアプリ層で紐付ける。外部公開・予約投稿等の重要操作は認証済みユーザーの明示承認を必須とする。`
+- `- 資するゴール: G1`

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "status": "promoted",
+  "promoted_at": "2026-09-04T04:21:53Z",
+  "generation_id": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+  "supersedes": {
+    "published_path": ".dev-graph/published/feature-package-feat-seo-aeo-gap-closure",
+    "published_digest": "sha256:204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646",
+    "receipt": ".dev-graph/published/feature-package-feat-seo-aeo-gap-closure/atomic-promotion-receipt.json"
+  },
+  "repo_identity": "github:daishiman/affiliate-hub",
+  "staging_digest": "sha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+  "evaluated_digest": "sha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+  "published_digest": "sha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+  "implementation_readiness": "complete",
+  "quality_conditions": {
+    "no_contradiction": "PASS",
+    "no_missing": "PASS",
+    "consistent": "PASS",
+    "dependency_integrity": "PASS"
+  },
+  "promotion_method": "same-filesystem-atomic-rename",
+  "registration_manifest": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/dev-graph-registration.json"
+}

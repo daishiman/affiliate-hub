@@ -134,6 +134,26 @@ export type ArticleViewModel = {
   readonly blockOrder?: readonly string[];
 };
 
+const ARTICLE_SPEAKABLE_ATTRIBUTE = "data-speakable";
+const ARTICLE_SPEAKABLE_TARGETS = {
+  answer: "answer",
+  keyPoints: "key-points",
+} as const;
+
+type ArticleSpeakableTarget = keyof typeof ARTICLE_SPEAKABLE_TARGETS;
+
+/** JSON-LD と公開 HTML が共有する、読み上げ対象の CSS selector。 */
+export const ARTICLE_SPEAKABLE_SELECTORS = {
+  answer: `[${ARTICLE_SPEAKABLE_ATTRIBUTE}="${ARTICLE_SPEAKABLE_TARGETS.answer}"]`,
+  keyPoints: `[${ARTICLE_SPEAKABLE_ATTRIBUTE}="${ARTICLE_SPEAKABLE_TARGETS.keyPoints}"]`,
+} as const;
+
+function articleSpeakableAttributes(
+  target: ArticleSpeakableTarget,
+): Readonly<Record<string, string>> {
+  return { [ARTICLE_SPEAKABLE_ATTRIBUTE]: ARTICLE_SPEAKABLE_TARGETS[target] };
+}
+
 /**
  * 並べ替えの効く塊。
  *
@@ -265,7 +285,14 @@ function KeyPointsSection({ items }: { readonly items: readonly string[] }) {
       {...telemetrySectionAttrs({ kind: "conclusion", id: "key-points" })}
     >
       <h2 className={styles.sectionHeading}>{UI_COPY.article.keyPointsTitle}</h2>
-      <ul>
+      {/*
+        `data-speakable` は `buildSpeakable` が出す `cssSelector` の宛先。
+        装飾クラスではなく用途を名前に持つ属性にしてあるので、
+        デザインを変えるときに「これは何のためか」が読む人に分かる。
+        **消すときは structured-data.ts 側の selector も一緒に消すこと。**
+        片方だけ消すと、読み上げ機構に何も無い場所を指したままになる。
+      */}
+      <ul {...articleSpeakableAttributes("keyPoints")}>
         {items.map((item) => (
           <li key={item}>{item}</li>
         ))}
@@ -388,7 +415,10 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
   return (
     <article className={[styles.article, wide ? styles.wide : null].filter(Boolean).join(" ")}>
       <h1 className={styles.articleTitle}>{article.title}</h1>
-      <p className={styles.articleSummary}>{article.summary}</p>
+      {/* `data-speakable` の意図は KeyPointsSection のコメントを参照。 */}
+      <p className={styles.articleSummary} {...articleSpeakableAttributes("answer")}>
+        {article.summary}
+      </p>
 
       <div className={styles.byline}>
         <span>

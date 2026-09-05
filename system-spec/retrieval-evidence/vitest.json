@@ -1,35 +1,45 @@
 {
-  "target_id": "vitest",
-  "source_url": "https://vitest.dev/guide/",
-  "retrieved_at": "2026-09-03T12:55:14Z",
-  "page_title": "Getting Started | Guide | Vitest",
-  "retrieval_method": {
-    "tool": "WebFetch",
-    "note": "本文は WebFetch (HTML→Markdown 変換) で取得した。生 HTML のバイト列を保持していないため content_bytes / content_sha256 / http_status は記録しない。取得できた素材だけを記録する契約に従い、埋めずに欠かす。"
+ "target_id": "vitest",
+ "source_url": "https://vitest.dev/guide/",
+ "retrieved_at": "2026-09-03T23:21:10Z",
+ "http_status": 200,
+ "content_bytes": 75174,
+ "content_sha256": "19f1d0227772376bca5ffbd65db848d062295ea5a5cdbfde687dad6c8299fc0b",
+ "page_title": "Getting Started | Guide | Vitest",
+ "freshness_extraction": {
+  "freshness_source": "publisher-registry",
+  "value": "5.0.0",
+  "found_in": [
+   "\"Last updated: \" に続く <time datetime=\"2026-06-18T12:04:27.000Z\"> (配信 HTML が申告する本文更新日)"
+  ],
+  "http_last_modified": null,
+  "publisher_registry": {
+   "checked_at": "2026-09-03T23:21:10Z",
+   "command": "curl https://registry.npmjs.org/vitest (dist-tags / time)",
+   "version": "5.0.0",
+   "dist_tags_latest": "5.0.0",
+   "time_modified": "2026-09-03T12:24:30.595Z",
+   "version_published_at": "2026-09-03T12:24:30.312Z"
   },
-  "freshness_extraction": {
-    "freshness_source": "publisher-registry",
-    "value": "5.0.0",
-    "found_in": [
-      "配信中ページ本文: \"Vitest requires Vite >=v6.4.0 and Node >=v22.12.0\" (v5 系の前提環境)",
-      "ページ本文が現行リリースとして v5.0.0 を示している"
-    ],
-    "http_last_modified": null,
-    "publisher_registry": {
-      "checked_at": "2026-09-03T12:55:14Z",
-      "source_url": "https://registry.npmjs.org/vitest/latest",
-      "name": "vitest",
-      "version": "5.0.0"
-    },
-    "note": "2026-08-24 の取得記録は version 4.1.11 だった。その後上流がメジャーアップしており、公式ページの前提環境表記 (Vite >=v6.4.0 / Node >=v22.12.0) と publisher registry の latest がともに 5.0.0 世代を指す。配信中 HTML の \"Last updated\" は日付テキストを伴わないため last_updated の根拠には採らず、version を publisher registry から採る。"
+  "note": "配信 HTML の本文更新日は 2026-06-18 のままだが、publisher registry の dist-tags.latest は 5.0.0 で、公開時刻は 2026-09-03T12:24:30.312Z。前回記録 4.1.11 から 1 メジャー進んでおり、鮮度根拠は registry を採る。"
+ },
+ "requirement_note": "本文逐語: \"Vitest requires Vite >=v6.0.0 and Node >=v20.0.0\" — 前提環境を出典自身が申告している。",
+ "reverification": [
+  {
+   "checked_at": "2026-08-24T11:38:56Z",
+   "http_status": 200,
+   "content_bytes": 92586,
+   "content_sha256": "51e046ff2928040a98afe696c3f8a1e81d7bf1d7c8cd8d8ea8e96e1384184475",
+   "verdict": "本文一致・鮮度根拠を registry へ変更",
+   "note": "08-22 の本文と byte 数・sha256 は一致。公式 repository 履歴が本文表示より新しいため、page-declared date ではなく publisher registry の現行版 4.1.11 を鮮度根拠にした。"
   },
-  "requirement_note": "本文逐語: \"Vitest requires Vite >=v6.4.0 and Node >=v22.12.0\" — 前提環境を出典自身が申告している。",
-  "reverification": [
-    {
-      "checked_at": "2026-09-03T12:55:14Z",
-      "by": "C02 run-system-spec-doc-fetch",
-      "reason": "C08 ドキュメント鮮度監査 (2026-09-03) が version 4.1.11 の世代落ちを公式サイトと配布 registry の両方で検出したため再取得した。",
-      "result": "version 4.1.11 -> 5.0.0"
-    }
-  ]
+  {
+   "checked_at": "2026-09-03T23:21:10Z",
+   "http_status": 200,
+   "content_bytes": 75174,
+   "content_sha256": "19f1d0227772376bca5ffbd65db848d062295ea5a5cdbfde687dad6c8299fc0b",
+   "verdict": "本文が入れ替わり・現行版 5.0.0 へ更新",
+   "note": "08-24 の本文 (sha256 51e046ff2928 / 92586 bytes) とは一致しない。今回は 75174 bytes。C08 鮮度監査が 4.1.11 の世代落ちを検出したのを受けた再取得で、記録の書き換えではなく取り直しである。"
+  }
+ ]
 }

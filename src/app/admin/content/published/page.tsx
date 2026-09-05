@@ -1,10 +1,11 @@
 import Form from "next/form";
 import Link from "next/link";
+import type { AiSearchReauditRun } from "@/application/ports/seo";
 import { articleHref } from "@/application/read-models/published-article";
 import { siteBasePathBySlug } from "@/domain/authoring";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, publishedArticleAdminUseCases } from "@/presentation/composition";
-import { DataTable, EmptyView, ErrorView, Section } from "@/presentation/ui";
+import { DataTable, DescriptionTime, EmptyView, ErrorView, Section } from "@/presentation/ui";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +31,46 @@ function toVisibility(raw: string | undefined): VisibilityFilter {
   return found?.value ?? "all";
 }
 
+function formatReauditTime(value: Date): string {
+  return value.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+}
+
+/** 定期再点検だけの状態表示。記事単位の点検状態とは混ぜない。 */
+function ReauditRunStatus({ run }: { readonly run: AiSearchReauditRun | null }) {
+  if (run === null) {
+    return (
+      <Section title="定期再点検: 未実行">
+        <EmptyView
+          title="定期再点検はまだ実行されていません"
+          body="最初の定期再点検が完了すると、対象件数と完了時刻をここで確認できます。"
+        />
+      </Section>
+    );
+  }
+
+  const statusLabel =
+    run.status === "succeeded" ? "成功" : run.status === "partial" ? "一部失敗" : "失敗";
+  const summary =
+    run.status === "succeeded" && run.scanned === 0
+      ? "対象 0 件（この回で再点検した記事はありませんでした）"
+      : run.failureCode === "target_list_unavailable"
+        ? "再点検の対象を取得できませんでした。"
+        : `対象 ${run.scanned} 件／記録 ${run.recorded} 件／失敗 ${run.failed} 件`;
+
+  return (
+    <Section title={`定期再点検: ${statusLabel}`} lead={summary}>
+      <dl>
+        <DescriptionTime label="開始時刻" dateTime={run.startedAt.toISOString()}>
+          {formatReauditTime(run.startedAt)}
+        </DescriptionTime>
+        <DescriptionTime label="最終完了時刻" dateTime={run.completedAt.toISOString()}>
+          {formatReauditTime(run.completedAt)}
+        </DescriptionTime>
+      </dl>
+    </Section>
+  );
+}
+
 export default async function PublishedArticlesPage({
   searchParams,
 }: {
@@ -38,10 +79,18 @@ export default async function PublishedArticlesPage({
   const params = await searchParams;
   const query = (Array.isArray(params.q) ? params.q[0] : params.q)?.trim() ?? "";
   const visibility = toVisibility(Array.isArray(params.visibility) ? params.visibility[0] : params.visibility);
-  const result = await (await publishedArticleAdminUseCases()).list.execute(await currentActor(), {
-    query,
-    visibility,
-  });
+  const useCases = await publishedArticleAdminUseCases();
+  const actor = await currentActor();
+  /*
+    AI 検索の点検で落ちている記事（受入 A5）。
+    絞り込み（`query` / `visibility`）は渡さない。この一覧は「探しているもの」ではなく
+    「気づいていないもの」なので、絞り込んだ結果として消えてよいものではない。
+  */
+  const [result, failing, latestReauditRun] = await Promise.all([
+    useCases.list.execute(actor, { query, visibility }),
+    useCases.listFailingAudits.execute(actor, {}),
+    useCases.getLatestReauditRun.execute(actor, {}),
+  ]);
 
   return (
     <AdminShell
@@ -57,6 +106,115 @@ export default async function PublishedArticlesPage({
           （台帳の `cardRepresentationBinding.routeWrapper: false`）。
           画面の区切りは `Section` が持つ。
         */}
+        {/*
+          **0 件でも記事単位の節は出す。** 履歴の有無と点検範囲を使い、
+          「未点検」と「全合格」を分ける。定期処理そのものが動いた証拠は、
+          この後の「定期再点検」節で実行結果として別に示す。
+          ただし**表の骨組みだけを出すことはしない**（列名だけの空表は、
+          読む人に「読み込み中かもしれない」と思わせる）。
+          取得そのものに失敗した場合も節を消さず、成功と誤読されない状態を出す。
+        */}
+        {!failing.ok && (
+          <Section title="AI 検索の点検: 取得不能">
+            <ErrorView
+              title="点検結果を取得できませんでした"
+              body={failing.error.message}
+              suggestedAction={failing.error.suggestedAction ?? null}
+            />
+          </Section>
+        )}
+
+        {failing.ok &&
+          (failing.value.coverage.publishedCount === 0 ||
+            failing.value.coverage.uncheckedCount > 0) && (
+          <Section title="AI 検索の点検: 未点検">
+            <EmptyView
+              title={
+                failing.value.coverage.publishedCount === 0
+                  ? "点検対象の公開中の記事はまだありません"
+                  : `未点検の記事が ${failing.value.coverage.uncheckedCount} 件あります`
+              }
+              body={
+                failing.value.coverage.publishedCount === 0
+                  ? "記事を公開すると公開時に点検し、その後は 7 日ごとに再点検します。"
+                  : "まだ履歴の無い記事は、次回の定期点検で順に確認します。点検済みになるまでは合格とは扱いません。"
+              }
+            />
+          </Section>
+        )}
+
+        {failing.ok &&
+          failing.value.coverage.publishedCount > 0 &&
+          failing.value.coverage.uncheckedCount === 0 &&
+          failing.value.rows.length === 0 && (
+          <Section title="AI 検索の点検: 全合格">
+            <EmptyView
+              title="点検済みの公開中の記事は、すべて通っています"
+              body="公開時と 7 日ごとの再点検のうち、各記事で最も新しい結果を確認しています。"
+            />
+          </Section>
+        )}
+
+        {failing.ok && failing.value.rows.length > 0 && (
+          <Section
+            title="AI 検索の点検: 要修正"
+            lead={
+              failing.value.truncated
+                ? "直近の点検で落ちた記事です（上限まで表示しています）。編集した内容は、次回の定期点検後に判定へ反映されます。"
+                : "直近の点検で落ちた記事です。編集した内容は、次回の定期点検後に判定へ反映されます。"
+            }
+          >
+            <DataTable
+              caption="AI 検索の点検で落ちている記事の一覧"
+              columns={[
+                { key: "article", label: "記事" },
+                { key: "failed", label: "直すところ" },
+                { key: "checkedAt", label: "点検日" },
+                { key: "actions", label: "操作" },
+              ]}
+              rows={failing.value.rows.map((row) => ({
+                key: `audit-${row.siteSlug}/${row.slug}`,
+                cells: [
+                  <>
+                    <strong>{row.title}</strong>
+                    <span>{row.siteSlug}</span>
+                  </>,
+                  <ul key="failed">
+                    {row.failed.map((item) => (
+                      <li key={item.check}>{item.hint}</li>
+                    ))}
+                  </ul>,
+                  <>
+                    {row.checkedAt.slice(0, 10)}
+                    <span>
+                      {row.trigger === "publish" ? "公開時" : "定期点検"}／{row.passedCount}/
+                      {row.totalCount} 通過
+                    </span>
+                  </>,
+                  <Link
+                    key="edit"
+                    href={`/admin/content/published/${encodeURIComponent(row.siteSlug)}/${encodeURIComponent(row.slug)}/edit`}
+                  >
+                    直す
+                  </Link>,
+                ],
+              }))}
+            />
+          </Section>
+        )}
+
+        {!latestReauditRun.ok ? (
+          <Section title="定期再点検: 取得不能">
+            <ErrorView
+              title="定期再点検の実行結果を取得できませんでした"
+              body={latestReauditRun.error.message}
+              suggestedAction={latestReauditRun.error.suggestedAction ?? null}
+            />
+          </Section>
+        ) : (
+          <ReauditRunStatus run={latestReauditRun.value} />
+        )}
+
         <Section title="読者に出ている記事を絞り込む">
           <Form action="/admin/content/published" className={styles.publishedFilter}>
             <label htmlFor="published-query"><span>記事を検索</span><input id="published-query" type="search" name="q" defaultValue={query} placeholder="タイトル・結論・サイト名" /></label>

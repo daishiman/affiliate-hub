@@ -27,6 +27,7 @@ CREATE TABLE `article_daily_metric` (
 	`average_dwell_seconds` real DEFAULT 0 NOT NULL,
 	`average_scroll_ratio` real DEFAULT 0 NOT NULL,
 	`clicks_by_element` text DEFAULT '{}' NOT NULL,
+	`sample_count` integer DEFAULT 0 NOT NULL,
 	`computed_at` integer DEFAULT (unixepoch()) NOT NULL,
 	PRIMARY KEY(`workspace_id`, `site_slug`, `article_slug`, `day`)
 );
@@ -112,8 +113,19 @@ CREATE TABLE `site_daily_metric` (
 	`revenue_minor` integer DEFAULT 0 NOT NULL,
 	`average_dwell_seconds` real DEFAULT 0 NOT NULL,
 	`average_scroll_ratio` real DEFAULT 0 NOT NULL,
+	`sample_count` integer DEFAULT 0 NOT NULL,
 	`computed_at` integer DEFAULT (unixepoch()) NOT NULL,
 	PRIMARY KEY(`workspace_id`, `site_slug`, `day`)
 );
 --> statement-breakpoint
-CREATE INDEX `site_daily_metric_day_idx` ON `site_daily_metric` (`workspace_id`,`day`);
+CREATE INDEX `site_daily_metric_day_idx` ON `site_daily_metric` (`workspace_id`,`day`);--> statement-breakpoint
+CREATE TABLE `site_seo_assessment_progress` (
+	`workspace_id` text NOT NULL,
+	`site_slug` text NOT NULL,
+	`period` text NOT NULL,
+	`last_attempted_at` integer NOT NULL,
+	`completed_at` integer,
+	PRIMARY KEY(`workspace_id`, `site_slug`, `period`)
+);
+--> statement-breakpoint
+CREATE INDEX `site_seo_assessment_progress_period_idx` ON `site_seo_assessment_progress` (`period`,`completed_at`,`last_attempted_at`,`workspace_id`,`site_slug`);

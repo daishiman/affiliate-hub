@@ -21,6 +21,8 @@ import { EXPRESSION_BLOCK_KINDS } from "@/domain/authoring/blog-template";
 import { toArticleView } from "@/presentation/site/view-model";
 import { ArticleView } from "@/presentation/ui/templates/article-view";
 
+const AUDIT_NOW = new Date("2026-08-20T12:00:00.000Z");
+
 const article: PublishedArticle = {
   slug: "laptops",
   siteSlug: "gadget",
@@ -201,7 +203,7 @@ describe("射影が 3 か所へ同じ形で届く", () => {
   it("公開前監査の合否は、射影に出た種類と一致する", () => {
     const present = new Set(kindsOf(article));
     const okOf = (name: string) =>
-      auditArticleForAiSearch(article).find((c) => c.check.includes(name))?.ok;
+      auditArticleForAiSearch(article, AUDIT_NOW).find((c) => c.check.includes(name))?.ok;
 
     expect(okOf("結論")).toBe(present.has("answer"));
     expect(okOf("要点")).toBe(present.has("key_points"));
@@ -217,7 +219,7 @@ describe("射影が 3 か所へ同じ形で届く", () => {
       buildBlogPosting(without, { siteName: "ガジェット", origin: "", basePath: "" }).abstract,
     ).toBeUndefined();
     expect(
-      auditArticleForAiSearch(without).find((c) => c.check.includes("要点"))?.ok,
+      auditArticleForAiSearch(without, AUDIT_NOW).find((c) => c.check.includes("要点"))?.ok,
     ).toBe(false);
   });
 
@@ -242,7 +244,7 @@ describe("射影が 3 か所へ同じ形で届く", () => {
       basePath: "/s/gadget",
     });
     const faqPage = buildFaqPage(noisy);
-    const audit = auditArticleForAiSearch(noisy);
+    const audit = auditArticleForAiSearch(noisy, AUDIT_NOW);
 
     expect(view).toMatchObject({
       summary: "動画編集では書き出し速度を先に比べる。",

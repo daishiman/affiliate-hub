@@ -3,7 +3,7 @@ status: confirmed
 category: frontend
 aggregate: 確定
 spec_cells: [frontend.web, frontend.mobile, frontend.tablet, frontend.desktop-windows, frontend.desktop-linux, frontend.desktop-macos]
-serves_goals: [G1, G2]
+serves_goals: [G1, G2, G3]
 ---
 
 # フロントエンド (frontend)
@@ -15,12 +15,42 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-scoped-admin。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-scoped-admin。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
+
+| 項目 | 値 |
+|---|---|
+| セル | frontend × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-frontend-web-blog-scoped-admin` |
+| 資するゴール (serves_goals) | G1, G2, G3 |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
+
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`frontend`) を主担当とする **2 件**。全 12 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
+|---|---|---|---|---|
+| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 |
+| `dec-structured-data-emission` | 構造化データ (Article/BlogPosting・FAQPage・HowTo・Speakable・BreadcrumbList) と canonical・OGP・robots を、どこで生成するか。現状は記事本文へ書き手が書き込む前提の箇所があり、書かれなければ欠落したまま公開される。 | `opt-render-time-derive` | confirmed | G3, G1 |
+
+- **`decision-ui-theme-implementation` の caveat**: 色の定義を 1 か所へ集めないと、コントラストの下限（09 §4）を測る対象が散る / cookie と URL から来る名前は必ず解析関数を通す（09 §2-2）。素通しにすると壊れて見えない画面になる / light-dark() を解さない環境では既定色になる。それが読める色であることを確かめる
+
+- **`dec-structured-data-emission` の caveat**: 生成関数の回帰は画面から見えない。構造化データの出力を対象にした検査を実装と同時に置くこと。置かなければ『生成しているつもりで壊れている』状態が長期間検出されない / FAQPage/HowTo/Speakable は記事本文から機械的に導出できない情報を要する。記事データ側にその項目を持たせる設計を先に決めること。持たせずに始めると、生成できる型だけを生成して型の数を満たしたことにする Goodhart 化が起きる / 根拠として引用した Google 検索セントラルと schema.org は 2026-09-03 取得の入口ページで、個別型 (FAQPage/HowTo/Speakable) の要件ページは本セッションで再取得していない。実装着手時に各型の必須プロパティを公式資料で再確認すること / 書き手の入力を値として埋め込む際のエスケープを生成関数の内側で行うこと。呼び出し側の責務にすると呼び忘れが起きる
 
 ## 確定内容 (質疑録)
 
@@ -127,6 +157,29 @@ serves_goals: [G1, G2]
 **質問**: frontend×web: 単一用途画面分割・基本管理機能・再利用コンポーネント・マルチブログ/マルチ SNS 対応のフロントエンド要件は何か (2026-08-21 利用者ヒアリング逐語)
 
 **回答**: 利用者本人の回答を逐語主旨で記録する。(1) 管理画面を単一用途ごとの画面に分割する (一覧・詳細・作成・編集の分離)。(2) 各管理対象に新規作成・削除を含む基本 CRUD 操作の UI を備える。(3) 1 つの商品に対して複数のブログを対応付けられる構成にする。各ブログにはそれぞれのコンセプトがあり、コンセプトごとに文章を作成できる UI にする。(4) SNS は X・Facebook など様々なものに対応できる拡張可能なチャネル構成とし、各 SNS への投稿状態が画面に反映されるようにする。(5) UI はコンポーネント化して再利用する。ハードコーディングの重複を書かず共通化する。(6) ブログごとにブログの構成を作成したい。新しくブログを構築する際には、そのブログごとにコンポーネントを作成できる仕様にする (ブログ単位の構成テンプレート/コンポーネントセットを定義・管理できる)。(7) 既存スタック (Next.js/React) を継続使用する。
+
+### qa-frontend-web-aeo-emission-v4 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: frontend×web: 記事の実データから SEO/AEO の機械可読要素をどう生成し、欠落をどう機械が検出するか。従来の確定 (公開面 SSR・構成の可視化・JSON-LD 自動生成・sitemap/RSS/IndexNow) を維持したうえで、参考サイト実測を上回るために何を足すか。2026-09-03 利用者ヒアリング。
+
+**回答**: 既存の確定 (qa-frontend-web-seo-ai-search-v2 / qa-frontend-web-blog-composition-visibility) を土台にし、次を追加する。
+
+#### 生成の原則
+機械可読要素は記事の保存実体から導出する。人手で別途書き足す前提の欄を作らない。書き足しが要るのは『元データが無い情報』(著者の経歴・出典 URL・FAQ の設問文) だけで、それ以外 (見出し階層・パンくず・公開日・更新日・画像寸法) は保存実体から計算する。読者面と管理画面プレビューは同じ public-site-projection を通し、描画経路を二重に持たない。
+
+#### 出力する機械可読要素
+(1) JSON-LD: Article/BlogPosting・Person (著者)・Organization・BreadcrumbList を常時、FAQ ブロックがあれば FAQPage、手順ブロックがあれば HowTo、結論ブロックがあれば Speakable を出す。schema.org の型と必須プロパティを検証する純粋関数を置き、テストで妥当性を確認する。ブロックが無い記事に空の構造化データを出さない。
+(2) head: canonical、og:type/title/url/description/image/site_name、twitter:card=summary_large_image、robots に max-image-preview:large を出す。
+(3) 画像: width/height を必ず出して読み込み中の版面ずれを防ぎ、本文外の画像は遅延読み込み、ヒーロー画像は先読みする。alt は保存実体の値をそのまま出し、空を許すのは装飾宣言済みのときだけ。
+(4) 見出し: 本文の見出しだけを h2/h3 として出し、関連記事・SNS・広告の見出しは本文階層に混ぜない。
+(5) 目次: 追従表示と本文内表示のどちらを出しても、支援技術へ露出する見出しリストは1つに保つ。
+(6) リンク: 広告・アフィリエイトリンクには rel に sponsored (必要に応じ nofollow) を機械的に付ける。付け忘れを手作業に委ねない。
+(7) 配信: sitemap.xml・RSS/Atom を自動生成し、公開・更新時に IndexNow へ送信する。/llms.txt は低コストかつ効果未確認と明記したうえで生成する。
+
+#### 欠落の検出
+公開済み記事1本ごとに、上記のうち検証可能な項目の充足を判定する純粋関数を置く。判定は記事の保存実体だけを入力とし、外部の順位データや推測を混ぜない。判定結果は項目名・該当箇所・不足理由を持ち、管理画面のエディターへそのまま差し戻せる形で返す。アーキテクチャテストで、この判定関数が読者向け描画と同じ投影を読んでいることを機械が確認する。
+
+- (注記: 正本 qa_log[qa-frontend-web-aeo-emission-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 
 ## 章の注記 (chapter_notes)
 
@@ -268,6 +321,42 @@ site_blueprint.theme（設計図の既定）
 現状の説明ではない。** 契約が守られていることの確認は、本文が出てから行う。
 
 - 正本へ入れた理由: feat-blog-ui-builder P01〜P12 の実装で確定したテーマ実装契約・コンポーネント契約・SEO/AI検索実装契約 (JSON-LD/sitemap/IndexNow/guideline_references) を、方針を上書きせず差分として正本へ記録する。章へ直接書くと compile で消えるため。
+
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+
+- **`decision-ui-theme-implementation` が本章に効く形**: 09 §2 は「配色 × 明暗の
+  掛け合わせを設定として持たない」と書いている。`light-dark()` は掛け合わせを
+  CSS 側で解く仕組みそのものなので、この禁止が実装の形で担保される。Tailwind の
+  `dark:` クラス方式だと、禁じられている掛け合わせがクラス名として現れてしまう。
+  Tailwind は配置と余白に使い、**色だけ `light-dark()`** にする。
+- **`dec-structured-data-emission` が本章に効く形** (2026-09-04 確定、
+  `opt-render-time-derive`): 構造化データ (Article/BlogPosting/FAQPage/HowTo/
+  Speakable/BreadcrumbList)・canonical・OGP・robots は、**保存時に別途持たず
+  配信時に記事データから導出する**。別に持つと記事本文と構造化データが二つの
+  正本になり、本文だけ直したときに黙って食い違う。検索エンジンが読むのは
+  構造化データの側なので、この食い違いは画面上どこにも現れない。
+- 導出にする代償は 2 つあり、どちらも先に手当てする。(1) **生成関数の回帰検査を
+  実装と同時に置く** — 導出は関数 1 本に集約されるので、そこが壊れると全記事が
+  同時に壊れる。(2) **FAQPage / HowTo / Speakable が要する項目を記事データ側へ
+  先に設計する** — 見出しからの機械推定で埋めると、書き手の意図と無関係な
+  構造化データが出る。エディタ側にこれらを入力する場所を用意することが前提になる。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
+### 章の規範本文を正本から再生成しない理由
+
+`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。
+一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は
+正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /
+正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が
+8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。
+**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+- 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
 
 ## 上流指針 (doctrine anchor)
 
@@ -481,7 +570,29 @@ site_blueprint.theme（設計図の既定）
   - 章固有の根拠: 単一用途画面への分割要求 (qa-uiux-web-overhaul-v2) をフロントエンドのルーティング/画面構成として実装する。CRUD の各操作は専用画面または明示的なモーダルに分離し、破壊的操作 (削除・公開) のみ確認を挟む (本人回答の誤操作コスト境界に従う)
   - トレードオフ:
     - 画面数が増えるため、共通レイアウト・ナビゲーション (整理後のサイドバー) の一貫性維持が前提になる
-- 資するゴール: G1, G2
+##### 接地根拠 qa-frontend-web-aeo-emission-v4 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-aeo-emission-v4` を参照
+- 設計解釈の記録経路: `secondary_ref_attachment` (`attach-qa-design-applications`)
+- 原則: 描画経路を二重に持たず、同じ投影を通す (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 回答は読者面と管理画面プレビューを同じ public-site-projection へ通すと定め、さらに欠落判定の純粋関数が読者向け描画と同じ投影を読んでいることをアーキテクチャテストで機械が確認すると定めている。判定と出力が別の入力を見ると『判定は緑なのに出力は欠けている』が成立してしまうため、両者を同一の投影へ束ねている
+  - トレードオフ:
+    - 投影を1本にすると、読者面だけの都合による最適化 (プレビューでは不要な処理の省略など) が入れにくくなる。判定と出力の一致を優先してこの硬さを受け入れる
+    - アーキテクチャテストという間接的な検査に依存するため、テストが緩むと二重経路が静かに復活する
+- 原則: 構造化データは、ページに実際に見えている内容と一致させる (`google-search-central:structured-data`)
+  - 採否: `applied`
+  - 章固有の根拠: 回答は『ブロックが無い記事に空の構造化データを出さない』と明記し、FAQPage は FAQ ブロックがあるとき、HowTo は手順ブロックがあるとき、Speakable は結論ブロックがあるときだけ出すと条件付けている。型の数を増やすこと自体を目的にすると、本文に無い内容を構造化データだけが主張する状態になり、公式ガイドラインが禁じている形になる
+  - トレードオフ:
+    - 条件付き出力にすることで、記事によって出る型が変わる。全記事で同じ型が揃わないため、充足度の判定は『出せるのに出していない』と『そもそも素材が無い』を区別する必要がある (解析側で対象外の3値目を持つ理由)
+    - schema.org の型と必須プロパティを検証する純粋関数を自前で持つため、仕様の更新に追従する責任がこちら側に残る。dec-guideline-registry-recheck の再確認間隔がこの追従を担う
+- 原則: 読み込み中に版面がずれない (`usability-accessibility.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 回答は画像へ width/height を必ず出すことを『読み込み中の版面ずれを防ぐ』ためと明示し、本文外画像の遅延読み込みとヒーロー画像の先読みを使い分けている。参考サイト実測では83枚中81枚が寸法指定済みで、ここは参考サイトも満たしている水準であり、下回らないことを条件にしている
+  - トレードオフ:
+    - 寸法を必ず出すには保存実体が寸法を持っている必要があり、画像を保存する時点で寸法を取得する処理が要る。取得に失敗した画像を公開できなくするか、寸法無しを許すかの判断が別途要る
+    - 広告・アフィリエイトリンクへの rel 付与を機械的に行うため、rel を付けたくない例外 (自社サイトへの内部リンクが広告枠に置かれる等) を表現する手段が要る
+- 資するゴール: G1, G2, G3
 
 ## 最新ドキュメント出典
 
@@ -489,6 +600,9 @@ site_blueprint.theme（設計図の既定）
 |---|---|---|---|---|---|
 | nextjs | 16.3.4 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-09-02T09:14:35Z | 2026-09-02T09:14:35Z |
 | mdn-light-dark | 2026-04-18 | Mozilla (developer.mozilla.org) | https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark | 2026-08-22T15:05:07Z | 2026-08-22T15:05:07Z |
+| google-search-central | 2025-12-10 | Google (developers.google.com) | https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
+| schema-org | 30.0 | Schema.org Community Group (W3C) (schema.org) | https://schema.org/docs/releases.html | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
+| web-dev-core-web-vitals | 2024-10-31 | Google (web.dev) | https://web.dev/articles/vitals | 2026-09-03T23:21:19Z | 2026-09-03T23:21:19Z |
 
 ## 状態の意味 (State semantics)
 
@@ -533,39 +647,25 @@ site_blueprint.theme（設計図の既定）
 | FRONT-ACC-003 | Analytics API が `503`の後に復旧 | 何が起き、データが安全か、次の行動が何かを表示。「再試行」の1回で復帰する E2E 記録を保存 |
 | FRONT-ACC-004 | Workspace A から B のクエリ条件を送信 | B の数値・名前・件数を DOM / RSC payload / CSV に含まないことを統合テストで証明 |
 
-## 確定セルの記録 (正本 spec-state.json)
+## 章にしか無い記述 (正本へ未接続)
 
-> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.frontend.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | frontend × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-frontend-web-blog-scoped-admin` |
-| 資するゴール (serves_goals) | G1, G2 |
-| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/12-改善要望フィードバック仕様.md` |
-| 出典 節 | §5 送信モーダル（FB-AC-04〜10） |
-| 出典 sha256 | `ccd052dfcbf69cbd8a0b5b4d16f2912267dd15afef81fb3dd23717ba50a36c39` |
-| 適用された設計知識 (design_applications) | 6 件 — 本章 `## 適用された設計知識` を参照 |
+> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
 
 ### 本節を「転記」に留めた理由
 
 C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
 
-## 意思決定 (decisions)
+## dev 合流で章から落ちた確定内容 (2026-09-05)
 
-> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
 
-| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
-|---|---|---|---|---|---|
-| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | auth |
-| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |
-| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
-| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
-| **`decision-ui-theme-implementation`** | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | **frontend** |
-| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
-| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
-
-- **`decision-ui-theme-implementation` が本章に効く形**: 09 §2 は「配色 × 明暗の掛け合わせを設定として持たない」と書いている。`light-dark()` は掛け合わせを CSS 側で解く仕組みそのものなので、この禁止が実装の形で担保される。Tailwind の `dark:` クラス方式だと、禁じられている掛け合わせがクラス名として現れてしまう。Tailwind は配置と余白に使い、**色だけ `light-dark()`** にする。
+- `| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-composition-visibility。裏付け質疑 (`qa_refs`): `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-frontend-web-blog-composition-visibility` |`
+- `| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |`
+- `### qa-frontend-web-blog-composition-visibility (対応セル: web)`
+- `##### 確定内容 qa-frontend-web-blog-composition-visibility (対応セル: web)`
+- `- 確定要件: 4つすべてを満たす。(a) 作成直後に読者側の住所が実際に開き、404にならない。(b) 管理画面にそのブログの構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) を実データの件数と各実体へのリンク付きで一覧する。(c) 管理画面の中で読者と同じ見た目をプレビューでき、公開前に確認できる。(d) 作成時点で公開に必要なのに無い要素を名指しで提示し、その場へ移動できる。描画は既存の SiteFrame と public-site-projection を通し、読者用と別の描画経路を作らない。作ると管理画面で見える姿と読者が見る姿がずれる。`

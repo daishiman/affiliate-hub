@@ -108,13 +108,25 @@ function sections(): readonly (readonly [string, WranglerSection])[] {
   ];
 }
 
-function waitUntilSections(entry: string): readonly string[] {
-  const starts = [...entry.matchAll(/ctx\.waitUntil\(/g)].map((match) => match.index);
-  return starts.map((start, index) => entry.slice(start, starts[index + 1] ?? entry.length));
+/**
+ * 定期メンテナンスの配線の正本。
+ *
+ * 入口（worker-entry.js）は OpenNext の生成物を包むだけに保ち、
+ * 「どの仕事を、どんな順で、どう守って呼ぶか」はこちら側に置く。
+ * だから SEO の配線検査もこのファイルを見る。
+ */
+const MAINTENANCE_MODULE = join(ROOT, "src", "infrastructure", "platform", "scheduled-maintenance.ts");
+
+/** モジュールを関数単位に切り分ける。1 つの仕事の中だけを見るため。 */
+function jobSections(source: string): readonly string[] {
+  const starts = [...source.matchAll(/\n(?:export )?(?:async )?function /g)].map(
+    (match) => match.index,
+  );
+  return starts.map((start, index) => source.slice(start, starts[index + 1] ?? source.length));
 }
 
 const SEO_SCHEDULER_IMPORT =
-  'import { runScheduledSeoAssessment } from "./src/infrastructure/platform/seo-assessment-scheduler.ts";';
+  'import { runScheduledSeoAssessment } from "./seo-assessment-scheduler";';
 
 const OTHER_CRON_JOBS = [
   "sweepExpiredCaptures",
@@ -128,15 +140,15 @@ function assertSeoWiring(entry: string): void {
   const imports = entry
     .split("\n")
     .map((line) => line.trim())
-    .filter((line) => line.includes("/seo-assessment-scheduler.ts"));
+    .filter((line) => line.includes("seo-assessment-scheduler"));
   expect(imports, "SEO scheduler は正確な named import 1 本で読み込んでください").toEqual([
     SEO_SCHEDULER_IMPORT,
   ]);
 
-  const seoJobs = waitUntilSections(entry).filter((section) =>
-    section.includes("runScheduledSeoAssessment"),
+  const seoJobs = jobSections(entry).filter((section) =>
+    section.includes("runScheduledSeoAssessment("),
   );
-  expect(seoJobs, "SEO 再診断が独立した waitUntil になっていません").toHaveLength(1);
+  expect(seoJobs, "SEO 再診断が独立した仕事になっていません").toHaveLength(1);
   const seoJob = seoJobs[0] as string;
   const call = "runScheduledSeoAssessment(env.DB, now)";
   const guardAt = seoJob.indexOf("if (env.DB === undefined)");
@@ -216,50 +228,57 @@ describe("Worker の入口と定期実行の配線", () => {
     }
   });
 
-  it("入口は、掃除を呼んでいる", () => {
+  it("入口は、定期メンテナンスへ実行環境と cron の起動時刻を渡している", () => {
     const entry = readFileSync(join(ROOT, config.main as string), "utf8");
     expect(entry, "定期実行の受け口がありません").toContain("scheduled");
-    // 包むだけになっていないこと。処理そのものは src 側にあり、そちらにテストがある。
-    expect(entry, "掃除を呼んでいません").toContain("sweepExpiredCaptures");
-    expect(entry, "技術診断の削除を呼んでいません").toContain(
-      "runFeedbackDiagnosticsPurge",
-    );
-    expect(entry, "予約された外部配信を呼んでいません").toContain(
-      "runScheduledDistribution",
-    );
-    expect(entry, "配信監査outboxの再送を呼んでいません").toContain(
-      "runPublicationDeliveryAuditFlush",
-    );
-    expect(entry, "SEO の月次再診断を呼んでいません").toContain(
-      "runScheduledSeoAssessment",
-    );
-    expect(entry, "D1 binding の欠落を安全側で扱っていません").toContain(
-      "env.DB === undefined",
+    // 入口はOpenNextの生成物を包むだけに保ち、型で守る配線は src 側へ置く。
+    expect(entry, "定期メンテナンスの配線を読み込んでいません").toContain(
+      "scheduleMaintenanceJobs",
     );
     expect(
-      (entry.match(/ctx\.waitUntil\(/g) ?? []).length,
+      entry,
+      "定期メンテナンスへ実行環境・実行文脈・cron の起動時刻を渡していません",
+    ).toMatch(/scheduleMaintenanceJobs\s*\(\s*env\s*,\s*ctx\s*,\s*now\s*\)/);
+  });
+
+  it("定期メンテナンスは、仕事ごとに独立した待ち行列へ載せている", () => {
+    const source = readFileSync(MAINTENANCE_MODULE, "utf8");
+    // 包むだけになっていないこと。処理そのものは各 scheduler にあり、そちらにテストがある。
+    for (const [job, label] of [
+      ["sweepExpiredCaptures", "掃除"],
+      ["runFeedbackDiagnosticsPurge", "技術診断の削除"],
+      ["runScheduledDistribution", "予約された外部配信"],
+      ["runPublicationDeliveryAuditFlush", "配信監査outboxの再送"],
+      ["runReaderMetricsRollup", "読者の日次集計"],
+      ["runScheduledSeoAssessment", "SEO の月次再診断"],
+    ] as const) {
+      expect(source, `${label}を呼んでいません`).toContain(job);
+    }
+    expect(source, "D1 binding の欠落を安全側で扱っていません").toContain("env.DB === undefined");
+    expect(
+      (source.match(/ctx\.waitUntil\(/g) ?? []).length,
       "SEO・配信・R2・D1を同じ待ち行列へ戻すと、1 つの失敗で他の定期処理まで止まります",
     ).toBeGreaterThanOrEqual(6);
-    assertSeoWiring(entry);
+    assertSeoWiring(source);
   });
 
   it("危険な SEO 配線の変異を拒否する", () => {
-    const entry = readFileSync(join(ROOT, config.main as string), "utf8");
+    const entry = readFileSync(MAINTENANCE_MODULE, "utf8");
     const mutations: readonly (readonly [string, (source: string) => string])[] = [
       [
         "side-effect import",
         (source) =>
           source.replace(
-          'import { runScheduledSeoAssessment } from "./src/infrastructure/platform/seo-assessment-scheduler.ts";',
-          'import "./src/infrastructure/platform/seo-assessment-scheduler.ts";',
+          'import { runScheduledSeoAssessment } from "./seo-assessment-scheduler";',
+          'import "./seo-assessment-scheduler";',
         ),
       ],
       [
         "guard より前の call",
         (source) =>
           source.replace(
-          'if (env.DB === undefined) {\n          console.warn("[seo-assessment]',
-          'if (env.DB === undefined) {\n          runScheduledSeoAssessment(env.DB, now);\n          console.warn("[seo-assessment]',
+          'if (env.DB === undefined) {\n    console.warn("[seo-assessment]',
+          'if (env.DB === undefined) {\n    runScheduledSeoAssessment(env.DB, now);\n    console.warn("[seo-assessment]',
         ),
       ],
       [

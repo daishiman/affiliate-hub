@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "0c919937-ce41-429e-9eae-401fafbaf89b",
-  "prevId": "e39cb4de-c65e-499f-b778-e054023fe494",
+  "id": "4681b726-3187-4d42-bdd9-d3ea88d96c54",
+  "prevId": "56b2c6f1-c80a-4506-9ec8-acf7f8bda54a",
   "tables": {
     "affiliate_accounts": {
       "name": "affiliate_accounts",
@@ -534,8 +534,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "article_answer_unit": {
-      "name": "article_answer_unit",
+    "ai_search_audit_history": {
+      "name": "ai_search_audit_history",
       "columns": {
         "id": {
           "name": "id",
@@ -558,59 +558,50 @@
           "notNull": true,
           "autoincrement": false
         },
-        "article_slug": {
-          "name": "article_slug",
+        "slug": {
+          "name": "slug",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "kind": {
-          "name": "kind",
+        "trigger": {
+          "name": "trigger",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "question": {
-          "name": "question",
+        "passed_count": {
+          "name": "passed_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "total_count": {
+          "name": "total_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "checks_json": {
+          "name": "checks_json",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "answer": {
-          "name": "answer",
+        "analyzer_version": {
+          "name": "analyzer_version",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "position_ratio": {
-          "name": "position_ratio",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "source_ref": {
-          "name": "source_ref",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "gaps": {
-          "name": "gaps",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'[]'"
-        },
-        "extracted_at": {
-          "name": "extracted_at",
+        "checked_at": {
+          "name": "checked_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -619,22 +610,20 @@
         }
       },
       "indexes": {
-        "article_answer_unit_question_idx": {
-          "name": "article_answer_unit_question_idx",
+        "ai_search_audit_history_article_idx": {
+          "name": "ai_search_audit_history_article_idx",
           "columns": [
-            "workspace_id",
             "site_slug",
-            "article_slug",
-            "question"
+            "slug",
+            "checked_at"
           ],
-          "isUnique": true
+          "isUnique": false
         },
-        "article_answer_unit_site_idx": {
-          "name": "article_answer_unit_site_idx",
+        "ai_search_audit_history_workspace_idx": {
+          "name": "ai_search_audit_history_workspace_idx",
           "columns": [
             "workspace_id",
-            "site_slug",
-            "kind"
+            "checked_at"
           ],
           "isUnique": false
         }
@@ -644,144 +633,98 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "article_daily_metric": {
-      "name": "article_daily_metric",
+    "ai_search_reaudit_runs": {
+      "name": "ai_search_reaudit_runs",
       "columns": {
         "workspace_id": {
           "name": "workspace_id",
           "type": "text",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
-        "site_slug": {
-          "name": "site_slug",
+        "status": {
+          "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "article_slug": {
-          "name": "article_slug",
-          "type": "text",
+        "started_at": {
+          "name": "started_at",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "day": {
-          "name": "day",
-          "type": "text",
+        "completed_at": {
+          "name": "completed_at",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "views": {
-          "name": "views",
+        "scanned": {
+          "name": "scanned",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "autoincrement": false
         },
-        "unique_sessions": {
-          "name": "unique_sessions",
+        "recorded": {
+          "name": "recorded",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "autoincrement": false
         },
-        "clicks": {
-          "name": "clicks",
+        "failed": {
+          "name": "failed",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "autoincrement": false
         },
-        "conversions": {
-          "name": "conversions",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "revenue_minor": {
-          "name": "revenue_minor",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "average_dwell_seconds": {
-          "name": "average_dwell_seconds",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "average_scroll_ratio": {
-          "name": "average_scroll_ratio",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "clicks_by_element": {
-          "name": "clicks_by_element",
+        "failure_code": {
+          "name": "failure_code",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'{}'"
-        },
-        "sample_count": {
-          "name": "sample_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "computed_at": {
-          "name": "computed_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
+          "notNull": false,
+          "autoincrement": false
         }
       },
-      "indexes": {
-        "article_daily_metric_revenue_idx": {
-          "name": "article_daily_metric_revenue_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug",
-            "day",
-            "revenue_minor"
+      "indexes": {},
+      "foreignKeys": {
+        "ai_search_reaudit_runs_workspace_id_workspaces_id_fk": {
+          "name": "ai_search_reaudit_runs_workspace_id_workspaces_id_fk",
+          "tableFrom": "ai_search_reaudit_runs",
+          "tableTo": "workspaces",
+          "columnsFrom": [
+            "workspace_id"
           ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "article_daily_metric_workspace_id_site_slug_article_slug_day_pk": {
-          "columns": [
-            "workspace_id",
-            "site_slug",
-            "article_slug",
-            "day"
+          "columnsTo": [
+            "id"
           ],
-          "name": "article_daily_metric_workspace_id_site_slug_article_slug_day_pk"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "ai_search_reaudit_runs_counts_check": {
+          "name": "ai_search_reaudit_runs_counts_check",
+          "value": "\"ai_search_reaudit_runs\".\"scanned\" >= 0 AND \"ai_search_reaudit_runs\".\"recorded\" >= 0 AND \"ai_search_reaudit_runs\".\"failed\" >= 0 AND \"ai_search_reaudit_runs\".\"scanned\" = \"ai_search_reaudit_runs\".\"recorded\" + \"ai_search_reaudit_runs\".\"failed\""
+        },
+        "ai_search_reaudit_runs_time_check": {
+          "name": "ai_search_reaudit_runs_time_check",
+          "value": "\"ai_search_reaudit_runs\".\"completed_at\" >= \"ai_search_reaudit_runs\".\"started_at\""
+        },
+        "ai_search_reaudit_runs_state_check": {
+          "name": "ai_search_reaudit_runs_state_check",
+          "value": "(\n        (\"ai_search_reaudit_runs\".\"status\" = 'succeeded' AND \"ai_search_reaudit_runs\".\"failure_code\" IS NULL AND \"ai_search_reaudit_runs\".\"failed\" = 0)\n        OR (\"ai_search_reaudit_runs\".\"status\" = 'partial' AND \"ai_search_reaudit_runs\".\"failure_code\" = 'article_audit_failed' AND \"ai_search_reaudit_runs\".\"recorded\" > 0 AND \"ai_search_reaudit_runs\".\"failed\" > 0)\n        OR (\"ai_search_reaudit_runs\".\"status\" = 'failed' AND \"ai_search_reaudit_runs\".\"failure_code\" = 'article_audit_failed' AND \"ai_search_reaudit_runs\".\"recorded\" = 0 AND \"ai_search_reaudit_runs\".\"failed\" > 0)\n        OR (\"ai_search_reaudit_runs\".\"status\" = 'failed' AND \"ai_search_reaudit_runs\".\"failure_code\" = 'target_list_unavailable' AND \"ai_search_reaudit_runs\".\"scanned\" = 0)\n      )"
+        }
+      }
     },
     "article_people": {
       "name": "article_people",
@@ -938,138 +881,6 @@
           "name": "article_products_article_id_product_id_pk"
         }
       },
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "article_seo_assessment": {
-      "name": "article_seo_assessment",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "site_slug": {
-          "name": "site_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "article_slug": {
-          "name": "article_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "check_kind": {
-          "name": "check_kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "severity": {
-          "name": "severity",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "state": {
-          "name": "state",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'open'"
-        },
-        "detail": {
-          "name": "detail",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "evidence": {
-          "name": "evidence",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "suggestion": {
-          "name": "suggestion",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "draft_revision_id": {
-          "name": "draft_revision_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "dismissed_reason": {
-          "name": "dismissed_reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "assessed_at": {
-          "name": "assessed_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        }
-      },
-      "indexes": {
-        "article_seo_assessment_unique_idx": {
-          "name": "article_seo_assessment_unique_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug",
-            "article_slug",
-            "check_kind"
-          ],
-          "isUnique": true
-        },
-        "article_seo_assessment_open_idx": {
-          "name": "article_seo_assessment_open_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug",
-            "state",
-            "severity"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -6225,136 +6036,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "reader_interaction_event": {
-      "name": "reader_interaction_event",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "site_slug": {
-          "name": "site_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "article_slug": {
-          "name": "article_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "kind": {
-          "name": "kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "segment": {
-          "name": "segment",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "viewport_band": {
-          "name": "viewport_band",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "position_ratio": {
-          "name": "position_ratio",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "dwell_seconds": {
-          "name": "dwell_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "element_key": {
-          "name": "element_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "session_key": {
-          "name": "session_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "rollup_day": {
-          "name": "rollup_day",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "occurred_at": {
-          "name": "occurred_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        }
-      },
-      "indexes": {
-        "reader_interaction_event_rollup_idx": {
-          "name": "reader_interaction_event_rollup_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug",
-            "rollup_day"
-          ],
-          "isUnique": false
-        },
-        "reader_interaction_event_article_idx": {
-          "name": "reader_interaction_event_article_idx",
-          "columns": [
-            "workspace_id",
-            "article_slug",
-            "rollup_day"
-          ],
-          "isUnique": false
-        },
-        "reader_interaction_event_retention_idx": {
-          "name": "reader_interaction_event_retention_idx",
-          "columns": [
-            "occurred_at"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "reader_shortlist_items": {
       "name": "reader_shortlist_items",
       "columns": {
@@ -6807,78 +6488,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "site_aeo_profile": {
-      "name": "site_aeo_profile",
-      "columns": {
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "site_slug": {
-          "name": "site_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "topic_scope": {
-          "name": "topic_scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "audience": {
-          "name": "audience",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "publisher_name": {
-          "name": "publisher_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "structured_data_enabled": {
-          "name": "structured_data_enabled",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "site_aeo_profile_workspace_id_site_slug_pk": {
-          "columns": [
-            "workspace_id",
-            "site_slug"
-          ],
-          "name": "site_aeo_profile_workspace_id_site_slug_pk"
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "site_blueprints": {
       "name": "site_blueprints",
       "columns": {
@@ -6972,267 +6581,6 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "site_custom_domain": {
-      "name": "site_custom_domain",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "site_slug": {
-          "name": "site_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "hostname": {
-          "name": "hostname",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'pending'"
-        },
-        "certificate_status": {
-          "name": "certificate_status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'none'"
-        },
-        "canonical": {
-          "name": "canonical",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "external_hostname_id": {
-          "name": "external_hostname_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "verification_token": {
-          "name": "verification_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "synced_at": {
-          "name": "synced_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "last_error": {
-          "name": "last_error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "site_custom_domain_hostname_idx": {
-          "name": "site_custom_domain_hostname_idx",
-          "columns": [
-            "hostname"
-          ],
-          "isUnique": true,
-          "where": "status <> 'revoked' and deleted_at is null"
-        },
-        "site_custom_domain_canonical_idx": {
-          "name": "site_custom_domain_canonical_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug"
-          ],
-          "isUnique": true,
-          "where": "canonical = 1 and status = 'active' and deleted_at is null"
-        },
-        "site_custom_domain_site_idx": {
-          "name": "site_custom_domain_site_idx",
-          "columns": [
-            "workspace_id",
-            "site_slug",
-            "status"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "site_daily_metric": {
-      "name": "site_daily_metric",
-      "columns": {
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "site_slug": {
-          "name": "site_slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "day": {
-          "name": "day",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "views": {
-          "name": "views",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "unique_sessions": {
-          "name": "unique_sessions",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "clicks": {
-          "name": "clicks",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "conversions": {
-          "name": "conversions",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "revenue_minor": {
-          "name": "revenue_minor",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "average_dwell_seconds": {
-          "name": "average_dwell_seconds",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "average_scroll_ratio": {
-          "name": "average_scroll_ratio",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "sample_count": {
-          "name": "sample_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "computed_at": {
-          "name": "computed_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        }
-      },
-      "indexes": {
-        "site_daily_metric_day_idx": {
-          "name": "site_daily_metric_day_idx",
-          "columns": [
-            "workspace_id",
-            "day"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "site_daily_metric_workspace_id_site_slug_day_pk": {
-          "columns": [
-            "workspace_id",
-            "site_slug",
-            "day"
-          ],
-          "name": "site_daily_metric_workspace_id_site_slug_day_pk"
-        }
-      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },

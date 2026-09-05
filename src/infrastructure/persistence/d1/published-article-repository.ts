@@ -9,6 +9,7 @@ import {
   type ArticleSummary,
   type PublishedArticle,
   type PublishedPerson,
+  tallyBrands,
   toSummary,
 } from "@/application/read-models/published-article";
 import { publishedArticles, publishedArticleTombstones } from "@/db/schema";
@@ -343,6 +344,28 @@ export function createD1ContentRepository(
         return ok((await storedSummaries(siteSlug)).slice(0, limit));
       } catch (cause) {
         return storageFailure("新着記事の読み込み", cause);
+      }
+    },
+
+    /*
+      ブランドは記事の中身から数えるので、要約ではなく本体を読む。
+      要約には商品カードが入らないため（`toSummary` が落とす）、
+      ここだけ `storedSummaries` を使えない。
+    */
+    async listBrands(siteSlug: string) {
+      try {
+        const rows = await db
+          .select({
+            archivedAt: publishedArticles.archivedAt,
+            articleJson: publishedArticles.articleJson,
+          })
+          .from(publishedArticles)
+          .where(eq(publishedArticles.siteSlug, siteSlug));
+        return ok(
+          tallyBrands(rows.filter((row) => row.archivedAt === null).map((row) => parse(row.articleJson))),
+        );
+      } catch (cause) {
+        return storageFailure("ブランド一覧の読み込み", cause);
       }
     },
 

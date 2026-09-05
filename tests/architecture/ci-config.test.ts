@@ -465,31 +465,37 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       */
       "0043_canonical_public_articles",
       /*
-        2026-09-04: ブログ運営コンソールの 4 層（`arch-blog-operations-console`）の
-        7 表。住所（`site_custom_domains`）・観測（`reader_interaction_events` と
-        日次の `site_daily_metrics` / `article_daily_metrics`）・改善
-        （`article_seo_assessments` / `site_aeo_profiles` / `article_answer_units`）。
+        AI 検索適合の点検履歴（記事ごと直近 30 件）。既存の表には触らず、
+        表 1 つと索引 2 本を足すだけ。外部キーは張らない——記事を消したときに
+        履歴の削除が失敗して公開の取り下げごと止まる形にしないため。
+      */
+      "0044_ai_search_audit_history",
+      /*
+        workspace ごとの直近 1 回の定期再点検状態。
+        記事 0 件の正常完了と対象取得失敗を、固定 code で区別する。
+      */
+      "0045_ai_search_reaudit_runs",
+      /*
+        2026-09-05: ブログ運営コンソールの 4 層（`arch-blog-operations-console`）の
+        8 表。住所（`site_custom_domain`）・観測（`reader_interaction_event` と
+        日次の `site_daily_metric` / `article_daily_metric`）・改善
+        （`article_seo_assessment` / `site_aeo_profile` / `article_answer_unit`）と、
+        月次 SEO 診断の進捗（`site_seo_assessment_progress`）。
 
-        **既存の表は 1 つも触らない。** 足すだけなので、流す前後で
+        **既存の表は 1 つも触らない。** 生成された SQL は `CREATE TABLE` 8 本だけで
+        `ALTER` も `DROP` も無い。足すだけなので、流す前後で
         いま動いている読み書きの意味は変わらない。観測の生の行は
         90 日で消える側（AD-4）なので、増え続ける表は入っていない。
-      */
-      "0044_funny_groot",
-      /*
-        2026-09-04: 日次集計の 2 表（`site_daily_metrics` / `article_daily_metrics`）へ
-        `sample_count` を足す。**足りない観測から示唆を出さない**ための足切りに使う。
 
-        既定値 0 で足すので、流す前の行は「根拠が足りない」側に倒れる。
-        後から数え直すまで示唆が出ないのは正しい（0 件の日を
-        「観測が多かった日」として扱う方が危ない）。
+        日次集計の 2 表が持つ `sample_count` は、**足りない観測から示唆を出さない**
+        ための足切り（`MIN_EVIDENCE_SAMPLES = 30`）に使う。
+
+        当初 0044〜0046 の 3 本に分けていたが、dev が先に 0044/0045 を使っており
+        番号が衝突した。まだどこにも流していないので、dev の 2 本を正として
+        `drizzle-kit generate` で 1 本に作り直した（snapshot の prevId を
+        手で繋ぎ直すと、間違えても流すまで気づけない）。
       */
-      "0045_keen_mysterio",
-      /*
-        2026-09-04: 月次 SEO 診断の進捗表。指摘 0 件と未診断を区別し、
-        未試行を優先したうえで失敗対象を最古試行順に回す。
-        公開記事と診断結果の既存表は変更せず、完了印だけを足す。
-      */
-      "0046_nostalgic_senator_kelly",
+      "0046_blog_operations_console",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

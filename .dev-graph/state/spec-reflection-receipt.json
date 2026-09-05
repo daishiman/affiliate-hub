@@ -1,7 +1,7 @@
 {
   "verb": "spec-reflection",
   "repository_id": "github:daishiman/affiliate-hub",
-  "generated_at": "2026-09-04T23:27:42Z",
+  "generated_at": "2026-09-05T00:20:00Z",
   "base_head_sha": "f6ad882fa4a0bc8189a3c231d522adee9ad9a0a6",
   "verdict": "reflected",
   "rationale": "6 feature は新しい表 (site_custom_domain / reader_interaction_event / site_daily_metric / article_daily_metric / article_seo_assessment / site_aeo_profile / article_answer_unit)、新しい口 (BlogDomainsPort / BlogObservabilityPort / BlogImprovementPort)、新しい画面 5 件を持ち込むため、仕様・設計への影響がある。影響なしとは判定しない。C01 apply-spec-transition.py で spec-state.json を遷移させ、C03 compile-spec-doc.py で system-spec/ の各章を再生成した。architecture/arch-blog-operations-console.md を新設し、architecture/system-spec-overview.md から参照させた。いずれも正規フロー経由で、手書きの上書きは行っていない。",
@@ -56,17 +56,17 @@
     }
   ],
   "spec_artifacts": {
-    "system-spec/index.md": "sha256:bfd54655ae9a9f44",
-    "system-spec/spec-state.json": "sha256:ab476ea9052eb92e",
-    "system-spec/database.md": "sha256:29e6e2d824872ff6",
-    "system-spec/backend.md": "sha256:890be994a5a8aa9b",
-    "system-spec/frontend.md": "sha256:0abd5654936c854e",
-    "system-spec/ui-ux.md": "sha256:d05856c3c58a7ca3",
-    "system-spec/security.md": "sha256:67b67de3446d5307",
-    "system-spec/auth.md": "sha256:f1ab8a2f1bee164c",
-    "system-spec/infrastructure.md": "sha256:83d9bbed4dff134a",
-    "system-spec/maintenance-ops.md": "sha256:08743c6f7675ca27",
-    "system-spec/completeness-report.json": "sha256:0e5aa65c5941663f",
+    "system-spec/index.md": "sha256:304d3e0c91fb564b",
+    "system-spec/spec-state.json": "sha256:3674ace3e4971b69",
+    "system-spec/database.md": "sha256:eaa1f5eb53f9a8b6",
+    "system-spec/backend.md": "sha256:24f6fa59d3c02992",
+    "system-spec/frontend.md": "sha256:1ab1ab32a2b2a1f8",
+    "system-spec/ui-ux.md": "sha256:974f5e0048c16afd",
+    "system-spec/security.md": "sha256:cccce6a843c19e29",
+    "system-spec/auth.md": "sha256:900fa868878d11a1",
+    "system-spec/infrastructure.md": "sha256:1b2d5d497226342c",
+    "system-spec/maintenance-ops.md": "sha256:7dd253edce7587db",
+    "system-spec/completeness-report.json": "sha256:097cf838e6b087dd",
     "architecture/arch-blog-operations-console.md": "sha256:f8d575dacd91261a",
     "architecture/system-spec-overview.md": "sha256:99ab0ee6344c593c"
   },
@@ -80,17 +80,31 @@
   "gates": {
     "system-spec-harness/validate-coverage-matrix.py --require-complete --require-foundation": "exit 0",
     "system-spec-harness/validate-source-citation.py": "exit 0",
-    "scripts/traceability.mjs": "exit 0",
-    "scripts/required-test-types.mjs": "exit 0",
-    "scripts/acceptance-reconciliation.mjs": "exit 0 (10 IDs / 213 evidence files)",
-    "scripts/port-wiring.mjs": "exit 1",
-    "vitest --project normal": "446 files / 9129 tests passed",
-    "vitest --project a11y": "15 files / 1451 tests passed"
+    "scripts/traceability.mjs": "exit 0 (由来不明 0 / 上限 2)",
+    "scripts/required-test-types.mjs": "exit 0 (未宣言 5 / 上限 5、理由つき除外 5 / 上限 7)",
+    "scripts/acceptance-reconciliation.mjs": "exit 0 (10 IDs / 214 evidence files)",
+    "scripts/port-wiring.mjs": "NG (書き込み側の除外が上限を 1 件超過。合流前から続く既知の赤)",
+    "tsc --noEmit": "exit 0",
+    "biome check src tests scripts": "exit 0",
+    "vitest --project normal": "453 files / 9186 tests passed (合流後)",
+    "vitest --project a11y": "16 files / 1459 tests passed (合流後)",
+    "vitest --project worker-runtime": "31 files / 462 tests passed (合流後)"
   },
   "open_issues": [
     "scripts/port-wiring.mjs が赤 (exit 1)。書き込み側の理由つき除外が 6 件で上限 5 を 1 件超過。原因は createRecordReaderInteractionsUseCase を除外簿へ足したこと。読者のブラウザから届く観測を操作の記録へ入れると承認や公開の行が埋もれるため、除外そのものは意図した判断。上限 PORT_WIRING_MAX_WRITE_EXCLUSIONS は引き上げていない。赤のまま残すことで、除外が 1 件増えた事実が消えないようにしている。",
     "6 epic (ah-t7vv / ah-q4dt / ah-f4do / ah-ji7d / ah-4d0q / ah-wois) は範囲外の epic (ah-dtq / ah-50p / ah-87b / ah-d9s / ah-ejk / ah-85cn) にブロックされ close できない。--force は使用していない。枝番 78 件はすべて closed。",
     "/admin/sites/[site] の actions 11 本は手書きで、画面を足したときの入口の足し忘れを機械が検出しない (docs/spec/feat-blog-scoped-admin-console/design-review-findings.md F-01)。",
     "required-test-types.mjs の未宣言が 5 件で上限 5 ちょうど。次に要件を 1 件足して宣言を書き忘れると赤になる。"
+  ],
+  "merged_from": {
+    "ref": "origin/dev",
+    "sha": "601dc19a1dc6f3a138bad2c405933fad6f8aade1",
+    "note": "本ブランチの作業を dev へ合流させた。合流で system-spec/ の全章が動いたため、この受領書の digest はすべて合流後の実体で取り直している。合流前の digest は base_head_sha f6ad882f 時点のもので、もう章と一致しない。"
+  },
+  "merge_findings": [
+    "同じセルを 2 系統の確定質疑が指す状態になった。生成器 (compile-spec-doc.py) は セルの qa_ref を 1 本しか読まないため、qa_refs[] に併記したもう一方の本文が章から落ちる。落ちた行は捨てず、各章の独立節『dev 合流で章から落ちた確定内容 (2026-09-05)』へ置いた。正本 spec-state.json の qa_log には両方とも残っている。正しい解消は 2 系統の質疑を 1 本へ統合して qa_ref を張り直すことで、それは合流とは別の便で行う (PR の残課題)。",
+    "hearing_progress に、writer が構造上作れない組 (loop_count 8 > max_loops 5) が残っていた。本ブランチ側は 8/10、dev 側は 2/5 で、合流の解決が loop_count と max_loops を別々の側から採ったために生じた。apply-spec-transition.py が『writer の外から書かれた痕跡』として拒否したので、writer の指示どおり set-hearing-policy --overrun で由来を記名してから chunk --max-loops 10 で本ブランチ側の方針値へ戻した。数を丸めていない。",
+    "tests/architecture/worker-entry-weight.test.ts の上限を 130→155 ファイル / 1050→1250 KiB へ引き上げた。cron に読者行動の日次ロールアップと SEO 月次再診断の 2 job を足したことで107→133 ファイル / 889→1089 KiB になったため。テスト自身が定める作法どおり、上げた理由をテストのコメントへ書いた。総目録 (createDeps) の復活は +88 ファイル / +775 KiB なので、新しい上限でも必ず捕まる。",
+    "tests/infrastructure/scheduled-maintenance.test.ts は dev 側が 5 job のままだった。本ブランチの実装は 7 job なので、数だけでなく足した 2 job の独立登録・起動時刻・binding 欠落時の名札つき警告も揃えて見るよう書き足した。"
   ]
 }

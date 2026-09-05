@@ -3,7 +3,7 @@ status: confirmed
 category: ui-ux
 aggregate: 確定
 spec_cells: [ui-ux.web, ui-ux.mobile, ui-ux.tablet, ui-ux.desktop-windows, ui-ux.desktop-linux, ui-ux.desktop-macos]
-serves_goals: [G1, G2]
+serves_goals: [G1, G2, G3]
 ---
 
 # UI-UX (ui-ux)
@@ -15,12 +15,39 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-uiux-web-blog-scoped-admin。裏付け質疑 (`qa_refs`): `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-uiux-web-blog-scoped-admin。裏付け質疑 (`qa_refs`): `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
+
+| 項目 | 値 |
+|---|---|
+| セル | ui-ux × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-uiux-web-blog-scoped-admin` |
+| 資するゴール (serves_goals) | G1, G2, G3 |
+| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-blog-scoped-admin`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
+
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`ui-ux`) を主担当とする **1 件**。全 12 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
+|---|---|---|---|---|
+| `decision-screen-priority` | ui-ux×web の画面で、先頭に何を置くか。UIUX-REQ-001 は「今、利用者が判断・回復すべき業務状態」を先頭に置くと書いており、qa-uiux-web-screen-priority の本人回答は「記事の成績比較」を先頭に置くと言っている。両者は先頭の 1 つを争っている | `opt-performance-first` | confirmed | G1, G2 |
+
+- **`decision-screen-priority` の caveat**: UIUX-REQ-001 の本文は、この決定を根拠に設計側で別途更新すること。収集の記録が要件 ID の本文を書き換えると、いつ誰が変えたかが消える（system-spec/ui-ux.md L140） / 回復すべき状態の帯は、未対応 0 件のとき表示そのものを消すのではなく、高さを保ったまま無彩色にする。消すと下の内容が毎日ずれる / 「成績比較」が何と何の比較かは、この決定では確定していない。比較軸の設計は別の課題として残る
 
 ## 確定内容 (質疑録)
 
@@ -182,6 +209,34 @@ serves_goals: [G1, G2]
 
 **回答**: 利用者本人の回答を逐語主旨で記録する。(1) 一つの画面に複数用途が混在しているため、各画面は単一用途に特化させる。(2) 新規作成・削除といった基本管理機能が不足しており追加する。(3) カード間隔が不適切で直感的な視認性が損なわれており、間隔を最適化する。文章量が多すぎる点も削減する。(4) サイドバーの各項目間が間延びして見づらいので詰める。サイドバーの情報量が増える可能性があるため最適な粒度で整理する。(5) 全画面を見直す。現在 UI/UX が整っておらず画面が全く活きていない。(6) 各サイト・各 SNS への投稿部分が画面に反映されていないので反映する。(7) 各 UI/UX はコンポーネント化して再利用できるようにする。何度も同じようにハードコーディングでコードを書くのではなく共通化する。既存仕様の画面別情報優先度 (qa-uiux-web-screen-priority) は維持し、その上に本改善を適用する。
 
+### qa-uiux-web-reader-experience-aeo-v4 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: ui-ux×web: 読者向けブログ画面と記事エディター (管理画面) を、参考サイト実測 (hitodeblog.com/blog-money-sikumi・2026-09-03 取得) を上回る読みやすさと AEO/SEO 充足へどう整えるか。従来の確定 (作成完了フィードバック・管理画面の単一用途化・SEO/AI検索チェックパネル) は維持したうえで、何を足すか。2026-09-03 利用者ヒアリング。
+
+**回答**: 利用者の指示: 「この共有しているブログよりも、UI/UX をさらに良くして」「見えない部分の情報も含めて、どのようにしたら SEO に強いか」「ブログ用のエディターの部分も改善」「SEO や AIO、AI の SEO のようなものに対しても対応できるように」「AEO,SEO 対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしい」。参考は makuring.jp から hitodeblog.com/blog-money-sikumi へ変更。
+
+#### 参考サイト実測 (2026-09-03、HTTP 200・207,538 bytes。WordPress + JIN:R)
+見出し h1×1 / h2×5 (本文) + h2×13 (本文外導線) / h3×1、可視 約4,925字。目次は rtoc により本文中とサイドバーの2か所に同内容 (10項目)。内部リンク72・外部リンク22、うち nofollow または sponsored が13、target=_blank が28。画像83枚のうち width/height 指定81枚・lazy 52枚だが alt が有効なのは8枚のみ。head は canonical・og一式・twitter:card=summary_large_image・robots max-image-preview:large・JSON-LD 2本 (BreadcrumbList+ListItem / Article+Person+Organization+ImageObject)・アイコンフォントとヒーロー画像の preload。
+
+#### 上回る条件 (受入条件。順位や掲載の保証は条件にしない)
+(a) 画像 alt の被覆率を100%にする。alt が空の画像は公開前に欠落として名指しで提示し、装飾画像は明示的に装飾と宣言したときだけ空 alt を許す。参考サイトは83枚中8枚しか無く、読み上げでも画像検索でも情報が落ちている。
+(b) 目次は1記事につき1つの見出しリストだけを支援技術へ露出する。追従表示 (サイドバー) と本文内表示を両方出す場合でも、同じ見出しを2度読み上げさせない。参考サイトはここが二重になっている。
+(c) 本文外の導線 (関連記事・SNS・広告) に h2 を使わず、本文の見出し階層を汚さない。参考サイトは本文外 h2 が13個あり主題がぼやけている。
+(d) 構造化データは Article/BlogPosting・Person (著者)・Organization・BreadcrumbList に加え、FAQ ブロックから FAQPage、手順ブロックから HowTo、結論ブロックから Speakable を出す。参考サイトはこの3種が無く、設問に答える形の引用元になりにくい。
+(e) 記事に最終更新日と『〜時点』を出し、改稿履歴を読者が見られるようにする。dateModified の根拠が読者に見えない状態にしない。
+
+#### 読者向け画面の構成 (従来の確定を維持したうえで追加)
+左サイドバーに、検索窓・カテゴリー・タグ・ブランドから探す導線を置き、分類ごとにアイコンを添える。アイコンは既存の共通アイコン層 (lucide 由来の役割名) の語彙で表し、分類ごとに独自 SVG を増やさない。目次はスクロール追従し、現在読んでいる節を示す。広告と本文は視覚的に区別し、広告リンクは rel を機械にも読者にも明示する。狭い画面では追従目次を折りたたみ、本文の可読幅を優先する。
+
+#### 情報の優先順位 (表現物ごとの残す・落とす・加工する)
+記事ページ: 『結論』>『本文の現在地 (目次)』>『根拠と出典』>『関連導線・広告』。根拠は失敗コスト — 結論に辿り着けない記事は滞在時間が長くても読者の意思決定を助けない。
+エディター画面: 『公開できるか (欠落の有無)』>『本文の編集』>『構造化データの素材 (FAQ・手順・出典・著者)』>『体裁』。根拠は、公開後に欠落が判明すると全記事を開き直す手戻りが発生するため。
+
+#### エディター (管理画面) の改善
+記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。
+
+- (注記: 正本 qa_log[qa-uiux-web-reader-experience-aeo-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+
 ### qa-foundation-u1 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: 書面入力 docs/spec/01-要求仕様書-v1.0.md §2.1 の U1 は何か
@@ -321,6 +376,42 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 `0ed9e2b` / `e97e5bc` の変更意図を知っている側が判断する。
 
 - 正本へ入れた理由: feat-blog-ui-builder P01〜P12 で確定した UI/UX 契約 (規則の3層・テンプレートの不変条件・配色2層の適用範囲・アクセシビリティの床・design token 制約) と、受入判定で保留になった4件を正本へ記録する。章へ直接書くと compile で消えるため。
+
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。分母を
+本文へ書くと、正本が増えたときに黙って嘘になる。
+
+- **本章を主担当とする decision は 1 件** (2026-09-04 時点、正本 12 件に対して)。
+  `decision-screen-priority` は、`qa-uiux-web-screen-priority` の本人回答を根拠に、
+  記事の成績比較を先頭、回復すべき業務状態をその直下の常設帯とする。本章最大の
+  論点を、対話記録と decision record の両方から同じ結論へ追跡できる。
+- **G3 (AEO/SEO) の 4 決定は本章を主担当としないが、画面の要求を 2 つ持ち込む。**
+  - `dec-aeo-analysis-trigger` は解析を**公開操作の経路**に置く。解くべき問題は
+    「欠落に気づく」ではなく「欠落したまま公開される」なので、結果を別画面に
+    出すだけでは解決しない。同時に、全項目を必須ゲートにすると公開できない記事が
+    滞留し、ゲートを迂回する運用が生まれて検出が形骸化する。**項目ごとに
+    「公開を止める」か「警告して通す」かを画面上で区別できること**が要件になる。
+  - `dec-structured-data-emission` は FAQPage / HowTo / Speakable が要する項目を
+    記事データ側へ持つ。**エディタにそれらを入力する場所が要る。**見出しからの
+    機械推定で埋めると、書き手の意図と無関係な構造化データが出る。
+  - `dec-guideline-registry-recheck` の**鮮度切れ表示**は画面側の責務である。
+    判定基準が古いまま緑に見える状態を、利用者が読んで気づける形にする。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
+### 章の規範本文を正本から再生成しない理由
+
+`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。
+一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は
+正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /
+正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が
+8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。
+**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+- 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
 
 ## 上流指針 (doctrine anchor)
 
@@ -599,6 +690,28 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
   - 章固有の根拠: 利用者が「何度も同じようにハードコーディングとかコードを書くのではなく、共通化するようにしておいてほしい」と明言した。カード・サイドバー項目・一覧・フォーム等の共通コンポーネントとデザイントークン (間隔・タイポグラフィ) を単一の正本にする
   - トレードオフ:
     - 共通化は初期コストが掛かり、画面固有の微調整には variant/prop 設計が要る。過剰な抽象化を避け、3 回目の重複が出た時点で共通化する
+##### 接地根拠 qa-uiux-web-reader-experience-aeo-v4 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-uiux-web-reader-experience-aeo-v4` を参照
+- 設計解釈の記録経路: `secondary_ref_attachment` (`attach-qa-design-applications`)
+- 原則: 表現物ごとに、残すもの・落とすもの・加工するものを先に決める (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 回答は記事ページとエディター画面それぞれに順位を書き、順位の根拠を『失敗コスト』で述べている — 記事ページは結論に辿り着けないことが最大の失敗であり、エディター画面は公開後に欠落が判明して全記事を開き直すことが最大の失敗である。両画面で先頭が異なるのは、同じ情報でも表現物が変われば残すべきものが変わるという原理をそのまま適用した結果である
+  - トレードオフ:
+    - 記事ページで『関連導線・広告』を最下位に置くため、回遊と広告の視認機会を意図的に下げている。収益面の指標だけを見れば不利だが、結論に辿り着けない記事は滞在時間が伸びても読者の意思決定を助けないため、この順位を採る
+    - エディター画面で『体裁』を最下位に置くため、見た目を整える操作が探しにくくなる。公開できるかどうかを先頭に置く判断を優先し、体裁は編集の後段へ寄せる
+- 原則: 同じ内容を支援技術へ二度露出させない (`usability-accessibility.md#適用条件`)
+  - 採否: `applied`
+  - 章固有の根拠: 参考サイト実測で、目次が rtoc により本文中とサイドバーの2か所へ同内容 (10項目) 出ていることを観測した。読み上げでは同じ見出しリストを2度聞かされる。受入条件 (b) は、追従表示と本文内表示の両方を出す場合でも支援技術へ露出する見出しリストを1つに保つと定めており、視覚的な二重掲載と支援技術への二重露出を切り離している
+  - トレードオフ:
+    - 露出を1つに絞ると、支援技術の利用者は追従目次と本文内目次のどちらか一方しか辿れない。どちらを露出させるかの選択が必要になるが、二度読み上げる方が実害が大きいためこの制約を受け入れる
+    - 画像 alt の被覆率100%は、装飾画像の宣言という新しい入力欄を書き手へ課す。宣言せずに空 alt を許すと参考サイトと同じ状態 (83枚中8枚) へ戻るため、宣言を必須にする
+- 原則: 画面の先頭は、その画面を開いた理由と一致させる (`elicit-question-bank:screen-information-priority`)
+  - 採否: `applied`
+  - 章固有の根拠: 既存の確定 qa-uiux-web-screen-priority で採った『毎日あるものを先頭へ、たまにあるものは常設の帯へ』という形を、記事エディターにも適用した。エディターを開く理由は本文を書くことだが、公開できるかどうかの判定は書き終えた瞬間にだけ意味を持つため、常時先頭を占めさせず、不足があるときだけ名指しで提示する形にしている
+  - トレードオフ:
+    - 不足の提示を常時先頭に固定しないため、書き手が提示に気づかないまま公開操作へ進む余地が残る。dec-aeo-analysis-trigger で公開操作そのものにゲートを置くことで補う
+    - AEO/SEO 充足度を編集画面と同じ場所へ出すため、単一用途の画面という既存方針 (qa-uiux-web-overhaul-v2) との緊張が生じる。充足度は編集対象そのものの属性であり別用途ではない、と解して同居を許す
 ##### 接地根拠 qa-foundation-u1 (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-foundation-u1` を参照
@@ -609,13 +722,14 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 - 本文: 「確定内容 (質疑録)」の `qa-platform-scope` を参照
 - 設計解釈の記録経路: `unrecorded`
 - 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
-- 資するゴール: G1, G2
+- 資するゴール: G1, G2, G3
 
 ## 最新ドキュメント出典
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
 | apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json | 2026-09-02T21:40:54Z | 2026-09-02T21:40:54Z |
+| w3c-wai-aria | 1.2 (W3C Recommendation) | W3C (www.w3.org) | https://www.w3.org/TR/wai-aria-1.2/ | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 
 ## 状態の意味 (State semantics)
 
@@ -660,49 +774,6 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 | UIUX-ACC-003 | API障害中の入力、一覧、再試行 | 入力を消さず、障害内容/データ安全性/次の行動を表示。再試行後の復帰までを E2E 録画で保存 |
 | UIUX-ACC-004 | キーボードのみ・200%拡大で承認前プレビューまで操作 | 焦点喪失、意図しない焦点移動、2次元スクロール強制なしで完了。手動検証記録と自動 a11y 結果を保存 |
 
-## 確定セルの記録 (正本 spec-state.json)
-
-> 本節は正本 `system-spec/spec-state.json` の `matrix.ui-ux.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | ui-ux × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-uiux-web-blog-scoped-admin` |
-| 資するゴール (serves_goals) | G1, G2 |
-| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-blog-scoped-admin`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |
-| 出典 kind | user-dialogue |
-| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
-| 出典 節 | — |
-| 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 4 件 (`qa-uiux-web-screen-priority`) — 本章 `## 適用された設計知識` > `#### 本章での適用` を参照 |
-
-- **本セルは 2026-08-20 に R4-reopen を 2 回経て再確定した**。1 回目は `screen-information-priority` を利用者根拠へ接地させるため、2 回目は本節を含む 3 節を章へ載せるため (再確定は同じ `qa_ref`・同じ `required_info`)。`reopen_log` に 2 件とも残っている。**2 回目は順序を誤った結果である**——章を編集する前に再確定したので、見張りが章を `protected` に戻し、もう一度開ける必要が出た。回数を隠さないために書いておく。
-- **`screen-information-priority` は 2026-08-20 まで `status: ungrounded` の負債だった**。C16 の block ゲートが導入される前に確定していたセルで、ゲートがあれば拒否されていた確定である。`grounded` へ変わったのは、利用者本人がカタログ `completion_rule` の 9 項目すべてに回答したためであって、判定を緩めたからではない。
-- **出典が `user-dialogue` なのは本章と auth 章の 2 件**である (分母 = `matrix` の web セル 8 件)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。auth.md 同名節と同じ穴で、塞がる条件も同じ (この確定内容が `docs/spec` のいずれかの節として書き起こされたとき)。
-
-### 本節を「転記」に留めた理由
-
-C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
-
-- **ただし本章の `## 確定内容 (質疑録)` には `qa-uiux-web-screen-priority` の本文を載せてある。**上の「複製するな」と矛盾して見えるので理由を書く。複製が退行を招くのは、正本の側が章より**古い**場合である。この 1 件は 2026-08-20 に正本へ書かれたばかりで、章に古い版が存在しない。退行の向きが無い。**判定の基準は「複製したかどうか」ではなく「どちらが古いか」である。**
-
-## 意思決定 (decisions)
-
-> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。
-
-| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
-|---|---|---|---|---|---|
-| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | auth |
-| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |
-| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
-| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
-| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
-| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
-| **`decision-screen-priority`** | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | **ui-ux** |
-
-- **本章を主担当とする decision は 1 件** (分母 = 上表 7 件)。`decision-screen-priority` は、`qa-uiux-web-screen-priority` の本人回答を根拠に、記事の成績比較を先頭、回復すべき業務状態をその直下の常設帯とする。本章最大の論点を、対話記録と decision record の両方から同じ結論へ追跡できる。
-
 ## 履歴
 
 ### 決定日 2026-08-22 / 書き戻し 2026-08-23 — `UIUX-REQ-001` の主タスク優先順位を利用者決定へ差し替え
@@ -730,3 +801,29 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 この差し替えのために 2026-08-23 に 2 度 R4-reopen を行った。1 度目の `reason` は決定日を「2026-08-23」と書いているが、これは**誤り**である。決定日は上記のとおり 2026-08-22 で、2026-08-23 は章へ書き戻した日である。C06 ヒアリング品質監査がこの食い違いを MEDIUM finding として検出した。
 
 `reopen_log` は append-only で、writer に過去 entry の `reason` を訂正する op は無い。**誤った日付を含む reason は消えない。**2 度目の reopen (`reason` に訂正の経緯を記載) と、この節が訂正の記録である。`reopen_log` の ui-ux/web entry を読む人は、1 つ目の日付ではなく `decisions[].decision-screen-priority.user_decision.confirmed_at` を一次根拠として採ること。
+
+## 章にしか無い記述 (正本へ未接続)
+
+> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
+
+### 本節を「転記」に留めた理由
+
+C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+- **ただし本章の `## 確定内容 (質疑録)` には `qa-uiux-web-screen-priority` の本文を載せてある。**上の「複製するな」と矛盾して見えるので理由を書く。複製が退行を招くのは、正本の側が章より**古い**場合である。この 1 件は 2026-08-20 に正本へ書かれたばかりで、章に古い版が存在しない。退行の向きが無い。**判定の基準は「複製したかどうか」ではなく「どちらが古いか」である。**
+
+## dev 合流で章から落ちた確定内容 (2026-09-05)
+
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
+
+- `| Web (web) | 確定 | 確定質疑: qa-ui-ux-web-creation-completion-feedback。裏付け質疑 (`qa_refs`): `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-ui-ux-web-creation-completion-feedback` |`
+- `| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-screen-priority`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |`
+- `| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |`
+- `### qa-ui-ux-web-creation-completion-feedback (対応セル: web)`
+- `##### 確定内容 qa-ui-ux-web-creation-completion-feedback (対応セル: web)`
+- `- 確定要件: 成功と表示してよいのは、読者が実際に開ける状態になったときだけ。現状は作成済みと告げてから404を出しており、押した人は自分の入力を疑って13問をやり直す。作れなかったときは何が足りないかと次に押す場所を書く。住所は割り当てたサブドメインを正として表示し、パス形式は併記に留める。情報の優先順位は『開けるか』>『不足している要素』>『構成の内訳』とし、この順で画面上の位置と強さを決める。根拠は失敗コスト (開けないブログは全作業が無駄になる) が最大であること。`

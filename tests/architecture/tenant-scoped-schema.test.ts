@@ -214,6 +214,10 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
     { count: 1, why: "読者向けの公開ページ。読者に作業場所は無く、手がかりは URL の名前だけ" },
   "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::listByCategory":
     { count: 1, why: "同上（読者向け）" },
+  "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::listBrands": {
+    count: 1,
+    why: "同上（読者向け）。サイドバーの「ブランドから探す」で、そのブログの記事だけを数える",
+  },
   "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::findArticle": {
     count: 1,
     why: "同上（読者向け）",

@@ -1,0 +1,177 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-seo-aeo-gap-closure",
+  "scope_digest": "sha256:9934c92a1f48b572a90b4e339be1b0f6d2db4ebfd69eaf6ba98ef6191e66e9a3",
+  "trace_plan_digest": "sha256:1b641be00ee9cdb8d5339150f068b39665a341b42741f683a410999f3deac731",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)",
+  "verdict": "PASS",
+  "entry_count": 6,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "手順ブロックを持つ記事に HowTo の JSON-LD が出力され、手順なしの記事には出力されない",
+      "confirmed_sources": [
+        "feature:A1",
+        "context:A1",
+        "backend:structured-data",
+        "architecture"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "結論・要点ブロックを持つ記事に Speakable の JSON-LD が出力される",
+      "confirmed_sources": [
+        "feature:A2",
+        "context:A2",
+        "backend:structured-data",
+        "architecture"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "公開のたびに点検結果が履歴へ追記され、保持窓を超えた古い分だけが落ちる",
+      "confirmed_sources": [
+        "feature:A3",
+        "context:A3",
+        "backend:dec-analysis-history-retention",
+        "database"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P08|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "定期実行で公開済み記事が再点検され、結果が同じ履歴へ追記される",
+      "confirmed_sources": [
+        "feature:A4",
+        "context:A4",
+        "backend:dec-aeo-analysis-trigger",
+        "infrastructure"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "再点検で落ちた記事が管理画面の一覧に現れ、落ちた理由 (hint) が読める",
+      "confirmed_sources": [
+        "feature:A5",
+        "context:A5",
+        "ui_ux:UIUX-REQ",
+        "frontend"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "既存の JSON-LD・llms.txt・IndexNow・出典レジストリ・公開時点検の挙動が変わらない",
+      "confirmed_sources": [
+        "feature:A6",
+        "context:A6",
+        "backend:existing-seo-surface",
+        "architecture"
+      ],
+      "system_tasks": [
+        "P03",
+        "P06",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P03|P06|P08|P09|P10|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    }
+  ]
+}

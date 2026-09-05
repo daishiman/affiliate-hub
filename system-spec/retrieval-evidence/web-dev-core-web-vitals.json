@@ -1,0 +1,20 @@
+{
+ "target_id": "web-dev-core-web-vitals",
+ "source_url": "https://web.dev/articles/vitals",
+ "retrieved_at": "2026-09-03T23:21:19Z",
+ "http_status": 200,
+ "content_bytes": 143336,
+ "content_sha256": "7974b49a8ac6cfede8548d356b5daa52b1318834bb6ac271f94d2229b8cae9bb",
+ "page_title": "Web Vitals | Articles | web.dev",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2024-10-31",
+  "found_in": [
+   "JSON-LD \"dateModified\": \"2024-10-31\"",
+   "本文フッタ \"Last updated 2024-10-31 UTC.\""
+  ],
+  "http_last_modified": null,
+  "note": "版番号を持たない文書のため last_updated を鮮度根拠に採る。ページ自身が JSON-LD と本文フッタの 2 か所で同じ日付を申告しており、両者は一致する。"
+ },
+ "requirement_note": "本文逐語: \"LCP should occur within 2.5 seconds of when the page first starts loading\" / \"pages should have a INP of 200 milliseconds or less\" / \"pages should maintain a CLS of 0.1. or less\" / \"a good threshold to measure is the 75th percentile of page loads, segmented across mobile and desktop devices\" — 閾値も判定分位点も出典自身が申告している。"
+}

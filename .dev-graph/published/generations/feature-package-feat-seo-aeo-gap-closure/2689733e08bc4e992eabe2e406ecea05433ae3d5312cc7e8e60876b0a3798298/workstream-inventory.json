@@ -1,0 +1,1126 @@
+{
+  "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+  "parent_feature": "feat-seo-aeo-gap-closure",
+  "p01_entry_gate": {
+    "selector": "parent_feature.depends_on",
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ]
+  },
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "schema_version": "1.0.0",
+  "source_lineage": {
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "confirmed": true,
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/backend.md",
+      "system-spec/frontend.md",
+      "system-spec/ui-ux.md",
+      "system-spec/database.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0"
+  },
+  "tasks": [
+    {
+      "acceptance": [
+        "P01: A1-A6 それぞれについて検証可能な受入条件文と対応する導出規則・データ要求が docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md に一意対応表として存在し、HowTo の手順表現 (表現ブロック種別を足すか既存 guide 型の節構造から導くか) と Speakable の読み上げ対象 (answer と key_points のどこをセレクタで指すか) が docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md に、保持窓幅と保持項目が docs/spec/feat-seo-aeo-gap-closure/retention-policy.md に根拠つきで確定している状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p01.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P01 lifecycle 責務への確定写像"
+      },
+      "depends_on": [],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p01.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P01",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P01"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P01",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P01",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P01 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "backend",
+        "data"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p01",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "SEO/AEO 未実装差分の要求ベースライン確定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P01 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md",
+        "docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md",
+        "docs/spec/feat-seo-aeo-gap-closure/retention-policy.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P02: 点検履歴テーブルの列定義と索引、保持窓を超えた分の落とし方、port と repository の境界、scheduled handler の設置点と 1 回あたりの処理対象の絞り方、publish-article への追記の組込点、管理画面一覧の取得契約が、既存 src/infrastructure/persistence/d1/ の repository 実装と同じ境界の切り方で設計文書に確定している。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p02.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P02 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P01"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p02.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P02",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P02"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P02",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P02",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P02 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "backend",
+        "data",
+        "api"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p02",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "点検履歴の保持と定期再点検経路とJSON-LD導出の設計",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P02 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/architecture.md",
+        "docs/spec/feat-seo-aeo-gap-closure/data-model.md",
+        "docs/spec/feat-seo-aeo-gap-closure/api-contract.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P03: A1-A6 の各受入に対応する設計要素が一意に辿れ、scope_out の既存実装 6 件について設計が作り直していないことが grep 根拠つきで確認され、未解消の指摘が 0 件である。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p03.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P03 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P02"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p03.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P03",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P03"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P03",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P03",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P03 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "documentation",
+        "backend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p03",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "設計レビューと既存 SEO 実装との重複有無の独立検証",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P03 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/design-review.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P04: A1-A6 の各項目に対して最低 1 件の落とせるテストケースが対応づき、境界値 (手順ブロック 0 件・保持窓ちょうど・保持窓超過・再点検で新たに落ちた記事) がテストケースとして列挙され、A6 の不変性を担保する既存回帰スイートが名前で指定されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p04.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P04 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P03"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p04.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P04",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P04"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P04",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P04",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P04 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "backend",
+        "frontend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p04",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "受入6件に対応するテスト設計",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P04 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/test-design.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P05: A1-A6 に対応する P04 のテストが緑化し、手順ブロックを持つ記事にだけ HowTo が出力され、結論と要点を持つ記事に Speakable が出力され、公開のたびに点検結果が履歴へ追記されて保持窓を超えた分だけが落ち、定期実行が公開済み記事を再点検して同じ履歴へ追記し、落ちた記事が管理画面の一覧に hint つきで現れる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p05.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P05 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P04"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p05.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P05",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P05"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P05",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P05",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P05 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "api",
+        "data",
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p05",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "HowTo・Speakable 導出と点検履歴と定期再点検と管理画面一覧の実装",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P05 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "backend",
+      "write_scope": [
+        "src/application/seo",
+        "src/domain/authoring",
+        "src/domain/seo",
+        "src/db/schema.ts",
+        "drizzle",
+        "src/infrastructure/persistence/d1",
+        "src/application/ports",
+        "src/application/usecases",
+        "src/app/admin",
+        "src/app/s",
+        "worker-entry.js",
+        "tests"
+      ]
+    },
+    {
+      "acceptance": [
+        "P06: テスト全量実行で失敗 0 件であり、P04 が基準線として記録した既存スイートの成功件数が減っていないことが実行ログとともに記録されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p06.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P06 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p06.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P06",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P06"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P06",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P06",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P06 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "backend",
+        "frontend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p06",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "テスト全量実行と回帰0件の確認",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P06 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/test-run.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P07: A1-A6 のすべてが判定済みで、各項目に検証コマンドまたは実画面の確認結果が根拠として紐づき、未達 0 件である。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p07.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P07 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P06"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p07.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P07",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P07"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P07",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P07",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P07 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p07",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "受入6件の受け入れ判定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P07 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/acceptance.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P08: JSON-LD 組み立ての重複が解消され整理前後でテスト結果が同一であり、追加マイグレーションが既存データに対して前方互換であること、履歴が空の公開済み記事が管理画面一覧を壊さないことが確認されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p08.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P08 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p08.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P08",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P08"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P08",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P08",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P08 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "data",
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p08",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "既存 SEO 実装との統合整理とマイグレーションの前方互換確認",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P08 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "backend",
+      "write_scope": [
+        "src/application/seo",
+        "src/db/schema.ts",
+        "drizzle",
+        "docs/spec/feat-seo-aeo-gap-closure/migration-compatibility.md",
+        "tests"
+      ]
+    },
+    {
+      "acceptance": [
+        "P09: 保持窓が超過分を実際に落としていること、定期再点検の 1 回あたり処理量が公開記事件数に対して上限を持つこと、管理画面一覧が既存 admin RBAC の外へ出ないことが、それぞれ実測または検査で確認されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p09.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P09 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P08"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p09.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P09",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P09"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P09",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P09",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P09 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "security",
+        "backend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p09",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "品質保証と非機能検査",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P09 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md",
+        "tests"
+      ]
+    },
+    {
+      "acceptance": [
+        "P10: P01 から P09 の成果物がすべて存在し内容が相互に矛盾しないことが確認され、残課題が本 feature 内で閉じるものと follow-up 候補に切り分けられ、follow-up 候補には本 package へ追加しない理由が付いている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p10.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P10 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p10.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P10",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P10"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P10",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P10",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P10 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "documentation",
+        "backend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p10",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "最終レビューと残課題の確定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P10 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/final-review.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P11: A1-A6 と非機能検査の各項目について、証跡のパスと再現コマンドが一覧化され、記載どおりに実行して同じ結論に至ることが確認されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p11.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P11 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P07",
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p11.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P11",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P11"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P11",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P11",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P11 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p11",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P11 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/evidence.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P12: 定期再点検が失敗したときの確認先と対応手順、点検履歴と管理画面一覧の読み方が運用者の語彙で書かれており、実装を読まずに手順だけで対応の入口に立てる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p12.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P12 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P10",
+        "SYS-SEO-AEO-GAP-CLOSURE-P11"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p12.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P12",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P12"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P12",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P12",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P12 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p12",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "運用手順と文書化",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P12 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/operations.md",
+        "docs/spec/feat-seo-aeo-gap-closure/documentation.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P13: 変更が dev ブランチへのマージを経て開発環境へ出ており、実装で確定した HowTo と Speakable の導出規則と点検履歴の保持窓が system-spec/backend.md に書き戻され、切り戻し手順が記載されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p13.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-gap-closure の P13 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P12"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+        "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p13.md",
+        "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P13",
+        "parent_feature": "feat-seo-aeo-gap-closure",
+        "phase_ref": "P13"
+      },
+      "id": "SYS-SEO-AEO-GAP-CLOSURE-P13",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P13",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P13 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "documentation",
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/backend.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p13",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "title": "開発環境へのリリースと system-spec への書き戻し",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P13 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "operations",
+      "write_scope": [
+        "system-spec/backend.md",
+        "docs/spec/feat-seo-aeo-gap-closure/release.md"
+      ]
+    }
+  ]
+}

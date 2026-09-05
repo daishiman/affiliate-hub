@@ -80,6 +80,42 @@
         "$ref": "#/$defs/qaEntry"
       }
     },
+    "retracted_qa_log": {
+      "type": "array",
+      "description": "正本の契約を満たしていなかった質疑を、原文のまま退避した記録。writer は retract-qa のみ。**削除ではなく退避である。**消してしまうと『無かったこと』と『取り下げたこと』が同じ姿になり、誤って書かれた事実そのものが辿れなくなる。後継の申告 (superseded_by) とは扱う出来事が違う — あちらは『決め直した』経過、こちらは『最初から契約を満たしていなかった』誤りを言う。",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "reason",
+          "retracted_on",
+          "retracted_with",
+          "entry"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "取り下げた qa_log entry の id"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "なぜ契約を満たしていなかったのか。理由の無い取り下げは記録の削除と区別が付かない"
+          },
+          "retracted_on": {
+            "type": "string",
+            "description": "取り下げた日 (writer が付ける)"
+          },
+          "retracted_with": {
+            "const": "retract-qa"
+          },
+          "entry": {
+            "$ref": "#/$defs/qaEntry",
+            "description": "取り下げた entry の原文"
+          }
+        }
+      }
+    },
     "approval_log": {
       "type": "array"
     },
@@ -365,14 +401,37 @@
             "mode",
             "writer"
           ],
+          "description": "design_applications を後から書いた扉。mode と writer は組で固定する (oneOf) — 別々の const にすると legacy_backfill と attach-qa-design-applications を混ぜた由来が通り、正本からどちらの扉を通ったか読めなくなる",
           "properties": {
             "mode": {
-              "const": "legacy_backfill"
+              "type": "string"
             },
             "writer": {
-              "const": "set-qa-design-applications"
+              "type": "string"
             }
-          }
+          },
+          "oneOf": [
+            {
+              "properties": {
+                "mode": {
+                  "const": "legacy_backfill"
+                },
+                "writer": {
+                  "const": "set-qa-design-applications"
+                }
+              }
+            },
+            {
+              "properties": {
+                "mode": {
+                  "const": "secondary_ref_attachment"
+                },
+                "writer": {
+                  "const": "attach-qa-design-applications"
+                }
+              }
+            }
+          ]
         },
         "design_applications": {
           "type": "array",

@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-SEO01
+ * @req REQ-SEO01, REQ-SEO06
  * @types equivalence, boundary
  */
 import { describe, expect, it } from "vitest";
@@ -11,7 +11,9 @@ import {
   buildBlogPosting,
   buildBreadcrumbList,
   buildFaqPage,
+  buildHowTo,
   buildItemList,
+  buildSpeakable,
   serializeJsonLd,
 } from "@/application/seo/structured-data";
 import { toExpressionArticleBlock } from "@/application/adapters/expression-article-block";
@@ -32,6 +34,10 @@ const article: PublishedArticle = {
 };
 
 const site = { siteName: "ガジェット研究室", origin: "https://example.com", basePath: "/s/gadget" };
+const speakableSelectors = {
+  answer: ".article-answer",
+  keyPoints: "#article-key-points",
+};
 
 describe("BlogPosting", () => {
   it("必須キーが揃い、URL は articleHref から引く", () => {
@@ -361,5 +367,152 @@ describe("HTML への埋め込み", () => {
     expect(json).toContain("\\u003c/script>");
     // JSON としての意味は変わらない。読み戻すと元の文字列に戻る。
     expect(JSON.parse(json)).toEqual({ headline: "</script><script>alert(1)</script>" });
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * REQ-SEO06: HowTo / Speakable（feat-seo-aeo-gap-closure）
+ * 上の既存ケースには一切触れていない。触ったら受入 A6 の反例になる。
+ * ------------------------------------------------------------------ */
+
+/** 手順を持つ手引き記事。`steps` 節に段落 3 件。 */
+const guide: PublishedArticle = {
+  ...article,
+  slug: "desk-setup",
+  type: "guide",
+  title: "在宅机の作り方",
+  sections: [
+    {
+      id: "steps",
+      heading: "全手順",
+      paragraphs: ["机の奥行きを測る。", "電源の位置を決める。", "配線を天板の裏へ通す。"],
+    },
+  ],
+};
+
+describe("HowTo", () => {
+  it("T1-1: steps 節の段落が同順・同文で step になる", () => {
+    const howTo = buildHowTo(guide, site);
+    expect(howTo?.["@type"]).toBe("HowTo");
+    expect(howTo?.step).toEqual([
+      { "@type": "HowToStep", text: "机の奥行きを測る。" },
+      { "@type": "HowToStep", text: "電源の位置を決める。" },
+      { "@type": "HowToStep", text: "配線を天板の裏へ通す。" },
+    ]);
+    expect(howTo?.name).toBe("在宅机の作り方");
+    expect(howTo?.mainEntityOfPage).toEqual({
+      "@type": "WebPage",
+      // guide 記事は /guides 配下。画面のリンクと同じ道になる。
+      "@id": "https://example.com/s/gadget/guides/desk-setup",
+    });
+  });
+
+  it("T1-2: steps 節はあるが段落が空なら null（手順の無い手順書を出さない）", () => {
+    expect(
+      buildHowTo({ ...guide, sections: [{ id: "steps", heading: "全手順", paragraphs: [] }] }, site),
+    ).toBeNull();
+  });
+
+  it("T1-3: steps 節そのものが無ければ null", () => {
+    expect(
+      buildHowTo(
+        { ...guide, sections: [{ id: "intro", heading: "はじめに", paragraphs: ["導入。"] }] },
+        site,
+      ),
+    ).toBeNull();
+  });
+
+  it("T1-4: steps 節を持たない 4 型はいずれも null", () => {
+    // 型ごとの分岐で止めているのではなく、`steps` 節が無いことからの帰結。
+    // 1 型だけ確かめると、あとから型分岐が入り込んでも気づけない。
+    for (const type of ["ranking", "review", "comparison", "tool"] as const) {
+      expect(buildHowTo({ ...article, type }, site)).toBeNull();
+    }
+  });
+
+  it("T1-5: 補助情報があれば写り、無ければキーごと出ない", () => {
+    const withExtras = buildHowTo(
+      {
+        ...guide,
+        sections: [
+          ...guide.sections,
+          { id: "required_time", heading: "必要時間", paragraphs: ["およそ 2 時間。"] },
+          { id: "required_cost", heading: "必要費用", paragraphs: ["12,000 円ほど。"] },
+          { id: "prerequisites", heading: "事前準備", paragraphs: ["メジャー", "結束バンド"] },
+          { id: "outcome_state", heading: "完了後の状態", paragraphs: ["配線が見えなくなる。"] },
+        ],
+      },
+      site,
+    );
+    expect(withExtras?.totalTime).toBe("PT2H");
+    expect(withExtras?.estimatedCost).toEqual({
+      "@type": "MonetaryAmount",
+      currency: "JPY",
+      value: 12000,
+    });
+    expect(withExtras?.supply).toEqual([
+      { "@type": "HowToSupply", name: "メジャー" },
+      { "@type": "HowToSupply", name: "結束バンド" },
+    ]);
+    expect(withExtras?.description).toBe("配線が見えなくなる。");
+    /*
+      `tool` は出さない。導出元は `prerequisites` の 1 節だけで、散文から
+      「消費するもの」と「使う道具」を機械で分けられない。両方に出すと
+      同じ事実が 2 か所に載り、片方だけ直る事故の口が開く（総称側へ寄せた）。
+    */
+    expect(withExtras).not.toHaveProperty("tool");
+
+    // 境界: 補助情報が無ければキーごと省く。`"totalTime": null` は
+    // 読む側に「所要時間が null という値だ」と見える。
+    const bare = buildHowTo(guide, site);
+    expect(bare).not.toHaveProperty("totalTime");
+    expect(bare).not.toHaveProperty("estimatedCost");
+    expect(bare).not.toHaveProperty("supply");
+    expect(bare).not.toHaveProperty("description");
+  });
+});
+
+describe("Speakable", () => {
+  it("T2-1: 結論と要点が両方あれば selector は 2 件", () => {
+    const speakable = buildSpeakable(
+      { ...article, keyPoints: ["速い", "静か"] },
+      speakableSelectors,
+    );
+    expect(speakable?.["@type"]).toBe("WebPage");
+    expect(speakable?.speakable).toEqual({
+      "@type": "SpeakableSpecification",
+      cssSelector: [speakableSelectors.answer, speakableSelectors.keyPoints],
+    });
+  });
+
+  it("T2-2: 結論だけなら selector は answer の 1 件", () => {
+    const speakable = buildSpeakable(
+      { ...article, keyPoints: undefined },
+      speakableSelectors,
+    );
+    expect(speakable?.speakable).toMatchObject({
+      cssSelector: [speakableSelectors.answer],
+    });
+  });
+
+  it("T2-3: 要点だけなら selector は key-points の 1 件", () => {
+    const speakable = buildSpeakable(
+      { ...article, summary: "", keyPoints: ["速い"] },
+      speakableSelectors,
+    );
+    expect(speakable?.speakable).toMatchObject({
+      cssSelector: [speakableSelectors.keyPoints],
+    });
+  });
+
+  it("T2-4: 読み上げるものが無ければ null", () => {
+    // 空配列も「要点の無い要点」なので出さない。
+    expect(buildSpeakable({ ...article, summary: "", keyPoints: [] }, speakableSelectors)).toBeNull();
+    expect(
+      buildSpeakable(
+        { ...article, summary: "   ", keyPoints: undefined },
+        speakableSelectors,
+      ),
+    ).toBeNull();
   });
 });

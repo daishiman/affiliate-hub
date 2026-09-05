@@ -1,5 +1,5 @@
 {
-  "graph_revision": 585,
+  "graph_revision": 587,
   "nodes": [
     {
       "acceptance": [
@@ -9051,7 +9051,7 @@
       "source_lineage": {
         "imported_at": "2026-08-25T09:40:00Z",
         "origin_kind": "generated",
-        "source_digest": "7b029152ed5130b0c3e331bb390f3f344811fc97f9cb92b9f0b3557d9a9b54c1",
+        "source_digest": "832eb4a42809637b35a5619a2d058cc4c8a184d2b770fd0693e94aeb0c497d00",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -9072,7 +9072,7 @@
       "template_version": "1.0.0",
       "title": "ブログ運用 CRUD とサイト網ブループリント再現 (作成者面・閲覧者面)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-26T14:59:23.852748Z"
+      "updated_at": "2026-09-04T06:00:53.386277Z"
     },
     {
       "acceptance": [
@@ -9626,9 +9626,9 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-05T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "d05856c3c58a7ca30ae3360b48f9f960cced9167937cd86d8e4d2e90e7d1ea38",
+        "source_digest": "974f5e0048c16afd9cb4a518a31073e47683c582456488e467d15bd45f7f1983",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -9648,7 +9648,7 @@
       "template_version": "1.0.0",
       "title": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T06:47:49.957441Z"
+      "updated_at": "2026-09-05T00:00:00Z"
     },
     {
       "acceptance": [
@@ -10367,7 +10367,7 @@
       "source_lineage": {
         "imported_at": "2026-08-30T03:37:16Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "b93d1aea10645fc18c39e5bd209cbb90ebd6e494bf493d263e3d9e1112a36217",
+        "source_digest": "832eb4a42809637b35a5619a2d058cc4c8a184d2b770fd0693e94aeb0c497d00",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -10384,7 +10384,7 @@
       "template_version": "1.0.0",
       "title": "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T13:34:38.306257Z"
+      "updated_at": "2026-09-04T06:01:34.624751Z"
     },
     {
       "acceptance": [
@@ -11259,7 +11259,7 @@
       "source_lineage": {
         "imported_at": "2026-08-29T14:36:00Z",
         "origin_kind": "generated",
-        "source_digest": "8f2dd8dc377e624cd882aadb912d57638f3e6e41c268cc68845e4da5b84ed1d4",
+        "source_digest": "832eb4a42809637b35a5619a2d058cc4c8a184d2b770fd0693e94aeb0c497d00",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -11280,7 +11280,7 @@
       "template_version": "1.0.0",
       "title": "参照ブログ解析と低認知負荷の運用 UX",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-29T14:56:20Z"
+      "updated_at": "2026-09-04T06:01:14.811140Z"
     },
     {
       "acceptance": [
@@ -30912,6 +30912,1982 @@
       "title": "管理画面のリリースと仕様書への書き戻し",
       "tracker_binding": "beads",
       "updated_at": "2026-09-04T02:52:41.927544Z"
+    },
+    {
+      "acceptance": [
+        "公開記事の HTML に Article/BlogPosting と BreadcrumbList の JSON-LD が記事実データ由来で含まれ、Rich Results 相当の必須プロパティ欠落が 0 件である",
+        "会話・手順・Q&A ブロックを持つ記事だけに FAQPage/HowTo/Speakable が出力され、持たない記事では当該型が出力されない",
+        "canonical が 1 記事 1 本で、サブドメイン戦略と一致し、重複 canonical が 0 件である",
+        "画像 alt と width/height を欠く画像は登録時に弾かれ、既存記事の欠落数が公開ページから機械的に数えられる",
+        "本文外見出しが本文の見出し階層へ混入せず、目次が同じ見出しを二重に読み上げない",
+        "アフィリエイトリンクに rel が付与され、original_url は 1 文字も改変されない",
+        "参考サイト実測 (hitodeblog.com/blog-money-sikumi: 画像 83 枚中 alt 有効 8 枚・FAQPage/HowTo/Speakable 不在) を、alt 被覆率と構造化データ種別数の 2 点で上回ることを機械が検証できる"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-seo-aeo-machine-readable.md",
+          "confidence": 0.96
+        }
+      ],
+      "classification_confidence": 0.96,
+      "classification_reason": "撤回。実装コードと突き合わせた結果、本 feature の scope_in の大半が feat-blog-ui-builder で既に実装済みだった (src/application/seo/structured-data.ts の JSON-LD 導出、src/application/usecases/seo/manage-guideline-references.ts の出典レジストリ、src/application/seo/ai-search-audit.ts と publish-article.ts の公開時点検)。feature の scope 記述だけを見て未被覆と判断したのが誤り。真に未実装だった 3 項目 (HowTo/Speakable の JSON-LD・解析履歴の保持・定期再解析) は feat-seo-aeo-gap-closure へ移した。",
+      "closed_at": "2026-09-04T00:00:00Z",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2e3b834654f7407de7a5408d25a79eda49a7e8a216f3abfb92748e0a039bb741",
+        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T00:00:00Z",
+      "depends_on": [],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-seo-aeo-machine-readable.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "確定 decision dec-structured-data-emission (opt-render-time-derive) のとおり、記事の描画時に Article/BlogPosting・FAQPage・HowTo・Speakable・BreadcrumbList と canonical・OGP・robots max-image-preview が記事の実データから生成され、見出し階層・画像 alt/width/height・アフィリエイトリンクの rel が本文データそのものから機械的に決まる状態になっている",
+      "graph_node_id": "feat-seo-aeo-machine-readable",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "構造化データ・canonical・OGP・robots・見出し階層・画像属性・広告 rel を、書き手が本文へ書き足す前提から外し、記事の実データから決定論的に導出する。人手に依存する限り、欠落は書き手ごとに揺れ、公開後まで残る。",
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "system-spec",
+        "features/feat-seo-aeo-machine-readable.context.json"
+      ],
+      "scope_in": [
+        "記事の実データ (見出し・本文ブロック・人物・商品・カテゴリ・公開日時) から Article/BlogPosting・BreadcrumbList・Person・Organization の JSON-LD を描画時に導出する",
+        "会話ブロック・手順ブロック・Q&A ブロックから FAQPage / HowTo / Speakable を導出し、該当ブロックが無い記事では当該種別を出さない (空の型を出して充足したと見せない)",
+        "canonical URL・OGP・robots max-image-preview をブログのドメイン戦略 (dec-blog-domain-strategy = opt-wildcard-subdomain) と整合する形で生成する",
+        "見出し階層の正規化 (本文外見出しを本文の H2/H3 系列へ混入させない)",
+        "画像の alt と width/height を画像登録時に必須化し、欠落画像を描画前に検出可能にする",
+        "アフィリエイトリンクへの rel (sponsored/nofollow) 付与を original_url 無改変のまま行う",
+        "schema.org 30.0 / Google 検索セントラル / WAI-ARIA 1.2 を出典とする判定根拠の参照レジストリ"
+      ],
+      "scope_out": [
+        "充足度の解析と管理画面への差し戻し (feat-seo-aeo-analysis-feedback)",
+        "読者面の目次・サイドバー・タグアイコンの配置 (feat-reference-blog-admin-ux)",
+        "管理画面の画面分割と共通部品化 (feat-uiux-overhaul)",
+        "外部順位データ・検索コンソール実測値の取り込み",
+        "記事本文そのものの生成 (feat-ai-content-studio)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T00:00:00Z",
+        "origin_kind": "generated",
+        "source_digest": "6c9b17fe84e10e0d2d01603fdd1c45c47bdcd75ecf4f1d34ed8ee00e6075f74a",
+        "source_path": "system-spec/frontend.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-09-04",
+      "status": "tombstoned",
+      "tags": [
+        "seo",
+        "aeo",
+        "structured-data",
+        "schema-org",
+        "canonical",
+        "ogp",
+        "a11y"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "記事データからの機械可読要素生成",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T00:00:00Z"
+    },
+    {
+      "acceptance": [
+        "記事を公開しようとすると解析が走り、必須要素の欠落があるものは欠落の一覧と該当箇所を示して公開ゲートで止まる",
+        "定期実行が既存の公開済み記事を解析し、公開後に生じた欠落 (参照切れ・画像差し替えによる alt 欠落等) を検出する",
+        "エディター上で欠落が該当箇所へのリンク付きで提示され、その場で直して再判定できる",
+        "解析結果が窓付きで追記保持され、1 記事の充足率の推移を期間指定で参照できる",
+        "ガイドライン参照レジストリが固定間隔で再確認され、期限を過ぎた参照は staleness flag が立ち、判定結果にその旨が併記される",
+        "O3 の 2 指標 (充足率・公開前検出割合) が算出され、初回は current=未計測 として基準値取得から始まり、根拠のない target を確定しない",
+        "解析は記事の実データだけを入力とし、外部順位データの推測を判定根拠にしない"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": null,
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-seo-aeo-analysis-feedback.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "撤回。実装コードと突き合わせた結果、本 feature の scope_in の大半が feat-blog-ui-builder で既に実装済みだった (src/application/seo/structured-data.ts の JSON-LD 導出、src/application/usecases/seo/manage-guideline-references.ts の出典レジストリ、src/application/seo/ai-search-audit.ts と publish-article.ts の公開時点検)。feature の scope 記述だけを見て未被覆と判断したのが誤り。真に未実装だった 3 項目 (HowTo/Speakable の JSON-LD・解析履歴の保持・定期再解析) は feat-seo-aeo-gap-closure へ移した。",
+      "closed_at": "2026-09-04T00:00:00Z",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2e3b834654f7407de7a5408d25a79eda49a7e8a216f3abfb92748e0a039bb741",
+        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T00:00:00Z",
+      "depends_on": [],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-seo-aeo-analysis-feedback.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "確定 decision のとおり、解析が公開ゲートと定期実行の両方で走り (dec-aeo-analysis-trigger = opt-publish-gate-plus-scheduled)、判定根拠のガイドライン参照が固定間隔で再確認され陳腐化が旗で見える (dec-guideline-registry-recheck = opt-fixed-interval-with-staleness-flag)、解析結果が窓付き追記で履歴として残り推移を追える (dec-analysis-history-retention = opt-append-with-window) 状態で、O3 の充足率と公開前検出割合が計測できるようになっている",
+      "graph_node_id": "feat-seo-aeo-analysis-feedback",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "公開記事の機械可読要素の充足度を記事の実データから解析し、欠落を「どの記事のどこが何を欠いているか」まで名指しして書き手のエディターへ返す。充足率を数えるだけでは記事は直らない。直せる場所へ差し戻して初めて閉じる。",
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src",
+        "drizzle",
+        "system-spec",
+        "features/feat-seo-aeo-analysis-feedback.context.json"
+      ],
+      "scope_in": [
+        "記事の実データを入力に SEO/AEO 充足度を判定する解析器 (構造化データ必須種別・見出し階層・画像 alt と width/height・canonical・広告 rel)",
+        "公開ゲートでの解析実行と、公開後の定期実行 (両方・dec-aeo-analysis-trigger)",
+        "判定根拠となるガイドライン参照レジストリの固定間隔再確認と staleness flag",
+        "解析結果の D1 保持 (窓付き追記・dec-analysis-history-retention)",
+        "エディター上での欠落の名指し提示 (該当見出し・該当画像・該当リンクへ直接飛べる)",
+        "書きながら素材が揃う編集体験: 見出し階層・画像 alt・内部リンク・構造化データの素材が入力欄として編集画面に存在し、公開前に欠落が見える (I8)",
+        "O3 指標 (公開記事あたりの充足率・公開前に検出された欠落の割合) の算出と表示"
+      ],
+      "scope_out": [
+        "機械可読要素そのものの生成 (feat-seo-aeo-machine-readable)",
+        "外部順位データ・検索順位の推測に基づく判断",
+        "クリック・成果のアトリビューション分析 (feat-analytics-insight)",
+        "記事本文の自動書き換え (指摘は提示するが本文を勝手に直さない)",
+        "管理画面全体の画面分割・共通部品化 (feat-uiux-overhaul)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T00:00:00Z",
+        "origin_kind": "generated",
+        "source_digest": "29c9e6c7be6c64d71cc39c3575795f6211a47129a089deb10f0a5971c9002f2c",
+        "source_path": "system-spec/backend.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": "2026-09-04",
+      "status": "tombstoned",
+      "tags": [
+        "seo",
+        "aeo",
+        "analysis",
+        "editor",
+        "publish-gate",
+        "feedback-loop"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "SEO/AEO 充足度の解析とエディター差し戻し",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T00:00:00Z"
+    },
+    {
+      "acceptance": [
+        "各管理画面が単一用途で、1画面に複数の主要タスクが混在しない",
+        "管理対象 (ブログ・記事・商品・SNS投稿) 全てに一覧・新規作成・編集・削除の操作と対応APIが存在する",
+        "各サイト・SNSへの投稿状態が管理画面の一覧・詳細に反映される",
+        "新しいSNSは能力表と接続実装の追加だけで既存画面を変更せず拡張できる",
+        "1商品から複数ブログへコンセプト別の文章を作成する導線が動作する",
+        "同等UIの重複実装が0件で、共通部品は共有コンポーネント経由で使用される",
+        "新規ブログ構築時にブログ別コンポーネント一式が仕様どおり scaffold される",
+        "カード間隔・文章量・サイドバー構成が規則として文書化され全画面へ適用されている",
+        "サイドバーの全項目にアイコンが付き、アイコンクリックで折りたたみ/展開が切り替わり、折りたたみ時もアイコンで項目を識別できる",
+        "各画面の表示情報がタスク遂行に必要な項目のみに絞られ、不要な文章・説明が非表示になっている (認知負荷の低減)"
+      ],
+      "acceptance_reconciliation": {
+        "evaluated_digest": "sha256:2b80d8c94d52abca9ed4f7904271321f6dc103e56861ca6bc3e327c6da0eab6b",
+        "implementation_status": "pass",
+        "manifest_ref": "docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json",
+        "release_status": "unpublished",
+        "tracking_status": "active"
+      },
+      "architecture_refs": [
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-6hc",
+        "github_mirror": null,
+        "linked_at": "2026-08-21T12:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-uiux-overhaul.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "ユーザー要望の macro want を C14 分解で feature 化 (単一用途画面分割/基本管理/密度最適化/サイドバー/投稿反映/マルチSNS/複数ブログ/共通コンポーネント)",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [
+          "docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json",
+          "docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"
+        ],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "reconciliation",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "c3b797019d4e6a44859a1e502255b51ee723bdc471d184e6f5b3a625728c7089",
+        "evaluator": "system-spec-harness/aggregate-completeness (C05, forks C06/C07/C08 resolved)",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-08-21T12:00:00Z",
+      "depends_on": [
+        "feat-ui-foundation",
+        "feat-distribution-hub"
+      ],
+      "domain": "frontend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-uiux-overhaul.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "全画面が単一用途に分割され、管理対象に基本管理機能(一覧・新規作成・編集・削除)とそのAPIが揃い、カード間隔・文章量・サイドバーが最適化され、各サイト・SNSへの投稿状態が画面へ反映され、1商品から複数ブログへコンセプト別文章を作成でき、新SNSは能力表と接続実装の追加だけで既存画面を変更せず拡張できる構成になっている",
+      "graph_node_id": "feat-uiux-overhaul",
+      "implementation_readiness": {
+        "checked_at": "2026-08-21T12:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [
+        {
+          "base_branch": "dev",
+          "closing_reference_verified": false,
+          "head_branch": "devgraph/feat-uiux-overhaul",
+          "linked_at": "2026-08-23T11:34:01Z",
+          "merge_commit_sha": "eccadc2c44c598119c3dfa18bb65e202ddef4296",
+          "merged_at": "2026-08-23T19:41:21Z",
+          "pr_number": 23,
+          "repo": "daishiman/affiliate-hub",
+          "state": "merged",
+          "url": "https://github.com/daishiman/affiliate-hub/pull/23"
+        }
+      ],
+      "purpose": "管理画面を単一用途画面へ再編し、共通コンポーネント化と投稿状態の可視化によって、複数ブログ・複数SNSへの展開作業を迷いなく完了できるようにする",
+      "related_nodes": [],
+      "resource_scope": [
+        "src",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "単一用途画面への分割 (1画面1タスクの画面再編と遷移設計)",
+        "基本管理機能: ブログ・記事・商品・SNS投稿の一覧/新規作成/編集/削除と対応API",
+        "カード間隔・文章量の最適化 (密度・余白・要約量の規則化)",
+        "サイドバーの整理 (用途別グルーピング・現在地表示・各項目のアイコン表示・アイコンクリックでの開閉)",
+        "認知負荷の最小化 (タスク遂行に不要な情報・文章の非表示、直感的に操作だけで完了できる画面設計)",
+        "全画面の見直し (既存画面の単一用途化・状態表現の統一適用)",
+        "各サイト・SNSへの投稿部分の画面反映 (投稿状態の一覧・詳細表示とAPI)",
+        "マルチSNS構成 (能力表と接続実装の追加だけで既存画面を変更せず拡張できるプロバイダ抽象)",
+        "1商品→複数ブログのコンセプト別文章作成UI",
+        "UI共通コンポーネント化 (重複ハードコーディングの排除・共有部品への集約)",
+        "ブログ別コンポーネント作成仕様 (新規ブログ構築時のブログ固有コンポーネント scaffold)"
+      ],
+      "scope_out": [
+        "認証・Workspace基盤 (feat-auth-workspace)",
+        "記事生成エンジン本体 (feat-ai-content-studio)",
+        "SNS実配信・外部API接続の実行系 (feat-distribution-hub)",
+        "文章品質規則そのもの (feat-writing-method)",
+        "読者向け公開面 (feat-reader-surface)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T00:00:00Z",
+        "origin_kind": "generated",
+        "source_digest": "33d644c2cb19eee116a4d365c0a50c84c697f9a2e9afcc7afef6f06a3d9ad527",
+        "source_path": "system-spec/ui-ux.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "ui-ux",
+        "frontend",
+        "api",
+        "componentization",
+        "multi-sns",
+        "multi-blog"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "管理画面 UI/UX 全面改善",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T06:01:53.906511Z"
+    },
+    {
+      "acceptance": [
+        "手順ブロックを持つ記事の公開ページに HowTo の JSON-LD が出力され、手順を持たない記事には出力されない",
+        "結論・要点ブロックを持つ記事に Speakable の JSON-LD が出力される",
+        "公開のたびに点検結果が履歴へ追記され、保持窓を超えた古い分だけが落ちる",
+        "定期実行で公開済み記事が再点検され、結果が同じ履歴へ追記される",
+        "再点検で落ちた記事が管理画面の一覧に現れ、落ちた理由 (hint) が読める",
+        "既存の JSON-LD・llms.txt・IndexNow・出典レジストリ・公開時点検の挙動が変わらない"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "feature",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "feature",
+          "candidate_path": "features/feat-seo-aeo-gap-closure.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "撤回した feat-seo-aeo-machine-readable / feat-seo-aeo-analysis-feedback のうち、src/ への grep が 0 件だった 3 項目だけを残した差分 feature",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-gap-closure/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T00:00:00Z",
+      "depends_on": [
+        "feat-blog-ui-builder"
+      ],
+      "domain": "backend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "features/feat-seo-aeo-gap-closure.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "手順記事と読み上げ向けの構造化データが記事から導出され、公開時点検の結果が履歴として残り、公開後の記事も定期に再点検されて陳腐化に気づける状態になっている",
+      "graph_node_id": "feat-seo-aeo-gap-closure",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": "SEO/AEO の仕組みのうち、確定済み decision に対して実装が追いついていない 3 点だけを埋め、「決めたが動いていない」状態を無くす",
+      "related_nodes": [],
+      "resource_scope": [
+        "src",
+        "docs/spec",
+        "system-spec"
+      ],
+      "scope_in": [
+        "HowTo の JSON-LD 導出 (手順ブロックを持つ記事から。src/application/seo/structured-data.ts へ追加)",
+        "Speakable の JSON-LD 導出 (結論・要点ブロックを読み上げ対象として指定)",
+        "公開時点検 (auditArticleForAiSearch) の結果を履歴として保持する (dec-analysis-history-retention = append-with-window。追記のみ・保持窓を超えた分は落とす)",
+        "公開後の記事を定期に再点検する経路 (dec-aeo-analysis-trigger の scheduled 側。wrangler.jsonc の crons に対する scheduled handler と、再点検結果の履歴への追記)",
+        "再点検で新たに落ちた記事を管理画面で見つけられる一覧"
+      ],
+      "scope_out": [
+        "記事からの JSON-LD 導出そのもの (実装済み: src/application/seo/structured-data.ts。BlogPosting/FAQPage/BreadcrumbList/Person/Organization/WebPage/ItemList)",
+        "llms.txt・IndexNow・sitemap・RSS の生成 (実装済み: src/app/s/[site]/llms.txt/route.ts、src/domain/seo/indexnow.ts、src/application/seo/feeds.ts)",
+        "ガイドライン出典レジストリと 90 日の陳腐化判定 (実装済み: src/application/usecases/seo/manage-guideline-references.ts、src/domain/seo/guideline-reference.ts の review_due)",
+        "公開時点検の判定ロジックそのもの (実装済み: src/application/seo/ai-search-audit.ts、src/application/usecases/site/publish-article.ts に組込済)",
+        "記事本文の AI 生成 (feat-ai-content-studio)",
+        "クリック・成果のアトリビューション (feat-analytics-insight)",
+        "管理画面の単一用途画面再編 (feat-uiux-overhaul)",
+        "参考ブログ水準の読者導線・目次・サイドバー配置 (feat-reference-blog-admin-ux)"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T00:00:00Z",
+        "origin_kind": "generated",
+        "source_digest": "d31f307c93a74bb01f1263c0ab956cd3c8b09bb4caa23857531cd8a4c8f60df9",
+        "source_path": "system-spec/backend.md",
+        "source_plugin": "dev-graph",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "seo",
+        "aeo",
+        "structured-data",
+        "scheduling",
+        "audit-history"
+      ],
+      "target_date": null,
+      "template_id": "feature",
+      "template_version": "1.0.0",
+      "title": "SEO/AEO の未実装差分を埋める",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T06:02:12.846812Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (要求文書が参照する既存型契約の同定に破れが無いことを静的に確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P01 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.1",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P01 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p01.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "feat-seo-aeo-gap-closure の受入6件 (A1-A6) を実装着手前に一意で検証可能な要求ベースラインへ確定し、HowTo の導出元となる手順の表現方法・Speakable の読み上げ対象・点検履歴の保持窓幅の 3 つを、既存 src/domain/authoring/blog-template.ts の表現ブロック 10 種と src/domain/authoring/article-structure.ts の記事型 5 種の実測に接地させて決める。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P01",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P01",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "feat-seo-aeo-gap-closure の受入6件 (A1-A6) を実装着手前に一意で検証可能な要求ベースラインへ確定し、HowTo の導出元となる手順の表現方法・Speakable の読み上げ対象・点検履歴の保持窓幅の 3 つを、既存 src/domain/authoring/blog-template.ts の表現ブロック 10 種と src/domain/authoring/article-structure.ts の記事型 5 種の実測に接地させて決める。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md",
+        "docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md",
+        "docs/spec/feat-seo-aeo-gap-closure/retention-policy.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md (A1-A6 の検証可能化と参照仕様の対応表); docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md (HowTo の手順表現と Speakable の読み上げ対象の決定と根拠); docs/spec/feat-seo-aeo-gap-closure/retention-policy.md (点検履歴の保持窓幅・保持項目・落とし方の決定と根拠)",
+        "Consumed artifacts: features/feat-seo-aeo-gap-closure.md, features/feat-seo-aeo-gap-closure.context.json, system-spec/backend.md, system-spec/frontend.md, system-spec/database.md, src/domain/authoring/blog-template.ts, src/domain/authoring/article-structure.ts, src/application/seo/ai-search-audit.ts, src/application/seo/structured-data.ts",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md, docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md, docs/spec/feat-seo-aeo-gap-closure/retention-policy.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-01-requirements.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p01",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "SEO/AEO 未実装差分の要求ベースライン確定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:23:30.849598Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (設計が参照する既存型契約が実在することを静的に確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P02 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.2",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P02 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P01"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p02.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P01 で確定した要求を、点検履歴テーブルの列定義・drizzle マイグレーション番号・repository と port の境界・scheduled handler の設置点・publish-article への履歴追記の組込点・管理画面一覧の取得契約として設計へ落とす。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P02",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P02",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "P01 で確定した要求を、点検履歴テーブルの列定義・drizzle マイグレーション番号・repository と port の境界・scheduled handler の設置点・publish-article への履歴追記の組込点・管理画面一覧の取得契約として設計へ落とす。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/architecture.md",
+        "docs/spec/feat-seo-aeo-gap-closure/data-model.md",
+        "docs/spec/feat-seo-aeo-gap-closure/api-contract.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/architecture.md (層境界・scheduled 入口・publish 経路への組込点); docs/spec/feat-seo-aeo-gap-closure/data-model.md (点検履歴テーブルの列定義と索引と保持窓の落とし方); docs/spec/feat-seo-aeo-gap-closure/api-contract.md (管理画面一覧の取得契約と返却形)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md, docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md, docs/spec/feat-seo-aeo-gap-closure/retention-policy.md, src/db/schema.ts, wrangler.jsonc, src/application/usecases/site/publish-article.ts",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/architecture.md, docs/spec/feat-seo-aeo-gap-closure/data-model.md, docs/spec/feat-seo-aeo-gap-closure/api-contract.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-02-architecture.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p02",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "点検履歴の保持と定期再点検経路とJSON-LD導出の設計",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:23:52.753571Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run lint` (設計レビューで参照する既存実装の同定に破れが無いことを確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P03 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.3",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P03 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P02"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p03.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P02 の設計が P01 の要求を漏れなく満たし、かつ scope_out に挙げた既存実装 (JSON-LD 導出本体・llms.txt・IndexNow・出典レジストリ・公開時点検の判定ロジック) を作り直していないことを、実装着手前に独立の目で確かめる。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P03",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P03",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "P02 の設計が P01 の要求を漏れなく満たし、かつ scope_out に挙げた既存実装 (JSON-LD 導出本体・llms.txt・IndexNow・出典レジストリ・公開時点検の判定ロジック) を作り直していないことを、実装着手前に独立の目で確かめる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/design-review.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/design-review.md (指摘・是正・重複有無の判定と根拠)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/architecture.md, docs/spec/feat-seo-aeo-gap-closure/data-model.md, docs/spec/feat-seo-aeo-gap-closure/api-contract.md, docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/design-review.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-03-design-review.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p03",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "設計レビューと既存 SEO 実装との重複有無の独立検証",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:24:14.045392Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm vitest run --reporter=dot` (既存スイートが現時点で緑であることを回帰の基準線として記録する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P04 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.4",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P04 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P03"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p04.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "A1-A6 を、実装より先に落とせるテストとして設計する。とくに A6 (既存の挙動が変わらない) は回帰の形でしか確かめられないため、既存 tests/ のどのスイートを不変の証拠として使うかをここで固定する。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P04",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P04",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "A1-A6 を、実装より先に落とせるテストとして設計する。とくに A6 (既存の挙動が変わらない) は回帰の形でしか確かめられないため、既存 tests/ のどのスイートを不変の証拠として使うかをここで固定する。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/test-design.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/test-design.md (A1-A6 とテストケースの対応表・層別割り当て・回帰スイートの指定)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/design-review.md, docs/spec/feat-seo-aeo-gap-closure/architecture.md, docs/spec/feat-seo-aeo-gap-closure/data-model.md, tests/application, tests/domain, tests/integration",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/test-design.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-04-test-design.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p04",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "受入6件に対応するテスト設計",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:24:35.318379Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `pnpm vitest run --reporter=dot` (P04 が指定した回帰スイートを含む全量)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P05 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.5",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P05 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P04"
+      ],
+      "domain": "backend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p05.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P02 の設計と P04 のテスト設計に沿って、structured-data.ts への HowTo と Speakable の builder 追加、点検履歴テーブルと drizzle マイグレーションと repository と port、publish-article からの履歴追記、scheduled handler による定期再点検、管理画面の落ちた記事一覧を実装する。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P05",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P05",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "P02 の設計と P04 のテスト設計に沿って、structured-data.ts への HowTo と Speakable の builder 追加、点検履歴テーブルと drizzle マイグレーションと repository と port、publish-article からの履歴追記、scheduled handler による定期再点検、管理画面の落ちた記事一覧を実装する。",
+      "related_nodes": [],
+      "resource_scope": [
+        "src/application/seo",
+        "src/domain/authoring",
+        "src/domain/seo",
+        "src/db/schema.ts",
+        "drizzle",
+        "src/infrastructure/persistence/d1",
+        "src/application/ports",
+        "src/application/usecases",
+        "src/app/admin",
+        "src/app/s",
+        "worker-entry.js",
+        "tests"
+      ],
+      "scope_in": [
+        "Produced artifacts: src/application/seo/ への HowTo と Speakable の JSON-LD 導出; src/db/schema.ts への点検履歴テーブルと drizzle/ への対応マイグレーション; src/infrastructure/persistence/d1/ への点検履歴 repository と src/application/ports/ への port; src/application/usecases/site/publish-article.ts からの履歴追記; scheduled handler による公開済み記事の定期再点検; src/app/admin/ 配下の落ちた記事一覧; 上記に対応する tests/ 配下のテスト",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/architecture.md, docs/spec/feat-seo-aeo-gap-closure/data-model.md, docs/spec/feat-seo-aeo-gap-closure/api-contract.md, docs/spec/feat-seo-aeo-gap-closure/test-design.md, docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md, docs/spec/feat-seo-aeo-gap-closure/retention-policy.md",
+        "Write scope/touches: src/application/seo, src/domain/authoring, src/domain/seo, src/db/schema.ts, drizzle, src/infrastructure/persistence/d1, src/application/ports, src/application/usecases, src/app/admin, src/app/s, worker-entry.js, tests"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-05-implementation.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p05",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "HowTo・Speakable 導出と点検履歴と定期再点検と管理画面一覧の実装",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:24:56.121974Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm vitest run --reporter=dot`",
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P06 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.6",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P06 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p06.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P05 の実装に対してテストを全量実行し、新規テストが緑であることと、既存スイートに 1 件の失敗も生じていないことを実測で確かめる。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P06",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P06",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "P05 の実装に対してテストを全量実行し、新規テストが緑であることと、既存スイートに 1 件の失敗も生じていないことを実測で確かめる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/test-run.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/test-run.md (全量実行の結果・失敗0件の根拠・基準線との差分)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/test-design.md, tests",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/test-run.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-06-test-run.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p06",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "テスト全量実行と回帰0件の確認",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:25:15.838667Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm vitest run --reporter=dot` (受入判定の根拠として実行結果を再取得する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P07 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.7",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P07 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P06"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p07.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "feat-seo-aeo-gap-closure の受入6件 (A1-A6) を、実装と実行結果に対して 1 件ずつ判定し、満たしたと言える根拠をそれぞれに紐づける。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P07",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P07",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "feat-seo-aeo-gap-closure の受入6件 (A1-A6) を、実装と実行結果に対して 1 件ずつ判定し、満たしたと言える根拠をそれぞれに紐づける。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/acceptance.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/acceptance.md (A1-A6 の判定・根拠・未達があればその内容)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/test-run.md, docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/acceptance.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-07-acceptance.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p07",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "受入6件の受け入れ判定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:25:38.640731Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm vitest run --reporter=dot`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P08 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.8",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P08 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ],
+      "domain": "backend",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p08.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P05 で足した導出と履歴を既存の SEO 実装へ馴染ませ、追加した drizzle マイグレーションが既存データに対して前方互換であることを確かめる。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P08",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P08",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "P05 で足した導出と履歴を既存の SEO 実装へ馴染ませ、追加した drizzle マイグレーションが既存データに対して前方互換であることを確かめる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "src/application/seo",
+        "src/db/schema.ts",
+        "drizzle",
+        "docs/spec/feat-seo-aeo-gap-closure/migration-compatibility.md",
+        "tests"
+      ],
+      "scope_in": [
+        "Produced artifacts: src/application/seo/ の JSON-LD 組み立て経路の整理; docs/spec/feat-seo-aeo-gap-closure/migration-compatibility.md (追加マイグレーションの前方互換確認と空履歴の扱い)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/data-model.md, src/application/seo/structured-data.ts, drizzle",
+        "Write scope/touches: src/application/seo, src/db/schema.ts, drizzle, docs/spec/feat-seo-aeo-gap-closure/migration-compatibility.md, tests"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-08-refactoring-migration.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p08",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "既存 SEO 実装との統合整理とマイグレーションの前方互換確認",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:25:58.423989Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm vitest run --reporter=dot`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P09 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.9",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P09 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P08"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p09.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "定期再点検が公開済み記事の件数に対して破綻しないこと、点検履歴が保持窓を超えて無限に増えないこと、管理画面一覧が権限境界を越えないことを検査する。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P09",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P09",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "定期再点検が公開済み記事の件数に対して破綻しないこと、点検履歴が保持窓を超えて無限に増えないこと、管理画面一覧が権限境界を越えないことを検査する。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md",
+        "tests"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md (非機能検査の観点・実測・判定)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/retention-policy.md, docs/spec/feat-seo-aeo-gap-closure/architecture.md, docs/spec/feat-seo-aeo-gap-closure/migration-compatibility.md",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md, tests"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-09-quality-assurance.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p09",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "品質保証と非機能検査",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:26:17.291928Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P10 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.10",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P10 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p10.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P01 から P09 までの成果を通しで見直し、本 feature の範囲で残った課題と、次の feature へ渡すべき課題を切り分けて確定する。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P10",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P10",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "P01 から P09 までの成果を通しで見直し、本 feature の範囲で残った課題と、次の feature へ渡すべき課題を切り分けて確定する。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/final-review.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/final-review.md (通しレビューの結果・本 feature 内の残課題・follow-up 候補)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/acceptance.md, docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md, docs/spec/feat-seo-aeo-gap-closure/design-review.md",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/final-review.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-10-final-review.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p10",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "最終レビューと残課題の確定",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:26:37.844697Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm vitest run --reporter=dot` (証跡の再現手順どおりに実行できることを確かめる)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P11 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.11",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P11 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P07",
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p11.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "P07 の受入判定と P09 の非機能検査の証跡を 1 箇所に集約し、後から第三者が同じ手順で再現できる形にする。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P11",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P11",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "P07 の受入判定と P09 の非機能検査の証跡を 1 箇所に集約し、後から第三者が同じ手順で再現できる形にする。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/evidence.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/evidence.md (受入・品質の証跡一覧と再現手順)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/acceptance.md, docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md, docs/spec/feat-seo-aeo-gap-closure/test-run.md",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/evidence.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-11-evidence.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p11",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:26:56.541112Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run lint` (文書が参照する実装パスの実在を確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P12 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.12",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P12 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P10",
+        "SYS-SEO-AEO-GAP-CLOSURE-P11"
+      ],
+      "domain": "documentation",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p12.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "定期再点検が落ちたときに誰が何を見て何をするかを運用手順として書き、点検履歴と管理画面一覧の読み方を運用者向けに文書化する。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P12",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P12",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "定期再点検が落ちたときに誰が何を見て何をするかを運用手順として書き、点検履歴と管理画面一覧の読み方を運用者向けに文書化する。",
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-gap-closure/operations.md",
+        "docs/spec/feat-seo-aeo-gap-closure/documentation.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-seo-aeo-gap-closure/operations.md (定期再点検の監視・失敗時対応・履歴の読み方); docs/spec/feat-seo-aeo-gap-closure/documentation.md (実装した導出規則と保持方針の参照先まとめ)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/final-review.md, docs/spec/feat-seo-aeo-gap-closure/evidence.md, docs/spec/feat-seo-aeo-gap-closure/retention-policy.md",
+        "Write scope/touches: docs/spec/feat-seo-aeo-gap-closure/operations.md, docs/spec/feat-seo-aeo-gap-closure/documentation.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-12-documentation-operations.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p12",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "運用手順と文書化",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:27:15.149238Z"
+    },
+    {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm vitest run --reporter=dot`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-seo-aeo-gap-closure` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P13 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-f60p.13",
+        "github_mirror": null,
+        "linked_at": "2026-09-04T04:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-gap-closure の P13 lifecycle 責務への確定写像",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": null,
+        "status": "in_progress"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/plan-findings.json"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-04T02:37:00Z",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P12"
+      ],
+      "domain": "operations",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p13.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": "本 feature の変更を dev ブランチ経由で開発環境へ出し、実装で確定した導出規則と保持窓を system-spec/backend.md へ書き戻して、決めた内容と動いている内容の差を閉じる。",
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P13",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T02:17:16Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-seo-aeo-gap-closure",
+      "phase_ref": "P13",
+      "priority": null,
+      "project_id": "feature-package-feat-seo-aeo-gap-closure",
+      "pull_request_linkages": [],
+      "purpose": "本 feature の変更を dev ブランチ経由で開発環境へ出し、実装で確定した導出規則と保持窓を system-spec/backend.md へ書き戻して、決めた内容と動いている内容の差を閉じる。",
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec/backend.md",
+        "docs/spec/feat-seo-aeo-gap-closure/release.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: system-spec/backend.md への実装確定内容の書き戻し; docs/spec/feat-seo-aeo-gap-closure/release.md (リリース手順・確認項目・切り戻し手順)",
+        "Consumed artifacts: docs/spec/feat-seo-aeo-gap-closure/operations.md, docs/spec/feat-seo-aeo-gap-closure/evidence.md, system-spec/backend.md",
+        "Write scope/touches: system-spec/backend.md, docs/spec/feat-seo-aeo-gap-closure/release.md"
+      ],
+      "scope_out": [
+        "feat-seo-aeo-gap-closure の scope_out (実装済みの JSON-LD 導出本体・llms.txt・IndexNow・sitemap・RSS・ガイドライン出典レジストリ・公開時点検の判定ロジック・記事本文の AI 生成・クリック成果のアトリビューション・管理画面の単一用途画面再編・参考ブログ水準の読者導線) に該当する変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
+      "source_lineage": {
+        "imported_at": "2026-09-04T02:37:00Z",
+        "origin_kind": "system-dev-planner",
+        "source_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/task-specs/phase-13-release-deploy.md",
+        "source_plugin": "system-dev-planner",
+        "source_version": "0.1.0"
+      },
+      "start_date": null,
+      "status": "active",
+      "tags": [
+        "p13",
+        "feat-seo-aeo-gap-closure"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "開発環境へのリリースと system-spec への書き戻し",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-04T04:27:36.083864Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

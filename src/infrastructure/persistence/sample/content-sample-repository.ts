@@ -6,6 +6,7 @@ import type {
   EditorialSiteDocumentRepositoryPort,
 } from "@/application/ports/site";
 import { countTrackingCoverage } from "@/application/read-models/article-tracking";
+import { tallyBrands } from "@/application/read-models/published-article";
 import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
 import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { stubCall } from "../../stub-registry";
@@ -137,6 +138,10 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
         (a) => a.title.toLowerCase().includes(q) || a.summary.toLowerCase().includes(q),
       );
       return ok(sampleArticleSummaries(hit.slice(0, limit)));
+    },
+    async listBrands(siteSlug: string) {
+      // 数え方は D1 と同じ関数を通す。片方だけ直して並びがずれるのを防ぐ。
+      return ok(tallyBrands(sampleArticlesBySite(siteSlug)));
     },
     async findPerson(siteSlug: string, kind: "author" | "expert", slug: string) {
       return ok(

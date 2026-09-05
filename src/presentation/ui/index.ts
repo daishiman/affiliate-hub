@@ -24,6 +24,7 @@ export { TERMS, UI_COPY, term, fill, DEFAULT_LOCALE, type Locale, type TermKey }
 export { Button, type ButtonProps, type ButtonTone } from "./primitives/button";
 export { Field, type FieldProps } from "./primitives/field";
 export { FormValue, type FormValueProps } from "./primitives/form-value";
+export { DescriptionTime, type DescriptionTimeProps } from "./primitives/description-time";
 export { Select, type SelectProps, type SelectOption } from "./primitives/select";
 export { CheckboxGroup, type CheckboxGroupProps } from "./primitives/checkbox-group";
 export { Checkbox, type CheckboxProps } from "./primitives/checkbox";
@@ -253,6 +254,7 @@ export {
   ArticleView,
   ArticleTableOfContents,
   ArticleList,
+  ARTICLE_SPEAKABLE_SELECTORS,
   PersonView,
   PolicyView,
   CorrectionList,

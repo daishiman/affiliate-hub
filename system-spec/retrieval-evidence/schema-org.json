@@ -1,0 +1,24 @@
+{
+  "target_id": "schema-org",
+  "source_url": "https://schema.org/docs/releases.html",
+  "requested_url": "https://schema.org/docs/releases.html",
+  "retrieved_at": "2026-09-04T05:01:57Z",
+  "http_status": 200,
+  "content_bytes": 294394,
+  "content_sha256": "37105986d9f4df7ac9671321f1259885d3872d4bfefeaf6cf2a1b1b234d85d2e",
+  "page_title": "Release listing - schema.org",
+  "retrieval_method": "curl --compressed",
+  "retrieval_method_note": "2026-09-03 の初回記録は WebFetch 経由で content_bytes / content_sha256 を持たなかった。2026-09-04 に直接取得で本文を byte 単位で取り直し、他の証跡と同じ強さへ揃えた。この host は Accept-Encoding を無視して圧縮本文を返すため、復号しない取得では本文が読めない。content_sha256 は復号した本文の SHA-256 である。",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "30.0",
+    "found_in": [
+      "リリース一覧最上部: Version 30.0 (2026-03-19)"
+    ],
+    "note": "版の表明はリリース一覧そのもの。最上部が現行版を示す。リリース日 2026-03-19。2026-09-04 の再取得時に、取得した本文の版一覧が 30.0 / 29.4 / 29.3 … の順で並び、30.0 が最上部にあることを機械で確認した。"
+  },
+  "extracted_claims": [
+    "現行版は 30.0、リリース日 2026-03-19。",
+    "30.0 の内容は equivalence annotations の追加、EU Digital Product Passport の例追加、語彙・文書・基盤の細部更新。"
+  ]
+}

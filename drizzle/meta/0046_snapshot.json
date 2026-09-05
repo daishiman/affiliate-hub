@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "688ad94a-2682-4d0a-b296-e3a8b65d570e",
-  "prevId": "0c919937-ce41-429e-9eae-401fafbaf89b",
+  "id": "18189dde-c9f2-472e-a531-4c2867151115",
+  "prevId": "4681b726-3187-4d42-bdd9-d3ea88d96c54",
   "tables": {
     "affiliate_accounts": {
       "name": "affiliate_accounts",
@@ -533,6 +533,198 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
+    },
+    "ai_search_audit_history": {
+      "name": "ai_search_audit_history",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "site_slug": {
+          "name": "site_slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "trigger": {
+          "name": "trigger",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "passed_count": {
+          "name": "passed_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "total_count": {
+          "name": "total_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "checks_json": {
+          "name": "checks_json",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "analyzer_version": {
+          "name": "analyzer_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "checked_at": {
+          "name": "checked_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {
+        "ai_search_audit_history_article_idx": {
+          "name": "ai_search_audit_history_article_idx",
+          "columns": [
+            "site_slug",
+            "slug",
+            "checked_at"
+          ],
+          "isUnique": false
+        },
+        "ai_search_audit_history_workspace_idx": {
+          "name": "ai_search_audit_history_workspace_idx",
+          "columns": [
+            "workspace_id",
+            "checked_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ai_search_reaudit_runs": {
+      "name": "ai_search_reaudit_runs",
+      "columns": {
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "scanned": {
+          "name": "scanned",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recorded": {
+          "name": "recorded",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "failed": {
+          "name": "failed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "failure_code": {
+          "name": "failure_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ai_search_reaudit_runs_workspace_id_workspaces_id_fk": {
+          "name": "ai_search_reaudit_runs_workspace_id_workspaces_id_fk",
+          "tableFrom": "ai_search_reaudit_runs",
+          "tableTo": "workspaces",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "ai_search_reaudit_runs_counts_check": {
+          "name": "ai_search_reaudit_runs_counts_check",
+          "value": "\"ai_search_reaudit_runs\".\"scanned\" >= 0 AND \"ai_search_reaudit_runs\".\"recorded\" >= 0 AND \"ai_search_reaudit_runs\".\"failed\" >= 0 AND \"ai_search_reaudit_runs\".\"scanned\" = \"ai_search_reaudit_runs\".\"recorded\" + \"ai_search_reaudit_runs\".\"failed\""
+        },
+        "ai_search_reaudit_runs_time_check": {
+          "name": "ai_search_reaudit_runs_time_check",
+          "value": "\"ai_search_reaudit_runs\".\"completed_at\" >= \"ai_search_reaudit_runs\".\"started_at\""
+        },
+        "ai_search_reaudit_runs_state_check": {
+          "name": "ai_search_reaudit_runs_state_check",
+          "value": "(\n        (\"ai_search_reaudit_runs\".\"status\" = 'succeeded' AND \"ai_search_reaudit_runs\".\"failure_code\" IS NULL AND \"ai_search_reaudit_runs\".\"failed\" = 0)\n        OR (\"ai_search_reaudit_runs\".\"status\" = 'partial' AND \"ai_search_reaudit_runs\".\"failure_code\" = 'article_audit_failed' AND \"ai_search_reaudit_runs\".\"recorded\" > 0 AND \"ai_search_reaudit_runs\".\"failed\" > 0)\n        OR (\"ai_search_reaudit_runs\".\"status\" = 'failed' AND \"ai_search_reaudit_runs\".\"failure_code\" = 'article_audit_failed' AND \"ai_search_reaudit_runs\".\"recorded\" = 0 AND \"ai_search_reaudit_runs\".\"failed\" > 0)\n        OR (\"ai_search_reaudit_runs\".\"status\" = 'failed' AND \"ai_search_reaudit_runs\".\"failure_code\" = 'target_list_unavailable' AND \"ai_search_reaudit_runs\".\"scanned\" = 0)\n      )"
+        }
+      }
     },
     "article_answer_unit": {
       "name": "article_answer_unit",

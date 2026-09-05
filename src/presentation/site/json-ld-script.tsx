@@ -16,3 +16,23 @@ export function JsonLdScript({ value }: { readonly value: JsonLdObject }) {
     />
   );
 }
+
+/**
+ * 1 ページ分の JSON-LD を、並び順を保ったまま描く。
+ *
+ * builder が返す `null` は「その構造を出してはいけない」という判断なので、
+ * 呼び出し側へ条件分岐を散らさず、この境界で script の不在へ写す。
+ */
+export function JsonLdScripts({
+  values,
+}: {
+  readonly values: readonly (JsonLdObject | null)[];
+}) {
+  return (
+    <>
+      {values.map((value, index) =>
+        value === null ? null : <JsonLdScript key={index} value={value} />,
+      )}
+    </>
+  );
+}

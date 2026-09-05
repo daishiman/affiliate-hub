@@ -1,0 +1,164 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "handoff_target": "task-graph",
+  "feature_id": "feat-seo-aeo-gap-closure",
+  "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+  "graph_snapshot_digest": "sha256:cfbcf06ac82c1ff954cb75f41a686370f84a2eece3eb6d97e2e7f46cb3fd6c03",
+  "graph_revision": 415,
+  "scope_digest": "sha256:9934c92a1f48b572a90b4e339be1b0f6d2db4ebfd69eaf6ba98ef6191e66e9a3",
+  "trace_plan_digest": "sha256:1b641be00ee9cdb8d5339150f068b39665a341b42741f683a410999f3deac731",
+  "requirements_document": "docs/requirements/feat-seo-aeo-gap-closure-implementation-requirements.md",
+  "requirements_document_sha256": "c608126553dfd81eb75d2938c8d9740a8b0bc6386cb1201b3d4de66b6b24c6af",
+  "promoted_generation": ".dev-graph/published/feature-package-feat-seo-aeo-gap-closure",
+  "lineage_closure": [
+    "feat-seo-aeo-gap-closure",
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "SYS-SEO-AEO-GAP-CLOSURE-P01",
+    "SYS-SEO-AEO-GAP-CLOSURE-P02",
+    "SYS-SEO-AEO-GAP-CLOSURE-P03",
+    "SYS-SEO-AEO-GAP-CLOSURE-P04",
+    "SYS-SEO-AEO-GAP-CLOSURE-P05",
+    "SYS-SEO-AEO-GAP-CLOSURE-P06",
+    "SYS-SEO-AEO-GAP-CLOSURE-P07",
+    "SYS-SEO-AEO-GAP-CLOSURE-P08",
+    "SYS-SEO-AEO-GAP-CLOSURE-P09",
+    "SYS-SEO-AEO-GAP-CLOSURE-P10",
+    "SYS-SEO-AEO-GAP-CLOSURE-P11",
+    "SYS-SEO-AEO-GAP-CLOSURE-P12",
+    "SYS-SEO-AEO-GAP-CLOSURE-P13"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "gates": {
+    "C11_validate_graph_schema": "pass",
+    "C02_saved_state": "pass",
+    "source_digest": "pass",
+    "validate_system_plan": "pass"
+  },
+  "tasks": [
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P01",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p01.md",
+      "tracker_binding": "beads",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P02",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p02.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P03",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p03.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P04",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p04.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P05",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p05.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P06",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p06.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P07",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p07.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P08",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p08.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P09",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p09.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P10",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p10.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P11",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p11.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P07",
+        "SYS-SEO-AEO-GAP-CLOSURE-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P12",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p12.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P10",
+        "SYS-SEO-AEO-GAP-CLOSURE-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-GAP-CLOSURE-P13",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-seo-aeo-gap-closure/sys-seo-aeo-gap-closure-p13.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-GAP-CLOSURE-P12"
+      ]
+    }
+  ],
+  "requirements_quality": "detailed",
+  "implementation_code_generated": 0,
+  "emitted_at": "2026-09-04T03:10:00Z"
+}

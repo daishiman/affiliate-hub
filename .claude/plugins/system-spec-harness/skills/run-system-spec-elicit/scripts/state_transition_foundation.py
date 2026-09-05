@@ -310,6 +310,36 @@ def _validate_cost_model(value, label: str) -> str:
     return category
 
 
+def _validate_owner_category(state: dict, decision: dict) -> None:
+    """`owner_category` (主担当章) が実在カテゴリを指すことを検める。
+
+    なぜ正本に欄を足したか: 決定の一覧は 8 つの技術章それぞれにも要る。どの決定が
+    その章の担当かを示さないと、8 章に同じ表が並ぶだけで章ごとの意味が消える。
+    ところが「主担当章」は 2026-09-04 まで**章の側に手で書かれていた**。章は
+    `status: confirmed` で C11 hook が Edit を遮断するので、決定が 1 件増えるたびに
+    人が 8 ファイルを直す正規経路が存在しない。実際 2026-09-04 の再生成で
+    `## 意思決定 (decisions)` は 8 章すべてから消えた。
+
+    守るのではなく、機械が導ける欄を正本に置く。これで章側の表は正本の純関数になり、
+    再生成で消えようがなくなる。欄が無い旧 record も通す (主担当なしとして描かれる) が、
+    値があるなら実在カテゴリでなければならない — 幽霊の章名を章の表に載せないため。
+    """
+    owner = decision.get("owner_category")
+    if owner is None:
+        return
+    if not isinstance(owner, str) or not owner.strip():
+        raise TransitionError("decision: owner_category は非空文字列 (省略するなら欄ごと落とす)")
+    known = {
+        c["id"]
+        for c in (state.get("categories") or [])
+        if isinstance(c, dict) and isinstance(c.get("id"), str)
+    }
+    if owner not in known:
+        raise TransitionError(
+            f"decision: owner_category={owner!r} が実在カテゴリを指さない (既知: {sorted(known)})"
+        )
+
+
 def set_decision(state: dict, decision: dict) -> None:
     if not isinstance(decision, dict):
         raise TransitionError("decision は object 必須")
@@ -323,6 +353,7 @@ def set_decision(state: dict, decision: dict) -> None:
     status = decision.get("status")
     if status not in DECISION_STATUSES:
         raise TransitionError(f"decision: status={status!r} が許容値外")
+    _validate_owner_category(state, decision)
     goal_ids = set(foundation_goal_ids((state.get("requirements_foundation") or {}).get("goals", [])))
     serves = normalize_serves(decision.get("serves_goals"))
     if not serves:

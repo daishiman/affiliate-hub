@@ -34,10 +34,53 @@ export type AiSearchCheck = {
 export const SUMMARY_MIN_CHARS = 50;
 export const SUMMARY_MAX_CHARS = 160;
 
-export function auditArticleForAiSearch(article: PublishedArticle): readonly AiSearchCheck[] {
+/** 半年相当を超えた記事は、内容が揃っていても再確認が必要とみなす。 */
+export const FRESHNESS_MAX_DAYS = 180;
+
+/**
+ * この点検ロジックの版。履歴 1 行ごとに保存する。
+ *
+ * **チェックの並び・文言・判定条件を変えたら上げること。** 版を上げずに
+ * 中身を変えると、古い行と新しい行が同じ物差しで測られたように見え、
+ * 「先週より落ちた」が判定の変更なのか記事の劣化なのか区別できなくなる。
+ */
+export const AI_SEARCH_ANALYZER_VERSION = "2";
+
+const DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
+
+/** `YYYY-MM-DD` を UTC の暦日として読み、今日までの経過日数を返す。 */
+function elapsedDaysSince(date: string, now: Date): number | undefined {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (match === null) return undefined;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const updatedAt = Date.UTC(year, month - 1, day);
+  const parsed = new Date(updatedAt);
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== month - 1 ||
+    parsed.getUTCDate() !== day
+  ) {
+    return undefined;
+  }
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return Math.floor((today - updatedAt) / DAY_MILLISECONDS);
+}
+
+export function auditArticleForAiSearch(
+  article: PublishedArticle,
+  now: Date,
+): readonly AiSearchCheck[] {
   const summaryLength = [...article.summary].length;
   // 記事に**実際に出た**ブロックの種類。画面と JSON-LD が読むものと同じ。
   const present = new Set<ExpressionBlockKind>(expressionBlocksOf(article).map((b) => b.kind));
+  const freshnessDays = elapsedDaysSince(article.updatedAt, now);
+  const hasCurrentFreshness =
+    present.has("freshness") &&
+    freshnessDays !== undefined &&
+    freshnessDays >= 0 &&
+    freshnessDays <= FRESHNESS_MAX_DAYS;
 
   return [
     {
@@ -58,9 +101,12 @@ export function auditArticleForAiSearch(article: PublishedArticle): readonly AiS
       hint: "記事の要点を 3〜5 行、1 行に 1 つ書く。結論の直後に箇条書きで出る。",
     },
     {
-      check: "更新日がある",
-      ok: present.has("freshness"),
-      hint: "updatedAt を入れる。いつの情報か分からない記事は、鮮度を重んじる質問で選ばれない。",
+      check: `更新日があり、更新から ${FRESHNESS_MAX_DAYS} 日以内である`,
+      ok: hasCurrentFreshness,
+      hint:
+        freshnessDays !== undefined && freshnessDays > FRESHNESS_MAX_DAYS
+          ? `最終更新から ${freshnessDays} 日経過している。内容を再確認し、updatedAt を更新する。`
+          : "有効な updatedAt を入れる。いつの情報か分からない記事や未来日付は、鮮度を重んじる質問で選ばれない。",
     },
     {
       check: "著者情報がある",

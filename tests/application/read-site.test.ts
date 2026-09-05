@@ -11,6 +11,7 @@ import {
   createGetPersonUseCase,
   createGetPolicyDocumentUseCase,
   createGetSiteUseCase,
+  createListArticleBrandsUseCase,
   createListByCategoryUseCase,
   createListCorrectionsUseCase,
   createListRecentArticlesUseCase,
@@ -70,6 +71,7 @@ function brokenContent(): EditorialPublishedContentPort {
     listByPerson: boom,
     listCorrections: boom,
     findPolicyDocument: boom,
+    listBrands: boom,
   }) as unknown as EditorialPublishedContentPort;
 }
 
@@ -78,6 +80,7 @@ describe("読者向けの読み取りに渡してよい保存先", () => {
     ["ブログ 1 本", createGetSiteUseCase],
     ["ブログ一覧", createListSitesUseCase],
     ["新着", createListRecentArticlesUseCase],
+    ["ブランド", createListArticleBrandsUseCase],
     ["カテゴリー", createListByCategoryUseCase],
     ["記事 1 本", createGetArticleUseCase],
     ["探す", createSearchArticlesUseCase],
@@ -188,6 +191,27 @@ describe("記事の一覧", () => {
 
   it("新着が 0 件でも失敗にしない", async () => {
     const result = await createListRecentArticlesUseCase(realDeps()).execute(reader, {
+      siteSlug: "no-such-site",
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value).toEqual([]);
+  });
+
+  it("ブランドは、記事の多い順に並んで返る", async () => {
+    const result = await createListArticleBrandsUseCase(realDeps()).execute(reader, {
+      siteSlug: SAMPLE_SITE_SLUG,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const counts = result.value.map((b) => b.articleCount);
+    // 並び順を画面側に任せない。任せると、一覧の画面ごとに順番が変わる。
+    expect(counts).toEqual([...counts].sort((a, b) => b - a));
+    // 同じ記事の中に同じブランドの商品が何個あっても、1 件と数える。
+    expect(counts.every((c) => c >= 1)).toBe(true);
+  });
+
+  it("商品を扱っていないブログでは、ブランドが 0 件でも失敗にしない", async () => {
+    const result = await createListArticleBrandsUseCase(realDeps()).execute(reader, {
       siteSlug: "no-such-site",
     });
     expect(result.ok).toBe(true);

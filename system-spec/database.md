@@ -3,7 +3,7 @@ status: confirmed
 category: database
 aggregate: 確定
 spec_cells: [database.web, database.mobile, database.tablet, database.desktop-windows, database.desktop-linux, database.desktop-macos]
-serves_goals: [G1, G2]
+serves_goals: [G1, G2, G3]
 ---
 
 # データベース (database)
@@ -15,12 +15,42 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-database-web-domain-aeo-behavior。裏付け質疑 (`qa_refs`): `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-database-web-domain-aeo-behavior。裏付け質疑 (`qa_refs`): `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
+
+| 項目 | 値 |
+|---|---|
+| セル | database × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-database-web-domain-aeo-behavior` |
+| 資するゴール (serves_goals) | G1, G2, G3 |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
+
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`database`) を主担当とする **2 件**。全 12 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
+|---|---|---|---|---|
+| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 |
+| `dec-analysis-history-retention` | AEO/SEO 解析の結果履歴を D1 にどう保持するか。最新だけを持つのか、推移を追えるよう履歴を積むのか、積むならどこで打ち切るのか。 | `opt-append-with-window` | confirmed | G3, G2 |
+
+- **`decision-editorial-commercial-split` の caveat**: 既存テーブルの引っ越しが 1 回必要で、その回だけは本番データを触る / DB をまたぐ集計はアプリ側の突合になるため、突合のテストを先に書く / 分けたあとも、Commercial の値を関数の引数として渡せば混ざる。バインディングの分離は「うっかり」を防ぐが「意図」は防がない
+
+- **`dec-analysis-history-retention` の caveat**: 保持件数・保持期間の具体値は本セッションで根拠を持たない。実際にどれだけの期間を比較したいか (施策の効果が現れるまでの期間) を決めてから設定すること。根拠なく数値を確定しないこと / 刈り取りの失敗は容量が伸びるだけで画面に何も現れない。刈り取りの最終実行時刻と削除件数を記録し、確認できるようにすること / 解析ロジックのバージョンを各行へ記録すること。記録しないと、スコアの変化が記事の改善によるのか解析側の変更によるのか区別できず、履歴が比較に使えなくなる / 根拠として引用した Cloudflare D1 と Drizzle は取得済みの入口ページで、無料枠の具体的な容量上限は本セッションで再取得していない。保持件数を決める際に公式資料で再確認すること
 
 ## 確定内容 (質疑録)
 
@@ -29,6 +59,18 @@ serves_goals: [G1, G2]
 **質問**: database×web: ブログごとに独自ドメインを接続でき、読者がどこに時間をかけ・どこを押したかを座標まで含めて解析でき、AEO (回答エンジン最適化) の状態を管理でき、ブログ横断で売上と PV を集約できるようにするには、データをどう持つか。既存の『読者向けホスト名は DB に保存せず SITE_BASE_DOMAIN から導出する』という site_blueprints の判断はどう扱うか
 
 **回答**: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
+
+### qa-database-web-audit-history-window-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: database×web: 点検履歴と定期再点検の最新実行状態を D1 にどう分けて保存し、workspace 境界と状態整合を保証するか (P13 書き戻し・v3)。
+
+**回答**: 記事単位の点検履歴は既存 0044 の `ai_search_audit_history` に保持し、記事ごと直近 30 件、追記と刈り取りを同一トランザクション、記事への外部キー無しという規則は変えない。刈り取り単体の実行マーカーは不要だが、それは cron 全体の成否を記録しないという意味ではない。
+
+0044 を編集せず、0045 で SEO 再点検専用の `ai_search_reaudit_runs` を追加する。これは履歴を無限に追記する表ではなく、1 workspace に直近の最終状態 1 行を上書き保存する投影である。`workspace_id` を主キーとして `workspaces.id` へ外部キーを持ち、管理画面の取得 SQL は必ず actor の `workspace_id` で絞る。
+
+`status` は `succeeded | partial | failed`、`failure_code` は `target_list_unavailable | article_audit_failed | null`。非負整数と `scanned = recorded + failed`、完了時刻が開始時刻以上、status・failure code・件数の正しい組み合わせを D1 CHECK 制約で保証する。時刻は UTC epoch 秒の integer timestamp で、`started_at` と `completed_at` を持つ。実行結果に自由文や秘匿情報は保存しない。
+
+0045 適用時に過去の cron を推定して backfill せず、初期は「未実行」と読む。次の cron 完了後に初めて最終状態と時刻が入る。巻き戻しは 0045 の表を先に落とし、その後に必要なら 0044 を落とす。記事本体は変更しない。
 
 ### qa-database-web-blog-provisioning-integrity (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -105,6 +147,26 @@ metric_rollup:
 * 高カーディナリティ組み合わせは事前集計せず、生イベントへのアドホック集計で対応(集計セット定義はバージョン管理)
 
 - (注記: 正本 qa_log[qa-database-web-analytics].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+
+### qa-database-web-aeo-analysis-storage-v4 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: database×web: AEO/SEO 解析結果とガイドライン参照レジストリ、および記事の機械可読要素の素材 (alt・出典・FAQ・手順・著者) をどこにどう保存するか。2026-09-03 利用者ヒアリング。
+
+**回答**: 既存の確定 (qa-database-web-blog-provisioning-integrity) の原則 — 正本を1か所に置き、別表へ複製しない — をそのまま適用する。
+
+#### 記事の機械可読要素の素材
+結論・要点・比較表・FAQ・手順・出典・著者/監修者・画像の alt と寸法・装飾画像の宣言は、記事本体の保存実体 (published_articles の記事 JSON) の中に持つ。構造化データ用の別表を作らない。別表にすると、記事を直したのに構造化データが古いまま残る状態が生まれる。
+
+#### 解析結果
+解析結果は記事単位・実行時刻付きの履歴として保存する。最新1件だけを上書き保存しない。上書きすると「直したのに直っていない」のか「判定が変わった」のかを後から区別できない。保存する内容は判定項目ごとの3値 (充足/不足/対象外)・不足時の該当箇所・判定に使った規則の版。記事本文は複製せず参照で持つ。
+
+#### ガイドライン参照レジストリ
+発行元・URL・確認日・要約を保存する。要約は取得した文章の複製ではなく、こちらで書いた要約であることを明示する。
+
+#### テナント境界
+解析結果とレジストリはワークスペースで区切る。読者向けの読み取り (記事一覧・本文・検索・カテゴリー・人物) はサイト単位で区切る既存の方針を維持し、解析結果を読者経路から読まない。
+
+- (注記: 正本 qa_log[qa-database-web-aeo-analysis-storage-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 
 ## 章の注記 (chapter_notes)
 
@@ -330,6 +392,61 @@ guard 表は `CREATE TABLE IF NOT EXISTS` + 先頭の `DELETE` なので、
 
 - 正本へ入れた理由: 同章 §4.3 が ⚠️『配色の保存と掲載の増減が操作の記録に届かない』と記録した状態を本リリース commit で解消したため、正本を現状に一致させる。前の記録は消さず差分として足す。
 
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+
+- **`decision-editorial-commercial-split` が本章に効く形**: 「報酬額をランキングの
+  入力にしない」という禁止を、コードの中ではなく **D1 を 2 本に分ける**位置で
+  担保する。越えるには設定を書き換えるしかなくなり、越えた事実が差分に残る。
+- **`dec-analysis-history-retention` が本章に効く形** (2026-09-04 確定、
+  `opt-append-with-window`): 解析結果は上書きせず追記する。上書きすると「施策の
+  前後で何が変わったか」が原理的に取れず、AEO/SEO の改善が効いたのかを判定する
+  手段が消える。無制限に貯めないのは D1 の無料枠が有限だからで、**保持件数・
+  保持期間の具体値は本決定では確定しない** — 施策の効果が現れるまでの期間を
+  決めてから設定する。
+- **各行に解析ロジックのバージョンを記録する。**これが無いと、判定基準を変えた
+  前後の行が同じ土俵に並び、実際にはロジックが変わっただけの差を「改善」と
+  読み違える。刈り取り (retention) は、この列を持つ行を古い順に消す形で実装する。
+- **編集用と商用の分離は解析履歴にも及ぶ。**解析結果は編集判断の入力なので、
+  報酬データと同じ本に置かない。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
+### 章の規範本文を正本から再生成しない理由
+
+**2026-09-04 追記**: `## 確定セルの記録` そのものは、この日から compile が正本 `matrix` / `qa_log` から描く (手写しを 15 日続けた結果、2 度腐ったため)。
+**以下の 3 つの実測が指しているのは、その表ではなく章の規範本文である。**
+「章を丸ごと再生成して正本の本文で置き換える」を採らない理由として、そのまま生きている。
+
+C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[] を本文へ載せる」と書いているが、**再生成も本文複製もしない**。理由は 3 つあり、どれも読んで判断したのではなく測った結果である。次に読む人が善意で「正本に合わせる」と、下に書いた退行が起きる。**この節はそのために置いてある。**
+
+**理由 1: 再生成すると章の規範本文が消える。** compile 出力と本番章を突き合わせた結果、章にあって生成器にも正本にも無い行が `system-spec/*.md` 10 枚で **374 回出現**した (分母 = 10 枚の空行を除く全行)。同じ行をファイル内で畳むと **366 行**、10 枚を横断して畳むと **316 行**。3 つの数はすべて正しく、数えている対象が違うだけである (出現回数 / ファイル内一意 / 全体一意)。消えるのは To-Be 契約表 (`DB-*` / `BE-*` / `INF-*` / `*-REQ-*` / `*-ACC-*`)、故障モード、初期 SLO、Acceptance evidence、index の状態軸。
+
+**理由 2: 正本の回答は章より古い。** 章と正本の両方に現れうるトークン 9 個で照合した (分母 = 照合トークン 9 個)。
+
+| トークン | 正本 `qa-database-web-spec-intake` の回答 | `system-spec/database.md` |
+|---|---|---|
+| `conversions_pending` | 1 | 0 |
+| `conversions_approved` | 1 | 0 |
+| `revenue_confirmed` | 1 | 0 |
+| `conversions_decision_pending` | 0 | 2 |
+| `conversions_settlement_paid` | 0 | 2 |
+| `revenue_approved` | 0 | 4 |
+| `revenue_paid` | 0 | 4 |
+| `approval_status` | 0 | 7 |
+| `payment_status` | 0 | 5 |
+
+上 3 行は正本にしかない**旧名**、下 6 行は章にしかない**現行名**である。つまり `MetricRollup` の列名について**正本のほうが古い**。正本の本文を章へ複製すると列名が旧名へ戻る。「正本が新しい」という前提が成り立たない以上、複製は同期ではなく退行になる。
+
+**理由 3: 章が名指す確定質疑が正本の `qa_ref` と食い違っていた。** 8 カテゴリ中 **7 件で不一致**、一致は auth のみだった (分母 = `coverage_matrix` の web セル 8 件)。章側は `qa-*-analytics` / `qa-*-web` を、正本側は `qa-*-spec-intake` を名指していた。本節と `## カテゴリ別収集状態` の Web 行は**正本の値を正**として書き直した。章側の旧 ID が指していた質疑録の本文は `## 確定内容 (質疑録)` にそのまま残してあり、**消していない** (理由 2 のとおり、章側の本文のほうが新しいため)。
+
+以上より gaps[0] は、**本文を増やさず「確定の根拠がどこにあるか」を章に載せる**形で実行した。正本の所在は 2 つに分かれる — **規範本文の正本は章、確定セルの状態の正本は `spec-state.json`**。食い違ったら、本節の表は `spec-state.json` を正とし、規範本文は章を正とする。
+
+- 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -413,6 +530,21 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
   - 章固有の根拠: 既存 site_blueprints が住所を保存しないのは、dev/prod でデータを移すと住所が古くなるためである。この理由はカスタムドメインには当たらない。カスタムドメインは環境から導出できず、利用者が外部で取得した固有の値だからである。よって既定の住所は導出のまま残し、カスタムドメインだけを行として持つ
   - トレードオフ:
     - 1 つのサイトが『導出される既定の住所』と『保存されたカスタムドメイン』の 2 つを持ち、どちらを正規 URL とするかの判断が要る。全部を行へ移せば単純になるが、既存判断が避けた dev/prod 移送時の陳腐化が戻る
+##### 接地根拠 qa-database-web-audit-history-window-p13-v3 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-database-web-audit-history-window-p13-v3` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 記事の監査履歴とジョブの最新健全性投影を、異なるライフサイクルとして分ける (`ddd.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 記事点検は過去 30 回の比較に要る追記履歴、run-state は今の運用健全性に要る直近 1 行である。同じ表に混ぜず、後者だけを workspace 主キーで上書きする
+  - トレードオフ:
+    - 過去の cron 実行の推移は run-state 表からは読めないが、そのための汎用イベント基盤は作らない
+    - workspace 行を物理削除する前に run-state の扱いも決める必要があるため、現行どおり workspace は削除ではなく停止で扱う
+- 原則: 観測状態自体にも、成功と失敗を取り違えない制約を置く (`site-reliability-engineering.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 対象 0 件成功と対象取得失敗が同じ 0 件に見えないよう status と固定 failure code を分け、件数と時刻を CHECK 制約で結び付ける
+  - トレードオフ:
+    - 状態語彙を増やす際は domain 型、migration 制約、表示を同時に変更する必要がある
 ##### 接地根拠 qa-database-web-blog-provisioning-integrity (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-database-web-blog-provisioning-integrity` を参照
@@ -497,7 +629,29 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
   - 章固有の根拠: Conversion/ClickEvent/MetricRollup は Commercial 系スキーマに置き、Editorial 側から参照不可にする (v1.0 §19.4 の物理的強制)
   - トレードオフ:
     - スキーマが二系統になり管理コストが増えるが、法令・信頼性要件を構造で担保できる
-- 資するゴール: G1, G2
+##### 接地根拠 qa-database-web-aeo-analysis-storage-v4 (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-database-web-aeo-analysis-storage-v4` を参照
+- 設計解釈の記録経路: `secondary_ref_attachment` (`attach-qa-design-applications`)
+- 原則: 正本を1か所に置き、別表へ複製しない (`ddd.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 回答は既存の確定 qa-database-web-blog-provisioning-integrity の原則をそのまま引き、機械可読要素の素材 (結論・要点・比較表・FAQ・手順・出典・著者・alt と寸法・装飾宣言) を記事本体の保存実体の中に持ち、構造化データ用の別表を作らないと定めている。理由も回答自身が述べている — 別表にすると、記事を直したのに構造化データが古いまま残る状態が生まれる。これは dec-structured-data-emission で配信時導出を選んだ判断と同じ根拠に立っている
+  - トレードオフ:
+    - 記事 JSON が持つ項目が増え、記事1件あたりの保存サイズが伸びる。別表へ切り出せば個々は小さくなるが、記事と構造化データがずれる状態を許すことになるため採らない
+    - FAQ・手順・出典のように記事によって有無が変わる項目を記事 JSON へ持つため、項目の追加・改名が記事全件へ影響する。素材の項目設計を実装着手前に固める必要がある
+- 原則: いつの時点の判定かを常に言えるようにする (`cloudflare:d1-drizzle`)
+  - 採否: `applied`
+  - 章固有の根拠: 解析結果を記事単位・実行時刻付きの履歴として保存し、最新1件だけの上書きにしない。回答が挙げる理由は、上書きすると『直したのに直っていない』のか『判定が変わった』のかを後から区別できなくなることである。判定に使った規則の版を各行へ持たせるのは、この区別を成立させるための最小の情報であり、dec-analysis-history-retention の caveat と同じ内容を保存側から要求している
+  - トレードオフ:
+    - 履歴を積むため行数が記事数×解析回数で伸びる。dec-analysis-history-retention で保持件数の上限を設けることで上限付きに抑えるが、上限を超えた過去は失われる
+    - 記事本文を複製せず参照で持つため、記事が後から改稿されると過去の判定が『どの本文に対する判定だったか』を復元できない。規則の版は残るが本文の版は残らない
+- 原則: 境界は保存の側で区切り、読み取り経路の判断に委ねない (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 解析結果とガイドライン参照レジストリをワークスペースで区切り、読者向けの読み取り (記事一覧・本文・検索・カテゴリー・人物) はサイト単位で区切る既存方針を維持している。2つの区切りが別の軸である点が重要で、運営の内部評価をテナント境界に、読者に見せる内容をサイト境界に置くことで、読者経路から解析結果へ到達する経路そのものを作らない
+  - トレードオフ:
+    - 境界の軸が2つになるため、どちらの境界で区切るべきかを新しい表を足すたびに判断する必要がある。単一の境界に揃える方が単純だが、運営の内部評価と読者向け内容を同じ軸で区切ると、片方を緩めたときにもう片方まで緩む
+    - レジストリの要約をこちらで書いた要約と明示するため、原文の複製で済ませられない。取得元の文章をそのまま保存する方が手間は少ないが、複製の可否という別の判断を持ち込むことになる
+- 資するゴール: G1, G2, G3
 
 ## 最新ドキュメント出典
 
@@ -557,22 +711,9 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 - outbox を重複・順序逆転で配送しても projection が一意かつ最新になり、再送後に未処理 outbox がゼロになる recovery test。
 - conversion の再取込・遅延した二軸の状態更新・rollup 再計算と、KPI version 一致を示す migration / contract test。DB が `scheduled/paid + approval_status!=approved` を拒否し、approved/unpaid は `revenue_approved` のみ、approved/paid は `revenue_paid` も計上すること。
 
-## 確定セルの記録 (正本 spec-state.json)
+## 章にしか無い記述 (正本へ未接続)
 
-> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.database.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | database × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-database-web-domain-aeo-behavior` |
-| 資するゴール (serves_goals) | G1, G2 |
-| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/06-サイトブループリント-記事構成テンプレート.md` |
-| 出典 節 | §2 SiteBlueprint のパラメータ定義 |
-| 出典 sha256 | `d53fe38abd234fffa7905c74000b7198c025e5c84cbb019b88fa30245c99e18b` |
-| 適用された設計知識 (design_applications) | 7 件 — 本章 `## 適用された設計知識` を参照 |
+> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由 (2026-08-20 実測)`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
 
 ### 本節を「転記」に留めた理由 (2026-08-20 実測)
 
@@ -600,35 +741,16 @@ C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[]
 
 以上より gaps[0] は、**本文を増やさず「確定の根拠がどこにあるか」を章に載せる**形で実行した。正本の所在は 2 つに分かれる — **規範本文の正本は章、確定セルの状態の正本は `spec-state.json`**。食い違ったら、本節の表は `spec-state.json` を正とし、規範本文は章を正とする。
 
-## 意思決定 (decisions)
+## dev 合流で章から落ちた確定内容 (2026-09-05)
 
-> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。
+> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
+> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
+> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
+> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
+> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
 
-| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |
-|---|---|---|---|---|---|
-| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | auth |
-| **`decision-editorial-commercial-split`** | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | **database** |
-| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |
-| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |
-| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |
-| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | maintenance-ops |
-| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |
-
-- **`decision-editorial-commercial-split` が本章に効く形**: 「報酬額をランキングの入力にしない」という禁止を、コードの中ではなく **D1 を 2 本に分ける**位置で担保する。越えるには設定を書き換えるしかなくなり、越えた事実が差分に残る。
-
-## 章にしか無い記述 (正本へ未接続)
-
-> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`###### database 章への反映方針`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
-
-###### database 章への反映方針
-- 追加エンティティ: blog_template (セクション構成の宣言データ)、blog_theme (デザイントークン集合、ブログ既定)、page_theme_override (ページ単位の配色上書き)、legal_page (固定ページ種別と本文、ブログ単位)、blog_affiliate_placement (ブログ/記事×アフィリエイト案件の反映対応)。
-- 既存 32 エンティティ (Site/Brand/Article/Offer 等) を拡張し、複製しない。テンプレート・テーマは version を持ち、公開済みブログが参照する版を固定できる。
-- 保存先は既存 D1 (Drizzle) を継続する。
-- (注記: 正本 qa_log[qa-database-web-blog-builder].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
-- 設計解釈の記録経路: `dialogue`
-- 原則: Aggregate 境界: Blog を root にテンプレート/テーマ/固定ページ/アフィリエイト配置を集約する (`ddd.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 『見える・作る・保存する・一覧する』の 4 面で同じブログ×アフィリエイト対応を参照するため、blog_affiliate_placement を Blog 集約下に置き、Offer (アフィリエイト案件) は既存 Commercial 境界を参照のみとする
-  - トレードオフ:
-    - テンプレート/テーマに version を持たせると公開済みブログの参照固定が要り、移行時の二重管理が発生する
-    - 既存 32 エンティティへ 5 エンティティを追加するため、データモデル基盤 feature との整合レビューが必要
+- `| Web (web) | 確定 | 確定質疑: qa-database-web-audit-history-window-p13-v3。裏付け質疑 (`qa_refs`): `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-database-web-audit-history-window-p13-v3` |`
+- `### qa-database-web-audit-history-window-p13-v3 (対応セル: web)`
+- `##### 確定内容 qa-database-web-audit-history-window-p13-v3 (対応セル: web)`
+- `- 確定要件: 記事単位の点検履歴は既存 0044 の `ai_search_audit_history` に保持し、記事ごと直近 30 件、追記と刈り取りを同一トランザクション、記事への外部キー無しという規則は変えない。刈り取り単体の実行マーカーは不要だが、それは cron 全体の成否を記録しないという意味ではない。`

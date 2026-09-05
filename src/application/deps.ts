@@ -7,6 +7,7 @@ import type {
   EditorialTestRunRepositoryPort,
 } from "./ports";
 import type { BlogOpsRepositoryPort, PublicBlogPort } from "./ports/blog-ops";
+import type { AiSearchAuditHistoryPort, AiSearchReauditRunPort } from "./ports/seo";
 import type {
   EditorialContentPackageRepositoryPort,
   EditorialContentVariantRepositoryPort,
@@ -97,6 +98,15 @@ export type AppDeps = {
   readonly publishedArticles: EditorialPublishedArticleWriterPort;
   /** 公開後の訂正と非表示化。読者用の口に混ぜない。 */
   readonly publishedArticleAdmin: EditorialPublishedArticleAdminPort;
+  /**
+   * AI 検索適合の点検結果の履歴。
+   *
+   * 公開時の点検と定期再点検が同じ口へ書き、管理画面が同じ口から読む。
+   * 別々にすると「画面に出ている落ち方」と「残っている落ち方」がずれる。
+   */
+  readonly aiSearchAuditHistory: AiSearchAuditHistoryPort;
+  /** 定期再点検そのものの最新の最終状態。workspace を跨いで読む口は持たない。 */
+  readonly aiSearchReauditRuns: AiSearchReauditRunPort;
   /**
    * 記事の版が指している成果リンクを、読者に見せる写しへ引き当てる口。
    *

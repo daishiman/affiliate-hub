@@ -13,7 +13,7 @@
  * 「読者に出せる部品」と「本人確認のための部品」の境界を機械的に保つ。
  */
 
-import { DiagramFallback, Foldable, SectionHeading } from "@/presentation/ui";
+import { DescriptionTime, DiagramFallback, Foldable, SectionHeading } from "@/presentation/ui";
 import styles from "./affiliate-preview-card.module.css";
 
 export type AffiliatePreviewView = {
@@ -100,10 +100,13 @@ export function AffiliatePreviewCard({ preview }: { readonly preview: AffiliateP
           */}
           <div className={styles.detailFact}><dt>貼り付けたURL</dt><dd><code>{preview.rawUrl}</code></dd></div>
           <div className={styles.detailFact}><dt>正規URL</dt><dd><code>{show(preview.canonicalUrl)}</code></dd></div>
-          <div className={styles.detailFact}>
-            <dt>取得時刻</dt>
-            <dd><time dateTime={preview.retrievedAt}>{preview.retrievedAt}</time></dd>
-          </div>
+          <DescriptionTime
+            className={styles.detailFact}
+            label="取得時刻"
+            dateTime={preview.retrievedAt}
+          >
+            {preview.retrievedAt}
+          </DescriptionTime>
           <div className={styles.detailFact}><dt>ステータス</dt><dd>{STATUS_LABEL[preview.status]}</dd></div>
         </dl>
         <SectionHeading level={4}>重複候補の詳細</SectionHeading>
