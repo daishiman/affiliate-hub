@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-article-block-editor",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "feature-package/inventory/graph/handoff/13 task specs は単一 parent_feature=feat-article-block-editor と feature_package_id=feature-package/feat-article-block-editor に束縛され、機械検証 (single-parent/package/id parity) に違反はない。意味面でも各 phase の目的/背景/成果物は goal-spec の goal (2層UI・19種断片・商品検索選択・R2直接アップロード・許可リスト描画・既存10種の不変性) と scope_in/scope_out に相互に矛盾しない。P02-P13 は同一のスコープ外節を持ち、P05 実装が触れる write_scope と P02 設計・P03 レビューが確認する既存境界の記述にも齟齬がない。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#目的",
+        "task-specs/phase-02-architecture.md#背景",
+        "task-specs/phase-03-design-review.md#目的",
+        "task-specs/phase-05-implementation.md#目的",
+        "task-specs/phase-13-release-deploy.md#目的",
+        "feature-package.json#phase_refs",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "P01..P13 の exact-set、task_count=13、必須 section 非空、placeholder 0 は deterministic gate (contract 1.3.0 enforced: required_sections/test_strategy/rerun_command/inner_goal_seek/p01_entry_gate すべて満たす) で確認済み。features/feat-article-block-editor.md の frontmatter tags は qa-NNN 宣言を一切持たないため、feature-execution-package-contract.md §2.5 の qa-ref-unregistered/qa-semantic-coverage/qa-task-trace および quality_constraints[].id==\"semantic-coverage-not-tag-only\" の見出し反映検査は非該当 (『qa-NNN 宣言が無い feature は対象外』)。goal-spec の goal/acceptance が要求する『節(見出し2)/断片(見出し3/4)の2層可視化』『19種断片の`/`挿入・編集・公開一致』『商品カードの検索選択挿入(手入力欄なし)』『画像のR2直接アップロード(URL手入力欄なし)』『公開ページ許可リスト絞り込み』『既存10種記事の不変性』の各要件は P01(要件ベースライン)、P02(2層UI/19種コンポーネント/許可リストレンダラ設計)、P03(独立設計レビュー)、P04(境界値テスト設計)、P05(WYSIWYG化・商品検索選択・R2直接アップロード・許可リスト実装)、P06(全量回帰)、P07(受入判定)、P08(既存10種記事の前方互換)、P09(許可リスト網羅性・品質保証)、P10(独立最終レビュー)、P11(証跡集約)、P12(孤児画像回収・移行運用手順)、P13(release/close-out)の全13 task 本文へ『往復』『既存記事』『許可リスト』『既存10種記事』『19種』『R2』の語彙で確認できる形で反映されており、tag/lineage の形式一致だけに依拠していない。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#目的",
+        "task-specs/phase-02-architecture.md#目的",
+        "task-specs/phase-04-test-design.md#目的",
+        "task-specs/phase-05-implementation.md#目的",
+        "task-specs/phase-08-refactoring-migration.md#目的",
+        "task-specs/phase-09-quality-assurance.md#目的",
+        "task-specs/phase-12-documentation-operations.md#目的",
+        "task-specs/phase-13-release-deploy.md#目的",
+        "feature-package.json#phase_refs",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "feature-package/inventory/graph/handoff/13 task specs は共通 parent_feature=feat-article-block-editor と feature_package_id=feature-package/feat-article-block-editor に束縛され、P01..P13 の id・phase・path parity、repository_id=github:daishiman/affiliate-hub (git remote origin と一致確認済み) が全成果物で一致する。staging-manifest.json 記載の manifest files ∪ {staging-manifest.json} = 18 file の実SHA-256 を独立再計算し全件一致を確認した (evaluated_inputs)。system-build-handoff.json は source_inputs exact 16件と pre-handoff canonical digest を保持し、promotion/registration receipt owner の deferred 境界 (owner=system-dev-planner/C11 / dev-graph/C02, status=not-emitted) も契約通り。",
+      "evidence": [
+        "feature-package.json#task_node_ids",
+        "workstream-inventory.json#repo_context",
+        "task-graph.json#nodes",
+        "system-build-handoff.json#identity",
+        "system-build-handoff.json#source_inputs",
+        "system-build-handoff.json#registration_request",
+        "staging-manifest.json#files",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json の14 edgeはすべて前方 (小さいphase_refから大きいphase_refへ) で、循環・dangling・cross-feature参照はない。分岐点 (P05→{P06,P08}、{P07,P09}→P11、{P10,P11}→P12) を実測した結果、P11のdepends_on=[P07,P09]、P12のdepends_on=[P10,P11]は各task本文の前提条件/成果物と整合する。feature間依存はtaskへコピーされておらず、workstream-inventory.json#p01_entry_gateはcontract固定形 (selector=parent_feature.depends_on, operator=all, required_statuses=[done,closed]) のままdev-graph側へ委譲されている。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "task-graph.json#edges",
+        "workstream-inventory.json#p01_entry_gate",
+        "task-specs/phase-11-evidence.md#前提条件",
+        "task-specs/phase-12-documentation-operations.md#成果物",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--config",
+        ".dev-graph/config.json",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-article-block-editor"
+      ],
+      "exit_code": 0,
+      "conditions": ["C1", "C2", "C3", "C4"],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf\",\n  \"feature_package_id\": \"feature-package/feat-article-block-editor\",\n  \"parent_feature\": \"feat-article-block-editor\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "8a233d6c6c5d1c8dbfa6c5bdf41ccf232abc507df84422fb1eb0acdc5d5d6aab"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "bd3a5eeb73a0f6bb9862f632a68914526e91257d5ee9c2059d203eb3eb6434e4"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "ac840cc58d3400ffccaf574fc6a6d30f6210ec5d1ab88a0157e262c2a1f1d724"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "07cffebd8d4b2f482e738a7042e0b77a8f7118eb3d683c9e0d4d0fcb38bbd62b"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "623db9a8cf1bda6c3e2fe280ebd0351742eef3d67841d766870624ce40238aa4"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "5e9d6f687cbec59fa1879a709c9ad84c625890d95142e171e216519f3a5b3083"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "9fa0d4491fbc622d2bbe53fe79f6dd64b9fcc92b58218adbf03be7e11f29bbb3"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "f42a8c2f31a25e9708b8aa10b57a50a90312f71abaccbaa93be28cbac5dece8c"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "11c2699bb276a7d6c5e1f0b214c94f0eb65b3cfb6963a4389cc83e6761a321fe"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "21074b5a80f520ab76e55a2d5440b0910694301830af0105ff9cac1b1fd42cf0"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "dbb34e2b68b28d4f380bf43f7a83425756352c9d821df49a818a9f0912dec56a"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "58cfa5b51b0ba4a03c6a6ef5dfd3089a2f9261f10f370c7893b5df74166a959c"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "0d14dd7c77deb03afc1c228f2d145fc2aed3480b801a24b5ff089a364bbdae27"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "dd88da6963f437fa8ab8eba8920287f734aa50806a39fe8871470ff599f28854"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "c4de9a0c94958cf57db2686e490ddb5e598e69d1bc63a56c0913c800e6c4276c"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "304e2cb1b157ddf4f38d2270dd90d0fe5ce963c25f7ee3dbf72fece284518d94"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "aada9b4e7f2f9c7b37fcfb3c57f57a1cab9e99e919c685da654c878fe7fbdb46"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "013094a08a42adc760d81152fa9502255a4a0b0b6fb93f0b2ce26d47e4464b9d"
+    }
+  ],
+  "staleness_rule": "promotion 時に staging-manifest.json の SHA-256、manifest 対象17 filesの各 SHA-256、再計算 canonical digest を current bytes から再照合し、evaluated_inputs (staging-manifest.json#files ∪ {staging-manifest.json} の exact-set 18件) および evaluated_digest=sha256:d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf と1件でも不一致なら本 verdict を破棄して再評価する。feature (features/feat-article-block-editor.md)、goal-spec.json、system-spec/spec-state.json の意味入力が変わった場合も同じ digest の verdict を再利用せず、package 再生成からやり直す。",
+  "findings": []
+}

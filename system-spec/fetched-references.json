@@ -247,6 +247,19 @@
       "evidence_ref": "system-spec/retrieval-evidence/web-dev-core-web-vitals.json",
       "evidence_sha256": "47b36f0f3c620f556a0ae45dd39ca82e2293871caf1d6b8dd722fc016c2a8dad",
       "summary": "Google 公式 web.dev の Web Vitals 記事。G3 (SEO/AEO) が要求する読み込み性能の指標定義の authority で、LCP / INP / CLS の 3 指標と good 閾値 (2.5s / 200ms / 0.1)、実利用者 75 パーセンタイルという判定方法を定める。版番号を持たない文書のため last_updated 2024-10-31 を鮮度根拠とする。"
+    },
+    {
+      "target_id": "cloudflare-r2",
+      "retrieved_at": "2026-09-05T00:57:28Z",
+      "source_url": "https://developers.cloudflare.com/r2/api/s3/presigned-urls/",
+      "official_publisher": "Cloudflare",
+      "official_host": "developers.cloudflare.com",
+      "last_updated": "2026-08-22",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-05T00:57:28Z",
+      "evidence_ref": "system-spec/retrieval-evidence/cloudflare-r2.json",
+      "evidence_sha256": "68182518b9d75cf7cdba6345d296cd1dca2d721f80b95b3cc0275bcdcaf70a71",
+      "summary": "Cloudflare R2 の署名付き URL 公式ドキュメント。記事画像をブラウザから直接アップロードする経路の正本参照。確認した一次記述: (1) 署名付き URL は期限まで何度でも再利用できる (The same presigned URL can be reused multiple times until it expires) ため、1 回きりの使い捨てとして設計してはならない。(2) 署名で縛れるのは資源 (アカウント ID・バケット・オブジェクトパス)・操作 (GET / PUT / HEAD / DELETE の 4 つ)・期限 (1 秒〜7 日 = 604,800 秒) であり、容量の上下限を署名へ含める S3 POST policy は同 docs の S3 API 互換表に記載が無い。(3) ブラウザから直接 PUT するにはバケットへ CORS ポリシーが要り、AllowedMethods に PUT、AllowedHeaders にクライアントが送るヘッダ (Content-Type など)、ExposeHeaders に ETag、MaxAgeSeconds に preflight のキャッシュ時間を置く (同 docs r2/buckets/cors/)。(4) 単一 PUT の上限は 5 GiB、multipart で 4.995 TiB、オブジェクト自体は 5 TiB まで (同 docs r2/platform/limits/)。"
     }
   ]
 }

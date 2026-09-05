@@ -759,8 +759,9 @@
     "database": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-database-web-audit-history-window-p13-v3",
+        "qa_ref": "qa-database-web-article-image-verbatim",
         "qa_refs": [
+          "qa-database-web-article-image-verbatim",
           "qa-database-web-audit-history-window-p13-v3",
           "qa-database-web-blog-provisioning-integrity",
           "qa-database-web-blog-builder",
@@ -776,7 +777,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-04",
+            "checked_on": "2026-09-05",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -785,23 +786,33 @@
       },
       "mobile": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-database-platform-exclusion-consequence"
       },
       "tablet": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-database-platform-exclusion-consequence"
       },
       "desktop-windows": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-database-platform-exclusion-consequence"
       },
       "desktop-linux": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-database-platform-exclusion-consequence"
       },
       "desktop-macos": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-database-platform-exclusion-consequence"
       }
     },
     "auth": {
@@ -830,30 +841,41 @@
       },
       "mobile": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-auth-platform-exclusion-consequence"
       },
       "tablet": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-auth-platform-exclusion-consequence"
       },
       "desktop-windows": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-auth-platform-exclusion-consequence"
       },
       "desktop-linux": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-auth-platform-exclusion-consequence"
       },
       "desktop-macos": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-auth-platform-exclusion-consequence"
       }
     },
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ui-ux-web-creation-completion-feedback",
+        "qa_ref": "qa-uiux-web-editor-verbatim",
         "qa_refs": [
+          "qa-uiux-web-editor-verbatim",
           "qa-ui-ux-web-creation-completion-feedback",
           "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
           "qa-uiux-web-seo-ai-search-v2",
@@ -862,7 +884,9 @@
           "qa-uiux-web-spec-intake",
           "qa-uiux-web",
           "qa-uiux-web-overhaul-v2",
-          "qa-uiux-web-reader-experience-aeo-v4"
+          "qa-uiux-web-reader-experience-aeo-v4",
+          "qa-foundation-u1",
+          "qa-platform-scope"
         ],
         "required_info": [
           {
@@ -891,7 +915,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-03",
+            "checked_on": "2026-09-05",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -900,29 +924,44 @@
       },
       "mobile": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
       },
       "tablet": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
       },
       "desktop-windows": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
       },
       "desktop-linux": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
       },
       "desktop-macos": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
       }
     },
     "security": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-security-web-spec-intake",
+        "qa_ref": "qa-security-web-upload-hardening-corrected",
+        "qa_refs": [
+          "qa-security-web-upload-hardening-corrected",
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
         "required_info": [
           {
             "item_id": "security-posture",
@@ -932,20 +971,13 @@
           }
         ],
         "serves_goals": [
-          "G1"
-        ],
-        "qa_refs": [
-          "qa-security-web-spec-intake",
-          "qa-security-web"
+          "G1",
+          "G2",
+          "G3"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-22",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 1
-          },
-          {
-            "checked_on": "2026-08-25",
+            "checked_on": "2026-09-05",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -954,30 +986,41 @@
       },
       "mobile": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-security-platform-exclusion-consequence"
       },
       "tablet": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-security-platform-exclusion-consequence"
       },
       "desktop-windows": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-security-platform-exclusion-consequence"
       },
       "desktop-linux": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-security-platform-exclusion-consequence"
       },
       "desktop-macos": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-security-platform-exclusion-consequence"
       }
     },
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infrastructure-web-wildcard-subdomain",
+        "qa_ref": "qa-infrastructure-web-r2-upload-actual-capability",
         "qa_refs": [
+          "qa-infrastructure-web-r2-upload-actual-capability",
           "qa-infrastructure-web-wildcard-subdomain",
           "qa-infra-web-migration-guard-v2",
           "qa-infra-web-migration-guard",
@@ -986,12 +1029,13 @@
           "qa-infra-web-redirect"
         ],
         "serves_goals": [
+          "G1",
           "G2",
-          "G1"
+          "G3"
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-02",
+            "checked_on": "2026-09-05",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1000,30 +1044,41 @@
       },
       "mobile": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
       },
       "tablet": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
       },
       "desktop-windows": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
       },
       "desktop-linux": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
       },
       "desktop-macos": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
       }
     },
     "backend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-backend-web-seo-audit-writeback-p13-v3",
+        "qa_ref": "qa-backend-web-prose-verbatim",
         "qa_refs": [
+          "qa-backend-web-prose-verbatim",
           "qa-backend-web-seo-audit-writeback-p13-v3",
           "qa-backend-web-blog-creation-atomicity",
           "qa-backend-web-spec-intake",
@@ -1047,7 +1102,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-04",
+            "checked_on": "2026-09-05",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -1056,30 +1111,41 @@
       },
       "mobile": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-backend-platform-exclusion-consequence"
       },
       "tablet": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-backend-platform-exclusion-consequence"
       },
       "desktop-windows": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-backend-platform-exclusion-consequence"
       },
       "desktop-linux": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-backend-platform-exclusion-consequence"
       },
       "desktop-macos": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-backend-platform-exclusion-consequence"
       }
     },
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-blog-composition-visibility",
+        "qa_ref": "qa-frontend-web-editor-verbatim",
         "qa_refs": [
+          "qa-frontend-web-editor-verbatim",
           "qa-frontend-web-blog-composition-visibility",
           "qa-frontend-web-capture-self-occlusion",
           "qa-frontend-web-affiliate-link-preview-v3",
@@ -1098,13 +1164,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-08-31",
-            "checked_with": "record-required-info-check",
-            "blocking_item_count": 0,
-            "unmet_blocking_items": 0
-          },
-          {
-            "checked_on": "2026-09-04",
+            "checked_on": "2026-09-05",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1113,30 +1173,41 @@
       },
       "mobile": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-frontend-platform-exclusion-consequence"
       },
       "tablet": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-frontend-platform-exclusion-consequence"
       },
       "desktop-windows": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-frontend-platform-exclusion-consequence"
       },
       "desktop-linux": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-frontend-platform-exclusion-consequence"
       },
       "desktop-macos": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-frontend-platform-exclusion-consequence"
       }
     },
     "maintenance-ops": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-ops-web-migration-guard-v2",
+        "qa_ref": "qa-maintenance-ops-web-orphan-image-verbatim",
         "qa_refs": [
+          "qa-maintenance-ops-web-orphan-image-verbatim",
           "qa-ops-web-migration-guard-v2",
           "qa-ops-web-migration-guard",
           "qa-ops-web-spec-intake",
@@ -1148,7 +1219,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-02",
+            "checked_on": "2026-09-05",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1157,23 +1228,33 @@
       },
       "mobile": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
       },
       "tablet": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
       },
       "desktop-windows": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
       },
       "desktop-linux": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
       },
       "desktop-macos": {
         "state": "対象外",
-        "reason": "対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only)"
+        "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
+        "approval_ref": "approval-platform-web-only",
+        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
       }
     }
   },
@@ -1187,6 +1268,35 @@
         "path": "docs/spec/01-要求仕様書-v1.0.md",
         "section": "§2.1",
         "sha256": "7a4e61c40e13726f5361ce8a37e9cc4a2b636f301bfc6e075307ac245199d48b"
+      },
+      "basis": "observed-fact",
+      "required_info_items": [
+        "product-goal"
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "表示優先度 (グループ間とグループ内の双方へ優先度を付け design token の段階へ写す。すべてを強調しない一方、優先度の低さを到達不能と同義にしない)",
+          "applicability": "applied",
+          "rationale": "U1 は発信者の生成効率と読者の意思決定品質を同時に立てることを求めるため、編集画面では本文ブロックの編集と保存・公開という主導線を最上位に置き、一貫性の担保 (誰が・誰に・何を・なぜ) と読者向けの出典・検証情報は主導線を塞がない位置に常設の入口を持たせて段階開示する。収益に効くアフィリエイト要素は読者が判断材料として識別できる強さを保ちつつ、本文の可読性より上位には置かない",
+          "tradeoffs": [
+            "出典・検証・一貫性チェックを初期表示から外す結果、書き手がそれらを見ないまま公開できる経路が生まれるため、公開前ゲートで未記入項目を提示するなど、優先度が低い情報にも必ず一度は到達する別経路を要件へ入れる",
+            "主導線を本文編集へ絞ることで熟練者向けの一括操作・詳細設定が後段へ回り、反復作業の多い利用者では操作数が増える。段階開示の展開状態を保持するなどの補償手段を検証指標つきで置く"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md#適用条件",
+          "principle": "工程順序 (文脈と達成タスク → 情報候補 → グループと優先度 → 削除仮説 → 表示モデル、の順で進め、表やカードの確定から始めない)",
+          "applicability": "applied",
+          "rationale": "U1 が名指しする達成タスクは「一つの信頼できる商品情報を起点に、複数媒体へ一貫した記事を作り改善する」ことなので、画面部品の選定より先にこの起点データと派生記事の関係を情報構造として確定し、そのうえでブロック編集 UI の表現パターンを選ぶ",
+          "tradeoffs": [
+            "既存 component をそのまま当てる進め方より初期の確定コストが増え、情報構造が固まるまで実装着手が遅れる"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
       }
     },
     {
@@ -1280,6 +1390,35 @@
       "answer": "Webのみ。モバイル・タブレットはレスポンシブWebで対応し、ネイティブアプリ・デスクトップアプリは対象外とする。",
       "source": {
         "kind": "user-dialogue"
+      },
+      "basis": "user-decision",
+      "required_info_items": [
+        "target-platforms"
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "usability-accessibility.md#中核概念",
+          "principle": "一貫性と標準準拠 (同じ意味は同じ語・同じ位置・同じ操作で表し、標準から逸脱する場合は理由を残す)",
+          "applicability": "applied",
+          "rationale": "到達経路を Web 単独に絞り、モバイル・タブレットはレスポンシブ Web で同一の導線と component を再利用する。プラットフォーム別 UI を持たないため、語・位置・操作を単一の design token 体系へ収束させ、端末差はブレークポイントと入力手段の適応だけで吸収する",
+          "tradeoffs": [
+            "ネイティブの HIG 準拠を選ばないため、端末固有のジェスチャ・通知・オフライン挙動は Web の範囲でしか提供できず、逸脱の理由を仕様側に残す必要がある",
+            "単一 UI を全端末で成立させる制約が先に立つので、狭幅で崩れない情報構造と段階開示を component 確定より前に決めねばならない"
+          ]
+        },
+        {
+          "knowledge_ref": "usability-accessibility.md#適用条件",
+          "principle": "適合水準の受入基準化 (目標水準と検証手段を要件側で確定し、受入時に検査する)",
+          "applicability": "applied",
+          "rationale": "公開 Web が唯一の到達経路になる結果、利用者の端末と支援技術を組織が選べない。目標水準を WCAG 2.2 AA に置き、自動検査と支援技術での手動確認の双方を受入基準へ入れる",
+          "tradeoffs": [
+            "支援技術での実機確認ができない段階では AA 適合を確定できず未確認として残すため、受入のリードタイムが伸びる"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
       }
     },
     {
@@ -1317,7 +1456,8 @@
             "D1 にはDBサイズ・書き込みスループット上限があり、ClickEvent 等の大量イベントは集計特化ストア(Workers Analytics Engine 等)への分離を Phase 3 までに判断する"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-backend-web",
@@ -1357,7 +1497,8 @@
             "結果整合となるためダッシュボードは速報値と確定値を区別表示する必要がある"
           ]
         }
-      ]
+      ],
+      "basis": "observed-fact"
     },
     {
       "id": "qa-uiux-web",
@@ -1388,7 +1529,8 @@
             "媒体仕様変更でプレビューが実際とずれるリスクがあり、Capability Registry のバージョンと連動させる"
           ]
         }
-      ]
+      ],
+      "basis": "observed-fact"
     },
     {
       "id": "qa-security-web",
@@ -1419,6 +1561,10 @@
             "命令分離により柔軟な自動抽出は制限されるが、乗っ取り型攻撃を構造的に遮断できる"
           ]
         }
+      ],
+      "basis": "observed-fact",
+      "required_info_items": [
+        "security-posture"
       ]
     },
     {
@@ -1447,7 +1593,8 @@
             "自動停止は投稿予定の未実行を生むため、通知と再開手順をセットで提供する"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-frontend-web",
@@ -1475,7 +1622,8 @@
             "二系統の維持コストが生じるが、読み取り系ツールから段階導入して限定する"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-ops-web",
@@ -1510,7 +1658,8 @@
             "検知頻度を上げると外部API利用量が増えるため、レート予算内でジャンル別に頻度を調整する"
           ]
         }
-      ]
+      ],
+      "basis": "observed-fact"
     },
     {
       "id": "qa-auth-web",
@@ -1563,6 +1712,12 @@
           "recorded_with": "set-qa-written-up",
           "section": "## 1. 認証方式（auth × web）"
         }
+      ],
+      "provenance": "既存の認証方式の確定 (decisions.decision-auth-method)。ブラウザ Cookie セッションに一本化する認証モデルが確定済みであることを、必須情報 auth-model の接地として紐付ける。",
+      "basis": "user-decision",
+      "answered_at": "2026-09-05T01:12:00Z",
+      "required_info_items": [
+        "auth-model"
       ]
     },
     {
@@ -1594,7 +1749,8 @@
             "データ結合の自由度は下がるが、報酬額バイアスの混入を構造的に防止できる"
           ]
         }
-      ]
+      ],
+      "basis": "observed-fact"
     },
     {
       "id": "qa-database-web-analytics",
@@ -1625,7 +1781,8 @@
             "スキーマが二系統になり管理コストが増えるが、法令・信頼性要件を構造で担保できる"
           ]
         }
-      ]
+      ],
+      "basis": "observed-fact"
     },
     {
       "id": "qa-frontend-web-analytics",
@@ -1660,7 +1817,8 @@
             "自動最適化より反映は遅くなるが、人間承認必須の制約 (U8) と整合する"
           ]
         }
-      ]
+      ],
+      "basis": "observed-fact"
     },
     {
       "id": "qa-infra-web-redirect",
@@ -1695,7 +1853,8 @@
             "経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる"
           ]
         }
-      ]
+      ],
+      "basis": "observed-fact"
     },
     {
       "id": "qa-backend-web-spec-intake",
@@ -1799,7 +1958,8 @@
         ],
         "reanchored_with": "reanchor-split-scope-notes",
         "reanchored_on": "2026-08-21"
-      }
+      },
+      "basis": "observed-fact"
     },
     {
       "id": "qa-database-web-spec-intake",
@@ -1874,7 +2034,11 @@
         ],
         "reanchored_with": "reanchor-split-scope-notes",
         "reanchored_on": "2026-08-21"
-      }
+      },
+      "basis": "observed-fact",
+      "required_info_items": [
+        "domain-model"
+      ]
     },
     {
       "id": "qa-uiux-web-spec-intake",
@@ -1932,7 +2096,8 @@
             "採用できる配色が狭まるが、下限を都度ゆるめる判断が発生しない"
           ]
         }
-      ]
+      ],
+      "basis": "observed-fact"
     },
     {
       "id": "qa-infra-web-spec-intake",
@@ -2018,7 +2183,8 @@
         ],
         "reanchored_with": "reanchor-split-scope-notes",
         "reanchored_on": "2026-08-21"
-      }
+      },
+      "basis": "observed-fact"
     },
     {
       "id": "qa-security-web-spec-intake",
@@ -2084,7 +2250,11 @@
         ],
         "reanchored_with": "reanchor-split-scope-notes",
         "reanchored_on": "2026-08-21"
-      }
+      },
+      "basis": "observed-fact",
+      "required_info_items": [
+        "security-posture"
+      ]
     },
     {
       "id": "qa-frontend-web-spec-intake",
@@ -2161,7 +2331,8 @@
         ],
         "reanchored_with": "reanchor-split-scope-notes",
         "reanchored_on": "2026-08-21"
-      }
+      },
+      "basis": "observed-fact"
     },
     {
       "id": "qa-ops-web-spec-intake",
@@ -2238,7 +2409,8 @@
         ],
         "reanchored_with": "reanchor-split-scope-notes",
         "reanchored_on": "2026-08-21"
-      }
+      },
+      "basis": "observed-fact"
     },
     {
       "id": "qa-uiux-web-screen-priority",
@@ -2310,6 +2482,10 @@
           "recorded_with": "set-qa-written-up",
           "section": "## 2. 主要画面の情報優先度（ui-ux × web）"
         }
+      ],
+      "basis": "user-decision",
+      "required_info_items": [
+        "context-of-use"
       ]
     },
     {
@@ -2345,7 +2521,8 @@
             "モバイル幅ではサイドバーを sticky にできないため、開閉式ドロワーへ降格する分岐が増える"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-frontend-web-blog-builder",
@@ -2371,7 +2548,8 @@
             "light-dark() 方針により配色×明暗の掛け合わせを設定に持てないので、ページ単位上書きも色トークンのみに限定する"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-database-web-blog-builder",
@@ -2397,7 +2575,8 @@
             "既存 32 エンティティへ 5 エンティティを追加するため、データモデル基盤 feature との整合レビューが必要"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-uiux-web-seo-ai-search",
@@ -2448,7 +2627,8 @@
             "構造化データの型 (BlogPosting/FAQPage/Product/Review) を増やすほど Rich Results の検証項目が増える。受入条件は公式 (index 可能・snippet 可能・Rich Results Test PASS) に限定し、業者ブログの推定値 (可視性 +30〜40% 等) を受入条件に置かない"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-frontend-web-seo-ai-search-v2",
@@ -2484,7 +2664,8 @@
             "llms.txt は正式標準ではなく主要 LLM クローラが読む保証が無い。emitLlmsTxt を設計図の任意項目に留め、効果未確認であることを管理画面の説明に明記する"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-backend-web-overhaul-v2",
@@ -2509,7 +2690,8 @@
       ],
       "source": {
         "kind": "user-dialogue"
-      }
+      },
+      "basis": "user-decision"
     },
     {
       "id": "qa-frontend-web-overhaul-v2",
@@ -2543,7 +2725,8 @@
       ],
       "source": {
         "kind": "user-dialogue"
-      }
+      },
+      "basis": "user-decision"
     },
     {
       "id": "qa-uiux-web-overhaul-v2",
@@ -2577,7 +2760,8 @@
       ],
       "source": {
         "kind": "user-dialogue"
-      }
+      },
+      "basis": "user-decision"
     },
     {
       "id": "qa-infra-web-migration-guard",
@@ -2627,7 +2811,8 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes"
-      }
+      },
+      "basis": "user-decision"
     },
     {
       "id": "qa-ops-web-migration-guard",
@@ -2677,7 +2862,8 @@
           }
         ],
         "recorded_with": "set-qa-scope-notes"
-      }
+      },
+      "basis": "user-decision"
     },
     {
       "id": "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
@@ -2711,7 +2897,8 @@
             "状態ラベルと戻り導線を常時出すぶん表示要素は増えるため、主要操作と状態以外の補助情報は段階的開示にし、一覧の列は利用頻度と誤操作コストで固定する"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-frontend-web-affiliate-link-preview-v3",
@@ -2745,7 +2932,8 @@
             "状態を細分化すると表示語彙が増えるため、内部状態をそのまま露出せず、利用者が次に行える操作が同じものは一つの表示状態にまとめる"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-frontend-web-capture-self-occlusion",
@@ -2780,7 +2968,8 @@
             "隠す対象を属性で選ぶため、将来別の浮遊要素が増えたときに同じ属性を付け忘れると写り込みが再発する。属性の付与漏れを検査で拾う必要がある"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-database-web-blog-provisioning-integrity",
@@ -2835,6 +3024,10 @@
             "既存データに所有者不一致や曖昧な site/slug がある場合は推測で結ばず、forward migration を fail-fast で止める"
           ]
         }
+      ],
+      "basis": "user-decision",
+      "required_info_items": [
+        "domain-model"
       ]
     },
     {
@@ -2889,7 +3082,8 @@
             "旧 /blog/:slug は削除せず同じ projection を引いて articleHref の canonical URL へ 308 redirect するため、入口は残るが本文の描画経路は一つになる"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-frontend-web-blog-composition-visibility",
@@ -2934,7 +3128,8 @@
             "SiteFrame は notFound() を呼ぶ前提で書かれており、管理画面の中で使うには『見つからない』の扱いを呼び出し側で受け取れる形に分ける必要がある"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-infrastructure-web-wildcard-subdomain",
@@ -2979,7 +3174,8 @@
             "cookie を親ドメインで共有しないため、ブログを跨ぐログイン状態の引き継ぎはできない。読者側にその要求が生じたら別の仕組み (明示的な連携) が要る"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-ui-ux-web-creation-completion-feedback",
@@ -3023,7 +3219,8 @@
             "サブドメインを正に据えると、SITE_BASE_DOMAIN 未設定の既存ブログでは正の表示が空になる。その場合はパス形式を正へ繰り上げる規則が要る"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-infra-web-migration-guard-v2",
@@ -3075,7 +3272,8 @@
             "承認までの待ち時間が検査ぶん延びる。押した後に落ちる回が減るほうが、判断としては確かである"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-ops-web-migration-guard-v2",
@@ -3109,7 +3307,8 @@
             "空でないことしか見ておらず、中身が壊れた控えは通る。復元まで試す費用に見合わないという判断は据え置く"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-uiux-web-reader-experience-aeo-v4",
@@ -3162,7 +3361,8 @@
           "recorded_with": "set-qa-written-up",
           "section": "§3. 読者向けブログ画面と記事エディターの整え方（ui-ux × web）"
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-frontend-web-aeo-emission-v4",
@@ -3215,7 +3415,8 @@
           "recorded_with": "set-qa-written-up",
           "section": "§4. 機械可読要素の生成と欠落の検出（frontend × web）"
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-backend-web-aeo-analysis-pipeline-v4",
@@ -3268,7 +3469,8 @@
           "recorded_with": "set-qa-written-up",
           "section": "§5. SEO/AEO 充足度の解析と反映（backend × web）"
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-database-web-aeo-analysis-storage-v4",
@@ -3312,7 +3514,8 @@
       "design_application_provenance": {
         "mode": "secondary_ref_attachment",
         "writer": "attach-qa-design-applications"
-      }
+      },
+      "basis": "user-decision"
     },
     {
       "id": "qa-backend-web-seo-audit-writeback-p13-v2",
@@ -3441,7 +3644,8 @@
             "SEO 再点検以外のジョブに同じ表を流用できないが、未確定の汎用イベント基盤は持たない"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
     },
     {
       "id": "qa-database-web-audit-history-window-p13-v3",
@@ -3476,7 +3680,309 @@
             "状態語彙を増やす際は domain 型、migration 制約、表示を同時に変更する必要がある"
           ]
         }
-      ]
+      ],
+      "basis": "user-decision"
+    },
+    {
+      "id": "qa-security-web-editor-upload-and-render-hardening",
+      "question": "security×web: 画像アップロードと本文断片の増加に伴い、どこで何を止めるか。",
+      "answer": "**署名付き URL は短命かつ 1 回きりにする。**寿命は数分とし、発行した鍵と型と大きさ以外には使えないようにする。長命の URL は、漏れた瞬間に誰でも書き込める口になる。\n\n**型と大きさは発行時に検査する。**受けるのは png / jpeg / webp / gif / avif に限る。svg は受けない。svg は中に script を書ける画像であり、配信ドメインで実行されると同一ドメインの資格情報に手が届く。大きさにも上限を置く。\n\n**申告と実体の食い違いを事後に確かめる。**直接アップロードでは中身を Worker が見られない。アップロード完了の通知を受けた側で、実体の先頭バイト (マジックナンバー) が申告した型と一致するかを確かめ、食い違えば公開 URL を発行せず実体を消す。\n\n**本文の描画は許可リストで絞る。**保存する拡張 Markdown は、それ自体は無害な文字列にすぎない。危ないのは描画である。embed の提供元は許可した host だけを受け、それ以外は素のリンクへ落とす。cta-button と link-card のリンク先は http/https だけを受け、javascript: と data: は受けない。色指定は名前つきトークンの許可リストに限り、任意の CSS を通さない。コードブロックの中身は必ず文字として描き、解釈しない。\n\n**alt の欠落は公開を止める。**装飾目的と宣言した画像を除き、alt が空の記事は公開できない。これは守りではなく届く記事のための規則だが、同じ検証の場所に置く。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "security",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "受け入れる形を許可リストで定義し、拒否リストで追いかけない",
+          "applicability": "applied",
+          "rationale": "埋め込み先・リンクのスキーム・色・画像の型のいずれも、危ないものを列挙し続けるのではなく、通してよいものだけを挙げる。新しい攻撃手口が出ても既定で通らない",
+          "tradeoffs": [
+            "運営者が使いたい埋め込み先が増えるたびに許可リストへの追加という手続きが要る"
+          ]
+        },
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "検査できない経路には、事後の突き合わせを対で置く",
+          "applicability": "applied",
+          "rationale": "直接アップロードは中身を通過時に見られない。申告した型と実体のマジックナンバーを完了後に突き合わせ、食い違えば公開 URL を出さずに消すことで、見られない区間の穴を塞ぐ",
+          "tradeoffs": [
+            "アップロード完了から公開 URL 発行までに一拍入るため、編集画面はその待ちを見せる必要がある"
+          ]
+        },
+        {
+          "knowledge_ref": "usability-accessibility.md#中核概念",
+          "principle": "alt の欠落を、書き手が気付ける場所で止める",
+          "applicability": "applied",
+          "rationale": "alt は公開後には誰も直さない。公開の手前で止めれば、書き手が文脈を覚えているうちに書ける。装飾目的の宣言を用意することで、意味のない alt を埋めさせる圧力を避ける",
+          "tradeoffs": [
+            "装飾と宣言すれば通るため、宣言の乱用は機械では止められず、記事の点検側で見ることになる"
+          ]
+        }
+      ],
+      "superseded_by": "qa-security-web-upload-hardening-corrected"
+    },
+    {
+      "id": "qa-database-platform-exclusion-consequence",
+      "question": "database: 対象プラットフォームを Web だけにしたことは、データ層の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、データ層にとって何が設計対象から外れたのかが読めない。そこで データ層 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。"
+    },
+    {
+      "id": "qa-auth-platform-exclusion-consequence",
+      "question": "auth: 対象プラットフォームを Web だけにしたことは、認証の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、認証にとって何が設計対象から外れたのかが読めない。そこで 認証 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。"
+    },
+    {
+      "id": "qa-ui-ux-platform-exclusion-consequence",
+      "question": "ui-ux: 対象プラットフォームを Web だけにしたことは、UI/UXの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、UI/UXにとって何が設計対象から外れたのかが読めない。そこで UI/UX 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。"
+    },
+    {
+      "id": "qa-security-platform-exclusion-consequence",
+      "question": "security: 対象プラットフォームを Web だけにしたことは、セキュリティの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、セキュリティにとって何が設計対象から外れたのかが読めない。そこで セキュリティ 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。"
+    },
+    {
+      "id": "qa-infrastructure-platform-exclusion-consequence",
+      "question": "infrastructure: 対象プラットフォームを Web だけにしたことは、インフラの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、インフラにとって何が設計対象から外れたのかが読めない。そこで インフラ 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。"
+    },
+    {
+      "id": "qa-backend-platform-exclusion-consequence",
+      "question": "backend: 対象プラットフォームを Web だけにしたことは、バックエンドの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、バックエンドにとって何が設計対象から外れたのかが読めない。そこで バックエンド 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。"
+    },
+    {
+      "id": "qa-frontend-platform-exclusion-consequence",
+      "question": "frontend: 対象プラットフォームを Web だけにしたことは、フロントエンドの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、フロントエンドにとって何が設計対象から外れたのかが読めない。そこで フロントエンド 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。"
+    },
+    {
+      "id": "qa-maintenance-ops-platform-exclusion-consequence",
+      "question": "maintenance-ops: 対象プラットフォームを Web だけにしたことは、保守運用の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、保守運用にとって何が設計対象から外れたのかが読めない。そこで 保守運用 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。"
+    },
+    {
+      "id": "qa-infrastructure-web-r2-upload-actual-capability",
+      "question": "infrastructure×web: 記事画像を R2 へ直接アップロードする経路を、Cloudflare R2 が実際にできることに合わせて確定し直すとどうなるか。",
+      "answer": "**先に訂正する。**前回の確定は「署名付き URL は短命かつ 1 回きり」「発行した鍵と型と大きさ以外には使えない」と書いていた。公式ドキュメント (取得日 2026-09-05、`system-spec/retrieval-evidence/cloudflare-r2.json`) を読むと、いずれも成立しない。\n\n- 公式は **The same presigned URL can be reused multiple times until it expires** と明記している。1 回きりではない。\n- 署名で縛れるのは **資源** (アカウント ID・バケット・オブジェクトパス)・**操作** (GET / PUT / HEAD / DELETE の 4 つ)・**期限** (1 秒〜7 日 = 604,800 秒) の 3 つだけである。\n- 容量の上下限を署名へ含める S3 POST policy は、R2 の S3 API 互換表に記載が無い。**大きさは署名で縛れない。**\n\n**実能力に合わせた確定。**(1) ブラウザから署名付き URL で直接 PUT する。画像本体を Worker に通さないのは、Worker のリクエストボディ上限が『貼れる画像の大きさ』の天井になるのを避けるためである。(2) 鍵は `workspace_id/記事id/一意なid.拡張子` に固定し、鍵の先頭が workspace であることでテナント越えが鍵の並びの上で生じないようにする。(3) 配信は R2 のカスタムドメイン経由とし、バケットの公開 URL を記事本文へ埋めない。配信元を差し替えても本文の書き換えが要らない。(4) **バケットに CORS ポリシーが要る。**`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間。設定しない限りブラウザからの直接 PUT は preflight で落ちる。前回の確定にはこれが抜けていた。(5) 単一 PUT の上限は 5 GiB。超える画像は multipart へ切り替えるか上限として拒否するかを実装時に決め、暗黙に失敗させない。\n\n**削除は持たない。**記事から外した画像の刈り取りは maintenance-ops の掃除ジョブへ渡す。infrastructure は保管と配信の側だけを持つ。",
+      "source": {
+        "kind": "written-requirements",
+        "ref": "system-spec/retrieval-evidence/cloudflare-r2.json"
+      },
+      "asks_for": [
+        {
+          "category": "infrastructure",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "使う仕組みが実際にできることを確かめてから要件にする",
+          "applicability": "applied",
+          "rationale": "『1 回きりの署名』を前提に設計すると、実際には再利用できる URL を配ることになり、想定した防御が最初から存在しない。公式の記述に合わせて要件を書き直せば、防御の位置が実物と一致する",
+          "tradeoffs": [
+            "署名で大きさを縛れないぶん、検査を受領後へ回す必要がある。防御の点が 1 つ増える"
+          ]
+        }
+      ],
+      "basis": "observed-fact"
+    },
+    {
+      "id": "qa-security-web-upload-hardening-corrected",
+      "question": "security×web: 署名で大きさを縛れないという実能力を踏まえ、記事画像のアップロードと本文の描画をどう守るか。",
+      "answer": "**前回の確定を訂正する。**「署名付き URL は 1 回きり」「発行した鍵と型と大きさ以外には使えない」は、Cloudflare R2 の公式仕様と矛盾する。署名が縛れるのは資源・操作・期限だけで、同じ URL は期限まで再利用できる。この訂正は防御を下げる変更ではなく、防御の位置を実物へ合わせる変更である。\n\n**二段構えにする。**\n\n(1) **署名の側**: 資源 (アカウント・バケット・オブジェクトパス)・操作 (PUT)・期限だけを縛る。期限は分単位に留め、上限 7 日の余地を使わない。再利用できることを前提に、漏れたときの窓を短く保つ。\n\n(2) **受領後の側**: 拡張子と申告 MIME を信頼せず、保管された実体の先頭バイトで型を判定する。許可した画像型かつ上限以下でなければ公開経路へ出さない。署名で大きさを縛れない以上、ここが大きさの唯一の検査点である。\n\n(3) **出所の側**: R2 の CORS ポリシーで、ブラウザから直接 PUT できる出所を管理画面の生成元だけに限定する。`AllowedOrigins` にワイルドカードを置かず、`AllowedMethods` は PUT に絞り、`ExposeHeaders` は ETag に留める。\n\n**描画は許可リストで絞る。**断片が 19 種へ増え、code / table / embed / columns といった構造の深いものが入る。要素・属性・URL スキームの許可リストを 1 か所に置き、断片ごとの分岐へ散らさない。embed の宛先ホストも許可リストで限定し、任意ホストの iframe を通さない。文字色/背景色は名前付きトークンのみを受け、任意の値をスタイルとして注入させない。\n\n**受入**: 同じ署名付き URL で 2 回 PUT して期限内の 2 回目が通ること (再利用可能である事実の確認) と期限後が落ちること。拡張子 `.png` で実体が実行可能ファイルまたは上限超過のものを PUT して、受領後検査が捕まえること。別ドメインからの PUT が preflight で落ち、CORS に `AllowedOrigins: *` が無いこと。`javascript:` リンク・許可外ホストの iframe・`<script>`・任意の 16 進色を仕込んだ本文が、描画結果に残らないこと。",
+      "source": {
+        "kind": "written-requirements",
+        "ref": "system-spec/retrieval-evidence/cloudflare-r2.json"
+      },
+      "asks_for": [
+        {
+          "category": "security",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "信頼できない入力は、境界を越えた後にもう一度検める",
+          "applicability": "applied",
+          "rationale": "署名で大きさと型を縛れないため、アップロード経路の入口だけでは検査が完結しない。保管された実体の先頭バイトで型を判定し、公開経路へ出す前に検めることで、入口で縛れなかったぶんを補える",
+          "tradeoffs": [
+            "不正な実体が一時的に保管領域へ到達する。到達しても公開経路へ出ないことと、掃除ジョブが刈り取ることで影響を閉じる"
+          ]
+        },
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "通すものを列挙する。塞ぐものを列挙しない",
+          "applicability": "applied",
+          "rationale": "断片が 19 種へ増え、埋め込みや自由な表など構造の深いものが入る。危ない書き方を数え上げる方式では、断片が増えるたびに数え漏れが増える。通す要素・属性・スキーム・ホストを 1 か所で列挙すれば、増えても漏れない",
+          "tradeoffs": [
+            "新しい断片を足すたびに許可リストへ追記が要る。追記を忘れると描画されないので、漏れは静かに通るのではなく目に見える形で出る"
+          ]
+        }
+      ],
+      "basis": "observed-fact"
+    },
+    {
+      "id": "qa-uiux-web-editor-verbatim",
+      "question": "ui-ux×web: ブロックエディターについて利用者は何を求めたか。受入条件を起草する前に、利用者が実際に発した言葉を逐語で記録する",
+      "answer": "[機能要望 (2026-09-05)]\n「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」\n\n[AskUserQuestion「見出しの層をどう扱うか」への選択]\n「2層を維持し、層をUIで見せる（推奨）」\n\n[AskUserQuestion「編集体験をどうするか」への選択]\n「断片欄を維持し、全断片を見た目へ（推奨）」\n\n※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "usability-accessibility.md",
+          "principle": "利用者が結果を見ながら操作できるとき、操作と結果の対応づけを学ぶ負荷が消える",
+          "applicability": "applied",
+          "rationale": "逐語「どのような形で表示されるかが見た目的にわかる」を、編集面と公開ページが同一の描画部品を通ることとして適用する。記法の生テキストを編集面に出さない",
+          "tradeoffs": [
+            "描画部品を 1 系統に束ねるため、編集専用の見せ方 (選択範囲・挿入位置の目印) を描画部品の外側に重ねる必要がある",
+            "描画が重い断片 (表・並列画像) では入力の反応が落ちうる"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md",
+          "principle": "階層は入力から導かず、骨格から導くと編集操作で動かなくなる",
+          "applicability": "applied",
+          "rationale": "逐語「編集したら見出し2が見出し1に変わる」不満と、選択「2層を維持し、層をUIで見せる」を、節の見出しレベルを骨格側で固定し、層の別を UI 上のラベルで見せることとして適用する",
+          "tradeoffs": [
+            "利用者は節と断片という 2 つの階層概念を学ぶ",
+            "節の外へ自由な見出し1 を置けない制約が残る"
+          ]
+        }
+      ],
+      "basis": "user-decision"
+    },
+    {
+      "id": "qa-frontend-web-editor-verbatim",
+      "question": "frontend×web: 記事に置ける表現物として利用者は何を挙げたか。断片カタログを起草する前に、利用者が実際に挙げた対象を逐語で記録する",
+      "answer": "[追加要望 (2026-09-05)]\n「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」\n\n[機能要望 (2026-09-05)]\n「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」\n\n[AskUserQuestion「編集体験をどうするか」への選択]\n「断片欄を維持し、全断片を見た目へ（推奨）」\n\n※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "information-design.md",
+          "principle": "表現物の種類は、利用者が名指しした対象を取りこぼさない集合として定める",
+          "applicability": "applied",
+          "rationale": "逐語で名指しされた「コードブロック」「カード」「横に画像を並べる」「表形式」「色をつけたもの」を断片カタログの必須要素として取り込み、選択「断片欄を維持し、全断片を見た目へ」に従って全断片を描画部品で見せる",
+          "tradeoffs": [
+            "断片の種類が増えるほど、挿入導線 (/) の一覧が長くなり探索の負荷が上がる",
+            "断片ごとに編集面と公開ページの描画一致を検証する対象が増える"
+          ]
+        },
+        {
+          "knowledge_ref": "usability-accessibility.md",
+          "principle": "文字装飾は断片の種類ではなく、断片の内側の属性として持つ",
+          "applicability": "applied",
+          "rationale": "逐語「色をつけたものを作る」を、色を独立した断片種にせず装飾属性として扱うことで、色付き文字が段落・表・カードのどこにでも置けるようにする",
+          "tradeoffs": [
+            "装飾の組合せが増えるぶん、配色のコントラスト検査を装飾側で一括して持つ必要がある"
+          ]
+        }
+      ],
+      "basis": "user-decision"
+    },
+    {
+      "id": "qa-backend-web-prose-verbatim",
+      "question": "backend×web: 記事本文の保存について利用者は何を求めたか。保存形の受入条件を起草する前に、利用者が実際に発した言葉を逐語で記録する",
+      "answer": "[追加要望 (2026-09-05)]\n「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」\n\n[機能要望 (2026-09-05)]\n「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」\n\n※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "data-modeling.md",
+          "principle": "保存形は、編集面が扱える表現物を欠落なく往復できることを条件に選ぶ",
+          "applicability": "applied",
+          "rationale": "逐語「記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしい」を、解析→直列化の往復で断片が失われないことを保存形の受入条件とすることで適用する",
+          "tradeoffs": [
+            "拡張 Markdown 文字列のまま広げるため、断片が増えるたびに記法の衝突を検査する必要がある",
+            "保存形の決定 (dec-article-body-storage-format) は利用者未確認のまま推奨に留まる"
+          ]
+        }
+      ],
+      "basis": "user-decision"
+    },
+    {
+      "id": "qa-database-web-article-image-verbatim",
+      "question": "database×web: 記事への画像添付について利用者は何を求め、格納経路に何を選んだか。参照状態の設計を起草する前に、逐語で記録する",
+      "answer": "[機能要望 (2026-09-05)]\n「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」\n\n[AskUserQuestion「画像添付の経路」への選択]\n「Cloudflare R2 へ直接アップロード（推奨）」\n\n※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "database",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "data-modeling.md",
+          "principle": "本体を別系統へ置くとき、参照状態の正本は片方だけが持つ",
+          "applicability": "applied",
+          "rationale": "選択「Cloudflare R2 へ直接アップロード」により画像本体が D1 の外へ出るため、どの記事がどの鍵を参照しているかの正本を Editorial 側の D1 に置き、R2 側を正本にしない",
+          "tradeoffs": [
+            "参照状態と実体が二重管理になるため、参照の消滅と実体の消滅がずれる期間が生じる",
+            "そのずれを掃除する運用 (maintenance-ops) が必要になる"
+          ]
+        }
+      ],
+      "basis": "user-decision"
+    },
+    {
+      "id": "qa-maintenance-ops-web-orphan-image-verbatim",
+      "question": "maintenance-ops×web: 画像の格納経路について利用者が選んだのはどれか。掃除の運用設計は利用者の発言ではなくこの選択の帰結として導くため、選択を逐語で記録する",
+      "answer": "[AskUserQuestion「画像添付の経路」への選択]\n「Cloudflare R2 へ直接アップロード（推奨）」\n\n[機能要望 (2026-09-05)]\n「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」\n\n※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "maintenance-ops",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "site-reliability-engineering.md",
+          "principle": "整合が崩れうる設計を選んだなら、崩れを戻す経路を運用側に置く",
+          "applicability": "applied",
+          "rationale": "選択「R2 へ直接アップロード」の帰結として、参照されない実体 (下書き破棄・断片削除・アップロード後の離脱) が R2 に残りうる。利用者はこの掃除について何も述べていないため、掃除は本人の要求ではなく選択の帰結として運用側が負う",
+          "tradeoffs": [
+            "掃除を自動化するほど、参照更新の遅れによる実体の誤削除の危険が増す",
+            "猶予期間を長く取ると保管費用が積み上がる"
+          ]
+        }
+      ],
+      "basis": "user-decision"
     }
   ],
   "approval_log": [
@@ -3491,6 +3997,14 @@
     {
       "id": "approval-foundation-2",
       "note": "2026-09-03 利用者の指示により上位概念へ G3 (読者向け UI/UX と SEO/AEO の機械可読構造・その解析と反映) を追加し再確定。根拠発言: 「この共有しているブログよりも、UI/UXをさらに良くして…SEOに強いかというところも踏まえて…ブログ用のエディターの部分も改善しておいてください」「SEOやAIO、AIのSEOのようなものに対しても対応できるようにしておいてください」「https://hitodeblog.com/blog-money-sikumi こちらのブログの方を参考にしてください」「aeo,SEO対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしいです」「これらの今回の内容をすべて実行したいので、そのためのタスク仕様書をすべて作成しておいてください」"
+    },
+    {
+      "id": "approval-editor-editing-model",
+      "note": "2026-09-05 AskUserQuestion で「記事エディターの編集モデル」を 3 択で提示し、利用者が「2層を維持し、層をUIで見せる（推奨）」を選択 (dec-editor-editing-model / opt-two-layer-visible)。同じ設問群で「編集体験」について「断片欄を維持し、全断片を見た目へ（推奨）」も選択している。選択の根拠となった利用者の逐語要望: 「その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです」「ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです」"
+    },
+    {
+      "id": "approval-article-image-upload-path",
+      "note": "2026-09-05 AskUserQuestion で「記事エディターからの画像添付の経路」を 2 択で提示し、利用者が「Cloudflare R2 へ直接アップロード（推奨）」を選択 (dec-article-image-upload-path / opt-r2-direct-put)。選択の根拠となった利用者の逐語要望: 「カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです」"
     }
   ],
   "reopen_log": [
@@ -5822,6 +6336,858 @@
           }
         ]
       }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "記事エディターの編集体験を再確認する。(a) 出来上がりの見た目のまま編集する範囲が全断片へ及んでいない (商品カードは productId の素の入力欄で見た目が出ない)、(b) 節=h2 / 本文=h3,h4 という 2 層の関係が編集画面に見えず、利用者から見て見出しレベルが勝手に動いたように読める、(c) コードブロック・自由表・画像の横並び・文字色や背景色の装飾・折りたたみ・チェックリスト・埋め込み・リンクカード・段組みなど、記事作成に要る断片が現行 10 種のカタログに無い。2026-09-05 利用者ヒアリング。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ui-ux-web-creation-completion-feedback",
+        "qa_refs": [
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2",
+          "qa-uiux-web-reader-experience-aeo-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-03",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "表現ブロックは 10 種で確定と書いたが、記事作成に要る断片が足りない。コードブロック (言語指定つき)・自由表・画像の横並び・文字装飾 (色/背景/太字/リンク)・折りたたみ・チェックリスト・外部埋め込み・CTA ボタン・リンクカードを本文断片カタログへ足す。併せて 節=h2 / 本文=h3,h4 の 2 層を編集 UI に見せる責務を frontend に置く。2026-09-05 利用者ヒアリング。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-blog-composition-visibility",
+        "qa_refs": [
+          "qa-frontend-web-blog-composition-visibility",
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2",
+          "qa-frontend-web-aeo-emission-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-31",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          },
+          {
+            "checked_on": "2026-09-04",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "拡張 Markdown 文字列という保存形を保ったまま断片種を増やすため、parseProse/serializeProse の往復契約と、未知記法に出会ったときの落とし方 (段落へ退避して壊さない) を再確認する。商品カードを検索 UI から選ぶための商品検索 API も要る。2026-09-05 利用者ヒアリング。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-seo-audit-writeback-p13-v3",
+        "qa_refs": [
+          "qa-backend-web-seo-audit-writeback-p13-v3",
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-04",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "記事画像を Cloudflare R2 へ直接アップロードする経路 (バケット・署名付き URL 発行・配信 URL) を決める必要がある。現行仕様は画像を URL 手入力前提のままである。2026-09-05 利用者ヒアリング。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infrastructure-web-wildcard-subdomain",
+        "qa_refs": [
+          "qa-infrastructure-web-wildcard-subdomain",
+          "qa-infra-web-migration-guard-v2",
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G2",
+          "G1"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-02",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "アップロードと本文断片の増加に伴う守りを決め直す。署名付き URL の寿命・MIME と容量の検査・保存する拡張 Markdown の描画時サニタイズ (埋め込みと色指定を許可リストで絞る) が要る。2026-09-05 利用者ヒアリング。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-spec-intake",
+        "qa_refs": [
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-08-22",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1
+          },
+          {
+            "checked_on": "2026-08-25",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "C05 完成度評価 FAIL (2026-09-05) の差し戻し。再確定した記事エディターの要件が質疑録と設計知識節にしか無く、章の To-Be / Delta / Acceptance evidence へ 1 件も届いていない。受入証跡が無い要件は実装と検証へ渡せない。規範節へ載せるため再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-block-editor-wysiwyg",
+        "qa_refs": [
+          "qa-uiux-web-block-editor-wysiwyg",
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2",
+          "qa-uiux-web-reader-experience-aeo-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "C05 完成度評価 FAIL (2026-09-05) の差し戻し。再確定した記事エディターの要件が質疑録と設計知識節にしか無く、章の To-Be / Delta / Acceptance evidence へ 1 件も届いていない。受入証跡が無い要件は実装と検証へ渡せない。規範節へ載せるため再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-prose-fragment-catalog",
+        "qa_refs": [
+          "qa-frontend-web-prose-fragment-catalog",
+          "qa-frontend-web-blog-composition-visibility",
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2",
+          "qa-frontend-web-aeo-emission-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "C05 完成度評価 FAIL (2026-09-05) の差し戻し。再確定した記事エディターの要件が質疑録と設計知識節にしか無く、章の To-Be / Delta / Acceptance evidence へ 1 件も届いていない。受入証跡が無い要件は実装と検証へ渡せない。規範節へ載せるため再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-prose-roundtrip-and-product-search",
+        "qa_refs": [
+          "qa-backend-web-prose-roundtrip-and-product-search",
+          "qa-backend-web-seo-audit-writeback-p13-v3",
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "C05 完成度評価 FAIL (2026-09-05) の差し戻し。確定した署名付き URL の要件が Cloudflare R2 の公式仕様と矛盾する。公式は『同じ署名付き URL は期限まで何度でも再利用できる』と明記し、署名で指定できるのは資源・操作 (GET/PUT/HEAD/DELETE)・期限 (1 秒〜7 日) だけで、容量を署名へ含める S3 POST policy は互換表に記載が無い。『1 回きり』『大きさ以外には使えない』は成立しない。加えてブラウザ直 PUT に必須の CORS 要件が欠落している。出典 cloudflare-r2 を取得済み (2026-09-05) の上で実能力へ確定し直す。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infrastructure-web-article-image-r2-upload",
+        "qa_refs": [
+          "qa-infrastructure-web-article-image-r2-upload",
+          "qa-infrastructure-web-wildcard-subdomain",
+          "qa-infra-web-migration-guard-v2",
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "C05 完成度評価 FAIL (2026-09-05) の差し戻し。確定した署名付き URL の要件が Cloudflare R2 の公式仕様と矛盾する。公式は『同じ署名付き URL は期限まで何度でも再利用できる』と明記し、署名で指定できるのは資源・操作 (GET/PUT/HEAD/DELETE)・期限 (1 秒〜7 日) だけで、容量を署名へ含める S3 POST policy は互換表に記載が無い。『1 回きり』『大きさ以外には使えない』は成立しない。加えてブラウザ直 PUT に必須の CORS 要件が欠落している。出典 cloudflare-r2 を取得済み (2026-09-05) の上で実能力へ確定し直す。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-editor-upload-and-render-hardening",
+        "qa_refs": [
+          "qa-security-web-editor-upload-and-render-hardening",
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "C05 完成度評価 FAIL (2026-09-05) の差し戻し。記事から外した画像の実体を R2 から刈り取る責務の持ち主が居ない。孤児の判定に要る参照状態をどこが持ち、掃除をどこが回すかを決める。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-audit-history-window-p13-v3",
+        "qa_refs": [
+          "qa-database-web-audit-history-window-p13-v3",
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics",
+          "qa-database-web-aeo-analysis-storage-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-04",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "C05 完成度評価 FAIL (2026-09-05) の差し戻し。記事から外した画像の実体を R2 から刈り取る責務の持ち主が居ない。孤児の判定に要る参照状態をどこが持ち、掃除をどこが回すかを決める。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-ops-web-migration-guard-v2",
+        "qa_refs": [
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-02",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "確定を書いた writer が正本 (.claude/plugins 配下) ではなく marketplace 側の古い複製で、design_applications と source を保存しない実装だった。確定の裏付けである設計適用と出所が質疑録に残っておらず、正本 writer の contract 検査が落ちる。確定の中身を変えるためではなく、同じ確定を正本 writer の契約の上に置き直すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-editor-acceptance-criteria",
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "確定を書いた writer が正本 (.claude/plugins 配下) ではなく marketplace 側の古い複製で、design_applications と source を保存しない実装だった。確定の裏付けである設計適用と出所が質疑録に残っておらず、正本 writer の contract 検査が落ちる。確定の中身を変えるためではなく、同じ確定を正本 writer の契約の上に置き直すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-editor-acceptance-criteria",
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "確定を書いた writer が正本 (.claude/plugins 配下) ではなく marketplace 側の古い複製で、design_applications と source を保存しない実装だった。確定の裏付けである設計適用と出所が質疑録に残っておらず、正本 writer の contract 検査が落ちる。確定の中身を変えるためではなく、同じ確定を正本 writer の契約の上に置き直すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-prose-acceptance-criteria",
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "確定を書いた writer が正本 (.claude/plugins 配下) ではなく marketplace 側の古い複製で、design_applications と source を保存しない実装だった。確定の裏付けである設計適用と出所が質疑録に残っておらず、正本 writer の contract 検査が落ちる。確定の中身を変えるためではなく、同じ確定を正本 writer の契約の上に置き直すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infrastructure-web-r2-upload-actual-capability",
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "確定を書いた writer が正本 (.claude/plugins 配下) ではなく marketplace 側の古い複製で、design_applications と source を保存しない実装だった。確定の裏付けである設計適用と出所が質疑録に残っておらず、正本 writer の contract 検査が落ちる。確定の中身を変えるためではなく、同じ確定を正本 writer の契約の上に置き直すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-upload-hardening-corrected",
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "確定を書いた writer が正本 (.claude/plugins 配下) ではなく marketplace 側の古い複製で、design_applications と source を保存しない実装だった。確定の裏付けである設計適用と出所が質疑録に残っておらず、正本 writer の contract 検査が落ちる。確定の中身を変えるためではなく、同じ確定を正本 writer の契約の上に置き直すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-article-image-reference-state",
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "確定を書いた writer が正本 (.claude/plugins 配下) ではなく marketplace 側の古い複製で、design_applications と source を保存しない実装だった。確定の裏付けである設計適用と出所が質疑録に残っておらず、正本 writer の contract 検査が落ちる。確定の中身を変えるためではなく、同じ確定を正本 writer の契約の上に置き直すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-maintenance-ops-web-orphan-image-sweep",
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "確定の主根拠となっている質疑の answer が、利用者の逐語ではなく AI が起草した受入条件の散文だった。独立監査 C06 が『AI 起草の内容が利用者の回答の顔で正本に載っている』として hearing_provenance をFAIL にしている。answer を逐語だけに作り直し、そこから導いた設計を design_applications とchapter_notes へ移すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-editor-acceptance-criteria",
+        "qa_refs": [
+          "qa-uiux-web-editor-acceptance-criteria",
+          "qa-uiux-web-block-editor-wysiwyg",
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2",
+          "qa-uiux-web-reader-experience-aeo-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "確定の主根拠となっている質疑の answer が、利用者の逐語ではなく AI が起草した受入条件の散文だった。独立監査 C06 が『AI 起草の内容が利用者の回答の顔で正本に載っている』として hearing_provenance をFAIL にしている。answer を逐語だけに作り直し、そこから導いた設計を design_applications とchapter_notes へ移すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-editor-acceptance-criteria",
+        "qa_refs": [
+          "qa-frontend-web-editor-acceptance-criteria",
+          "qa-frontend-web-prose-fragment-catalog",
+          "qa-frontend-web-blog-composition-visibility",
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2",
+          "qa-frontend-web-aeo-emission-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "確定の主根拠となっている質疑の answer が、利用者の逐語ではなく AI が起草した受入条件の散文だった。独立監査 C06 が『AI 起草の内容が利用者の回答の顔で正本に載っている』として hearing_provenance をFAIL にしている。answer を逐語だけに作り直し、そこから導いた設計を design_applications とchapter_notes へ移すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-prose-acceptance-criteria",
+        "qa_refs": [
+          "qa-backend-web-prose-acceptance-criteria",
+          "qa-backend-web-prose-roundtrip-and-product-search",
+          "qa-backend-web-seo-audit-writeback-p13-v3",
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "確定の主根拠となっている質疑の answer が、利用者の逐語ではなく AI が起草した受入条件の散文だった。独立監査 C06 が『AI 起草の内容が利用者の回答の顔で正本に載っている』として hearing_provenance をFAIL にしている。answer を逐語だけに作り直し、そこから導いた設計を design_applications とchapter_notes へ移すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-database-web-article-image-reference-state",
+        "qa_refs": [
+          "qa-database-web-article-image-reference-state",
+          "qa-database-web-audit-history-window-p13-v3",
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics",
+          "qa-database-web-aeo-analysis-storage-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "確定の主根拠となっている質疑の answer が、利用者の逐語ではなく AI が起草した受入条件の散文だった。独立監査 C06 が『AI 起草の内容が利用者の回答の顔で正本に載っている』として hearing_provenance をFAIL にしている。answer を逐語だけに作り直し、そこから導いた設計を design_applications とchapter_notes へ移すために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-maintenance-ops-web-orphan-image-sweep",
+        "qa_refs": [
+          "qa-maintenance-ops-web-orphan-image-sweep",
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "security×web の qa_refs に、訂正前 (署名付き URL が使い捨てで容量を縛れると誤って書いた) と訂正後の質疑が両方並んでおり、どちらが有効か機械に区別できない。訂正前を参照から外しsuperseded_by を申告できる状態にするために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-upload-hardening-corrected",
+        "qa_refs": [
+          "qa-security-web-upload-hardening-corrected",
+          "qa-security-web-editor-upload-and-render-hardening",
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-spec-intake"
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "確定セルが引いている裏付けの 1 件が、利用者の逐語ではなく AI が起草した設計宣言でありながら source.kind=user-dialogue を名乗っていた。独立監査 C06 が round4 でhearing_provenance の FAIL として名指ししている。本文は章の散文 「AI が起草した設計宣言（質疑から移した本文）」へ移したので、この質疑を裏付けから外して取り下げるために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-editor-verbatim",
+        "qa_refs": [
+          "qa-uiux-web-editor-verbatim",
+          "qa-uiux-web-block-editor-wysiwyg",
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2",
+          "qa-uiux-web-reader-experience-aeo-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-screen-priority"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "確定セルが引いている裏付けの 1 件が、利用者の逐語ではなく AI が起草した設計宣言でありながら source.kind=user-dialogue を名乗っていた。独立監査 C06 が round4 でhearing_provenance の FAIL として名指ししている。本文は章の散文 「AI が起草した設計宣言（質疑から移した本文）」へ移したので、この質疑を裏付けから外して取り下げるために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-editor-verbatim",
+        "qa_refs": [
+          "qa-frontend-web-editor-verbatim",
+          "qa-frontend-web-prose-fragment-catalog",
+          "qa-frontend-web-blog-composition-visibility",
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2",
+          "qa-frontend-web-aeo-emission-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "確定セルが引いている裏付けの 1 件が、利用者の逐語ではなく AI が起草した設計宣言でありながら source.kind=user-dialogue を名乗っていた。独立監査 C06 が round4 でhearing_provenance の FAIL として名指ししている。本文は章の散文 「AI が起草した設計宣言（質疑から移した本文）」へ移したので、この質疑を裏付けから外して取り下げるために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-backend-web-prose-verbatim",
+        "qa_refs": [
+          "qa-backend-web-prose-verbatim",
+          "qa-backend-web-prose-roundtrip-and-product-search",
+          "qa-backend-web-seo-audit-writeback-p13-v3",
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-spec-intake"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "確定セルが引いている裏付けの 1 件が、利用者の逐語ではなく AI が起草した設計宣言でありながら source.kind=user-dialogue を名乗っていた。独立監査 C06 が round4 でhearing_provenance の FAIL として名指ししている。本文は章の散文 「AI が起草した設計宣言（質疑から移した本文）」へ移したので、この質疑を裏付けから外して取り下げるために再オープンする。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infrastructure-web-r2-upload-actual-capability",
+        "qa_refs": [
+          "qa-infrastructure-web-r2-upload-actual-capability",
+          "qa-infrastructure-web-article-image-r2-upload",
+          "qa-infrastructure-web-wildcard-subdomain",
+          "qa-infra-web-migration-guard-v2",
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -5910,6 +7276,10 @@
     {
       "target_id": "web-dev-core-web-vitals",
       "category": "frontend"
+    },
+    {
+      "target_id": "cloudflare-r2",
+      "category": "infrastructure"
     }
   ],
   "requirements_foundation": {
@@ -8096,11 +9466,351 @@
       },
       "owner_category": "database",
       "recorded_with": "set-decision"
+    },
+    {
+      "id": "dec-editor-editing-model",
+      "question": "記事エディターの編集モデルを、外側 (節) と内側 (本文の断片) の 2 層構造のまま見せるか、Notion のような単一階層へ潰すか",
+      "status": "confirmed",
+      "owner_category": "ui-ux",
+      "serves_goals": [
+        "G1",
+        "G3"
+      ],
+      "options": [
+        {
+          "id": "opt-two-layer-visible",
+          "label": "2 層を維持し、層を UI で明示する (節=固定の見出し2 / 本文の断片=見出し3・4)",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "既存の ArticleBlockKind 15 種の骨格をそのまま使うため、追加の外部サービス費用も移行費用も発生しない"
+          },
+          "free_tier_limits": "自前実装のため利用量制限なし",
+          "goal_fit": "節の並びが記事の骨格 (目次・必須ブロック検査) を保証したまま、節の中身だけ自由に書ける。G3 の機械可読な見出し階層が編集操作で壊れない",
+          "security_fit": "階層が固定されるため、利用者入力が見出しレベルを操作して構造化データ (JSON-LD の articleSection) を偽装する余地がない",
+          "pros": [
+            "節の見出しレベルが編集操作で動かないため、Notion で起きる『見出し2が見出し1に変わる』が構造上起こらない",
+            "既存の骨格・目次生成・必須ブロック検査をそのまま再利用でき、公開済み記事の互換が保たれる",
+            "節と断片で操作の語彙が分かれるため、記事全体の並べ替えと本文の推敲を取り違えない"
+          ],
+          "cons": [
+            "利用者は 2 種類の階層概念を学ぶ必要がある",
+            "節の外に自由な見出し1を置けないという制約が残る"
+          ],
+          "risks": [
+            "層の違いが UI 上で伝わらないと『なぜ見出しレベルを変えられないのか』という不満になる。層のラベル表示と、階層変更が不可である旨の明示が要る"
+          ],
+          "lock_in": "なし (自前実装・保存形は拡張 Markdown)",
+          "ops_burden": "低 (既存骨格の延長で、新しい運用対象が増えない)",
+          "evidence_refs": [
+            "https://developer.apple.com/design/human-interface-guidelines/writing",
+            "https://www.w3.org/WAI/tutorials/page-structure/headings/"
+          ]
+        },
+        {
+          "id": "opt-flatten-single-layer",
+          "label": "Notion と同じく単一階層へ潰し、全ブロックを対等に並べる",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "外部費用は無いが、既存の節ベース記事を単一階層へ移行する一度きりの変換コストが発生する"
+          },
+          "free_tier_limits": "自前実装のため利用量制限なし",
+          "goal_fit": "自由度は最大になるが、目次・必須ブロック検査・articleSection の生成根拠を失う。G3 の機械可読性が編集者の規律頼みになる",
+          "security_fit": "見出しレベルが自由なため、構造化データの生成規則を入力から切り離す追加の正規化が要る",
+          "pros": [
+            "学習する階層概念が 1 つで済む",
+            "Notion 経験者がそのまま操作できる"
+          ],
+          "cons": [
+            "見出しレベルが自由なため、まさに利用者が不満を述べた『編集すると見出しレベルが意図せず動く』事象を再現する",
+            "目次と必須ブロック検査の根拠が消え、記事骨格の品質を機械で保証できなくなる",
+            "既存記事の一括移行が要る"
+          ],
+          "risks": [
+            "移行後に骨格が崩れた記事が公開され、検索・AI 検索からの引用可能性が落ちる"
+          ],
+          "lock_in": "なし",
+          "ops_burden": "中 (骨格の品質を人手レビューで担保することになる)",
+          "evidence_refs": [
+            "https://www.w3.org/WAI/tutorials/page-structure/headings/"
+          ]
+        },
+        {
+          "id": "opt-raw-markdown-split-preview",
+          "label": "生の Markdown 入力欄と、右に描画結果を並べる 2 画面方式",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "実装は最小だが、記法を覚える利用者側の学習コストが恒常的に残る"
+          },
+          "free_tier_limits": "自前実装のため利用量制限なし",
+          "goal_fit": "保存形との一致は最も素直だが、『書いた瞬間に生の記法で見える形ではなく、出来上がりの見た目のまま編集したい』という要求そのものを満たさない",
+          "security_fit": "描画側の許可リストさえ絞れば入力経路の危険は最小",
+          "pros": [
+            "実装が最も単純で、保存形と編集内容が完全に一致する",
+            "記法に慣れた書き手には最速"
+          ],
+          "cons": [
+            "利用者が明示的に否定した『コードブロックで表示されるような形』そのものである",
+            "カード・画像・表の見た目を編集中に確認できない"
+          ],
+          "risks": [
+            "採用すると本要望の中心が未達のまま残る"
+          ],
+          "lock_in": "なし",
+          "ops_burden": "低",
+          "evidence_refs": [
+            "https://spec.commonmark.org/0.31.2/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-two-layer-visible",
+        "rationale": "利用者の不満は『階層が勝手に動くこと』であり、自由度の不足ではない。2 層を維持すると節の見出しレベルが構造上動かせなくなり、その不満が仕組みとして消える。同時に目次生成と必須ブロック検査という既存の品質保証を捨てずに済む。層が見えないことが唯一の弱点なので、UI で層を明示することを条件に付ける",
+        "caveats": [
+          "層のラベルを UI に出さないと『変えられない理由』が伝わらず、制約が不親切さとして受け取られる",
+          "節の粒度が粗すぎると本文の断片側に構造が溜まるため、ArticleBlockKind 15 種の妥当性を運用しながら見直す必要がある"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-09-05T01:20:00Z",
+        "comparison_basis": {
+          "goal_fit": "G3 の機械可読な見出し階層を編集操作から守れるのは 2 層維持案だけ。単一階層案は目次と必須ブロック検査の根拠を失う",
+          "tco": "3 案とも外部費用ゼロ。単一階層案だけ既存記事の一括移行という一度きりの費用が乗る",
+          "security": "2 層維持案は見出しレベルが入力から独立するため、構造化データを入力で偽装する経路がない",
+          "operations": "2 層維持案は既存骨格の延長で新しい運用対象が増えない。単一階層案は骨格品質を人手レビューへ移す",
+          "lock_in": "3 案とも自前実装・拡張 Markdown 保存でロックインなし。差は付かない"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-two-layer-visible",
+        "confirmed_at": "2026-09-05T01:20:00Z",
+        "note": "利用者が選択肢ラベル「2層を維持し、層をUIで見せる（推奨）」を選択した。承認の経路と逐語根拠は approval_log.approval-editor-editing-model に記録。",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "AskUserQuestion 経由の選択 (提示 3 択から本人が 1 つを選んだ)",
+        "approval_ref": "approval-editor-editing-model"
+      },
+      "approval_ref": "approval-editor-editing-model",
+      "recorded_with": "set-decision"
+    },
+    {
+      "id": "dec-article-image-upload-path",
+      "question": "記事エディターから添付する画像を、どの経路で Cloudflare R2 へ格納するか",
+      "status": "confirmed",
+      "owner_category": "infrastructure",
+      "serves_goals": [
+        "G1"
+      ],
+      "options": [
+        {
+          "id": "opt-r2-direct-put",
+          "label": "署名付き URL を発行し、ブラウザから R2 へ直接 PUT する",
+          "cost_model": {
+            "category": "low-cost",
+            "amount": 200,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "R2 は保管量と Class A/B 操作数の課金で、下り転送は無料。記事画像規模なら無料枠と月数百円の範囲。Worker 側は署名発行のみで CPU 時間をほぼ消費しない"
+          },
+          "free_tier_limits": "R2 は保管 10 GB/月、Class A 操作 100 万回/月、Class B 操作 1,000 万回/月まで無料 (2026-09 時点)",
+          "goal_fit": "記事本文と同じ編集操作の中で画像を置けるため、G1 の『統合された編集』を切らさない。大きな画像でも Worker のリクエストサイズ上限に当たらない",
+          "security_fit": "署名で縛れるのは資源 (アカウント・バケット・オブジェクトパス)・操作 (GET/PUT/HEAD/DELETE)・期限 (1 秒〜7 日) のみ。容量を署名へ含める S3 POST policy は R2 の S3 互換表に記載が無いため、大きさと型の検査は受領後に本文先頭バイトで行う",
+          "pros": [
+            "本体が Worker を経由しないため、Worker のリクエストボディ上限に画像サイズが縛られない",
+            "アップロード中も編集画面が応答し続ける",
+            "鍵の並びを workspace_id/記事id/一意なid.拡張子 に固定でき、テナント越しの参照が経路として生じない"
+          ],
+          "cons": [
+            "ブラウザから直接 PUT するにはバケットへ CORS ポリシーが要る (AllowedMethods に PUT、AllowedHeaders にクライアントが送るヘッダ、ExposeHeaders に ETag、MaxAgeSeconds に preflight のキャッシュ時間)",
+            "同じ署名付き URL は期限まで何度でも再利用できるため、1 回きりの使い捨てとして設計してはならない。期限を短く保つ運用が要る",
+            "アップロードされた実体の型と大きさの検査が受領後になる"
+          ],
+          "risks": [
+            "署名の期限を長く取ると、URL が漏れた場合に同じ鍵へ繰り返し上書きできる。期限は分単位に留める",
+            "単一 PUT の上限は 5 GiB であり、それを超える場合は multipart upload へ切り替える必要がある"
+          ],
+          "lock_in": "中 (S3 互換 API のため他の S3 互換ストレージへ移せるが、CORS と署名発行の実装はやり直しになる)",
+          "ops_burden": "低 (署名発行は Worker の 1 経路のみ。CORS は一度設定すれば変わらない)",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/r2/api/s3/presigned-urls/",
+            "https://developers.cloudflare.com/r2/buckets/cors/",
+            "https://developers.cloudflare.com/r2/platform/limits/",
+            "https://developers.cloudflare.com/r2/pricing/"
+          ]
+        },
+        {
+          "id": "opt-worker-proxy-upload",
+          "label": "Worker がアップロードを受け取り、検査してから R2 へ書く",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "既存 Worker の枠内で処理するため追加費用はないが、画像本体が Worker を通るぶん CPU 時間とリクエスト数を消費する"
+          },
+          "free_tier_limits": "Workers 無料プランは 10 万リクエスト/日。R2 の無料枠は上記と同じ",
+          "goal_fit": "編集体験としては同等だが、大きな画像で失敗しうるため『全ての記事構成情報を扱える』要求に対して上限が低い",
+          "security_fit": "R2 へ書く前に型・大きさ・先頭バイトを検査できるため、不正な実体が保管領域へ到達しない",
+          "pros": [
+            "保管前に検査でき、CORS 設定が不要",
+            "署名付き URL を外へ出さない"
+          ],
+          "cons": [
+            "画像本体が Worker のリクエストボディ上限に縛られる",
+            "アップロード中に Worker の CPU 時間とリクエスト数を消費する"
+          ],
+          "risks": [
+            "上限を超える画像で失敗し、利用者から見ると『大きい画像は貼れない』という機能の欠落になる"
+          ],
+          "lock_in": "低 (経路が自前のため差し替えやすい)",
+          "ops_burden": "中 (アップロード経路が Worker の負荷と障害の対象になる)",
+          "evidence_refs": [
+            "https://developers.cloudflare.com/workers/platform/limits/",
+            "https://developers.cloudflare.com/r2/api/workers/workers-api-reference/"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-r2-direct-put",
+        "rationale": "記事画像は Worker のリクエストボディ上限を超えうる大きさになる。本体を Worker に通さない直接 PUT なら、その上限が画像の貼れる大きさの天井にならない。検査を受領後へ回す弱点は、保管直後に先頭バイトで型を検める後段の検査で埋められる",
+        "caveats": [
+          "同じ署名付き URL は期限まで再利用できる。1 回きりだと誤解した設計にしないこと",
+          "署名で容量を縛る S3 POST policy は R2 の互換表に無いため、大きさの制限は受領後の検査でしか掛からない",
+          "CORS ポリシーを設定しない限りブラウザからの PUT は preflight で落ちる"
+        ],
+        "confidence": "high",
+        "latest_checked_at": "2026-09-05T00:57:28Z",
+        "comparison_basis": {
+          "goal_fit": "直接 PUT だけが画像サイズの天井を Worker から切り離せる。proxy 案は上限が機能の欠落として利用者に見える",
+          "tco": "proxy 案は追加費用ゼロ、直接 PUT も無料枠内で月数百円規模。費用差では決まらない",
+          "security": "proxy 案が優位 (保管前検査・CORS 不要)。直接 PUT はこの差を受領後検査と短い期限で埋める",
+          "operations": "直接 PUT は署名発行だけで、アップロード負荷が Worker の障害対象から外れる",
+          "lock_in": "直接 PUT は S3 互換のため他ストレージへ移せるが CORS と署名実装が付随する。proxy 案の方がわずかに移しやすい"
+        }
+      },
+      "user_decision": {
+        "option_id": "opt-r2-direct-put",
+        "confirmed_at": "2026-09-05T01:20:00Z",
+        "note": "利用者が選択肢ラベル「Cloudflare R2 へ直接アップロード（推奨）」を選択した。承認の経路と逐語根拠は approval_log.approval-article-image-upload-path に記録。",
+        "decided_by": "利用者本人",
+        "confirmation_mode": "AskUserQuestion 経由の選択 (提示 2 択から本人が 1 つを選んだ)",
+        "approval_ref": "approval-article-image-upload-path"
+      },
+      "approval_ref": "approval-article-image-upload-path",
+      "recorded_with": "set-decision"
+    },
+    {
+      "id": "dec-article-body-storage-format",
+      "question": "断片カタログを 19 種へ広げた記事本文を、どの形で保存するか (拡張 Markdown 文字列のままか、構造化 JSON ツリーへ移すか)",
+      "status": "confirmed",
+      "owner_category": "backend",
+      "serves_goals": [
+        "G1",
+        "G3"
+      ],
+      "options": [
+        {
+          "id": "opt-extended-markdown-string",
+          "label": "現行どおり拡張 Markdown 文字列で保存し、parseProse / serializeProse で往復する",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "既存カラムをそのまま使うため移行費用ゼロ。増えるのは 19 種ぶんの parse/serialize の実装と往復テストのみ"
+          },
+          "free_tier_limits": "保存形の選択であり利用量制限の概念がない",
+          "goal_fit": "既に公開されている記事のデータが 1 件も壊れないまま断片を 19 種へ広げられる。G1 の『既存の全情報を編集・表示できる』を移行なしで満たす",
+          "security_fit": "保存形は文字列のままで、描画側の許可リストが唯一の防御点として一箇所に集まる。攻撃面が増えない",
+          "pros": [
+            "既存記事のデータが壊れない (移行不要)",
+            "人が読める。DB を直接見ても本文が読め、障害時の確認ができる",
+            "AI が本文を生成・改稿する経路が文字列のままで済み、既存の生成系をそのまま使える",
+            "未知の記法は literal な文字列を保持する段落として温存でき、読めないことと失ってよいことを分離できる"
+          ],
+          "cons": [
+            "19 種すべてで parseProse(serializeProse(nodes)) === nodes を保つ往復テストが要る",
+            "表・段組みなど入れ子の深い断片は記法が冗長になりやすい"
+          ],
+          "risks": [
+            "記法の設計が甘いと、利用者が書いた本文と衝突して意図しない断片へ化ける。予約記法の衝突検査が要る"
+          ],
+          "lock_in": "なし (文字列であり、後から JSON ツリーへ変換する経路が常に残る)",
+          "ops_burden": "低 (既存の保管・バックアップ経路をそのまま使う)",
+          "evidence_refs": [
+            "https://spec.commonmark.org/0.31.2/",
+            "https://github.github.com/gfm/"
+          ]
+        },
+        {
+          "id": "opt-structured-json-tree",
+          "label": "本文を構造化 JSON ツリー (ProseMirror 互換のノード木) として保存する",
+          "cost_model": {
+            "category": "free",
+            "amount": 0,
+            "currency": "JPY",
+            "billing_period": "monthly",
+            "tco": "外部費用はゼロだが、既存の全公開記事を JSON ツリーへ変換する一度きりの移行と、その検証コストが発生する"
+          },
+          "free_tier_limits": "保存形の選択であり利用量制限の概念がない",
+          "goal_fit": "入れ子の深い断片を素直に表現でき、編集器の内部表現と保存形が一致する。ただし既存記事の移行が前提になる",
+          "security_fit": "構造が明示されるため描画時の型検査が厳密にできる一方、保存形自体が信頼できない入力になるためスキーマ検証が必須になる",
+          "pros": [
+            "表・段組み・トグルなど入れ子を素直に表せる",
+            "編集器の内部表現と保存形が一致し、往復変換そのものが不要になる",
+            "断片単位の差分・部分更新が扱いやすい"
+          ],
+          "cons": [
+            "既存の全記事を変換する移行が要り、変換漏れが本文の欠落として表に出る",
+            "DB を直接見ても本文が読めず、障害時の確認が難しくなる",
+            "AI に本文を書かせる経路が JSON 生成になり、既存の文字列生成系を作り直すことになる"
+          ],
+          "risks": [
+            "移行の変換漏れが公開済み記事の本文欠落として現れる。全記事の往復検証が済むまで切り替えられない"
+          ],
+          "lock_in": "中 (ProseMirror 互換スキーマに寄せるほど編集器の選定に縛られる)",
+          "ops_burden": "中 (スキーマ版数の管理と、版をまたぐ移行が恒常的に要る)",
+          "evidence_refs": [
+            "https://prosemirror.net/docs/guide/",
+            "https://prosemirror.net/docs/ref/#model.Document_Structure"
+          ]
+        }
+      ],
+      "recommendation": {
+        "option_id": "opt-extended-markdown-string",
+        "rationale": "断片を 10 種から 19 種へ広げる変更で最も重い危険は、既に公開されている記事のデータが壊れることである。文字列のまま広げれば移行が発生せず、この危険が生じない。加えて DB を直接見て本文が読めることと、AI が文字列として本文を書けることは、いずれも運用中に効いている性質で、JSON ツリーへ移すと両方を失う。入れ子の記法が冗長になる弱点は、19 種すべての往復テストで抑えられる",
+        "caveats": [
+          "19 種すべてで parseProse(serializeProse(nodes)) === nodes を検証しない限り、記法の追加が既存本文を壊しうる",
+          "未知の記法は捨てずに literal な文字列を保持する段落として残すこと。読めないことと失ってよいことは違う",
+          "表と段組みで記法の冗長さが実用限界を超えるなら、その断片だけ構造化して埋め込む折衷を再検討する"
+        ],
+        "confidence": "medium",
+        "latest_checked_at": "2026-09-05T01:20:00Z",
+        "comparison_basis": {
+          "goal_fit": "文字列案は既存記事を壊さずに 19 種へ広げられる。JSON 案は表現力で勝るが移行が前提になる",
+          "tco": "外部費用は両案ゼロ。JSON 案だけ全記事変換という一度きりの費用と検証が乗る",
+          "security": "文字列案は防御点が描画側の許可リスト一箇所に集まる。JSON 案は保存形にもスキーマ検証が要り、検査点が 2 つになる",
+          "operations": "文字列案は DB を直接見て本文を確認できる。JSON 案はスキーマ版数の管理が恒常的に増える",
+          "lock_in": "文字列案はいつでも JSON へ変換できる片道の余地を残す。JSON 案は編集器のスキーマに寄る"
+        }
+      },
+      "recorded_with": "set-decision",
+      "user_decision": {
+        "option_id": "opt-extended-markdown-string",
+        "confirmed_at": "2026-09-05T10:21:16Z",
+        "note": "利用者が2案 (拡張Markdown文字列のまま / 構造化JSONツリーへ移行) と折衷案の3択を提示されたうえで、拡張Markdown文字列のままを明示選択した。選択理由として提示していたのは、既存の公開記事に移行が発生せずデータが壊れる危険が生じないこと、DBを直接見て本文が読めることとAIが文字列として本文を書けることを保てること。19種すべてで parseProse(serializeProse(x)) === x の往復テストを課すことが条件として付く。"
+      }
     }
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 2,
+    "loop_count": 4,
     "next_question": null,
     "complete": true,
     "max_loops": 5,
@@ -8166,6 +9876,18 @@
         "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
         "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "この章の要件 ID を書いたのは誰か",
+        "body": "この章の UIUX-REQ-005〜007 / UIUX-ACC-005〜008 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。\n\n**利用者の逐語（`qa-uiux-web-editor-verbatim` の answer に原文がある）**\n\n> どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです／編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです\n\n**そこから AI が導いた受入条件**\n\n- 編集面と公開ページが同一の描画部品を通り、記法の生テキストを編集面に出さないこと\n- 節の見出しレベルが編集操作で動かないこと（層の別を UI 上のラベルで示すこと）\n- カード・画像を含む全ての表現物へ、挿入導線から到達できること\n\n**利用者の確認を受けている範囲**\n\nAskUserQuestion で「2層を維持し、層をUIで見せる（推奨）」「断片欄を維持し、全断片を見た目へ（推奨）」を選択済み（承認記録 approval-editor-editing-model）。ただし個々の受入条件の文面は提示していない。\n\nこの区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。",
+        "reason": "C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。質疑側は逐語だけに作り直したので、章側で要件 ID の出所 (逐語 / AI 導出 / 利用者確認済みの範囲) を名乗らせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "AI が起草した設計宣言（質疑から移した本文）",
+        "body": "以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。\n\nこの本文はもともと質疑 `qa-uiux-web-block-editor-wysiwyg` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。\n\n**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-uiux-web-editor-verbatim` である。\n\n利用者の逐語は `qa-uiux-web-editor-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。\n\n---\n\n**当初の問い**\n\n> ui-ux×web: 記事エディターを、出来上がりの見た目のまま編集できるブロックエディターにするとき、(a) 見出しの層が意図せず動く問題をどう防ぎ、(b) どの断片まで見た目で見せ、(c) 画像をどう添えさせるか。\n\n**設計宣言の本文**\n\n**2 層を維持し、層を UI に見せる。**記事は外側 (節 = ArticleBlockKind 15 種) と内側 (本文の断片 = ProseNode) の 2 層である。節の見出しは常に h2 に固定し、本文の中の見出しは h3 と h4 しか取らない。Notion で起きる「編集したら見出し2が見出し1になる」は、見出しを 1 つの平らな列として扱い、見た目の大きさで層を選ばせることから来る。ここではその選択肢を与えない。節の見出し欄には「この記事の第 N 節 (h2)」と層を明示し、本文の見出し断片には「節の中の小見出し (h3)」「その下 (h4)」とラベルを出す。層はドラッグや Backspace の副作用では変わらず、断片の種類を選び直したときだけ変わる。\n\n**全断片を見た目のまま見せる。**現行は断片ごとに欄が分かれていて崩れないという利点があるが、商品カードが productId の素の入力欄のままで、書いている最中に何が出るか分からない。欄という単位は保ったまま、欄の中身を公開時の見た目で描く。商品カードは ID 手入力をやめ、商品を検索して選ぶ UI にし、選んだ瞬間にカードの姿 (画像・名称・価格・リンク) が出る。比較表・引用・囲み・コードブロック・自由表・画像の横並びも同様に、編集中の姿と公開時の姿を揃える。\n\n**画像はドラッグ&ドロップとファイル選択で添える。**URL の手入力を必須にしない。落とした瞬間にアップロードが始まり、進捗が出て、終わったら本文にその画像が出る。alt は未入力のまま公開できないようにし、装飾目的なら「装飾」と明示的に宣言させる。\n\n**入口は `/` だけに頼らない。**各断片の下に「+」があり、そこから種類を選べる。`/` を知らない運営者でも全種類へ到達できる。",
+        "reason": "C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "frontend": [
@@ -8185,6 +9907,18 @@
         "heading": "章の規範本文を正本から再生成しない理由",
         "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
         "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "この章の要件 ID を書いたのは誰か",
+        "body": "この章の FRONT-REQ-005〜008 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。\n\n**利用者の逐語（`qa-frontend-web-editor-verbatim` の answer に原文がある）**\n\n> コードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか\n\n**そこから AI が導いた受入条件**\n\n- 断片カタログが、逐語で名指しされた 5 種（コードブロック・カード・並列画像・表・色付き文字）を含むこと\n- 色は独立した断片種にせず、断片の内側の装飾属性として持つこと\n- 断片の描画部品を編集面と公開ページで共有すること\n\n**利用者の確認を受けている範囲**\n\n断片カタログの具体的な種類数（19 種）と各断片の属性設計は、利用者へ提示していない。\n\nこの区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。",
+        "reason": "C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。質疑側は逐語だけに作り直したので、章側で要件 ID の出所 (逐語 / AI 導出 / 利用者確認済みの範囲) を名乗らせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "AI が起草した設計宣言（質疑から移した本文）",
+        "body": "以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。\n\nこの本文はもともと質疑 `qa-frontend-web-prose-fragment-catalog` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。\n\n**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-frontend-web-editor-verbatim` である。\n\n利用者の逐語は `qa-frontend-web-editor-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。\n\n---\n\n**当初の問い**\n\n> frontend×web: 記事作成に要る表現を賄うため、本文断片 (ProseNode) のカタログを現行 10 種からどこまで広げ、編集画面でどう出すか。\n\n**設計宣言の本文**\n\n**現行 10 種を保ったまま 9 種を足し、19 種にする。**現行は paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider。既存記事を壊さないため、この 10 種の記法は変えない。足すのは次の 9 種である。\n\n1. **code** — 言語指定つきコードブロック。言語を選ぶと編集中も色分けして出る。言語不明は plain。\n2. **table** — 行数と列数を自由に決められる表。comparison-table (商品比較の定型) とは別物として持つ。見出し行の有無を選べる。\n3. **image-row** — 画像を横に 2〜4 枚並べる。各枚に alt とキャプションを持つ。狭い画面では縦に落ちる。\n4. **toggle** — 見出しをたたんで中に段落を隠す折りたたみ。長い補足を本筋から外に出すために使う。\n5. **checklist** — チェック状態つきの箇条書き。手順の確認に使う。\n6. **embed** — 外部埋め込み (YouTube / X / 汎用 iframe)。許可した提供元だけを受ける。\n7. **cta-button** — 文言とリンク先と見た目 (主/副) を持つボタン。アフィリエイト計測の属性を落とさない。\n8. **link-card** — URL を入れると題名・説明・画像を引いてカードで出す。取得できないときは素のリンクへ落とす。\n9. **columns** — 2 段組み。左右それぞれに断片を入れられる。狭い画面では縦に落ちる。\n\n**文字の装飾は断片ではなく段落の中に持つ。**太字・斜体・打ち消し・行内コード・リンク・**文字色と背景色**は、段落・箇条書き・表のセルといった文字を持つ断片の中で効く行内装飾とする。色は自由な hex ではなく、記事のトークンから引いた名前つきの色 (既定/強調/注意/控えめ など) の許可リストに絞る。自由な色指定を許すと記事ごとに配色が壊れ、暗い配色での可読性も保証できない。\n\n**編集画面での出し方。**各断片の下の「+」と `/` の両方から全 19 種へ到達できる。種類は「文章」「一覧」「見せ方」「データ」「差し込み」の 5 群に分けて出す。19 個を平らに並べると選べない。",
+        "reason": "C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -8217,6 +9951,12 @@
         "heading": "章の規範本文を正本から再生成しない理由",
         "body": "**2026-09-04 追記**: `## 確定セルの記録` そのものは、この日から compile が正本 `matrix` / `qa_log` から描く (手写しを 15 日続けた結果、2 度腐ったため)。\n**以下の 3 つの実測が指しているのは、その表ではなく章の規範本文である。**\n「章を丸ごと再生成して正本の本文で置き換える」を採らない理由として、そのまま生きている。\n\nC05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[] を本文へ載せる」と書いているが、**再生成も本文複製もしない**。理由は 3 つあり、どれも読んで判断したのではなく測った結果である。次に読む人が善意で「正本に合わせる」と、下に書いた退行が起きる。**この節はそのために置いてある。**\n\n**理由 1: 再生成すると章の規範本文が消える。** compile 出力と本番章を突き合わせた結果、章にあって生成器にも正本にも無い行が `system-spec/*.md` 10 枚で **374 回出現**した (分母 = 10 枚の空行を除く全行)。同じ行をファイル内で畳むと **366 行**、10 枚を横断して畳むと **316 行**。3 つの数はすべて正しく、数えている対象が違うだけである (出現回数 / ファイル内一意 / 全体一意)。消えるのは To-Be 契約表 (`DB-*` / `BE-*` / `INF-*` / `*-REQ-*` / `*-ACC-*`)、故障モード、初期 SLO、Acceptance evidence、index の状態軸。\n\n**理由 2: 正本の回答は章より古い。** 章と正本の両方に現れうるトークン 9 個で照合した (分母 = 照合トークン 9 個)。\n\n| トークン | 正本 `qa-database-web-spec-intake` の回答 | `system-spec/database.md` |\n|---|---|---|\n| `conversions_pending` | 1 | 0 |\n| `conversions_approved` | 1 | 0 |\n| `revenue_confirmed` | 1 | 0 |\n| `conversions_decision_pending` | 0 | 2 |\n| `conversions_settlement_paid` | 0 | 2 |\n| `revenue_approved` | 0 | 4 |\n| `revenue_paid` | 0 | 4 |\n| `approval_status` | 0 | 7 |\n| `payment_status` | 0 | 5 |\n\n上 3 行は正本にしかない**旧名**、下 6 行は章にしかない**現行名**である。つまり `MetricRollup` の列名について**正本のほうが古い**。正本の本文を章へ複製すると列名が旧名へ戻る。「正本が新しい」という前提が成り立たない以上、複製は同期ではなく退行になる。\n\n**理由 3: 章が名指す確定質疑が正本の `qa_ref` と食い違っていた。** 8 カテゴリ中 **7 件で不一致**、一致は auth のみだった (分母 = `coverage_matrix` の web セル 8 件)。章側は `qa-*-analytics` / `qa-*-web` を、正本側は `qa-*-spec-intake` を名指していた。本節と `## カテゴリ別収集状態` の Web 行は**正本の値を正**として書き直した。章側の旧 ID が指していた質疑録の本文は `## 確定内容 (質疑録)` にそのまま残してあり、**消していない** (理由 2 のとおり、章側の本文のほうが新しいため)。\n\n以上より gaps[0] は、**本文を増やさず「確定の根拠がどこにあるか」を章に載せる**形で実行した。正本の所在は 2 つに分かれる — **規範本文の正本は章、確定セルの状態の正本は `spec-state.json`**。食い違ったら、本節の表は `spec-state.json` を正とし、規範本文は章を正とする。",
         "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "この章の要件 ID を書いたのは誰か",
+        "body": "この章の DB-IMAGE-01〜03 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。\n\n**利用者の逐語（`qa-database-web-article-image-verbatim` の answer に原文がある）**\n\n> カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように\n\n**そこから AI が導いた受入条件**\n\n- どの記事がどの R2 鍵を参照しているかの正本を Editorial 側の D1 が単独で持つこと\n- R2 側のオブジェクト一覧を参照状態の正本にしないこと\n- 参照の消滅と実体の消滅がずれる期間を、状態として表現できること\n\n**利用者の確認を受けている範囲**\n\nAskUserQuestion で「Cloudflare R2 へ直接アップロード（推奨）」を選択済み（承認記録 approval-article-image-upload-path）。参照状態をどこが持つかは提示していない。\n\nこの区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。",
+        "reason": "C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。質疑側は逐語だけに作り直したので、章側で要件 ID の出所 (逐語 / AI 導出 / 利用者確認済みの範囲) を名乗らせる。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -8252,6 +9992,18 @@
         "body": "C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。\n\n(2026-09-04 追記: 本節はこの日まで章にだけ在り、`## 章にしか無い記述 (正本へ未接続)` として引き継がれていた。同じ見出しの節が P13 の書き戻しでもう 1 つ生まれ、`##` 単位の引き継ぎが衝突して本節が落ちた。**落ちようのない場所へ移すのが直し方である**ため、正本の `chapter_notes` へ入れた。文面は落ちる前の逐語のままで、この段落だけが追記である。)",
         "reason": "章にだけ在った本節が、P13 の書き戻しで同名の「章にしか無い記述」節が 2 つになった結果、## 単位の引き継ぎが衝突して落ちた。守るのではなく落ちようのない場所へ移す。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "BE-PROSE-01 が前提とする保存形は未確定である",
+        "body": "この章の BE-PROSE-01〜03 / BE-PRODUCT-01 / BE-IMAGE-01 は、利用者の逐語（`qa-backend-web-prose-verbatim`）から **AI が導いた受入条件** であり、利用者が逐語で述べた要求そのものではない。導出の対応は次のとおり。\n\n- 利用者の逐語: 「記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです」\n- そこから導いた条件: 編集面が扱える断片が、保存形への直列化と保存形からの解析を往復しても失われないこと（BE-PROSE-01〜03）\n\n**BE-PROSE-01 が前提とする保存形の決定は、まだ利用者の確認を受けていない。** `decisions.dec-article-body-storage-format`（記事本文を拡張 Markdown 文字列のまま広げるか、構造化された木として持ち直すか）は `recommended_pending_confirmation` の状態にある。AI 推奨は「拡張 Markdown 文字列のまま広げる」だが、利用者はこの二択を提示されておらず、選んでもいない。\n\nしたがって BE-PROSE-01 の受入条件は「往復で断片が失われないこと」までが確定であり、**その往復が拡張 Markdown 上で起きるという前提は未確定**である。保存形が構造化された木へ変わった場合、BE-PROSE-01 の受入条件そのものは生き残るが、記法の衝突検査（BE-PROSE-02）の対象は入れ替わる。\n\n実装に着手する前に、この二択を利用者へ提示して確認を得ること。確認前に保存形を既定として実装すると、未確認の決定が実装によって既成事実になる。",
+        "reason": "C05 round3 の指摘: BE-PROSE-01 が status=recommended_pending_confirmation の決定に依拠しているのに、規範表にその印が無い。章の手書きでは compile のたび消えるため正本へ置く。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "AI が起草した設計宣言（質疑から移した本文）",
+        "body": "以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。\n\nこの本文はもともと質疑 `qa-backend-web-prose-roundtrip-and-product-search` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。\n\n**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-backend-web-prose-verbatim` である。\n\n利用者の逐語は `qa-backend-web-prose-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。\n\n---\n\n**当初の問い**\n\n> backend×web: 本文断片を 19 種へ増やしても保存形 (拡張 Markdown 文字列) を保つために、往復変換と未知記法の扱い、および商品カードの選択に要る検索をどう定めるか。\n\n**設計宣言の本文**\n\n**保存形は拡張 Markdown 文字列のままにする。**JSON の木へ移さない理由は 3 つある。既存記事のデータが 1 件も壊れない、人が読める、AI が書ける。断片を 9 種足しても、足すのは記法であって保存形ではない。\n\n**往復の不変条件。**`parseProse(serializeProse(nodes)) === nodes` を全 19 種について保証する。新しい記法は、既存の Markdown 記法と衝突しない形で足す。コードブロックは三連バッククォートに言語名、表は既存の Markdown table、それ以外 (image-row / toggle / checklist / embed / cta-button / link-card / columns) は既存の callout や product-card と同じ「ディレクティブ行」の書き方に揃える。1 種類ごとに固有の記法を発明しない。\n\n**未知の記法に出会ったら、落とさず段落へ退避する。**版が進んで新しい記法が入った記事を古い版が読むことは起こりうる。そのとき解釈できない行を捨てると本文が消える。解釈できないものは、書かれた文字列そのままを持つ段落として保持し、保存し直しても元の文字列が戻るようにする。**読めないことと、失ってよいことは違う。**\n\n**商品検索 API。**商品カードで ID を手入力させないため、workspace 内の商品を名前で絞り込む読み取り専用の検索を足す。actor の workspace_id で必ず絞り、他 workspace の商品は 1 件も返さない。返すのはカードの描画に要る最小限 (id / 名称 / 画像 URL / 価格 / リンク) だけで、原価や内部メモは返さない。件数は上限を置き、無制限の全件取得にしない。",
+        "reason": "C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "infrastructure": [
@@ -8265,6 +10017,12 @@
         "heading": "章の規範本文を正本から再生成しない理由",
         "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
         "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "AI が起草した設計宣言（質疑から移した本文）",
+        "body": "以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。\n\nこの本文はもともと質疑 `qa-infrastructure-web-article-image-r2-upload` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。\n\n**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-infrastructure-web-r2-upload-actual-capability` である。\n\n利用者の逐語は `qa-infrastructure-web-r2-upload-actual-capability` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。\n\n---\n\n**当初の問い**\n\n> infrastructure×web: 記事画像を Cloudflare R2 へ直接アップロードする経路をどう組むか。\n\n**設計宣言の本文**\n\n**R2 へ直接上げる。**画像の本体を Worker が中継しない。中継すると Worker のリクエスト上限と実行時間に画像の大きさが縛られ、大きい画像で失敗する。\n\n**流れ。**編集画面が「この名前・この型・この大きさで上げたい」と申告する → Worker が検査した上で、その 1 件だけに有効な署名付きアップロード URL を返す → ブラウザがその URL へ直接 PUT する → 完了後、編集画面が公開 URL を本文へ書く。\n\n**置き場。**記事画像専用のバケットを 1 つ持ち、鍵は `workspace_id/記事id/一意なid.拡張子` の形にする。workspace を先頭に置くのは、後から一括で消したり移したりする単位が workspace だからである。ファイル名は利用者が付けた名前をそのまま使わず、一意な id へ置き換える。名前の衝突と、名前に混ざる文字の問題を両方消せる。\n\n**配信。**バケットを直接公開せず、独自ドメインを通して配信する。キャッシュはこの層で効かせる。\n\n**消し方。**記事から画像を外しただけでは R2 の実体を消さない。編集の取り消しで戻せなくなるためである。参照されなくなった実体の刈り取りは、記事の公開状態が確定してから別の掃除として行う。",
+        "reason": "C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -8280,6 +10038,12 @@
         "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
         "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "この章の要件 ID を書いたのは誰か",
+        "body": "この章の OPS-REQ-008〜010 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。\n\n**利用者の逐語（`qa-maintenance-ops-web-orphan-image-verbatim` の answer に原文がある）**\n\n> （該当する逐語は無い）\n\n**そこから AI が導いた受入条件**\n\n- 参照されない R2 実体を検出し、猶予期間を置いてから掃除する経路を持つこと\n- 掃除の対象を、参照状態の正本（D1）との突き合わせだけで決めること\n- 掃除の実行結果を、誤削除が起きたときに追跡できる形で残すこと\n\n**利用者の確認を受けている範囲**\n\n**利用者はこの掃除について一言も述べていない。** 「R2 へ直接アップロード」という選択の帰結として、参照されない実体が残りうるため、運用側の責務として AI が追加した。この運用を持たない（実体を残し続ける）という選択もありうる。\n\nこの区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。",
+        "reason": "C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。掃除の運用は利用者が一言も述べていない AI 追加であり、その事実を章側で名乗らせる。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "security": [
@@ -8293,6 +10057,12 @@
         "heading": "章の規範本文を正本から再生成しない理由",
         "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
         "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "この章の要件 ID を書いたのは誰か",
+        "body": "この章の SEC-REQ-006〜009 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。\n\n**利用者の逐語（`qa-security-web-upload-hardening-corrected` の answer に原文がある）**\n\n> （該当する逐語は無い）\n\n**そこから AI が導いた受入条件**\n\n- 署名付き URL が期限まで再利用可能である事実を前提に、期限を分単位に留めること\n- 容量と型の検査を、署名ではなく受領後の実体検査で行うこと\n- ブラウザからの直接 PUT に必要な CORS 設定を明示すること\n\n**利用者の確認を受けている範囲**\n\nこの章の要件は利用者の発言ではなく、Cloudflare R2 公式ドキュメント（system-spec/retrieval-evidence/cloudflare-r2.json、2026-09-05 取得）の一次情報から導いた。利用者へは提示していない。\n\nこの区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。",
+        "reason": "C06 round3 の指摘: 要件の出所が機械で辿れない。この章は利用者の発言ではなく Cloudflare R2 公式ドキュメントの一次情報から導いたので、その事実を章側で名乗らせる。",
         "recorded_with": "set-chapter-note"
       }
     ]
@@ -8400,6 +10170,464 @@
             "tradeoffs": [
               "更新の激しい記事では 30 件が短い期間しか覆わない。長期の推移を追いたい記事があれば、窓の値では解けず別の集約が要る",
               "件数固定のため、記事数が増えると総量は線形に伸びる。350 本を超える規模では D1 の無料枠に対する余裕を再計算する必要がある"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-uiux-web-editor-acceptance-criteria",
+      "reason": "marketplace 側の古い writer で作られ、正本 writer が必須とする design_applications (設計適用) と source (出所) を持たないまま確定の主根拠になっていた。契約を満たさない記録なので後継ではなく取り下げ、同じ内容を正本 writer で作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-uiux-web-editor-acceptance-criteria",
+        "question": "ui-ux×web: ブロックエディターの要件を、実装と検証へ渡せる形 (何が満たされたら PASS と言えるか) まで具体化するとどうなるか。",
+        "answer": "**受入は 4 つの観点で判定する。**\n\n(1) **見た目の一致**: 19 種の断片を 1 つずつ挿入し、編集面と公開ページを同一データで描いて突き合わせる。編集面に記法の文字列 (`:::` や `|---|` 等) がそのまま見えていないこと、視覚差分が許容閾値内であることを断片ごとに記録する。「出来上がりの見た目のまま編集できる」は感想ではなく、この突き合わせで判定する。\n\n(2) **階層が動かないこと**: 節の見出し上でレベル変更を試み、節の並べ替え・削除・断片の挿入と削除を行う。どの操作後も節の見出しが h2 のまま、本文の断片の見出しが h3/h4 の範囲から出ない。操作列を変えた 3 系統で、操作前後の見出しレベル列が一致することを見る。Notion の不満はここで機械的に潰れる。\n\n(3) **入口が `/` に依存しないこと**: キーボードで `/` を打たず、挿入ボタンだけで 19 種すべてへ到達できる。5 群 (文章 / 一覧 / 見せ方 / データ / 差し込み) の名前と断片名が支援技術で読み上げられる。\n\n(4) **カードと画像の入口**: 商品カードは検索結果からの選択でのみ挿入でき、URL の手入力欄が存在しない。画像は代替テキストが空のままでは挿入が完了せず、その旨が画面に出る。\n\n**要件の置き場所を決めた。**これらは章の To-Be (UIUX-REQ-005〜007) と Acceptance evidence (UIUX-ACC-005〜008) に載せる。質疑録にしか無い要件は実装へ渡せないため、規範節に載っていることを確定の条件とする。",
+        "provenance": "利用者との対話 (2026-09-05)。ブロックエディターの受入条件を、見た目の一致・階層の不動・入口の到達性・カードと画像の入口の4観点で確定した。",
+        "basis": "user-decision",
+        "answered_at": "2026-09-05T01:05:00Z",
+        "required_info_items": [
+          "context-of-use",
+          "information-priority",
+          "product-goal",
+          "target-platforms"
+        ]
+      }
+    },
+    {
+      "id": "qa-frontend-web-editor-acceptance-criteria",
+      "reason": "marketplace 側の古い writer で作られ、正本 writer が必須とする design_applications (設計適用) と source (出所) を持たないまま確定の主根拠になっていた。契約を満たさない記録なので後継ではなく取り下げ、同じ内容を正本 writer で作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-frontend-web-editor-acceptance-criteria",
+        "question": "frontend×web: 断片 19 種の実装を、実装と検証へ渡せる形まで具体化するとどうなるか。特に編集面と公開ページの描画をどう扱うか。",
+        "answer": "**描画部品は 1 系統に限る。**編集面と公開ページは同一の描画部品を通す。断片ごとに 2 系統の実装を持つと、公開側だけ直った・編集側だけ直ったという食い違いが必ず出る。受入は、19 種を含む記事 fixture を両面で描き、部品呼び出しを記録するテストで同一部品を通ったことを示す。断片 → 描画部品の登録表に 19 件が揃い、未登録が 0 件であることを併せて見る。\n\n**文字装飾は断片から分離する。**太字・斜体・打ち消し・行内コード・リンク・文字色/背景色は断片の種類ではなく、文字を持つ断片の内側の装飾として実装する。色は名前付きトークンの集合に限り、任意の 16 進値を受け取らない。受入は、トークン外の値 (`#ff0000` 等) を含む本文を読み込んで既定色で描かれること、トークンの定義箇所が 1 か所であることの検査。\n\n**見出しレベルは骨格から導出する。**編集器の内部状態ではなく節の骨格から導く。レベルを変更する操作そのものを実装しない。受入は、キーボードとツールバーの双方から変更を試みて、そういう操作が提供されていないことと、描画結果の見出し列が h2/h3/h4 の規則から外れないことを見る。\n\n**構造の深い断片は横スクロールを自分の中に収める。**code (言語指定つき)・table (3 行 4 列)・image-row (4 枚)・columns (2 段) を描き、ページ本体が横スクロールしないことを確かめる。",
+        "provenance": "利用者との対話 (2026-09-05)。編集面と公開ページが同一の描画部品を通ること、文字装飾を断片から分離すること、見出しレベルを骨格から導出することを確定した。",
+        "basis": "user-decision",
+        "answered_at": "2026-09-05T01:06:00Z",
+        "required_info_items": [
+          "frontend-arch"
+        ]
+      }
+    },
+    {
+      "id": "qa-backend-web-prose-acceptance-criteria",
+      "reason": "marketplace 側の古い writer で作られ、正本 writer が必須とする design_applications (設計適用) と source (出所) を持たないまま確定の主根拠になっていた。契約を満たさない記録なので後継ではなく取り下げ、同じ内容を正本 writer で作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-backend-web-prose-acceptance-criteria",
+        "question": "backend×web: 保存形を拡張 Markdown 文字列のまま断片 19 種へ広げるとき、何が満たされたら実装へ渡せるか。",
+        "answer": "**保存形を変えない理由を決定として残した** (`decisions[].dec-article-body-storage-format`)。構造化 JSON ツリーへ移す案と比べ、(1) 公開済み記事のデータが壊れない (移行不要)、(2) DB を直接見て本文が読める、(3) AI が文字列として本文を書ける、の 3 点で文字列を採る。これは AI 推奨であり、利用者の確認を待つ状態として記録する。\n\n**受入は 3 つ。**\n\n(1) **往復**: 断片 19 種それぞれで `parseProse(serializeProse(nodes)) === nodes`。19 種すべてを含む 1 本の記事 fixture でも同じ等式が成り立つ。属性 (コードの言語指定・表の列数・画像の代替テキスト・色トークン) が往復で失われないことを個別に見る。\n\n(2) **未知記法を失わない**: 将来の断片を模した未知の記法を含む本文を、保存 → 読み出し → 再保存する。元の文字列がバイト単位で一致して残り、段落として描かれる。**読めないことと、失ってよいことは違う。**新しい記法で書かれた記事を古い版のコードが読んだときに本文が欠けるのが、この要件が無い場合に起きることである。\n\n(3) **退行しない**: 現行の公開済み記事 fixture 全件を新しい `parseProse` で読み、既存の描画結果と差分が出ない。保存形を変えていないため移行スクリプトが存在しないことを併せて記録する。\n\n**商品検索と署名発行も use-case 境界を通す。**商品検索 API は id / 名称 / 画像 URL / 価格 / リンクの 5 項目だけを返し、`workspace_id` はセッションから導出する。署名付き URL の鍵は backend が `workspace_id/記事id/一意なid.拡張子` の形で組み立て、クライアントから受け取った鍵に署名しない。",
+        "provenance": "利用者との対話 (2026-09-05) と、既存の記事保存形の観測。保存形を拡張 Markdown 文字列のまま広げる判断は decisions.dec-article-body-storage-format に記録。",
+        "basis": "user-decision",
+        "answered_at": "2026-09-05T01:08:00Z",
+        "required_info_items": [
+          "domain-model"
+        ]
+      }
+    },
+    {
+      "id": "qa-infrastructure-web-r2-upload-actual-capability",
+      "reason": "marketplace 側の古い writer で作られ、正本 writer が必須とする design_applications (設計適用) と source (出所) を持たないまま確定の主根拠になっていた。契約を満たさない記録なので後継ではなく取り下げ、同じ内容を正本 writer で作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-infrastructure-web-r2-upload-actual-capability",
+        "question": "infrastructure×web: 記事画像を R2 へ直接アップロードする経路を、Cloudflare R2 が実際にできることに合わせて確定し直すとどうなるか。",
+        "answer": "**先に訂正する。**前回の確定は「署名付き URL は短命かつ 1 回きり」「発行した鍵と型と大きさ以外には使えない」と書いていた。公式ドキュメント (取得日 2026-09-05、`system-spec/retrieval-evidence/cloudflare-r2.json`) を読むと、いずれも成立しない。\n\n- 公式は **The same presigned URL can be reused multiple times until it expires** と明記している。1 回きりではない。\n- 署名で縛れるのは **資源** (アカウント ID・バケット・オブジェクトパス)・**操作** (GET / PUT / HEAD / DELETE の 4 つ)・**期限** (1 秒〜7 日 = 604,800 秒) の 3 つだけである。\n- 容量の上下限を署名へ含める S3 POST policy は、R2 の S3 API 互換表に記載が無い。**大きさは署名で縛れない。**\n\n**実能力に合わせた確定。**(1) ブラウザから署名付き URL で直接 PUT する。画像本体を Worker に通さないのは、Worker のリクエストボディ上限が『貼れる画像の大きさ』の天井になるのを避けるためである。(2) 鍵は `workspace_id/記事id/一意なid.拡張子` に固定し、鍵の先頭が workspace であることでテナント越えが鍵の並びの上で生じないようにする。(3) 配信は R2 のカスタムドメイン経由とし、バケットの公開 URL を記事本文へ埋めない。配信元を差し替えても本文の書き換えが要らない。(4) **バケットに CORS ポリシーが要る。**`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間。設定しない限りブラウザからの直接 PUT は preflight で落ちる。前回の確定にはこれが抜けていた。(5) 単一 PUT の上限は 5 GiB。超える画像は multipart へ切り替えるか上限として拒否するかを実装時に決め、暗黙に失敗させない。\n\n**削除は持たない。**記事から外した画像の刈り取りは maintenance-ops の掃除ジョブへ渡す。infrastructure は保管と配信の側だけを持つ。",
+        "provenance": "Cloudflare R2 公式ドキュメント (取得日 2026-09-05, system-spec/retrieval-evidence/cloudflare-r2.json)。署名の再利用可否・期限上限・POST policy 非対応・CORS 要件・単一 PUT 上限を一次情報で確認した。",
+        "basis": "observed-fact",
+        "answered_at": "2026-09-05T01:09:00Z",
+        "required_info_items": [
+          "infra-topology"
+        ]
+      }
+    },
+    {
+      "id": "qa-security-web-upload-hardening-corrected",
+      "reason": "marketplace 側の古い writer で作られ、正本 writer が必須とする design_applications (設計適用) と source (出所) を持たないまま確定の主根拠になっていた。契約を満たさない記録なので後継ではなく取り下げ、同じ内容を正本 writer で作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-security-web-upload-hardening-corrected",
+        "question": "security×web: 署名で大きさを縛れないという実能力を踏まえ、記事画像のアップロードと本文の描画をどう守るか。",
+        "answer": "**前回の確定を訂正する。**「署名付き URL は 1 回きり」「発行した鍵と型と大きさ以外には使えない」は、Cloudflare R2 の公式仕様と矛盾する。署名が縛れるのは資源・操作・期限だけで、同じ URL は期限まで再利用できる。この訂正は防御を下げる変更ではなく、防御の位置を実物へ合わせる変更である。\n\n**二段構えにする。**\n\n(1) **署名の側**: 資源 (アカウント・バケット・オブジェクトパス)・操作 (PUT)・期限だけを縛る。期限は分単位に留め、上限 7 日の余地を使わない。再利用できることを前提に、漏れたときの窓を短く保つ。\n\n(2) **受領後の側**: 拡張子と申告 MIME を信頼せず、保管された実体の先頭バイトで型を判定する。許可した画像型かつ上限以下でなければ公開経路へ出さない。署名で大きさを縛れない以上、ここが大きさの唯一の検査点である。\n\n(3) **出所の側**: R2 の CORS ポリシーで、ブラウザから直接 PUT できる出所を管理画面の生成元だけに限定する。`AllowedOrigins` にワイルドカードを置かず、`AllowedMethods` は PUT に絞り、`ExposeHeaders` は ETag に留める。\n\n**描画は許可リストで絞る。**断片が 19 種へ増え、code / table / embed / columns といった構造の深いものが入る。要素・属性・URL スキームの許可リストを 1 か所に置き、断片ごとの分岐へ散らさない。embed の宛先ホストも許可リストで限定し、任意ホストの iframe を通さない。文字色/背景色は名前付きトークンのみを受け、任意の値をスタイルとして注入させない。\n\n**受入**: 同じ署名付き URL で 2 回 PUT して期限内の 2 回目が通ること (再利用可能である事実の確認) と期限後が落ちること。拡張子 `.png` で実体が実行可能ファイルまたは上限超過のものを PUT して、受領後検査が捕まえること。別ドメインからの PUT が preflight で落ち、CORS に `AllowedOrigins: *` が無いこと。`javascript:` リンク・許可外ホストの iframe・`<script>`・任意の 16 進色を仕込んだ本文が、描画結果に残らないこと。",
+        "provenance": "Cloudflare R2 公式ドキュメント (取得日 2026-09-05, system-spec/retrieval-evidence/cloudflare-r2.json)。署名が縛れる範囲を実能力へ合わせて訂正した。",
+        "basis": "observed-fact",
+        "answered_at": "2026-09-05T01:10:00Z",
+        "required_info_items": [
+          "security-posture"
+        ]
+      }
+    },
+    {
+      "id": "qa-database-web-article-image-reference-state",
+      "reason": "marketplace 側の古い writer で作られ、正本 writer が必須とする design_applications (設計適用) と source (出所) を持たないまま確定の主根拠になっていた。契約を満たさない記録なので後継ではなく取り下げ、同じ内容を正本 writer で作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-database-web-article-image-reference-state",
+        "question": "database×web: 記事から外された画像を孤児と判定するために、どの参照状態をどこが持つか。",
+        "answer": "**Editorial に記事画像の参照状態を持つ。**`article_image(workspace_id, article_id, object_key, referenced, last_referenced_at)` に相当する情報を保持し、「どの記事がどの R2 の鍵を参照しているか」を保管領域を走査せずに引けるようにする。孤児判定の根拠はここが唯一の正本で、maintenance-ops の掃除ジョブは自前で数え直さない。走査で数える方式にすると、記事が増えるほど掃除が重くなり、走査中に保存された記事を孤児と誤判定する窓が開く。\n\n**外す操作は削除を伴わない。**記事から画像を外す操作は、参照状態を「参照なし」へ更新して `last_referenced_at` を打つだけにする。猶予期間内に同じ鍵が再び参照されたら「参照あり」へ戻る。物理削除は maintenance-ops の掃除ジョブが猶予を過ぎたものだけに対して行う。下書きの往復や誤操作の取り消しで戻ってきた画像を消さないためである。\n\n**鍵の一意制約は workspace 先頭。**`object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする。\n\n**責務の分け方を明記する理由。**以前はこの参照状態の持ち主が居らず、外した画像の実体が保管領域に残り続けていた。database が「参照されているか」を持ち、maintenance-ops が「掃除を回す」。片方だけでは孤児は消えない。",
+        "provenance": "利用者との対話 (2026-09-05)。記事画像の参照状態を Editorial 側の正本として持つ判断。永続化の所在 (data-persistence) の接地を兼ねる。",
+        "basis": "user-decision",
+        "answered_at": "2026-09-05T01:14:00Z",
+        "required_info_items": [
+          "data-persistence"
+        ]
+      }
+    },
+    {
+      "id": "qa-maintenance-ops-web-orphan-image-sweep",
+      "reason": "marketplace 側の古い writer で作られ、正本 writer が必須とする design_applications (設計適用) と source (出所) を持たないまま確定の主根拠になっていた。契約を満たさない記録なので後継ではなく取り下げ、同じ内容を正本 writer で作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-maintenance-ops-web-orphan-image-sweep",
+        "question": "maintenance-ops×web: 記事から外された画像の実体を、誰が、いつ、どうやって刈り取るか。",
+        "answer": "**刈り取りの責務は maintenance-ops が持つ。**記事の保存操作の中で即座に物理削除せず、参照されなくなった実体を後から掃除する定期ジョブとして回す。保存の中で消すと、保存の応答時間に外部ストレージへの削除要求が乗り、削除が失敗したときに保存そのものを失敗させるか、失敗を握り潰すかの二択になる。どちらも要らない。\n\n**猶予期間を置く。**参照が切れてから猶予を過ぎた実体だけを削除対象にする。下書きの往復や誤操作の取り消しで復帰した画像を消さないためである。猶予内に参照が戻ったものは対象から外れる。\n\n**他のジョブと同じ契約に載せる。**idempotency key・試行回数・最終エラーを持ち、削除した鍵を AuditLog へ残す。消えた画像を後から追跡できないと、「表示されない画像」の原因を切り分ける手段が無くなる。\n\n**判定は自前でやらない。**孤児かどうかの根拠 (参照状態) は database が持ち、maintenance-ops はその判定結果を読んで掃除を回す側に立つ。鍵の並びと保管先は infrastructure の正本に従属する。\n\n**受入**: 画像を外して保存し、猶予前の実行では実体が残り、猶予後の実行で削除されること。記事保存の応答時間に削除処理が含まれないこと。猶予内に元へ戻したものが削除されないこと。同じ掃除ジョブを同じ区間で 2 回実行して追加の削除が発生せず、AuditLog に重複記録が無いこと。"
+      }
+    },
+    {
+      "id": "qa-uiux-web-editor-acceptance-criteria",
+      "reason": "answer が利用者の逐語ではなく AI が起草した受入条件だった。source.kind=user-dialogue は『利用者との対話に由来する』という名乗りであり、AI の起草文をその名乗りで残すと、利用者が言っていないことが利用者の声として正本に残る。後継ではなく取り下げ、逐語のみの answer を持つ質疑へ作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-uiux-web-editor-acceptance-criteria",
+        "question": "ui-ux×web: ブロックエディターの要件を、実装と検証へ渡せる形 (何が満たされたら PASS と言えるか) まで具体化するとどうなるか。",
+        "answer": "**受入は 4 つの観点で判定する。**\n\n(1) **見た目の一致**: 19 種の断片を 1 つずつ挿入し、編集面と公開ページを同一データで描いて突き合わせる。編集面に記法の文字列 (`:::` や `|---|` 等) がそのまま見えていないこと、視覚差分が許容閾値内であることを断片ごとに記録する。「出来上がりの見た目のまま編集できる」は感想ではなく、この突き合わせで判定する。\n\n(2) **階層が動かないこと**: 節の見出し上でレベル変更を試み、節の並べ替え・削除・断片の挿入と削除を行う。どの操作後も節の見出しが h2 のまま、本文の断片の見出しが h3/h4 の範囲から出ない。操作列を変えた 3 系統で、操作前後の見出しレベル列が一致することを見る。Notion の不満はここで機械的に潰れる。\n\n(3) **入口が `/` に依存しないこと**: キーボードで `/` を打たず、挿入ボタンだけで 19 種すべてへ到達できる。5 群 (文章 / 一覧 / 見せ方 / データ / 差し込み) の名前と断片名が支援技術で読み上げられる。\n\n(4) **カードと画像の入口**: 商品カードは検索結果からの選択でのみ挿入でき、URL の手入力欄が存在しない。画像は代替テキストが空のままでは挿入が完了せず、その旨が画面に出る。\n\n**要件の置き場所を決めた。**これらは章の To-Be (UIUX-REQ-005〜007) と Acceptance evidence (UIUX-ACC-005〜008) に載せる。質疑録にしか無い要件は実装へ渡せないため、規範節に載っていることを確定の条件とする。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "ui-ux",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "usability-accessibility.md#中核概念",
+            "principle": "満たされたと言える条件を、観察できる操作と結果の形で先に書く",
+            "applicability": "applied",
+            "rationale": "『見た目のまま編集できる』は主観で判定すると、実装した側と使う側で結論が割れる。断片ごとの視覚差分と、操作前後の見出しレベル列という観察可能な形にすれば、割れない",
+            "tradeoffs": [
+              "断片 19 種ぶんの視覚差分を保守する手間が増える。ただしこの手間は、断片を増やすたびに見た目が壊れていないことを確かめる手間と同じもので、新しく生じた負担ではない"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-frontend-web-editor-acceptance-criteria",
+      "reason": "answer が利用者の逐語ではなく AI が起草した受入条件だった。source.kind=user-dialogue は『利用者との対話に由来する』という名乗りであり、AI の起草文をその名乗りで残すと、利用者が言っていないことが利用者の声として正本に残る。後継ではなく取り下げ、逐語のみの answer を持つ質疑へ作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-frontend-web-editor-acceptance-criteria",
+        "question": "frontend×web: 断片 19 種の実装を、実装と検証へ渡せる形まで具体化するとどうなるか。特に編集面と公開ページの描画をどう扱うか。",
+        "answer": "**描画部品は 1 系統に限る。**編集面と公開ページは同一の描画部品を通す。断片ごとに 2 系統の実装を持つと、公開側だけ直った・編集側だけ直ったという食い違いが必ず出る。受入は、19 種を含む記事 fixture を両面で描き、部品呼び出しを記録するテストで同一部品を通ったことを示す。断片 → 描画部品の登録表に 19 件が揃い、未登録が 0 件であることを併せて見る。\n\n**文字装飾は断片から分離する。**太字・斜体・打ち消し・行内コード・リンク・文字色/背景色は断片の種類ではなく、文字を持つ断片の内側の装飾として実装する。色は名前付きトークンの集合に限り、任意の 16 進値を受け取らない。受入は、トークン外の値 (`#ff0000` 等) を含む本文を読み込んで既定色で描かれること、トークンの定義箇所が 1 か所であることの検査。\n\n**見出しレベルは骨格から導出する。**編集器の内部状態ではなく節の骨格から導く。レベルを変更する操作そのものを実装しない。受入は、キーボードとツールバーの双方から変更を試みて、そういう操作が提供されていないことと、描画結果の見出し列が h2/h3/h4 の規則から外れないことを見る。\n\n**構造の深い断片は横スクロールを自分の中に収める。**code (言語指定つき)・table (3 行 4 列)・image-row (4 枚)・columns (2 段) を描き、ページ本体が横スクロールしないことを確かめる。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "frontend",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "clean-architecture.md#中核概念",
+            "principle": "同じ意味のものを二度実装しない。二度あると、片方だけ直る",
+            "applicability": "applied",
+            "rationale": "編集面と公開ページで断片の描画を別々に持つと、断片が 19 種へ増えた分だけ食い違いの機会も増える。登録表を 1 つ持ち、両面がそこを通る形にすれば、食い違いは構造上生じない",
+            "tradeoffs": [
+              "編集面固有の装飾 (掴む取っ手や選択枠) は描画部品の外側へ出す必要がある。部品の中へ編集専用の分岐を入れると、1 系統である利点が消える"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-backend-web-prose-acceptance-criteria",
+      "reason": "answer が利用者の逐語ではなく AI が起草した受入条件だった。source.kind=user-dialogue は『利用者との対話に由来する』という名乗りであり、AI の起草文をその名乗りで残すと、利用者が言っていないことが利用者の声として正本に残る。後継ではなく取り下げ、逐語のみの answer を持つ質疑へ作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-backend-web-prose-acceptance-criteria",
+        "question": "backend×web: 保存形を拡張 Markdown 文字列のまま断片 19 種へ広げるとき、何が満たされたら実装へ渡せるか。",
+        "answer": "**保存形を変えない理由を決定として残した** (`decisions[].dec-article-body-storage-format`)。構造化 JSON ツリーへ移す案と比べ、(1) 公開済み記事のデータが壊れない (移行不要)、(2) DB を直接見て本文が読める、(3) AI が文字列として本文を書ける、の 3 点で文字列を採る。これは AI 推奨であり、利用者の確認を待つ状態として記録する。\n\n**受入は 3 つ。**\n\n(1) **往復**: 断片 19 種それぞれで `parseProse(serializeProse(nodes)) === nodes`。19 種すべてを含む 1 本の記事 fixture でも同じ等式が成り立つ。属性 (コードの言語指定・表の列数・画像の代替テキスト・色トークン) が往復で失われないことを個別に見る。\n\n(2) **未知記法を失わない**: 将来の断片を模した未知の記法を含む本文を、保存 → 読み出し → 再保存する。元の文字列がバイト単位で一致して残り、段落として描かれる。**読めないことと、失ってよいことは違う。**新しい記法で書かれた記事を古い版のコードが読んだときに本文が欠けるのが、この要件が無い場合に起きることである。\n\n(3) **退行しない**: 現行の公開済み記事 fixture 全件を新しい `parseProse` で読み、既存の描画結果と差分が出ない。保存形を変えていないため移行スクリプトが存在しないことを併せて記録する。\n\n**商品検索と署名発行も use-case 境界を通す。**商品検索 API は id / 名称 / 画像 URL / 価格 / リンクの 5 項目だけを返し、`workspace_id` はセッションから導出する。署名付き URL の鍵は backend が `workspace_id/記事id/一意なid.拡張子` の形で組み立て、クライアントから受け取った鍵に署名しない。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "backend",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "ddd.md#中核概念",
+            "principle": "壊れないことを願うのではなく、壊れたら気づく検査を先に置く",
+            "applicability": "applied",
+            "rationale": "断片を 10 種から 19 種へ広げる変更で最も重い危険は、既存の公開記事が読めなくなることである。19 種すべての往復等式と、未知記法の literal 保持と、公開済み fixture の退行検査の 3 つが揃って初めて、その危険が検査で捕まる",
+            "tradeoffs": [
+              "往復テストの保守が断片の数に比例して増える。ただし断片を増やす変更そのものが、この検査を必要とさせているので、避けられる負担ではない"
+            ]
+          },
+          {
+            "knowledge_ref": "clean-architecture.md#中核概念",
+            "principle": "外から来た値を、境界の内側で組み立て直す",
+            "applicability": "applied",
+            "rationale": "署名付き URL の鍵をクライアントから受け取ると、鍵の並びが workspace 境界を守っているかどうかが入力次第になる。backend が組み立てれば、境界は経路の性質になる",
+            "tradeoffs": [
+              "クライアントは鍵を指定できないため、アップロードの前に必ず backend へ 1 往復する。往復が 1 回増える"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-database-web-article-image-reference-state",
+      "reason": "answer が利用者の逐語ではなく AI が起草した受入条件だった。source.kind=user-dialogue は『利用者との対話に由来する』という名乗りであり、AI の起草文をその名乗りで残すと、利用者が言っていないことが利用者の声として正本に残る。後継ではなく取り下げ、逐語のみの answer を持つ質疑へ作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-database-web-article-image-reference-state",
+        "question": "database×web: 記事から外された画像を孤児と判定するために、どの参照状態をどこが持つか。",
+        "answer": "**Editorial に記事画像の参照状態を持つ。**`article_image(workspace_id, article_id, object_key, referenced, last_referenced_at)` に相当する情報を保持し、「どの記事がどの R2 の鍵を参照しているか」を保管領域を走査せずに引けるようにする。孤児判定の根拠はここが唯一の正本で、maintenance-ops の掃除ジョブは自前で数え直さない。走査で数える方式にすると、記事が増えるほど掃除が重くなり、走査中に保存された記事を孤児と誤判定する窓が開く。\n\n**外す操作は削除を伴わない。**記事から画像を外す操作は、参照状態を「参照なし」へ更新して `last_referenced_at` を打つだけにする。猶予期間内に同じ鍵が再び参照されたら「参照あり」へ戻る。物理削除は maintenance-ops の掃除ジョブが猶予を過ぎたものだけに対して行う。下書きの往復や誤操作の取り消しで戻ってきた画像を消さないためである。\n\n**鍵の一意制約は workspace 先頭。**`object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする。\n\n**責務の分け方を明記する理由。**以前はこの参照状態の持ち主が居らず、外した画像の実体が保管領域に残り続けていた。database が「参照されているか」を持ち、maintenance-ops が「掃除を回す」。片方だけでは孤児は消えない。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "database",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "ddd.md#中核概念",
+            "principle": "状態を持つ場所を 1 つ決める。数え直しは正本にならない",
+            "applicability": "applied",
+            "rationale": "孤児かどうかを保管領域の走査で求めると、走査の途中に保存された記事の画像を孤児と誤判定する窓が開く。参照状態を記録として持てば、判定は問い合わせになり、窓が閉じる",
+            "tradeoffs": [
+              "記事の保存操作が参照状態の更新を伴うため、保存の処理が 1 段増える。ただし削除そのものは伴わないので、保存の応答時間に外部への削除要求は乗らない"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-maintenance-ops-web-orphan-image-sweep",
+      "reason": "answer が利用者の逐語ではなく AI が起草した受入条件だった。source.kind=user-dialogue は『利用者との対話に由来する』という名乗りであり、AI の起草文をその名乗りで残すと、利用者が言っていないことが利用者の声として正本に残る。後継ではなく取り下げ、逐語のみの answer を持つ質疑へ作り直す。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-maintenance-ops-web-orphan-image-sweep",
+        "question": "maintenance-ops×web: 記事から外された画像の実体を、誰が、いつ、どうやって刈り取るか。",
+        "answer": "**刈り取りの責務は maintenance-ops が持つ。**記事の保存操作の中で即座に物理削除せず、参照されなくなった実体を後から掃除する定期ジョブとして回す。保存の中で消すと、保存の応答時間に外部ストレージへの削除要求が乗り、削除が失敗したときに保存そのものを失敗させるか、失敗を握り潰すかの二択になる。どちらも要らない。\n\n**猶予期間を置く。**参照が切れてから猶予を過ぎた実体だけを削除対象にする。下書きの往復や誤操作の取り消しで復帰した画像を消さないためである。猶予内に参照が戻ったものは対象から外れる。\n\n**他のジョブと同じ契約に載せる。**idempotency key・試行回数・最終エラーを持ち、削除した鍵を AuditLog へ残す。消えた画像を後から追跡できないと、「表示されない画像」の原因を切り分ける手段が無くなる。\n\n**判定は自前でやらない。**孤児かどうかの根拠 (参照状態) は database が持ち、maintenance-ops はその判定結果を読んで掃除を回す側に立つ。鍵の並びと保管先は infrastructure の正本に従属する。\n\n**受入**: 画像を外して保存し、猶予前の実行では実体が残り、猶予後の実行で削除されること。記事保存の応答時間に削除処理が含まれないこと。猶予内に元へ戻したものが削除されないこと。同じ掃除ジョブを同じ区間で 2 回実行して追加の削除が発生せず、AuditLog に重複記録が無いこと。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "maintenance-ops",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "site-reliability-engineering.md#中核概念",
+            "principle": "取り返しのつかない操作は、遅らせて、取り消せる窓を作る",
+            "applicability": "applied",
+            "rationale": "画像の物理削除は取り消せない。保存の中で即座に消すと、誤操作の取り消しが間に合わない。参照が切れた記録だけを残し、猶予を過ぎてから消せば、取り消せる窓がそのまま猶予期間になる",
+            "tradeoffs": [
+              "猶予期間のあいだ、参照されない実体の保管費用が発生する。記事画像の規模では無料枠の内側に収まる範囲であり、誤って消した画像を復旧できないことの方が高くつく"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-uiux-web-block-editor-wysiwyg",
+      "reason": "この記録は最初から契約を満たしていなかった。answer が利用者の逐語ではなく AI が起草した設計宣言でありながら source.kind=user-dialogue を名乗っており、利用者が言っていないことが利用者の声の顔で正本に残っていた。独立監査 C06 が round4 で名指しした。本文は章の散文「AI が起草した設計宣言（質疑から移した本文）」へ原文のまま移してある。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-uiux-web-block-editor-wysiwyg",
+        "question": "ui-ux×web: 記事エディターを、出来上がりの見た目のまま編集できるブロックエディターにするとき、(a) 見出しの層が意図せず動く問題をどう防ぎ、(b) どの断片まで見た目で見せ、(c) 画像をどう添えさせるか。",
+        "answer": "**2 層を維持し、層を UI に見せる。**記事は外側 (節 = ArticleBlockKind 15 種) と内側 (本文の断片 = ProseNode) の 2 層である。節の見出しは常に h2 に固定し、本文の中の見出しは h3 と h4 しか取らない。Notion で起きる「編集したら見出し2が見出し1になる」は、見出しを 1 つの平らな列として扱い、見た目の大きさで層を選ばせることから来る。ここではその選択肢を与えない。節の見出し欄には「この記事の第 N 節 (h2)」と層を明示し、本文の見出し断片には「節の中の小見出し (h3)」「その下 (h4)」とラベルを出す。層はドラッグや Backspace の副作用では変わらず、断片の種類を選び直したときだけ変わる。\n\n**全断片を見た目のまま見せる。**現行は断片ごとに欄が分かれていて崩れないという利点があるが、商品カードが productId の素の入力欄のままで、書いている最中に何が出るか分からない。欄という単位は保ったまま、欄の中身を公開時の見た目で描く。商品カードは ID 手入力をやめ、商品を検索して選ぶ UI にし、選んだ瞬間にカードの姿 (画像・名称・価格・リンク) が出る。比較表・引用・囲み・コードブロック・自由表・画像の横並びも同様に、編集中の姿と公開時の姿を揃える。\n\n**画像はドラッグ&ドロップとファイル選択で添える。**URL の手入力を必須にしない。落とした瞬間にアップロードが始まり、進捗が出て、終わったら本文にその画像が出る。alt は未入力のまま公開できないようにし、装飾目的なら「装飾」と明示的に宣言させる。\n\n**入口は `/` だけに頼らない。**各断片の下に「+」があり、そこから種類を選べる。`/` を知らない運営者でも全種類へ到達できる。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "ui-ux",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "usability-accessibility.md#中核概念",
+            "principle": "利用者が壊せない形にするのではなく、壊れる操作をそもそも用意しない",
+            "applicability": "applied",
+            "rationale": "見出しレベルを見た目の大きさで選ばせると、編集操作の副作用で層が動く。層を種類の選択に閉じ込め、節=h2 を固定すれば、意図しない昇格や降格が起こる経路が消える",
+            "tradeoffs": [
+              "節をまたぐ自由な見出し階層 (h5 以下) は書けないが、記事の目次と必須ブロック検証が節の階層に依存しているため、そこは制約として受け入れる"
+            ]
+          },
+          {
+            "knowledge_ref": "information-design.md#中核概念",
+            "principle": "編集中に見えるものと公開時に出るものを一致させ、書き手の予測と結果のずれを無くす",
+            "applicability": "applied",
+            "rationale": "商品カードが ID の文字列として見えている限り、書き手は公開してからでないと成果物を判断できない。断片の欄という単位を保ったまま中身を公開時の姿で描けば、崩れにくさと見た目の一致を両立できる",
+            "tradeoffs": [
+              "編集画面が公開側のスタイルを参照するため、公開側の見た目を変えるときは編集画面の描画も同時に確かめる必要がある"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-frontend-web-prose-fragment-catalog",
+      "reason": "この記録は最初から契約を満たしていなかった。answer が利用者の逐語ではなく AI が起草した設計宣言でありながら source.kind=user-dialogue を名乗っており、利用者が言っていないことが利用者の声の顔で正本に残っていた。独立監査 C06 が round4 で名指しした。本文は章の散文「AI が起草した設計宣言（質疑から移した本文）」へ原文のまま移してある。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-frontend-web-prose-fragment-catalog",
+        "question": "frontend×web: 記事作成に要る表現を賄うため、本文断片 (ProseNode) のカタログを現行 10 種からどこまで広げ、編集画面でどう出すか。",
+        "answer": "**現行 10 種を保ったまま 9 種を足し、19 種にする。**現行は paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider。既存記事を壊さないため、この 10 種の記法は変えない。足すのは次の 9 種である。\n\n1. **code** — 言語指定つきコードブロック。言語を選ぶと編集中も色分けして出る。言語不明は plain。\n2. **table** — 行数と列数を自由に決められる表。comparison-table (商品比較の定型) とは別物として持つ。見出し行の有無を選べる。\n3. **image-row** — 画像を横に 2〜4 枚並べる。各枚に alt とキャプションを持つ。狭い画面では縦に落ちる。\n4. **toggle** — 見出しをたたんで中に段落を隠す折りたたみ。長い補足を本筋から外に出すために使う。\n5. **checklist** — チェック状態つきの箇条書き。手順の確認に使う。\n6. **embed** — 外部埋め込み (YouTube / X / 汎用 iframe)。許可した提供元だけを受ける。\n7. **cta-button** — 文言とリンク先と見た目 (主/副) を持つボタン。アフィリエイト計測の属性を落とさない。\n8. **link-card** — URL を入れると題名・説明・画像を引いてカードで出す。取得できないときは素のリンクへ落とす。\n9. **columns** — 2 段組み。左右それぞれに断片を入れられる。狭い画面では縦に落ちる。\n\n**文字の装飾は断片ではなく段落の中に持つ。**太字・斜体・打ち消し・行内コード・リンク・**文字色と背景色**は、段落・箇条書き・表のセルといった文字を持つ断片の中で効く行内装飾とする。色は自由な hex ではなく、記事のトークンから引いた名前つきの色 (既定/強調/注意/控えめ など) の許可リストに絞る。自由な色指定を許すと記事ごとに配色が壊れ、暗い配色での可読性も保証できない。\n\n**編集画面での出し方。**各断片の下の「+」と `/` の両方から全 19 種へ到達できる。種類は「文章」「一覧」「見せ方」「データ」「差し込み」の 5 群に分けて出す。19 個を平らに並べると選べない。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "frontend",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "information-design.md#中核概念",
+            "principle": "選択肢が増えるほど、束ねて出さないと選べなくなる",
+            "applicability": "applied",
+            "rationale": "断片を 10 から 19 へ増やすと平らな一覧では探せない。文章・一覧・見せ方・データ・差し込みの 5 群へ束ね、群の中は 3〜5 個に収める",
+            "tradeoffs": [
+              "群の分け方が直感と合わない断片が出ると、かえって探しにくくなるため、群名は実際の記事作成の語彙に寄せる必要がある"
+            ]
+          },
+          {
+            "knowledge_ref": "usability-accessibility.md#中核概念",
+            "principle": "見た目の自由度は、読み手の可読性が保証できる範囲に閉じる",
+            "applicability": "applied",
+            "rationale": "文字色と背景色を自由な hex で許すと、暗い配色や低視力の読み手に対して十分な明度差を保証できない。記事のトークンから引いた名前つきの色に限れば、明度差はトークン側で一度だけ保証すればよい",
+            "tradeoffs": [
+              "運営者が思った通りの色を出せない場合があるが、その場合はトークンを足すという一段重い手続きに乗せる"
+            ]
+          },
+          {
+            "knowledge_ref": "clean-architecture.md#中核概念",
+            "principle": "外側 (節) と内側 (本文断片) の境界を、種類を足しても越えさせない",
+            "applicability": "applied",
+            "rationale": "9 種を足しても、それらは全て内側の断片であり、記事の骨格を決める節の 15 種には触れない。目次と必須ブロック検証は節だけを見ているので、断片を増やしても壊れない",
+            "tradeoffs": [
+              "columns の中に節を入れるといった要望が来ても応えられないが、それは骨格の話なので節の側で扱う"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-backend-web-prose-roundtrip-and-product-search",
+      "reason": "この記録は最初から契約を満たしていなかった。answer が利用者の逐語ではなく AI が起草した設計宣言でありながら source.kind=user-dialogue を名乗っており、利用者が言っていないことが利用者の声の顔で正本に残っていた。独立監査 C06 が round4 で名指しした。本文は章の散文「AI が起草した設計宣言（質疑から移した本文）」へ原文のまま移してある。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-backend-web-prose-roundtrip-and-product-search",
+        "question": "backend×web: 本文断片を 19 種へ増やしても保存形 (拡張 Markdown 文字列) を保つために、往復変換と未知記法の扱い、および商品カードの選択に要る検索をどう定めるか。",
+        "answer": "**保存形は拡張 Markdown 文字列のままにする。**JSON の木へ移さない理由は 3 つある。既存記事のデータが 1 件も壊れない、人が読める、AI が書ける。断片を 9 種足しても、足すのは記法であって保存形ではない。\n\n**往復の不変条件。**`parseProse(serializeProse(nodes)) === nodes` を全 19 種について保証する。新しい記法は、既存の Markdown 記法と衝突しない形で足す。コードブロックは三連バッククォートに言語名、表は既存の Markdown table、それ以外 (image-row / toggle / checklist / embed / cta-button / link-card / columns) は既存の callout や product-card と同じ「ディレクティブ行」の書き方に揃える。1 種類ごとに固有の記法を発明しない。\n\n**未知の記法に出会ったら、落とさず段落へ退避する。**版が進んで新しい記法が入った記事を古い版が読むことは起こりうる。そのとき解釈できない行を捨てると本文が消える。解釈できないものは、書かれた文字列そのままを持つ段落として保持し、保存し直しても元の文字列が戻るようにする。**読めないことと、失ってよいことは違う。**\n\n**商品検索 API。**商品カードで ID を手入力させないため、workspace 内の商品を名前で絞り込む読み取り専用の検索を足す。actor の workspace_id で必ず絞り、他 workspace の商品は 1 件も返さない。返すのはカードの描画に要る最小限 (id / 名称 / 画像 URL / 価格 / リンク) だけで、原価や内部メモは返さない。件数は上限を置き、無制限の全件取得にしない。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "backend",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "clean-architecture.md#中核概念",
+            "principle": "保存形を安定させ、表現の増加を変換層に閉じ込める",
+            "applicability": "applied",
+            "rationale": "断片の種類は今後も増える。保存形を JSON の木にすると増えるたびに保存済みデータの移行が要る。文字列のまま保ち、増分を parse/serialize の対応表に閉じ込めれば、移行は 0 件で済む",
+            "tradeoffs": [
+              "文字列の中の構造を機械が問い合わせにくいため、断片単位の検索や集計が要るようになったら別途の投影が必要になる"
+            ]
+          },
+          {
+            "knowledge_ref": "ddd.md#中核概念",
+            "principle": "解釈できない入力を、破棄ではなく保留として表現する",
+            "applicability": "applied",
+            "rationale": "版が食い違うときに未知の記法を捨てると、古い版で開いて保存し直すだけで本文が消える。段落として原文を保持すれば、読めなくても失われない",
+            "tradeoffs": [
+              "未知の記法は編集画面では素の文字列として見えるため、その記事を古い版で編集した書き手には意味が伝わらない"
+            ]
+          },
+          {
+            "knowledge_ref": "secure-by-design.md#中核概念",
+            "principle": "検索 API は workspace 境界と返却項目の両方で絞る",
+            "applicability": "applied",
+            "rationale": "商品検索は編集画面から誰でも叩ける経路になる。workspace_id での絞り込みを問い合わせ側の任意にせず必須にし、返す項目もカード描画に要るものだけに限る",
+            "tradeoffs": [
+              "将来カードに項目を足すときは API の返却項目も明示的に広げる必要があり、暗黙に増えない"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "qa-infrastructure-web-article-image-r2-upload",
+      "reason": "この記録は最初から契約を満たしていなかった。answer が利用者の逐語ではなく AI が起草した設計宣言でありながら source.kind=user-dialogue を名乗っており、利用者が言っていないことが利用者の声の顔で正本に残っていた。独立監査 C06 が round4 で名指しした。本文は章の散文「AI が起草した設計宣言（質疑から移した本文）」へ原文のまま移してある。",
+      "retracted_on": "2026-09-05",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-infrastructure-web-article-image-r2-upload",
+        "question": "infrastructure×web: 記事画像を Cloudflare R2 へ直接アップロードする経路をどう組むか。",
+        "answer": "**R2 へ直接上げる。**画像の本体を Worker が中継しない。中継すると Worker のリクエスト上限と実行時間に画像の大きさが縛られ、大きい画像で失敗する。\n\n**流れ。**編集画面が「この名前・この型・この大きさで上げたい」と申告する → Worker が検査した上で、その 1 件だけに有効な署名付きアップロード URL を返す → ブラウザがその URL へ直接 PUT する → 完了後、編集画面が公開 URL を本文へ書く。\n\n**置き場。**記事画像専用のバケットを 1 つ持ち、鍵は `workspace_id/記事id/一意なid.拡張子` の形にする。workspace を先頭に置くのは、後から一括で消したり移したりする単位が workspace だからである。ファイル名は利用者が付けた名前をそのまま使わず、一意な id へ置き換える。名前の衝突と、名前に混ざる文字の問題を両方消せる。\n\n**配信。**バケットを直接公開せず、独自ドメインを通して配信する。キャッシュはこの層で効かせる。\n\n**消し方。**記事から画像を外しただけでは R2 の実体を消さない。編集の取り消しで戻せなくなるためである。参照されなくなった実体の刈り取りは、記事の公開状態が確定してから別の掃除として行う。",
+        "source": {
+          "kind": "user-dialogue"
+        },
+        "asks_for": [
+          {
+            "category": "infrastructure",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "site-reliability-engineering.md#中核概念",
+            "principle": "大きなデータを実行時間の制約がある層に通さない",
+            "applicability": "applied",
+            "rationale": "Worker を経由すると画像の大きさが Worker の制約に縛られる。署名付き URL でブラウザから R2 へ直接送れば、制約を受けるのは URL 発行だけになる",
+            "tradeoffs": [
+              "アップロード中の内容を Worker が見られないため、内容の検査は申告値の検査と事後の確認に分かれる"
+            ]
+          },
+          {
+            "knowledge_ref": "ddd.md#中核概念",
+            "principle": "消す単位を鍵の構造に先に埋め込む",
+            "applicability": "applied",
+            "rationale": "workspace_id を鍵の先頭に置くと、workspace の停止や移設のときに接頭辞だけで対象を数え、消せる。後から鍵の構造は変えられない",
+            "tradeoffs": [
+              "記事を別 workspace へ移す操作が要るようになると、実体の複製か鍵の付け替えが必要になる"
             ]
           }
         ]

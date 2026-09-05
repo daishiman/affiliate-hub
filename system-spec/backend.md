@@ -15,12 +15,12 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-backend-web-seo-audit-writeback-p13-v3。裏付け質疑 (`qa_refs`): `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
+| タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
 
 ## 確定セルの記録 (正本 spec-state.json)
 
@@ -30,31 +30,46 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | backend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-backend-web-seo-audit-writeback-p13-v3` |
+| 確定質疑 (qa_ref) | `qa-backend-web-prose-verbatim` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
+| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
 
 ## 意思決定 (decisions)
 
-> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`backend`) を主担当とする **2 件**。全 12 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`backend`) を主担当とする **3 件**。全 15 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
 |---|---|---|---|---|
 | `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 |
 | `dec-aeo-analysis-trigger` | AEO/SEO の充足度解析を、いつ・どの頻度で走らせるか。記事の公開前に止めるのか、公開後に気づかせるのか、その両方か。 | `opt-publish-gate-plus-scheduled` | confirmed | G3, G2 |
+| `dec-article-body-storage-format` | 断片カタログを 19 種へ広げた記事本文を、どの形で保存するか (拡張 Markdown 文字列のままか、構造化 JSON ツリーへ移すか) | `opt-extended-markdown-string` | confirmed | G1, G3 |
 
 - **`decision-llm-provider` の caveat**: 鍵が社数ぶん増える。登録は本人がブラウザで行い、こちらでは受け取らない（11 §5） / どの用途にどの社を当てるかが未定のままだと、いちばん高い社が既定になる。用途ごとの既定を決める必要がある / 単価表の pricedOn は 2026-08-18 のまま。実費の見積りは llm-cost-simulator で別途取る
 
 - **`dec-aeo-analysis-trigger` の caveat**: ゲートの強さ (公開を止めるか、警告して通すか) を項目ごとに決めること。全項目を必須にすると公開できない記事が滞留し、ゲートを迂回する運用が生まれて検出が形骸化する / 定期実行の失敗は画面に何も現れない。実行の成否と最終実行時刻を管理画面から確認できるようにすること / 公開操作に解析の待ち時間が乗る。解析が重くなった場合に公開を待たせない逃げ道 (非同期化) を後から入れられる形で実装すること / 根拠として引用した Cloudflare Workers と Google 検索セントラルは取得済みの入口ページで、Cron Triggers の実行回数制限と個別型の必須プロパティは本セッションで再取得していない。実装着手時に公式資料で再確認すること
 
+- **`dec-article-body-storage-format` の caveat**: 19 種すべてで parseProse(serializeProse(nodes)) === nodes を検証しない限り、記法の追加が既存本文を壊しうる / 未知の記法は捨てずに literal な文字列を保持する段落として残すこと。読めないことと失ってよいことは違う / 表と段組みで記法の冗長さが実用限界を超えるなら、その断片だけ構造化して埋め込む折衷を再検討する
+
 ## 確定内容 (質疑録)
 
-### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)
+### qa-backend-web-prose-verbatim (対応セル: web)
+
+**質問**: backend×web: 記事本文の保存について利用者は何を求めたか。保存形の受入条件を起草する前に、利用者が実際に発した言葉を逐語で記録する
+
+**回答**: [追加要望 (2026-09-05)]
+「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
+
+[機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
+
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: backend×web: 定期 SEO/AEO 再点検の対象 0 件成功、一部失敗、全件失敗、対象取得失敗をどう区別し、最終実行時刻をどの workspace の管理画面に表示するか (P13 書き戻し・v3)。
 
@@ -209,6 +224,49 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 - 正本へ入れた理由: 章にだけ在った本節が、P13 の書き戻しで同名の「章にしか無い記述」節が 2 つになった結果、## 単位の引き継ぎが衝突して落ちた。守るのではなく落ちようのない場所へ移す。
 
+### BE-PROSE-01 が前提とする保存形は未確定である
+
+この章の BE-PROSE-01〜03 / BE-PRODUCT-01 / BE-IMAGE-01 は、利用者の逐語（`qa-backend-web-prose-verbatim`）から **AI が導いた受入条件** であり、利用者が逐語で述べた要求そのものではない。導出の対応は次のとおり。
+
+- 利用者の逐語: 「記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです」
+- そこから導いた条件: 編集面が扱える断片が、保存形への直列化と保存形からの解析を往復しても失われないこと（BE-PROSE-01〜03）
+
+**BE-PROSE-01 が前提とする保存形の決定は、まだ利用者の確認を受けていない。** `decisions.dec-article-body-storage-format`（記事本文を拡張 Markdown 文字列のまま広げるか、構造化された木として持ち直すか）は `recommended_pending_confirmation` の状態にある。AI 推奨は「拡張 Markdown 文字列のまま広げる」だが、利用者はこの二択を提示されておらず、選んでもいない。
+
+したがって BE-PROSE-01 の受入条件は「往復で断片が失われないこと」までが確定であり、**その往復が拡張 Markdown 上で起きるという前提は未確定**である。保存形が構造化された木へ変わった場合、BE-PROSE-01 の受入条件そのものは生き残るが、記法の衝突検査（BE-PROSE-02）の対象は入れ替わる。
+
+実装に着手する前に、この二択を利用者へ提示して確認を得ること。確認前に保存形を既定として実装すると、未確認の決定が実装によって既成事実になる。
+
+- 正本へ入れた理由: C05 round3 の指摘: BE-PROSE-01 が status=recommended_pending_confirmation の決定に依拠しているのに、規範表にその印が無い。章の手書きでは compile のたび消えるため正本へ置く。
+
+### AI が起草した設計宣言（質疑から移した本文）
+
+以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。
+
+この本文はもともと質疑 `qa-backend-web-prose-roundtrip-and-product-search` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。
+
+**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-backend-web-prose-verbatim` である。
+
+利用者の逐語は `qa-backend-web-prose-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。
+
+---
+
+**当初の問い**
+
+> backend×web: 本文断片を 19 種へ増やしても保存形 (拡張 Markdown 文字列) を保つために、往復変換と未知記法の扱い、および商品カードの選択に要る検索をどう定めるか。
+
+**設計宣言の本文**
+
+**保存形は拡張 Markdown 文字列のままにする。**JSON の木へ移さない理由は 3 つある。既存記事のデータが 1 件も壊れない、人が読める、AI が書ける。断片を 9 種足しても、足すのは記法であって保存形ではない。
+
+**往復の不変条件。**`parseProse(serializeProse(nodes)) === nodes` を全 19 種について保証する。新しい記法は、既存の Markdown 記法と衝突しない形で足す。コードブロックは三連バッククォートに言語名、表は既存の Markdown table、それ以外 (image-row / toggle / checklist / embed / cta-button / link-card / columns) は既存の callout や product-card と同じ「ディレクティブ行」の書き方に揃える。1 種類ごとに固有の記法を発明しない。
+
+**未知の記法に出会ったら、落とさず段落へ退避する。**版が進んで新しい記法が入った記事を古い版が読むことは起こりうる。そのとき解釈できない行を捨てると本文が消える。解釈できないものは、書かれた文字列そのままを持つ段落として保持し、保存し直しても元の文字列が戻るようにする。**読めないことと、失ってよいことは違う。**
+
+**商品検索 API。**商品カードで ID を手入力させないため、workspace 内の商品を名前で絞り込む読み取り専用の検索を足す。actor の workspace_id で必ず絞り、他 workspace の商品は 1 件も返さない。返すのはカードの描画に要る最小限 (id / 名称 / 画像 URL / 価格 / リンク) だけで、原価や内部メモは返さない。件数は上限を置き、無制限の全件取得にしない。
+
+- 正本へ入れた理由: C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -361,15 +419,25 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 
 #### 本章での適用
 
-##### 確定内容 qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)
+##### 確定内容 qa-backend-web-prose-verbatim (対応セル: web)
 
-- 確定要件: 2026-09-04 時点の実装では、記事単位の点検結果と cron 自体の実行結果を別の状態として扱う。記事は未点検／全合格／要修正／取得不能、定期再点検は未実行／成功／一部失敗／失敗／状態取得不能を区別する。成功は失敗 0 件で対象 0 件も含み、一部失敗は保存の成功と失敗が混在、全件の保存失敗と対象取得失敗は失敗とする。固定 failure code で後ろ 2 つも区別し、自由文の例外は保存しない。
+- 確定要件: [追加要望 (2026-09-05)]
+「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
 
-scheduler は非停止 workspace を列挙した後、既存の古い順の全体バッチを 1 回だけ取得する。1 起動の上限 50 件は変えず、処理結果だけを workspace 別に集計する。対象取得自体が失敗したときも、列挙済みの各 workspace へ失敗と開始／完了時刻を残してから入口へ失敗を返す。run-state の保存失敗も成功に潰さない。Worker はジョブごとの独立 `waitUntil` と catch を維持し、失敗時は成功ログを出さず retry も要求しない。DB binding が無い場合は警告ログのみとする。
+[機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
 
-管理画面は actor の `workspaceId` だけを読み口へ渡し、隣の workspace の状態や件数を表示しない。各最終状態に開始時刻と最終完了時刻、この回の対象／保存／失敗件数を表示する。対象 0 件は「この回で再点検した記事は無い」という事実だけを示し、未実行や失敗と混ぜない。
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+- 設計解釈の記録経路: `dialogue`
+- 原則: 保存形は、編集面が扱える表現物を欠落なく往復できることを条件に選ぶ (`data-modeling.md`)
+  - 採否: `applied`
+  - 章固有の根拠: 逐語「記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしい」を、解析→直列化の往復で断片が失われないことを保存形の受入条件とすることで適用する
+  - トレードオフ:
+    - 拡張 Markdown 文字列のまま広げるため、断片が増えるたびに記法の衝突を検査する必要がある
+    - 保存形の決定 (dec-article-body-storage-format) は利用者未確認のまま推奨に留まる
+##### 接地根拠 qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)
 
-HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上、1 起動 50 件、毎日 `0 17 * * *` の既存値は変えない。実 D1 での所要時間と記事 350 本超の挙動は引き続き未測定である。
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-seo-audit-writeback-p13-v3` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 落ちても利用者の画面に何も起きない処理は、成功 0 件と未実行・失敗を同じ見た目にしない (`site-reliability-engineering.md#中核概念`)
   - 採否: `applied`
@@ -512,6 +580,112 @@ HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上
 | openai-platform | gpt-6-astra | OpenAI (developers.openai.com) | https://developers.openai.com/api/docs/models | 2026-09-04T13:41:59Z | 2026-09-04T13:41:59Z |
 | google-gemini | Gemini 3 系 (gemini-3.8-flash / gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview) | Google (ai.google.dev) | https://ai.google.dev/gemini-api/docs/models | 2026-09-02T21:20:17Z | 2026-09-02T21:20:17Z |
 
+## 上流指針 (doctrine anchors)
+
+> 本章の設計判断が従う上流の正本 (1 concern 1 authority)。具体技術ではなく上流工程を導く規範であり、下位の技術選定は本節と矛盾してはならない。正本: `ref-system-design-knowledge/references/doctrine-anchor-registry.json`
+
+| 設計 concern | 上流の正本 (authority) | 導く範囲 | 出典 | 最終確認 | 本章の確定セルへの反映 |
+|---|---|---|---|---|---|
+| application-architecture | Robert C. Martin — Clean Architecture | レイヤ境界・依存方向 (内向き)・ユースケース中心設計 | Clean Architecture (2017), the Dependency Rule | 2026-07-12 | **未記入** |
+| data-access | Robert C. Martin — Clean Architecture | 永続化を境界の外側へ追い出し interface adapter で隔離する | Clean Architecture — gateways/repositories boundary | 2026-07-12 | **未記入** |
+
+> **未記入** の行は、上流の正本を掲げただけで本章の確定内容へ反映した箇所を示せていない。表への出現は反映の証拠ではない。
+
+## 1. 解析 (analyze)
+
+公開済み記事の保存実体を入力に、検証可能な項目の充足を判定する純粋関数をドメイン層に置く。判定項目は index 可否 (noindex/robots)・canonical の有無・JSON-LD の型と必須プロパティ・見出し階層の妥当性 (本文外見出しの混入なし)・画像の alt 被覆と width/height・広告リンクの rel・最終更新日の表示・結論/FAQ/手順/出典ブロックの有無・最終更新からの経過日数。各項目は充足/不足/対象外の3値と、不足時の該当箇所を返す。順位・流入・引用率のような外部由来の推定値は判定に含めない。含めると、確かめられない数字を根拠に記事を書き換えることになる。
+
+## 2. 保存 (record)
+
+解析結果は記事単位・実行時刻付きで保存し、いつの時点の判定かを常に言えるようにする。保存はワークスペースで区切り、他テナントの記事の判定を読めない。
+
+## 3. 反映 (apply)
+
+解析結果は2つの経路で反映する。(a) 管理画面の記事エディターへ、不足項目を名指しで差し戻す。書き手はその場で直せる。(b) 記事一覧に充足度を出し、どの記事から直すべきかを判断できるようにする。自動で本文を書き換えない。自動書き換えは、書き手が読んでいない文章が公開される状態を作る。
+
+## API 契約 (api カテゴリは backend で扱う既存方針を踏襲)
+
+解析の実行・結果の取得・記事単位の再解析を、既存の管理 API と同じ規約 (ワークスペース境界・認可・エラー形状) で提供する。公開読者面はこの API を呼ばない。読者に見せる必要が無い情報を読者経路へ流さない。
+
+## ガイドライン参照レジストリ
+
+SEO/AI 検索ガイドラインの出典 (発行元・URL・確認日・要約) をレジストリとして持ち、確認日から90日を超えたものを要再確認として管理画面へ出す。ガイドライン変更時は仕様セルを R4-reopen する運用とし、判定項目を勝手に書き換えない。
+
+- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
+
+## To-Be / Delta
+
+> 本章の**規範**。上位概念 (要件定義書 U3 ゴール / U4 目標 / U9 具体的やりたいこと) を本章の serves_goals で絞り込んだ射影であり、設計知識 card (非規範の参考資料) とは役割が異なる。As-Is (現行実装の姿) は spec-state.json の管轄外のため本節では断定せず、到達点と、その到達を判定する観測点だけを規範として置く。
+
+### 到達すべき状態 (To-Be)
+
+- **G1**: 一つのアフィリエイトURLを起点に、正しい商品情報・比較候補・根拠・書き手・読者・媒体・広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できる
+- **G2**: どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる
+- **G3**: 公開したブログが、読者にとって読み進めやすく、かつ検索エンジンとAI検索の双方から見つかり引用される機械可読な構造を持ち、その充足度を解析して次の記事と既存記事へ反映できる
+
+### 受入条件 (Delta の判定点)
+
+- (本章ゴールに紐づく目標 U4 が無い。受入条件が未定義である)
+
+### 本章がかなえる具体的やりたいこと (U9)
+
+- **I1**: アフィリエイトURL登録から商品識別・情報収集・比較候補抽出・根拠付きデータ作成までを一元化する
+- **I2**: 書き手・読者ペルソナと媒体ルールを入力に、ブログ・X・Instagram・Threads・note等の媒体別コンテンツを生成し人間承認を経て公開する
+- **I3**: どういう情報がクリック率が高いか・アフィリエイトに有効かを管理できる分析・解析の仕組みを整える (クリック計測・成果突合・ディメンション分析・Insight Engine)
+- **I4**: 分析結果を次のコンテンツ生成 (Brief提案・配信戦略) へ反映する。ただし商品評価・ランキングへは自動反映しない
+- **I5**: 読者向けブログ画面の UI/UX を、参考サイト実測を根拠に組み立てる (スクロール追従する目次・検索窓とカテゴリー/タグ/ブランドのサイドバー導線・分類ごとのアイコン・広告と本文の視覚的区別)。参考サイトの弱点 (alt欠落・目次の二重読み上げ・本文外見出しの混入) は繰り返さない
+- **I6**: SEO/AEO の機械可読要素を記事の実データから生成する (Article/Person/Organization/BreadcrumbList に加え FAQPage/HowTo/Speakable、canonical、OGP、robots max-image-preview、見出し階層、画像の alt と width/height、広告リンクの rel)。人手で書き足す前提にしない
+- **I7**: 公開記事の SEO/AEO 充足度を解析し、不足を名指しで管理画面へ差し戻して、書き手がその場で直せる仕組みを整える。解析は記事の実データを入力とし、外部順位データの推測で判断しない
+- **I8**: 記事作成エディター (管理画面) の UI/UX を、見出し階層・画像alt・内部リンク・構造化データの素材が書きながら揃う形へ改善し、公開前に欠落が見える状態にする
+
+### 本章に効く確定意思決定
+
+- **decision-auth-method**: マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか
+  - 採択: Better Auth + Google OAuth (自己ホスト) (`opt-better-auth`)
+  - 目的適合: マルチテナントSaaSの一般ユーザー認証に適合。Drizzle/D1 アダプタで現行スタックと同居し、§25 のロール権限と組み合わせやすい
+- **decision-editorial-commercial-split**: Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか
+  - 採択: D1 を 2 本に分け、バインディングを分ける（DB_EDITORIAL / DB_COMMERCIAL） (`opt-two-databases`)
+  - 目的適合: G1（安全な作成・公開）に直結。ランキング計算の関数へ Commercial のバインディングを渡さなければ、混ぜようがない
+- **decision-redirect-measurement-async**: リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか
+  - 採択: ctx.waitUntil で D1 へ書き、失敗ぶんだけ R2 へ退避して Cron で回収する (`opt-waituntil-fallback-cron`)
+  - 目的適合: G2 の欠測を、有料プランを増やさずに減らせる。G1 の「転送は必達」も保てる
+- **decision-llm-provider**: 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか
+  - 採択: 単価表（config/llm-provider-catalog.json）を正本に、複数社を差し替え可能にする（現行） (`opt-catalog-multi`)
+  - 目的適合: G1 に適合。長い記事は高いモデル、判定は安いモデル、と用途で分けられる
+- **decision-ui-theme-implementation**: 配色と明暗の 2 軸を、どの技術で実装するか
+  - 採択: CSS の light-dark() と data 属性（配色は属性、明暗は color-scheme） (`opt-css-light-dark`)
+  - 目的適合: 09 §2 の 2 軸モデルをそのまま表現できる。掛け合わせを設定値にしない
+- **decision-test-ci-tooling**: テストと CI の道具立てを、いまの構成のまま進めるか変えるか
+  - 採択: 現行のまま（Vitest / Stryker / fast-check / axe-core / GitHub Actions） (`opt-keep-current`)
+  - 目的適合: 10 の 7 種のうち、単体・契約・境界値・ミューテーション・性質・読み上げを既に覆っている
+- **decision-screen-priority**: ui-ux×web の画面で、先頭に何を置くか。UIUX-REQ-001 は「今、利用者が判断・回復すべき業務状態」を先頭に置くと書いており、qa-uiux-web-screen-priority の本人回答は「記事の成績比較」を先頭に置くと言っている。両者は先頭の 1 つを争っている
+  - 採択: 記事の成績比較を先頭に置き、回復すべき業務状態はその下に常設の帯として置く (`opt-performance-first`)
+  - 目的適合: G2「どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる」に直結する。成績比較は毎日見る対象で、開いた理由そのものである
+- **dec-blog-domain-strategy**: 作成した各ブログにどうやって固有の住所 (ドメイン) を割り当てるか。現状はホスト解決が無く、全ブログが単一 Worker 上の /s/<slug> パスで、ドメインがブログの内容と無関係になっている。
+  - 採択: ワイルドカードサブドメイン方式 (<slug>.<基底ドメイン>) (`opt-wildcard-subdomain`)
+  - 目的適合: G1 の『複数ブランド・複数ブログ構築』に直接資する。ブログごとに独立した住所を持ちながら、ブログを1本増やすのに DNS も設定も触らずに済むため、コードもルートも増やさない既存方針と一致する。
+- **dec-structured-data-emission**: 構造化データ (Article/BlogPosting・FAQPage・HowTo・Speakable・BreadcrumbList) と canonical・OGP・robots を、どこで生成するか。現状は記事本文へ書き手が書き込む前提の箇所があり、書かれなければ欠落したまま公開される。
+  - 採択: 配信時に記事データから導出する (Worker のレンダリング経路で生成) (`opt-render-time-derive`)
+  - 目的適合: G3 に直接資する。記事データが正本となるため、本文・見出し・画像・公開日を直せば構造化データが自動で追従し、I6 の『人手で書き足す前提にしない』を構造で満たす。
+- **dec-aeo-analysis-trigger**: AEO/SEO の充足度解析を、いつ・どの頻度で走らせるか。記事の公開前に止めるのか、公開後に気づかせるのか、その両方か。
+  - 採択: 公開操作時に解析してゲートし、加えて定期的に既存記事を再解析する (`opt-publish-gate-plus-scheduled`)
+  - 目的適合: G3 に直接資する。公開時ゲートが『欠落したまま公開される』を構造で止め、定期再解析が『公開後に基準が変わって古くなった記事』を拾う。G2 の運用の速さも、公開操作という既存の1操作の中で完結するため落とさない。
+- **dec-guideline-registry-recheck**: AEO/SEO の判定根拠となるガイドライン参照レジストリ (Google 検索セントラル・schema.org・WAI-ARIA の各仕様ページ) を、どの契機でどれくらいの間隔で再確認するか。
+  - 採択: 固定間隔で再確認し、期限を超えた参照を鮮度切れとして表に出す (`opt-fixed-interval-with-staleness-flag`)
+  - 目的適合: G3 に資する。最終確認時刻を参照ごとに持ち、期限超過を鮮度切れとして表示することで『基準が古いかもしれない』を検出可能な状態にする。
+- **dec-analysis-history-retention**: AEO/SEO 解析の結果履歴を D1 にどう保持するか。最新だけを持つのか、推移を追えるよう履歴を積むのか、積むならどこで打ち切るのか。
+  - 採択: 解析のたびに追記し、記事ごとの保持件数または保持期間で古い行を刈る (`opt-append-with-window`)
+  - 目的適合: G3 に資する。直近の推移が残るため、改善の効果と退行の双方が判定できる。G2 の運用の速さも、参照が直近数件に限られるためクエリが重くならず落とさない。
+- **dec-editor-editing-model**: 記事エディターの編集モデルを、外側 (節) と内側 (本文の断片) の 2 層構造のまま見せるか、Notion のような単一階層へ潰すか
+  - 採択: 2 層を維持し、層を UI で明示する (節=固定の見出し2 / 本文の断片=見出し3・4) (`opt-two-layer-visible`)
+  - 目的適合: 節の並びが記事の骨格 (目次・必須ブロック検査) を保証したまま、節の中身だけ自由に書ける。G3 の機械可読な見出し階層が編集操作で壊れない
+- **dec-article-image-upload-path**: 記事エディターから添付する画像を、どの経路で Cloudflare R2 へ格納するか
+  - 採択: 署名付き URL を発行し、ブラウザから R2 へ直接 PUT する (`opt-r2-direct-put`)
+  - 目的適合: 記事本文と同じ編集操作の中で画像を置けるため、G1 の『統合された編集』を切らさない。大きな画像でも Worker のリクエストサイズ上限に当たらない
+- **dec-article-body-storage-format**: 断片カタログを 19 種へ広げた記事本文を、どの形で保存するか (拡張 Markdown 文字列のままか、構造化 JSON ツリーへ移すか)
+  - 採択: 現行どおり拡張 Markdown 文字列で保存し、parseProse / serializeProse で往復する (`opt-extended-markdown-string`)
+  - 目的適合: 既に公開されている記事のデータが 1 件も壊れないまま断片を 19 種へ広げられる。G1 の『既存の全情報を編集・表示できる』を移行なしで満たす
+
 ## 状態の意味と実装差分
 
 `confirmed` は要求判断と採用方針が確定していることを表す。**実装済み・デプロイ済み・検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
@@ -524,6 +698,7 @@ HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上
 - MCP PoC は `list_programs`、`record_conversion`、`get_revenue_summary` の3ツールのみ。単一の `MCP_TOKEN` または same-origin 判定で入口を分けるが、利用者主体、Workspace membership、role による認可はない。same-origin は主体認証ではない。
 - `record_conversion` は成果を1件追加するだけで、ASP API / CSV の一括取り込み、安定した成果同一性、再取り込みの冪等化、判断・入金の状態履歴はない。現在の単一 `status` は `pending | approved | rejected` のみで、入金状態を表現できない。任意の `external_id` に一意制約もない。
 - ClickEvent / BehaviorEvent / Channel Insights の収集、正規化、MetricRollup、Attribution、Insight Engine、Brief への提案は未実装である。
+- 記事本文の断片は 10 種で、`parseProse` / `serializeProse` の往復を 19 種で保証する検証はない。未知記法は保持されず落ちる。商品カード挿入のための商品検索 API と、記事画像の署名付き URL を発行する経路はいずれも存在しない。
 
 ### To-Be（規範契約）
 
@@ -533,6 +708,11 @@ HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上
 | BE-CONV-01 | 成果の安定同一性 `conversion_key` は `(workspace_id, affiliate_account_id, import_source, source_record_id)`。source ID がない取込元だけ、状態を除く不変項目から source fingerprint を作る。`import_record_key` は原票1行の canonical hash とし、同一キー再送は no-op、同一 `conversion_key` の新しい原票は承認または支払の状態更新履歴として扱う。現在値は `approval_status ∈ {pending, approved, rejected, cancelled}` と `payment_status ∈ {not_eligible, unpaid, scheduled, paid, reversed}` の二軸で投影し、単一 `status` へ合成しない。`scheduled/paid` は `approval_status=approved` の場合だけ許可する | 未実装 |
 | BE-AUTH-01 | UI / REST / WebMCP / backend MCP は共通の use-case 境界を呼び、そこで `actor(type, id) + workspace_id + membership status + role` を認可する。actor と workspace は検証済み session/token から導出し、ツール引数を信用しない | 未実装 |
 | BE-MCP-01 | 現行 MCP は接続性検証用 PoC。製品版では BE-AUTH-01 を通る薄い adapter とし、§24.3 の resource/tool 契約、監査、確認必須操作、集計値のみの開示を通常 API と共有する | PoC のみ |
+| BE-PROSE-01 | 記事本文の保存形は拡張 Markdown 文字列を維持する (`decisions[].dec-article-body-storage-format`)。構造化 JSON ツリーへ移さない。理由は 3 つ — 公開済み記事のデータが壊れない (移行不要)、DB を直接見て本文が読める、AI が文字列として本文を書ける | 未実装 |
+| BE-PROSE-02 | 断片 19 種すべてで `parseProse(serializeProse(nodes)) === nodes` が成り立つ。往復で失われる断片・属性を 0 件にする | 未実装 |
+| BE-PROSE-03 | `parseProse` が解釈できない記法は、捨てずに**その文字列を literal に保持する段落**として通す。読めないことと、失ってよいことは違う。未知記法を含む本文を保存し直しても、元の文字列が消えない | 未実装 |
+| BE-PRODUCT-01 | 商品カード挿入のための、ワークスペース内商品の読み取り専用検索 API を持つ。返す項目は id / 名称 / 画像 URL / 価格 / リンクに限り、それ以外の商品属性を返さない。`workspace_id` はセッションから導出し、引数を信用しない (BE-AUTH-01 に従う) | 未実装 |
+| BE-IMAGE-01 | 記事画像の署名付き URL 発行は backend の use-case 境界を通る。鍵は `workspace_id/記事id/一意なid.拡張子` の形で backend が組み立て、クライアントから受け取った鍵に署名しない | 未実装 |
 
 ### Delta
 
@@ -540,6 +720,9 @@ HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上
 2. BE-CONV-01 の import command、idempotency ledger、判断・入金の状態履歴を実装する。現行 `record_conversion` の無条件 insert と単一 `status` は、移行後に二軸を扱う内部 command へ置換する。
 3. BE-ANA-01 を収集・正規化・rollup・分析の順に追加し、同じ KPI 契約を画面/API/MCPで使用する。
 4. 最後に BE-MCP-01 を PoC token 依存から actor-scoped credential に移行する。
+5. `parseProse` / `serializeProse` を断片 10 種から 19 種へ広げる。保存形は変えないため既存記事の移行は発生しない。追加する記法は既存本文と衝突しないことを、予約記法の衝突検査で先に確かめる。
+6. 未知記法の扱いを「落とす」から「literal な文字列を持つ段落として保持する」へ改める。これがないと、新しい記法で書かれた記事を古い版のコードが読んだときに本文が欠ける。
+7. 商品検索 API と署名付き URL 発行 API を、いずれも BE-AUTH-01 の use-case 境界の上に追加する。MCP 側にも同じ境界を通した薄い adapter としてのみ露出する。
 
 ### Dependencies
 
@@ -549,6 +732,9 @@ HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上
 - `DB-CONVERSION-01` + Commercial D1 + ASPごとの原票正規化規則 → BE-CONV-01。
 - `DB-PROJECTION-01` / `DB-KPI-01` + infrastructure の Queue / Cron / Redirect Resolver → BE-ANA-01。
 - BE-AUTH-01 + 各 use case → BE-MCP-01。MCP 固有ロジックから DB を直接操作しない。
+- `ArticleBlockKind` の節骨格 + 断片カタログ 19 種の定義 → BE-PROSE-01/02/03。frontend の描画部品は本契約の後段であり、断片の種別を frontend 側で新設しない。
+- BE-AUTH-01 + database の商品テーブル → BE-PRODUCT-01。
+- BE-AUTH-01 + infrastructure の R2 バケットと鍵の並び → BE-IMAGE-01。署名で縛れる範囲は security の SEC-REQ-006/007 に従属する。
 
 ### Acceptance evidence
 
@@ -556,3 +742,170 @@ HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上
 - 異なる Workspace の actor が同じ resource ID を指定しても参照・変更できず、role 不足が拒否される API/MCP 共通の認可テスト。
 - 生イベントから rollup を全再計算した結果が増分集計と一致する fixture テスト。`approval_status=approved, payment_status=unpaid` では `revenue_approved` のみ、`payment_status=paid` への変更後は `revenue_paid` も計上され、承認報酬が二重加算されないこと。
 - MCP の tool call と通常 API が同一 use case / KPI 定義 / 監査記録を使うことを示す contract test。
+- **BE-PROSE-02**: 断片 19 種それぞれについて `parseProse(serializeProse(nodes)) === nodes` を検証する往復テスト。19 種すべてを含む 1 本の記事 fixture でも同じ等式が成り立つこと。属性 (コードの言語指定・表の列数・画像の代替テキスト・色トークン) が往復で失われないことを個別に検証した結果を保存。
+- **BE-PROSE-03**: 未知の記法 (将来の断片を模した文字列) を含む本文を保存 → 読み出し → 再保存する往復テスト。元の文字列がバイト単位で一致して残り、段落として描かれることを保存。
+- **BE-PROSE-01**: 現行の公開済み記事 fixture 全件を新しい `parseProse` で読み、既存の描画結果と差分が出ないことを示す退行テスト。保存形を変えていないため移行スクリプトが存在しないことを併せて記録。
+- **BE-PRODUCT-01**: Workspace A のセッションで商品を検索し、B の商品名・画像・価格が結果に含まれないことを示す tenant 越境テスト。返却項目が id / 名称 / 画像 URL / 価格 / リンクの 5 つに限られ、それ以外の属性が response に無いことを schema テストで保存。
+- **BE-IMAGE-01**: クライアントが `../` や別 workspace の鍵を指定して署名を要求し、いずれも拒否されるか、backend が組み立てた `workspace_id/記事id/一意なid.拡張子` の鍵でのみ署名が返ることを示す認可テストと、その拒否の監査記録。
+
+## 章にしか無い記述 (正本へ未接続)
+
+> 以下の 10 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### Web (web)`, `#### 主たる接地根拠: `qa-backend-web-prose-verbatim``, `#### 裏付け質疑: `qa-backend-web-seo-audit-writeback-p13-v3``, `#### 裏付け質疑: `qa-backend-web-blog-creation-atomicity``, `#### 裏付け質疑: `qa-backend-web-spec-intake``, `#### 裏付け質疑: `qa-backend-web``, `#### 裏付け質疑: `qa-backend-web-analytics``, `#### 裏付け質疑: `qa-backend-web-overhaul-v2``, `#### 裏付け質疑: `qa-backend-web-aeo-analysis-pipeline-v4``, `### 本章での適用`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
+
+### Web (web)
+
+- 資するゴール: G1, G2, G3
+
+#### 主たる接地根拠: `qa-backend-web-prose-verbatim`
+
+**問**
+
+backend×web: 記事本文の保存について利用者は何を求めたか。保存形の受入条件を起草する前に、利用者が実際に発した言葉を逐語で記録する
+
+**答**
+
+[追加要望 (2026-09-05)]
+「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
+
+[機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
+
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
+
+#### 裏付け質疑: `qa-backend-web-seo-audit-writeback-p13-v3`
+
+**問**
+
+backend×web: 定期 SEO/AEO 再点検の対象 0 件成功、一部失敗、全件失敗、対象取得失敗をどう区別し、最終実行時刻をどの workspace の管理画面に表示するか (P13 書き戻し・v3)。
+
+**答**
+
+2026-09-04 時点の実装では、記事単位の点検結果と cron 自体の実行結果を別の状態として扱う。記事は未点検／全合格／要修正／取得不能、定期再点検は未実行／成功／一部失敗／失敗／状態取得不能を区別する。成功は失敗 0 件で対象 0 件も含み、一部失敗は保存の成功と失敗が混在、全件の保存失敗と対象取得失敗は失敗とする。固定 failure code で後ろ 2 つも区別し、自由文の例外は保存しない。
+
+scheduler は非停止 workspace を列挙した後、既存の古い順の全体バッチを 1 回だけ取得する。1 起動の上限 50 件は変えず、処理結果だけを workspace 別に集計する。対象取得自体が失敗したときも、列挙済みの各 workspace へ失敗と開始／完了時刻を残してから入口へ失敗を返す。run-state の保存失敗も成功に潰さない。Worker はジョブごとの独立 `waitUntil` と catch を維持し、失敗時は成功ログを出さず retry も要求しない。DB binding が無い場合は警告ログのみとする。
+
+管理画面は actor の `workspaceId` だけを読み口へ渡し、隣の workspace の状態や件数を表示しない。各最終状態に開始時刻と最終完了時刻、この回の対象／保存／失敗件数を表示する。対象 0 件は「この回で再点検した記事は無い」という事実だけを示し、未実行や失敗と混ぜない。
+
+HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上、1 起動 50 件、毎日 `0 17 * * *` の既存値は変えない。実 D1 での所要時間と記事 350 本超の挙動は引き続き未測定である。
+
+- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
+
+#### 裏付け質疑: `qa-backend-web-blog-creation-atomicity`
+
+**問**
+
+ブログ作成の完了条件をどう定義し、サブドメインから slug への解決をどこで行うか。
+
+**答**
+
+作成ユースケースは create-only の Unit of Work が完了したときだけ成功を返す。1つでも失敗したら全体を巻き戻し、成功メッセージも読者リンクも出さない。下書き保存は expected revision の CAS、作成は同じ revision の DB claim を要求し、古い回答や作成後の遅延保存を conflict にする。作成直後は provisioningComplete を fixed pages/全 provisioned bands・slots/categories/network から判定し、公開表示用の enabled layout、および公開固定ページと articles を要求する contentReady と分離する。D1/live の公開 reader へ code sample fallback を混ぜず、記事一覧・本文・composition は同じ PublicBlog の保存実体を読む。ホスト→slug の解決は middleware が単一の場所で行い、<slug>.<基底ドメイン> を受けたら既存の /s/<slug> ルートへ内部委譲する。ブログ1本ごとにルートもコードも増やさない。未知ホストは404とし、存在するブログの一覧を推測させない。
+
+- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
+
+#### 裏付け質疑: `qa-backend-web-spec-intake`
+
+**問**
+
+backend×web: 二層構造での WebMCP 契約・禁止依存・生成基盤の設計制約は何か (書面入力 docs/spec/04 §3 §4 / 05 / 07 §0)
+
+**答**
+
+| 登録先 | **`document.modelContext`**。`navigator.modelContext` は Chrome 150 で非推奨のため legacy fallback 専用（CHG-001） |
+| ツール数 | 1ページあたり原則6個以下 |
+| FD-1 | ランキング式を UI 層・WebMCP 層へ重複実装する | `src/lib/domain/ranking.ts` 以外に重み計算が現れないことを grep テストで固定 |
+| FD-2 | 報酬データを推薦スコアの入力にする | Ranking Service の入力型に Commercial DB 由来の型が含まれないことを型で担保 |
+| FD-4 | WebMCP でしか到達できない機能を作る | 全 WebMCP ツールに対応する通常 UI 経路が存在することをトレーサビリティ表で確認 |
+
+- (根拠の性質: コード・設定・公式文書で検証できる観測事実)
+
+#### 裏付け質疑: `qa-backend-web`
+
+**問**
+
+書面入力 docs/spec/01-要求仕様書-v1.0.md §18.3 のバックエンド (backend) × web 要件は何か
+
+**答**
+
+* 同一投稿の重複実行を防ぐ
+* Idempotency Keyを使用
+* 投稿前にアカウントを再確認
+* トークン期限を確認
+* API制限を確認
+* 公開操作を監査ログに残す
+* 予約直前の編集を検知する
+* 投稿失敗時に自動で無限再試行しない
+* 削除・更新は別承認を要求できる
+* 外部投稿のURLを保存する
+
+- (根拠の性質: コード・設定・公式文書で検証できる観測事実)
+
+#### 裏付け質疑: `qa-backend-web-analytics`
+
+**問**
+
+backend×web: 分析・解析パイプライン (収集→正規化→集計→分析→活用) の要件は何か (書面入力 docs/spec/03 §1)
+
+**答**
+
+ClickEvent(リダイレクトサービス)
+  BehaviorEvent(ブログ計測タグ)
+  Channel Insights(SNS API)
+  Conversion(ASP API / CSV)
+      ↓
+[正規化層]
+  bot除外・重複排除・セッション化・ディメンション付与
+      ↓
+[集計層]
+  MetricRollup(日次 × ディメンション組み合わせ)
+      ↓
+[分析層]
+  KPIディクショナリ / Attribution / Experiment / Insight Engine
+      ↓
+[活用層]
+  Analyticsダッシュボード / InsightReport / 生成時の推奨(Brief への提案)
+```
+
+設計原則:
+
+* **イベントは不変(append-only)**。修正は打ち消しイベントで行う
+* **集計は再計算可能**。生イベントから任意時点のロールアップを再構築できる
+* **転送は必達、計測はベストエフォート**。リダイレクトはDB障害時も止めない
+* **Editorial / Commercial 分離**(v1.0 19.4章)。Insight Engine は配信戦略・表現の学習にのみ収益データを使い、商品評価・ランキングへは出力しない
+
+- (根拠の性質: コード・設定・公式文書で検証できる観測事実)
+
+#### 裏付け質疑: `qa-backend-web-overhaul-v2`
+
+**問**
+
+backend×web: UI/UX 改善で必要になる API は何か (2026-08-21 利用者ヒアリング逐語)
+
+**答**
+
+利用者本人の回答を逐語主旨で記録する。「この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください」。具体的には (1) 各管理対象 (商品・ブログ・SNS チャネル・記事等) の新規作成・削除を含む CRUD API。(2) 商品×ブログの多対多対応付けと、ブログごとのコンセプト管理 API。(3) コンセプトごとの文章生成・保存 API。(4) X・Facebook 等を抽象化した SNS チャネル登録・投稿状態参照 API (プロバイダ追加可能な構成)。(5) ブログごとの構成 (セクション並び・テンプレート・コンポーネントセット) を保存・取得する構成管理 API。ドメインモデルは既確定の qa-backend-web-spec-intake を基礎とし、ブログ構成とチャネルの 2 概念を拡張する。既存のバックエンドスタック (Cloudflare Workers/D1) を継続使用する。
+
+- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
+
+#### 裏付け質疑: `qa-backend-web-aeo-analysis-pipeline-v4`
+
+**問**
+
+backend×web: AEO/SEO の充足度を解析し、その結果をブログと記事エディターへ反映する仕組みをどこにどう置くか。API 契約はどうするか。2026-09-03 利用者ヒアリング。
+
+**答**
+
+利用者の指示は「AEO,SEO 対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしい」。仕組みは次の3層に分ける。
+
+### 本章での適用
+
+> **未記入** — 本章固有の適用記述が spec-state に無い。以下の card 本文は共有資産の逐語であり、同じ card を引く他章と一致する。この節は現時点で「参照した」ことしか示しておらず、「適用した」証拠ではない。
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 3 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記。資するゴール: G1, G2, G3 |`
+- `| `dec-article-body-storage-format` | 断片カタログを 19 種へ広げた記事本文を、どの形で保存するか (拡張 Markdown 文字列のままか、構造化 JSON ツリーへ移すか) | `opt-extended-markdown-string (AI推奨・確認待ち)` | recommended_pending_confirmation | G1, G3 |`
+- `> 本章の各確定セルが何を根拠に確定したかの実体。`qa_ref` が主たる接地根拠、`qa_refs` がそれを支える裏付け質疑であり、いずれも qa_log (spec-state.json) の逐語である。ここに現れない主張は本章の確定内容ではない。`
