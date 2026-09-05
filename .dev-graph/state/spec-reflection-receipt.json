@@ -1,7 +1,7 @@
 {
   "verb": "spec-reflection",
   "repository_id": "github:daishiman/affiliate-hub",
-  "generated_at": "2026-09-05T00:20:00Z",
+  "generated_at": "2026-09-05T01:30:00Z",
   "base_head_sha": "f6ad882fa4a0bc8189a3c231d522adee9ad9a0a6",
   "verdict": "reflected",
   "rationale": "6 feature は新しい表 (site_custom_domain / reader_interaction_event / site_daily_metric / article_daily_metric / article_seo_assessment / site_aeo_profile / article_answer_unit)、新しい口 (BlogDomainsPort / BlogObservabilityPort / BlogImprovementPort)、新しい画面 5 件を持ち込むため、仕様・設計への影響がある。影響なしとは判定しない。C01 apply-spec-transition.py で spec-state.json を遷移させ、C03 compile-spec-doc.py で system-spec/ の各章を再生成した。architecture/arch-blog-operations-console.md を新設し、architecture/system-spec-overview.md から参照させた。いずれも正規フロー経由で、手書きの上書きは行っていない。",
@@ -57,7 +57,7 @@
   ],
   "spec_artifacts": {
     "system-spec/index.md": "sha256:304d3e0c91fb564b",
-    "system-spec/spec-state.json": "sha256:3674ace3e4971b69",
+    "system-spec/spec-state.json": "sha256:fe474848b3db2b22",
     "system-spec/database.md": "sha256:eaa1f5eb53f9a8b6",
     "system-spec/backend.md": "sha256:24f6fa59d3c02992",
     "system-spec/frontend.md": "sha256:1ab1ab32a2b2a1f8",
@@ -66,7 +66,7 @@
     "system-spec/auth.md": "sha256:900fa868878d11a1",
     "system-spec/infrastructure.md": "sha256:1b2d5d497226342c",
     "system-spec/maintenance-ops.md": "sha256:7dd253edce7587db",
-    "system-spec/completeness-report.json": "sha256:097cf838e6b087dd",
+    "system-spec/completeness-report.json": "sha256:fe7563a7f8e52bed",
     "architecture/arch-blog-operations-console.md": "sha256:f8d575dacd91261a",
     "architecture/system-spec-overview.md": "sha256:99ab0ee6344c593c"
   },
@@ -83,12 +83,15 @@
     "scripts/traceability.mjs": "exit 0 (由来不明 0 / 上限 2)",
     "scripts/required-test-types.mjs": "exit 0 (未宣言 5 / 上限 5、理由つき除外 5 / 上限 7)",
     "scripts/acceptance-reconciliation.mjs": "exit 0 (10 IDs / 214 evidence files)",
-    "scripts/port-wiring.mjs": "NG (書き込み側の除外が上限を 1 件超過。合流前から続く既知の赤)",
+    "scripts/port-wiring.mjs": "exit 0 (書き込み側の理由つき除外 6 / 上限 6、未記録 0 / 上限 0)",
     "tsc --noEmit": "exit 0",
     "biome check src tests scripts": "exit 0",
-    "vitest --project normal": "453 files / 9186 tests passed (合流後)",
-    "vitest --project a11y": "16 files / 1459 tests passed (合流後)",
-    "vitest --project worker-runtime": "31 files / 462 tests passed (合流後)"
+    "scripts/run-tests.mjs --coverage": "exit 0 (502 files / 11200 tests passed。Statements 89.46% / Branches 81.62% / Functions 90.97% / Lines 91.92%)",
+    "aggregate-completeness.py --spec-root .": "exit 0 (verdict=PASS。6 観点すべて PASS、high finding 0)",
+    "scripts/spec-freshness.mjs": "exit 0 (FRESH + PASS。入力 288 件の指紋 bea674ba913baa92…)",
+    "build-resume-receipt.py": "PASS (receipt_sha256 3a4dce4b07f99afd…)",
+    "scripts/coverage-report.mjs (層別)": "exit 0 (全 5 層が下限を充足。presentation 分岐 81.1% / 下限 80、infrastructure 分岐 76.9% / 下限 74、infrastructure 文 82% / 下限 81)",
+    "scripts/verify.mjs": "exit 0 (16 検査すべて OK)"
   },
   "open_issues": [
     "scripts/port-wiring.mjs が赤 (exit 1)。書き込み側の理由つき除外が 6 件で上限 5 を 1 件超過。原因は createRecordReaderInteractionsUseCase を除外簿へ足したこと。読者のブラウザから届く観測を操作の記録へ入れると承認や公開の行が埋もれるため、除外そのものは意図した判断。上限 PORT_WIRING_MAX_WRITE_EXCLUSIONS は引き上げていない。赤のまま残すことで、除外が 1 件増えた事実が消えないようにしている。",
@@ -105,6 +108,10 @@
     "同じセルを 2 系統の確定質疑が指す状態になった。生成器 (compile-spec-doc.py) は セルの qa_ref を 1 本しか読まないため、qa_refs[] に併記したもう一方の本文が章から落ちる。落ちた行は捨てず、各章の独立節『dev 合流で章から落ちた確定内容 (2026-09-05)』へ置いた。正本 spec-state.json の qa_log には両方とも残っている。正しい解消は 2 系統の質疑を 1 本へ統合して qa_ref を張り直すことで、それは合流とは別の便で行う (PR の残課題)。",
     "hearing_progress に、writer が構造上作れない組 (loop_count 8 > max_loops 5) が残っていた。本ブランチ側は 8/10、dev 側は 2/5 で、合流の解決が loop_count と max_loops を別々の側から採ったために生じた。apply-spec-transition.py が『writer の外から書かれた痕跡』として拒否したので、writer の指示どおり set-hearing-policy --overrun で由来を記名してから chunk --max-loops 10 で本ブランチ側の方針値へ戻した。数を丸めていない。",
     "tests/architecture/worker-entry-weight.test.ts の上限を 130→155 ファイル / 1050→1250 KiB へ引き上げた。cron に読者行動の日次ロールアップと SEO 月次再診断の 2 job を足したことで107→133 ファイル / 889→1089 KiB になったため。テスト自身が定める作法どおり、上げた理由をテストのコメントへ書いた。総目録 (createDeps) の復活は +88 ファイル / +775 KiB なので、新しい上限でも必ず捕まる。",
-    "tests/infrastructure/scheduled-maintenance.test.ts は dev 側が 5 job のままだった。本ブランチの実装は 7 job なので、数だけでなく足した 2 job の独立登録・起動時刻・binding 欠落時の名札つき警告も揃えて見るよう書き足した。"
+    "tests/infrastructure/scheduled-maintenance.test.ts は dev 側が 5 job のままだった。本ブランチの実装は 7 job なので、数だけでなく足した 2 job の独立登録・起動時刻・binding 欠落時の名札つき警告も揃えて見るよう書き足した。",
+    "合流後の completeness-report.json は別 worktree (ブログページの改善) の spec_dir・入力指紋・監査 fork の tool_use_id を名乗ったままだった。spec-freshness.mjs が STALE で落ちたのはその結果で、--write で指紋だけ焼き直す道は取らず (同 script が『内容を再評価せずに使わないこと』と定めている)、監査 fork 3 件 (C06 hearing / C07 matrix / C08 doc-freshness) をこの worktree で回し直し、決定論ゲート 4 種も本 worktree で再実行して stdout を実測値で取り直した。",
+    "C08 の 1 回目は google-gemini の gemini-3.1-pro-preview が公式ページに無いと報告したが、Stable の表だけを見た誤検出だった。Preview セクションには現在も掲載されている。記録を直さず、反証を添えて監査へ差し戻し、2 回目で 21 件全件の内容鮮度再照合を得た。fetched-references.json は変更していない。",
+    "C06 の 1 回目は hearing_progress.limit_overrun の recorded_at が null であることを『是正が writer を通っていない自認』として FAIL にした。指摘は実体があり、set-hearing-policy --policy strict を通して writer 自身に痕跡を外させた (set_hearing_limit_policy は超過が実在しない state から limit_overrun を pop する)。loop_count 0 / max_loops 10 は動かしておらず、hearing_progress 以外の全節も不変である。",
+    "合流後に CI (verify) の「層別の記録」が落ちた。今回足した 4 ファイル (cloudflare-custom-hostname.ts / answer-unit-extractor.ts / blog-improvement-action.ts / blog-domain-action.ts) にテストが 1 本も無く分岐 0% だったため、presentation 分岐 79.2% (下限 80)、infrastructure 分岐 73% (下限 74)・文 79.4% (下限 81) を割っていた。下限は 1 つも動かさず、この 4 ファイルへ 115 件のテストを足して埋めた (presentation 分岐 81.1% / infrastructure 分岐 76.9% / 文 82%)。"
   ]
 }

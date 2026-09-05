@@ -8937,13 +8937,7 @@
     "next_question": null,
     "complete": true,
     "max_loops": 10,
-    "max_loops_policy": "strict",
-    "limit_overrun": {
-      "loop_count": 8,
-      "max_loops": 5,
-      "reason": "2026-09-05 の dev 合流で生じた見かけの超過。本ブランチ (HEAD) 側は max_loops=10 / loop_count=8 で不変則が成立していたが、合流の解決で loop_count は HEAD 側の 8、max_loops は dev 側の 5 を採ってしまい、writer が一度も書いたことのない 8 > 5 の組が残った。ヒアリングを 5 回上限で 8 回回した事実は無い。次の transition で max_loops を HEAD 側の 10 へ戻し、loop_count はこの合流 invocation の turn 数として writer に書き直させる。",
-      "recorded_at": null
-    }
+    "max_loops_policy": "strict"
   },
   "asks_for_contract": {
     "version": "1.0",

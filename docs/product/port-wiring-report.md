@@ -6,8 +6,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 79 件 / 手続き 285 件
-- 呼ばれていない 52 件（上限 79）
+- ポート 88 件 / 手続き 314 件
+- 呼ばれていない 54 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -34,6 +34,7 @@
 | `ConsentStorePort` | `read` | `src/application/ports/telemetry.ts` |
 | `ConsentStorePort` | `write` | `src/application/ports/telemetry.ts` |
 | `ConversionRepositoryPort` | `findByExternalId` | `src/application/ports/monetization.ts` |
+| `CustomDomainRepositoryPort` | `findActiveByHostname` | `src/application/ports/blog-domains.ts` |
 | `FeedbackCaptureStoragePort` | `deleteExpired` | `src/application/ports/feedback.ts` |
 | `FeedbackRepositoryPort` | `findByCaptureId` | `src/application/ports/feedback.ts` |
 | `FeedbackRepositoryPort` | `purgeExpiredDiagnostics` | `src/application/ports/feedback.ts` |
@@ -46,6 +47,7 @@
 | `MerchantOfferRepositoryPort` | `save` | `src/application/ports/product.ts` |
 | `MerchantOfferRepositoryPort` | `listStale` | `src/application/ports/product.ts` |
 | `MetricsRepositoryPort` | `record` | `src/application/ports/analytics.ts` |
+| `MetricsRollupPort` | `purgeExpiredEvents` | `src/application/ports/blog-observability.ts` |
 | `ProductRepositoryPort` | `findByIdentityKey` | `src/application/ports/product.ts` |
 | `PublicationRepositoryPort` | `findByIdempotencyKey` | `src/application/ports/distribution.ts` |
 | `SecretResolverPort` | `resolve` | `src/application/ports/common.ts` |
@@ -71,7 +73,7 @@
 呼ばれていない**状態を拾えない。ここはその形を見る。
 
 - 届いていない 0 件（上限 0）
-- 理由つきの除外 5 件（上限 5）
+- 理由つきの除外 6 件（上限 6）
 
 - 読み書きを判定できない手続き 0 件（上限 0）
 
@@ -96,4 +98,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:435` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:527` |
-<!-- 生成物の指紋 sha256:722c5d1ed00d3c8042dd875e2b2cfb27dd3bc98b757c78e7b9a53cfab37cb27f -->
+<!-- 生成物の指紋 sha256:8c96ce912d01b8d1a2cca2d687463fbed4f826d5fd0c3dee0a56495ec142314a -->

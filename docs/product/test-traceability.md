@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-09-05
-- テストファイル: 500 件
-- 由来の要件が分かる: 500 件
+- テストファイル: 503 件
+- 由来の要件が分かる: 503 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -250,11 +250,13 @@
 | `tests/evals/generation-eval-set.test.ts` | REQ-CI13, REQ-G09, REQ-G10 | 印と表 |
 | `tests/infrastructure/affiliate-preview-fetcher.test.ts` | REQ-P02 | 印 |
 | `tests/infrastructure/ai-search-reaudit-scheduler.test.ts` | REQ-SEO07 | 印 |
+| `tests/infrastructure/answer-unit-extractor.test.ts` | REQ-BOPC04 | 印 |
 | `tests/infrastructure/anthropic-llm.test.ts` | REQ-SEC01, REQ-SEC05 | 印 |
 | `tests/infrastructure/better-auth-gate.test.ts` | REQ-S10 | 印 |
 | `tests/infrastructure/bluesky-connector.test.ts` | REQ-A06 | 印 |
 | `tests/infrastructure/cache-kv.test.ts` | REQ-TS03, REQ-TS08 | 印 |
 | `tests/infrastructure/channel-connector.test.ts` | REQ-P08 | 印と表 |
+| `tests/infrastructure/cloudflare-custom-hostname.test.ts` | REQ-BOPC01 | 印 |
 | `tests/infrastructure/d1-affiliate-link-offers.test.ts` | REQ-E12, REQ-E13 | 印 |
 | `tests/infrastructure/d1-affiliate-program-repository.test.ts` | REQ-A07 | 印 |
 | `tests/infrastructure/d1-contact-repository.test.ts` | REQ-B18 | 印 |
@@ -347,6 +349,7 @@
 | `tests/presentation/api-scope-actor.test.ts` | REQ-API02, REQ-FB13 | 印 |
 | `tests/presentation/blog-action-input.test.ts` | REQ-BOPS01, REQ-BOPS02, REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS08 | 印 |
 | `tests/presentation/blog-appearance-and-placement-actions.test.ts` | REQ-P07, REQ-UX01 | 印 |
+| `tests/presentation/blog-domain-and-improvement-actions.test.ts` | REQ-BOPC01, REQ-BOPC04 | 印 |
 | `tests/presentation/blog-ops-actions.test.ts` | REQ-BOPS03, REQ-BOPS04, REQ-BOPS05, REQ-BOPS06, REQ-BOPS08, REQ-BOPS12 | 印 |
 | `tests/presentation/blog-ops-tools.test.ts` | REQ-BLOG06 | 印と表 |
 | `tests/presentation/blog-rating-actions.test.ts` | REQ-BOPS09 | 印 |
@@ -521,4 +524,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:af97927aca8d71b435614024eb4543c03906ff838d29c1b248c541594a74ae22 -->
+<!-- 生成物の指紋 sha256:be5d135bbf92b79d58b89e38b1f9798457145ab94493f62e791e48f13ff60266 -->

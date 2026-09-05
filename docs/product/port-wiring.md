@@ -97,7 +97,10 @@
 | `createRecordTelemetryUseCase` | 自動の計測。読者のブラウザから届く閲覧・クリックで、件数が承認や公開と桁違いになり、**本来残したい記録が埋もれる**。同意が無い読者は落とす作りなので、そもそも身元の残らないものを操作の記録へ入れるのは筋が違う。計測の正本は `telemetry` 側にある |
 | `createSubmitArticleRatingUseCase` | 読者の操作。記事に星をつけるのは読者で、運営者は誰も関与しない。ここを記録へ入れると、規制対応で操作の記録を出したときに読者の投票が並び、「誰が承認したか」が読み取れなくなる。伏せる操作（`setRatingHidden`）は運営者の判断なので、そちらは記録へ届いている |
 
-（現在 5 件。上限 `PORT_WIRING_MAX_WRITE_EXCLUSIONS` も 5。）
+（現在 6 件。上限 `PORT_WIRING_MAX_WRITE_EXCLUSIONS` も 6。
+2026-09-05 に 6 件目 `createRecordReaderInteractionsUseCase` を足した。
+理由は 2 つ目のまま＝**種類は増えていない**。
+「届いていない」側の上限 `PORT_WIRING_MAX_UNRECORDED` は 0 のまま動かしていない。）
 
 **除外にできる理由は 2 つだけに絞る。** 「読者の操作である」か
 「自動の計測である」。この 2 つに当たらないものは、迷ったら**要る側に倒す**。
