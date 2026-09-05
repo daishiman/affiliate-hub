@@ -12,27 +12,9 @@ import type {
   PublicationRepositoryPort,
 } from "@/application/ports/distribution";
 import type { ContentVariant } from "@/domain/authoring";
-import { evaluateExternalPublicationGate } from "@/domain/compliance";
-import {
-  CHANNEL_CAPABILITIES,
-  type ChannelConnection,
-  type ChannelCapability,
-  type ChannelKind,
-  type Publication,
-  type PublicationState,
-  type PublishMode,
-  type PublishState,
-  PUBLICATION_STATE_LABEL,
-  advance,
-  buildIdempotencyKey,
-  createChannelConnection,
-  createPublication,
-  isConnectionUsable,
-  publicationMutationConflict,
-  rendersOwnArticle,
-  supportsDirectPublish,
-  supportsExternalDirectPublish,
-} from "@/domain/distribution";
+import { evaluateExternalPublicationGate } from "@/domain/compliance/external-publication-gate";
+import { CHANNEL_CAPABILITIES, createChannelConnection, isConnectionUsable, rendersOwnArticle, supportsDirectPublish, supportsExternalDirectPublish, type ChannelCapability, type ChannelConnection, type ChannelKind, type PublishMode, type PublishState } from "@/domain/distribution/channel";
+import { PUBLICATION_STATE_LABEL, advance, buildIdempotencyKey, createPublication, publicationMutationConflict, type Publication, type PublicationState } from "@/domain/distribution/publication";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

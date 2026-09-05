@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { PolicyRuleRepositoryPort } from "@/application/ports/compliance";
 import type { PolicyRule } from "@/domain/compliance";
-import { buildSeedPolicyRules } from "@/domain/compliance";
+import { buildSeedPolicyRules } from "@/domain/compliance/policy-rule-seed";
 import {
   type PolicyRuleId,
   type WorkspaceId,

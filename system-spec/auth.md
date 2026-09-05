@@ -3,7 +3,7 @@ status: confirmed
 category: auth
 aggregate: 確定
 spec_cells: [auth.web, auth.mobile, auth.tablet, auth.desktop-windows, auth.desktop-linux, auth.desktop-macos]
-serves_goals: [G1]
+serves_goals: [G1, G2]
 ---
 
 # 認証(ログイン) (auth)
@@ -15,7 +15,7 @@ serves_goals: [G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-auth-web |
+| Web (web) | 確定 | 確定質疑: qa-auth-web-domain-analytics-authority。裏付け質疑 (`qa_refs`): `qa-auth-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。 |
@@ -30,14 +30,14 @@ serves_goals: [G1]
 |---|---|
 | セル | auth × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-auth-web` |
-| 資するゴール (serves_goals) | G1 |
-| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web`) |
+| 確定質疑 (qa_ref) | `qa-auth-web-domain-analytics-authority` |
+| 資するゴール (serves_goals) | G1, G2 |
+| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web-domain-analytics-authority`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
+| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
 
 ## 意思決定 (decisions)
 
@@ -51,7 +51,13 @@ serves_goals: [G1]
 
 ## 確定内容 (質疑録)
 
-### qa-auth-web (対応セル: web)
+### qa-auth-web-domain-analytics-authority (対応セル: web)
+
+**質問**: auth×web: ドメインの接続・切断、読者行動データの閲覧と削除は、誰ができることにするか
+
+**回答**: ドメインの接続と切断は、ブログの公開停止と同じ重さの操作として扱う。既存の役割のうち Publisher 相当以上に限り、Writer・Reviewer からは実行できない。切断はブログ全体が新しい住所から見えなくなる操作なので、実行前に対象ブログ名の確認入力を求める。読者行動データは、集計後の分布 (ヒートマップ・滞在・到達深度) を Analyst 以上が閲覧できる。個々の reader_key に紐づく行の抽出と削除は、読者からの削除依頼に応じるための操作であり、Owner 相当に限る。ドメインの状態変更と読者データの削除は、既存の audit_logs に誰がいつ何をしたかを残す。ブログ単位のスコープを持つ既存の workspace/membership の枠内で判断し、ブログごとに別の権限体系を新設しない
+
+### qa-auth-web (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: 認証 (auth) × web の方式は何か (2026-08-16 対話ヒアリング)
 
@@ -157,9 +163,18 @@ serves_goals: [G1]
 
 #### 本章での適用
 
-##### 確定内容 qa-auth-web (対応セル: web)
+##### 確定内容 qa-auth-web-domain-analytics-authority (対応セル: web)
 
-- 確定要件: A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Drizzle アダプタにより現行の Next.js + Cloudflare Workers + D1 スタックと同居できる。Google ログインを初期提供し、メール/パスワード・パスキーは後続拡張とする。セッションは D1 に保存し、Workspace 単位のマルチテナント分離と §25 のロール (Owner/Admin/Researcher/Writer/Reviewer/Publisher/Analyst) 権限をアプリ層で紐付ける。外部公開・予約投稿等の重要操作は認証済みユーザーの明示承認を必須とする。
+- 確定要件: ドメインの接続と切断は、ブログの公開停止と同じ重さの操作として扱う。既存の役割のうち Publisher 相当以上に限り、Writer・Reviewer からは実行できない。切断はブログ全体が新しい住所から見えなくなる操作なので、実行前に対象ブログ名の確認入力を求める。読者行動データは、集計後の分布 (ヒートマップ・滞在・到達深度) を Analyst 以上が閲覧できる。個々の reader_key に紐づく行の抽出と削除は、読者からの削除依頼に応じるための操作であり、Owner 相当に限る。ドメインの状態変更と読者データの削除は、既存の audit_logs に誰がいつ何をしたかを残す。ブログ単位のスコープを持つ既存の workspace/membership の枠内で判断し、ブログごとに別の権限体系を新設しない
+- 設計解釈の記録経路: `dialogue`
+- 原則: 権限は、失敗したときの被害の大きさで区切る (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ドメインの切断は、記事 1 本の誤削除と違ってブログ全体が読者から到達不能になる。編集権限と同じ扱いにすると、日常操作の流れで実行されうる。公開停止と同じ段へ置き、確認入力を挟む
+  - トレードオフ:
+    - ドメインの付け替えのたびに権限保持者の手を借りることになり、小規模な運営では手間になる。緩めれば誤操作の被害がブログ全体に及ぶ
+##### 接地根拠 qa-auth-web (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-auth-web` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 最小権限の原則: ロールごとに操作可能範囲を限定し、公開・削除等の重要操作は承認フローを経る (`docs/spec/01-要求仕様書-v1.0.md#§25 チーム権限`)
   - 採否: `applied`
@@ -171,7 +186,7 @@ serves_goals: [G1]
   - 章固有の根拠: Google OAuth のシークレットは Cloudflare Workers の Secrets に保管し、D1 にはセッション/アカウント情報のみを保存する
   - トレードオフ:
     - シークレットローテーション手順を保守運用に追加する必要がある
-- 資するゴール: G1
+- 資するゴール: G1, G2
 
 ## 最新ドキュメント出典
 
@@ -310,14 +325,6 @@ serves_goals: [G1]
 
 ## 章にしか無い記述 (正本へ未接続)
 
-> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
-
-### 本節を「転記」に留めた理由
-
-C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
-
-## 章にしか無い記述 (正本へ未接続)
-
 > 以下の 3 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### Web (web)`, `#### 主たる接地根拠: `qa-auth-web``, `### 本章での適用`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
 
 ### Web (web)
@@ -342,7 +349,19 @@ A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Dr
 
 ## compile が保てなかった行 (要判断)
 
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 2 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 14 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
 
 - `| Web (web) | 確定 | 確定質疑: qa-auth-web。資するゴール: G1 |`
 - `> 本章の各確定セルが何を根拠に確定したかの実体。`qa_ref` が主たる接地根拠、`qa_refs` がそれを支える裏付け質疑であり、いずれも qa_log (spec-state.json) の逐語である。ここに現れない主張は本章の確定内容ではない。`
+- `serves_goals: [G1]`
+- `| Web (web) | 確定 | 確定質疑: qa-auth-web |`
+- `| 確定質疑 (qa_ref) | `qa-auth-web` |`
+- `| 資するゴール (serves_goals) | G1 |`
+- `| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web`) |`
+- `| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |`
+- `### qa-auth-web (対応セル: web)`
+- `##### 確定内容 qa-auth-web (対応セル: web)`
+- `- 確定要件: A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Drizzle アダプタにより現行の Next.js + Cloudflare Workers + D1 スタックと同居できる。Google ログインを初期提供し、メール/パスワード・パスキーは後続拡張とする。セッションは D1 に保存し、Workspace 単位のマルチテナント分離と §25 のロール (Owner/Admin/Researcher/Writer/Reviewer/Publisher/Analyst) 権限をアプリ層で紐付ける。外部公開・予約投稿等の重要操作は認証済みユーザーの明示承認を必須とする。`
+- `> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。`
+- `### 本節を「転記」に留めた理由`
+- `C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。`

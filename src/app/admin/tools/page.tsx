@@ -43,8 +43,8 @@ export default async function ToolsPage() {
     >
       <Callout
         tone="info"
-        title={`仕様書に書かれた ${coverage.total} 個のうち ${coverage.implemented} 個が動きます`}
-        reason="残りは見本（スタブ）です。名前を一覧から消さずに残しているのは、何が足りないかを数えられるようにするためです。"
+        title={`仕様書に書かれた ${coverage.total} 個のうち ${coverage.implemented} 個は実装済みです`}
+        reason="残りは見本（スタブ）です。実装済みでも、この面から届かないものは行ごとに理由を示します。"
       />
 
       <Section title="面ごとの内訳">
@@ -52,7 +52,7 @@ export default async function ToolsPage() {
           caption="仕様書 §24.1（ページ内AI）・§24.3（外部AI）で決めた道具の数"
           columns={[
             { key: "surface", label: "面" },
-            { key: "implemented", label: "動くもの", numeric: true },
+            { key: "implemented", label: "実装済み", numeric: true },
             { key: "total", label: "仕様の数", numeric: true },
           ]}
           rows={coverage.bySurface.map((s) => ({
@@ -80,6 +80,11 @@ export default async function ToolsPage() {
                   <>
                     <StubLabel stubId={`tool:${e.specName}`} />
                     <Note>{e.stubReason}</Note>
+                  </>
+                ) : e.unreachableReason !== undefined ? (
+                  <>
+                    実装済み・この面からは使えません
+                    <Note>{e.unreachableReason}</Note>
                   </>
                 ) : e.implementedBy === e.specName ? (
                   "動きます"

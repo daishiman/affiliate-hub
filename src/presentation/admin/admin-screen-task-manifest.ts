@@ -130,6 +130,11 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
     "運営者情報・各方針・規約・特定商取引法に基づく表記を書き、未記入を無くす",
   "sites/[site]/appearance": "このブログの見せ方と配色を決め、ページ単位の例外を管理する",
   "sites/[site]/placements": "記事のどこに成果リンクを出しているかを確かめ、掲載の抜けを埋める",
+  "sites/[site]/domains": "このブログの住所（独自ドメイン）を登録し、読者へ見せる 1 つを決める",
+  "sites/[site]/audience": "どんな読者がどこを読んでいるかを確かめ、次に直す記事を決める",
+  "sites/[site]/revenue": "どの記事が稼いでいるかを確かめ、伸ばす記事と畳む記事を決める",
+  "sites/[site]/seo": "検索から届かない原因を 1 つ選び、直しに行く",
+  "sites/[site]/aeo": "回答エンジンに引用される形になっているかを確かめ、足りない答えを補う",
   "sites/new": "ブログを 1 本作る",
   tools: "AI から使える道具を調べる (参照専用)",
   "ui-catalog": "使える部品を探す (参照専用・見本帳)",
@@ -634,6 +639,65 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     "sites/[site]/appearance",
     edge("src/presentation/admin/publish/blog-appearance-form.tsx", "PageThemeOverrideForms"),
     edge("src/presentation/admin/publish/blog-appearance-action.ts", "manageBlogAppearanceAction"),
+  ),
+  /*
+    住所（独自ドメイン）。登録と、登録済み 1 件への操作を分けてある。
+    登録は「読者にはまだ見えない行を足す」だけだが、行への操作には
+    正規の切り替えと取り下げが含まれ、こちらは読者が着く先を変える。
+    畳むと、取り下げの重さが登録と同じに見える。
+  */
+  screenMutation(
+    "site.register-custom-domain",
+    "sites/[site]/domains",
+    edge("src/presentation/admin/publish/blog-domain-form.tsx", "RegisterBlogDomainForm"),
+    edge("src/presentation/admin/publish/blog-domain-action.ts", "manageBlogDomainAction"),
+  ),
+  screenMutation(
+    "site.operate-custom-domain",
+    "sites/[site]/domains",
+    edge("src/presentation/admin/publish/blog-domain-form.tsx", "BlogDomainRow"),
+    edge("src/presentation/admin/publish/blog-domain-action.ts", "manageBlogDomainAction"),
+  ),
+  /*
+    観測層。読む画面の中に 1 つだけ置いた保存操作。
+    日次集計は毎日自動で作り直されるが、見ているのは当日と前日だけで、
+    それより前に失敗した日は空のまま残る。直す口が無いと、運営者は
+    「数字が無い」のか「集計が落ちた」のかを画面から区別できない。
+  */
+  screenMutation(
+    "site.rebuild-daily-metrics",
+    "sites/[site]/audience",
+    edge("src/presentation/admin/observe/metrics-rebuild-form.tsx", "RebuildDailyMetricsForm"),
+    edge("src/presentation/admin/observe/metrics-rebuild-action.ts", "rebuildDailyMetricsAction"),
+  ),
+  /*
+    改善層（SEO / AEO）。読者に出ているものは 1 つも変えない (AD-3) が、
+    診断を回すこと自体は保存される操作なので、mutation として数える。
+    数えないと、「押しても何も起きない画面」に見えて追跡から漏れる。
+  */
+  screenMutation(
+    "site.assess-seo",
+    "sites/[site]/seo",
+    edge("src/presentation/admin/publish/blog-improvement-form.tsx", "SeoAssessForm"),
+    edge("src/presentation/admin/publish/blog-improvement-action.ts", "manageBlogSeoAction"),
+  ),
+  screenMutation(
+    "site.handle-seo-finding",
+    "sites/[site]/seo",
+    edge("src/presentation/admin/publish/blog-improvement-form.tsx", "SeoFindingRow"),
+    edge("src/presentation/admin/publish/blog-improvement-action.ts", "manageBlogSeoAction"),
+  ),
+  screenMutation(
+    "site.save-aeo-profile",
+    "sites/[site]/aeo",
+    edge("src/presentation/admin/publish/blog-improvement-form.tsx", "AeoProfileForm"),
+    edge("src/presentation/admin/publish/blog-improvement-action.ts", "manageBlogAeoAction"),
+  ),
+  screenMutation(
+    "site.extract-answer-units",
+    "sites/[site]/aeo",
+    edge("src/presentation/admin/publish/blog-improvement-form.tsx", "AeoExtractForm"),
+    edge("src/presentation/admin/publish/blog-improvement-action.ts", "manageBlogAeoAction"),
   ),
   screenMutation(
     "site.save-placement",

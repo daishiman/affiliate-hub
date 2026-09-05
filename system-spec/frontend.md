@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
@@ -68,6 +68,12 @@ serves_goals: [G1, G2, G3]
 「断片欄を維持し、全断片を見た目へ（推奨）」
 
 ※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-frontend-web-blog-scoped-admin (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: frontend×web: 管理画面 88 ページを『記事ごと』ではなく『ブログごと』に扱えるようにするには、画面の構造をどう組み替えるか。ヒートマップの描画はどう実現するか
+
+**回答**: ブログを選ぶ操作を、画面ごとの絞り込みではなく URL の階層そのものにする。/admin/sites/[site]/ の下へ、そのブログに閉じた画面 (記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信) を集め、いま /admin/blog/* や /admin/analytics にある横断画面は『全ブログの比較』として別に残す。どちらの画面を見ているのかが URL とパンくずで分かる状態にし、絞り込みの選択が画面遷移で消えないようにする。既存 /admin/blog/* は当面残して /admin/sites/[site]/ へ転送し、リンク切れを作らない。ヒートマップは読者側と管理側の 2 つに分ける。読者側は IntersectionObserver で到達深度を、visibilitychange と滞在タイマーで滞在を、クリックは委譲したリスナ 1 つで要素基準の比率へ変換して送る。送信は個別ではなく sendBeacon でまとめて送り、読者の体感を落とさない。管理側は記事のプレビューを背景に、比率で受け取った点を canvas へ重ねて描く。端末幅ごとに重ねると意味が壊れるので、viewport_bucket (狭い/中/広い) を切り替えて表示する。同意が無い読者の点も (reader_key を持たないまま) 描画対象に含める
 
 ### qa-frontend-web-blog-composition-visibility (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -515,6 +521,20 @@ site_blueprint.theme（設計図の既定）
   - 章固有の根拠: 逐語「色をつけたものを作る」を、色を独立した断片種にせず装飾属性として扱うことで、色付き文字が段落・表・カードのどこにでも置けるようにする
   - トレードオフ:
     - 装飾の組合せが増えるぶん、配色のコントラスト検査を装飾側で一括して持つ必要がある
+##### 接地根拠 qa-frontend-web-blog-scoped-admin (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-blog-scoped-admin` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: いま何を操作しているのかを、画面自身が示し続ける (`usability-accessibility.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ブログの選択を画面内の絞り込みに置くと、別画面へ移った瞬間に何のブログを見ているかが消える。複数ブログを並行運営すると、これは『どのブログの記事を消したか分からない』事故に直結する。選択を URL 階層へ上げると、パンくず・戻る操作・共有した URL のすべてが対象を保つ
+  - トレードオフ:
+    - 全ブログ横断で見たい場面 (収益比較など) が別画面に分かれ、行き来が増える。単一画面で切り替える方式なら往復は減るが、いま見ている対象が曖昧になる
+- 原則: 計測が読者の体験を損なわない (`usability-accessibility.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: 座標まで採ると送信回数が増える。1 イベント 1 リクエストにすると、読者の回線が細いときに記事本文の読み込みと競合する。まとめて sendBeacon で送れば、画面遷移時にも取りこぼさず、描画を待たせない
+  - トレードオフ:
+    - まとめる間に離脱すると直近ぶんが欠ける。sendBeacon は遷移時にも送るので大半は救えるが、完全ではない。取りこぼしを 0 にするには同期送信が要り、それは読者を待たせる
 ##### 接地根拠 qa-frontend-web-blog-composition-visibility (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-frontend-web-blog-composition-visibility` を参照
@@ -1022,7 +1042,7 @@ frontend×web: SEO と AI 検索最適化 (SSR・構造化データ自動生成�
 
 ## compile が保てなかった行 (要判断)
 
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 29 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 30 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
 
 - `| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記。資するゴール: G1, G2, G3 |`
 - `> 本章の各確定セルが何を根拠に確定したかの実体。`qa_ref` が主たる接地根拠、`qa_refs` がそれを支える裏付け質疑であり、いずれも qa_log (spec-state.json) の逐語である。ここに現れない主張は本章の確定内容ではない。`
@@ -1053,3 +1073,4 @@ frontend×web: SEO と AI 検索最適化 (SSR・構造化データ自動生成�
 - `- 要件定義段階で「この表現物の受け手・task・優先順位」を宣言させることで、実装後の主観的な「なんかダサい」を**設計判断への差し戻し**に変換できる (レビューが好みの表明でなくなる)。`
 - `- 順位・グループ・削除理由・加工理由が構造化データとして残るため、生成 AI・人間のどちらが作っても同じ根拠で検証できる。決定論ゲート (`../../../scripts/validate-information-priority.py`) が手順の順序制約 (装飾より前に順位が確定していること) を機械検査する。`
 - `- 成果は「見た目の評価」ではなく outcome で測る: 目的達成までの操作数・初見での到達率・誤操作率・問い合わせ件数。装飾の量では測らない。`
+- `| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

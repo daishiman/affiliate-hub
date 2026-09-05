@@ -17,6 +17,7 @@ import {
   WebMcpProvider,
   type SiteChrome,
 } from "@/presentation/ui";
+import { ReaderBehaviorProbe } from "@/presentation/reader/behavior-probe";
 import { TelemetryCollector } from "@/presentation/telemetry/collector";
 import { readConsentDecision, readConsentChoice } from "@/presentation/telemetry/consent-server";
 import { blogSidebar } from "./blog-sidebar";
@@ -53,11 +54,22 @@ export async function SiteFrame({
   pageKind = "article",
   sidebar = false,
   asideSlot,
+  articleSlug,
   children,
 }: {
   readonly siteSlug: string;
   /** 現在地。ヘッダーの現在地表示に使う。 */
   readonly currentPath: string;
+  /**
+   * いま読まれている記事の名前。**観測を記事単位で束ねるためだけに使う。**
+   *
+   * `currentPath` から切り出さないのは、記事の URL の形が 5 通り
+   * （`/blog/` `/reviews/` `/best/` `/guides/` `/compare/`）あり、
+   * 画面ごとに増える可能性があるため。ここで正規表現を持つと、
+   * 新しい種類の記事を足した日に**その種類だけ観測が抜ける**。
+   * 抜けても画面は動くので気づけない。呼ぶ側が名乗る形にしておく。
+   */
+  readonly articleSlug?: string;
   /** パンくずの続き。ブログ名は自動で先頭に付く。 */
   readonly trail?: readonly { readonly label: string; readonly path?: string }[];
   /**
@@ -183,12 +195,26 @@ export async function SiteFrame({
       appearance={{ current: appearance, modeOptions: appearanceOptions().modeOptions }}
       consent={{ current: consentChoice, detailHref: `${siteBasePath(siteSlug)}/measurement` }}
       telemetry={
-        <TelemetryCollector
-          siteSlug={siteSlug}
-          path={currentPath}
-          allowBehaviour={decision.allowBehaviour}
-          suppressAll={decision.suppressAll}
-        />
+        <>
+          <TelemetryCollector
+            siteSlug={siteSlug}
+            path={currentPath}
+            allowBehaviour={decision.allowBehaviour}
+            suppressAll={decision.suppressAll}
+          />
+          {/*
+            観測層（`reader_interaction_events`）へ送る側。上の collector とは
+            送り先も保存の期限も違う（生の行が 90 日で消えるのはこちらだけ・AD-4）。
+            同意の結論は**同じ 1 つ**を両方へ渡す。別々に判定すると、
+            片方だけが止まっている状態が生まれる。
+          */}
+          <ReaderBehaviorProbe
+            siteSlug={siteSlug}
+            {...(articleSlug === undefined ? {} : { articleSlug })}
+            allowBehaviour={decision.allowBehaviour}
+            suppressAll={decision.suppressAll}
+          />
+        </>
       }
     >
       {projection.source === "sample" ? (

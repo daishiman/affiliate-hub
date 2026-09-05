@@ -8,12 +8,7 @@ import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { BrandRepositoryPort } from "@/application/ports/identity";
 import type { EditorialProductRepositoryPort } from "@/application/ports/product";
 import { ensureOwnedReference } from "@/application/owned-reference";
-import {
-  type ContentAngle,
-  type ContentPackage,
-  type FunnelStage,
-  createContentPackage,
-} from "@/domain/authoring";
+import { createContentPackage, type ContentAngle, type ContentPackage, type FunnelStage } from "@/domain/authoring/content-package";
 import type { PolicyDomainScope } from "@/domain/compliance";
 import { requireCapability } from "@/domain/identity";
 import {

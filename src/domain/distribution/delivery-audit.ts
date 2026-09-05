@@ -1,4 +1,4 @@
-import { type AuditLogEntry, createAuditLogEntry } from "@/domain/compliance";
+import { createAuditLogEntry, type AuditLogEntry } from "@/domain/compliance/audit-log";
 import type { AuditLogId, DomainError, Result, UserId } from "@/domain/shared";
 import { taggedString } from "@/domain/shared";
 import type { Publication } from "./publication";

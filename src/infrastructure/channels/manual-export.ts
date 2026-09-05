@@ -1,6 +1,6 @@
 import type { ChannelPublishInput, ManualExportPort, PortResult } from "@/application/ports";
 import type { ChannelKind } from "@/domain/distribution";
-import { CHANNEL_CAPABILITIES } from "@/domain/distribution";
+import { CHANNEL_CAPABILITIES } from "@/domain/distribution/channel";
 import { ok } from "@/domain/shared";
 
 /**

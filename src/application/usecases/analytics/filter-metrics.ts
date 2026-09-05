@@ -1,14 +1,6 @@
 import type { MetricsRepositoryPort } from "@/application/ports/analytics";
-import {
-  ANALYTICS_AXES,
-  type AnalyticsAxisKey,
-  DEFAULT_METRICS_WINDOW_DAYS,
-  METRIC_DEFINITIONS,
-  type MetricKey,
-  type MetricSample,
-  commercialAxesInUse,
-  isAnalyticsAxisKey,
-} from "@/domain/analytics";
+import { ANALYTICS_AXES, commercialAxesInUse, isAnalyticsAxisKey, type AnalyticsAxisKey } from "@/domain/analytics/dimensions";
+import { DEFAULT_METRICS_WINDOW_DAYS, METRIC_DEFINITIONS, type MetricKey, type MetricSample } from "@/domain/analytics/metrics";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

@@ -127,6 +127,7 @@ export async function ArticlePage({
     <SiteFrame
       siteSlug={siteSlug}
       currentPath={siteHref(siteSlug, path)}
+      articleSlug={slug}
       trail={[
         { label: routeLabel },
         { label: result.ok ? result.value.title : (fallbackTitle ?? "記事") },

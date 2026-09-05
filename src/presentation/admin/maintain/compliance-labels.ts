@@ -1,14 +1,5 @@
-import {
-  POLICY_CHANNEL_SCOPES,
-  POLICY_DOMAIN_SCOPES,
-  POLICY_SEVERITIES,
-  type PolicyChannelScope,
-  type PolicyDomainScope,
-  type PolicySeverity,
-  RELATIONSHIP_LABEL,
-  type RelationshipType,
-  type EditorialInfluence,
-} from "@/domain/compliance";
+import { POLICY_CHANNEL_SCOPES, POLICY_DOMAIN_SCOPES, POLICY_SEVERITIES, type PolicyChannelScope, type PolicyDomainScope, type PolicySeverity } from "@/domain/compliance/policy-rule";
+import { RELATIONSHIP_LABEL, type EditorialInfluence, type RelationshipType } from "@/domain/compliance/disclosure";
 import type { SelectOption } from "@/presentation/ui";
 
 /**

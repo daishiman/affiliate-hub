@@ -1,4 +1,4 @@
-import { UNFINISHED_STATUSES } from "@/domain/feedback";
+import { UNFINISHED_STATUSES } from "@/domain/feedback/status";
 import { errorResponse } from "@/presentation/http/error-response";
 import { feedbackUseCases, resolveIntegrationAccess } from "@/presentation/composition";
 

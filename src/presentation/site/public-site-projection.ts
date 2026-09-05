@@ -12,12 +12,8 @@ import type {
   PublishedArticle,
 } from "@/application/read-models/published-article";
 import type { SiteDocument } from "@/application/ports/site";
-import {
-  evaluateSiteComposition,
-  SITE_DOCUMENT_KEYS,
-  type CompositionReport,
-  type SiteDocumentKey,
-} from "@/domain/authoring";
+import { evaluateSiteComposition, type CompositionReport } from "@/domain/authoring/site-publication";
+import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring/site-routes";
 import { collectAll, err, ok } from "@/domain/shared";
 import type { PortResult } from "@/application/ports/common";
 

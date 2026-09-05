@@ -1,0 +1,196 @@
+{
+  "edges": [
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P01",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P02",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P03",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P04",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P05",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P06",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P05",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P08",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P09",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P07",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P09",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P10",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P11",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-CUSTOM-DOMAIN-P12",
+      "to": "SYS-BLOG-CUSTOM-DOMAIN-P13",
+      "type": "depends_on"
+    }
+  ],
+  "feature_package_id": "feature-package/feat-blog-custom-domain",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P01",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P01"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P02",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P02"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P03",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P03"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P04",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P04"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P05",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P05"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P06",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P06"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P07",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P05"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P08",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P08"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P09",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P09"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P10",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P07",
+        "SYS-BLOG-CUSTOM-DOMAIN-P09"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P11",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P10",
+        "SYS-BLOG-CUSTOM-DOMAIN-P11"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P12",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P12"
+      ],
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "id": "SYS-BLOG-CUSTOM-DOMAIN-P13",
+      "parent_feature": "feat-blog-custom-domain",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-blog-custom-domain",
+  "schema_version": "1.0.0"
+}

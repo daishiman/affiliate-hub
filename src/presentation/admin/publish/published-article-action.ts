@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { articleHref } from "@/application/read-models/published-article";
-import { siteBasePathBySlug } from "@/domain/authoring";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { publishedArticleAdminUseCases, signedInActor } from "@/presentation/composition";
 import { parseNonEmptyLines } from "../non-empty-lines";
 import type { PublishedArticleFormState } from "./published-article-state";

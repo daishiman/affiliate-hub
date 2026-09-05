@@ -12,9 +12,9 @@ iteration: null
 title: "Persona Studio"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-17T05:01:01Z"
+updated_at: "2026-08-30T15:15:56Z"
 status: "active"
-depends_on: ["feat-data-model"]
+depends_on: ["feat-auth-workspace","feat-data-model"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]
 purpose: "誰が誰に向けて書くのかを明示し、媒体ごとに崩れない文章の前提を持つ"

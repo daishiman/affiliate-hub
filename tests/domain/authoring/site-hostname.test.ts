@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   RESERVED_SITE_HOSTNAME_LABELS,
   decideHostRouting,
+  isAlwaysPassPath,
   isUsableSiteLabel,
+  routeResolvedSite,
   siteHostname,
   siteSlugFromHost,
 } from "@/domain/authoring";
@@ -133,5 +135,66 @@ describe("decideHostRouting", () => {
     expect(
       decideHostRouting({ host: "example.com", pathname: "/admin", baseDomain: BASE }),
     ).toEqual({ kind: "pass" });
+  });
+
+  it("独自ドメインはここでは決まらない（住所表を引くのは入口の仕事）", () => {
+    expect(
+      decideHostRouting({ host: "blog.example.net", pathname: "/", baseDomain: BASE }),
+    ).toEqual({ kind: "pass" });
+  });
+});
+
+/**
+ * ブログが決まったあとの判断。
+ *
+ * `decideHostRouting` の中でも呼ばれているが、**独自ドメイン経路は
+ * 入口がここを直に呼ぶ**ので、単体でも同じ規則が効くことを固定する。
+ * ここが緩むと「サブドメインからは管理画面を開けないが、独自ドメインから
+ * なら開ける」という抜け道ができる。
+ */
+describe("routeResolvedSite", () => {
+  it("読者のページはそのブログの画面へ差し替える", () => {
+    expect(routeResolvedSite("first-lens", "/")).toEqual({
+      kind: "rewrite",
+      slug: "first-lens",
+      pathname: "/s/first-lens",
+    });
+
+    expect(routeResolvedSite("first-lens", "/blog/hello")).toEqual({
+      kind: "rewrite",
+      slug: "first-lens",
+      pathname: "/s/first-lens/blog/hello",
+    });
+  });
+
+  it("管理画面と管理用 API は出さない", () => {
+    for (const pathname of ["/admin", "/admin/sites", "/api/health", "/signin", "/mcp"]) {
+      expect(routeResolvedSite("first-lens", pathname)).toEqual({ kind: "not-found" });
+    }
+  });
+
+  it("`/s/...` を重ねて呼ぶ経路は作らせない", () => {
+    expect(routeResolvedSite("first-lens", "/s/first-lens")).toEqual({ kind: "not-found" });
+  });
+
+  it("前方一致だけで巻き込まない", () => {
+    // `/administration` は `/admin` で始まるが別の入口。
+    expect(routeResolvedSite("first-lens", "/administration")).toEqual({
+      kind: "rewrite",
+      slug: "first-lens",
+      pathname: "/s/first-lens/administration",
+    });
+  });
+});
+
+describe("isAlwaysPassPath", () => {
+  it("画面の部品は住所を引く前に落とす", () => {
+    expect(isAlwaysPassPath("/_next/static/chunk.js")).toBe(true);
+    expect(isAlwaysPassPath("/cdn-cgi/challenge")).toBe(true);
+  });
+
+  it("読者のページは落とさない", () => {
+    expect(isAlwaysPassPath("/")).toBe(false);
+    expect(isAlwaysPassPath("/blog/hello")).toBe(false);
   });
 });

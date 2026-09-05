@@ -1,0 +1,1097 @@
+{
+  "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+  "p01_entry_gate": {
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ],
+    "selector": "parent_feature.depends_on"
+  },
+  "parent_feature": "feat-blog-scoped-admin-console",
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "schema_version": "1.0.0",
+  "source_lineage": {
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "confirmed": true,
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/backend.md",
+      "system-spec/security.md",
+      "architecture/arch-blog-operations-console.md"
+    ],
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0"
+  },
+  "tasks": [
+    {
+      "acceptance": [
+        "P01: feat-blog-scoped-admin-console の受入10件を検証可能な条件文へ写像し、ブログ画面・記事画面・横断画面がそれぞれ何を持ち何を持たないかという情報の置き場所を要求として確定した状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p01.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P01 lifecycle 責務への確定写像"
+      },
+      "depends_on": [],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p01.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P01"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P01",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P01 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p01",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "ブログ単位管理画面の要求ベースライン確定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P01 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/requirements-baseline.md",
+        "docs/spec/feat-blog-scoped-admin-console/screen-responsibility-map.md",
+        "docs/spec/feat-blog-scoped-admin-console/navigation-inventory.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P02: ブログ階層のルーティング、各画面が読む集計結果と診断結果の取得経路、注意喚起の並べ替え規則、証拠件数が閾値未満のときの提案抑制の設計を確定した状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p02.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P02 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p02.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P02"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P02",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P02 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "data",
+        "api"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p02",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "画面階層とデータ読み取り経路の設計確定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P02 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "backend",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/routing-design.md",
+        "docs/spec/feat-blog-scoped-admin-console/read-path-design.md",
+        "docs/spec/feat-blog-scoped-admin-console/alerting-design.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P03: 画面責務の排他性、既存導線からの移行漏れ、上流6 feature への依存の向きを独立観点で検査し、実装着手の可否を判定した状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p03.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P03 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p03.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P03"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P03",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P03 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "security"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p03",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面設計の独立レビューと着手可否判定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P03 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/design-review-findings.md",
+        "docs/spec/feat-blog-scoped-admin-console/dependency-direction-check.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P04: 受入10件を自動テストへ写像し、ブログ階層への到達、既存パスからの転送、注意喚起行の先頭固定、横断画面が記事単位の数値を持たないこと、証拠件数不足時に提案が出ないことを、実行可能なケース表として確定した状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p04.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P04 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p04.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P04"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P04",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P04 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "data"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p04",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面の受入テスト設計",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P04 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/test-plan.md",
+        "docs/spec/feat-blog-scoped-admin-console/test-cases.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P05: 記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信を持つブログ階層の画面群、ブログダッシュボード、記事ごとの改善画面、横断比較画面、および既存 admin パスからの転送を実装した状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p05.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P05 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p05.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P05"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P05",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P05 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "data"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p05",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "ブログ階層管理画面の実装",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P05 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "backend",
+      "write_scope": [
+        "src/app/admin/sites/[site]/",
+        "src/app/admin/blog/",
+        "src/app/admin/(cross)/",
+        "src/components/admin/"
+      ]
+    },
+    {
+      "acceptance": [
+        "P06: P04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p06.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P06 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p06.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P06"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P06",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P06 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "backend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p06",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面のテスト実行と緑化",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P06 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "tests/",
+        "docs/spec/feat-blog-scoped-admin-console/test-run-report.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P07: feat-blog-scoped-admin-console の受入10件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p07.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P07 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p07.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P07"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P07",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P07 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p07",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面の受入10件の判定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P07 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/acceptance-report.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P08: 記事単位で作られていた既存 admin 画面のうち、ブログ階層へ移した画面と残す画面を確定し、重複した画面と到達不能になった導線が0件である状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p08.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P08 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p08.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P08"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P08",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P08 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "data"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p08",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "既存 admin 画面との重複解消と移行",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P08 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "backend",
+      "write_scope": [
+        "src/app/admin/sites/[site]/",
+        "src/app/admin/blog/",
+        "src/app/admin/(cross)/",
+        "src/components/admin/",
+        "docs/spec/feat-blog-scoped-admin-console/migration-notes.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P09: ブログ数と記事数が増えたときの一覧描画性能、ブログ横断画面での閲覧範囲の限定、および空状態の表示を検査し、いずれも基準を満たす状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p09.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P09 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p09.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P09"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P09",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P09 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "security"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p09",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面の非機能検査",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P09 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/quality-report.md",
+        "tests/"
+      ]
+    },
+    {
+      "acceptance": [
+        "P10: P01 から P09 までの成果物を通しでレビューし、画面責務表・導線対応表・実装が一致していることを確認して残課題を確定した状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p10.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P10 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p10.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P10"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P10",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P10 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p10",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面の最終レビュー",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P10 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/final-review.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P11: 受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入10件の成立を再確認できる状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p11.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P11 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p11.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P11"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P11",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P11 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p11",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面の証跡集約",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P11 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/evidence-index.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P12: ブログ階層のどこで何を見るか、注意喚起が出たとき何をするか、旧画面の導線がどこへ移ったかを、運用手順と利用者向け説明として整えた状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p12.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P12 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p12.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P12"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P12",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P12 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p12",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面の運用手順と読み方の説明",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P12 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/operations-runbook.md",
+        "docs/spec/feat-blog-scoped-admin-console/"
+      ]
+    },
+    {
+      "acceptance": [
+        "P13: ブログ階層管理画面を dev 経由で本番へ反映し、確定した画面責務と導線対応を system-spec の該当章へ書き戻した状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p13.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-blog-scoped-admin-console の P13 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+        "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p13.md",
+        "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13",
+        "parent_feature": "feat-blog-scoped-admin-console",
+        "phase_ref": "P13"
+      },
+      "id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13",
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "phase_ref": "P13",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P13 の write scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "infrastructure",
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/security.md",
+        "architecture/arch-blog-operations-console.md"
+      ],
+      "tags": [
+        "p13",
+        "feat-blog-scoped-admin-console"
+      ],
+      "title": "管理画面のリリースと仕様書への書き戻し",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P13 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "operations",
+      "write_scope": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "docs/spec/feat-blog-scoped-admin-console/release-notes.md"
+      ]
+    }
+  ]
+}

@@ -2,15 +2,8 @@ import type { EditorialPersonaRepositoryPort } from "@/application/ports/authori
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import {
-  type AudiencePersona,
-  type AuthorPersona,
-  type FactBoundaryViolation,
-  checkFactBoundary,
-  checkProhibitedPhrases,
-  createAudiencePersona,
-  createAuthorPersona,
-} from "@/domain/authoring";
+import { createAudiencePersona, type AudiencePersona } from "@/domain/authoring/audience-persona";
+import { checkFactBoundary, checkProhibitedPhrases, createAuthorPersona, type AuthorPersona, type FactBoundaryViolation } from "@/domain/authoring/author-persona";
 import { requireWorkspaceWideCapability } from "@/domain/identity";
 import {
   type AudiencePersonaId,

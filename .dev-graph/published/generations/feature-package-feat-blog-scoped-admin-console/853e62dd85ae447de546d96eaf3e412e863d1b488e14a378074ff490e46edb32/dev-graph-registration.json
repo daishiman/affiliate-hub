@@ -1,0 +1,1150 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+  "parent_feature": "feat-blog-scoped-admin-console",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12": "beads",
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "ブログ単位管理画面の要求ベースライン確定",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/requirements-baseline.md",
+        "docs/spec/feat-blog-scoped-admin-console/screen-responsibility-map.md",
+        "docs/spec/feat-blog-scoped-admin-console/navigation-inventory.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "画面階層とデータ読み取り経路の設計確定",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/routing-design.md",
+        "docs/spec/feat-blog-scoped-admin-console/read-path-design.md",
+        "docs/spec/feat-blog-scoped-admin-console/alerting-design.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面設計の独立レビューと着手可否判定",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/design-review-findings.md",
+        "docs/spec/feat-blog-scoped-admin-console/dependency-direction-check.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面の受入テスト設計",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/test-plan.md",
+        "docs/spec/feat-blog-scoped-admin-console/test-cases.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "ブログ階層管理画面の実装",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/app/admin/sites/[site]/",
+        "src/app/admin/blog/",
+        "src/app/admin/(cross)/",
+        "src/components/admin/"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面のテスト実行と緑化",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/",
+        "docs/spec/feat-blog-scoped-admin-console/test-run-report.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面の受入10件の判定",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/acceptance-report.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存 admin 画面との重複解消と移行",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/app/admin/sites/[site]/",
+        "src/app/admin/blog/",
+        "src/app/admin/(cross)/",
+        "src/components/admin/",
+        "docs/spec/feat-blog-scoped-admin-console/migration-notes.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面の非機能検査",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/quality-report.md",
+        "tests/"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面の最終レビュー",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/final-review.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面の証跡集約",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/evidence-index.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面の運用手順と読み方の説明",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-scoped-admin-console/operations-runbook.md",
+        "docs/spec/feat-blog-scoped-admin-console/"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面のリリースと仕様書への書き戻し",
+      "project_id": "feature-package-feat-blog-scoped-admin-console",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-blog-scoped-admin-console"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:49:34Z",
+      "updated_at": "2026-09-03T23:49:34Z",
+      "depends_on": [
+        "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "docs/spec/feat-blog-scoped-admin-console/release-notes.md"
+      ],
+      "parent_feature": "feat-blog-scoped-admin-console",
+      "feature_package_id": "feature-package/feat-blog-scoped-admin-console",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json",
+        "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
+        "imported_at": "2026-09-03T23:49:34Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-scoped-admin-console の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-scoped-admin-console/sys-blog-scoped-admin-console-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    }
+  ]
+}

@@ -2,31 +2,11 @@ import type { EditorialSiteDraftRepositoryPort } from "@/application/ports/autho
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import { buildAuditEntry } from "@/application/audit";
-import {
-  ARTICLE_TYPE_LABEL,
-  ARTICLE_TYPES,
-  BRAND_THEMES,
-  type BrandTheme,
-  REVENUE_MODEL_LABEL,
-  REVENUE_MODELS,
-  SITE_PATTERN_LABEL,
-  SITE_PATTERNS,
-  SITE_WIZARD_STEPS,
-  SITE_WIZARD_STEP_LABEL,
-  SITE_WIZARD_STEP_QUESTION,
-  type CompositionCounts,
-  type SiteCompositionGap,
-  type SiteDraft,
-  type SiteWizardStep,
-  createSiteBlueprint,
-  createSiteDraft,
-  incompleteSteps,
-  isStepComplete,
-  isUsableSiteLabel,
-  siteHostname,
-  toDifferentiationAxes,
-  validateSlug,
-} from "@/domain/authoring";
+import { ARTICLE_TYPES, ARTICLE_TYPE_LABEL } from "@/domain/authoring/article-structure";
+import { BRAND_THEMES, REVENUE_MODELS, REVENUE_MODEL_LABEL, SITE_PATTERNS, SITE_PATTERN_LABEL, createSiteBlueprint, type BrandTheme } from "@/domain/authoring/site-blueprint";
+import { SITE_WIZARD_STEPS, SITE_WIZARD_STEP_LABEL, SITE_WIZARD_STEP_QUESTION, createSiteDraft, incompleteSteps, isStepComplete, toDifferentiationAxes, validateSlug, type SiteDraft, type SiteWizardStep } from "@/domain/authoring/site-draft";
+import type { CompositionCounts, SiteCompositionGap } from "@/domain/authoring/site-publication";
+import { isUsableSiteLabel, siteHostname } from "@/domain/authoring/site-hostname";
 import { requireCapability } from "@/domain/identity";
 import { SITE_DOCUMENT_KEYS } from "@/domain/authoring/site-routes";
 import {

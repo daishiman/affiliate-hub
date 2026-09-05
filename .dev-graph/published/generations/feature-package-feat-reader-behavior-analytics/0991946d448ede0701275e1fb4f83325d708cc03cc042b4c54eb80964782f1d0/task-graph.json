@@ -1,0 +1,196 @@
+{
+  "edges": [
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P01",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P02",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P03",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P04",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P05",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P06",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P05",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P08",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P09",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P09",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P11",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-BEHAVIOR-ANALYTICS-P12",
+      "to": "SYS-READER-BEHAVIOR-ANALYTICS-P13",
+      "type": "depends_on"
+    }
+  ],
+  "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P01",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P01"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P02",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P02"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P03",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P03"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P04",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P04"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P05",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P06",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P06"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P08",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P08"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P09",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+        "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P11",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+        "SYS-READER-BEHAVIOR-ANALYTICS-P11"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P12",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P12"
+      ],
+      "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+      "id": "SYS-READER-BEHAVIOR-ANALYTICS-P13",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-reader-behavior-analytics",
+  "schema_version": "1.0.0"
+}

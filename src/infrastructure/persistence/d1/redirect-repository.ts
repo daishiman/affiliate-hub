@@ -11,7 +11,7 @@ import {
   countTrackingCoverage,
 } from "@/application/read-models/article-tracking";
 import type { PublishedArticle } from "@/application/read-models/published-article";
-import { buildTelemetryEvent } from "@/domain/analytics";
+import { buildTelemetryEvent } from "@/domain/analytics/telemetry-events";
 import { type RedirectResolution, isSafeDestination } from "@/domain/monetization";
 import { asAffiliateLinkId, asWorkspaceId, ok } from "@/domain/shared";
 import {

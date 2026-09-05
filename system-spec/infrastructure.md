@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-r2-upload-actual-capability。裏付け質疑 (`qa_refs`): `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-r2-upload-actual-capability。裏付け質疑 (`qa_refs`): `qa-infra-web-custom-hostname`, `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
@@ -70,6 +70,12 @@ serves_goals: [G1, G2, G3]
 **実能力に合わせた確定。**(1) ブラウザから署名付き URL で直接 PUT する。画像本体を Worker に通さないのは、Worker のリクエストボディ上限が『貼れる画像の大きさ』の天井になるのを避けるためである。(2) 鍵は `workspace_id/記事id/一意なid.拡張子` に固定し、鍵の先頭が workspace であることでテナント越えが鍵の並びの上で生じないようにする。(3) 配信は R2 のカスタムドメイン経由とし、バケットの公開 URL を記事本文へ埋めない。配信元を差し替えても本文の書き換えが要らない。(4) **バケットに CORS ポリシーが要る。**`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間。設定しない限りブラウザからの直接 PUT は preflight で落ちる。前回の確定にはこれが抜けていた。(5) 単一 PUT の上限は 5 GiB。超える画像は multipart へ切り替えるか上限として拒否するかを実装時に決め、暗黙に失敗させない。
 
 **削除は持たない。**記事から外した画像の刈り取りは maintenance-ops の掃除ジョブへ渡す。infrastructure は保管と配信の側だけを持つ。
+
+### qa-infra-web-custom-hostname (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: infrastructure×web: ブログごとの独自ドメインを、どの仕組みで受け、どう配信へ結びつけるか
+
+**回答**: Cloudflare for SaaS のカスタムホスト名を使う。利用者が外部で取得したドメインを管理画面から登録し、こちらは所有権確認用の CNAME (または TXT) を指示する。利用者がそのレコードを自分の DNS へ置くと、Cloudflare が検証して証明書を発行する。証明書の発行・更新・失効はすべて Cloudflare 側に任せ、自前で ACME を回さない。Worker 側は受け取った Host ヘッダからカスタムホスト名を引き、site_custom_domains で active な行があればその site_slug のブログとして描画する。無ければ従来どおり /s/<slug> の経路で扱う。既定の住所 (SITE_BASE_DOMAIN からの導出) は残し、カスタムドメインが未接続・検証中・失効中でもブログが読者から消えないようにする。カスタムドメインが active な間は、既定の住所から正規 URL (canonical) をカスタムドメイン側へ向け、検索エンジンから見て同じ内容が 2 つの住所に存在する状態を避ける。ドメインの取得 (購入) 自体は範囲に含めず、外部のレジストラで済ませた前提で接続だけを扱う
 
 ### qa-infrastructure-web-wildcard-subdomain (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -266,6 +272,20 @@ serves_goals: [G1, G2, G3]
   - 章固有の根拠: 『1 回きりの署名』を前提に設計すると、実際には再利用できる URL を配ることになり、想定した防御が最初から存在しない。公式の記述に合わせて要件を書き直せば、防御の位置が実物と一致する
   - トレードオフ:
     - 署名で大きさを縛れないぶん、検査を受領後へ回す必要がある。防御の点が 1 つ増える
+##### 接地根拠 qa-infra-web-custom-hostname (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-infra-web-custom-hostname` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 自分で持たなくてよい運用責務は、それを本業にしている側へ預ける (`site-reliability-engineering.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 証明書の自動更新は、失敗すると全読者にブラウザの警告が出る種類の運用である。ACME を自前で回せば更新の失敗も自分の当番になる。Cloudflare for SaaS に預ければ、こちらの責務は『状態を読んで管理画面に出す』だけに縮む
+  - トレードオフ:
+    - Cloudflare への依存が深まり、他の配信基盤へ移す際にこの部分を作り直すことになる。自前 ACME なら移設は容易だが、更新失敗の当番を負う
+- 原則: 新しい経路の失敗が、既存の経路まで巻き込まないようにする (`site-reliability-engineering.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: カスタムドメインの検証は利用者の DNS 操作待ちで、いつ終わるか分からない。接続の途中でブログが読者から消えると、ドメインを足した結果として悪化する。既定の住所を常に生かしておけば、カスタムドメイン側の失敗は『まだ新しい住所で見られない』だけに留まる
+  - トレードオフ:
+    - 同じ内容が 2 つの住所で見られる期間が生じる。canonical を向けて検索エンジンには 1 つに見せるが、直接アクセスは両方で通る
 ##### 接地根拠 qa-infrastructure-web-wildcard-subdomain (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-infrastructure-web-wildcard-subdomain` を参照
@@ -379,6 +399,8 @@ serves_goals: [G1, G2, G3]
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
 | cloudflare-workers | 2026-04-23 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/workers/ | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |
+| cloudflare-for-saas | 2026-04-29 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
+| cloudflare-r2-overview | 2026-08-07 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
 | cloudflare-r2 | 2026-08-22 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/api/s3/presigned-urls/ | 2026-09-05T00:57:28Z | 2026-09-05T00:57:28Z |
 
 ## 上流指針 (doctrine anchors)
@@ -661,7 +683,8 @@ infrastructure×web: リダイレクトサービスの可用性要件は何か (
 
 ## compile が保てなかった行 (要判断)
 
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 2 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 3 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
 
 - `| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-r2-upload-actual-capability。裏付け質疑 (`qa_refs`): `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記。資するゴール: G1, G2, G3 |`
 - `> 本章の各確定セルが何を根拠に確定したかの実体。`qa_ref` が主たる接地根拠、`qa_refs` がそれを支える裏付け質疑であり、いずれも qa_log (spec-state.json) の逐語である。ここに現れない主張は本章の確定内容ではない。`
+- `| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-r2-upload-actual-capability。裏付け質疑 (`qa_refs`): `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

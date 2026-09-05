@@ -8,29 +8,13 @@ import type { EventPublisherPort, IdGeneratorPort } from "@/application/ports/co
 import type { AuditLogPort, PolicyRuleRepositoryPort } from "@/application/ports/compliance";
 import type { PublicationRepositoryPort } from "@/application/ports/distribution";
 import type { EditorialPublishedArticleWriterPort } from "@/application/ports/site";
-import {
-  CONTENT_STATES,
-  type ContentPackage,
-  type ContentState,
-  type ContentVariant,
-  type ContentVariantStatus,
-  type QualityReport,
-  HUMAN_APPROVAL_REQUIRED,
-  allowedNextStates,
-  approveVariant,
-  isUnpublishing,
-  runQualityChecks,
-  transition,
-} from "@/domain/authoring";
-import {
-  type AuditAction,
-  type AuditLogEntry,
-  type PolicyCheckResult,
-  checkPolicies,
-  createAuditLogEntry,
-  isPolicyChannelScope,
-} from "@/domain/compliance";
-import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution";
+import { CONTENT_STATES, HUMAN_APPROVAL_REQUIRED, allowedNextStates, isUnpublishing, transition, type ContentState } from "@/domain/authoring/content-state";
+import type { ContentPackage } from "@/domain/authoring/content-package";
+import { approveVariant, type ContentVariant, type ContentVariantStatus } from "@/domain/authoring/content-variant";
+import { runQualityChecks, type QualityReport } from "@/domain/authoring/quality-check";
+import { createAuditLogEntry, type AuditAction, type AuditLogEntry } from "@/domain/compliance/audit-log";
+import { checkPolicies, isPolicyChannelScope, type PolicyCheckResult } from "@/domain/compliance/policy-rule";
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution/channel";
 import { can, requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

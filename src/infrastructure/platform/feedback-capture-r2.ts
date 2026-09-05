@@ -1,9 +1,5 @@
 import type { FeedbackCaptureStoragePort } from "@/application/ports/feedback";
-import {
-  ALLOWED_CAPTURE_MIME,
-  assertCaptureIsStorable,
-  isCaptureExpired,
-} from "@/domain/feedback";
+import { ALLOWED_CAPTURE_MIME, assertCaptureIsStorable, isCaptureExpired } from "@/domain/feedback/capture-policy";
 import { domainError, err, ok } from "@/domain/shared";
 import type { FeedbackCaptureId, WorkspaceId } from "@/domain/shared";
 

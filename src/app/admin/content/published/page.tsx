@@ -2,7 +2,7 @@ import Form from "next/form";
 import Link from "next/link";
 import type { AiSearchReauditRun } from "@/application/ports/seo";
 import { articleHref } from "@/application/read-models/published-article";
-import { siteBasePathBySlug } from "@/domain/authoring";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { currentActor, publishedArticleAdminUseCases } from "@/presentation/composition";
 import { DataTable, DescriptionTime, EmptyView, ErrorView, Section } from "@/presentation/ui";

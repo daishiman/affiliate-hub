@@ -1,0 +1,289 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-seo-assessment-reflection",
+  "scope_digest": "sha256:95466416895b2d0d6d37c8e093f4e4eb7b8e3f019d08f4e5778822fdcf4235c1",
+  "trace_plan_digest": "sha256:166e0a752bfd8cdf80b68eff3d1270c6dc86aeeed317d1c70afcf1f1e30f2f27",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)",
+  "derivation_rule": "base=[P01,P04,P05,P06,P07,P11]。受入条件本文の語で加算する: テーブル/列/制約/契約/モデル→P02、移行/重複解消/既存→P08、冪等/失敗/性能/権限/audit/削除/期限→P09、手順/説明/文言/画面に出る→P12、配信/公開面/リリース→P13。加算後に昇順で一意化する。",
+  "verdict": "PASS",
+  "entry_count": 10,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9",
+    "A10"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "公開・更新のたびに当該記事の診断が生成される",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[0]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "月次で全公開記事の診断が更新される",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[1]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "構造化データの妥当性検証が純関数で、外部通信なしにテストできる",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[2]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "不正な構造化データが指摘として立ち、妥当なものは立たない",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[3]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "採用した推奨が下書きにだけ書かれ、公開面が承認なしに変わらない",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[4]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "採用後も既存の承認経路を通らずには公開されない",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[5]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P08|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "sitemap.xml と RSS/Atom が公開記事を漏れなく列挙する",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[6]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "ブログごとにクローラを拒否でき、拒否したブログが robots.txt に反映される",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[7]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A8",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A9",
+      "requirement": "検証できない指摘 (順位予測など) が受入条件にも画面にも現れない",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[8]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A9",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A10",
+      "requirement": "指針の出典が 90 日見直しの対象として登録されている",
+      "confirmed_sources": [
+        "feature:feat-seo-assessment-reflection#acceptance[9]",
+        "context:feat-seo-assessment-reflection",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A10",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    }
+  ]
+}

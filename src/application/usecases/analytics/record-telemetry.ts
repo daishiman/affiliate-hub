@@ -1,14 +1,6 @@
 import type { TelemetrySinkPort } from "@/application/ports/telemetry";
-import {
-  type ConsentDecision,
-  type ConsentSignals,
-  type TelemetryEvent,
-  type TelemetryEventKey,
-  DEFAULT_CONSENT_SIGNALS,
-  buildTelemetryEvent,
-  decideConsent,
-  mayRecord,
-} from "@/domain/analytics";
+import { DEFAULT_CONSENT_SIGNALS, decideConsent, mayRecord, type ConsentDecision, type ConsentSignals } from "@/domain/analytics/consent";
+import { buildTelemetryEvent, type TelemetryEvent, type TelemetryEventKey } from "@/domain/analytics/telemetry-events";
 import { type ActorContext, type DomainError, type Result, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 

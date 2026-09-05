@@ -1,19 +1,6 @@
-import {
-  ARTICLE_TYPE_LABEL,
-  ARTICLE_TYPES,
-  type ArticleType,
-  CONVERSATION_BASE_PATTERN,
-  CONVERSATION_MAX_LENGTH,
-  CONVERSATION_MIN_LENGTH,
-  FACT_LABELS,
-  FACT_TONE_RULES,
-  KNOWLEDGE_LEVEL_GUIDE,
-  MAX_CONSECUTIVE_BLOCKS,
-  OPENING_PATTERNS,
-  PARAGRAPH_ORDER,
-  STYLE_RULES,
-  sectionsFor,
-} from "@/domain/authoring";
+import { ARTICLE_TYPES, ARTICLE_TYPE_LABEL, sectionsFor, type ArticleType } from "@/domain/authoring/article-structure";
+import { CONVERSATION_BASE_PATTERN, CONVERSATION_MAX_LENGTH, CONVERSATION_MIN_LENGTH, MAX_CONSECUTIVE_BLOCKS } from "@/domain/authoring/conversation-block";
+import { FACT_LABELS, FACT_TONE_RULES, KNOWLEDGE_LEVEL_GUIDE, OPENING_PATTERNS, PARAGRAPH_ORDER, STYLE_RULES } from "@/domain/authoring/writing-style";
 import { requireCapability } from "@/domain/identity";
 import { err, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";

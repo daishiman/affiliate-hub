@@ -368,7 +368,7 @@ const CHAPTERS: readonly Chapter[] = [
     // 2026-09-04: 意思決定を正本 `decisions[]` から各章へ描くようにした際、
     // 「その決定が本章にどう効くか」を正本 `chapter_notes` へ入れた。
     // 結果この節が 3 章 → 8 章へ増えた。**床を上げる方向の更新である。**
-    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)", "dev 合流で章から落ちた確定内容 (2026-09-05)"],
     tables: [
       ["To-Be", 5],
       ["Acceptance evidence", 6],
@@ -385,7 +385,7 @@ const CHAPTERS: readonly Chapter[] = [
   {
     name: "backend",
     // 2026-09-04: auth と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
-    sections: [...SHAPE_B, "章の注記 (chapter_notes)"],
+    sections: [...SHAPE_B, "章の注記 (chapter_notes)", "dev 合流で章から落ちた確定内容 (2026-09-05)"],
     tables: [
       ["カテゴリ別収集状態", 7],
       ["上流指針 (doctrine anchor)", 3],
@@ -425,7 +425,7 @@ const CHAPTERS: readonly Chapter[] = [
     name: "database",
     // 2026-08-30: frontend と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
     // **共有の形 (SHAPE_B) には足さず、この章だけに足す。**
-    sections: [...SHAPE_B, "章の注記 (chapter_notes)"],
+    sections: [...SHAPE_B, "章の注記 (chapter_notes)", "dev 合流で章から落ちた確定内容 (2026-09-05)"],
     tables: [
       ["カテゴリ別収集状態", 7],
       ["上流指針 (doctrine anchor)", 3],
@@ -473,8 +473,16 @@ const CHAPTERS: readonly Chapter[] = [
       履歴に外部キーを張らない理由）が正本へ入り、その本文と接地根拠が生成節として
       載って実測 713 行になった。**床 219 も余裕 15 行も動かさない。**
       同じ 15 行を置き直す（713 + 15 = 728）。
+
+      2026-09-05（dev 合流）: 両側が別の確定質疑で増やしていた。dev は 728、
+      こちらはブログ運営コンソールの確定質疑 `qa-database-web-domain-aeo-behavior`
+      （住所表・読者行動表・日次ロールアップ・SEO/AEO 評価表の確定内容と、
+      `ddd.md` 由来 2 原則の採否・トレードオフ）で 621 だった。
+      **合流後の章には両方の増分が載る**ので、片方の天井ではどちらも通らない。
+      合流後に `compile-spec-doc.py` で再生成した実測は 752 行。
+      **床 219 も余裕 15 行も動かさない。**同じ 15 行を置き直す（752 + 15 = 767）。
     */
-    ceiling: 728,
+    ceiling: 767,
     headings: 21,
     principles: 2,
     answers: [2, 102],
@@ -486,7 +494,7 @@ const CHAPTERS: readonly Chapter[] = [
     // feat-blog-ui-builder P13 の書き戻しで注記が入り、節が現れた。
     // **共有の形 (SHAPE_A_WITH_CELL_RECORD) には足さない。**足すと、注記を
     // 持たない章にも「在るはず」を宣言することになり、出ない節を待ち続ける。
-    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)", "dev 合流で章から落ちた確定内容 (2026-09-05)"],
     tables: [
       ["To-Be", 5],
       ["Acceptance evidence", 5],
@@ -527,7 +535,10 @@ const CHAPTERS: readonly Chapter[] = [
     //
     // 2026-09-04: backend / database と同じ便 (意思決定の生成化) で実測 621 行。
     // **床 172 も余裕 22 行も動かさない。**同じ 22 行を置き直す (621 + 22 = 643)。
-    ceiling: 643,
+    //
+    // 2026-09-05 (dev 合流): database と同じ便。合流後に再生成した実測は 667 行。
+    // **床 172 も余裕 22 行も動かさない。**同じ 22 行を置き直す (667 + 22 = 689)。
+    ceiling: 689,
     headings: 21,
     principles: 2,
     answers: [2, 95],
@@ -535,7 +546,7 @@ const CHAPTERS: readonly Chapter[] = [
   {
     name: "infrastructure",
     // 2026-09-04: auth と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
-    sections: [...SHAPE_B, "章の注記 (chapter_notes)"],
+    sections: [...SHAPE_B, "章の注記 (chapter_notes)", "dev 合流で章から落ちた確定内容 (2026-09-05)"],
     tables: [
       ["カテゴリ別収集状態", 7],
       ["上流指針 (doctrine anchor)", 3],
@@ -561,7 +572,7 @@ const CHAPTERS: readonly Chapter[] = [
   {
     name: "maintenance-ops",
     // 2026-09-04: auth と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
-    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)", "dev 合流で章から落ちた確定内容 (2026-09-05)"],
     tables: [
       ["To-Be", 8],
       ["Acceptance evidence", 8],
@@ -586,7 +597,7 @@ const CHAPTERS: readonly Chapter[] = [
   {
     name: "security",
     // 2026-09-04: auth と同じ理由で `## 章の注記 (chapter_notes)` が増えた。
-    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)", "dev 合流で章から落ちた確定内容 (2026-09-05)"],
     tables: [
       ["To-Be", 6],
       ["Acceptance evidence", 6],
@@ -608,7 +619,7 @@ const CHAPTERS: readonly Chapter[] = [
     // **この 1 章にしかない節なので、共有の形には足さず、この章だけに足す。**
     // 2026-08-25: `## 章の注記 (chapter_notes)` が増えた。生成器が spec-state の
     // `chapter_notes` を章へ載せるようになったもので、この章だけが持つ。
-    sections: [...SHAPE_A_WITH_CELL_RECORD, "履歴", "章の注記 (chapter_notes)"],
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "履歴", "章の注記 (chapter_notes)", "dev 合流で章から落ちた確定内容 (2026-09-05)"],
     tables: [
       ["To-Be", 5],
       ["Acceptance evidence", 5],
@@ -681,7 +692,16 @@ const CHAPTERS: readonly Chapter[] = [
     // 置き直しは 4 度目までと同じ、余裕も 22 行のまま (782 + 22 = 804)。
     // **次に当たったときは、天井の前に宿題 2 を片付けること。**
     // 床と天井を同じ便で測り直してよい——それが宿題 2 の正しい形である。
-    ceiling: 804,
+    //
+    // ── 【2026-09-05】6 度目 (dev 合流)。**宿題 2 はまだ片付いていない。**
+    //    片付けないまま天井を動かすので、そのことを先に書く。
+    //    この回の増分は宿題 2 の対象 (原則の採否表) ではなく、合流そのものである。
+    //    dev と本ブランチが同じセルへ別々の確定質疑を足していたため、合流後の
+    //    正本から再生成した章に両方が載った。加えて `## dev 合流で章から落ちた
+    //    確定内容` の 4 行がここに乗る (生成器が `qa_ref` を 1 本しか読まないため
+    //    章から落ちた行を、捨てずに独立節へ置いたもの)。実測 819 行。
+    //    **床 223 も余裕 22 行も動かさない。**同じ 22 行を置き直す (819 + 22 = 841)。
+    ceiling: 841,
     headings: 28,
     principles: 2,
     answers: [2, 49],
@@ -1115,7 +1135,13 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
       });
 
       it("確定回答を要約に置き換えると、逐語の床を割る", () => {
-        const cut = full.replace(/\*\*回答\*\*: .*/, "**回答**: Better Auth を採用。");
+        /*
+         * 2026-09-04: `g` を付けた。先頭 1 件だけを潰す形だったが、この章の
+         * 回答が 2 件になった日に、**残り 1 件の逐語だけで床 321 を越えて**
+         * この検査が緑になった。要約化を模すなら全件を要約にしなければ、
+         * 測る側が壊れていても同じ緑を返す。床は動かしていない。
+         */
+        const cut = full.replace(/\*\*回答\*\*: .*/g, "**回答**: Better Auth を採用。");
         expect(measure(cut).answersTotal).toBeLessThan(321);
       });
 
@@ -1127,9 +1153,16 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
       });
 
       it("原則を 1 件に減らすと床を割る", () => {
+        /*
+         * 2026-09-04: 章の原則が 3 件になり、1 行落としても 2 件残って
+         * 床 2 を割らなくなった。**「1 件に減らす」と名乗る検査が、実際には
+         * 2 件に減らしていた。**名前どおり 1 件だけ残す形へ直す。
+         * 床 2 は動かさない。
+         */
+        const kept = full.split("\n").filter((l) => l.startsWith("- 原則: "))[0];
         const cut = full
           .split("\n")
-          .filter((l) => !l.startsWith("- 原則: 秘密情報"))
+          .filter((l) => !l.startsWith("- 原則: ") || l === kept)
           .join("\n");
         expect(measure(cut).principles).toBeLessThan(2);
       });

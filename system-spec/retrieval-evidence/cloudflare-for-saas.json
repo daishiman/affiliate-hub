@@ -1,0 +1,21 @@
+{
+  "target_id": "cloudflare-for-saas",
+  "source_url": "https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/",
+  "retrieved_at": "2026-09-03T12:55:14Z",
+  "page_title": "Cloudflare for SaaS",
+  "retrieval_method": {
+    "tool": "WebFetch",
+    "note": "本文は WebFetch (HTML→Markdown 変換) で取得した。生 HTML のバイト列を保持していないため content_bytes / content_sha256 / http_status は記録しない。"
+  },
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "2026-04-29",
+    "found_in": [
+      "ページ下部の \"Last updated Apr 29, 2026\""
+    ],
+    "http_last_modified": null,
+    "note": "値の由来は freshness_source と対応する。取得日を last_updated へ代入しない (C13 の取得日代入検査が拒否する)。"
+  },
+  "requirement_note": "顧客が持ち込んだドメインを、提供者の zone 配下の custom hostname として引き受け、証明書発行・暗号化接続・分析を提供者側の設定だけで賄う仕組みであることをページ本文が述べている。",
+  "intake_reason": "C08 ドキュメント鮮度監査 (2026-09-03) が、確定質疑 qa-infra-web-custom-hostname と database の site_custom_domains.provider_hostname_id、backend の connect-custom-domain ユースケースが本技術に依拠しているのに targets[] へ未登録である (鮮度の見張りの外に在る) と指摘したため取得対象へ追加した。"
+}

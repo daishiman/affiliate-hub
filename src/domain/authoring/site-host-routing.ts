@@ -36,22 +36,25 @@ function hasPrefix(pathname: string, prefix: string): boolean {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
-export function decideHostRouting(input: {
-  readonly host: string | null;
-  readonly pathname: string;
-  readonly baseDomain: string | null;
-}): HostRouting {
-  const { host, pathname, baseDomain } = input;
-  if (host === null) return { kind: "pass" };
-  if (ALWAYS_PASS_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
-    return { kind: "pass" };
-  }
+/**
+ * 住所に関係なく素通しする入口か。
+ *
+ * 入口側が**住所表を引く前に**これで落とせるようにしてある。画面の部品は
+ * 要求のたびに何十件も届くので、そこで D1 を引くと往復が跳ね上がる。
+ */
+export function isAlwaysPassPath(pathname: string): boolean {
+  return ALWAYS_PASS_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
 
-  const slug = siteSlugFromHost(host, baseDomain);
-  // 基底ドメインの直下（`example.com` / `www.example.com`）と、
-  // そもそも基底ドメインの下に無いホストは本体の画面。
-  if (slug === null) return { kind: "pass" };
-
+/**
+ * どのブログか決まったあとの、path だけの判断。
+ *
+ * 基底ドメインのサブドメイン（`<URL名>.<基底ドメイン>`）と独自ドメインは、
+ * **ブログを特定するまでの引き方が違うだけで、特定したあとの扱いは同じ**である。
+ * ここを 1 本にしていないと、管理画面をブログの住所から開けない規則が
+ * 片方の経路にだけ効く、という形が作れてしまう。
+ */
+export function routeResolvedSite(slug: string, pathname: string): HostRouting {
   if (OWNER_ONLY_PREFIXES.some((prefix) => hasPrefix(pathname, prefix))) {
     return { kind: "not-found" };
   }
@@ -61,4 +64,23 @@ export function decideHostRouting(input: {
 
   const suffix = pathname === "/" ? "" : pathname;
   return { kind: "rewrite", slug, pathname: `/s/${slug}${suffix}` };
+}
+
+export function decideHostRouting(input: {
+  readonly host: string | null;
+  readonly pathname: string;
+  readonly baseDomain: string | null;
+}): HostRouting {
+  const { host, pathname, baseDomain } = input;
+  if (host === null) return { kind: "pass" };
+  if (isAlwaysPassPath(pathname)) return { kind: "pass" };
+
+  const slug = siteSlugFromHost(host, baseDomain);
+  // 基底ドメインの直下（`example.com` / `www.example.com`）と、
+  // そもそも基底ドメインの下に無いホストは本体の画面。
+  // **独自ドメインもここへ落ちる** — 判断には住所表が要るので、入口が
+  // `routeResolvedSite` を改めて呼ぶ（ここは文字列しか触らない）。
+  if (slug === null) return { kind: "pass" };
+
+  return routeResolvedSite(slug, pathname);
 }

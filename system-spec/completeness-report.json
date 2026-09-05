@@ -1068,6 +1068,25 @@
       "evidence": [
         "system-spec/spec-state.json#matrix.ui-ux.web.qa_refs"
       ]
+    },
+    {
+      "severity": "info",
+      "bucket": "merge_hearing_progress_overrun",
+      "observation": "2026-09-05 の dev 合流で hearing_progress に loop_count=8 > max_loops=5 の組が生じ、set-hearing-policy --overrun で由来を記名したあと chunk で本ブランチ側の方針値へ戻したが、limit_overrun の痕跡そのものは残っていた (recorded_at: null)。C06 はこれを 『是正が writer を一度も通っていない自認』として早期停止軸の検出に計上した。set-hearing-policy --policy strict の再実行で writer 自身が痕跡を外し、解消した。",
+      "suggested_fix": "合流の解決で hearing_progress の loop_count と max_loops を別々の側から採らないこと。この節は writer の産物なので、合流では片側を丸ごと採るか、合流後に chunk を通し直すのが正しい。",
+      "evidence": [
+        "set_hearing_limit_policy は loop_limit_is_violated が偽のとき limit_overrun を pop する",
+        "実行後 hearing_progress 以外の全節が不変であることを差分で確認"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "reference_version_not_readable_from_body",
+      "observation": "github-actions の記録値 free-pro-team@latest は、docs.github.com の本文をマークダウンへ変換すると version selector が落ちるため本文からは読めない。C08 は URL 構造と GitHub Docs の版セレクタ仕様から『記録と矛盾なし』と判定した。記録が誤りである証拠は無いが、他の 20 件のように本文の表明で確かめられてはいない。",
+      "suggested_fix": "この 1 件だけ freshness_source を publisher-registry 相当の由来で名乗らせるか、版が本文に現れる別の公式ページ (例: リリースノート) を source_url に採ることを検討する。",
+      "evidence": [
+        "C08 の層2 再照合で本文から版表記を読めなかった 1 件"
+      ]
     }
   ],
   "gaps": []

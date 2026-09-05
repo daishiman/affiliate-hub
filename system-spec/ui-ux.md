@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-uiux-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-uiux-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
@@ -32,7 +32,7 @@ serves_goals: [G1, G2, G3]
 | 状態 | 確定 |
 | 確定質疑 (qa_ref) | `qa-uiux-web-editor-verbatim` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
-| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-screen-priority`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |
+| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-blog-scoped-admin`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
@@ -68,6 +68,12 @@ serves_goals: [G1, G2, G3]
 「断片欄を維持し、全断片を見た目へ（推奨）」
 
 ※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-uiux-web-blog-scoped-admin (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: ui-ux×web: ブログを運営・分析するうえで必要な情報を、どの画面に何を残し・何を落として並べるか。優先順位は何を根拠に決めるか
+
+**回答**: 順位は『その作業をどれだけ頻繁にするか』と『間違えたときにどれだけ痛いか』の積で決める。ブログ 1 つのダッシュボード (/admin/sites/[site]) の先頭には、収益・PV・成果率の推移と、住所 (ドメイン) が生きているかを置く。ドメインが失効すればブログ全体が読者から見えなくなり、失敗コストが最大で、しかも普段は見に行かないためである。次に『いま伸びている記事・落ちている記事』を置く。ここが日々の判断の入口になる。個々の記事の細部 (滞在・到達深度・ヒートマップ) は記事の画面へ落とし、ダッシュボードには順位と変化だけを出す。全ブログ横断の画面には、ブログ間の比較 (収益・PV・成果率) と、どのブログが手を入れるべきかだけを出し、記事単位の数字は出さない。同じ数字を 2 か所で違う粒度で見せると、どちらが正しいか分からなくなるためである。SEO/AEO の指摘は、記事の画面では『この記事の直し方』として、ブログの画面では『何件残っているか』として出す。分析画面で数字を見せるときは、根拠の件数が少ない場合に発見として表示しない (既存の成功基準『根拠のない発見を表示しない』を踏襲する)。この方針までを要件として確定し、表現物ごとの情報優先度マップの作成は下流の生成工程に委ねる
 
 ### qa-ui-ux-web-creation-completion-feedback (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -617,6 +623,20 @@ AskUserQuestion で「2層を維持し、層をUIで見せる（推奨）」「�
   - トレードオフ:
     - 利用者は節と断片という 2 つの階層概念を学ぶ
     - 節の外へ自由な見出し1 を置けない制約が残る
+##### 接地根拠 qa-uiux-web-blog-scoped-admin (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-uiux-web-blog-scoped-admin` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 情報の順位は、作業の頻度と失敗コストの積で決める (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ドメインの失効は頻度こそ低いが、起きればブログ全体が読者から消える。頻度だけで並べるとページ下部へ沈み、気づくのが遅れる。積で測ると先頭に来る。逆にヒートマップは見る頻度が低く失敗コストも低いので、記事の画面へ落として良い
+  - トレードオフ:
+    - 失敗コストの見積もりは主観が入る。運用してから順位が違うと分かる場合があり、そのときは実際の利用ログで測り直す必要がある
+- 原則: 同じ指標を複数の画面で違う粒度で見せない (`information-design.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: ブログ横断の画面とブログ個別の画面で同じ『収益』を違う集計期間や粒度で出すと、数字が食い違って見え、どちらを信じるか判断できなくなる。横断は比較だけ、個別は内訳だけ、と役割を分ける
+  - トレードオフ:
+    - 横断画面から記事の数字を見るには 1 階層降りる必要がある。全部を 1 画面に出せば往復は減るが、粒度の混在という代償が戻る
 ##### 接地根拠 qa-ui-ux-web-creation-completion-feedback (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-ui-ux-web-creation-completion-feedback` を参照
@@ -1267,7 +1287,7 @@ ui-ux×web: SEO と AI 検索 (AI Overviews / AI Mode / ChatGPT search / Perplex
 
 ## compile が保てなかった行 (要判断)
 
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 31 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 33 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
 
 - `| Web (web) | 確定 | 確定質疑: qa-uiux-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記。資するゴール: G1, G2, G3 |`
 - `> 本章の各確定セルが何を根拠に確定したかの実体。`qa_ref` が主たる接地根拠、`qa_refs` がそれを支える裏付け質疑であり、いずれも qa_log (spec-state.json) の逐語である。ここに現れない主張は本章の確定内容ではない。`
@@ -1300,3 +1320,5 @@ ui-ux×web: SEO と AI 検索 (AI Overviews / AI Mode / ChatGPT search / Perplex
 - `- 成果は「見た目の評価」ではなく outcome で測る: 目的達成までの操作数・初見での到達率・誤操作率・問い合わせ件数。装飾の量では測らない。`
 - `- 設計解釈の記録経路: `unrecorded``
 - `- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない`
+- `| Web (web) | 確定 | 確定質疑: qa-uiux-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-screen-priority`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |`

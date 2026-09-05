@@ -58,6 +58,9 @@ const EXCLUDED_DIRS: Readonly<Record<string, string>> = {
     "共通部品の定義そのもの。ここの並びは『写し』ではなく『定義』で、" +
     "数えると共通化するほど赤くなる逆向きの検査になる",
   "src/presentation/telemetry": "計測の配線 1 件のみ。画面を組み立てていない",
+  "src/presentation/reader":
+    "読者側の観測を仕掛ける配線 1 件のみ（`behavior-probe.tsx`）。" +
+    "何も描かず、読者に見えるものを 1 つも持たないので、写しの母集団に入れる意味がない",
 };
 
 /** 並びの長さ。3 未満だと偶然の一致が増え、4 以上だと写した塊を見逃す。 */

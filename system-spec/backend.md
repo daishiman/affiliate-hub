@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
@@ -32,7 +32,7 @@ serves_goals: [G1, G2, G3]
 | 状態 | 確定 |
 | 確定質疑 (qa_ref) | `qa-backend-web-prose-verbatim` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
-| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
+| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-domain-aeo-behavior`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
@@ -68,6 +68,12 @@ serves_goals: [G1, G2, G3]
 「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
 
 ※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-backend-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: backend×web: カスタムドメインの接続・検証・証明書、読者行動の受け口、日次ロールアップ、SEO/AEO の評価と記事への反映は、どの処理単位でどう並べるか
+
+**回答**: 4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない
 
 ### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -435,6 +441,20 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
   - トレードオフ:
     - 拡張 Markdown 文字列のまま広げるため、断片が増えるたびに記法の衝突を検査する必要がある
     - 保存形の決定 (dec-article-body-storage-format) は利用者未確認のまま推奨に留まる
+##### 接地根拠 qa-backend-web-domain-aeo-behavior (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-backend-web-domain-aeo-behavior` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 依存は内側へ向け、外部サービスはポートの向こうに置く (`clean-architecture.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 証明書の発行や DNS の検証は Cloudflare 側の都合で状態が変わる。これをユースケースの中へ直接書くと、provider の応答形式が変わるたびに業務手順が壊れる。状態を問う口をポートにし、こちらは status の遷移だけを持つ
+  - トレードオフ:
+    - provider 固有の詳細な失敗理由が抽象化で落ちる。failure_reason を素通しする列を 1 つ持って補うが、それでも provider の管理画面を見ないと分からない場面は残る
+- 原則: 再実行しても同じ結果になる形で書く (`continuous-delivery.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 日次ロールアップは失敗して途中で止まりうる。差分を足し込む形にすると、再実行のたびに二重計上して数字が膨らむ。対象日を丸ごと置き換えれば、何度流しても同じ数字に落ち着く
+  - トレードオフ:
+    - 1 日ぶんを毎回作り直すので、差分更新より計算量が多い。日次かつサイト単位の粒度では許容範囲だが、時間単位まで細かくするなら見直しが要る
 ##### 接地根拠 qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-backend-web-seo-audit-writeback-p13-v3` を参照
@@ -904,8 +924,10 @@ backend×web: AEO/SEO の充足度を解析し、その結果をブログと記�
 
 ## compile が保てなかった行 (要判断)
 
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 3 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 5 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
 
 - `| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記。資するゴール: G1, G2, G3 |`
 - `| `dec-article-body-storage-format` | 断片カタログを 19 種へ広げた記事本文を、どの形で保存するか (拡張 Markdown 文字列のままか、構造化 JSON ツリーへ移すか) | `opt-extended-markdown-string (AI推奨・確認待ち)` | recommended_pending_confirmation | G1, G3 |`
 - `> 本章の各確定セルが何を根拠に確定したかの実体。`qa_ref` が主たる接地根拠、`qa_refs` がそれを支える裏付け質疑であり、いずれも qa_log (spec-state.json) の逐語である。ここに現れない主張は本章の確定内容ではない。`
+- `| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |`

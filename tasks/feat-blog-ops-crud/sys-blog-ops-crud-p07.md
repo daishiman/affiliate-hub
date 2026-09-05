@@ -1,50 +1,50 @@
 ---
+graph_node_id: "SYS-BLOG-OPS-CRUD-P07"
 artifact_kind: "task"
 artifact_subtypes: []
-beads_linkage: null
-classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md","confidence":1.0}]
-classification_confidence: 1.0
-classification_reason: "feat-blog-ops-crud の P07 lifecycle 責務への確定写像"
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr_merged_all","reconciled_at":null,"source":null,"status":"in_progress"}
-confirmation_evidence: {"evaluated_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json"}
-confirmation_status: "confirmed"
-created_at: "2026-08-25T14:00:26Z"
-depends_on: ["SYS-BLOG-OPS-CRUD-P06"]
-domain: "quality"
-evaluation_status: "pass"
-execution_contexts: []
-feature_package_id: "feature-package/feat-blog-ops-crud"
-file_path: "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md"
-github_project_linkages: []
-github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
-graph_node_id: "SYS-BLOG-OPS-CRUD-P07"
-implementation_readiness: {"checked_at":"2026-08-25T13:19:00Z","missing_sections":[],"status":"complete"}
-issue_linkage: null
-iteration: null
-owners: ["daishiman"]
-parent_feature: "feat-blog-ops-crud"
-phase_ref: "P07"
-priority: null
 project_id: "feature-package-feat-blog-ops-crud"
-pull_request_linkages: []
+domain: "quality"
+tags: ["p07","feat-blog-ops-crud"]
+priority: null
+start_date: null
+target_date: null
+iteration: null
+title: "受入14件 (A1-A14) の受入検証"
+owners: ["daishiman"]
+created_at: "2026-08-25T14:00:26Z"
+updated_at: "2026-09-04T03:08:00.019682Z"
+status: "active"
+depends_on: ["SYS-BLOG-OPS-CRUD-P06"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/acceptance-report.md"]
-source_lineage: {"imported_at":"2026-08-25T14:00:26Z","origin_kind":"system-dev-planner","source_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","source_path":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-07-acceptance.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
-start_date: null
-status: "active"
-tags: ["p07","feat-blog-ops-crud"]
-target_date: null
-template_id: "task"
-template_version: "1.1.0"
-title: "受入14件 (A1-A14) の受入検証"
-tracker_binding: "beads"
-updated_at: "2026-08-25T14:00:26Z"
 purpose: "feat-blog-ops-crud の受入14件 (A1-A14) それぞれについて、検証手順・実行結果・証跡パスがacceptance-report.mdに一意対応表として存在し、全件PASSである状態を成立させる。"
 goal: "feat-blog-ops-crud の受入14件 (A1-A14) それぞれについて、検証手順・実行結果・証跡パスがacceptance-report.mdに一意対応表として存在し、全件PASSである状態を成立させる。"
 scope_in: ["Produced artifacts: docs/spec/feat-blog-ops-crud/acceptance-report.md (受入14件の検証手順・実行結果・証跡パスの一意対応表)","Consumed artifacts: docs/spec/feat-blog-ops-crud/test-run-report.md, features/feat-blog-ops-crud.md, src/","Write scope/touches: docs/spec/feat-blog-ops-crud/acceptance-report.md"]
 scope_out: ["feat-blog-ops-crud の scope_out に該当する変更","受入条件文そのものの変更 (features/feat-blog-ops-crud.mdはread-only)"]
 acceptance: ["Automated commands: `pnpm test` (受入検証に対応する既存テストの再実行で回帰0件を確認する)","Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ops-crud` (本 package の C12 決定論検証を世代非依存に再実行する)","Required evidence: docs/spec/feat-blog-ops-crud/acceptance-report.md のパス"]
 architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
+parent_feature: "feat-blog-ops-crud"
+feature_package_id: "feature-package/feat-blog-ops-crud"
+phase_ref: "P07"
+file_path: "tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md"
+template_id: "task"
+template_version: "1.1.0"
+confirmation_status: "confirmed"
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/plan-findings.json"}
+source_lineage: {"imported_at":"2026-08-25T14:00:26Z","origin_kind":"system-dev-planner","source_digest":"aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635","source_path":".dev-graph/published/generations/feature-package-feat-blog-ops-crud/aa09bccf2924ffc24a1126c1fdf25935bb41f4bdd1f869d2934519d2fcdff635/task-specs/phase-07-acceptance.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
+classification_confidence: 1.0
+classification_reason: "feat-blog-ops-crud の P07 lifecycle 責務への確定写像"
+classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-blog-ops-crud/sys-blog-ops-crud-p07.md","confidence":1.0}]
+issue_linkage: null
+tracker_binding: "beads"
+beads_linkage: {"bd_issue_id":"ah-85cn.7","github_mirror":null,"linked_at":"2026-08-25T14:30:00Z","sync_state":"linked"}
+github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
+github_project_linkages: []
+pull_request_linkages: []
+execution_contexts: []
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr_merged_all","reconciled_at":null,"source":null,"status":"in_progress"}
+implementation_readiness: {"checked_at":"2026-08-25T13:19:00Z","missing_sections":[],"status":"complete"}
 ---
 
 # System task overlay: 受入14件 (A1-A14) の受入検証

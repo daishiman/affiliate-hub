@@ -3,7 +3,7 @@ import { can } from "@/domain/identity/permissions";
 import { readFeedbackCapture } from "@/infrastructure/platform/feedback-capture-r2";
 import { tryGetBucket } from "@/infrastructure/platform/bucket-connection";
 import { canReadFeedbackCapture, signedInActor } from "@/presentation/composition";
-import { ALLOWED_CAPTURE_MIME } from "@/domain/feedback";
+import { ALLOWED_CAPTURE_MIME } from "@/domain/feedback/capture-policy";
 
 export const dynamic = "force-dynamic";
 

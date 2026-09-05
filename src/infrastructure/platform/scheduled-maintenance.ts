@@ -2,6 +2,8 @@ import { runScheduledAiSearchReaudit } from "./ai-search-reaudit-scheduler";
 import { runScheduledDistribution, runPublicationDeliveryAuditFlush } from "./distribution-scheduler";
 import { type CaptureBucket, sweepExpiredCaptures } from "./feedback-capture-r2";
 import { runFeedbackDiagnosticsPurge } from "./feedback-diagnostics-purge";
+import { runReaderMetricsRollup } from "./reader-metrics-scheduler";
+import { runScheduledSeoAssessment } from "./seo-assessment-scheduler";
 
 type ScheduledMaintenanceEnv = Readonly<Record<string, unknown>> & {
   readonly BUCKET?: CaptureBucket;
@@ -113,10 +115,49 @@ async function runAiSearchReauditJob(env: ScheduledMaintenanceEnv, now: Date): P
   }
 }
 
+/** 読者の生の記録を日次へたたみ、期限切れの生記録を捨てる。 */
+async function runReaderMetricsRollupJob(env: ScheduledMaintenanceEnv, now: Date): Promise<void> {
+  if (env.DB === undefined) {
+    console.warn("[reader-metrics] 保存先がつながっていないので、集計を行いませんでした");
+    return;
+  }
+  try {
+    const result = await runReaderMetricsRollup(env.DB, now);
+    console.log(
+      `[reader-metrics] 日次集計を ${result.rolled} 件やり直し、` +
+        `生の記録を ${result.purged} 件消しました` +
+        (result.failed === 0 ? "" : `（失敗 ${result.failed} 件は次の回で拾い直します）`) +
+        (result.truncated ? "（上限に達したため、続きは次の回で集計します）" : ""),
+    );
+  } catch (error) {
+    console.error("[reader-metrics] 日次集計に失敗しました", error);
+  }
+}
+
+/** SEO の月次再診断。日次 cron の中で今月分の未完了だけを拾う。 */
+async function runSeoAssessmentJob(env: ScheduledMaintenanceEnv, now: Date): Promise<void> {
+  if (env.DB === undefined) {
+    console.warn("[seo-assessment] 保存先がつながっていないので、月次再診断を行いませんでした");
+    return;
+  }
+  try {
+    const result = await runScheduledSeoAssessment(env.DB, now);
+    console.log("[seo-assessment] 月次再診断を処理しました", {
+      scanned: result.scanned,
+      completed: result.completed,
+      failed: result.failed,
+      truncated: result.truncated,
+    });
+  } catch {
+    // 対象や DB 応答は出さない。未完了分は次の cron が拾い直す。
+    console.error("[seo-assessment] 月次再診断に失敗しました");
+  }
+}
+
 /**
  * Worker の scheduled handler が呼ぶ、定期メンテナンスの配線。
  *
- * 5 つは因果のない仕事なので、独立した Promise として登録する。
+ * 7 つは因果のない仕事なので、独立した Promise として登録する。
  * それぞれが自分の失敗を記録して完了し、別の仕事とCloudflare retryへ波及させない。
  */
 export function scheduleMaintenanceJobs(
@@ -129,4 +170,6 @@ export function scheduleMaintenanceJobs(
   ctx.waitUntil(runDistributionJob(env, now));
   ctx.waitUntil(runDiagnosticsRetentionJob(env, now));
   ctx.waitUntil(runAiSearchReauditJob(env, now));
+  ctx.waitUntil(runReaderMetricsRollupJob(env, now));
+  ctx.waitUntil(runSeoAssessmentJob(env, now));
 }

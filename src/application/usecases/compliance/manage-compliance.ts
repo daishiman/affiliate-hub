@@ -1,18 +1,8 @@
 import type { AuditLogPort, DisclosureRepositoryPort, PolicyRuleRepositoryPort } from "@/application/ports/compliance";
 import { type AuditClock, auditWriteFailure, buildAuditEntry } from "@/application/audit";
 import type { Disclosure, PolicyRule } from "@/domain/compliance";
-import {
-  type PolicyChannelScope,
-  type PolicyDomainScope,
-  type PolicySeverity,
-  createDisclosure,
-  createPolicyRule,
-  isEditorialInfluence,
-  isPolicyChannelScope,
-  isPolicyDomainScope,
-  isPolicySeverity,
-  isRelationshipType,
-} from "@/domain/compliance";
+import { createPolicyRule, isPolicyChannelScope, isPolicyDomainScope, isPolicySeverity, type PolicyChannelScope, type PolicyDomainScope, type PolicySeverity } from "@/domain/compliance/policy-rule";
+import { createDisclosure, isEditorialInfluence, isRelationshipType } from "@/domain/compliance/disclosure";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

@@ -540,6 +540,29 @@ const NON_WRITE_EXACT = new Set([
   // 接尾辞で拾うと、その日から書き込みが 1 件黙って読み側へ落ちる。
   "templateOf",
   "themeOf",
+  // 集計の期間を渡して、集計済みの行をそのまま返すだけ
+  // （`BlogAudiencePort.siteDaily` / `articleDaily` / `breakdown` / `engagement`、
+  // `BlogRevenuePort.siteDaily` / `articleRanking`）。
+  //
+  // **どれも動詞で始まらない。**「1 日ぶんの」「内訳」「関わり方」という
+  // 名詞そのもので、`getSiteDaily` にすると「取ってくる」の一語が増えるだけで
+  // 何も分からなくならない。名前を曲げるより、ここへ並べるほうが正直である。
+  "siteDaily",
+  "articleDaily",
+  "breakdown",
+  "engagement",
+  "articleRanking",
+  // 外部（Cloudflare）の今の状態を写し取って返すだけ
+  // （`CustomHostnameProviderPort.snapshot`）。**こちらには何も残さない**
+  // ことをポートの doc が明言している。写しを保存するのは呼び出し側の仕事で、
+  // そちらは `applySnapshot` として別に記録の対象になる。
+  "snapshot",
+  // 集計し直すべき日と組を数え上げて返すだけ（`MetricsRollupPort.pendingDays`）。
+  //
+  // **`pending` を頭の一致へ足さない。**「まだ済んでいない」は状態を表す語で、
+  // `pendingApproval` のように「保留に落とす」手続きも同じ形で書ける。
+  // ここで読み取りなのは日付の一覧を返す 1 件だけなので、名前ごと書く。
+  "pendingDays",
 ]);
 const WRITE_VERBS = [
   "save",
@@ -624,6 +647,45 @@ const WRITE_VERBS = [
   // 足すと将来の読み取り手続きが黙って書き込み扱いになる。
   // 書きなのに `select` と名乗る手続きのほうを `save` へ改名すること。
   "clear",
+  // 住所を登録する（`CustomDomainRepositoryPort.register`）。
+  // 「申し込む」の語感だが、こちら側に行が 1 つ増える。
+  "register",
+  // 外部から写し取った状態をこちらの行へ当てる
+  // （`CustomDomainRepositoryPort.applySnapshot`）。
+  //
+  // **`apply` を頭の一致へ足さない。**`applyDiscount` のように
+  // 「当てて結果を返すだけ」の手続きも同じ形で書けるため、
+  // ここは名前ごと書く。写し取る側 (`snapshot`) は読みで、
+  // **当てる側だけが書き込み**という境界がこの 2 件の要点である。
+  "applySnapshot",
+  // 外部へ登録を申し込む（`CustomHostnameProviderPort.request`）。
+  //
+  // **こちらの表は変わらないが、向こう側に状態が生まれる。**
+  // 「自分の DB を書いていないから読み」と判断すると、
+  // 誰がその住所を外部へ申し込んだのかが残らなくなる。
+  "request",
+  // 診断を回して、同じ観点の指摘を置き換える（`SeoAssessmentPort.assess`）。
+  // 「見立てる」の語感で読みに見えるが、置き換えているので書き込み。
+  "assess",
+  // 指摘から下書きを作る（`SeoAssessmentPort.draftFix`）。
+  //
+  // **`draft` を頭の一致へ足さない。**「下書き」は名詞で、
+  // 下書きを *読む* 手続きも同じ頭で書けてしまう。
+  "draftFix",
+  // 「これは直さない」と記録する（`SeoAssessmentPort.dismiss`）。
+  // 消しはしないが、その判断が残って次の診断結果が変わる。
+  "dismiss",
+  // 記事から引用単位を抽出し直し、同じ問いなら置き換える
+  // （`AnswerUnitPort.extract`）。取り出すだけに読めるが、結果を残している。
+  "extract",
+  // 1 日ぶんの観測を畳んで集計表へ置き換える（`MetricsRollupPort.rollupDay`）。
+  //
+  // **足し込みではなく置き換えなので、走るたびに前の値が消える。**
+  // 「元の観測から作り直しているだけ」と読めるが、結果は行として残り、
+  // その行が画面の数字そのものになる。`rollup` を頭の一致へ足さないのは、
+  // `rollupSummary` のように「畳んで返すだけ」の読み取りが同じ形で書けるためで、
+  // ここは `applySnapshot` と同じく名前ごと書く。
+  "rollupDay",
 ];
 const startsWithVerb = (name, verbs) => verbs.some((v) => name.startsWith(v));
 /** 書き込み / 書き込みでない / 判定できない のどれかを返す。 */

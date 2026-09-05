@@ -5,7 +5,7 @@ import type { AdminRouteId } from "./admin-route-metadata";
  *
  * ここでいう card は route 全体を囲う箱ではなく、個体の判断単位を並べる表現分類。
  * 実画面は Card・用途別 Form・FactList のいずれかで単位を分ける。Section は
- * 86 画面すべてに現れて単位を分けないため、ここでは印として数えない。
+ * 全管理画面に現れて単位を分けないため、ここでは印として数えない。
  */
 export const ADMIN_CARD_ROUTE_IDS = [
   "products/[product]",
@@ -38,6 +38,10 @@ export const ADMIN_CARD_ROUTE_IDS = [
   "sites/[site]/documents",
   "sites/[site]/appearance",
   "sites/[site]/placements",
+  // 改善層の 2 画面。判断単位は「1 件の指摘」と「1 つの構え」で、
+  // どちらも用途別 Form が単位を分けている（並べて比べる画面ではない）。
+  "sites/[site]/seo",
+  "sites/[site]/aeo",
   "sites/new",
   "distribution/[publication]",
   "distribution/[publication]/edit",

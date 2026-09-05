@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
@@ -65,6 +65,12 @@ serves_goals: [G1, G2, G3]
 「Cloudflare R2 へ直接アップロード（推奨）」
 
 ※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-database-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: database×web: ブログごとに独自ドメインを接続でき、読者がどこに時間をかけ・どこを押したかを座標まで含めて解析でき、AEO (回答エンジン最適化) の状態を管理でき、ブログ横断で売上と PV を集約できるようにするには、データをどう持つか。既存の『読者向けホスト名は DB に保存せず SITE_BASE_DOMAIN から導出する』という site_blueprints の判断はどう扱うか
+
+**回答**: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
 
 ### qa-database-web-audit-history-window-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -560,6 +566,20 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
   - トレードオフ:
     - 参照状態と実体が二重管理になるため、参照の消滅と実体の消滅がずれる期間が生じる
     - そのずれを掃除する運用 (maintenance-ops) が必要になる
+##### 接地根拠 qa-database-web-domain-aeo-behavior (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-database-web-domain-aeo-behavior` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 集約境界は不変条件の単位で引き、寿命と変更頻度が違うものを同じ集約へ入れない (`ddd.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 読者の座標イベントは 1 閲覧で数百行・保持は短期、ブログの住所は 1 サイト 1 行・寿命はサイトと同じで、不変条件も『同意が無ければ reader_key を持たない』と『同じホスト名を 2 サイトが持たない』で別物である。既存 telemetry_events へ相乗りさせると、保持期間の削除がサイト設定まで巻き込む。よって reader_interaction_events / site_custom_domains を別表に切る
+  - トレードオフ:
+    - 表が増え、読者 1 人の行動をたどるのに 2 表の突合が要る。単一表なら結合は不要だが、削除依頼のたびに設定行まで走査対象になり、保持期間の異なるデータが同じ索引に載る
+- 原則: 導出できる値を行へ焼き込まない (`ddd.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: 既存 site_blueprints が住所を保存しないのは、dev/prod でデータを移すと住所が古くなるためである。この理由はカスタムドメインには当たらない。カスタムドメインは環境から導出できず、利用者が外部で取得した固有の値だからである。よって既定の住所は導出のまま残し、カスタムドメインだけを行として持つ
+  - トレードオフ:
+    - 1 つのサイトが『導出される既定の住所』と『保存されたカスタムドメイン』の 2 つを持ち、どちらを正規 URL とするかの判断が要る。全部を行へ移せば単純になるが、既存判断が避けた dev/prod 移送時の陳腐化が戻る
 ##### 接地根拠 qa-database-web-audit-history-window-p13-v3 (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-database-web-audit-history-window-p13-v3` を参照
@@ -938,38 +958,6 @@ database×web: AEO/SEO 解析結果とガイドライン参照レジストリ、
 
 ## 章にしか無い記述 (正本へ未接続)
 
-> 以下の 2 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### qa-database-web-article-image-reference-state (対応セル: web)`, `##### 確定内容 qa-database-web-article-image-reference-state (対応セル: web)`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
-
-### qa-database-web-article-image-reference-state (対応セル: web)
-
-**質問**: database×web: 記事から外された画像を孤児と判定するために、どの参照状態をどこが持つか。
-
-**回答**: **Editorial に記事画像の参照状態を持つ。**`article_image(workspace_id, article_id, object_key, referenced, last_referenced_at)` に相当する情報を保持し、「どの記事がどの R2 の鍵を参照しているか」を保管領域を走査せずに引けるようにする。孤児判定の根拠はここが唯一の正本で、maintenance-ops の掃除ジョブは自前で数え直さない。走査で数える方式にすると、記事が増えるほど掃除が重くなり、走査中に保存された記事を孤児と誤判定する窓が開く。
-
-**外す操作は削除を伴わない。**記事から画像を外す操作は、参照状態を「参照なし」へ更新して `last_referenced_at` を打つだけにする。猶予期間内に同じ鍵が再び参照されたら「参照あり」へ戻る。物理削除は maintenance-ops の掃除ジョブが猶予を過ぎたものだけに対して行う。下書きの往復や誤操作の取り消しで戻ってきた画像を消さないためである。
-
-**鍵の一意制約は workspace 先頭。**`object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする。
-
-**責務の分け方を明記する理由。**以前はこの参照状態の持ち主が居らず、外した画像の実体が保管領域に残り続けていた。database が「参照されているか」を持ち、maintenance-ops が「掃除を回す」。片方だけでは孤児は消えない。
-
-##### 確定内容 qa-database-web-article-image-reference-state (対応セル: web)
-
-- 確定要件: **Editorial に記事画像の参照状態を持つ。**`article_image(workspace_id, article_id, object_key, referenced, last_referenced_at)` に相当する情報を保持し、「どの記事がどの R2 の鍵を参照しているか」を保管領域を走査せずに引けるようにする。孤児判定の根拠はここが唯一の正本で、maintenance-ops の掃除ジョブは自前で数え直さない。走査で数える方式にすると、記事が増えるほど掃除が重くなり、走査中に保存された記事を孤児と誤判定する窓が開く。
-
-**外す操作は削除を伴わない。**記事から画像を外す操作は、参照状態を「参照なし」へ更新して `last_referenced_at` を打つだけにする。猶予期間内に同じ鍵が再び参照されたら「参照あり」へ戻る。物理削除は maintenance-ops の掃除ジョブが猶予を過ぎたものだけに対して行う。下書きの往復や誤操作の取り消しで戻ってきた画像を消さないためである。
-
-**鍵の一意制約は workspace 先頭。**`object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする。
-
-**責務の分け方を明記する理由。**以前はこの参照状態の持ち主が居らず、外した画像の実体が保管領域に残り続けていた。database が「参照されているか」を持ち、maintenance-ops が「掃除を回す」。片方だけでは孤児は消えない。
-- 設計解釈の記録経路: `dialogue`
-- 原則: 状態を持つ場所を 1 つ決める。数え直しは正本にならない (`ddd.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 孤児かどうかを保管領域の走査で求めると、走査の途中に保存された記事の画像を孤児と誤判定する窓が開く。参照状態を記録として持てば、判定は問い合わせになり、窓が閉じる
-  - トレードオフ:
-    - 記事の保存操作が参照状態の更新を伴うため、保存の処理が 1 段増える。ただし削除そのものは伴わないので、保存の応答時間に外部への削除要求は乗らない
-
-## 章にしか無い記述 (正本へ未接続)
-
 > 以下の 6 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### Web (web)`, `#### 主たる接地根拠: `qa-database-web-article-image-verbatim``, `#### 裏付け質疑: `qa-database-web-audit-history-window-p13-v3``, `#### 裏付け質疑: `qa-database-web-blog-provisioning-integrity``, `#### 裏付け質疑: `qa-database-web-blog-builder``, `### 本章での適用`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
 
 ### Web (web)
@@ -1049,7 +1037,20 @@ database×web: ブログテンプレート・テーマ・固定ページ・ブ�
 
 ## compile が保てなかった行 (要判断)
 
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 2 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 15 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
 
 - `| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記。資するゴール: G1, G2, G3 |`
 - `> 本章の各確定セルが何を根拠に確定したかの実体。`qa_ref` が主たる接地根拠、`qa_refs` がそれを支える裏付け質疑であり、いずれも qa_log (spec-state.json) の逐語である。ここに現れない主張は本章の確定内容ではない。`
+- `| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `> 以下の 2 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### qa-database-web-article-image-reference-state (対応セル: web)`, `##### 確定内容 qa-database-web-article-image-reference-state (対応セル: web)`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。`
+- `### qa-database-web-article-image-reference-state (対応セル: web)`
+- `**質問**: database×web: 記事から外された画像を孤児と判定するために、どの参照状態をどこが持つか。`
+- `**回答**: **Editorial に記事画像の参照状態を持つ。**`article_image(workspace_id, article_id, object_key, referenced, last_referenced_at)` に相当する情報を保持し、「どの記事がどの R2 の鍵を参照しているか」を保管領域を走査せずに引けるようにする。孤児判定の根拠はここが唯一の正本で、maintenance-ops の掃除ジョブは自前で数え直さない。走査で数える方式にすると、記事が増えるほど掃除が重くなり、走査中に保存された記事を孤児と誤判定する窓が開く。`
+- `**外す操作は削除を伴わない。**記事から画像を外す操作は、参照状態を「参照なし」へ更新して `last_referenced_at` を打つだけにする。猶予期間内に同じ鍵が再び参照されたら「参照あり」へ戻る。物理削除は maintenance-ops の掃除ジョブが猶予を過ぎたものだけに対して行う。下書きの往復や誤操作の取り消しで戻ってきた画像を消さないためである。`
+- `**鍵の一意制約は workspace 先頭。**`object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする。`
+- `**責務の分け方を明記する理由。**以前はこの参照状態の持ち主が居らず、外した画像の実体が保管領域に残り続けていた。database が「参照されているか」を持ち、maintenance-ops が「掃除を回す」。片方だけでは孤児は消えない。`
+- `##### 確定内容 qa-database-web-article-image-reference-state (対応セル: web)`
+- `- 確定要件: **Editorial に記事画像の参照状態を持つ。**`article_image(workspace_id, article_id, object_key, referenced, last_referenced_at)` に相当する情報を保持し、「どの記事がどの R2 の鍵を参照しているか」を保管領域を走査せずに引けるようにする。孤児判定の根拠はここが唯一の正本で、maintenance-ops の掃除ジョブは自前で数え直さない。走査で数える方式にすると、記事が増えるほど掃除が重くなり、走査中に保存された記事を孤児と誤判定する窓が開く。`
+- `- 原則: 状態を持つ場所を 1 つ決める。数え直しは正本にならない (`ddd.md#中核概念`)`
+- `  - 章固有の根拠: 孤児かどうかを保管領域の走査で求めると、走査の途中に保存された記事の画像を孤児と誤判定する窓が開く。参照状態を記録として持てば、判定は問い合わせになり、窓が閉じる`
+- `    - 記事の保存操作が参照状態の更新を伴うため、保存の処理が 1 段増える。ただし削除そのものは伴わないので、保存の応答時間に外部への削除要求は乗らない`

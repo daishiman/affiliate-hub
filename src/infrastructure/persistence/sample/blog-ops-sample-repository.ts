@@ -19,7 +19,7 @@ import type {
 } from "@/application/ports/site";
 import type { ArticleRating, BlogArticle, BlogArticleBlock, RatingSummary } from "@/domain/blogops";
 import { summarizeRatings } from "@/domain/blogops";
-import { SITE_DOCUMENT_KEYS } from "@/domain/authoring";
+import { SITE_DOCUMENT_KEYS } from "@/domain/authoring/site-routes";
 import { resolveSampleSiteDocument } from "./content-sample-data";
 import type { WorkspaceId } from "@/domain/shared";
 import { domainError, err, notFound, ok, validationError } from "@/domain/shared";

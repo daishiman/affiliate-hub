@@ -1,5 +1,5 @@
 import { FEEDBACK_TARGET_LABEL } from "@/application/usecases/analytics/read-metrics";
-import { ANALYTICS_AXIS_KEYS, type AnalyticsAxisKey } from "@/domain/analytics";
+import { ANALYTICS_AXIS_KEYS, type AnalyticsAxisKey } from "@/domain/analytics/dimensions";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { analyticsNotice, analyticsUseCases, currentActor } from "@/presentation/composition";
 import {
