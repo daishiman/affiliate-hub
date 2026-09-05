@@ -2,7 +2,7 @@ import type { AeoProfilePort, AnswerUnitPort } from "@/application/ports/blog-im
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import { type AeoGapKind, type AnswerUnit, type SiteAeoProfile, detectGaps } from "@/domain/aeo";
+import { detectGaps, type AeoGapKind, type AnswerUnit, type SiteAeoProfile } from "@/domain/aeo/answer-unit";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

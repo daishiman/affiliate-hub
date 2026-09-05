@@ -7,7 +7,7 @@ import type {
 } from "@/application/ports/site";
 import { countTrackingCoverage } from "@/application/read-models/article-tracking";
 import { tallyBrands } from "@/application/read-models/published-article";
-import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
+import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring/site-routes";
 import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { stubCall } from "../../stub-registry";
 import {

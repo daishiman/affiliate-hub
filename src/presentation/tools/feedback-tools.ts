@@ -9,7 +9,9 @@ import {
   createSubmitFeedbackUseCase,
 } from "@/application/usecases/feedback/submit-feedback";
 import { createUpdateFeedbackStatusUseCase } from "@/application/usecases/feedback/update-feedback-status";
-import { FEEDBACK_DISPOSITIONS, FEEDBACK_KINDS, FEEDBACK_STATUSES } from "@/domain/feedback";
+import { FEEDBACK_DISPOSITIONS } from "@/domain/feedback/disposition";
+import { FEEDBACK_KINDS } from "@/domain/feedback/report";
+import { FEEDBACK_STATUSES } from "@/domain/feedback/status";
 import { domainError, err, ok } from "@/domain/shared";
 import { defineTool, parseWith, toJsonSchema } from "./define-tool";
 import type { AnyToolDefinition, ToolDefinition } from "./tool-definition";

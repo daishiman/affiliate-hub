@@ -1,20 +1,6 @@
 import type { ReaderInteractionIntakePort } from "@/application/ports/blog-observability";
-import {
-  type ConsentSignals,
-  INTERACTION_KINDS,
-  type InteractionKind,
-  MAX_DWELL_SECONDS,
-  MAX_ELEMENT_KEY_LENGTH,
-  MAX_EVENT_BACKDATE_DAYS,
-  MAX_EVENT_ID_LENGTH,
-  MAX_SESSION_KEY_LENGTH,
-  READER_SEGMENTS,
-  type ReaderSegment,
-  type ReaderInteractionWireEvent,
-  VIEWPORT_BANDS,
-  type ViewportBand,
-  decideConsent,
-} from "@/domain/analytics";
+import { decideConsent, type ConsentSignals } from "@/domain/analytics/consent";
+import { INTERACTION_KINDS, MAX_DWELL_SECONDS, MAX_ELEMENT_KEY_LENGTH, MAX_EVENT_BACKDATE_DAYS, MAX_EVENT_ID_LENGTH, MAX_SESSION_KEY_LENGTH, READER_SEGMENTS, VIEWPORT_BANDS, type InteractionKind, type ReaderInteractionWireEvent, type ReaderSegment, type ViewportBand } from "@/domain/analytics/reader-interaction";
 import { type ActorContext, type DomainError, type Result, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 

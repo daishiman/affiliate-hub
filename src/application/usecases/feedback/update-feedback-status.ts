@@ -2,16 +2,9 @@ import type { FeedbackRepositoryPort } from "@/application/ports/feedback";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import {
-  type FeedbackDisposition,
-  type FeedbackStatus,
-  FEEDBACK_DISPOSITION_LABELS,
-  FEEDBACK_STATUS_LABELS,
-  appendHistory,
-  assertStatusChange,
-  decideDisposition,
-  undoDisposition,
-} from "@/domain/feedback";
+import { FEEDBACK_DISPOSITION_LABELS, decideDisposition, undoDisposition, type FeedbackDisposition } from "@/domain/feedback/disposition";
+import { FEEDBACK_STATUS_LABELS, assertStatusChange, type FeedbackStatus } from "@/domain/feedback/status";
+import { appendHistory } from "@/domain/feedback/report";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

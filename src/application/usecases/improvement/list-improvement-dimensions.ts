@@ -1,19 +1,8 @@
 import type { ImprovementRepositoryPort } from "@/application/ports/improvement";
-import {
-  type LoopKind,
-  type OptimizationDimension,
-  type OptimizationGroup,
-  LOOP_DECISION_BASIS_LABELS,
-  LOOP_KINDS,
-  LOOP_POLARITY_LABELS,
-  MAX_SIMULTANEOUS_DIMENSIONS,
-  NON_OPTIMIZABLE,
-  OPTIMIZATION_DIMENSIONS,
-  OPTIMIZATION_GROUPS,
-  OPTIMIZATION_GROUP_LABELS,
-  explainVariantSpec,
-  metricDefinition,
-} from "@/domain/analytics";
+import { LOOP_DECISION_BASIS_LABELS, LOOP_KINDS, LOOP_POLARITY_LABELS, type LoopKind } from "@/domain/analytics/loop-kinds";
+import { NON_OPTIMIZABLE, OPTIMIZATION_DIMENSIONS, OPTIMIZATION_GROUPS, OPTIMIZATION_GROUP_LABELS, type OptimizationDimension, type OptimizationGroup } from "@/domain/analytics/optimization";
+import { MAX_SIMULTANEOUS_DIMENSIONS, explainVariantSpec } from "@/domain/analytics/variant-spec";
+import { metricDefinition } from "@/domain/analytics/metrics";
 import { requireCapability } from "@/domain/identity";
 import { type ActorContext, type DomainError, type Result, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";

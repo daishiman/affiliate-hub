@@ -1,15 +1,10 @@
 import { and, eq, gte, inArray, lte } from "drizzle-orm";
 import type { MetricsRepositoryPort } from "@/application/ports/analytics";
 import type { TelemetrySinkPort } from "@/application/ports/telemetry";
-import {
-  RETENTION_DAYS,
-  TELEMETRY_EVENTS,
-  TELEMETRY_EVENT_KEYS,
-  type TelemetryEvent,
-  type TelemetryEventKey,
-  deriveMetricSamples,
-  rollupAiUsage,
-} from "@/domain/analytics";
+import { RETENTION_DAYS } from "@/domain/analytics/consent";
+import { TELEMETRY_EVENTS, TELEMETRY_EVENT_KEYS, type TelemetryEvent, type TelemetryEventKey } from "@/domain/analytics/telemetry-events";
+import { deriveMetricSamples } from "@/domain/analytics/metrics-from-telemetry";
+import { rollupAiUsage } from "@/domain/analytics/ai-usage";
 import { type WorkspaceId, domainError, err, ok } from "@/domain/shared";
 import { type TelemetryEventRow, telemetryEvents } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";

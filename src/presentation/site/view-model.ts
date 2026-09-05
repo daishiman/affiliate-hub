@@ -6,14 +6,9 @@ import {
 } from "@/application/read-models/published-article";
 import { expressionBlocksOf } from "@/application/seo/expression-blocks";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
-import {
-  type ArticleType,
-  type SiteRoute,
-  buildPath,
-  footerRoutes,
-  routesFor,
-  siteBasePathBySlug,
-} from "@/domain/authoring";
+import type { ArticleType } from "@/domain/authoring/article-structure";
+import { buildPath, footerRoutes, routesFor, type SiteRoute } from "@/domain/authoring/site-routes";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
 import type {
   ArticleCardView,
   ArticleViewModel,

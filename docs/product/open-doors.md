@@ -11,9 +11,9 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 208 件
+開いている扉: **0 件** / 全 209 件
 
-「誰でも」と宣言してある行: **41 件**
+「誰でも」と宣言してある行: **42 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
 
 - `src/app/page.tsx` — 入口の案内
@@ -49,6 +49,7 @@
 - `src/app/api/telemetry/route.ts` — 読者の画面から届く計測（未ログインの読者が送るので、門は置けない）
 - `src/app/go/[code]/route.ts` — 成果リンクの転送（読者がクリックする先）
 - `src/app/indexnow.txt/route.ts` — IndexNow 鍵ファイル（公開配信が所有権証明の仕組みそのもの。鍵未設定なら 404）
+- `src/app/internal-cron/route.ts` — 定期実行の中身（入口の fetch が 404 で塞ぐので、外からは届かない）
 - `src/app/s/[site]/feed.xml/route.ts` — RSS（新着記事の配信）
 - `src/app/s/[site]/llms.txt/route.ts` — llms.txt（AI 向けサイト要約。設計図の任意項目で出し分け）
 - `src/app/s/[site]/robots.txt/route.ts` — クローラー方針（AI クローラーを明示許可し sitemap の場所を知らせる）
@@ -250,6 +251,7 @@
 | `src/app/api/tools/[tool]/route.ts` | 操作の実行（REST） | 鍵 | 鍵 | — |
 | `src/app/api/tools/route.ts` | 使える操作の一覧（REST） | 鍵 | 鍵 | — |
 | `src/app/indexnow.txt/route.ts` | IndexNow 鍵ファイル（公開配信が所有権証明の仕組みそのもの。鍵未設定なら 404） | 誰でも | 誰でも | — |
+| `src/app/internal-cron/route.ts` | 定期実行の中身（入口の fetch が 404 で塞ぐので、外からは届かない） | 誰でも | 誰でも | — |
 | `src/app/s/[site]/feed.xml/route.ts` | RSS（新着記事の配信） | 誰でも | 誰でも | — |
 | `src/app/s/[site]/llms.txt/route.ts` | llms.txt（AI 向けサイト要約。設計図の任意項目で出し分け） | 誰でも | 誰でも | — |
 | `src/app/s/[site]/robots.txt/route.ts` | クローラー方針（AI クローラーを明示許可し sitemap の場所を知らせる） | 誰でも | 誰でも | — |
@@ -347,4 +349,4 @@
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/material/product-form-action.ts） | ログイン | ログイン | — | つく |
 | `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/publish/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `updateWorkspaceAction()` | 作業場所の名前・契約の区分・時間帯・通貨を直す（src/presentation/admin/maintain/settings-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:c436eee7a08cc09445cf2dfe162f75b2062db253140eb75bac00acd8e620a012 -->
+<!-- 生成物の指紋 sha256:af4545f3221bfe7cf819fe4070f2f6064d8d894cfbe87a4b28a7fb2665266f99 -->

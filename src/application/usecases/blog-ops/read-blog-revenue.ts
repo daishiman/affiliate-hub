@@ -2,7 +2,7 @@ import type {
   ArticleRevenueSummary,
   BlogRevenuePort,
 } from "@/application/ports/blog-observability";
-import { type DailyMetrics, clickThroughRate, validateMetricsRange } from "@/domain/analytics";
+import { clickThroughRate, validateMetricsRange, type DailyMetrics } from "@/domain/analytics/reader-interaction";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

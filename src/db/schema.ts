@@ -9,29 +9,27 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
-import {
-  CHANNEL_CAPABILITIES,
-  PUBLICATION_STATES,
-  type ChannelKind,
-  type PublicationState,
-} from "@/domain/distribution";
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution/channel";
+import { PUBLICATION_STATES, type PublicationState } from "@/domain/distribution/publication";
+import { ARTICLE_TEMPLATES } from "@/domain/blogops/blog-article";
+import { BLOG_TAG_KINDS } from "@/domain/blogops/blog-tag";
 import {
   ARTICLE_BLOCK_KINDS,
-  ARTICLE_TEMPLATES,
-  BLOG_TAG_KINDS,
   DELIVERY_PARTS,
-  FIXED_PAGE_KINDS,
   LAYOUT_REGIONS,
-  NETWORK_ROLES,
-  NETWORK_STATUSES,
   TOP_BANDS,
-} from "@/domain/blogops";
+} from "@/domain/blogops/blueprint-parts";
+import { FIXED_PAGE_KINDS } from "@/domain/blogops/fixed-page";
+import { NETWORK_ROLES, NETWORK_STATUSES } from "@/domain/blogops/site-network";
 import {
   POLICY_CHANNEL_SCOPES,
   POLICY_DOMAIN_SCOPES,
   POLICY_SEVERITIES,
-} from "@/domain/compliance";
-import { CERTIFICATE_STATUSES, CUSTOM_DOMAIN_STATUSES } from "@/domain/domains";
+} from "@/domain/compliance/policy-rule";
+import {
+  CERTIFICATE_STATUSES,
+  CUSTOM_DOMAIN_STATUSES,
+} from "@/domain/domains/custom-domain";
 import {
   INTERACTION_KINDS,
   READER_SEGMENTS,
@@ -45,31 +43,24 @@ import {
   AI_SEARCH_REAUDIT_RUN_STATUSES,
 } from "@/domain/seo/ai-search-reaudit-run";
 import {
-  COMPLIANCE_STATUSES,
   CONTENT_ANGLES,
-  CONTENT_STATES,
-  CONTENT_VARIANT_STATUSES,
   CTA_TYPES,
-  SITE_DOCUMENT_ONLY_STORAGE_KINDS,
-  type ComplianceStatus,
   type ContentAngle,
-  type ContentState,
-  type ContentVariantStatus,
   type CtaType,
-} from "@/domain/authoring";
+} from "@/domain/authoring/content-package";
+import { CONTENT_STATES, type ContentState } from "@/domain/authoring/content-state";
 import {
-  ASP_LABEL,
-  CONVERSION_STATUSES,
-  type AspKind,
-  type ConversionStatus,
-} from "@/domain/monetization";
-import {
-  COMPARISON_VERDICTS,
-  LOOP_RUN_STATUSES,
-  type ComparisonVerdict,
-  type LoopRunStatus,
-  type VariantSetting,
-} from "@/domain/analytics";
+  COMPLIANCE_STATUSES,
+  CONTENT_VARIANT_STATUSES,
+  type ComplianceStatus,
+  type ContentVariantStatus,
+} from "@/domain/authoring/content-variant";
+import { SITE_DOCUMENT_ONLY_STORAGE_KINDS } from "@/domain/authoring/site-routes";
+import { ASP_LABEL, type AspKind } from "@/domain/monetization/affiliate-program";
+import { CONVERSION_STATUSES, type ConversionStatus } from "@/domain/monetization/conversion";
+import { COMPARISON_VERDICTS, type ComparisonVerdict } from "@/domain/analytics/improvement";
+import { LOOP_RUN_STATUSES, type LoopRunStatus } from "@/domain/analytics/loop-run";
+import type { VariantSetting } from "@/domain/analytics/variant-spec";
 
 /**
  * 列に入れてよい値を、**業務側の一覧から取り出す**。
@@ -78,6 +69,15 @@ import {
  * 業務側だけが増えて保存先が古いまま残る。しかも壊れ方が
  * 「保存のときだけ失敗する」なので、画面では最後まで気づけない。
  * 写しではなく同じものを指すことで、ずれる余地を無くしている。
+ *
+ * **ただし、指す先はバレル (`@/domain/<領域>`) ではなく具体の module にする。**
+ * バレルは `export * from "./…"` を並べたもので、束ねる側から見ると
+ * 「副作用があるかもしれない module の束」なので、定数を 1 つしか使わなくても
+ * 領域一式が Worker へ入る。2026-09-05 の実測で、`@/domain/blogops` が 12 ファイル
+ * 68 KiB、`@/domain/monetization` が 8 ファイル 55 KiB を引いていた。
+ *
+ * この表は cron の入口と画面側の束の**両方**に入るので、ここで削った分は
+ * Worker の中で 2 回効く。定数を足すときも、バレルへ戻さず定義元を直に指すこと。
  */
 const CHANNEL_KIND_VALUES = Object.keys(CHANNEL_CAPABILITIES) as [ChannelKind, ...ChannelKind[]];
 const PUBLICATION_STATE_VALUES = [...PUBLICATION_STATES] as [

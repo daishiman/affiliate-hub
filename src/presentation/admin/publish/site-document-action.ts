@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { parseNonEmptyParagraphs } from "@/domain/authoring";
+import { parseNonEmptyParagraphs } from "@/domain/authoring/non-empty-paragraphs";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { signedInActor, siteDocumentUseCases } from "@/presentation/composition";
 import type { SiteDocumentState } from "./site-document-state";

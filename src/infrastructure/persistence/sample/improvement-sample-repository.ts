@@ -2,13 +2,9 @@ import type {
   ImprovementRepositoryPort,
   LoopObservation,
 } from "@/application/ports/improvement";
-import {
-  type LoopRun,
-  type VariantSpec,
-  assertRecordableLoopRun,
-  assertRecordableObservation,
-  assertRecordableVariantSpec,
-} from "@/domain/analytics";
+import type { LoopRun } from "@/domain/analytics/loop-run";
+import type { VariantSpec } from "@/domain/analytics/variant-spec";
+import { assertRecordableLoopRun, assertRecordableObservation, assertRecordableVariantSpec } from "@/domain/analytics/loop-record";
 import { asExperimentId, asWorkspaceId, err, ok } from "@/domain/shared";
 import { registerStub } from "../../stub-registry";
 

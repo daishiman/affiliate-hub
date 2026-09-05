@@ -2583,7 +2583,19 @@ export const OPEN_DOORS_MIN_IRREVERSIBLE_MARKED = 8;
 // (3) ブログ名は URL 側の 1 つだけを信じ、束の中の名乗りは捨てる
 // (4) 生の記録は 90 日で消える (AD-4)
 // 管理側の入口は 1 つも増えていない。実測どおり 1 件だけ床を更新する。
-export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 41;
+// 2026-09-05: 定期実行の中身の置き場 `src/app/internal-cron/route.ts` を 1 本足した。
+// **これは読者の道ではない。** dev-signin と同じく例外なので、何がこの 1 件を
+// 無害にしているかをここに書く。**外から到達できる扉が増えたのではなく、
+// 外から到達できない内部の道筋を、1 枚だけ読んだときの姿として正直に宣言した**ものである。
+// Cloudflare へ来た要求は必ず入口 (`worker-entry.js`) の `fetch` を通り、その
+// `fetch` が `/internal-cron` を 404 で落とす。つまり**外の世界にこの道は存在しない**。
+// 塞いでいることは `tests/architecture/worker-entry-weight.test.ts` の要件 5 が固定する。
+// 二重に、route 側でも入口が付ける `x-internal-cron` を検査して 404 へ落とす。
+// なぜ画面側の束へ移したか: 入口が `src/` を直に読むと同じ TypeScript が 1 つの
+// Worker に 2 部入り (実測 82 ファイル 791 KiB)、Cloudflare の gzip 3072 KiB を超えて
+// 公開そのものが落ちる。呼ぶ仕事も守り方も変えておらず、変えたのは呼ばれる道だけである。
+// 管理側の入口は 1 つも増えていない。実測どおり 1 件だけ床を更新する。
+export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 42;
 
 /**
  * **画面を 1 枚取り込んで描く検査の待ち時間。**

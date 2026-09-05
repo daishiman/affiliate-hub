@@ -5,14 +5,7 @@ import type {
 } from "@/application/ports/identity";
 import type { AuditLogPort, DisclosureRepositoryPort } from "@/application/ports/compliance";
 import type { AuditAction } from "@/domain/compliance";
-import {
-  DISCLOSURE_SURFACES,
-  type DisclosureSurface,
-  type EditorialInfluence,
-  type RelationshipType,
-  relAttributeFor,
-  requiresDisclosure,
-} from "@/domain/compliance";
+import { DISCLOSURE_SURFACES, relAttributeFor, requiresDisclosure, type DisclosureSurface, type EditorialInfluence, type RelationshipType } from "@/domain/compliance/disclosure";
 import type { Brand, BrandVoice, WorkspacePlan } from "@/domain/identity";
 import {
   DEFAULT_BRAND_VOICE,

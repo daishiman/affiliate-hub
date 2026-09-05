@@ -1,5 +1,5 @@
 import type { LoggerPort } from "@/application/ports";
-import { redactSensitive } from "@/domain/compliance";
+import { redactSensitive } from "@/domain/compliance/audit-log";
 
 /**
  * 構造化ログ。

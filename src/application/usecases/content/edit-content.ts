@@ -5,12 +5,8 @@ import type {
 } from "@/application/ports/authoring";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
-import {
-  type ContentAngle,
-  type ContentVariant,
-  type CtaType,
-  createContentVariant,
-} from "@/domain/authoring";
+import type { ContentAngle, CtaType } from "@/domain/authoring/content-package";
+import { createContentVariant, type ContentVariant } from "@/domain/authoring/content-variant";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

@@ -1,4 +1,4 @@
-import { AEO_GAP_LABEL, ANSWER_UNIT_KIND_LABEL } from "@/domain/aeo";
+import { AEO_GAP_LABEL, ANSWER_UNIT_KIND_LABEL } from "@/domain/aeo/answer-unit";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   AeoExtractForm,

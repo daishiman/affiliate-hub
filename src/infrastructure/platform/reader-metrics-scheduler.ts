@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "@/db/schema";
-import { RAW_EVENT_RETENTION_DAYS, toRollupDay } from "@/domain/analytics";
+import { RAW_EVENT_RETENTION_DAYS, toRollupDay } from "@/domain/analytics/reader-interaction";
 import { createD1MetricsRollup } from "../persistence/d1/reader-metrics-repository";
 
 /**

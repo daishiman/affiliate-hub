@@ -19,9 +19,9 @@ import {
   createPreparePublishArticleUseCase,
   createPublishArticleUseCase,
 } from "@/application/usecases/site/publish-article";
-import { ARTICLE_TYPES, type ArticleType } from "@/domain/authoring";
-import { RELATIONSHIP_LABEL, type RelationshipType } from "@/domain/compliance";
-import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution";
+import { ARTICLE_TYPES, type ArticleType } from "@/domain/authoring/article-structure";
+import { RELATIONSHIP_LABEL, type RelationshipType } from "@/domain/compliance/disclosure";
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution/channel";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 

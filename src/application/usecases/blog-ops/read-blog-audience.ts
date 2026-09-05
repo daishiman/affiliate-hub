@@ -4,7 +4,7 @@ import type {
   BlogAudiencePort,
   EngagementProfile,
 } from "@/application/ports/blog-observability";
-import { validateMetricsRange } from "@/domain/analytics";
+import { validateMetricsRange } from "@/domain/analytics/reader-interaction";
 import type { ViewportBand } from "@/domain/analytics/reader-interaction";
 import { requireCapability } from "@/domain/identity";
 import { type ActorContext, type DomainError, type Result, ok } from "@/domain/shared";

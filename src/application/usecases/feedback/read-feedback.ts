@@ -1,19 +1,9 @@
 import type { FeedbackCaptureStoragePort, FeedbackRepositoryPort } from "@/application/ports/feedback";
-import {
-  type FeedbackHistoryEntry,
-  type FeedbackReport,
-  DIAGNOSTICS_PURGED_TEXT,
-  DIAGNOSTICS_RETENTION_NOTICE,
-  FEEDBACK_DISPOSITION_LABELS,
-  FEEDBACK_KIND_LABELS,
-  FEEDBACK_STATUS_LABELS,
-  HANDOFF_HISTORY_EMPTY_TEXT,
-  HANDOFF_IDEMPOTENCY_TEXT,
-  HANDOFF_ROUTE_LABELS,
-  WISH_ABSENT_TEXT,
-  diagnosticsExpireAt,
-  isDiagnosticsPurged,
-} from "@/domain/feedback";
+import { FEEDBACK_KIND_LABELS, WISH_ABSENT_TEXT, type FeedbackHistoryEntry, type FeedbackReport } from "@/domain/feedback/report";
+import { DIAGNOSTICS_PURGED_TEXT, DIAGNOSTICS_RETENTION_NOTICE, diagnosticsExpireAt, isDiagnosticsPurged } from "@/domain/feedback/diagnostics-retention";
+import { FEEDBACK_DISPOSITION_LABELS } from "@/domain/feedback/disposition";
+import { FEEDBACK_STATUS_LABELS } from "@/domain/feedback/status";
+import { HANDOFF_HISTORY_EMPTY_TEXT, HANDOFF_IDEMPOTENCY_TEXT, HANDOFF_ROUTE_LABELS } from "@/domain/feedback/handoff";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

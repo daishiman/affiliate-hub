@@ -20,27 +20,15 @@ import type {
 } from "@/application/read-models/published-article";
 import { articleHref } from "@/application/read-models/published-article";
 import { type AiSearchCheck, auditArticleForAiSearch } from "@/application/seo/ai-search-audit";
-import {
-  ARTICLE_TYPES,
-  ARTICLE_TYPE_LABEL,
-  type ArticleType,
-  type ContentVariant,
-  type SectionId,
-  type SiteBlueprint,
-  authoredSectionsFor,
-  filledSectionIds,
-  parseNonEmptyParagraphs,
-  sectionsFor,
-  siteBasePathBySlug,
-} from "@/domain/authoring";
+import { ARTICLE_TYPES, ARTICLE_TYPE_LABEL, authoredSectionsFor, filledSectionIds, sectionsFor, type ArticleType, type SectionId } from "@/domain/authoring/article-structure";
+import type { ContentVariant } from "@/domain/authoring/content-variant";
+import type { SiteBlueprint } from "@/domain/authoring/site-blueprint";
+import { parseNonEmptyParagraphs } from "@/domain/authoring/non-empty-paragraphs";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
 import type { RelationshipType } from "@/domain/compliance";
-import {
-  GATE_REQUIREMENT_LABEL,
-  RELATIONSHIP_LABEL,
-  type GateSkip,
-  evaluatePublishGate,
-} from "@/domain/compliance";
-import { type Publication, advance, recordSendSuccess } from "@/domain/distribution";
+import { GATE_REQUIREMENT_LABEL, evaluatePublishGate, type GateSkip } from "@/domain/compliance/publish-gate";
+import { RELATIONSHIP_LABEL } from "@/domain/compliance/disclosure";
+import { advance, recordSendSuccess, type Publication } from "@/domain/distribution/publication";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
