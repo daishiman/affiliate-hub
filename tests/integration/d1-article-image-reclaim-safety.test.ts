@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-BOPS05, REQ-BOPS14 @types db-migration, tenant-isolation, state-transition, error */
+/** @tier 2 @req REQ-BOPS05, REQ-BOPS14 @types db-migration, tenant-isolation, state-transition, fault-injection, idempotency */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";

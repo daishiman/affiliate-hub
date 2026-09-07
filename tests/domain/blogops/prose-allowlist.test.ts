@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-BLOG05
- * @types boundary, equivalence, error
+ * @types boundary, equivalence, injection
  *
  * **当てるのは「通らないこと」である。**
  *

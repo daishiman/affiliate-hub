@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-BOPS14, FRONT-REQ-005
- * @types boundary, error
+ * @types boundary, permission-matrix, tenant-isolation, fault-injection
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { aWriter, aNobody, anOutsider, WORKSPACE } from "../support/actors";

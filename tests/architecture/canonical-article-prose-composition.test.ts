@@ -1,7 +1,7 @@
 /**
  * @tier 1
  * @req REQ-BOPS04, REQ-BOPS05
- * @types architecture, contract
+ * @types code-boundary, contract
  */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
