@@ -12,7 +12,7 @@ iteration: null
 title: "仕様正本の整理と投影"
 owners: ["daishiman"]
 created_at: "2026-08-16T11:19:17Z"
-updated_at: "2026-08-16T13:45:23.772678Z"
+updated_at: "2026-09-07T15:54:17.171448Z"
 status: "active"
 depends_on: []
 related_nodes: ["task-spec-writeback","doc-spec-index"]
@@ -33,7 +33,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385","evaluator":"app-orchestrator/decompose-redo","evidence_ref":"docs/product/traceability.md"}
-source_lineage: {"imported_at":"2026-08-16T11:19:17Z","origin_kind":"system-spec-harness","source_digest":"409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"system-spec-harness","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 0.92
 classification_reason: "macro feature for spec governance derived from system-spec index"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-spec-canonicalization.md","confidence":0.92}]

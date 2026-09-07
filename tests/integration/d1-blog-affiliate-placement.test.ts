@@ -25,6 +25,7 @@ import { getPlatformProxy } from "wrangler";
 import * as schema from "@/db/schema";
 import type { WorkspaceId } from "@/domain/shared";
 import { createD1BlogAffiliatePlacementRepository } from "@/infrastructure/persistence/d1/blog-affiliate-placement-repository";
+import { createD1BlogOpsRepository } from "@/infrastructure/persistence/d1/blog-ops-repository";
 import { toAffiliatePlacementArticleBlock } from "@/application/adapters/expression-article-block";
 import { migrationStatements } from "../support/migrations";
 
@@ -237,13 +238,14 @@ describe("A7 アフィリエイトからの逆引き", () => {
 });
 
 describe("保存と削除", () => {
-  it("公開 CTA と台帳を同じ batch で保存し、台帳失敗時は両方を取り消す", async () => {
+  it("記事 CTA と台帳を同じ batch で保存し、台帳失敗時は両方を取り消す", async () => {
     const articleId = "placement_article_atomic";
-    await proxy.env.DB.prepare(
-      `INSERT INTO articles
-        (id, slug, workspace_id, site_slug, article_template, type, title, status, author_name)
-       VALUES (?, ?, ?, ?, 'T4', 'guide', '掲載テスト', 'published', '編集部')`,
-    ).bind(articleId, "atomic", OWNER, SITE).run();
+    const article = {
+      id: articleId, siteSlug: SITE, slug: "atomic", template: "T4" as const,
+      title: "掲載テスト", lead: "", status: "draft" as const, authorName: "編集部",
+      categorySlug: null, publishedAt: null, updatedAt: new Date("2026-09-06"), blocks: [], tagIds: [],
+    };
+    expect((await createD1BlogOpsRepository(drizzle(proxy.env.DB, { schema })).saveArticle(OWNER, article)).ok).toBe(true);
     const placement = {
       siteSlug: SITE,
       articleSlug: "atomic",
@@ -251,10 +253,8 @@ describe("保存と削除", () => {
       position: -1,
       trackingCode: "tc-batch",
     } as const;
-    const publicArticleBlock = {
-      articleId,
-      block: toAffiliatePlacementArticleBlock({ workspaceId: OWNER, ...placement }),
-    };
+    const block = toAffiliatePlacementArticleBlock({ workspaceId: OWNER, ...placement });
+    const articleUpdate = { ...article, expectedRevision: 1, blocks: [block] };
     await proxy.env.DB.prepare(
       `CREATE TRIGGER reject_negative_placement_batch
        BEFORE INSERT ON blog_affiliate_placement
@@ -263,40 +263,37 @@ describe("保存と削除", () => {
     ).run();
 
     try {
-      const failed = await repo().save({ workspaceId: OWNER, placement, publicArticleBlock });
+      const failed = await repo().save({ workspaceId: OWNER, placement, articleUpdate });
       expect(failed.ok).toBe(false);
-      const block = await proxy.env.DB.prepare(
+      const storedBlock = await proxy.env.DB.prepare(
         "SELECT id FROM blog_article_block WHERE id = ?",
-      ).bind(publicArticleBlock.block.id).first();
+      ).bind(block.id).first();
       const ledger = await proxy.env.DB.prepare(
         "SELECT id FROM blog_affiliate_placement WHERE tracking_code = ?",
       ).bind("tc-batch").first();
-      expect(block).toBeNull();
+      expect(storedBlock).toBeNull();
       expect(ledger).toBeNull();
     } finally {
       await proxy.env.DB.prepare("DROP TRIGGER reject_negative_placement_batch").run();
     }
 
     const savedPlacement = { ...placement, position: 0 };
-    const savedBlock = {
-      articleId,
-      block: toAffiliatePlacementArticleBlock({ workspaceId: OWNER, ...savedPlacement }),
-    };
+    const savedBlock = toAffiliatePlacementArticleBlock({ workspaceId: OWNER, ...savedPlacement });
     const saved = await repo().save({
       workspaceId: OWNER,
       placement: savedPlacement,
-      publicArticleBlock: savedBlock,
+      articleUpdate: { ...articleUpdate, blocks: [savedBlock] },
     });
     expect(saved.ok).toBe(true);
-    const [block, ledger] = await Promise.all([
+    const [storedBlock, ledger] = await Promise.all([
       proxy.env.DB.prepare("SELECT id FROM blog_article_block WHERE id = ?")
-        .bind(savedBlock.block.id)
+        .bind(savedBlock.id)
         .first(),
       proxy.env.DB.prepare("SELECT id FROM blog_affiliate_placement WHERE tracking_code = ?")
         .bind("tc-batch")
         .first(),
     ]);
-    expect(block).not.toBeNull();
+    expect(storedBlock).not.toBeNull();
     expect(ledger).not.toBeNull();
   });
 

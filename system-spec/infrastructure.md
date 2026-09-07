@@ -3,7 +3,7 @@ status: confirmed
 category: infrastructure
 aggregate: 確定
 spec_cells: [infrastructure.web, infrastructure.mobile, infrastructure.tablet, infrastructure.desktop-windows, infrastructure.desktop-linux, infrastructure.desktop-macos]
-serves_goals: [G1, G2]
+serves_goals: [G1, G2, G3]
 ---
 
 # インフラ (infrastructure)
@@ -15,12 +15,12 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-infra-web-custom-hostname。裏付け質疑 (`qa_refs`): `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-worker-image-upload-confirmed-20260906。裏付け質疑 (`qa_refs`): `qa-infra-web-custom-hostname`, `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
+| タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
 
 ## 確定セルの記録 (正本 spec-state.json)
 
@@ -30,31 +30,40 @@ serves_goals: [G1, G2]
 |---|---|
 | セル | infrastructure × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-infra-web-custom-hostname` |
-| 資するゴール (serves_goals) | G1, G2 |
+| 確定質疑 (qa_ref) | `qa-infrastructure-web-worker-image-upload-confirmed-20260906` |
+| 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
+| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
 
 ## 意思決定 (decisions)
 
-> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`infrastructure`) を主担当とする **2 件**。全 12 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`infrastructure`) を主担当とする **3 件**。全 15 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
 |---|---|---|---|---|
 | `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 |
 | `dec-blog-domain-strategy` | 作成した各ブログにどうやって固有の住所 (ドメイン) を割り当てるか。現状はホスト解決が無く、全ブログが単一 Worker 上の /s/<slug> パスで、ドメインがブログの内容と無関係になっている。 | `opt-wildcard-subdomain` | confirmed | G1 |
+| `dec-article-image-upload-path` | 記事エディターから添付する画像を、どの経路で Cloudflare R2 へ格納するか | `opt-worker-proxy-upload` | confirmed | G1 |
 
 - **`decision-redirect-measurement-async` の caveat**: 回収が静かに失敗すると退避先が墓場になる。回収した件数と残件数を記録し、残件が増え続けたら赤くする / 有料プランが既に有効なら Queues のほうが素直。契約状態は本人しか確かめられない / 最大 1 日の時差があるため、当日の速報値は「まだ確定していない」と画面に出す（03 §8 の速報と確定の区別）
 
 - **`dec-blog-domain-strategy` の caveat**: 基底ドメインを1つ用意し、そのワイルドカード DNS を Worker へ向ける初回作業が必要である / 開発環境の workers.dev では任意サブドメインを生やせないため、パス方式 /s/<slug> を後方互換として残す必要がある。これが無いと開発環境で公開面を確認できなくなる / サブドメイン間で cookie を共有しない設定を明示的に行う必要がある。既定のまま親ドメインへ scope を広げると、あるブログの読者データが別ブログから読める / 根拠として引用した公式資料は harness が取得済みの入口ページ (Cloudflare Workers は 2026-08-19、Next.js は 2026-08-29 取得) であり、ワイルドカード route と証明書の個別ページを本セッションで再取得してはいない。実装着手時に route の記法と証明書の適用条件を公式資料で再確認すること
 
+- **`dec-article-image-upload-path` の caveat**: UIで8 MiB上限、許可形式、圧縮または再選択の案内を送信前と失敗時に示すこと / 受信量をストリーム境界で制限し、認可・Origin・MIME・ファイルシグネチャをR2保存前に検査すること / アップロード失敗率、処理時間、拒否理由を監視し、上限が実利用を阻害する場合だけmultipartまたは直接送信を再検討すること
+
 ## 確定内容 (質疑録)
 
-### qa-infra-web-custom-hostname (対応セル: web)
+### qa-infrastructure-web-worker-image-upload-confirmed-20260906 (対応セル: web)
+
+**質問**: 画像送信を、確定仕様の『R2へ直接送信』から、現実装の『Workerで認可・容量・形式を検査して保存』に統一してよいですか？
+
+**回答**: ok
+
+### qa-infra-web-custom-hostname (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: infrastructure×web: ブログごとの独自ドメインを、どの仕組みで受け、どう配信へ結びつけるか
 
@@ -138,6 +147,171 @@ serves_goals: [G1, G2]
 
 - 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
 
+### AI が起草した設計宣言（質疑から移した本文）
+
+以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。
+
+この本文はもともと質疑 `qa-infrastructure-web-article-image-r2-upload` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。
+
+**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-infrastructure-web-r2-upload-actual-capability` である。
+
+利用者の逐語は `qa-infrastructure-web-r2-upload-actual-capability` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。
+
+---
+
+**当初の問い**
+
+> infrastructure×web: 記事画像を Cloudflare R2 へ直接アップロードする経路をどう組むか。
+
+**設計宣言の本文**
+
+**R2 へ直接上げる。**画像の本体を Worker が中継しない。中継すると Worker のリクエスト上限と実行時間に画像の大きさが縛られ、大きい画像で失敗する。
+
+**流れ。**編集画面が「この名前・この型・この大きさで上げたい」と申告する → Worker が検査した上で、その 1 件だけに有効な署名付きアップロード URL を返す → ブラウザがその URL へ直接 PUT する → 完了後、編集画面が公開 URL を本文へ書く。
+
+**置き場。**記事画像専用のバケットを 1 つ持ち、鍵は `workspace_id/記事id/一意なid.拡張子` の形にする。workspace を先頭に置くのは、後から一括で消したり移したりする単位が workspace だからである。ファイル名は利用者が付けた名前をそのまま使わず、一意な id へ置き換える。名前の衝突と、名前に混ざる文字の問題を両方消せる。
+
+**配信。**バケットを直接公開せず、独自ドメインを通して配信する。キャッシュはこの層で効かせる。
+
+**消し方。**記事から画像を外しただけでは R2 の実体を消さない。編集の取り消しで戻せなくなるためである。参照されなくなった実体の刈り取りは、記事の公開状態が確定してから別の掃除として行う。
+
+- 正本へ入れた理由: C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。
+
+### 画像アップロード経路の再検討（2026-09-06、回答待ち）
+
+これは実装観察であり、利用者の回答原文や新たな採用決定ではない。
+
+`dec-article-image-upload-path` は、2026-09-05 の利用者回答に基づく R2 直接 PUT を記録している。一方、現在の `src/app/api/article-images/route.ts` は Worker が認可・容量・画像先頭バイトを検査して R2 へ保存する経路であり、両者は一致していない。過去の回答を現実装の承認へ読み替えない。
+
+2026-09-06 に infrastructure.web と security.web を正規 writer の R4-reopen で再オープンした。正規経路をどちらにするか利用者へ確認中であり、本章は draft とする。既存の qa_refs・serves_goals・required_info_checks は reopen_log.discarded に保持されている。回答後は依存する検査境界、API、運用記述を揃えて再検証する。
+
+画像の保存と回収の競合対策、公開参照の権限、検証結果の最新記録は [ブロックエディターの検証報告](../docs/spec/feat-article-block-editor/elegant-review.md) を参照する。ここへ件数や実装一覧を重複転記しない。
+
+- 正本へ入れた理由: 承認済みの再検討を実施し、旧決定と実装観察を区別する。利用者発言を改変せず、未回答を確定扱いしない。
+
+### 画像アップロード経路の確定（2026-09-06）
+
+`dec-article-image-upload-path` の現行決定は `opt-worker-proxy-upload` である。2026-09-06、利用者は「現実装の Worker で認可・容量・形式を検査して保存」に統一する確認へ「ok」と回答した。根拠は `approval-article-image-upload-path-worker-20260906` に記録した。
+
+現在の経路は、編集画面 → `POST /api/article-images` → Worker の認可・入力検査 → R2 保存である。画像1件の製品上限は 8 MiB。台帳を `pending` で予約し、R2 保存後に `ready` へ確定する。途中失敗・応答不明・参照解除は即時削除だけに頼らず、台帳と回収処理で収束させる。
+
+この章に先に残る「R2 へ直接上げる」と「回答待ち」は、2026-09-05 の旧決定と2026-09-06の再検討中スナップショットであり、現行要件ではない。署名付き PUT URL の発行、ブラウザからの直接 PUT、R2 用 CORS は現在の実装対象に含めない。旧承認は監査履歴として `approval-article-image-upload-path` に保持する。
+
+- 正本へ入れた理由: 旧直接PUT決定と回答待ちスナップショットを監査履歴として残しつつ、利用者が承認したWorker経由を現行要件として一意に示す
+
+### 歴史的スナップショット（現行規範ではない、2026-09-06 移送）
+
+> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。
+
+#### 状態の意味と実装差分
+
+`confirmed` は要求判断と採用方針が確定していることを表す。**binding 作成済み・本番反映済み・SLO 達成済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
+
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/02` §1、`docs/spec/03` §1.2、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
+
+##### As-Is（2026-08-16 のリポジトリ実体）
+
+- Cloudflare Workers（OpenNext）に observability を有効化し、環境ごとに単一 D1 binding `DB` と R2 binding `BUCKET` を定義している。
+- `EDITORIAL_DB` / `COMMERCIAL_DB`、Redirect Resolver Store（KV等）、Queue、Cron trigger、dead-letter queue は未定義である。
+- `/go/{tracking_link_id}` と ClickEvent producer/consumer は未実装。したがって現状は D1 障害時の転送継続性を実証していない。
+- R2 binding `BUCKET` は定義済みだが、記事画像の用途では使っていない。署名付き URL の発行経路・バケットの CORS ポリシー・配信用カスタムドメインはいずれも未設定である。
+
+##### To-Be（規範契約）
+
+| ID | 契約 | 状態 |
+|---|---|---|
+| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない | 未実装 |
+| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する | 未実装 |
+| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る | 未実装 |
+| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ | 未実装 |
+| INF-IMG-01 | 記事画像は Cloudflare R2 へ、ブラウザから署名付き URL で直接 PUT する (`decisions[].dec-article-image-upload-path`)。画像本体を Worker に通さない。理由は、Worker のリクエストボディ上限が「貼れる画像の大きさ」の天井になることを避けるためである | 未実装 |
+| INF-IMG-02 | オブジェクトの鍵は `workspace_id/記事id/一意なid.拡張子` に固定する。鍵の先頭が workspace であることで、テナントを越えた参照が鍵の並びの上で生じない | 未実装 |
+| INF-IMG-03 | 配信は R2 のカスタムドメイン経由で行い、バケットの公開 URL を記事本文へ直接埋めない。配信元を差し替えても記事本文の書き換えが要らない状態にする | 未実装 |
+| INF-IMG-04 | R2 バケットに CORS ポリシーを設定する。`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間を置く。設定しない限りブラウザからの直接 PUT は preflight で落ちる | 未実装 |
+| INF-IMG-05 | 単一 PUT の上限は 5 GiB である。これを超える画像は multipart upload へ切り替えるか、上限として拒否する。どちらを採るかを実装時に決め、暗黙に失敗させない | 未実装 |
+
+##### 故障モード
+
+| 故障 | 転送 | 計測 / 復旧 |
+|---|---|---|
+| Commercial D1 停止 | LKG で302を継続 | Queue に滞留し、consumer retry。redirect handler は D1 を参照しない |
+| Queue enqueue 失敗 | 302を継続 | `click_enqueue_failed_total` を記録し、計測欠損としてエラーバジェットへ算入 |
+| consumer / migration 障害 | 302を継続 | retry 後に dead-letter。修復後、event ID で安全に replay |
+| KV 読み取り障害 | Cache API の LKG hit 時だけ302 | cache miss では安全な転送先を推測せず503。resolver error alert を発報 |
+| resolver key 欠落・無効・停止済み | 転送しない | 404 / 410 を区別し、D1 fallback はしない |
+| resolver 更新失敗・遅延 | 旧LKGで302 | version / updated_at の鮮度を観測し、outbox / Queue から再配送 |
+| 画像の PUT が preflight で落ちる | 影響なし | CORS ポリシーの欠落・出所不一致として扱う。編集画面は「画像を保存できなかった」ことを本文の編集内容を失わずに伝える |
+| 署名の期限切れ後に PUT | 影響なし | 401/403 を受けて署名を再発行し、同じ鍵へ再送する。鍵は再発行しても変わらないため記事本文の参照は保たれる |
+| R2 停止 | 影響なし (転送経路とは独立) | 画像の追加のみ失敗する。既存記事の表示はカスタムドメインのキャッシュに従う。編集内容は保持し、再試行へ進める |
+
+##### 測定可能な初期 SLO
+
+実測ベースライン取得までの**暫定値**とし、28日 rolling window で評価する。
+
+| SLI | 初期目標 | 測定条件 |
+|---|---|---|
+| Redirect success | 有効な resolver key の 302 成功率 99.95%以上 | 無効ID、停止済みlink、client cancellationを分母から除外 |
+| Redirect latency | Worker 処理時間 p95 < 100 ms、p99 < 250 ms | `/go/*` の edge server timing。遷移先サイト時間は除外 |
+| Resolver freshness | 検証済み link 更新の99%が5分以内にLKGへ反映 | outbox timestamp→KV version 観測時刻 |
+| Click acceptance | redirect request に対する Queue accepted 率 99.9%以上 | 同意・botに関係なく producer の配送成否を測定し、分析採用可否とは分離 |
+| Queue recovery | oldest-message age p95 < 60秒、99% < 5分 | consumer retry を含み、dead-letter は別途即時alert |
+
+##### Delta
+
+1. INF-DB-01 の2 D1と型定義を追加し、database の所有境界ごとに migration command を分ける。
+2. validated original_url を outbox → Queue → KV へ発行する control plane と INF-REDIRECT-01 の read path を作る。
+3. INF-EVENT-01 の Queue / dead-letter / consumer を接続し、INF-OBS-01 の metrics と alert を追加する。
+4. D1・Queue・KV の故障注入後に上記 SLO を再測定し、暫定値を実測値でレビューする。
+5. 既に定義済みの R2 binding `BUCKET` を記事画像の保管先として使う。新たに要るのは CORS ポリシー・カスタムドメイン・署名付き URL の発行経路の 3 つで、バケット自体の新設ではない。
+6. 画像の削除は記事保存の同期処理に入れない。参照が切れた実体の刈り取りは maintenance-ops の掃除ジョブへ渡す (`OPS-REQ-008`)。infrastructure は保管と配信の側だけを持つ。
+
+##### Dependencies
+
+依存方向は `前提 → 後続` とする。
+
+- database の `DB-BOUNDARY-01` → INF-DB-01 → 環境ごとの schema migration。
+- AffiliateLink / TrackingLink の検証、`original_url` 無改変、`redirect_allowed` / channel policy、outbox relay → INF-REDIRECT-01。
+- event ID / dedup key、Commercial D1 の append-only schema、consent policy → INF-EVENT-01。
+- log/metric retention、alert routing、dead-letter replay runbook → INF-OBS-01 の運用開始。
+- auth の Workspace membership + backend の `BE-IMAGE-01` (鍵の組み立て) → INF-IMG-01/02。infrastructure は鍵を受け取って保管する側であり、鍵を組み立てない。
+- INF-IMG-04 (CORS) → INF-IMG-01。CORS を設定しない限り直接 PUT は成立しないため、順序が逆にならない。
+- database の画像参照状態 → maintenance-ops の掃除ジョブ → R2 の削除。infrastructure から直接刈り取らない。
+
+##### Acceptance evidence
+
+- `wrangler` 設定と生成型に全環境の2 D1 / KV / Queue bindings が存在し、legacy `DB` の runtime read がない静的検査。
+- Commercial D1 を停止した故障注入で、有効なLKGへの302が継続し、復旧後にQueue滞留分が重複なく反映されるテスト。
+- KV更新失敗時に既存LKGが維持され、`original_url` のbyte列を変更せず302 `Location` に返す contract test。
+- dashboard / alert 上で各 SLI の分子・分母、Queue lag、dead-letter 件数を再現できる観測記録。
+- **INF-IMG-01/02**: 管理画面から画像を 1 枚アップロードし、R2 のオブジェクト一覧で鍵が `workspace_id/記事id/一意なid.拡張子` の形であることを確認。アップロード中の Worker のリクエスト数・CPU 時間が画像サイズに比例して増えないこと (本体が Worker を通っていないこと) を、Worker のログと突き合わせて保存。
+- **INF-IMG-03**: 記事本文に保存された画像の URL がカスタムドメインを指し、バケットの公開 URL を含まないことを検査するテスト。配信元のドメインだけを差し替え、記事本文を書き換えずに表示が続くことを実測して保存。
+- **INF-IMG-04**: CORS ポリシーを外した状態でブラウザから PUT し、preflight で落ちることを確認。設定を戻して成功することを確認。両方の HTTP トレース (`Origin` ヘッダを含む要求と、`Access-Control-*` 応答ヘッダの有無) を保存。
+- **INF-IMG-05**: 5 GiB を超える入力に対して、選んだ方 (multipart へ切り替える / 上限として拒否する) の挙動が実際に起きることを示すテスト。暗黙に失敗せず、利用者に理由が伝わることを併せて保存。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: 既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。
+
+### To-Be（規範契約）
+
+> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。
+
+画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。
+
+| 要件ID | 目標状態 |
+|---|---|
+| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない |
+| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する |
+| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る |
+| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ |
+| INF-IMG-01 | 記事画像は認証済み管理画面から同一生成元の Worker API へ送り、Worker が検証後に R2 binding で格納する。2026-09-06 の dec-article-image-upload-path 改訂に従い、旧署名付き URL によるブラウザ直接 PUT は採用しない。 |
+| INF-IMG-02 | オブジェクト鍵は article-images/workspace_id/article_id/一意なid.拡張子に統一し、サーバーだけが組み立てる。workspace と記事の所有関係は鍵の並びだけに頼らず、認可・台帳・保存時の制約で検証する。 |
+| INF-IMG-03 | 記事本文の画像参照は /api/article-images/{imageId} の不透明な ID を用い、R2 バケット URL や object_key を埋めない。配信口は台帳の ready 状態と公開本文参照または編集権限を検証し、保管場所の変更を本文から切り離す。 |
+| INF-IMG-04 | R2 への書き込みは Worker binding に限定し、ブラウザ向け直接 PUT/CORS 設定や署名発行を前提としない。管理 API は同一生成元の送信とサーバー側認証・認可を要求する。 |
+| INF-IMG-05 | 記事画像は 1 枚 8 MiB 以下の PNG/JPEG/WebP/GIF に限定する。API 入口と use-case で容量・実バイトの画像型を検証し、上限超過や不一致を R2 保存前に拒否する。multipart upload はこの契約に含めない。 |
+
+- 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -208,9 +382,19 @@ serves_goals: [G1, G2]
 
 #### 本章での適用
 
-##### 確定内容 qa-infra-web-custom-hostname (対応セル: web)
+##### 確定内容 qa-infrastructure-web-worker-image-upload-confirmed-20260906 (対応セル: web)
 
-- 確定要件: Cloudflare for SaaS のカスタムホスト名を使う。利用者が外部で取得したドメインを管理画面から登録し、こちらは所有権確認用の CNAME (または TXT) を指示する。利用者がそのレコードを自分の DNS へ置くと、Cloudflare が検証して証明書を発行する。証明書の発行・更新・失効はすべて Cloudflare 側に任せ、自前で ACME を回さない。Worker 側は受け取った Host ヘッダからカスタムホスト名を引き、site_custom_domains で active な行があればその site_slug のブログとして描画する。無ければ従来どおり /s/<slug> の経路で扱う。既定の住所 (SITE_BASE_DOMAIN からの導出) は残し、カスタムドメインが未接続・検証中・失効中でもブログが読者から消えないようにする。カスタムドメインが active な間は、既定の住所から正規 URL (canonical) をカスタムドメイン側へ向け、検索エンジンから見て同じ内容が 2 つの住所に存在する状態を避ける。ドメインの取得 (購入) 自体は範囲に含めず、外部のレジストラで済ませた前提で接続だけを扱う
+- 確定要件: ok
+- 設計解釈の記録経路: `dialogue`
+- 原則: キャパシティと需要・観測可能性 — 上限と状態遷移を利用者に見える失敗および運用指標として扱う (`site-reliability-engineering.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 利用者がWorker経由への統一を承認したため、製品上限8MiBをAPI境界に明示し、pending予約、R2 put、ready確定を観測可能な段階として扱う。応答不明時は即時削除せず台帳と回収処理で収束させ、アップロード結果と回収結果を運用ログで区別する
+  - トレードオフ:
+    - 画像本体がWorkerを通るためリクエスト数と処理負荷が増え、Worker障害時は送信できない
+    - 直接PUTのCORSと短命署名を不要にできる代わりに、Worker側のstream上限・失敗分類・再試行の保守が必要になる
+##### 接地根拠 qa-infra-web-custom-hostname (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-infra-web-custom-hostname` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 自分で持たなくてよい運用責務は、それを本業にしている側へ預ける (`site-reliability-engineering.md#中核概念`)
   - 採否: `applied`
@@ -328,7 +512,7 @@ serves_goals: [G1, G2]
   - 章固有の根拠: ASP のリンク改変禁止 (U8) をインフラ層で保証する。sub_id 付与は対応 ASP のリンク生成時のみに限定する
   - トレードオフ:
     - 経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる
-- 資するゴール: G1, G2
+- 資するゴール: G1, G2, G3
 
 ## 最新ドキュメント出典
 
@@ -336,97 +520,5 @@ serves_goals: [G1, G2]
 |---|---|---|---|---|---|
 | cloudflare-workers | 2026-04-23 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/workers/ | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |
 | cloudflare-for-saas | 2026-04-29 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
-| cloudflare-r2 | 2026-08-07 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
-
-## 状態の意味と実装差分
-
-`confirmed` は要求判断と採用方針が確定していることを表す。**binding 作成済み・本番反映済み・SLO 達成済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
-
-- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/02` §1、`docs/spec/03` §1.2、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
-
-### As-Is（2026-08-16 のリポジトリ実体）
-
-- Cloudflare Workers（OpenNext）に observability を有効化し、環境ごとに単一 D1 binding `DB` と R2 binding `BUCKET` を定義している。
-- `EDITORIAL_DB` / `COMMERCIAL_DB`、Redirect Resolver Store（KV等）、Queue、Cron trigger、dead-letter queue は未定義である。
-- `/go/{tracking_link_id}` と ClickEvent producer/consumer は未実装。したがって現状は D1 障害時の転送継続性を実証していない。
-
-### To-Be（規範契約）
-
-| ID | 契約 | 状態 |
-|---|---|---|
-| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない | 未実装 |
-| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する | 未実装 |
-| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る | 未実装 |
-| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ | 未実装 |
-
-### 故障モード
-
-| 故障 | 転送 | 計測 / 復旧 |
-|---|---|---|
-| Commercial D1 停止 | LKG で302を継続 | Queue に滞留し、consumer retry。redirect handler は D1 を参照しない |
-| Queue enqueue 失敗 | 302を継続 | `click_enqueue_failed_total` を記録し、計測欠損としてエラーバジェットへ算入 |
-| consumer / migration 障害 | 302を継続 | retry 後に dead-letter。修復後、event ID で安全に replay |
-| KV 読み取り障害 | Cache API の LKG hit 時だけ302 | cache miss では安全な転送先を推測せず503。resolver error alert を発報 |
-| resolver key 欠落・無効・停止済み | 転送しない | 404 / 410 を区別し、D1 fallback はしない |
-| resolver 更新失敗・遅延 | 旧LKGで302 | version / updated_at の鮮度を観測し、outbox / Queue から再配送 |
-
-### 測定可能な初期 SLO
-
-実測ベースライン取得までの**暫定値**とし、28日 rolling window で評価する。
-
-| SLI | 初期目標 | 測定条件 |
-|---|---|---|
-| Redirect success | 有効な resolver key の 302 成功率 99.95%以上 | 無効ID、停止済みlink、client cancellationを分母から除外 |
-| Redirect latency | Worker 処理時間 p95 < 100 ms、p99 < 250 ms | `/go/*` の edge server timing。遷移先サイト時間は除外 |
-| Resolver freshness | 検証済み link 更新の99%が5分以内にLKGへ反映 | outbox timestamp→KV version 観測時刻 |
-| Click acceptance | redirect request に対する Queue accepted 率 99.9%以上 | 同意・botに関係なく producer の配送成否を測定し、分析採用可否とは分離 |
-| Queue recovery | oldest-message age p95 < 60秒、99% < 5分 | consumer retry を含み、dead-letter は別途即時alert |
-
-### Delta
-
-1. INF-DB-01 の2 D1と型定義を追加し、database の所有境界ごとに migration command を分ける。
-2. validated original_url を outbox → Queue → KV へ発行する control plane と INF-REDIRECT-01 の read path を作る。
-3. INF-EVENT-01 の Queue / dead-letter / consumer を接続し、INF-OBS-01 の metrics と alert を追加する。
-4. D1・Queue・KV の故障注入後に上記 SLO を再測定し、暫定値を実測値でレビューする。
-
-### Dependencies
-
-依存方向は `前提 → 後続` とする。
-
-- database の `DB-BOUNDARY-01` → INF-DB-01 → 環境ごとの schema migration。
-- AffiliateLink / TrackingLink の検証、`original_url` 無改変、`redirect_allowed` / channel policy、outbox relay → INF-REDIRECT-01。
-- event ID / dedup key、Commercial D1 の append-only schema、consent policy → INF-EVENT-01。
-- log/metric retention、alert routing、dead-letter replay runbook → INF-OBS-01 の運用開始。
-
-### Acceptance evidence
-
-- `wrangler` 設定と生成型に全環境の2 D1 / KV / Queue bindings が存在し、legacy `DB` の runtime read がない静的検査。
-- Commercial D1 を停止した故障注入で、有効なLKGへの302が継続し、復旧後にQueue滞留分が重複なく反映されるテスト。
-- KV更新失敗時に既存LKGが維持され、`original_url` のbyte列を変更せず302 `Location` に返す contract test。
-- dashboard / alert 上で各 SLI の分子・分母、Queue lag、dead-letter 件数を再現できる観測記録。
-
-## 章にしか無い記述 (正本へ未接続)
-
-> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
-
-### 本節を「転記」に留めた理由
-
-C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
-
-## dev 合流で章から落ちた確定内容 (2026-09-05)
-
-> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
-> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
-> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
-> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
-> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
-
-- `serves_goals: [G2, G1]`
-- `| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-wildcard-subdomain。裏付け質疑 (`qa_refs`): `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `| 確定質疑 (qa_ref) | `qa-infrastructure-web-wildcard-subdomain` |`
-- `| 資するゴール (serves_goals) | G2, G1 |`
-- `| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |`
-- `### qa-infrastructure-web-wildcard-subdomain (対応セル: web)`
-- `##### 確定内容 qa-infrastructure-web-wildcard-subdomain (対応セル: web)`
-- `- 確定要件: ワイルドカード DNS (*.<基底ドメイン>) を Worker へ向け、wrangler の routes に *.<基底ドメイン>/* を1本だけ置く。ブログを増やしても DNS も routes も触らない。証明書は Cloudflare のワイルドカード証明書で賄い、ブログごとの発行・検証フローを持たない。開発環境の workers.dev はサブドメインを任意に生やせないため、パス方式 /s/<slug> を後方互換として残し、ホスト解決が効かない実行では従来どおり動く。既存の公開URLを壊さず、SITE_BASE_DOMAIN 未設定のブログもパス方式で到達できる。`
-- `- 資するゴール: G2, G1`
+| cloudflare-r2-overview | 2026-08-07 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
+| cloudflare-r2 | 2026-08-22 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/api/s3/presigned-urls/ | 2026-09-05T00:57:28Z | 2026-09-05T00:57:28Z |

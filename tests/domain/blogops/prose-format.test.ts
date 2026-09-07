@@ -20,13 +20,14 @@ import {
   type ProseNode,
   emptyProseNode,
   isEmptyProseNode,
+  PROSE_MENU_GROUPS,
   PROSE_MENU_ORDER,
   PROSE_NODE_KINDS,
-  PROSE_NODE_KEYWORDS,
-  PROSE_NODE_LABEL,
+  PROSE_NODE_METADATA,
   parseProse,
   serializeProse,
 } from "@/domain/blogops";
+import { PROSE_NODE_FIXTURE_BY_KIND } from "./prose-node-fixture";
 
 /** 往復して同じであること。期待値を手で書かないのは、表を直した日に古い表を守らないため。 */
 function roundTrip(nodes: readonly ProseNode[]): readonly ProseNode[] {
@@ -34,41 +35,63 @@ function roundTrip(nodes: readonly ProseNode[]): readonly ProseNode[] {
 }
 
 describe("本文の断片 — 保存の往復", () => {
-  const samples: Readonly<Record<string, readonly ProseNode[]>> = {
-    段落: [{ kind: "paragraph", text: "はじめての人に向けてまとめました。" }],
+  for (const kind of PROSE_NODE_KINDS) {
+    it(`${kind} は往復しても変わらない`, () => {
+      const node = PROSE_NODE_FIXTURE_BY_KIND[kind];
+      expect(roundTrip([node])).toStrictEqual([node]);
+    });
+  }
+
+  const additionalCases: Readonly<Record<string, readonly ProseNode[]>> = {
     複数行の段落: [{ kind: "paragraph", text: "1 行目\n2 行目" }],
-    小見出し3: [{ kind: "heading", level: 3, text: "必要な条件" }],
     小見出し4: [{ kind: "heading", level: 4, text: "細かい話" }],
-    箇条書き: [{ kind: "bullet-list", items: ["ひとつ", "ふたつ"] }],
-    番号付き: [{ kind: "ordered-list", items: ["最初", "次", "最後"] }],
-    引用: [{ kind: "quote", text: "引用した文\n続き" }],
-    区切り線: [{ kind: "divider" }],
-    画像: [{ kind: "image", src: "/media/a.png", alt: "机の上の様子" }],
-    注意書き: [
-      { kind: "callout", tone: "tip", title: "はじめての人へ", text: "まずここを読む。" },
-    ],
-    商品カード: [{ kind: "product-card", productId: "pc_abc123" }],
-    比較表: [
-      {
-        kind: "comparison-table",
-        headers: ["名前", "重さ", "値段"],
-        rows: [
-          ["見本 A", "1.2kg", "1 万円台"],
-          ["見本 B", "0.9kg", "2 万円台"],
-        ],
-      },
-    ],
+    複数行のプログラム: [{ kind: "code", language: "ts", text: "const a = 1;\n\nconsole.log(a);" }],
+    言語を決めていないプログラム: [{ kind: "code", language: "", text: "そのまま" }],
   };
 
-  for (const [name, nodes] of Object.entries(samples)) {
+  for (const [name, nodes] of Object.entries(additionalCases)) {
     it(`${name} は往復しても変わらない`, () => {
       expect(roundTrip(nodes)).toStrictEqual(nodes);
     });
   }
 
   it("全種類を 1 本に並べても、境目を取り違えない", () => {
-    const all = Object.values(samples).flat();
+    const all = PROSE_NODE_KINDS.map((kind) => PROSE_NODE_FIXTURE_BY_KIND[kind]);
     expect(roundTrip(all)).toStrictEqual(all);
+  });
+
+  for (const kind of ["comparison-table", "table"] as const) {
+    it(`${kind} の見出しとセルは | と \\ の組み合わせを保つ`, () => {
+      const node: ProseNode = {
+        kind,
+        headers: ["A | B", String.raw`C\D`, String.raw`E\|F`],
+        rows: [["\\", "G | H", String.raw`I\|J`]],
+      };
+
+      expect(roundTrip([node])).toStrictEqual([node]);
+    });
+  }
+
+  it("画像の alt/src は、区切り記号と入れ子括弧の全組み合わせを保つ", () => {
+    const alts = ["]", String.raw`図]\左`, "\\]\\"] as const;
+    const sources = [
+      "https://example.com/image(size).png",
+      "https://example.com/image(size(compact)).png",
+      String.raw`https://example.com/image\(escaped\)\file.png`,
+    ] as const;
+
+    for (const alt of alts) {
+      for (const src of sources) {
+        const image = { alt, src };
+        expect(roundTrip([{ kind: "image", ...image }]), `${alt} / ${src}`).toStrictEqual([
+          { kind: "image", ...image },
+        ]);
+        expect(
+          roundTrip([{ kind: "image-row", images: [image] }]),
+          `image-row: ${alt} / ${src}`,
+        ).toStrictEqual([{ kind: "image-row", images: [image] }]);
+      }
+    }
   });
 
   it("空の断片も往復する（`/` で選んだ直後に保存されても壊れない）", () => {
@@ -87,6 +110,60 @@ describe("本文の断片 — 保存の往復", () => {
 });
 
 describe("本文の断片 — 記法とぶつかる文章", () => {
+  for (const text of ["before\n```\nafter", "```\n````\n`````", "before\n  ```  \nafter"]) {
+    it(`コード本文に囲みと同じ記号があっても分裂しない: ${JSON.stringify(text)}`, () => {
+      const node: ProseNode = { kind: "code", language: "md", text };
+      expect(roundTrip([node])).toStrictEqual([node]);
+    });
+  }
+
+  for (const text of ["before\n:::\nafter", "before\n  :::  \nafter", "before\n\\:::\nafter", "before\n:::split\nafter"]) {
+    it(`囲みの本文に閉じ・区切り・エスケープがあっても保つ: ${JSON.stringify(text)}`, () => {
+      const nodes: readonly ProseNode[] = [
+        { kind: "callout", tone: "info", title: "題", text },
+        { kind: "toggle", title: "題", text },
+        { kind: "columns", left: text, right: text },
+      ];
+      expect(roundTrip(nodes)).toStrictEqual(nodes);
+    });
+  }
+
+  it("衝突がない既存のコードと囲みは保存記法を変えない", () => {
+    for (const source of [
+      "```ts\nconst n = 1;\n```",
+      ':::callout tone=info title="題"\n本文\n:::',
+      ':::toggle title="題"\n本文\n:::',
+      ":::columns\n左\n:::split\n右\n:::",
+    ]) {
+      expect(serializeProse(parseProse(source))).toBe(source);
+    }
+  });
+
+  it("旧形式の囲みで文字として書かれたバックスラッシュを消さない", () => {
+    const source = ':::callout tone=info title="題"\n\\:::\n本文\n:::';
+    expect(parseProse(source)).toStrictEqual([
+      { kind: "callout", tone: "info", title: "題", text: "\\:::\n本文" },
+    ]);
+    expect(serializeProse(parseProse(source))).toBe(source);
+  });
+
+  for (const header of [
+    ':::product-card id="x"',
+    ':::embed url="https://www.youtube.com/embed/x"',
+    ':::cta-button href="/guide"',
+    ':::link-card url="/guide"',
+  ]) {
+    it(`${header} の定義にない本文を消さず囲みごと残す`, () => {
+      const source = `${header}\n残すべき文章\n:::`;
+      expect(parseProse(source)).toStrictEqual([{ kind: "paragraph", text: source }]);
+    });
+  }
+
+  it("囲まれた表の後ろにある未解釈の文章を捨てない", () => {
+    const source = ":::table\n| H |\n| --- |\n| A |\n残すべき文章\n:::";
+    expect(parseProse(source)).toStrictEqual([{ kind: "paragraph", text: source }]);
+  });
+
   it("記号で始まる段落を、別の断片として読み直さない", () => {
     const tricky: readonly ProseNode[] = [
       { kind: "paragraph", text: "- これは箇条書きではなく本文です" },
@@ -97,6 +174,41 @@ describe("本文の断片 — 記法とぶつかる文章", () => {
       { kind: "paragraph", text: "1. 番号付きでもありません" },
     ];
     expect(roundTrip(tricky)).toStrictEqual(tricky);
+  });
+
+  it("画像記法と同じ文字列の段落を、画像に変えない", () => {
+    const node: ProseNode = { kind: "paragraph", text: "![not image](/x)" };
+
+    expect(roundTrip([node])).toStrictEqual([node]);
+  });
+
+  it("手書き画像の逃がした ] と入れ子括弧を、1 つの画像として読む", () => {
+    const source = String.raw`![図\]左](https://example.com/image(size(compact)).png)`;
+
+    expect(parseProse(source)).toStrictEqual([
+      {
+        kind: "image",
+        alt: "図]左",
+        src: "https://example.com/image(size(compact)).png",
+      },
+    ]);
+  });
+
+  for (const source of [
+    "![alt](https://example.com/image(size)",
+    "![alt](https://example.com/image.png) trailing",
+    String.raw`![alt\](https://example.com/image.png)`,
+    "![alt]{https://example.com/image.png}",
+  ]) {
+    it(`読み切れない画像らしい文字列「${source}」は、段落のまま残す`, () => {
+      expect(parseProse(source)).toStrictEqual([{ kind: "paragraph", text: source }]);
+    });
+  }
+
+  it("壊れた横並び画像の囲みは、全体を文字のまま残す", () => {
+    const source = ":::image-row\n![alt](https://example.com/image(size)\n:::";
+
+    expect(parseProse(source)).toStrictEqual([{ kind: "paragraph", text: source }]);
   });
 
   it("引用符を含む題名が、注意書きの属性を壊さない", () => {
@@ -128,6 +240,10 @@ describe("本文の断片 — 記法とぶつかる文章", () => {
 });
 
 describe("本文の断片 — 素の文章の互換", () => {
+  it("段落先頭の未定義エスケープは文字として残す", () => {
+    const source = String.raw`\日本語と\path`;
+    expect(parseProse(source)).toStrictEqual([{ kind: "paragraph", text: source }]);
+  });
   it("記法を 1 つも使っていない本文は、段落だけとして読める", () => {
     /*
       これが崩れると、既に保存されている記事の本文が読み直された瞬間に形を変える。
@@ -149,15 +265,46 @@ describe("本文の断片 — 素の文章の互換", () => {
 describe("本文の断片 — メニューの表", () => {
   it("種類ごとに名前と読みが 1 つずつある（増やしたときの付け忘れを止める）", () => {
     for (const kind of PROSE_NODE_KINDS) {
-      expect(PROSE_NODE_LABEL[kind], kind).not.toBe("");
-      expect(PROSE_NODE_KEYWORDS[kind].length, kind).toBeGreaterThan(0);
+      expect(PROSE_NODE_METADATA[kind].label, kind).not.toBe("");
+      expect(PROSE_NODE_METADATA[kind].keywords.length, kind).toBeGreaterThan(0);
     }
   });
 
-  it("メニューは段落を除く全種類をちょうど 1 回ずつ並べる", () => {
-    const expected = PROSE_NODE_KINDS.filter((k) => k !== "paragraph");
-    expect([...PROSE_MENU_ORDER].sort()).toStrictEqual([...expected].sort());
+  it("既存の 5 群に、全 19 種を正確な順で分ける", () => {
+    expect(PROSE_MENU_GROUPS).toStrictEqual([
+      {
+        id: "text",
+        label: "文章",
+        kinds: ["paragraph", "heading", "quote", "callout", "code"],
+      },
+      {
+        id: "list",
+        label: "一覧",
+        kinds: ["bullet-list", "ordered-list", "checklist", "toggle"],
+      },
+      {
+        id: "look",
+        label: "見せ方",
+        kinds: ["image", "image-row", "columns", "divider"],
+      },
+      {
+        id: "data",
+        label: "データ",
+        kinds: ["comparison-table", "table"],
+      },
+      {
+        id: "insert",
+        label: "差し込み",
+        kinds: ["product-card", "link-card", "cta-button", "embed"],
+      },
+    ]);
+    expect(PROSE_MENU_ORDER).toStrictEqual(PROSE_MENU_GROUPS.flatMap((group) => group.kinds));
+  });
+
+  it("メニューは全 19 種をちょうど 1 回ずつ並べる", () => {
+    expect([...PROSE_MENU_ORDER].sort()).toStrictEqual([...PROSE_NODE_KINDS].sort());
     expect(new Set(PROSE_MENU_ORDER).size).toBe(PROSE_MENU_ORDER.length);
+    expect(PROSE_MENU_ORDER).toHaveLength(19);
   });
 
   it("空かどうかの判定は、区切り線だけを例外にする", () => {
@@ -207,6 +354,56 @@ describe("本文の断片 — 記法として読めなかったとき", () => {
     const [node] = parseProse(":::callout tone=warn\n本文\n:::");
 
     expect(node).toMatchObject({ kind: "callout", tone: "warn", title: "", text: "本文" });
+  });
+
+  it("区切りの無い 2 段組は、どこまでが左か決まらないので段落として残す", () => {
+    const nodes = parseProse(":::columns\n左だけ書いた\n:::");
+
+    expect(nodes.every((n) => n.kind === "paragraph")).toBe(true);
+    expect(serializeProse(nodes)).toContain("左だけ書いた");
+  });
+
+  it("表の形をしていない `:::table` は表にせず段落として残す", () => {
+    const nodes = parseProse(":::table\nただの文\n:::");
+
+    expect(nodes.every((n) => n.kind === "paragraph")).toBe(true);
+    expect(serializeProse(nodes)).toContain("ただの文");
+  });
+
+  it("行き先の無い押しボタンは読まない（押せて何も起きないボタンを作らない）", () => {
+    const nodes = parseProse(':::cta-button label="押す"\n:::');
+
+    expect(nodes.every((n) => n.kind === "paragraph")).toBe(true);
+  });
+
+  it("閉じ忘れたプログラムの囲みは、本文を飲み込まず段落として残る", () => {
+    const nodes = parseProse("```ts\nconst a = 1;");
+
+    expect(nodes.every((n) => n.kind === "paragraph")).toBe(true);
+    expect(serializeProse(nodes)).toContain("const a = 1;");
+  });
+
+  it("チェックリストの印を箇条書きとして読み落とさない", () => {
+    /*
+      `- [ ] ` は `- ` にも当たる。読む順を逆にすると印が消え、
+      運営者から見て「保存したらチェックが全部外れた」ことになる。
+    */
+    const [node] = parseProse("- [x] 済んだ\n- [ ] まだ");
+
+    expect(node).toStrictEqual({
+      kind: "checklist",
+      items: [
+        { text: "済んだ", checked: true },
+        { text: "まだ", checked: false },
+      ],
+    });
+  });
+
+  it("角かっこで始まる箇条書きの項目が、チェックリストに化けない", () => {
+    const nodes: readonly ProseNode[] = [
+      { kind: "bullet-list", items: ["[ ] これは箇条書きの文字です", "ふつうの項目"] },
+    ];
+    expect(roundTrip(nodes)).toStrictEqual(nodes);
   });
 
   it("商品カードに商品の指定が無くても読める（指定は空になる）", () => {

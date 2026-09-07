@@ -1,0 +1,1146 @@
+{
+  "feature_package_id": "feature-package/feat-article-block-editor",
+  "p01_entry_gate": {
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ],
+    "selector": "parent_feature.depends_on"
+  },
+  "parent_feature": "feat-article-block-editor",
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "schema_version": "1.0.0",
+  "source_lineage": {
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "confirmed": true,
+    "source_paths": [
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/backend.md",
+      "system-spec/database.md",
+      "system-spec/infrastructure.md",
+      "system-spec/security.md",
+      "system-spec/maintenance-ops.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0"
+  },
+  "tasks": [
+    {
+      "acceptance": [
+        "P01: A1-A7 それぞれについて検証可能な受入条件文と対応する導出規則・データ要求が docs/spec/feat-article-block-editor/requirements-baseline.md に一意対応表として存在し、19種の断片カタログ (追加9種の名称・属性・保存形式表現) が block-catalog-decisions.md に、拡張MarkdownとProseNode木の往復規約、画像参照の正本 (Editorial側D1) とR2 presigned PUTのアップロード契約、公開ページ許可リストの範囲が image-upload-decisions.md に根拠つきで確定している状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p01.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P01 lifecycle 責務への確定写像"
+      },
+      "depends_on": [],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p01.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P01",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P01"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P01",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P01",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P01 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "data"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p01",
+        "feat-article-block-editor"
+      ],
+      "title": "19種断片カタログと保存形式・画像参照の要求ベースライン確定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P01 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/requirements-baseline.md",
+        "docs/spec/feat-article-block-editor/block-catalog-decisions.md",
+        "docs/spec/feat-article-block-editor/image-upload-decisions.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P02: 節/断片2層のUI表現契約、19種の編集面コンポーネント構成、拡張Markdown⇄ProseNode木の変換規則追加分、商品検索選択UIの契約、R2 presigned PUT発行APIとEditorial D1の画像参照テーブル設計、公開ページ許可リストレンダラの設計が既存 src/presentation/prose/ と src/application/adapters/ の実装境界と同じ切り方で確定しており、ExpressionBlockレジストリ (blog-template.ts) と expression-article-block.ts を設計が作り直していないことがgrep根拠つきで確認できる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p02.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P02 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P01"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p02.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P02"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P02",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P02 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "data",
+        "api"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p02",
+        "feat-article-block-editor"
+      ],
+      "title": "ブロックエディター描画・保存契約とR2アップロード経路の設計",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P02 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/architecture.md",
+        "docs/spec/feat-article-block-editor/data-model.md",
+        "docs/spec/feat-article-block-editor/api-contract.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P03: A1-A7 の各受入に対応する設計要素が一意に辿れ、scope_out の ExpressionBlock レジストリ・expression-article-block.ts・expression-block-view.tsx・複数人同時編集・バージョン履歴UI・商品データ取込について設計が作り直していないことが grep 根拠つきで確認され、未解消の指摘が0件である。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p03.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P03 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P02"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p03.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P03",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P03"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P03",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P03",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P03 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p03",
+        "feat-article-block-editor"
+      ],
+      "title": "設計レビューと既存表現ブロック境界の独立検証",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P03 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/design-review.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P04: A1-A7 の各項目に対して最低1件の落とせるテストケースが対応づき、境界値 (19種各1件の挿入・編集・公開描画一致、見出しレベル固定の全操作、商品検索0件/複数件、画像アップロード成功/失敗、許可リスト外タグ混入、既存10種記事の読み込みと再保存不変性) がテストケースとして列挙され、A7の不変性を担保する既存回帰スイートが名前で指定されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p04.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P04 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P03"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p04.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P04",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P04"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P04",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P04",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P04 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p04",
+        "feat-article-block-editor"
+      ],
+      "title": "受入7件に対応するテスト設計",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P04 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/test-design.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P05: P04 が指定したテストが緑化し、編集面に記法の生テキストが現れず19種すべてが `/` から挿入・編集でき (A1,A3)、節の見出しが常に見出し2、断片の見出しが見出し3/4に固定され操作でレベルが動かず (A2)、商品カードは検索結果選択のみで挿入でき手入力欄が無く (A4)、画像はブラウザからR2へ直接アップロードでき手入力欄が無く (A5)、公開ページの描画が許可リストで絞られ (A6)、既存10種の断片で書かれた記事が壊れずに読み込め保存し直しても内容が変わらない (A7) 状態が成立している。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p05.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P05 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P04"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p05.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P05"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P05",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P05 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "backend",
+        "api",
+        "data",
+        "infrastructure",
+        "security",
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p05",
+        "feat-article-block-editor"
+      ],
+      "title": "ブロックエディターWYSIWYG化とR2直接アップロード・許可リスト描画の実装",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P05 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "frontend",
+      "write_scope": [
+        "src/domain/blogops",
+        "src/domain/authoring/article-structure.ts",
+        "src/presentation/prose",
+        "src/presentation/admin/publish",
+        "src/application/ports",
+        "src/application/usecases",
+        "src/infrastructure/persistence/d1",
+        "src/infrastructure",
+        "src/db/schema.ts",
+        "drizzle",
+        "src/app/admin",
+        "src/app/api",
+        "src/app/s",
+        "worker-entry.js",
+        "tests"
+      ]
+    },
+    {
+      "acceptance": [
+        "P06: テスト全量実行で失敗0件であり、P04 が基準線として記録した既存スイートの成功件数が減っていないことが実行ログとともに記録されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p06.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P06 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P05"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p06.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P06",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P06"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P06",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P06",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P06 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "backend"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p06",
+        "feat-article-block-editor"
+      ],
+      "title": "テスト全量実行と回帰0件の確認",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P06 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/test-run.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P07: A1-A7 のすべてが判定済みで、各項目に検証コマンドまたは実画面の確認結果が根拠として紐づき、未達0件である。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p07.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P07 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P06"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p07.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P07",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P07"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P07",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P07",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P07 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p07",
+        "feat-article-block-editor"
+      ],
+      "title": "受入7件の受け入れ判定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P07 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/acceptance.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P08: 現行10種の断片で書かれた既存記事が新スキーマ下でも壊れずに読み込め、保存し直しても内容が変わらないこと (A7) が実測で確認され、拡張Markdownのパーサー・シリアライザー整理前後でテスト結果が同一であり、追加マイグレーションが既存データに対して前方互換であることが確認されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p08.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P08 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P05"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p08.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P08",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P08"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P08",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P08",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P08 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "data",
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p08",
+        "feat-article-block-editor"
+      ],
+      "title": "既存記事マイグレーションと保存形式の前方互換確認",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P08 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "backend",
+      "write_scope": [
+        "src/domain/blogops",
+        "drizzle",
+        "docs/spec/feat-article-block-editor/migration-compatibility.md",
+        "tests"
+      ]
+    },
+    {
+      "acceptance": [
+        "P09: 公開ページの描画が許可リストで絞られ許可外の断片・属性・スタイルが実測で出力されないこと (A6)、presigned PUT発行が既存 admin RBAC の外へ出ないこと、編集面の主要操作が可視ラベル・アクセシブル名で検証可能であることが、それぞれ実測または検査で確認されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p09.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P09 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P08"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p09.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P09"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P09",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P09 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "security",
+        "frontend"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p09",
+        "feat-article-block-editor"
+      ],
+      "title": "品質保証と非機能検査",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P09 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/quality-assurance.md",
+        "tests"
+      ]
+    },
+    {
+      "acceptance": [
+        "P10: P01からP09の成果物がすべて存在し内容が相互に矛盾しないことが確認され、残課題が本feature内で閉じるものとfollow-up候補に切り分けられ、follow-up候補には本packageへ追加しない理由が付いている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p10.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P10 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p10.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P10",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P10"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P10",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P10",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P10 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p10",
+        "feat-article-block-editor"
+      ],
+      "title": "最終レビューと残課題の確定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P10 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/final-review.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P11: A1-A7と非機能検査の各項目について、証跡のパスと再現コマンドが一覧化され、記載どおりに実行して同じ結論に至ることが確認されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p11.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P11 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P07",
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p11.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P11"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P11",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P11 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p11",
+        "feat-article-block-editor"
+      ],
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P11 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/evidence.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P12: 孤児画像の回収手順の確認先と対応手順、既存記事移行状況の確認手順が運用者の語彙で書かれており、実装を読まずに手順だけで対応の入口に立てる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p12.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P12 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P10",
+        "SYS-ARTICLE-BLOCK-EDITOR-P11"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p12.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P12"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P12",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P12 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p12",
+        "feat-article-block-editor"
+      ],
+      "title": "運用手順と文書化",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P12 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-article-block-editor/operations.md",
+        "docs/spec/feat-article-block-editor/documentation.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P13: 変更がdevブランチへのマージを経て開発環境へ出ており、実装で確定した19種断片カタログ・拡張Markdown保存形式の決定・画像参照契約がsystem-spec/frontend.md, system-spec/backend.md, system-spec/database.mdに書き戻され、切り戻し手順が記載されている。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p13.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-article-block-editor の P13 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P12"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-article-block-editor",
+        "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p13.md",
+        "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P13",
+        "parent_feature": "feat-article-block-editor",
+        "phase_ref": "P13"
+      },
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P13",
+      "implementation_readiness": {
+        "checked_at": "2026-09-05T04:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P13",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P13 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "documentation",
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "system-spec/security.md",
+        "system-spec/maintenance-ops.md",
+        "architecture/system-spec-overview.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p13",
+        "feat-article-block-editor"
+      ],
+      "title": "開発環境へのリリースとsystem-specへの書き戻し",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P13 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "operations",
+      "write_scope": [
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "docs/spec/feat-article-block-editor/release.md"
+      ]
+    }
+  ]
+}

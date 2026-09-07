@@ -108,7 +108,7 @@ describe("足りない部品を、保存を待たずに言う", () => {
     renderForm(rows);
     expect(screen.getByText("公開に必要な部品が足りません")).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText(/部品を 1 つ足す/), {
+    fireEvent.change(screen.getByLabelText(/章を 1 つ足す/), {
       target: { value: "summary-section" },
     });
 
@@ -123,7 +123,7 @@ describe("足りない部品を、保存を待たずに言う", () => {
   it("表に無い種類が選ばれても、部品を足さない", () => {
     renderForm(fullRows());
     const before = orderOnScreen().length;
-    fireEvent.change(screen.getByLabelText(/部品を 1 つ足す/), { target: { value: "" } });
+    fireEvent.change(screen.getByLabelText(/章を 1 つ足す/), { target: { value: "" } });
     expect(orderOnScreen().length).toBe(before);
   });
 });
@@ -233,7 +233,7 @@ describe("送る形", () => {
     renderForm(fullRows());
     const before = document.querySelectorAll('[name^="blocks["][name$="].id"]').length;
 
-    fireEvent.change(screen.getByLabelText(/部品を 1 つ足す/), {
+    fireEvent.change(screen.getByLabelText(/章を 1 つ足す/), {
       target: { value: "product-card" },
     });
 

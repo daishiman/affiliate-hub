@@ -12,7 +12,7 @@ iteration: null
 title: "記事の SEO 診断と下書きへの反映"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-04T02:30:02.398664Z"
+updated_at: "2026-09-07T15:54:25.202355Z"
 status: "active"
 depends_on: ["feat-editorial-workflow","feat-reader-surface","feat-blog-ui-builder"]
 related_nodes: ["spec-system-spec-index","feat-aeo-answer-optimization","feat-blog-scoped-admin-console"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-seo-assessment-reflection/7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "確定質疑 qa-frontend-web-seo-ai-search / qa-uiux-web-seo-ai-search / qa-backend-web-domain-aeo-behavior / qa-ops-web-domain-retention-seo-freshness を lineage 参照。利用者要望『SEO対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように』への対応"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-seo-assessment-reflection.md","confidence":0.95}]

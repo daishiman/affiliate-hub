@@ -92,6 +92,14 @@ const written = qaLog.filter((q) => q.source?.kind === "written-requirements");
 const dialogue = qaLog.filter((q) => q.source?.kind === "user-dialogue");
 
 describe("qa_log の source.sha256 が指しているもの (REQ-TS20 / 塞げない穴の固定)", () => {
+  it("書面を名乗る全件に path・section・本文指紋がある（後継を持つ旧 QA も除外しない）", () => {
+    const incomplete = written.filter((q) =>
+      !q.source?.path?.trim() || !q.source.section?.trim()
+      || !/^[a-f0-9]{64}$/.test(q.source.sha256 ?? ""),
+    );
+    expect(incomplete.map((q) => q.id)).toEqual([]);
+  });
+
   it("母集団の床 — 書面由来が 23 件以上ある（ここが 0 なら下の主張は全て空振り）", () => {
     expect(written.length).toBeGreaterThanOrEqual(23);
   });

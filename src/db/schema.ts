@@ -6,6 +6,7 @@ import {
   primaryKey,
   real,
   sqliteTable,
+  sqliteView,
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
@@ -3292,6 +3293,95 @@ export const aiSearchReauditRuns = sqliteTable(
     ),
   ],
 );
+
+/**
+ * 記事に貼られた画像の台帳。
+ *
+ * --- なぜ表が要るのか（置き場だけでは足りない理由） ---
+ *
+ * 1. **公開 URL から置き場の鍵を隠すため。** 記事本文に入るのは
+ *    `/api/article-images/<id>` だけで、`id` から鍵を引くのがこの表である
+ *    （`articleImageHref` / `articleImageKey`）。鍵をそのまま URL にすると、
+ *    公開ページの HTML を読むだけで他社の作業場所 id が拾える。
+ * 2. **送ったが使わなかった画像を回収するため。** 書き手は画像を送ってから
+ *    「やっぱりやめた」と消せる。置き場だけを見ても、その 1 枚が
+ *    記事から参照されているかは分からない。置き場は中身しか知らないため。
+ *
+ * `referenced` は**判定の結果を覚えておく欄**であって、真実そのものではない。
+ * 真実は記事本文の側にあり、`last_referenced_at` は「最後にそう見えた時刻」。
+ * 掃除は必ずこの 2 つと猶予期間を合わせて判断する
+ * （送った直後・まだ保存していない下書きの画像を消さないため）。
+ */
+export const articleImages = sqliteTable(
+  "article_image",
+  {
+    /** 公開 URL に出る覚えのない 1 語。置き場の鍵とは別物。 */
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    articleId: text("article_id").notNull(),
+    /** 置き場の鍵。組み立ては `articleImageKey` 1 か所だけが知っている。 */
+    objectKey: text("object_key").notNull().unique(),
+    mimeType: text("mime_type").notNull(),
+    byteSize: integer("byte_size").notNull(),
+    /** pending は未完了、deleting/deleted は永久に参照を再追加できない。 */
+    lifecycle: text("lifecycle", { enum: ["pending", "ready", "deleting", "deleted"] }).notNull().default("ready"),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+    /** 直近の点検で、記事本文から参照されていたか。 */
+    referenced: integer("referenced", { mode: "boolean" }).notNull().default(false),
+    /** 参照されていると最後に確かめられた時刻。一度も無ければ null。 */
+    lastReferencedAt: integer("last_referenced_at", { mode: "timestamp" }),
+    /** 公平な日次走査用。失敗も記録し、同じ先頭500枚への固定を防ぐ。 */
+    lastCheckedAt: integer("last_checked_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    // 絞り込みの 1 段目は必ず作業場所（tests/architecture/tenant-scoped-schema.test.ts）。
+    index("article_image_workspace_article_idx").on(t.workspaceId, t.articleId),
+    /*
+      掃除が拾う順。**`referenced` を先頭に置かない。**
+      置くと「一度は参照されていたが、あとで記事から外された画像」を
+      掃除が二度と見なくなる（台帳の `referenced` は前回の点検結果であって、
+      いまの真実ではないため）。古い順に端から見直すのが正しい。
+    */
+    index("article_image_sweep_idx").on(t.createdAt),
+    index("article_image_check_idx").on(t.lastCheckedAt, t.createdAt, t.id),
+    check("article_image_byte_size_check", sql`${t.byteSize} > 0`),
+    check("article_image_lifecycle_check", sql`${t.lifecycle} IN ('pending', 'ready', 'deleting', 'deleted')`),
+  ],
+);
+
+export type ArticleImageRow = typeof articleImages.$inferSelect;
+
+/** 全workspace共通のR2 prefix走査位置。利用者データではなく保守処理の進捗。 */
+export const articleImageSweepState = sqliteTable("article_image_sweep_state", {
+  id: text("id").primaryKey(),
+  cursor: text("cursor"),
+  version: integer("version").notNull().default(0),
+});
+
+/**
+ * 参照の正本は本文と公開JSON。JSON escapeを復号した文字列も含め、
+ * 点検と原子的claimが同じ資料を見る。UUIDへの言及も保護する安全側の索引。
+ */
+export const articleImageReferenceTexts = sqliteView("article_image_reference_text", {
+  workspaceId: text("workspace_id"),
+  body: text("body"),
+}).as(sql`
+  SELECT workspace_id, body FROM blog_article_block
+  UNION ALL
+  SELECT b.workspace_id, CAST(j.value AS TEXT) FROM blog_article_block b,
+    json_tree(CASE
+      WHEN json_valid(b.body) THEN b.body
+      WHEN substr(b.body, 1, 20) = 'expression-block:v1:' AND json_valid(substr(b.body, 21)) THEN substr(b.body, 21)
+      ELSE 'null' END) j WHERE j.type = 'text'
+  UNION ALL
+  SELECT workspace_id, article_json AS body FROM published_articles
+  UNION ALL
+  SELECT p.workspace_id, CAST(j.value AS TEXT) FROM published_articles p,
+    json_tree(CASE WHEN json_valid(p.article_json) THEN p.article_json ELSE 'null' END) j WHERE j.type = 'text'
+`);
 
 export type AiSearchAuditHistoryRow = typeof aiSearchAuditHistory.$inferSelect;
 export type AiSearchReauditRunRow = typeof aiSearchReauditRuns.$inferSelect;

@@ -330,6 +330,34 @@
       "when": 1788565476753,
       "tag": "0046_blog_operations_console",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "6",
+      "when": 1788641207763,
+      "tag": "0047_article_image",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "6",
+      "when": 1788641418129,
+      "tag": "0048_article_image_sweep_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "6",
+      "when": 1788686362594,
+      "tag": "0049_article_image_check_rotation",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "6",
+      "when": 1788689271690,
+      "tag": "0050_article_image_lifecycle",
+      "breakpoints": true
     }
   ]
 }

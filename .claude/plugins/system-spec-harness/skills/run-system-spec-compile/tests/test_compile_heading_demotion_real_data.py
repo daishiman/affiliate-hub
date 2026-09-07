@@ -119,7 +119,8 @@ def test_the_canonical_source_still_contains_the_shallow_headings_we_guard() -> 
         for line in answer.split("\n")
         if _HEADING.match(line) and len(_HEADING.match(line).group(1)) <= 2
     ]
-    assert len(ANSWERS) == 58, "qa_log の件数が動いた。下の実測値を取り直すこと"
+    # 見出しを持たない新規 QA の追加で母数を固定しない。守る実体は下の
+    # 40 見出し / 18 回答であり、全 QA は ANSWERS から漏れなく走査する。
     assert len(shallow) == 40, f"`## ` 以浅の見出し行が 40 行から動いた: {len(shallow)}"
     assert len(WITH_HEADINGS) == 18
 

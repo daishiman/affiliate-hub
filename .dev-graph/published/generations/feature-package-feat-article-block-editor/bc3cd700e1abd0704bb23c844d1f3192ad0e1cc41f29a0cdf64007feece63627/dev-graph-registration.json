@@ -1,0 +1,1159 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-article-block-editor",
+  "parent_feature": "feat-article-block-editor",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-ARTICLE-BLOCK-EDITOR-P01": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P02": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P03": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P04": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P05": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P06": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P07": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P08": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P09": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P10": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P11": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P12": "beads",
+    "SYS-ARTICLE-BLOCK-EDITOR-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "19種断片カタログと保存形式・Worker API画像契約の要求ベースライン確定",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/requirements-baseline.md",
+        "docs/spec/feat-article-block-editor/block-catalog-decisions.md",
+        "docs/spec/feat-article-block-editor/image-upload-decisions.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "ブロックエディター描画・保存契約とWorker API画像アップロード経路の設計",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/architecture.md",
+        "docs/spec/feat-article-block-editor/data-model.md",
+        "docs/spec/feat-article-block-editor/api-contract.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "設計レビュー — Worker API契約とpresigned PUT残滓の不在確認",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/design-review.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入7件に対応するテスト設計 (Worker API境界値含む)",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/test-design.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "ブロックエディターWYSIWYG化とWorker API画像アップロード・許可リスト描画の実装",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/domain/blogops",
+        "src/domain/authoring/article-structure.ts",
+        "src/presentation/prose",
+        "src/presentation/admin/publish",
+        "src/application/ports",
+        "src/application/usecases",
+        "src/infrastructure/persistence/d1",
+        "src/infrastructure",
+        "src/db/schema.ts",
+        "drizzle",
+        "src/app/admin",
+        "src/app/api",
+        "src/app/s",
+        "worker-entry.js",
+        "tests"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "テスト実行 — 実装全量の回帰・境界値・Worker APIシナリオ",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/test-run.md",
+        "tests"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入確認 — A1-A7 全件のPASS証跡取得",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/acceptance.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "リファクタリング・既存記事移行互換確認",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/domain/blogops",
+        "src/presentation/prose",
+        "src/application",
+        "src/infrastructure/persistence/d1",
+        "tests"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "品質保証 — Worker API認可境界・セキュリティ・パフォーマンス検証",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/qa-report.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "最終レビューと残課題の確定",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/final-review.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P07",
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/evidence.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "運用手順と文書化 — 孤児画像回収と管理者向け説明",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P10",
+        "SYS-ARTICLE-BLOCK-EDITOR-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-article-block-editor/operations.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "開発環境へのリリースとWorker API決定のsystem-specへの書き戻し",
+      "project_id": "feature-package-feat-article-block-editor",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-article-block-editor"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-07T15:31:08Z",
+      "updated_at": "2026-09-07T15:31:08Z",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/infrastructure.md",
+        "docs/spec/feat-article-block-editor/release.md"
+      ],
+      "parent_feature": "feat-article-block-editor",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "imported_at": "2026-09-07T15:31:08Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-article-block-editor の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-07T14:20:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    }
+  ]
+}

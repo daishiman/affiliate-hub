@@ -16,8 +16,10 @@
  * `equivalence` の根拠は、退避される欄を「戻す窓口が在る」「無い」の 2 群に割り、
  * 群ごとに全件を数えていること。群分けの網羅は「両群の和 = 退避リストの長さ」で確かめる。
  */
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -103,6 +105,7 @@ function discardedFieldList(): readonly string[] {
 const WRITER_OPS: Readonly<Record<string, readonly string[]>> = {
   qa_ref: ["confirm"],
   qa_refs: ["restore-qa-refs", "extend-qa-refs", "split-qa-bundle"],
+  approval_ref: ["set-approval"],
   serves_goals: ["set-serves"],
   required_info: ["set-required-info"],
   required_info_checks: ["record-required-info-check"],
@@ -138,6 +141,57 @@ describe("reopen で退避した欄が戻らない穴 (REQ-TS21 / ah-nuu の 4 �
     const forgotten = [...held].filter((f) => !listed.has(f)).sort();
     expect(forgotten, "この欄は reopen で黙って消える（4 度目の入口）").toEqual([]);
   });
+
+  it.each([true, false])(
+    "正規 writer は承認参照の有無 (%s) を履歴へ保ち、再オープン後の現在承認にはしない",
+    (hasApproval) => {
+      // 実 state の複製だけを一時領域で遷移させる。正本と過去の承認本文は書き換えない。
+      const fixture = structuredClone(state);
+      const [category, platform] = confirmedCells[0]!;
+      const cell = fixture.matrix[category][platform];
+      if (hasApproval) {
+        cell.approval_ref = "appr-reopen-regression";
+        fixture.approval_log.push({ id: cell.approval_ref, note: "再検証前の承認" });
+      } else {
+        delete cell.approval_ref;
+      }
+      const discarded = { ...cell };
+      delete discarded.state;
+      const reason = "承認を引き継がず要件を再検証する";
+      const directory = mkdtempSync(join(tmpdir(), "reopen-approval-"));
+      const fixturePath = join(directory, "fixture.json");
+      const writerArgs = [
+        join(dirname(MATRIX_PY), "apply-spec-transition.py"),
+        "apply", "--state", fixturePath,
+        "--op", JSON.stringify({ action: "reopen", category, platform, reason }),
+        "--out", fixturePath,
+      ];
+      try {
+        writeFileSync(fixturePath, JSON.stringify(fixture));
+        const result = spawnSync("python3", writerArgs, { encoding: "utf8" });
+        expect(result.status, result.stderr).toBe(0);
+        const saved = readFileSync(fixturePath, "utf8");
+        const reopened = JSON.parse(saved);
+        expect(reopened.reopen_log).toEqual([
+          ...fixture.reopen_log,
+          { category, platform, reason, from: "確定", discarded },
+        ]);
+        expect(reopened.matrix[category][platform]).toEqual({
+          state: "未収集", reopened_from: "確定", reopen_reason: reason,
+        });
+        expect(reopened.approval_log).toEqual(fixture.approval_log);
+        expect(reopened.qa_log).toEqual(fixture.qa_log);
+
+        // 同じ reopen の再実行は拒否され、退避した履歴も現在値も変わらない。
+        const replay = spawnSync("python3", writerArgs, { encoding: "utf8" });
+        expect(replay.status).not.toBe(0);
+        expect(replay.stderr).toContain("確定セルのみ reopen できる");
+        expect(readFileSync(fixturePath, "utf8")).toBe(saved);
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    },
+  );
 
   it("(症状) 退避されたことのある欄は、いまその章の確定セルに戻っている", () => {
     const missing: string[] = [];

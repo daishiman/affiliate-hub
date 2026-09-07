@@ -83,20 +83,28 @@ describe("BlogPosting", () => {
     });
   });
 
-  it("監修者が付いていないなら contributor を出さず、付いていれば Person で出す", () => {
+  it("監修者が付いていないなら contributor を出さず、付いていれば監修者ページと資格を持つ Person で出す", () => {
     // 同値: 無い記事にキー自体を出さない（空の監修者は「監修されている風」の嘘）。
     expect(buildBlogPosting(article, site)).not.toHaveProperty("contributor");
     const reviewed = buildBlogPosting(
       {
         ...article,
-        reviewedBy: { slug: "expert", name: "監修 太郎", bio: "整備士 10 年。", credentials: [] },
+        reviewedBy: {
+          slug: "expert",
+          name: "監修 太郎",
+          bio: "整備士 10 年。",
+          credentials: ["一級自動車整備士"],
+        },
       },
       site,
     );
     expect(reviewed.contributor).toMatchObject({
       "@type": "Person",
       name: "監修 太郎",
-      url: "https://example.com/s/gadget/authors/expert",
+      url: "https://example.com/s/gadget/experts/expert",
+      hasCredential: [
+        { "@type": "EducationalOccupationalCredential", name: "一級自動車整備士" },
+      ],
     });
   });
 

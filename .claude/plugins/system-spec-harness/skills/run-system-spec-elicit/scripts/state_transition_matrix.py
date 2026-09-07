@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import datetime
+import copy
 import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -636,6 +638,159 @@ def retract_qa(state: dict, qa_id: str, reason: object) -> None:
             "entry": entry,
         }
     )
+
+
+RETRACT_INVALID_QA_WRITER = "retract-invalid-qa"
+
+
+def qa_entry_fingerprint(entry: dict) -> str:
+    """Identify an exact record version; this is NOT evidence of source authenticity."""
+    return hashlib.sha256(json.dumps(
+        entry, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+    ).encode("utf-8")).hexdigest()
+
+
+def _written_source_is_incomplete(entry: dict) -> bool:
+    from foundation_provenance import SHA256_RE, _is_relative_path
+
+    source = entry.get("source")
+    if not isinstance(source, dict) or source.get("kind") != "written-requirements":
+        return False
+    section, digest = source.get("section"), source.get("sha256")
+    answer = entry.get("answer")
+    return (
+        not _is_relative_path(source.get("path"))
+        or not isinstance(section, str) or not section.strip()
+        or not isinstance(digest, str) or not SHA256_RE.fullmatch(digest)
+        or not isinstance(answer, str)
+        or hashlib.sha256(answer.encode("utf-8")).hexdigest() != digest
+    )
+
+
+def _live_qa_reference_paths(state: dict, qa_id: str) -> list[str]:
+    """Conservatively find exact references, excluding immutable historical logs/edges.
+
+    Free prose mentioning an ID is not rewritten. Exact references in foundation,
+    required_info.grounded_by, decisions or another QA's scope are live and block.
+    Supersession edges are checked against an explicit, fingerprinted inventory.
+    """
+    paths: list[str] = []
+
+    def scan(value: object, path: str) -> None:
+        if isinstance(value, str) and value == qa_id:
+            paths.append(path)
+        elif isinstance(value, dict):
+            for key, child in value.items():
+                scan(child, f"{path}.{key}")
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                scan(child, f"{path}[{index}]")
+
+    for key, value in state.items():
+        if key not in {"qa_log", "retracted_qa_log", "reopen_log", "approval_log"}:
+            scan(value, key)
+    for entry in state.get("qa_log", []):
+        if entry["id"] != qa_id:
+            scan({key: value for key, value in entry.items() if key not in {"id", "superseded_by"}},
+                 f"qa_log[{entry['id']}]")
+    return paths
+
+
+def retract_invalid_qa(state: dict, request: object) -> None:
+    """Retire invalid written provenance and preserve every predecessor's old claim.
+
+    Unlike retract-qa, this narrowly scoped repair supports already reused IDs and
+    incoming superseded_by edges. A unique receipt and exact record fingerprints
+    distinguish versions; neither question/answer/source nor previous archives are
+    edited. All preconditions are checked before either active log is changed.
+    """
+    writer = RETRACT_INVALID_QA_WRITER
+    fields = {"retraction_id", "qa_id", "expected_entry_sha256", "replacement_qa_id",
+              "expected_replacement_sha256", "predecessors", "reason"}
+    if not isinstance(request, dict) or set(request) != fields:
+        raise TransitionError(f"{writer}: request の必須欄・許可欄が不一致")
+    for key in fields - {"predecessors"}:
+        if not isinstance(request[key], str) or not request[key].strip():
+            raise TransitionError(f"{writer}: {key} は非空文字列必須")
+    for key in ("expected_entry_sha256", "expected_replacement_sha256"):
+        if not re.fullmatch(r"[0-9a-f]{64}", request[key]):
+            raise TransitionError(f"{writer}: {key} が不正")
+    expected_predecessors = request["predecessors"]
+    if not isinstance(expected_predecessors, list) or any(
+        not isinstance(item, dict) or set(item) != {"qa_id", "expected_entry_sha256"}
+        or not isinstance(item["qa_id"], str) or not item["qa_id"].strip()
+        or not isinstance(item["expected_entry_sha256"], str)
+        or not re.fullmatch(r"[0-9a-f]{64}", item["expected_entry_sha256"])
+        for item in expected_predecessors
+    ):
+        raise TransitionError(f"{writer}: predecessors が不正")
+    if len({item["qa_id"] for item in expected_predecessors}) != len(expected_predecessors):
+        raise TransitionError(f"{writer}: predecessors の id が重複")
+    log, archives = state.get("qa_log"), state.get("retracted_qa_log", [])
+    if not isinstance(log, list) or not isinstance(archives, list):
+        raise TransitionError(f"{writer}: qa_log / retracted_qa_log は配列必須")
+    if any(not isinstance(entry, dict) or not isinstance(entry.get("id"), str) for entry in log):
+        raise TransitionError(f"{writer}: qa_log entry が不正")
+    by_id = {entry["id"]: entry for entry in log}
+    if len(by_id) != len(log):
+        raise TransitionError(f"{writer}: active qa_log の id が重複")
+    qa_id, replacement_id = request["qa_id"], request["replacement_qa_id"]
+    previous = [item for item in archives if isinstance(item, dict)
+                and item.get("retraction_id") == request["retraction_id"]]
+    if previous:
+        if len(previous) != 1 or previous[0].get("request") != request:
+            raise TransitionError(f"{writer}: retraction_id の異なる再適用は拒否")
+        receipt = previous[0]
+        history = receipt.get("supersession_history")
+        if (qa_id in by_id or receipt.get("retracted_with") != writer
+                or receipt.get("id") != qa_id or receipt.get("reason") != request["reason"]
+                or not isinstance(receipt.get("entry"), dict)
+                or qa_entry_fingerprint(receipt["entry"]) != request["expected_entry_sha256"]
+                or not isinstance(history, list)
+                or [{"qa_id": item.get("id"), "expected_entry_sha256": qa_entry_fingerprint(item)}
+                    for item in history if isinstance(item, dict)] != expected_predecessors
+                or len(history) != len(expected_predecessors)):
+            raise TransitionError(f"{writer}: 退避記録または active ID が再適用と不整合")
+        return
+    entry, replacement = by_id.get(qa_id), by_id.get(replacement_id)
+    if entry is None or replacement is None or qa_id == replacement_id:
+        raise TransitionError(f"{writer}: 対象と別の実在する replacement が必須")
+    if (qa_entry_fingerprint(entry) != request["expected_entry_sha256"]
+            or qa_entry_fingerprint(replacement) != request["expected_replacement_sha256"]):
+        raise TransitionError(f"{writer}: 対象または replacement の版が変化")
+    if not _written_source_is_incomplete(entry):
+        raise TransitionError(f"{writer}: 対象は written source 契約違反ではない")
+    source = replacement.get("source")
+    if (replacement.get("superseded_by")
+            or not isinstance(source, dict) or source.get("kind") not in QA_SOURCE_KINDS
+            or _written_source_is_incomplete(replacement)
+            or any(not isinstance(replacement.get(key), str) or not replacement[key].strip()
+                   for key in ("question", "answer"))):
+        raise TransitionError(f"{writer}: replacement は有効な現行 QA でなければならない")
+    if entry.get("written_up"):
+        raise TransitionError(f"{writer}: written_up のある対象は取り下げ不可")
+    predecessors = [item for item in log if item.get("superseded_by") == qa_id]
+    actual = {item["id"]: qa_entry_fingerprint(item) for item in predecessors}
+    expected = {item["qa_id"]: item["expected_entry_sha256"] for item in expected_predecessors}
+    if actual != expected:
+        raise TransitionError(f"{writer}: predecessor の集合または版が変化")
+    for retired_id in [qa_id, *actual]:
+        refs = _live_qa_reference_paths(state, retired_id)
+        if refs:
+            raise TransitionError(f"{writer}: active 参照が残る {retired_id}: {', '.join(refs)}")
+
+    receipt = {
+        "id": qa_id, "retraction_id": request["retraction_id"], "reason": request["reason"],
+        "retracted_on": datetime.date.today().isoformat(), "retracted_with": writer,
+        "entry": copy.deepcopy(entry), "request": copy.deepcopy(request),
+        "supersession_history": [copy.deepcopy(by_id[item["qa_id"]]) for item in expected_predecessors],
+    }
+    # Commit only after all guards pass. Copies avoid aliasing archived originals.
+    state["qa_log"] = [
+        {**item, "superseded_by": replacement_id} if item["id"] in actual else item
+        for item in log if item["id"] != qa_id
+    ]
+    state["retracted_qa_log"] = [*archives, receipt]
 
 
 SPLIT_BUNDLE_WRITER = "split-qa-bundle"
@@ -1855,9 +2010,12 @@ def apply_cell_op(state: dict, op: dict) -> None:
             # 全部拒否されるので、**一度 reopen したら二度と戻せない。**
             # 「reopen で黙って消え、再確定のときに元は何が接地していたかを誰も引けない」
             # という上の理由が、そのまま当てはまる。
+            # set-approval が付与した承認参照も履歴へ退避する。
+            # 現在セルへは残さず、再検討後の承認とは区別する。
             for key in (
                 "qa_ref",
                 "qa_refs",
+                "approval_ref",
                 "serves_goals",
                 "serves_intents",
                 "required_info",
@@ -2309,6 +2467,9 @@ def set_qa_source(state: dict, qa_id: str, reason: str) -> None:
 
 def apply_turn(state: dict, turn: dict) -> None:
     qa_id = turn.get("qa_id")
+    if (qa_id and not has_entry(state["qa_log"], qa_id)
+            and has_entry(state.get("retracted_qa_log", []), qa_id)):
+        raise TransitionError(f"取り下げ済み qa_id は再利用できない: {qa_id}。新しい ID を使うこと")
     ops = turn.get("ops", [])
     normalized_design_applications: list[dict] | None = None
     if state.get("design_application_contract_version") == DESIGN_APPLICATION_CONTRACT_VERSION:

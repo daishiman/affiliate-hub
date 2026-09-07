@@ -96,6 +96,6 @@
 
 | 入口 | 場所 |
 | --- | --- |
-| `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:435` |
-| `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:527` |
-<!-- 生成物の指紋 sha256:8c96ce912d01b8d1a2cca2d687463fbed4f826d5fd0c3dee0a56495ec142314a -->
+| `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:415` |
+| `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:507` |
+<!-- 生成物の指紋 sha256:a9c75f79aacf72a776a10140de05d9d74df1831f7ec542b39e56441af0396fef -->

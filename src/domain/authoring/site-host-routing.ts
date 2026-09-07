@@ -55,6 +55,10 @@ export function isAlwaysPassPath(pathname: string): boolean {
  * 片方の経路にだけ効く、という形が作れてしまう。
  */
 export function routeResolvedSite(slug: string, pathname: string): HostRouting {
+  // 画像の公開可否はGET handlerが毎回確認する。アップロード口は公開しない。
+  if (/^\/api\/article-images\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(pathname)) {
+    return { kind: "pass" };
+  }
   if (OWNER_ONLY_PREFIXES.some((prefix) => hasPrefix(pathname, prefix))) {
     return { kind: "not-found" };
   }

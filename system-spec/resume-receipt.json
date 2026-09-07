@@ -12,21 +12,21 @@
     "evaluator": "PASS"
   },
   "artifacts": {
-    "system-spec/00-requirements-definition.md": "3b82e6def629c233ff96e483e6eda6b141c34f5ab37113e460b91c99c723bb9a",
-    "system-spec/completeness-report.json": "fe7563a7f8e52bed5607ecbe1a12103958684ce1d25b276007f42aefa8ed415f",
-    "system-spec/fetched-references.json": "209f736b7139625f7b264307e815a509f538ff062c8e5f5150f453a838a9ed41",
-    "system-spec/index.md": "304d3e0c91fb564bdb33f857bb7a558589b0afa0d2e1c64d1725708fabad273b",
-    "system-spec/spec-state.json": "fe474848b3db2b22cbc1ec144ed89233c45ede8c59fb6084f96bfb9cb6602136"
+    "system-spec/00-requirements-definition.md": "cf8c44862e1a45d8b2a5fc7b72555e2bf5c5dd04f8514f11e1ce0dfc1d4310b4",
+    "system-spec/completeness-report.json": "dc69e4f245e9093bc9d0855dd3757a613a2283a7e2475d2f18ba50253728fa91",
+    "system-spec/fetched-references.json": "607f57a986c24e029ba346d31920d6a77fa4c267adf3e585b598ab750d792baf",
+    "system-spec/index.md": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
+    "system-spec/spec-state.json": "eebd9b084ff53e2447e41b221875df8eb8597fa7003da68a56b1aeb412399fec"
   },
   "inputs": {
-    "file_count": 288,
-    "sha256": "bea674ba913baa92ab8faacb45dc765f34cec9dff22c417c9bbc3f845c534f28"
+    "file_count": 306,
+    "sha256": "580dc16860037e5784faef1b2be41f87930275d4f3f8650d589247f487b42918"
   },
   "evaluator": {
     "report_path": "system-spec/completeness-report.json",
-    "report_sha256": "fe7563a7f8e52bed5607ecbe1a12103958684ce1d25b276007f42aefa8ed415f",
+    "report_sha256": "dc69e4f245e9093bc9d0855dd3757a613a2283a7e2475d2f18ba50253728fa91",
     "fork_ledger_path": "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
-    "session_id": "c4e1822c-f518-46a9-b066-1547a1142200"
+    "session_id": "83b6e6d3-3955-448e-b151-cce45e56d408"
   },
-  "created_at": "2026-09-05T01:20:36Z"
+  "created_at": "2026-09-07T17:01:32Z"
 }

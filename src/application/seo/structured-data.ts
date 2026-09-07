@@ -105,19 +105,28 @@ function articleUrl(article: PublishedArticle, site: SiteJsonLdInput): string {
 /**
  * 書き手・監修者の Person。
  *
- * `url` は実在する著者ページ（`/authors/<slug>`）を指す。E-E-A-T の
+ * `url` は役割ごとの実在する人物ページを指す。E-E-A-T の
  * 「誰が言っているか」を機械が辿れる形にするのが目的で、辿れない URL を
- * 出すくらいなら出さない方がよい——が、著者ページは公開ルートとして
- * 常に実在する（`view-model.ts` の `authorHref` と同じ道）ので常に出す。
+ * 出すくらいなら出さない方がよい——が、著者は `/authors/<slug>`、監修者は
+ * `/experts/<slug>` の公開ルートが常に実在するので常に出す。
  * `hasCredential` は資格が 1 つも無いとき**キーごと省く**。空配列の
  * 資格一覧は「資格の無い資格持ち」という嘘の構造になる。
  */
-function buildPerson(person: PublishedPerson, site: SiteJsonLdInput): JsonLdObject {
+const PERSON_PROFILE_PATH = {
+  author: "authors",
+  contributor: "experts",
+} as const;
+
+function buildPerson(
+  person: PublishedPerson,
+  role: keyof typeof PERSON_PROFILE_PATH,
+  site: SiteJsonLdInput,
+): JsonLdObject {
   return {
     "@type": "Person",
     name: person.name,
     description: person.bio,
-    url: `${site.origin}${site.basePath}/authors/${person.slug}`,
+    url: `${site.origin}${site.basePath}/${PERSON_PROFILE_PATH[role]}/${person.slug}`,
     ...(person.credentials.length === 0
       ? {}
       : {
@@ -157,7 +166,7 @@ export function buildBlogPosting(
     articleSection: article.categorySlug,
     datePublished: article.publishedAt,
     ...(freshness === undefined ? {} : { dateModified: freshness.asOf }),
-    author: buildPerson(article.author, site),
+    author: buildPerson(article.author, "author", site),
     /*
       要点を abstract に出す。読者に見えている箇条書きを**そのまま**
       1 件 1 行で連ねるだけで、ここで文を作らない。
@@ -183,7 +192,7 @@ export function buildBlogPosting(
     // 空の監修者を出すと「監修されている風」の嘘になる。
     ...(article.reviewedBy === undefined
       ? {}
-      : { contributor: buildPerson(article.reviewedBy, site) }),
+      : { contributor: buildPerson(article.reviewedBy, "contributor", site) }),
     publisher: organizationRef(site.siteName),
     mainEntityOfPage: webPageRef(url),
   });

@@ -15,7 +15,31 @@ from spec_docset_citation import render_clause_citation
 
 # レンダリング (章 / index) — 純関数                                            #
 # --------------------------------------------------------------------------- #
-_FENCE_RE = re.compile(r"^```", re.M)
+_FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+
+
+def _next_fence(line: str, opened: str | None) -> str | None:
+    match = _FENCE_RE.match(line)
+    if not match:
+        return opened
+    marker, tail = match.groups()
+    if opened is None:
+        return None if marker[0] == "`" and "`" in tail else marker
+    if marker[0] == opened[0] and len(marker) >= len(opened) and not tail.strip():
+        return None
+    return opened
+
+
+def markdown_heading_levels(text: str) -> list[int]:
+    """Return each line's heading depth, excluding literal fenced-code content."""
+    opened: str | None = None
+    levels: list[int] = []
+    for line in text.split("\n"):
+        before = opened
+        opened = _next_fence(line, opened)
+        match = _HEADING_RE.match(line) if before is None and opened is None else None
+        levels.append(len(match.group(1)) if match else 0)
+    return levels
 
 
 def seal_code_fences(text: str) -> tuple[str, bool]:
@@ -32,9 +56,12 @@ def seal_code_fences(text: str) -> tuple[str, bool]:
     足したことは呼び出し側が注記として可視化する (fail-visible)。
     正本 (qa_log[].answer) 側の修正が本筋であり、これはその修正までの防波堤である。
     """
-    if len(_FENCE_RE.findall(text)) % 2 == 0:
+    opened: str | None = None
+    for line in text.split("\n"):
+        opened = _next_fence(line, opened)
+    if opened is None:
         return text, False
-    return text + "\n```", True
+    return text + "\n" + opened, True
 
 
 _HEADING_RE = re.compile(r"^(#{1,6})(\s|$)")
@@ -65,17 +92,8 @@ def demote_headings(text: str, floor: int) -> tuple[str, bool, bool]:
     戻り値: (押し下げ後の本文, 押し下げたか, 上限で潰れたか)
     """
     lines = text.split("\n")
-    in_fence = False
-    levels: list[int] = []
-    for line in lines:
-        if line.startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        m = _HEADING_RE.match(line)
-        if m:
-            levels.append(len(m.group(1)))
+    line_levels = markdown_heading_levels(text)
+    levels = [level for level in line_levels if level]
     if not levels:
         return text, False, False
     shift = floor - min(levels)
@@ -83,20 +101,14 @@ def demote_headings(text: str, floor: int) -> tuple[str, bool, bool]:
         # すでに埋め込み先より深い。触らないのが正しい。
         return text, False, False
     out: list[str] = []
-    in_fence = False
     flattened = False
-    for line in lines:
-        if line.startswith("```"):
-            in_fence = not in_fence
-            out.append(line)
-            continue
-        m = None if in_fence else _HEADING_RE.match(line)
-        if m:
-            wanted = len(m.group(1)) + shift
+    for line, current_level in zip(lines, line_levels):
+        if current_level:
+            wanted = current_level + shift
             level = min(6, wanted)
             if wanted > 6:
                 flattened = True
-            out.append("#" * level + line[len(m.group(1)):])
+            out.append("#" * level + line[current_level:])
         else:
             out.append(line)
     return "\n".join(out), True, flattened
@@ -371,7 +383,8 @@ def _render_qa_body(
     lines.append("")
     answer, sealed = seal_code_fences(str(qa.get("answer", "(未記入)")))
     answer, demoted, flattened = demote_headings(answer, 4)
-    lines.append(f"**回答**: {answer}")
+    separator = "\n\n" if _FENCE_RE.match(answer.split("\n", 1)[0]) or re.match(r"^#{1,6}\s", answer) else " "
+    lines.append(f"**回答**:{separator}{answer}")
     lines.append("")
     for note in _demotion_notes(ref, demoted, flattened):
         lines.append(note)
@@ -410,7 +423,15 @@ def render_chapter_notes(spec: dict, cat_id: str) -> str:
         if not isinstance(note, dict):
             continue
         lines += ["", f"### {note.get('heading', '(見出しなし)')}", ""]
-        lines += [str(note.get("body", "")).rstrip("\n")]
+        body, sealed = seal_code_fences(str(note.get("body", "")).rstrip("\n"))
+        body, demoted, flattened = demote_headings(body, 4)
+        lines += [body]
+        if demoted:
+            lines += ["", "- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)"]
+        if flattened:
+            lines += ["", "- (注記: chapter_notes 本文の見出しの深さが Markdown の上限 h6 に達した)"]
+        if sealed:
+            lines += ["", "- (注記: chapter_notes 本文の未閉鎖フェンスをコンパイラが閉じ、後続の注記を保護した)"]
         reason = str(note.get("reason") or "").strip()
         if reason:
             lines += ["", f"- 正本へ入れた理由: {reason}"]
@@ -708,7 +729,8 @@ def _render_application_entry(
         # 片方だけ塞ぐと、同じ壊れがこちらから章へ漏れる。
         answer, sealed = seal_code_fences(str(qa.get("answer", "(qa_log 本文欠落)")))
         answer, demoted, flattened = demote_headings(answer, 6)
-        lines.append(f"- 確定要件: {answer}")
+        separator = "\n\n" if _FENCE_RE.match(answer.split("\n", 1)[0]) or re.match(r"^#{1,6}\s", answer) else " "
+        lines.append(f"- 確定要件:{separator}{answer}")
         if sealed:
             lines.append(
                 f"- (注記: 正本 qa_log[{ref}].answer のコードフェンスが閉じていないため、"

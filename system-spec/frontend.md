@@ -15,12 +15,12 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-scoped-admin。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
+| タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 
 ## 確定セルの記録 (正本 spec-state.json)
 
@@ -30,7 +30,7 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | frontend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-frontend-web-blog-scoped-admin` |
+| 確定質疑 (qa_ref) | `qa-frontend-web-editor-verbatim` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
@@ -41,7 +41,7 @@ serves_goals: [G1, G2, G3]
 
 ## 意思決定 (decisions)
 
-> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`frontend`) を主担当とする **2 件**。全 12 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`frontend`) を主担当とする **2 件**。全 15 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
 |---|---|---|---|---|
@@ -54,7 +54,22 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-frontend-web-blog-scoped-admin (対応セル: web)
+### qa-frontend-web-editor-verbatim (対応セル: web)
+
+**質問**: frontend×web: 記事に置ける表現物として利用者は何を挙げたか。断片カタログを起草する前に、利用者が実際に挙げた対象を逐語で記録する
+
+**回答**: [追加要望 (2026-09-05)]
+「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
+
+[機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
+
+[AskUserQuestion「編集体験をどうするか」への選択]
+「断片欄を維持し、全断片を見た目へ（推奨）」
+
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-frontend-web-blog-scoped-admin (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: frontend×web: 管理画面 88 ページを『記事ごと』ではなく『ブログごと』に扱えるようにするには、画面の構造をどう組み替えるか。ヒートマップの描画はどう実現するか
 
@@ -191,7 +206,7 @@ serves_goals: [G1, G2, G3]
 > 実装で**実際に確定した契約**と、方針と実装がずれた点を記録する。
 > **方針を書き換えず、差分として足してある。**ずれを上書きで消すと、なぜその形になったかが読めなくなる。
 
-### 1. テーマ実装契約 — 2 層 + 単一読み取り口
+#### 1. テーマ実装契約 — 2 層 + 単一読み取り口
 
 配色は 3 段で解決する。
 
@@ -217,7 +232,7 @@ site_blueprint.theme（設計図の既定）
 
 方針の「色は light-dark() で解決」はそのまま成立している。
 
-### 2. コンポーネント契約 — テンプレートは「並び方」だけを決める
+#### 2. コンポーネント契約 — テンプレートは「並び方」だけを決める
 
 テンプレートは 6 種で確定した (`src/domain/authoring/blog-template.ts`)。
 `review_focus` / `comparison_focus` / `howto` / `news` / `minimal` / `gadget`。
@@ -246,9 +261,9 @@ site_blueprint.theme（設計図の既定）
 先頭が結論でないと AI 検索に途中から切り取られ、
 信頼を確かめる材料は読み終わったところに置くためである。
 
-### 3. SEO / AI 検索実装契約 (A10〜A14)
+#### 3. SEO / AI 検索実装契約 (A10〜A14)
 
-#### 3.1 JSON-LD — 画面と機械向け出力は同じ読み取りモデルから作る
+##### 3.1 JSON-LD — 画面と機械向け出力は同じ読み取りモデルから作る
 
 **確定した契約 — 別の組み立てを置かない。**
 置くと、記事を直したのに sitemap だけ古い、が起きる。
@@ -262,7 +277,7 @@ site_blueprint.theme（設計図の既定）
 
 **確定した契約 — 報酬・運営情報は読者向け読み取りポートを通さない。**
 
-#### 3.2 sitemap / robots / RSS / llms.txt
+##### 3.2 sitemap / robots / RSS / llms.txt
 
 **確定した契約 — origin は届いたリクエストの Host から作る。環境変数に固定しない。**
 固定すると、プレビュー環境が本番の URL を書いた sitemap を出す。
@@ -272,7 +287,7 @@ site_blueprint.theme（設計図の既定）
 
 方針の「効果未確認と明記」は維持する。**Google は llms.txt を使わないと明言している。**
 
-#### 3.3 IndexNow — 鍵の環境変数分離
+##### 3.3 IndexNow — 鍵の環境変数分離
 
 **確定した契約 — 鍵はリポジトリ・管理画面・D1 のいずれにも置かず、Worker の環境変数 `INDEXNOW_KEY` だけに置く。**
 鍵ファイル `/indexnow.txt` の中身が鍵そのもので、それが所有権の証明であるためである。
@@ -288,7 +303,7 @@ site_blueprint.theme（設計図の既定）
 `tests/presentation/publish-article-indexnow.test.ts` (公開時の連動) /
 `tests/architecture/open-doors.test.ts` (外向きに開いた口の台帳)。
 
-#### 3.4 guideline_references — 90 日再確認
+##### 3.4 guideline_references — 90 日再確認
 
 **確定した契約 — 90 日の判定は `referenceReviewStatus` だけが行う。画面側で数え直さない。**
 2 か所で数えると、時差や境界の扱いが食い違ったときどちらが正しいか決められなくなる。
@@ -307,7 +322,7 @@ site_blueprint.theme（設計図の既定）
 (Google AI 最適化ガイド / AI features and your website / llms.txt / IndexNow) は
 すべて「原典未取得」である。**90 日の判定は動くが、判定する対象が無い。**
 
-### 4. 方針どおりにならなかった点 (2026-08-30 時点で未解決)
+#### 4. 方針どおりにならなかった点 (2026-08-30 時点で未解決)
 
 | 方針 | 実装の現状 | 影響 |
 |---|---|---|
@@ -319,6 +334,8 @@ site_blueprint.theme（設計図の既定）
 
 **この 2 件を解いていない状態では、§3.1 の JSON-LD 契約は「あるべき契約」であって
 現状の説明ではない。** 契約が守られていることの確認は、本文が出てから行う。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
 
 - 正本へ入れた理由: feat-blog-ui-builder P01〜P12 の実装で確定したテーマ実装契約・コンポーネント契約・SEO/AI検索実装契約 (JSON-LD/sitemap/IndexNow/guideline_references) を、方針を上書きせず差分として正本へ記録する。章へ直接書くと compile で消えるため。
 
@@ -357,6 +374,157 @@ site_blueprint.theme（設計図の既定）
 **本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
 
 - 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
+
+### この章の要件 ID を書いたのは誰か
+
+この章の FRONT-REQ-005〜008 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。
+
+**利用者の逐語（`qa-frontend-web-editor-verbatim` の answer に原文がある）**
+
+> コードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか
+
+**そこから AI が導いた受入条件**
+
+- 断片カタログが、逐語で名指しされた 5 種（コードブロック・カード・並列画像・表・色付き文字）を含むこと
+- 色は独立した断片種にせず、断片の内側の装飾属性として持つこと
+- 断片の描画部品を編集面と公開ページで共有すること
+
+**利用者の確認を受けている範囲**
+
+断片カタログの具体的な種類数（19 種）と各断片の属性設計は、利用者へ提示していない。
+
+この区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。
+
+- 正本へ入れた理由: C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。質疑側は逐語だけに作り直したので、章側で要件 ID の出所 (逐語 / AI 導出 / 利用者確認済みの範囲) を名乗らせる。
+
+### AI が起草した設計宣言（質疑から移した本文）
+
+以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。
+
+この本文はもともと質疑 `qa-frontend-web-prose-fragment-catalog` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。
+
+**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-frontend-web-editor-verbatim` である。
+
+利用者の逐語は `qa-frontend-web-editor-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。
+
+---
+
+**当初の問い**
+
+> frontend×web: 記事作成に要る表現を賄うため、本文断片 (ProseNode) のカタログを現行 10 種からどこまで広げ、編集画面でどう出すか。
+
+**設計宣言の本文**
+
+**現行 10 種を保ったまま 9 種を足し、19 種にする。**現行は paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider。既存記事を壊さないため、この 10 種の記法は変えない。足すのは次の 9 種である。
+
+1. **code** — 言語指定つきコードブロック。言語を選ぶと編集中も色分けして出る。言語不明は plain。
+2. **table** — 行数と列数を自由に決められる表。comparison-table (商品比較の定型) とは別物として持つ。見出し行の有無を選べる。
+3. **image-row** — 画像を横に 2〜4 枚並べる。各枚に alt とキャプションを持つ。狭い画面では縦に落ちる。
+4. **toggle** — 見出しをたたんで中に段落を隠す折りたたみ。長い補足を本筋から外に出すために使う。
+5. **checklist** — チェック状態つきの箇条書き。手順の確認に使う。
+6. **embed** — 外部埋め込み (YouTube / X / 汎用 iframe)。許可した提供元だけを受ける。
+7. **cta-button** — 文言とリンク先と見た目 (主/副) を持つボタン。アフィリエイト計測の属性を落とさない。
+8. **link-card** — URL を入れると題名・説明・画像を引いてカードで出す。取得できないときは素のリンクへ落とす。
+9. **columns** — 2 段組み。左右それぞれに断片を入れられる。狭い画面では縦に落ちる。
+
+**文字の装飾は断片ではなく段落の中に持つ。**太字・斜体・打ち消し・行内コード・リンク・**文字色と背景色**は、段落・箇条書き・表のセルといった文字を持つ断片の中で効く行内装飾とする。色は自由な hex ではなく、記事のトークンから引いた名前つきの色 (既定/強調/注意/控えめ など) の許可リストに絞る。自由な色指定を許すと記事ごとに配色が壊れ、暗い配色での可読性も保証できない。
+
+**編集画面での出し方。**各断片の下の「+」と `/` の両方から全 19 種へ到達できる。種類は「文章」「一覧」「見せ方」「データ」「差し込み」の 5 群に分けて出す。19 個を平らに並べると選べない。
+
+- 正本へ入れた理由: C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。
+
+### 歴史的スナップショット（現行規範ではない、2026-09-06 移送）
+
+> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。
+
+#### 状態の意味 (State semantics)
+
+- `confirmed` / 「確定」は Analytics 画面要求の**判断済み**を表し、画面実装や受入試験の完了を表さない。
+- 後段の `採否: applied` は設計に採用したことを表し、画面実装済みを表さない。
+- 本章の実装状態は `partial`、検証状態は `unverified`。「Analytics 拡張」は未実装。
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §7〜§8、`00-requirements-definition.md` の I3〜I4、および本章の公式出典とする。
+
+
+#### As-Is
+
+- `src/app/page.tsx` に D1 から最大20件を読む案件一覧がある。空状態と DB 接続失敗状態は表示する。
+- `WebMcpProvider` と `/api/mcp` による WebMCP / Remote MCP PoC、`list_programs` / `record_conversion` / `get_revenue_summary` の3ツールがある。
+- Analytics のルート、KPI、ファネル、ヒートマップ、インサイト受信箱、実験、ASP突合画面は未実装。
+- 記事本文の断片は 10 種で、編集面には描画部品が無く記法の文字列として扱われる。コード・表・画像の横並び・トグル・チェックリスト・埋め込み・CTA ボタン・リンクカード・段組みの 9 種は存在しない。文字色/背景色の概念も無い。
+
+
+#### To-Be
+
+| 要件ID | 目標状態 |
+|---|---|
+| FRONT-REQ-001 | `docs/spec/03` §8 の8ビューを、共通の Workspace / 期間 / ディメンション条件で表示する |
+| FRONT-REQ-002 | 発生見込・承認報酬・支払報酬をラベル・定義・数値のいずれでも混同させず、合算値を単一の「確定収益」として表示しない |
+| FRONT-REQ-003 | 比較セルにnと期間を常時付与し、設定閾値未満は結論・率・勝者操作を抑止する |
+| FRONT-REQ-004 | データ取得とドメイン判断を分離し、UI は同じ KPI 定義の表示モデルのみを消費する |
+| FRONT-REQ-005 | 断片カタログを 19 種で実装する。既存 10 種 (paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider) に加え、code (言語指定つき) / table (自由な行列) / image-row (2〜4 枚を横並び) / toggle / checklist / embed / cta-button / link-card / columns (2 段組) を持つ |
+| FRONT-REQ-006 | 編集面の描画と公開ページの描画は同一の描画部品を通る。断片ごとに 2 系統の実装を持たない |
+| FRONT-REQ-007 | 文字の装飾 (太字・斜体・打ち消し・行内コード・リンク・文字色/背景色) は断片ではなく、文字を持つ断片の内側の装飾として実装する。色は名前付きトークンの集合に限り、任意の 16 進値を受け取らない |
+| FRONT-REQ-008 | 節の見出しレベルは編集器の状態ではなく骨格から導出する。利用者操作で節の見出しレベルを変更する経路を実装しない |
+
+
+#### Delta
+
+1. 案件一覧は維持し、Analytics ルートとサーバー側データ取得境界を追加する。
+2. KPI 式をコンポーネント内に重複実装せず、Analytics API / rollup の定義を唯一の入力にする。
+3. 速報/確定、n不足、同意の影響、更新時刻を共通表示モデルで扱う。
+4. 記事編集の入力欄を、断片ごとの描画部品を並べる編集面へ置き換える。描画部品は公開ページと共有し、編集面専用の描画を作らない。
+5. 断片の描画部品を 9 種追加する。追加分も既存 10 種と同じ登録表 (断片種別 → 描画部品 → 挿入メニューの群) を通し、種別ごとの分岐をコンポーネント内へ散らさない。
+6. 文字装飾を断片種別から分離し、文字を持つ断片が共通の装飾レイヤを使う形にする。色トークンの集合を 1 か所で定義する。
+
+
+#### Dependencies
+
+`auth / Workspace context` → `tenant 付き Analytics API` → `MetricRollup / KPI dictionary` → `Analytics 表示モデル` → `8ビュー`
+
+- 生イベントテーブルを画面から直接参照しない。同意ゲート、速報/確定判定、n閾値は backend/database/security の正本に従属する。
+
+記事エディターの従属:
+
+`断片種別の定義 (backend の parseProse/serializeProse)` → `断片 → 描画部品の登録表` → `編集面と公開ページの共通描画` → `挿入メニュー 5 群` → `視覚差分・a11y 検証`
+
+- 断片の種別と記法を frontend で新設しない。増やすときは backend の往復変換を先に通す。
+- 描画時の許可リスト (どの要素・属性を通すか) は security の正本に従属し、frontend で緩めない。
+- 商品検索と画像アップロードの経路は backend / infrastructure に従属する。frontend は結果を描くだけで、R2 の鍵の並びを組み立てない。
+
+
+#### Acceptance evidence
+
+| 受入ID | シナリオ | PASS の証跡 |
+|---|---|---|
+| FRONT-ACC-001 | `commission_amount_pending=1000円` / `commission_amount_approved=500円` / `commission_amount_paid=300円` の fixture を表示 | 「発生見込 1,000円」「承認報酬 500円」「支払報酬 300円」が別表示され、合算値を「確定収益」とする表示がない。コンポーネントテストとスクリーンショットを保存 |
+| FRONT-ACC-002 | `n < configured_min_sample` の比較セル | nと「サンプル不足」を表示し、率・勝者ラベル・結論操作を表示しない/無効化する。境界値前後の自動テストを保存 |
+| FRONT-ACC-003 | Analytics API が `503`の後に復旧 | 何が起き、データが安全か、次の行動が何かを表示。「再試行」の1回で復帰する E2E 記録を保存 |
+| FRONT-ACC-004 | Workspace A から B のクエリ条件を送信 | B の数値・名前・件数を DOM / RSC payload / CSV に含まないことを統合テストで証明 |
+| FRONT-ACC-005 | 19 種すべてを含む記事 fixture を、編集面と公開ページの両方で描画する | 断片 → 描画部品の登録表に 19 件が揃い、未登録の種別が 0 件。両面が同一部品を通ることを、部品呼び出しを記録するテストで証明して保存 |
+| FRONT-ACC-006 | 文字色・背景色に、トークン外の値 (`#ff0000` 等) を指定した本文を読み込む | トークン外の値は描画に反映されず、既定の文字色で描かれる。トークン一覧の定義箇所が 1 か所であることを検査するテストと併せて保存 |
+| FRONT-ACC-007 | 節の見出し要素に対して、キーボードとツールバーの双方からレベル変更を試みる | レベルを変更する操作が提供されておらず、DOM 上の節見出しが `h2` のまま。断片側の見出しは `h3`/`h4` のみ出現することを、描画結果の見出し列を検査するテストで保存 |
+| FRONT-ACC-008 | code 断片に言語指定つきの内容、table 断片に 3 行 4 列、image-row に 4 枚、columns に 2 段を入れて描画する | いずれも記法の文字列が画面に露出せず、横に長い表とコードは横スクロールが表内に収まり、ページ本体が横スクロールしない。4 断片ぶんのスクリーンショットを保存 |
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: 既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。
+
+### To-Be（規範契約）
+
+> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。
+
+| 要件ID | 目標状態 |
+|---|---|
+| FRONT-REQ-001 | `docs/spec/03` §8 の8ビューを、共通の Workspace / 期間 / ディメンション条件で表示する |
+| FRONT-REQ-002 | 発生見込・承認報酬・支払報酬をラベル・定義・数値のいずれでも混同させず、合算値を単一の「確定収益」として表示しない |
+| FRONT-REQ-003 | 比較セルにnと期間を常時付与し、設定閾値未満は結論・率・勝者操作を抑止する |
+| FRONT-REQ-004 | データ取得とドメイン判断を分離し、UI は同じ KPI 定義の表示モデルのみを消費する |
+| FRONT-REQ-005 | 断片カタログを 19 種で実装する。既存 10 種 (paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider) に加え、code (言語指定つき) / table (自由な行列) / image-row (2〜4 枚を横並び) / toggle / checklist / embed / cta-button / link-card / columns (2 段組) を持つ |
+| FRONT-REQ-006 | 編集面の描画と公開ページの描画は同一の描画部品を通る。断片ごとに 2 系統の実装を持たない |
+| FRONT-REQ-007 | 文字の装飾 (太字・斜体・打ち消し・行内コード・リンク・文字色/背景色) は断片ではなく、文字を持つ断片の内側の装飾として実装する。色は名前付きトークンの集合に限り、任意の 16 進値を受け取らない |
+| FRONT-REQ-008 | 節の見出しレベルは編集器の状態ではなく骨格から導出する。利用者操作で節の見出しレベルを変更する経路を実装しない |
+
+- 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
 ## 上流指針 (doctrine anchor)
 
@@ -424,9 +592,33 @@ site_blueprint.theme（設計図の既定）
 
 #### 本章での適用
 
-##### 確定内容 qa-frontend-web-blog-scoped-admin (対応セル: web)
+##### 確定内容 qa-frontend-web-editor-verbatim (対応セル: web)
 
-- 確定要件: ブログを選ぶ操作を、画面ごとの絞り込みではなく URL の階層そのものにする。/admin/sites/[site]/ の下へ、そのブログに閉じた画面 (記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信) を集め、いま /admin/blog/* や /admin/analytics にある横断画面は『全ブログの比較』として別に残す。どちらの画面を見ているのかが URL とパンくずで分かる状態にし、絞り込みの選択が画面遷移で消えないようにする。既存 /admin/blog/* は当面残して /admin/sites/[site]/ へ転送し、リンク切れを作らない。ヒートマップは読者側と管理側の 2 つに分ける。読者側は IntersectionObserver で到達深度を、visibilitychange と滞在タイマーで滞在を、クリックは委譲したリスナ 1 つで要素基準の比率へ変換して送る。送信は個別ではなく sendBeacon でまとめて送り、読者の体感を落とさない。管理側は記事のプレビューを背景に、比率で受け取った点を canvas へ重ねて描く。端末幅ごとに重ねると意味が壊れるので、viewport_bucket (狭い/中/広い) を切り替えて表示する。同意が無い読者の点も (reader_key を持たないまま) 描画対象に含める
+- 確定要件: [追加要望 (2026-09-05)]
+「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
+
+[機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
+
+[AskUserQuestion「編集体験をどうするか」への選択]
+「断片欄を維持し、全断片を見た目へ（推奨）」
+
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+- 設計解釈の記録経路: `dialogue`
+- 原則: 表現物の種類は、利用者が名指しした対象を取りこぼさない集合として定める (`information-design.md`)
+  - 採否: `applied`
+  - 章固有の根拠: 逐語で名指しされた「コードブロック」「カード」「横に画像を並べる」「表形式」「色をつけたもの」を断片カタログの必須要素として取り込み、選択「断片欄を維持し、全断片を見た目へ」に従って全断片を描画部品で見せる
+  - トレードオフ:
+    - 断片の種類が増えるほど、挿入導線 (/) の一覧が長くなり探索の負荷が上がる
+    - 断片ごとに編集面と公開ページの描画一致を検証する対象が増える
+- 原則: 文字装飾は断片の種類ではなく、断片の内側の属性として持つ (`usability-accessibility.md`)
+  - 採否: `applied`
+  - 章固有の根拠: 逐語「色をつけたものを作る」を、色を独立した断片種にせず装飾属性として扱うことで、色付き文字が段落・表・カードのどこにでも置けるようにする
+  - トレードオフ:
+    - 装飾の組合せが増えるぶん、配色のコントラスト検査を装飾側で一括して持つ必要がある
+##### 接地根拠 qa-frontend-web-blog-scoped-admin (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-blog-scoped-admin` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: いま何を操作しているのかを、画面自身が示し続ける (`usability-accessibility.md#中核概念`)
   - 採否: `applied`
@@ -603,69 +795,3 @@ site_blueprint.theme（設計図の既定）
 | google-search-central | 2025-12-10 | Google (developers.google.com) | https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | schema-org | 30.0 | Schema.org Community Group (W3C) (schema.org) | https://schema.org/docs/releases.html | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | web-dev-core-web-vitals | 2024-10-31 | Google (web.dev) | https://web.dev/articles/vitals | 2026-09-03T23:21:19Z | 2026-09-03T23:21:19Z |
-
-## 状態の意味 (State semantics)
-
-- `confirmed` / 「確定」は Analytics 画面要求の**判断済み**を表し、画面実装や受入試験の完了を表さない。
-- 後段の `採否: applied` は設計に採用したことを表し、画面実装済みを表さない。
-- 本章の実装状態は `partial`、検証状態は `unverified`。「Analytics 拡張」は未実装。
-- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §7〜§8、`00-requirements-definition.md` の I3〜I4、および本章の公式出典とする。
-
-## As-Is
-
-- `src/app/page.tsx` に D1 から最大20件を読む案件一覧がある。空状態と DB 接続失敗状態は表示する。
-- `WebMcpProvider` と `/api/mcp` による WebMCP / Remote MCP PoC、`list_programs` / `record_conversion` / `get_revenue_summary` の3ツールがある。
-- Analytics のルート、KPI、ファネル、ヒートマップ、インサイト受信箱、実験、ASP突合画面は未実装。
-
-## To-Be
-
-| 要件ID | 目標状態 |
-|---|---|
-| FRONT-REQ-001 | `docs/spec/03` §8 の8ビューを、共通の Workspace / 期間 / ディメンション条件で表示する |
-| FRONT-REQ-002 | 発生見込・承認報酬・支払報酬をラベル・定義・数値のいずれでも混同させず、合算値を単一の「確定収益」として表示しない |
-| FRONT-REQ-003 | 比較セルにnと期間を常時付与し、設定閾値未満は結論・率・勝者操作を抑止する |
-| FRONT-REQ-004 | データ取得とドメイン判断を分離し、UI は同じ KPI 定義の表示モデルのみを消費する |
-
-## Delta
-
-1. 案件一覧は維持し、Analytics ルートとサーバー側データ取得境界を追加する。
-2. KPI 式をコンポーネント内に重複実装せず、Analytics API / rollup の定義を唯一の入力にする。
-3. 速報/確定、n不足、同意の影響、更新時刻を共通表示モデルで扱う。
-
-## Dependencies
-
-`auth / Workspace context` → `tenant 付き Analytics API` → `MetricRollup / KPI dictionary` → `Analytics 表示モデル` → `8ビュー`
-
-- 生イベントテーブルを画面から直接参照しない。同意ゲート、速報/確定判定、n閾値は backend/database/security の正本に従属する。
-
-## Acceptance evidence
-
-| 受入ID | シナリオ | PASS の証跡 |
-|---|---|---|
-| FRONT-ACC-001 | `commission_amount_pending=1000円` / `commission_amount_approved=500円` / `commission_amount_paid=300円` の fixture を表示 | 「発生見込 1,000円」「承認報酬 500円」「支払報酬 300円」が別表示され、合算値を「確定収益」とする表示がない。コンポーネントテストとスクリーンショットを保存 |
-| FRONT-ACC-002 | `n < configured_min_sample` の比較セル | nと「サンプル不足」を表示し、率・勝者ラベル・結論操作を表示しない/無効化する。境界値前後の自動テストを保存 |
-| FRONT-ACC-003 | Analytics API が `503`の後に復旧 | 何が起き、データが安全か、次の行動が何かを表示。「再試行」の1回で復帰する E2E 記録を保存 |
-| FRONT-ACC-004 | Workspace A から B のクエリ条件を送信 | B の数値・名前・件数を DOM / RSC payload / CSV に含まないことを統合テストで証明 |
-
-## 章にしか無い記述 (正本へ未接続)
-
-> 以下の 1 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
-
-### 本節を「転記」に留めた理由
-
-C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
-
-## dev 合流で章から落ちた確定内容 (2026-09-05)
-
-> **2026-09-05 の dev 合流で、同じセルを 2 系統の確定質疑が指す状態になった。**
-> 生成器はセルの `qa_ref` を 1 本しか読まないため、`qa_refs[]` に併記したもう一方の
-> 本文が章から落ちる。**正本 `spec-state.json` の `qa_log` には両方とも残っている。**
-> 落ちた行を捨てずにここへ置く。正しい解消は 2 系統の質疑を 1 本へ統合して
-> `qa_ref` を張り直すことで、それは合流とは別の便で行う (PR の残課題)。
-
-- `| Web (web) | 確定 | 確定質疑: qa-frontend-web-blog-composition-visibility。裏付け質疑 (`qa_refs`): `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `| 確定質疑 (qa_ref) | `qa-frontend-web-blog-composition-visibility` |`
-- `| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |`
-- `### qa-frontend-web-blog-composition-visibility (対応セル: web)`
-- `##### 確定内容 qa-frontend-web-blog-composition-visibility (対応セル: web)`
-- `- 確定要件: 4つすべてを満たす。(a) 作成直後に読者側の住所が実際に開き、404にならない。(b) 管理画面にそのブログの構成要素 (固定ページ・版面の帯・スロット・カテゴリー・記事) を実データの件数と各実体へのリンク付きで一覧する。(c) 管理画面の中で読者と同じ見た目をプレビューでき、公開前に確認できる。(d) 作成時点で公開に必要なのに無い要素を名指しで提示し、その場へ移動できる。描画は既存の SiteFrame と public-site-projection を通し、読者用と別の描画経路を作らない。作ると管理画面で見える姿と読者が見る姿がずれる。`

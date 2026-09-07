@@ -16,5 +16,8 @@ export * from "./site-network";
 export * from "./site-provisioning-defaults";
 export * from "./blog-article";
 export * from "./reader-rating";
+export * from "./article-image-policy";
 export * from "./prose-node";
+export * from "./prose-inline";
+export * from "./prose-allowlist";
 export * from "./prose-format";

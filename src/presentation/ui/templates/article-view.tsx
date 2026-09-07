@@ -45,6 +45,12 @@ export type SectionView = {
   readonly id: string;
   readonly heading: string;
   readonly paragraphs: readonly string[];
+  /** 解釈は呼び出し側が決める。共通UIは形式名を知らず、そのまま運ぶ。 */
+  readonly formattedBody?: {
+    readonly format: string;
+    readonly version: number;
+    readonly source: string;
+  };
   readonly claims?: readonly ClaimView[];
   /**
    * 節の種類。滞在時間をこの単位で数える。
@@ -105,6 +111,7 @@ export type ArticleViewModel = {
   /** よくある質問。1 件も無い記事では欄ごと出さない。 */
   readonly faq?: readonly FaqItemView[];
   readonly productCards?: readonly ProductCardView[];
+  readonly inlineProductCards?: readonly ProductCardView[];
   readonly ranking?: {
     readonly caption: string;
     readonly updatedAt: string;
@@ -133,6 +140,13 @@ export type ArticleViewModel = {
    */
   readonly blockOrder?: readonly string[];
 };
+
+/** 節本文の具体的な描き方を、共通UIの外から注入する口。 */
+export type SectionBodyRenderer = (
+  section: SectionView,
+  plainFallback: ReactNode,
+  productCards?: readonly ProductCardView[],
+) => ReactNode;
 
 const ARTICLE_SPEAKABLE_ATTRIBUTE = "data-speakable";
 const ARTICLE_SPEAKABLE_TARGETS = {
@@ -320,7 +334,18 @@ function FaqSection({ items }: { readonly items: readonly FaqItemView[] }) {
   );
 }
 
-function Section({ section }: { readonly section: SectionView }) {
+function Section({
+  section,
+  renderBody,
+  productCards,
+}: {
+  readonly section: SectionView;
+  readonly renderBody?: SectionBodyRenderer;
+  readonly productCards?: readonly ProductCardView[];
+}) {
+  const plainBody = section.paragraphs.map((paragraph, index) => (
+    <p key={index}>{paragraph}</p>
+  ));
   return (
     <section
       id={section.id}
@@ -329,9 +354,7 @@ function Section({ section }: { readonly section: SectionView }) {
       {...telemetrySectionAttrs({ kind: section.kind ?? "lead", id: section.id })}
     >
       <h2 className={styles.sectionHeading}>{section.heading}</h2>
-      {section.paragraphs.map((p, i) => (
-        <p key={i}>{p}</p>
-      ))}
+      {renderBody?.(section, plainBody, productCards) ?? plainBody}
       {section.claims?.map((claim) => (
         <ClaimStatement key={claim.id} kind={claim.kind} statement={claim.statement}>
           {/* 事実として書いたものにだけ出典を並べる。推測と意見に出典は付かない。 */}
@@ -342,9 +365,19 @@ function Section({ section }: { readonly section: SectionView }) {
   );
 }
 
-export function ArticleView({ article }: { readonly article: ArticleViewModel }) {
+export function ArticleView({
+  article,
+  renderSectionBody,
+}: {
+  readonly article: ArticleViewModel;
+  readonly renderSectionBody?: SectionBodyRenderer;
+}) {
   const wide = article.ranking !== undefined || article.comparison !== undefined;
   const blocks = orderMovableBlocks(article.blockOrder ?? DEFAULT_BLOCK_ORDER);
+  const authorBio = article.authorBio?.trim() ?? "";
+  const authorCredentials = (article.authorCredentials ?? [])
+    .map((credential) => credential.trim())
+    .filter((credential) => credential !== "");
 
   /*
     塊ごとの描き出し。**中身が無い塊は `null` にする**（欄だけ出さない）。
@@ -365,7 +398,8 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
       <>
         <ArticleTableOfContents sections={article.sections} />
         {article.sections.map((section) => (
-          <Section key={section.id} section={section} />
+          <Section key={section.id} section={section} renderBody={renderSectionBody}
+            productCards={article.inlineProductCards ?? article.productCards} />
         ))}
       </>
     ),
@@ -451,34 +485,28 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
         />
       )}
 
-      <section className={styles.articleIntroAuthor} aria-label="冒頭の書き手紹介">
-        <p className={styles.authorCardLabel}>この記事の書き手</p>
-        <h2 className={styles.articleIntroAuthorName}>
-          <Link href={article.authorHref}>{article.authorName}</Link>
-        </h2>
-        {article.authorBio !== undefined && <p>{article.authorBio}</p>}
-      </section>
-
       {article.conversation !== undefined && <Conversation lines={article.conversation} />}
 
       {blocks.map((kind) => (
         <Fragment key={kind}>{movable[kind]}</Fragment>
       ))}
 
-      <section className={styles.articleAuthorProfile} aria-label="詳細な著者プロフィール">
-        <p className={styles.authorCardLabel}>この記事を書いた人</p>
-        <h2 className={styles.articleAuthorProfileName}>
-          <Link href={article.authorHref}>{article.authorName}</Link>
-        </h2>
-        {article.authorBio !== undefined && <p>{article.authorBio}</p>}
-        {article.authorCredentials !== undefined && article.authorCredentials.length > 0 && (
-          <ul>
-            {article.authorCredentials.map((credential) => (
-              <li key={credential}>{credential}</li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {(authorBio !== "" || authorCredentials.length > 0) && (
+        <section className={styles.articleAuthorProfile} aria-label="詳細な著者プロフィール">
+          <p className={styles.authorCardLabel}>この記事を書いた人</p>
+          <h2 className={styles.articleAuthorProfileName}>
+            <Link href={article.authorHref}>{article.authorName}</Link>
+          </h2>
+          {authorBio !== "" && <p>{authorBio}</p>}
+          {authorCredentials.length > 0 && (
+            <ul>
+              {authorCredentials.map((credential) => (
+                <li key={credential}>{credential}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       {article.relatedArticles !== undefined && article.relatedArticles.length > 0 && (
         <section className={styles.relatedArticles} aria-labelledby="related-articles-heading">

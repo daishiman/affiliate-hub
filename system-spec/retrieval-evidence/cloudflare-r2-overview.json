@@ -1,0 +1,21 @@
+{
+  "target_id": "cloudflare-r2",
+  "source_url": "https://developers.cloudflare.com/r2/",
+  "retrieved_at": "2026-09-03T12:55:14Z",
+  "page_title": "Cloudflare R2",
+  "retrieval_method": {
+    "tool": "WebFetch",
+    "note": "本文は WebFetch (HTML→Markdown 変換) で取得した。生 HTML のバイト列を保持していないため content_bytes / content_sha256 / http_status は記録しない。"
+  },
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "2026-08-07",
+    "found_in": [
+      "ページ下部の \"Last updated Aug 7, 2026\""
+    ],
+    "http_last_modified": null,
+    "note": "値の由来は freshness_source と対応する。取得日を last_updated へ代入しない (C13 の取得日代入検査が拒否する)。"
+  },
+  "requirement_note": "非構造化データのオブジェクトストレージで、競合クラウドが課す egress 帯域課金を取らないことをページ本文が明示している。",
+  "intake_reason": "C08 ドキュメント鮮度監査 (2026-09-03) が、確定決定 decision-redirect-measurement-async (採用 opt-waituntil-fallback-cron) の D1 書込失敗時の退避先が R2 であり、infrastructure 章の As-Is にも R2 binding BUCKET が現れるのに targets[] へ未登録であると指摘したため取得対象へ追加した。"
+}

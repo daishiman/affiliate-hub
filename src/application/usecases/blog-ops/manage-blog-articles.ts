@@ -35,7 +35,8 @@ import {
   validationError,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
-import { isExpressionArticleBlock } from "@/application/adapters/expression-article-block";
+import { expressionBlockOfArticleBlock, isExpressionArticleBlock } from "@/application/adapters/expression-article-block";
+import type { ExpressionBlock } from "@/domain/authoring/blog-template";
 
 /**
  * ブログ記事の CRUD。
@@ -239,6 +240,13 @@ export type GetBlogArticleOutput = {
   readonly authorName: string;
   readonly categorySlug: string | null;
   readonly blocks: readonly BlogArticleBlockView[];
+  /** 生JSONを通常本文へ混ぜず、専用入力へ届ける検証済みの構造化表現。 */
+  readonly structuredBlocks?: readonly {
+    readonly id: string;
+    readonly heading: string;
+    readonly position: number;
+    readonly expression: ExpressionBlock;
+  }[];
   readonly tagIds: readonly string[];
   /** 版面が要求していて、まだ無い部品。空なら公開できる。 */
   readonly missing: readonly ArticleBlockKind[];
@@ -300,6 +308,10 @@ export function createGetBlogArticleUseCase(
             body: b.body,
             position: b.position,
           })),
+        structuredBlocks: ordered.flatMap((block) => {
+          const expression = expressionBlockOfArticleBlock(block);
+          return expression === null ? [] : [{ id: block.id, heading: block.heading, position: block.position, expression }];
+        }),
         tagIds,
         missing,
         missingLabels: missing.map((k) => ARTICLE_BLOCK_LABEL[k]),
@@ -471,6 +483,10 @@ export function createUpdateBlogArticleUseCase(
         return err(validationError("記事の題名を空にはできません。", "title"));
       }
       const status = input.status ?? before.article.status;
+      if (status === "published" || before.article.status === "published") {
+        const publish = requireCapability(actor, "content.publish", "公開記事の変更");
+        if (!publish.ok) return publish;
+      }
       const askedCategory = input.categorySlug?.trim();
       const categorySlug =
         askedCategory === undefined
@@ -638,6 +654,11 @@ export function createDeleteBlogArticleUseCase(
       if (found.value === null) return err(notFound("ブログ記事", input.articleId));
       const target = found.value.article;
 
+      if (target.status === "published") {
+        const publish = requireCapability(actor, "content.publish", "公開記事の削除");
+        if (!publish.ok) return publish;
+      }
+
       const deleted = await deps.repository.deleteArticle(
         actor.workspaceId,
         input.articleId,
@@ -684,6 +705,10 @@ export function createRestoreBlogArticleUseCase(
       if (!deleted.ok) return deleted;
       const target = deleted.value.find((row) => row.article.id === input.articleId);
       if (target === undefined) return err(notFound("削除済みブログ記事", input.articleId));
+      if (target.article.status === "published") {
+        const publish = requireCapability(actor, "content.publish", "公開記事の復元");
+        if (!publish.ok) return publish;
+      }
 
       const [activeArticles, activeSites] = await Promise.all([
         deps.repository.listArticles(actor.workspaceId, target.article.siteSlug),

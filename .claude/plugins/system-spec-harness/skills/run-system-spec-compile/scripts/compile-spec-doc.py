@@ -144,6 +144,7 @@ def main(argv: list[str]) -> int:
             loss_report=losses,
             acknowledge_prior_residue=args.acknowledge_prior_residue,
             connected_subsections=frozenset(args.connected_subsection),
+            source_spec=spec,
         )
     except (OSError, json.JSONDecodeError) as exc:
         print(f"IO/JSON error: {exc}", file=sys.stderr)

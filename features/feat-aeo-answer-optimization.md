@@ -12,7 +12,7 @@ iteration: null
 title: "回答エンジン向けの回答単位整備と引用可能化"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-04T02:27:58.830900Z"
+updated_at: "2026-09-07T15:54:21.127899Z"
 status: "active"
 depends_on: ["feat-seo-assessment-reflection","feat-blog-ui-builder","feat-reader-surface"]
 related_nodes: ["spec-system-spec-index","feat-blog-scoped-admin-console"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-aeo-answer-optimization/28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "確定質疑 qa-frontend-web-seo-ai-search / qa-frontend-web-seo-ai-search-v2 / qa-uiux-web-seo-ai-search / qa-database-web-domain-aeo-behavior を lineage 参照。利用者要望『aeo も』への対応"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-aeo-answer-optimization.md","confidence":0.95}]

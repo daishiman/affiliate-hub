@@ -7,6 +7,7 @@ from pathlib import Path
 from spec_docset_catalog import *
 from spec_docset_catalog import _category_ids
 from spec_docset_chapters import *
+from spec_docset_legacy import legacy_qa_copy_is_connected, legacy_summary_is_connected
 
 def _text_or_placeholder(s) -> str:
     if isinstance(s, dict) and s.get("status") == "not_applicable":
@@ -382,22 +383,38 @@ def _section_map(text: str) -> "dict[str, str]":
     """Markdown 本文を `## 見出し` 単位へ割る。{見出し行: 節本文 (見出し含む)}。
 
     frontmatter と最初の `## ` より前の導入部は節に属さないので含めない。
-    見出しが重複する場合は最後の 1 つを採る (同名節を 2 つ持つ章は無い前提)。
+    同名節は出現順にまとめ、どちらの本文も失わない。コード例の見出しは境界ではない。
     """
     sections: dict[str, str] = {}
     current: str | None = None
     buf: list[str] = []
-    for line in text.splitlines():
-        if line.startswith("## "):
+    for line, level in zip(text.splitlines(), markdown_heading_levels(text)):
+        if level == 2:
             if current is not None:
-                sections[current] = "\n".join(buf).rstrip() + "\n"
+                block = "\n".join(buf).rstrip() + "\n"
+                sections[current] = sections.get(current, "") + block
             current = line.strip()
             buf = [line]
         elif current is not None:
             buf.append(line)
     if current is not None:
-        sections[current] = "\n".join(buf).rstrip() + "\n"
+        sections[current] = sections.get(current, "") + "\n".join(buf).rstrip() + "\n"
     return sections
+
+
+def _projection_text(text: str) -> str:
+    """Compare verbatim content while allowing only heading-depth relocation."""
+    return "\n".join(
+        (line[level:].strip() if level else line.rstrip())
+        for line, level in zip(text.splitlines(), markdown_heading_levels(text))
+        if line.strip()
+    )
+
+
+def _connected_block(block: str, generated: str) -> bool:
+    normalized = _projection_text(block)
+    # A heading alone is not proof: the complete non-empty body must be rendered.
+    return "\n" in normalized and normalized in _projection_text(generated)
 
 
 def handwritten_sections(existing: str, generated: str) -> "list[str]":
@@ -407,7 +424,10 @@ def handwritten_sections(existing: str, generated: str) -> "list[str]":
     よって**生成物に無い節は、人が後から書いた節**である。上書きすれば黙って消える。
     """
     gen = _section_map(generated)
-    return [h for h in _section_map(existing) if h not in gen]
+    return [
+        h for h, body in _section_map(existing).items()
+        if h not in gen and not _connected_block(body, generated)
+    ]
 
 
 _SUBSECTION = re.compile(r"^(#{3,6}) (.+)$")
@@ -597,6 +617,7 @@ def write_docset(
     loss_report: "list[tuple[str, list[str]]] | None" = None,
     acknowledge_prior_residue: bool = False,
     connected_subsections: "frozenset[str] | None" = None,
+    source_spec: dict | None = None,
 ) -> list[Path]:
     """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。
 
@@ -642,16 +663,39 @@ def write_docset(
     # ここを同じ根拠で扱う。**片方だけ見張ると「refuse なら安全」が嘘になる。
     carried_sub: dict[str, list[tuple[str, str]]] = {}
     # 正本へ接続済みと宣言され、章から落とす小節の本文行 (residue へも出さない)。
-    connected_lines: set[str] = set()
+    connected_by_name: dict[str, set[str]] = {}
     for name, content in docset.items():
+        connected_lines = connected_by_name.setdefault(name, set())
         p = out_dir / name
         if not p.is_file():
             continue
         existing_text, _ = split_residue(p.read_text(encoding="utf-8"))
         lost = handwritten_sections(existing_text, content)
+        for heading, body in _section_map(existing_text).items():
+            candidate, _ = drop_connected_subblocks(body, connected_subsections or frozenset())
+            connected = _connected_block(candidate, content) or (
+                source_spec is not None
+                and (
+                    legacy_summary_is_connected(heading, candidate, source_spec, Path(name).stem)
+                    or legacy_qa_copy_is_connected(candidate, source_spec, Path(name).stem, content)
+                )
+            )
+            if heading not in _section_map(content) and connected:
+                connected_lines.update(line.strip() for line in body.splitlines() if line.strip())
+                lost = [item for item in lost if item != heading]
         if lost:
             carried[name] = lost
         lost_sub = handwritten_subsections(existing_text, content)
+        remaining_sub = []
+        for head, body in lost_sub:
+            if _connected_block(body, content) or (
+                source_spec is not None
+                and legacy_qa_copy_is_connected(body, source_spec, Path(name).stem, content)
+            ):
+                connected_lines.update(line.strip() for line in body.splitlines() if line.strip())
+            else:
+                remaining_sub.append((head, body))
+        lost_sub = remaining_sub
         if connected_subsections:
             # 見出しは `### 見出し` の形で来る。宣言された見出しだけを落とす。
             kept, dropped = [], []
@@ -687,6 +731,7 @@ def write_docset(
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     for name, content in docset.items():
+        connected_lines = connected_by_name[name]
         p = out_dir / name
         # 前回の写しは既存本文として数えず、今回の報告へ持ち越す (`split_residue` 参照)。
         before, prior_residue = (

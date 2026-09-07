@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|attach-qa-design-applications|set-qa-scope-notes|split-qa-bundle|supersede-qa|retract-qa|set-chapter-note|set-qa-source|declare-excluded-category|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
+# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|attach-qa-design-applications|set-qa-scope-notes|split-qa-bundle|supersede-qa|retract-qa|retract-invalid-qa|set-chapter-note|set-qa-source|declare-excluded-category|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -77,6 +77,7 @@ from state_transition_matrix import (
     set_qa_source,
     declare_excluded_category,
     retract_qa,
+    retract_invalid_qa,
     supersede_qa,
 )
 from state_transition_matrix import enable_asks_for_contract
@@ -305,6 +306,13 @@ def main(argv: list[str]) -> int:
         help="なぜ契約を満たしていなかったのか。理由の無い取り下げは記録の削除と区別が付かない",
     )
     retract.add_argument("--out")
+    retract_invalid = sub.add_parser(
+        "retract-invalid-qa",
+        help="出典契約違反の QA を版指定で退避し、指定した旧後継参照の原文を保存して付け替える",
+    )
+    retract_invalid.add_argument("--state", required=True)
+    retract_invalid.add_argument("--request", required=True, help="版指紋・退避 ID・replacement・前任一覧・理由の JSON またはファイル")
+    retract_invalid.add_argument("--out")
     chapter_note = sub.add_parser(
         "set-chapter-note",
         help="章にしか居場所の無い散文へ、正本の居場所を与える (章の手書きを正本へ戻す)",
@@ -518,6 +526,8 @@ def main(argv: list[str]) -> int:
                 supersede_qa(state, args.qa_id, args.by)
             elif args.cmd == "retract-qa":
                 retract_qa(state, args.qa_id, args.reason)
+            elif args.cmd == "retract-invalid-qa":
+                retract_invalid_qa(state, load_json_arg(args.request))
             elif args.cmd == "declare-excluded-category":
                 declare_excluded_category(state, args.category, args.reason)
             elif args.cmd == "set-qa-source":

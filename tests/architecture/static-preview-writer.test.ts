@@ -154,6 +154,25 @@ describe("静止した写しの組み立て", () => {
     expect(runner).toContain('out.startsWith("docs/")');
     expect(runner).toContain("postcss([tailwind()])");
   });
+
+  it("冊子の記事も本画面と同じ Prose renderer を合成地点で使う", () => {
+    const writer = readFileSync(join(ROOT, "scripts/write-static-preview.tsx"), "utf8");
+    const articlePage = readFileSync(join(ROOT, "src/presentation/site/article-page.tsx"), "utf8");
+    const renderer = readFileSync(
+      join(ROOT, "src/presentation/site/canonical-section-body.tsx"),
+      "utf8",
+    );
+
+    expect(writer).toContain(
+      'from "@/presentation/site/canonical-section-body"',
+    );
+    expect(articlePage).toContain('from "./canonical-section-body"');
+    expect(writer).toContain("renderSectionBody={renderCanonicalSectionBody}");
+    expect(articlePage).toContain("renderSectionBody={renderCanonicalSectionBody}");
+    expect(renderer).toContain("export function renderCanonicalSectionBody");
+    expect(writer).not.toContain("function renderCanonicalSectionBody");
+    expect(articlePage).not.toContain("function renderCanonicalSectionBody");
+  });
 });
 
 type ExpectedArticle = {

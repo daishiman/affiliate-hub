@@ -747,19 +747,6 @@ nav.section a {
   display: none;
 }
 
-.articleIntroAuthor {
-  display: grid;
-  gap: var(--space-2);
-  padding: var(--space-5);
-  border-block: var(--border-width-default) solid var(--color-border-default);
-  background: var(--color-surface-raised);
-}
-
-.articleIntroAuthorName,
-.articleIntroAuthor p {
-  margin-block: 0;
-}
-
 .articleAuthorProfile {
   display: grid;
   gap: var(--space-2);
@@ -783,9 +770,8 @@ nav.section a {
 /*
   書き手の名前は、見出しの中に**リンクだけ**が入っている。
   連れの文字がないので文中リンクの除外に当たらず、押しどころの下限が要る。
-  2 か所（冒頭の紹介と末尾のプロフィール）で同じ名前へ飛ぶので、規則も 1 つにまとめる。
+  末尾のプロフィールから、書き手のページへ移動できる。
 */
-.articleIntroAuthorName a,
 .articleAuthorProfileName a {
   display: inline-flex;
   align-items: center;
@@ -802,12 +788,6 @@ nav.section a {
   display: grid;
   gap: var(--space-3);
   padding-block-start: var(--space-2);
-}
-
-.articleIntroAuthorName {
-  color: var(--color-text-strong);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
 }
 
 .section p {
