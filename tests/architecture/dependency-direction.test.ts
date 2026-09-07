@@ -71,6 +71,10 @@ const FETCH_EXEMPT: readonly { readonly file: string; readonly why: string }[] =
     why: "ブラウザのページ内 AI が自分のサイトの道具の入口を叩く。行き先は同一オリジンの相対パス",
   },
   {
+    file: "presentation/admin/publish/article-asset-client.ts",
+    why: "ブラウザから自分のサイトの `/api/article-products` と `/api/article-images` を叩く。行き先はコードに固定した相対パス 2 本だけで、外から渡された URL ではない。画像の送信は POST なので、取得専用の guardedFetch では運べない",
+  },
+  {
     file: "infrastructure/domains/cloudflare-custom-hostname.ts",
     why: "Cloudflare for SaaS の custom hostname 操作。行き先はコードに固定した https://api.cloudflare.com/client/v4 だけで、外から渡された URL ではない。登録・削除は送信 (POST/DELETE) なので、取得専用の guardedFetch では運べない",
   },

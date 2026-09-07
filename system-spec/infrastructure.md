@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-r2-upload-actual-capability。裏付け質疑 (`qa_refs`): `qa-infra-web-custom-hostname`, `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-worker-image-upload-confirmed-20260906。裏付け質疑 (`qa_refs`): `qa-infra-web-custom-hostname`, `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
@@ -30,11 +30,11 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | infrastructure × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-infrastructure-web-r2-upload-actual-capability` |
+| 確定質疑 (qa_ref) | `qa-infrastructure-web-worker-image-upload-confirmed-20260906` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
-| 出典 path | — |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
 | 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
@@ -47,29 +47,21 @@ serves_goals: [G1, G2, G3]
 |---|---|---|---|---|
 | `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 |
 | `dec-blog-domain-strategy` | 作成した各ブログにどうやって固有の住所 (ドメイン) を割り当てるか。現状はホスト解決が無く、全ブログが単一 Worker 上の /s/<slug> パスで、ドメインがブログの内容と無関係になっている。 | `opt-wildcard-subdomain` | confirmed | G1 |
-| `dec-article-image-upload-path` | 記事エディターから添付する画像を、どの経路で Cloudflare R2 へ格納するか | `opt-r2-direct-put` | confirmed | G1 |
+| `dec-article-image-upload-path` | 記事エディターから添付する画像を、どの経路で Cloudflare R2 へ格納するか | `opt-worker-proxy-upload` | confirmed | G1 |
 
 - **`decision-redirect-measurement-async` の caveat**: 回収が静かに失敗すると退避先が墓場になる。回収した件数と残件数を記録し、残件が増え続けたら赤くする / 有料プランが既に有効なら Queues のほうが素直。契約状態は本人しか確かめられない / 最大 1 日の時差があるため、当日の速報値は「まだ確定していない」と画面に出す（03 §8 の速報と確定の区別）
 
 - **`dec-blog-domain-strategy` の caveat**: 基底ドメインを1つ用意し、そのワイルドカード DNS を Worker へ向ける初回作業が必要である / 開発環境の workers.dev では任意サブドメインを生やせないため、パス方式 /s/<slug> を後方互換として残す必要がある。これが無いと開発環境で公開面を確認できなくなる / サブドメイン間で cookie を共有しない設定を明示的に行う必要がある。既定のまま親ドメインへ scope を広げると、あるブログの読者データが別ブログから読める / 根拠として引用した公式資料は harness が取得済みの入口ページ (Cloudflare Workers は 2026-08-19、Next.js は 2026-08-29 取得) であり、ワイルドカード route と証明書の個別ページを本セッションで再取得してはいない。実装着手時に route の記法と証明書の適用条件を公式資料で再確認すること
 
-- **`dec-article-image-upload-path` の caveat**: 同じ署名付き URL は期限まで再利用できる。1 回きりだと誤解した設計にしないこと / 署名で容量を縛る S3 POST policy は R2 の互換表に無いため、大きさの制限は受領後の検査でしか掛からない / CORS ポリシーを設定しない限りブラウザからの PUT は preflight で落ちる
+- **`dec-article-image-upload-path` の caveat**: UIで8 MiB上限、許可形式、圧縮または再選択の案内を送信前と失敗時に示すこと / 受信量をストリーム境界で制限し、認可・Origin・MIME・ファイルシグネチャをR2保存前に検査すること / アップロード失敗率、処理時間、拒否理由を監視し、上限が実利用を阻害する場合だけmultipartまたは直接送信を再検討すること
 
 ## 確定内容 (質疑録)
 
-### qa-infrastructure-web-r2-upload-actual-capability (対応セル: web)
+### qa-infrastructure-web-worker-image-upload-confirmed-20260906 (対応セル: web)
 
-**質問**: infrastructure×web: 記事画像を R2 へ直接アップロードする経路を、Cloudflare R2 が実際にできることに合わせて確定し直すとどうなるか。
+**質問**: 画像送信を、確定仕様の『R2へ直接送信』から、現実装の『Workerで認可・容量・形式を検査して保存』に統一してよいですか？
 
-**回答**: **先に訂正する。**前回の確定は「署名付き URL は短命かつ 1 回きり」「発行した鍵と型と大きさ以外には使えない」と書いていた。公式ドキュメント (取得日 2026-09-05、`system-spec/retrieval-evidence/cloudflare-r2.json`) を読むと、いずれも成立しない。
-
-- 公式は **The same presigned URL can be reused multiple times until it expires** と明記している。1 回きりではない。
-- 署名で縛れるのは **資源** (アカウント ID・バケット・オブジェクトパス)・**操作** (GET / PUT / HEAD / DELETE の 4 つ)・**期限** (1 秒〜7 日 = 604,800 秒) の 3 つだけである。
-- 容量の上下限を署名へ含める S3 POST policy は、R2 の S3 API 互換表に記載が無い。**大きさは署名で縛れない。**
-
-**実能力に合わせた確定。**(1) ブラウザから署名付き URL で直接 PUT する。画像本体を Worker に通さないのは、Worker のリクエストボディ上限が『貼れる画像の大きさ』の天井になるのを避けるためである。(2) 鍵は `workspace_id/記事id/一意なid.拡張子` に固定し、鍵の先頭が workspace であることでテナント越えが鍵の並びの上で生じないようにする。(3) 配信は R2 のカスタムドメイン経由とし、バケットの公開 URL を記事本文へ埋めない。配信元を差し替えても本文の書き換えが要らない。(4) **バケットに CORS ポリシーが要る。**`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間。設定しない限りブラウザからの直接 PUT は preflight で落ちる。前回の確定にはこれが抜けていた。(5) 単一 PUT の上限は 5 GiB。超える画像は multipart へ切り替えるか上限として拒否するかを実装時に決め、暗黙に失敗させない。
-
-**削除は持たない。**記事から外した画像の刈り取りは maintenance-ops の掃除ジョブへ渡す。infrastructure は保管と配信の側だけを持つ。
+**回答**: ok
 
 ### qa-infra-web-custom-hostname (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -185,6 +177,141 @@ serves_goals: [G1, G2, G3]
 
 - 正本へ入れた理由: C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。
 
+### 画像アップロード経路の再検討（2026-09-06、回答待ち）
+
+これは実装観察であり、利用者の回答原文や新たな採用決定ではない。
+
+`dec-article-image-upload-path` は、2026-09-05 の利用者回答に基づく R2 直接 PUT を記録している。一方、現在の `src/app/api/article-images/route.ts` は Worker が認可・容量・画像先頭バイトを検査して R2 へ保存する経路であり、両者は一致していない。過去の回答を現実装の承認へ読み替えない。
+
+2026-09-06 に infrastructure.web と security.web を正規 writer の R4-reopen で再オープンした。正規経路をどちらにするか利用者へ確認中であり、本章は draft とする。既存の qa_refs・serves_goals・required_info_checks は reopen_log.discarded に保持されている。回答後は依存する検査境界、API、運用記述を揃えて再検証する。
+
+画像の保存と回収の競合対策、公開参照の権限、検証結果の最新記録は [ブロックエディターの検証報告](../docs/spec/feat-article-block-editor/elegant-review.md) を参照する。ここへ件数や実装一覧を重複転記しない。
+
+- 正本へ入れた理由: 承認済みの再検討を実施し、旧決定と実装観察を区別する。利用者発言を改変せず、未回答を確定扱いしない。
+
+### 画像アップロード経路の確定（2026-09-06）
+
+`dec-article-image-upload-path` の現行決定は `opt-worker-proxy-upload` である。2026-09-06、利用者は「現実装の Worker で認可・容量・形式を検査して保存」に統一する確認へ「ok」と回答した。根拠は `approval-article-image-upload-path-worker-20260906` に記録した。
+
+現在の経路は、編集画面 → `POST /api/article-images` → Worker の認可・入力検査 → R2 保存である。画像1件の製品上限は 8 MiB。台帳を `pending` で予約し、R2 保存後に `ready` へ確定する。途中失敗・応答不明・参照解除は即時削除だけに頼らず、台帳と回収処理で収束させる。
+
+この章に先に残る「R2 へ直接上げる」と「回答待ち」は、2026-09-05 の旧決定と2026-09-06の再検討中スナップショットであり、現行要件ではない。署名付き PUT URL の発行、ブラウザからの直接 PUT、R2 用 CORS は現在の実装対象に含めない。旧承認は監査履歴として `approval-article-image-upload-path` に保持する。
+
+- 正本へ入れた理由: 旧直接PUT決定と回答待ちスナップショットを監査履歴として残しつつ、利用者が承認したWorker経由を現行要件として一意に示す
+
+### 歴史的スナップショット（現行規範ではない、2026-09-06 移送）
+
+> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。
+
+#### 状態の意味と実装差分
+
+`confirmed` は要求判断と採用方針が確定していることを表す。**binding 作成済み・本番反映済み・SLO 達成済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
+
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/02` §1、`docs/spec/03` §1.2、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
+
+##### As-Is（2026-08-16 のリポジトリ実体）
+
+- Cloudflare Workers（OpenNext）に observability を有効化し、環境ごとに単一 D1 binding `DB` と R2 binding `BUCKET` を定義している。
+- `EDITORIAL_DB` / `COMMERCIAL_DB`、Redirect Resolver Store（KV等）、Queue、Cron trigger、dead-letter queue は未定義である。
+- `/go/{tracking_link_id}` と ClickEvent producer/consumer は未実装。したがって現状は D1 障害時の転送継続性を実証していない。
+- R2 binding `BUCKET` は定義済みだが、記事画像の用途では使っていない。署名付き URL の発行経路・バケットの CORS ポリシー・配信用カスタムドメインはいずれも未設定である。
+
+##### To-Be（規範契約）
+
+| ID | 契約 | 状態 |
+|---|---|---|
+| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない | 未実装 |
+| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する | 未実装 |
+| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る | 未実装 |
+| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ | 未実装 |
+| INF-IMG-01 | 記事画像は Cloudflare R2 へ、ブラウザから署名付き URL で直接 PUT する (`decisions[].dec-article-image-upload-path`)。画像本体を Worker に通さない。理由は、Worker のリクエストボディ上限が「貼れる画像の大きさ」の天井になることを避けるためである | 未実装 |
+| INF-IMG-02 | オブジェクトの鍵は `workspace_id/記事id/一意なid.拡張子` に固定する。鍵の先頭が workspace であることで、テナントを越えた参照が鍵の並びの上で生じない | 未実装 |
+| INF-IMG-03 | 配信は R2 のカスタムドメイン経由で行い、バケットの公開 URL を記事本文へ直接埋めない。配信元を差し替えても記事本文の書き換えが要らない状態にする | 未実装 |
+| INF-IMG-04 | R2 バケットに CORS ポリシーを設定する。`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間を置く。設定しない限りブラウザからの直接 PUT は preflight で落ちる | 未実装 |
+| INF-IMG-05 | 単一 PUT の上限は 5 GiB である。これを超える画像は multipart upload へ切り替えるか、上限として拒否する。どちらを採るかを実装時に決め、暗黙に失敗させない | 未実装 |
+
+##### 故障モード
+
+| 故障 | 転送 | 計測 / 復旧 |
+|---|---|---|
+| Commercial D1 停止 | LKG で302を継続 | Queue に滞留し、consumer retry。redirect handler は D1 を参照しない |
+| Queue enqueue 失敗 | 302を継続 | `click_enqueue_failed_total` を記録し、計測欠損としてエラーバジェットへ算入 |
+| consumer / migration 障害 | 302を継続 | retry 後に dead-letter。修復後、event ID で安全に replay |
+| KV 読み取り障害 | Cache API の LKG hit 時だけ302 | cache miss では安全な転送先を推測せず503。resolver error alert を発報 |
+| resolver key 欠落・無効・停止済み | 転送しない | 404 / 410 を区別し、D1 fallback はしない |
+| resolver 更新失敗・遅延 | 旧LKGで302 | version / updated_at の鮮度を観測し、outbox / Queue から再配送 |
+| 画像の PUT が preflight で落ちる | 影響なし | CORS ポリシーの欠落・出所不一致として扱う。編集画面は「画像を保存できなかった」ことを本文の編集内容を失わずに伝える |
+| 署名の期限切れ後に PUT | 影響なし | 401/403 を受けて署名を再発行し、同じ鍵へ再送する。鍵は再発行しても変わらないため記事本文の参照は保たれる |
+| R2 停止 | 影響なし (転送経路とは独立) | 画像の追加のみ失敗する。既存記事の表示はカスタムドメインのキャッシュに従う。編集内容は保持し、再試行へ進める |
+
+##### 測定可能な初期 SLO
+
+実測ベースライン取得までの**暫定値**とし、28日 rolling window で評価する。
+
+| SLI | 初期目標 | 測定条件 |
+|---|---|---|
+| Redirect success | 有効な resolver key の 302 成功率 99.95%以上 | 無効ID、停止済みlink、client cancellationを分母から除外 |
+| Redirect latency | Worker 処理時間 p95 < 100 ms、p99 < 250 ms | `/go/*` の edge server timing。遷移先サイト時間は除外 |
+| Resolver freshness | 検証済み link 更新の99%が5分以内にLKGへ反映 | outbox timestamp→KV version 観測時刻 |
+| Click acceptance | redirect request に対する Queue accepted 率 99.9%以上 | 同意・botに関係なく producer の配送成否を測定し、分析採用可否とは分離 |
+| Queue recovery | oldest-message age p95 < 60秒、99% < 5分 | consumer retry を含み、dead-letter は別途即時alert |
+
+##### Delta
+
+1. INF-DB-01 の2 D1と型定義を追加し、database の所有境界ごとに migration command を分ける。
+2. validated original_url を outbox → Queue → KV へ発行する control plane と INF-REDIRECT-01 の read path を作る。
+3. INF-EVENT-01 の Queue / dead-letter / consumer を接続し、INF-OBS-01 の metrics と alert を追加する。
+4. D1・Queue・KV の故障注入後に上記 SLO を再測定し、暫定値を実測値でレビューする。
+5. 既に定義済みの R2 binding `BUCKET` を記事画像の保管先として使う。新たに要るのは CORS ポリシー・カスタムドメイン・署名付き URL の発行経路の 3 つで、バケット自体の新設ではない。
+6. 画像の削除は記事保存の同期処理に入れない。参照が切れた実体の刈り取りは maintenance-ops の掃除ジョブへ渡す (`OPS-REQ-008`)。infrastructure は保管と配信の側だけを持つ。
+
+##### Dependencies
+
+依存方向は `前提 → 後続` とする。
+
+- database の `DB-BOUNDARY-01` → INF-DB-01 → 環境ごとの schema migration。
+- AffiliateLink / TrackingLink の検証、`original_url` 無改変、`redirect_allowed` / channel policy、outbox relay → INF-REDIRECT-01。
+- event ID / dedup key、Commercial D1 の append-only schema、consent policy → INF-EVENT-01。
+- log/metric retention、alert routing、dead-letter replay runbook → INF-OBS-01 の運用開始。
+- auth の Workspace membership + backend の `BE-IMAGE-01` (鍵の組み立て) → INF-IMG-01/02。infrastructure は鍵を受け取って保管する側であり、鍵を組み立てない。
+- INF-IMG-04 (CORS) → INF-IMG-01。CORS を設定しない限り直接 PUT は成立しないため、順序が逆にならない。
+- database の画像参照状態 → maintenance-ops の掃除ジョブ → R2 の削除。infrastructure から直接刈り取らない。
+
+##### Acceptance evidence
+
+- `wrangler` 設定と生成型に全環境の2 D1 / KV / Queue bindings が存在し、legacy `DB` の runtime read がない静的検査。
+- Commercial D1 を停止した故障注入で、有効なLKGへの302が継続し、復旧後にQueue滞留分が重複なく反映されるテスト。
+- KV更新失敗時に既存LKGが維持され、`original_url` のbyte列を変更せず302 `Location` に返す contract test。
+- dashboard / alert 上で各 SLI の分子・分母、Queue lag、dead-letter 件数を再現できる観測記録。
+- **INF-IMG-01/02**: 管理画面から画像を 1 枚アップロードし、R2 のオブジェクト一覧で鍵が `workspace_id/記事id/一意なid.拡張子` の形であることを確認。アップロード中の Worker のリクエスト数・CPU 時間が画像サイズに比例して増えないこと (本体が Worker を通っていないこと) を、Worker のログと突き合わせて保存。
+- **INF-IMG-03**: 記事本文に保存された画像の URL がカスタムドメインを指し、バケットの公開 URL を含まないことを検査するテスト。配信元のドメインだけを差し替え、記事本文を書き換えずに表示が続くことを実測して保存。
+- **INF-IMG-04**: CORS ポリシーを外した状態でブラウザから PUT し、preflight で落ちることを確認。設定を戻して成功することを確認。両方の HTTP トレース (`Origin` ヘッダを含む要求と、`Access-Control-*` 応答ヘッダの有無) を保存。
+- **INF-IMG-05**: 5 GiB を超える入力に対して、選んだ方 (multipart へ切り替える / 上限として拒否する) の挙動が実際に起きることを示すテスト。暗黙に失敗せず、利用者に理由が伝わることを併せて保存。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: 既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。
+
+### To-Be（規範契約）
+
+> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。
+
+画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。
+
+| 要件ID | 目標状態 |
+|---|---|
+| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない |
+| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する |
+| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る |
+| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ |
+| INF-IMG-01 | 記事画像は認証済み管理画面から同一生成元の Worker API へ送り、Worker が検証後に R2 binding で格納する。2026-09-06 の dec-article-image-upload-path 改訂に従い、旧署名付き URL によるブラウザ直接 PUT は採用しない。 |
+| INF-IMG-02 | オブジェクト鍵は article-images/workspace_id/article_id/一意なid.拡張子に統一し、サーバーだけが組み立てる。workspace と記事の所有関係は鍵の並びだけに頼らず、認可・台帳・保存時の制約で検証する。 |
+| INF-IMG-03 | 記事本文の画像参照は /api/article-images/{imageId} の不透明な ID を用い、R2 バケット URL や object_key を埋めない。配信口は台帳の ready 状態と公開本文参照または編集権限を検証し、保管場所の変更を本文から切り離す。 |
+| INF-IMG-04 | R2 への書き込みは Worker binding に限定し、ブラウザ向け直接 PUT/CORS 設定や署名発行を前提としない。管理 API は同一生成元の送信とサーバー側認証・認可を要求する。 |
+| INF-IMG-05 | 記事画像は 1 枚 8 MiB 以下の PNG/JPEG/WebP/GIF に限定する。API 入口と use-case で容量・実バイトの画像型を検証し、上限超過や不一致を R2 保存前に拒否する。multipart upload はこの契約に含めない。 |
+
+- 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -255,23 +382,16 @@ serves_goals: [G1, G2, G3]
 
 #### 本章での適用
 
-##### 確定内容 qa-infrastructure-web-r2-upload-actual-capability (対応セル: web)
+##### 確定内容 qa-infrastructure-web-worker-image-upload-confirmed-20260906 (対応セル: web)
 
-- 確定要件: **先に訂正する。**前回の確定は「署名付き URL は短命かつ 1 回きり」「発行した鍵と型と大きさ以外には使えない」と書いていた。公式ドキュメント (取得日 2026-09-05、`system-spec/retrieval-evidence/cloudflare-r2.json`) を読むと、いずれも成立しない。
-
-- 公式は **The same presigned URL can be reused multiple times until it expires** と明記している。1 回きりではない。
-- 署名で縛れるのは **資源** (アカウント ID・バケット・オブジェクトパス)・**操作** (GET / PUT / HEAD / DELETE の 4 つ)・**期限** (1 秒〜7 日 = 604,800 秒) の 3 つだけである。
-- 容量の上下限を署名へ含める S3 POST policy は、R2 の S3 API 互換表に記載が無い。**大きさは署名で縛れない。**
-
-**実能力に合わせた確定。**(1) ブラウザから署名付き URL で直接 PUT する。画像本体を Worker に通さないのは、Worker のリクエストボディ上限が『貼れる画像の大きさ』の天井になるのを避けるためである。(2) 鍵は `workspace_id/記事id/一意なid.拡張子` に固定し、鍵の先頭が workspace であることでテナント越えが鍵の並びの上で生じないようにする。(3) 配信は R2 のカスタムドメイン経由とし、バケットの公開 URL を記事本文へ埋めない。配信元を差し替えても本文の書き換えが要らない。(4) **バケットに CORS ポリシーが要る。**`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間。設定しない限りブラウザからの直接 PUT は preflight で落ちる。前回の確定にはこれが抜けていた。(5) 単一 PUT の上限は 5 GiB。超える画像は multipart へ切り替えるか上限として拒否するかを実装時に決め、暗黙に失敗させない。
-
-**削除は持たない。**記事から外した画像の刈り取りは maintenance-ops の掃除ジョブへ渡す。infrastructure は保管と配信の側だけを持つ。
+- 確定要件: ok
 - 設計解釈の記録経路: `dialogue`
-- 原則: 使う仕組みが実際にできることを確かめてから要件にする (`site-reliability-engineering.md#中核概念`)
+- 原則: キャパシティと需要・観測可能性 — 上限と状態遷移を利用者に見える失敗および運用指標として扱う (`site-reliability-engineering.md#中核概念`)
   - 採否: `applied`
-  - 章固有の根拠: 『1 回きりの署名』を前提に設計すると、実際には再利用できる URL を配ることになり、想定した防御が最初から存在しない。公式の記述に合わせて要件を書き直せば、防御の位置が実物と一致する
+  - 章固有の根拠: 利用者がWorker経由への統一を承認したため、製品上限8MiBをAPI境界に明示し、pending予約、R2 put、ready確定を観測可能な段階として扱う。応答不明時は即時削除せず台帳と回収処理で収束させ、アップロード結果と回収結果を運用ログで区別する
   - トレードオフ:
-    - 署名で大きさを縛れないぶん、検査を受領後へ回す必要がある。防御の点が 1 つ増える
+    - 画像本体がWorkerを通るためリクエスト数と処理負荷が増え、Worker障害時は送信できない
+    - 直接PUTのCORSと短命署名を不要にできる代わりに、Worker側のstream上限・失敗分類・再試行の保守が必要になる
 ##### 接地根拠 qa-infra-web-custom-hostname (対応セル: web)
 
 - 本文: 「確定内容 (質疑録)」の `qa-infra-web-custom-hostname` を参照
@@ -402,289 +522,3 @@ serves_goals: [G1, G2, G3]
 | cloudflare-for-saas | 2026-04-29 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
 | cloudflare-r2-overview | 2026-08-07 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
 | cloudflare-r2 | 2026-08-22 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/api/s3/presigned-urls/ | 2026-09-05T00:57:28Z | 2026-09-05T00:57:28Z |
-
-## 上流指針 (doctrine anchors)
-
-> 本章の設計判断が従う上流の正本 (1 concern 1 authority)。具体技術ではなく上流工程を導く規範であり、下位の技術選定は本節と矛盾してはならない。正本: `ref-system-design-knowledge/references/doctrine-anchor-registry.json`
-
-| 設計 concern | 上流の正本 (authority) | 導く範囲 | 出典 | 最終確認 | 本章の確定セルへの反映 |
-|---|---|---|---|---|---|
-| reliability | Google SRE | SLO/エラーバジェット・冗長性・スケーリング・監視の上流指針 | https://sre.google/books/ | 2026-07-12 | **未記入** |
-| operations | Google SRE | 運用手順・障害対応・トイル削減・ポストモーテムの上流指針 | https://sre.google/workbook/ | 2026-07-12 | **未記入** |
-
-> **未記入** の行は、上流の正本を掲げただけで本章の確定内容へ反映した箇所を示せていない。表への出現は反映の証拠ではない。
-
-## To-Be / Delta
-
-> 本章の**規範**。上位概念 (要件定義書 U3 ゴール / U4 目標 / U9 具体的やりたいこと) を本章の serves_goals で絞り込んだ射影であり、設計知識 card (非規範の参考資料) とは役割が異なる。As-Is (現行実装の姿) は spec-state.json の管轄外のため本節では断定せず、到達点と、その到達を判定する観測点だけを規範として置く。
-
-### 到達すべき状態 (To-Be)
-
-- **G1**: 一つのアフィリエイトURLを起点に、正しい商品情報・比較候補・根拠・書き手・読者・媒体・広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できる
-- **G2**: どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる
-- **G3**: 公開したブログが、読者にとって読み進めやすく、かつ検索エンジンとAI検索の双方から見つかり引用される機械可読な構造を持ち、その充足度を解析して次の記事と既存記事へ反映できる
-
-### 受入条件 (Delta の判定点)
-
-- (本章ゴールに紐づく目標 U4 が無い。受入条件が未定義である)
-
-### 本章がかなえる具体的やりたいこと (U9)
-
-- **I1**: アフィリエイトURL登録から商品識別・情報収集・比較候補抽出・根拠付きデータ作成までを一元化する
-- **I2**: 書き手・読者ペルソナと媒体ルールを入力に、ブログ・X・Instagram・Threads・note等の媒体別コンテンツを生成し人間承認を経て公開する
-- **I3**: どういう情報がクリック率が高いか・アフィリエイトに有効かを管理できる分析・解析の仕組みを整える (クリック計測・成果突合・ディメンション分析・Insight Engine)
-- **I4**: 分析結果を次のコンテンツ生成 (Brief提案・配信戦略) へ反映する。ただし商品評価・ランキングへは自動反映しない
-- **I5**: 読者向けブログ画面の UI/UX を、参考サイト実測を根拠に組み立てる (スクロール追従する目次・検索窓とカテゴリー/タグ/ブランドのサイドバー導線・分類ごとのアイコン・広告と本文の視覚的区別)。参考サイトの弱点 (alt欠落・目次の二重読み上げ・本文外見出しの混入) は繰り返さない
-- **I6**: SEO/AEO の機械可読要素を記事の実データから生成する (Article/Person/Organization/BreadcrumbList に加え FAQPage/HowTo/Speakable、canonical、OGP、robots max-image-preview、見出し階層、画像の alt と width/height、広告リンクの rel)。人手で書き足す前提にしない
-- **I7**: 公開記事の SEO/AEO 充足度を解析し、不足を名指しで管理画面へ差し戻して、書き手がその場で直せる仕組みを整える。解析は記事の実データを入力とし、外部順位データの推測で判断しない
-- **I8**: 記事作成エディター (管理画面) の UI/UX を、見出し階層・画像alt・内部リンク・構造化データの素材が書きながら揃う形へ改善し、公開前に欠落が見える状態にする
-
-### 本章に効く確定意思決定
-
-- **decision-auth-method**: マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか
-  - 採択: Better Auth + Google OAuth (自己ホスト) (`opt-better-auth`)
-  - 目的適合: マルチテナントSaaSの一般ユーザー認証に適合。Drizzle/D1 アダプタで現行スタックと同居し、§25 のロール権限と組み合わせやすい
-- **decision-editorial-commercial-split**: Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか
-  - 採択: D1 を 2 本に分け、バインディングを分ける（DB_EDITORIAL / DB_COMMERCIAL） (`opt-two-databases`)
-  - 目的適合: G1（安全な作成・公開）に直結。ランキング計算の関数へ Commercial のバインディングを渡さなければ、混ぜようがない
-- **decision-redirect-measurement-async**: リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか
-  - 採択: ctx.waitUntil で D1 へ書き、失敗ぶんだけ R2 へ退避して Cron で回収する (`opt-waituntil-fallback-cron`)
-  - 目的適合: G2 の欠測を、有料プランを増やさずに減らせる。G1 の「転送は必達」も保てる
-- **decision-llm-provider**: 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか
-  - 採択: 単価表（config/llm-provider-catalog.json）を正本に、複数社を差し替え可能にする（現行） (`opt-catalog-multi`)
-  - 目的適合: G1 に適合。長い記事は高いモデル、判定は安いモデル、と用途で分けられる
-- **decision-ui-theme-implementation**: 配色と明暗の 2 軸を、どの技術で実装するか
-  - 採択: CSS の light-dark() と data 属性（配色は属性、明暗は color-scheme） (`opt-css-light-dark`)
-  - 目的適合: 09 §2 の 2 軸モデルをそのまま表現できる。掛け合わせを設定値にしない
-- **decision-test-ci-tooling**: テストと CI の道具立てを、いまの構成のまま進めるか変えるか
-  - 採択: 現行のまま（Vitest / Stryker / fast-check / axe-core / GitHub Actions） (`opt-keep-current`)
-  - 目的適合: 10 の 7 種のうち、単体・契約・境界値・ミューテーション・性質・読み上げを既に覆っている
-- **decision-screen-priority**: ui-ux×web の画面で、先頭に何を置くか。UIUX-REQ-001 は「今、利用者が判断・回復すべき業務状態」を先頭に置くと書いており、qa-uiux-web-screen-priority の本人回答は「記事の成績比較」を先頭に置くと言っている。両者は先頭の 1 つを争っている
-  - 採択: 記事の成績比較を先頭に置き、回復すべき業務状態はその下に常設の帯として置く (`opt-performance-first`)
-  - 目的適合: G2「どういう情報・切り口・媒体・配置がクリック率とアフィリエイト成果に有効かを計測・分析し、一元管理できる」に直結する。成績比較は毎日見る対象で、開いた理由そのものである
-- **dec-blog-domain-strategy**: 作成した各ブログにどうやって固有の住所 (ドメイン) を割り当てるか。現状はホスト解決が無く、全ブログが単一 Worker 上の /s/<slug> パスで、ドメインがブログの内容と無関係になっている。
-  - 採択: ワイルドカードサブドメイン方式 (<slug>.<基底ドメイン>) (`opt-wildcard-subdomain`)
-  - 目的適合: G1 の『複数ブランド・複数ブログ構築』に直接資する。ブログごとに独立した住所を持ちながら、ブログを1本増やすのに DNS も設定も触らずに済むため、コードもルートも増やさない既存方針と一致する。
-- **dec-structured-data-emission**: 構造化データ (Article/BlogPosting・FAQPage・HowTo・Speakable・BreadcrumbList) と canonical・OGP・robots を、どこで生成するか。現状は記事本文へ書き手が書き込む前提の箇所があり、書かれなければ欠落したまま公開される。
-  - 採択: 配信時に記事データから導出する (Worker のレンダリング経路で生成) (`opt-render-time-derive`)
-  - 目的適合: G3 に直接資する。記事データが正本となるため、本文・見出し・画像・公開日を直せば構造化データが自動で追従し、I6 の『人手で書き足す前提にしない』を構造で満たす。
-- **dec-aeo-analysis-trigger**: AEO/SEO の充足度解析を、いつ・どの頻度で走らせるか。記事の公開前に止めるのか、公開後に気づかせるのか、その両方か。
-  - 採択: 公開操作時に解析してゲートし、加えて定期的に既存記事を再解析する (`opt-publish-gate-plus-scheduled`)
-  - 目的適合: G3 に直接資する。公開時ゲートが『欠落したまま公開される』を構造で止め、定期再解析が『公開後に基準が変わって古くなった記事』を拾う。G2 の運用の速さも、公開操作という既存の1操作の中で完結するため落とさない。
-- **dec-guideline-registry-recheck**: AEO/SEO の判定根拠となるガイドライン参照レジストリ (Google 検索セントラル・schema.org・WAI-ARIA の各仕様ページ) を、どの契機でどれくらいの間隔で再確認するか。
-  - 採択: 固定間隔で再確認し、期限を超えた参照を鮮度切れとして表に出す (`opt-fixed-interval-with-staleness-flag`)
-  - 目的適合: G3 に資する。最終確認時刻を参照ごとに持ち、期限超過を鮮度切れとして表示することで『基準が古いかもしれない』を検出可能な状態にする。
-- **dec-analysis-history-retention**: AEO/SEO 解析の結果履歴を D1 にどう保持するか。最新だけを持つのか、推移を追えるよう履歴を積むのか、積むならどこで打ち切るのか。
-  - 採択: 解析のたびに追記し、記事ごとの保持件数または保持期間で古い行を刈る (`opt-append-with-window`)
-  - 目的適合: G3 に資する。直近の推移が残るため、改善の効果と退行の双方が判定できる。G2 の運用の速さも、参照が直近数件に限られるためクエリが重くならず落とさない。
-- **dec-editor-editing-model**: 記事エディターの編集モデルを、外側 (節) と内側 (本文の断片) の 2 層構造のまま見せるか、Notion のような単一階層へ潰すか
-  - 採択: 2 層を維持し、層を UI で明示する (節=固定の見出し2 / 本文の断片=見出し3・4) (`opt-two-layer-visible`)
-  - 目的適合: 節の並びが記事の骨格 (目次・必須ブロック検査) を保証したまま、節の中身だけ自由に書ける。G3 の機械可読な見出し階層が編集操作で壊れない
-- **dec-article-image-upload-path**: 記事エディターから添付する画像を、どの経路で Cloudflare R2 へ格納するか
-  - 採択: 署名付き URL を発行し、ブラウザから R2 へ直接 PUT する (`opt-r2-direct-put`)
-  - 目的適合: 記事本文と同じ編集操作の中で画像を置けるため、G1 の『統合された編集』を切らさない。大きな画像でも Worker のリクエストサイズ上限に当たらない
-- **dec-article-body-storage-format**: 断片カタログを 19 種へ広げた記事本文を、どの形で保存するか (拡張 Markdown 文字列のままか、構造化 JSON ツリーへ移すか)
-  - 採択: 現行どおり拡張 Markdown 文字列で保存し、parseProse / serializeProse で往復する (`opt-extended-markdown-string`)
-  - 目的適合: 既に公開されている記事のデータが 1 件も壊れないまま断片を 19 種へ広げられる。G1 の『既存の全情報を編集・表示できる』を移行なしで満たす
-
-## 状態の意味と実装差分
-
-`confirmed` は要求判断と採用方針が確定していることを表す。**binding 作成済み・本番反映済み・SLO 達成済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
-
-- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/02` §1、`docs/spec/03` §1.2、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
-
-### As-Is（2026-08-16 のリポジトリ実体）
-
-- Cloudflare Workers（OpenNext）に observability を有効化し、環境ごとに単一 D1 binding `DB` と R2 binding `BUCKET` を定義している。
-- `EDITORIAL_DB` / `COMMERCIAL_DB`、Redirect Resolver Store（KV等）、Queue、Cron trigger、dead-letter queue は未定義である。
-- `/go/{tracking_link_id}` と ClickEvent producer/consumer は未実装。したがって現状は D1 障害時の転送継続性を実証していない。
-- R2 binding `BUCKET` は定義済みだが、記事画像の用途では使っていない。署名付き URL の発行経路・バケットの CORS ポリシー・配信用カスタムドメインはいずれも未設定である。
-
-### To-Be（規範契約）
-
-| ID | 契約 | 状態 |
-|---|---|---|
-| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない | 未実装 |
-| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する | 未実装 |
-| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る | 未実装 |
-| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ | 未実装 |
-| INF-IMG-01 | 記事画像は Cloudflare R2 へ、ブラウザから署名付き URL で直接 PUT する (`decisions[].dec-article-image-upload-path`)。画像本体を Worker に通さない。理由は、Worker のリクエストボディ上限が「貼れる画像の大きさ」の天井になることを避けるためである | 未実装 |
-| INF-IMG-02 | オブジェクトの鍵は `workspace_id/記事id/一意なid.拡張子` に固定する。鍵の先頭が workspace であることで、テナントを越えた参照が鍵の並びの上で生じない | 未実装 |
-| INF-IMG-03 | 配信は R2 のカスタムドメイン経由で行い、バケットの公開 URL を記事本文へ直接埋めない。配信元を差し替えても記事本文の書き換えが要らない状態にする | 未実装 |
-| INF-IMG-04 | R2 バケットに CORS ポリシーを設定する。`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間を置く。設定しない限りブラウザからの直接 PUT は preflight で落ちる | 未実装 |
-| INF-IMG-05 | 単一 PUT の上限は 5 GiB である。これを超える画像は multipart upload へ切り替えるか、上限として拒否する。どちらを採るかを実装時に決め、暗黙に失敗させない | 未実装 |
-
-### 故障モード
-
-| 故障 | 転送 | 計測 / 復旧 |
-|---|---|---|
-| Commercial D1 停止 | LKG で302を継続 | Queue に滞留し、consumer retry。redirect handler は D1 を参照しない |
-| Queue enqueue 失敗 | 302を継続 | `click_enqueue_failed_total` を記録し、計測欠損としてエラーバジェットへ算入 |
-| consumer / migration 障害 | 302を継続 | retry 後に dead-letter。修復後、event ID で安全に replay |
-| KV 読み取り障害 | Cache API の LKG hit 時だけ302 | cache miss では安全な転送先を推測せず503。resolver error alert を発報 |
-| resolver key 欠落・無効・停止済み | 転送しない | 404 / 410 を区別し、D1 fallback はしない |
-| resolver 更新失敗・遅延 | 旧LKGで302 | version / updated_at の鮮度を観測し、outbox / Queue から再配送 |
-| 画像の PUT が preflight で落ちる | 影響なし | CORS ポリシーの欠落・出所不一致として扱う。編集画面は「画像を保存できなかった」ことを本文の編集内容を失わずに伝える |
-| 署名の期限切れ後に PUT | 影響なし | 401/403 を受けて署名を再発行し、同じ鍵へ再送する。鍵は再発行しても変わらないため記事本文の参照は保たれる |
-| R2 停止 | 影響なし (転送経路とは独立) | 画像の追加のみ失敗する。既存記事の表示はカスタムドメインのキャッシュに従う。編集内容は保持し、再試行へ進める |
-
-### 測定可能な初期 SLO
-
-実測ベースライン取得までの**暫定値**とし、28日 rolling window で評価する。
-
-| SLI | 初期目標 | 測定条件 |
-|---|---|---|
-| Redirect success | 有効な resolver key の 302 成功率 99.95%以上 | 無効ID、停止済みlink、client cancellationを分母から除外 |
-| Redirect latency | Worker 処理時間 p95 < 100 ms、p99 < 250 ms | `/go/*` の edge server timing。遷移先サイト時間は除外 |
-| Resolver freshness | 検証済み link 更新の99%が5分以内にLKGへ反映 | outbox timestamp→KV version 観測時刻 |
-| Click acceptance | redirect request に対する Queue accepted 率 99.9%以上 | 同意・botに関係なく producer の配送成否を測定し、分析採用可否とは分離 |
-| Queue recovery | oldest-message age p95 < 60秒、99% < 5分 | consumer retry を含み、dead-letter は別途即時alert |
-
-### Delta
-
-1. INF-DB-01 の2 D1と型定義を追加し、database の所有境界ごとに migration command を分ける。
-2. validated original_url を outbox → Queue → KV へ発行する control plane と INF-REDIRECT-01 の read path を作る。
-3. INF-EVENT-01 の Queue / dead-letter / consumer を接続し、INF-OBS-01 の metrics と alert を追加する。
-4. D1・Queue・KV の故障注入後に上記 SLO を再測定し、暫定値を実測値でレビューする。
-5. 既に定義済みの R2 binding `BUCKET` を記事画像の保管先として使う。新たに要るのは CORS ポリシー・カスタムドメイン・署名付き URL の発行経路の 3 つで、バケット自体の新設ではない。
-6. 画像の削除は記事保存の同期処理に入れない。参照が切れた実体の刈り取りは maintenance-ops の掃除ジョブへ渡す (`OPS-REQ-008`)。infrastructure は保管と配信の側だけを持つ。
-
-### Dependencies
-
-依存方向は `前提 → 後続` とする。
-
-- database の `DB-BOUNDARY-01` → INF-DB-01 → 環境ごとの schema migration。
-- AffiliateLink / TrackingLink の検証、`original_url` 無改変、`redirect_allowed` / channel policy、outbox relay → INF-REDIRECT-01。
-- event ID / dedup key、Commercial D1 の append-only schema、consent policy → INF-EVENT-01。
-- log/metric retention、alert routing、dead-letter replay runbook → INF-OBS-01 の運用開始。
-- auth の Workspace membership + backend の `BE-IMAGE-01` (鍵の組み立て) → INF-IMG-01/02。infrastructure は鍵を受け取って保管する側であり、鍵を組み立てない。
-- INF-IMG-04 (CORS) → INF-IMG-01。CORS を設定しない限り直接 PUT は成立しないため、順序が逆にならない。
-- database の画像参照状態 → maintenance-ops の掃除ジョブ → R2 の削除。infrastructure から直接刈り取らない。
-
-### Acceptance evidence
-
-- `wrangler` 設定と生成型に全環境の2 D1 / KV / Queue bindings が存在し、legacy `DB` の runtime read がない静的検査。
-- Commercial D1 を停止した故障注入で、有効なLKGへの302が継続し、復旧後にQueue滞留分が重複なく反映されるテスト。
-- KV更新失敗時に既存LKGが維持され、`original_url` のbyte列を変更せず302 `Location` に返す contract test。
-- dashboard / alert 上で各 SLI の分子・分母、Queue lag、dead-letter 件数を再現できる観測記録。
-- **INF-IMG-01/02**: 管理画面から画像を 1 枚アップロードし、R2 のオブジェクト一覧で鍵が `workspace_id/記事id/一意なid.拡張子` の形であることを確認。アップロード中の Worker のリクエスト数・CPU 時間が画像サイズに比例して増えないこと (本体が Worker を通っていないこと) を、Worker のログと突き合わせて保存。
-- **INF-IMG-03**: 記事本文に保存された画像の URL がカスタムドメインを指し、バケットの公開 URL を含まないことを検査するテスト。配信元のドメインだけを差し替え、記事本文を書き換えずに表示が続くことを実測して保存。
-- **INF-IMG-04**: CORS ポリシーを外した状態でブラウザから PUT し、preflight で落ちることを確認。設定を戻して成功することを確認。両方の HTTP トレース (`Origin` ヘッダを含む要求と、`Access-Control-*` 応答ヘッダの有無) を保存。
-- **INF-IMG-05**: 5 GiB を超える入力に対して、選んだ方 (multipart へ切り替える / 上限として拒否する) の挙動が実際に起きることを示すテスト。暗黙に失敗せず、利用者に理由が伝わることを併せて保存。
-
-## 章にしか無い記述 (正本へ未接続)
-
-> 以下の 9 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### Web (web)`, `#### 主たる接地根拠: `qa-infrastructure-web-r2-upload-actual-capability``, `#### 裏付け質疑: `qa-infrastructure-web-wildcard-subdomain``, `#### 裏付け質疑: `qa-infra-web-migration-guard-v2``, `#### 裏付け質疑: `qa-infra-web-migration-guard``, `#### 裏付け質疑: `qa-infra-web-spec-intake``, `#### 裏付け質疑: `qa-infra-web``, `#### 裏付け質疑: `qa-infra-web-redirect``, `### 本章での適用`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
-
-### Web (web)
-
-- 資するゴール: G1, G2, G3
-
-#### 主たる接地根拠: `qa-infrastructure-web-r2-upload-actual-capability`
-
-**問**
-
-infrastructure×web: 記事画像を R2 へ直接アップロードする経路を、Cloudflare R2 が実際にできることに合わせて確定し直すとどうなるか。
-
-**答**
-
-**先に訂正する。**前回の確定は「署名付き URL は短命かつ 1 回きり」「発行した鍵と型と大きさ以外には使えない」と書いていた。公式ドキュメント (取得日 2026-09-05、`system-spec/retrieval-evidence/cloudflare-r2.json`) を読むと、いずれも成立しない。
-
-- 公式は **The same presigned URL can be reused multiple times until it expires** と明記している。1 回きりではない。
-- 署名で縛れるのは **資源** (アカウント ID・バケット・オブジェクトパス)・**操作** (GET / PUT / HEAD / DELETE の 4 つ)・**期限** (1 秒〜7 日 = 604,800 秒) の 3 つだけである。
-- 容量の上下限を署名へ含める S3 POST policy は、R2 の S3 API 互換表に記載が無い。**大きさは署名で縛れない。**
-
-**実能力に合わせた確定。**(1) ブラウザから署名付き URL で直接 PUT する。画像本体を Worker に通さないのは、Worker のリクエストボディ上限が『貼れる画像の大きさ』の天井になるのを避けるためである。(2) 鍵は `workspace_id/記事id/一意なid.拡張子` に固定し、鍵の先頭が workspace であることでテナント越えが鍵の並びの上で生じないようにする。(3) 配信は R2 のカスタムドメイン経由とし、バケットの公開 URL を記事本文へ埋めない。配信元を差し替えても本文の書き換えが要らない。(4) **バケットに CORS ポリシーが要る。**`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間。設定しない限りブラウザからの直接 PUT は preflight で落ちる。前回の確定にはこれが抜けていた。(5) 単一 PUT の上限は 5 GiB。超える画像は multipart へ切り替えるか上限として拒否するかを実装時に決め、暗黙に失敗させない。
-
-**削除は持たない。**記事から外した画像の刈り取りは maintenance-ops の掃除ジョブへ渡す。infrastructure は保管と配信の側だけを持つ。
-
-- (根拠の性質: コード・設定・公式文書で検証できる観測事実)
-
-#### 裏付け質疑: `qa-infrastructure-web-wildcard-subdomain`
-
-**問**
-
-サブドメイン方式をどう配信構成へ落とすか。ブログを増やすたびの手作業をどう避けるか。
-
-**答**
-
-ワイルドカード DNS (*.<基底ドメイン>) を Worker へ向け、wrangler の routes に *.<基底ドメイン>/* を1本だけ置く。ブログを増やしても DNS も routes も触らない。証明書は Cloudflare のワイルドカード証明書で賄い、ブログごとの発行・検証フローを持たない。開発環境の workers.dev はサブドメインを任意に生やせないため、パス方式 /s/<slug> を後方互換として残し、ホスト解決が効かない実行では従来どおり動く。既存の公開URLを壊さず、SITE_BASE_DOMAIN 未設定のブログもパス方式で到達できる。
-
-- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
-
-#### 裏付け質疑: `qa-infra-web-migration-guard-v2`
-
-**問**
-
-infrastructure×web: 本番 D1 のスキーマ変更を公開ワークフローが自動で適用してよい条件を、控えが取れることの 1 点のままにするか。deploy.yml を検査と公開の 2 job へ分けたとき、それぞれの持ち時間をどう置き、上限が適用の最中に発火したらどうふるまうべきか。承認は検査の前と後のどちらに置くか
-
-**答**
-
-控えが取れて、かつ途中で止まったことが次の回に分かるなら本番も自動でよい。控えは『戻れる』ことしか言わない。『戻るべきか』を判断するには、途中で止まったことが見えていなければならない。deploy.yml は検査 (inspect) と公開 (release) の 2 job に分け、持ち時間は仕事の性質に合わせて置く (inspect は ci.yml と同じ検査の集合なので同じ 45 分、release は変更の大きさで伸びない仕事だけなので 30 分)。release は needs: inspect なので、検査が赤でも時間切れでも始まらない。適用ステップ『データの形を合わせる』には job 上限より先に切れる step 上限 (10 分) を置く。job 上限が発火すると走っていたステップは道半ばのまま run ごと畳まれて『どこで終わったか』が残らないが、step 上限で切れればそのステップが cancelled として run に確定して残る。次の run は release の先頭でその記録を読み、cancelled または結論なしなら自動では進まない。うまくいった回には記録が残らないので、印を消す操作は誰にも要求しない。印を D1 の表として持たないのは、その表が形のずれ検査に『余り』として出て、アプリのスキーマへ運用用の表を混ぜるか検査を緩めるかの二択になるためである。承認 (environment: production) は release 側に付けるので、人は検査が通ったのを見てから押す。前回の run を読めない・公開の job が見当たらない・適用ステップの名前が見つからないは、いずれも『測れなかった』として止める側へ倒す
-
-- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
-
-#### 裏付け質疑: `qa-infra-web-migration-guard`
-
-**問**
-
-infrastructure×web: 本番 D1 のスキーマ変更を、公開ワークフロー (deploy.yml) が自動で適用してよいか。よいなら、どんな条件が揃ったときに限るか
-
-**答**
-
-控えが取れたら本番も自動でよい。dev / 本番のどちらでも deploy.yml が『控えを取る → 中身が空でないことを確かめる → 適用する → 未適用 0 件を確かめる』の順で走る。控えが空なら、そこで止めて適用へ進まない。人が判断するのはこの並びの手前 (environment: production の承認) であり、控えを取ったかどうかではない。migrate.yml の手動起動＋APPLY は、公開と切り離して形だけ変えたいときのために残す
-
-- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
-
-#### 裏付け質疑: `qa-infra-web-spec-intake`
-
-**問**
-
-infrastructure×web: 検査をどの段で走らせ、どこでマージを止めるか (書面入力 docs/spec/11 §8)
-
-**答**
-
-| 1 速い門 | push / PR | 5 分 | **止める** | 型検査 / 書き方 / 段の指定漏れ / 単体・契約検査 |
-| 2 広い門 | PR | 15 分 | **止める** | 結合 / API 契約 / 画面 / 読み上げ / 境界値 / カバレッジ閾値 / 変更範囲だけのミューテーション |
-| 3 深い門 | **手動のみ**（定例なし。打つ場面は下） | 40 分（実測 27 分） | 止めない | 全体ミューテーション / 負荷 / 見た目の回帰 / 脆弱性の深掘り |
-**実行時間は費用の要因ではない。** したがって「時間を減らすために CI からテストを外す」判断はしない。
-
-- (根拠の性質: コード・設定・公式文書で検証できる観測事実)
-
-#### 裏付け質疑: `qa-infra-web`
-
-**問**
-
-インフラ (infrastructure) × web の実行環境・デプロイは何か (2026-08-16 対話ヒアリング)
-
-**答**
-
-現行構成で確定。技術基盤は現行リポジトリの構成(Next.js + Cloudflare Workers/OpenNext + D1 + Drizzle ORM)を正として仕様に確定する。
-
-- (根拠の性質: 利用者が代替案を見たうえで明示選択した決定)
-
-#### 裏付け質疑: `qa-infra-web-redirect`
-
-**問**
-
-infrastructure×web: リダイレクトサービスの可用性要件は何か (書面入力 docs/spec/02 §7)
-
-**答**
-
-| 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |
-
-- (根拠の性質: コード・設定・公式文書で検証できる観測事実)
-
-### 本章での適用
-
-> **未記入** — 本章固有の適用記述が spec-state に無い。以下の card 本文は共有資産の逐語であり、同じ card を引く他章と一致する。この節は現時点で「参照した」ことしか示しておらず、「適用した」証拠ではない。
-
-- `ref-system-design-knowledge/references/resource-map.yaml` (resource-map 未定義。関連cardを選定・深化してから確定する)
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 3 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-r2-upload-actual-capability。裏付け質疑 (`qa_refs`): `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記。資するゴール: G1, G2, G3 |`
-- `> 本章の各確定セルが何を根拠に確定したかの実体。`qa_ref` が主たる接地根拠、`qa_refs` がそれを支える裏付け質疑であり、いずれも qa_log (spec-state.json) の逐語である。ここに現れない主張は本章の確定内容ではない。`
-- `| Web (web) | 確定 | 確定質疑: qa-infrastructure-web-r2-upload-actual-capability。裏付け質疑 (`qa_refs`): `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

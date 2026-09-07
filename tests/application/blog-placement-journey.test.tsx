@@ -25,6 +25,7 @@ describe("成果リンク起点の管理 journey と 3 面一致 (A7)", () => {
             siteSlug: "desk-tools",
             slug: "best-stand",
             status: "published",
+            categorySlug: "stands",
             publishedAt: NOW,
           }),
           blocks: [],
@@ -46,33 +47,12 @@ describe("成果リンク起点の管理 journey と 3 面一致 (A7)", () => {
       listByAffiliate: async ({ trackingCode }) =>
         ok(rows.filter((row) => trackingCode === undefined || row.trackingCode === trackingCode)),
       save: async (input) => {
-        const linked = input as typeof input & {
-          readonly publicArticleBlock?: {
-            readonly articleId: string;
-            readonly block: (typeof repository.store.articles)[number]["blocks"][number];
-          };
-        };
-        if (linked.publicArticleBlock === undefined) {
-          throw new Error("公開 CTA が台帳保存と同じ操作に含まれていません");
+        if (input.articleUpdate === undefined) {
+          throw new Error("記事集約が台帳保存と同じ操作に含まれていません");
         }
-        const publicArticleBlock = linked.publicArticleBlock;
-        const detail = repository.store.articles.find(
-          (candidate) => candidate.article.id === publicArticleBlock.articleId,
-        );
-        if (detail === undefined) throw new Error("記事が見つかりません");
-        repository.store.articles = repository.store.articles.map((candidate) =>
-          candidate.article.id !== detail.article.id
-            ? candidate
-            : {
-                ...candidate,
-                blocks: [
-                  ...candidate.blocks.filter(
-                    (block) => block.id !== publicArticleBlock.block.id,
-                  ),
-                  publicArticleBlock.block,
-                ],
-              },
-        );
+        expect(input.articleUpdate).toMatchObject({ id: "article_1", expectedRevision: 1 });
+        const savedArticle = await repository.port.saveArticle(input.workspaceId, input.articleUpdate);
+        if (!savedArticle.ok) return savedArticle;
         rows = [
           ...rows.filter(
             (row) =>
@@ -120,6 +100,7 @@ describe("成果リンク起点の管理 journey と 3 面一致 (A7)", () => {
     });
 
     const detail = repository.store.articles[0];
+    expect(detail.article.revision).toBe(2);
     const publicCodes = detail.blocks
       .map(expressionBlockOfArticleBlock)
       .filter((block) => block?.kind === "cta")

@@ -12,7 +12,7 @@ iteration: null
 title: "ブログ単位の管理コンソールへの再編"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-04T02:29:14.474337Z"
+updated_at: "2026-09-07T15:54:23.582036Z"
 status: "active"
 depends_on: ["feat-blog-ops-crud","feat-blog-custom-domain","feat-blog-metrics-rollup","feat-reader-behavior-analytics","feat-seo-assessment-reflection","feat-aeo-answer-optimization"]
 related_nodes: ["spec-system-spec-index","arch-blog-operations-console","feat-blog-composition-visibility"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-scoped-admin-console/853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "確定質疑 qa-frontend-web-blog-scoped-admin / qa-uiux-web-blog-scoped-admin / qa-ops-web-domain-retention-seo-freshness を lineage 参照。利用者要望『現在、管理画面ではブログ全体ではなく、記事ごとに管理する体制になっています。ブログごとに管理できるように』『現状、管理画面が全く整備されていないため、この点を改善してください』への対応"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-scoped-admin-console.md","confidence":0.95}]

@@ -788,32 +788,27 @@
       "mobile": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-database-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "tablet": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-database-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-windows": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-database-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-linux": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-database-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-macos": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-database-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       }
     },
     "auth": {
@@ -848,32 +843,27 @@
       "mobile": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-auth-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "tablet": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-auth-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-windows": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-auth-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-linux": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-auth-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-macos": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-auth-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       }
     },
     "ui-ux": {
@@ -932,40 +922,35 @@
       "mobile": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "tablet": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-windows": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-linux": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-macos": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-ui-ux-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       }
     },
     "security": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-security-web-upload-hardening-corrected",
+        "qa_ref": "qa-security-web-worker-image-upload-confirmed-20260906",
         "qa_refs": [
-          "qa-security-web-upload-hardening-corrected",
+          "qa-security-web-worker-image-upload-confirmed-20260906",
           "qa-security-web-domain-behavior-privacy",
           "qa-security-web-spec-intake",
           "qa-security-web"
@@ -983,9 +968,10 @@
           "G2",
           "G3"
         ],
+        "approval_ref": "approval-article-image-upload-path-worker-20260906",
         "required_info_checks": [
           {
-            "checked_on": "2026-09-05",
+            "checked_on": "2026-09-06",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -995,40 +981,35 @@
       "mobile": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-security-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "tablet": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-security-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-windows": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-security-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-linux": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-security-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-macos": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-security-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       }
     },
     "infrastructure": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-infrastructure-web-r2-upload-actual-capability",
+        "qa_ref": "qa-infrastructure-web-worker-image-upload-confirmed-20260906",
         "qa_refs": [
-          "qa-infrastructure-web-r2-upload-actual-capability",
+          "qa-infrastructure-web-worker-image-upload-confirmed-20260906",
           "qa-infra-web-custom-hostname",
           "qa-infrastructure-web-wildcard-subdomain",
           "qa-infra-web-migration-guard-v2",
@@ -1042,9 +1023,10 @@
           "G2",
           "G3"
         ],
+        "approval_ref": "approval-article-image-upload-path-worker-20260906",
         "required_info_checks": [
           {
-            "checked_on": "2026-09-05",
+            "checked_on": "2026-09-06",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1054,32 +1036,27 @@
       "mobile": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "tablet": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-windows": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-linux": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-macos": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-infrastructure-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       }
     },
     "backend": {
@@ -1122,32 +1099,27 @@
       "mobile": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-backend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "tablet": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-backend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-windows": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-backend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-linux": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-backend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-macos": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-backend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       }
     },
     "frontend": {
@@ -1185,32 +1157,27 @@
       "mobile": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-frontend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "tablet": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-frontend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-windows": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-frontend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-linux": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-frontend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-macos": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-frontend-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       }
     },
     "maintenance-ops": {
@@ -1241,32 +1208,27 @@
       "mobile": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "tablet": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-windows": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-linux": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       },
       "desktop-macos": {
         "state": "対象外",
         "reason": "Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。",
-        "approval_ref": "approval-platform-web-only",
-        "qa_ref": "qa-maintenance-ops-platform-exclusion-consequence"
+        "approval_ref": "approval-platform-web-only"
       }
     }
   },
@@ -4000,110 +3962,7 @@
           ]
         }
       ],
-      "superseded_by": "qa-security-web-upload-hardening-corrected"
-    },
-    {
-      "id": "qa-database-platform-exclusion-consequence",
-      "question": "database: 対象プラットフォームを Web だけにしたことは、データ層の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
-      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、データ層にとって何が設計対象から外れたのかが読めない。そこで データ層 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。"
-    },
-    {
-      "id": "qa-auth-platform-exclusion-consequence",
-      "question": "auth: 対象プラットフォームを Web だけにしたことは、認証の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
-      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、認証にとって何が設計対象から外れたのかが読めない。そこで 認証 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。"
-    },
-    {
-      "id": "qa-ui-ux-platform-exclusion-consequence",
-      "question": "ui-ux: 対象プラットフォームを Web だけにしたことは、UI/UXの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
-      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、UI/UXにとって何が設計対象から外れたのかが読めない。そこで UI/UX 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。"
-    },
-    {
-      "id": "qa-security-platform-exclusion-consequence",
-      "question": "security: 対象プラットフォームを Web だけにしたことは、セキュリティの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
-      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、セキュリティにとって何が設計対象から外れたのかが読めない。そこで セキュリティ 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。"
-    },
-    {
-      "id": "qa-infrastructure-platform-exclusion-consequence",
-      "question": "infrastructure: 対象プラットフォームを Web だけにしたことは、インフラの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
-      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、インフラにとって何が設計対象から外れたのかが読めない。そこで インフラ 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。"
-    },
-    {
-      "id": "qa-backend-platform-exclusion-consequence",
-      "question": "backend: 対象プラットフォームを Web だけにしたことは、バックエンドの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
-      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、バックエンドにとって何が設計対象から外れたのかが読めない。そこで バックエンド 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。"
-    },
-    {
-      "id": "qa-frontend-platform-exclusion-consequence",
-      "question": "frontend: 対象プラットフォームを Web だけにしたことは、フロントエンドの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
-      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、フロントエンドにとって何が設計対象から外れたのかが読めない。そこで フロントエンド 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。"
-    },
-    {
-      "id": "qa-maintenance-ops-platform-exclusion-consequence",
-      "question": "maintenance-ops: 対象プラットフォームを Web だけにしたことは、保守運用の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
-      "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、保守運用にとって何が設計対象から外れたのかが読めない。そこで 保守運用 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。"
-    },
-    {
-      "id": "qa-infrastructure-web-r2-upload-actual-capability",
-      "question": "infrastructure×web: 記事画像を R2 へ直接アップロードする経路を、Cloudflare R2 が実際にできることに合わせて確定し直すとどうなるか。",
-      "answer": "**先に訂正する。**前回の確定は「署名付き URL は短命かつ 1 回きり」「発行した鍵と型と大きさ以外には使えない」と書いていた。公式ドキュメント (取得日 2026-09-05、`system-spec/retrieval-evidence/cloudflare-r2.json`) を読むと、いずれも成立しない。\n\n- 公式は **The same presigned URL can be reused multiple times until it expires** と明記している。1 回きりではない。\n- 署名で縛れるのは **資源** (アカウント ID・バケット・オブジェクトパス)・**操作** (GET / PUT / HEAD / DELETE の 4 つ)・**期限** (1 秒〜7 日 = 604,800 秒) の 3 つだけである。\n- 容量の上下限を署名へ含める S3 POST policy は、R2 の S3 API 互換表に記載が無い。**大きさは署名で縛れない。**\n\n**実能力に合わせた確定。**(1) ブラウザから署名付き URL で直接 PUT する。画像本体を Worker に通さないのは、Worker のリクエストボディ上限が『貼れる画像の大きさ』の天井になるのを避けるためである。(2) 鍵は `workspace_id/記事id/一意なid.拡張子` に固定し、鍵の先頭が workspace であることでテナント越えが鍵の並びの上で生じないようにする。(3) 配信は R2 のカスタムドメイン経由とし、バケットの公開 URL を記事本文へ埋めない。配信元を差し替えても本文の書き換えが要らない。(4) **バケットに CORS ポリシーが要る。**`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間。設定しない限りブラウザからの直接 PUT は preflight で落ちる。前回の確定にはこれが抜けていた。(5) 単一 PUT の上限は 5 GiB。超える画像は multipart へ切り替えるか上限として拒否するかを実装時に決め、暗黙に失敗させない。\n\n**削除は持たない。**記事から外した画像の刈り取りは maintenance-ops の掃除ジョブへ渡す。infrastructure は保管と配信の側だけを持つ。",
-      "source": {
-        "kind": "written-requirements",
-        "ref": "system-spec/retrieval-evidence/cloudflare-r2.json"
-      },
-      "asks_for": [
-        {
-          "category": "infrastructure",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "site-reliability-engineering.md#中核概念",
-          "principle": "使う仕組みが実際にできることを確かめてから要件にする",
-          "applicability": "applied",
-          "rationale": "『1 回きりの署名』を前提に設計すると、実際には再利用できる URL を配ることになり、想定した防御が最初から存在しない。公式の記述に合わせて要件を書き直せば、防御の位置が実物と一致する",
-          "tradeoffs": [
-            "署名で大きさを縛れないぶん、検査を受領後へ回す必要がある。防御の点が 1 つ増える"
-          ]
-        }
-      ],
-      "basis": "observed-fact"
-    },
-    {
-      "id": "qa-security-web-upload-hardening-corrected",
-      "question": "security×web: 署名で大きさを縛れないという実能力を踏まえ、記事画像のアップロードと本文の描画をどう守るか。",
-      "answer": "**前回の確定を訂正する。**「署名付き URL は 1 回きり」「発行した鍵と型と大きさ以外には使えない」は、Cloudflare R2 の公式仕様と矛盾する。署名が縛れるのは資源・操作・期限だけで、同じ URL は期限まで再利用できる。この訂正は防御を下げる変更ではなく、防御の位置を実物へ合わせる変更である。\n\n**二段構えにする。**\n\n(1) **署名の側**: 資源 (アカウント・バケット・オブジェクトパス)・操作 (PUT)・期限だけを縛る。期限は分単位に留め、上限 7 日の余地を使わない。再利用できることを前提に、漏れたときの窓を短く保つ。\n\n(2) **受領後の側**: 拡張子と申告 MIME を信頼せず、保管された実体の先頭バイトで型を判定する。許可した画像型かつ上限以下でなければ公開経路へ出さない。署名で大きさを縛れない以上、ここが大きさの唯一の検査点である。\n\n(3) **出所の側**: R2 の CORS ポリシーで、ブラウザから直接 PUT できる出所を管理画面の生成元だけに限定する。`AllowedOrigins` にワイルドカードを置かず、`AllowedMethods` は PUT に絞り、`ExposeHeaders` は ETag に留める。\n\n**描画は許可リストで絞る。**断片が 19 種へ増え、code / table / embed / columns といった構造の深いものが入る。要素・属性・URL スキームの許可リストを 1 か所に置き、断片ごとの分岐へ散らさない。embed の宛先ホストも許可リストで限定し、任意ホストの iframe を通さない。文字色/背景色は名前付きトークンのみを受け、任意の値をスタイルとして注入させない。\n\n**受入**: 同じ署名付き URL で 2 回 PUT して期限内の 2 回目が通ること (再利用可能である事実の確認) と期限後が落ちること。拡張子 `.png` で実体が実行可能ファイルまたは上限超過のものを PUT して、受領後検査が捕まえること。別ドメインからの PUT が preflight で落ち、CORS に `AllowedOrigins: *` が無いこと。`javascript:` リンク・許可外ホストの iframe・`<script>`・任意の 16 進色を仕込んだ本文が、描画結果に残らないこと。",
-      "source": {
-        "kind": "written-requirements",
-        "ref": "system-spec/retrieval-evidence/cloudflare-r2.json"
-      },
-      "asks_for": [
-        {
-          "category": "security",
-          "platform": "web"
-        }
-      ],
-      "design_applications": [
-        {
-          "knowledge_ref": "secure-by-design.md#中核概念",
-          "principle": "信頼できない入力は、境界を越えた後にもう一度検める",
-          "applicability": "applied",
-          "rationale": "署名で大きさと型を縛れないため、アップロード経路の入口だけでは検査が完結しない。保管された実体の先頭バイトで型を判定し、公開経路へ出す前に検めることで、入口で縛れなかったぶんを補える",
-          "tradeoffs": [
-            "不正な実体が一時的に保管領域へ到達する。到達しても公開経路へ出ないことと、掃除ジョブが刈り取ることで影響を閉じる"
-          ]
-        },
-        {
-          "knowledge_ref": "secure-by-design.md#中核概念",
-          "principle": "通すものを列挙する。塞ぐものを列挙しない",
-          "applicability": "applied",
-          "rationale": "断片が 19 種へ増え、埋め込みや自由な表など構造の深いものが入る。危ない書き方を数え上げる方式では、断片が増えるたびに数え漏れが増える。通す要素・属性・スキーム・ホストを 1 か所で列挙すれば、増えても漏れない",
-          "tradeoffs": [
-            "新しい断片を足すたびに許可リストへ追記が要る。追記を忘れると描画されないので、漏れは静かに通るのではなく目に見える形で出る"
-          ]
-        }
-      ],
-      "basis": "observed-fact"
+      "superseded_by": "qa-security-web-worker-image-upload-confirmed-20260906"
     },
     {
       "id": "qa-uiux-web-editor-verbatim",
@@ -4258,6 +4117,58 @@
         }
       ],
       "basis": "user-decision"
+    },
+    {
+      "id": "qa-security-web-worker-image-upload-confirmed-20260906",
+      "question": "画像送信を、確定仕様の『R2へ直接送信』から、現実装の『Workerで認可・容量・形式を検査して保存』に統一してよいですか？",
+      "answer": "ok",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "security",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "secure-by-design.md#中核概念",
+          "principle": "Least privilege / deny by default と Defense in depth — 信頼境界で認可・入力検証を行い、判断不能時は保存しない",
+          "applicability": "applied",
+          "rationale": "利用者がWorker経由への統一を承認したため、画像本体がR2へ到達する前に、認証、content.write、workspaceと記事の所属、同一Origin、総バイト上限、許可MIMEと先頭バイトを一つの信頼境界で検査する。台帳のpending予約とready確定も分け、検査・保存・公開可否を単一の成功に見せない",
+          "tradeoffs": [
+            "Workerが画像送信の可用性境界になり、8MiBを超える画像は圧縮または選び直しが必要になる",
+            "検査と状態遷移が増える一方、署名URL・CORS・受領後の隔離検査という別経路を管理せずに済む"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-infrastructure-web-worker-image-upload-confirmed-20260906",
+      "question": "画像送信を、確定仕様の『R2へ直接送信』から、現実装の『Workerで認可・容量・形式を検査して保存』に統一してよいですか？",
+      "answer": "ok",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "infrastructure",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "site-reliability-engineering.md#中核概念",
+          "principle": "キャパシティと需要・観測可能性 — 上限と状態遷移を利用者に見える失敗および運用指標として扱う",
+          "applicability": "applied",
+          "rationale": "利用者がWorker経由への統一を承認したため、製品上限8MiBをAPI境界に明示し、pending予約、R2 put、ready確定を観測可能な段階として扱う。応答不明時は即時削除せず台帳と回収処理で収束させ、アップロード結果と回収結果を運用ログで区別する",
+          "tradeoffs": [
+            "画像本体がWorkerを通るためリクエスト数と処理負荷が増え、Worker障害時は送信できない",
+            "直接PUTのCORSと短命署名を不要にできる代わりに、Worker側のstream上限・失敗分類・再試行の保守が必要になる"
+          ]
+        }
+      ]
     }
   ],
   "approval_log": [
@@ -4280,6 +4191,10 @@
     {
       "id": "approval-article-image-upload-path",
       "note": "2026-09-05 AskUserQuestion で「記事エディターからの画像添付の経路」を 2 択で提示し、利用者が「Cloudflare R2 へ直接アップロード（推奨）」を選択 (dec-article-image-upload-path / opt-r2-direct-put)。選択の根拠となった利用者の逐語要望: 「カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです」"
+    },
+    {
+      "id": "approval-article-image-upload-path-worker-20260906",
+      "note": "2026-09-06の確認『画像送信を、確定仕様の「R2へ直接送信」から、現実装の「Workerで認可・容量・形式を検査して保存」に統一してよいですか？』に対し、利用者が逐語で『ok』と回答。yesはWorker方式への統一、noは2026-09-05に承認した直接PUTの維持を意味する文脈だった。以前の選択はapproval-article-image-upload-pathに保持し、今回の回答で置換する。"
     }
   ],
   "reopen_log": [
@@ -8017,6 +7932,74 @@
           }
         ]
       }
+    },
+    {
+      "category": "infrastructure",
+      "platform": "web",
+      "reason": "2026-09-06 ブロックエディター改善継続の指示を受け再検討。dec-article-image-upload-path の直接R2 PUT確定と現実装のWorker検査後保存が不一致。利用者へ正規経路を質問済みで回答待ち。過去の選択とqa原文を保持し、現在の実装を新たな利用者承認とみなさない。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-infrastructure-web-r2-upload-actual-capability",
+        "qa_refs": [
+          "qa-infrastructure-web-r2-upload-actual-capability",
+          "qa-infra-web-custom-hostname",
+          "qa-infrastructure-web-wildcard-subdomain",
+          "qa-infra-web-migration-guard-v2",
+          "qa-infra-web-migration-guard",
+          "qa-infra-web-spec-intake",
+          "qa-infra-web",
+          "qa-infra-web-redirect"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "security",
+      "platform": "web",
+      "reason": "2026-09-06 ブロックエディター改善継続の指示を受け再検討。画像検査の境界はアップロード経路の再選択に依存する。旧qa-security-web-upload-hardening-corrected は技術解釈であり利用者の新たな経路承認ではない。既存認可/機密/出典の記録をreopen_logへ保持し、回答前に再確定しない。",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-security-web-upload-hardening-corrected",
+        "qa_refs": [
+          "qa-security-web-upload-hardening-corrected",
+          "qa-security-web-domain-behavior-privacy",
+          "qa-security-web-spec-intake",
+          "qa-security-web"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "security-posture",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-security-web-domain-behavior-privacy"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -10492,21 +10475,23 @@
             "tco": "既存 Worker の枠内で処理するため追加費用はないが、画像本体が Worker を通るぶん CPU 時間とリクエスト数を消費する"
           },
           "free_tier_limits": "Workers 無料プランは 10 万リクエスト/日。R2 の無料枠は上記と同じ",
-          "goal_fit": "編集体験としては同等だが、大きな画像で失敗しうるため『全ての記事構成情報を扱える』要求に対して上限が低い",
-          "security_fit": "R2 へ書く前に型・大きさ・先頭バイトを検査できるため、不正な実体が保管領域へ到達しない",
+          "goal_fit": "記事本文と同じ編集画面から送信し、既存の認可・検査・保存処理へ統合する。製品上限は画像1件8 MiBと明示し、超過時は再選択または圧縮を案内する",
+          "security_fit": "R2へ書く前に、認証、workspace・記事への操作権限、Origin、受信量、許可MIME、ファイル先頭のシグネチャをWorkerで検査し、テナント配下のキーへ保存する",
           "pros": [
-            "保管前に検査でき、CORS 設定が不要",
-            "署名付き URL を外へ出さない"
+            "認可・容量・形式を保存前に一つの境界で検査できる",
+            "ブラウザへR2資格情報や署名付きPUT URLを渡さず、R2用CORSも不要",
+            "現在の実装経路をそのまま正本化でき、直接PUTとの二重実装を避けられる"
           ],
           "cons": [
-            "画像本体が Worker のリクエストボディ上限に縛られる",
-            "アップロード中に Worker の CPU 時間とリクエスト数を消費する"
+            "画像本体がWorkerのリクエストを通り、リクエスト数と処理負荷を消費する",
+            "製品上限8 MiBを超える画像は圧縮または再選択が必要"
           ],
           "risks": [
-            "上限を超える画像で失敗し、利用者から見ると『大きい画像は貼れない』という機能の欠落になる"
+            "上限・形式エラーをUIで具体的に示さないと利用者が失敗理由を判断できない",
+            "ストリーム境界より前に全量をメモリ化すると、大きな入力で資源を浪費するため、受信量を境界で打ち切る必要がある"
           ],
           "lock_in": "低 (経路が自前のため差し替えやすい)",
-          "ops_burden": "中 (アップロード経路が Worker の負荷と障害の対象になる)",
+          "ops_burden": "中 (アップロード経路をWorkerの監視対象に含める。失敗率・処理時間・拒否理由を観測する)",
           "evidence_refs": [
             "https://developers.cloudflare.com/workers/platform/limits/",
             "https://developers.cloudflare.com/r2/api/workers/workers-api-reference/"
@@ -10514,32 +10499,32 @@
         }
       ],
       "recommendation": {
-        "option_id": "opt-r2-direct-put",
-        "rationale": "記事画像は Worker のリクエストボディ上限を超えうる大きさになる。本体を Worker に通さない直接 PUT なら、その上限が画像の貼れる大きさの天井にならない。検査を受領後へ回す弱点は、保管直後に先頭バイトで型を検める後段の検査で埋められる",
+        "option_id": "opt-worker-proxy-upload",
+        "rationale": "製品上限を画像1件8 MiBと明示できる今回の用途では、Workerで認可・容量・形式を保存前に一括検査する方が、安全境界と実装経路を一本化できる。現実装とも一致し、直接PUT用の署名発行・CORS・受領後検査という別系統を増やさずに済む",
         "caveats": [
-          "同じ署名付き URL は期限まで再利用できる。1 回きりだと誤解した設計にしないこと",
-          "署名で容量を縛る S3 POST policy は R2 の互換表に無いため、大きさの制限は受領後の検査でしか掛からない",
-          "CORS ポリシーを設定しない限りブラウザからの PUT は preflight で落ちる"
+          "UIで8 MiB上限、許可形式、圧縮または再選択の案内を送信前と失敗時に示すこと",
+          "受信量をストリーム境界で制限し、認可・Origin・MIME・ファイルシグネチャをR2保存前に検査すること",
+          "アップロード失敗率、処理時間、拒否理由を監視し、上限が実利用を阻害する場合だけmultipartまたは直接送信を再検討すること"
         ],
         "confidence": "high",
-        "latest_checked_at": "2026-09-05T00:57:28Z",
+        "latest_checked_at": "2026-09-06T11:41:42Z",
         "comparison_basis": {
-          "goal_fit": "直接 PUT だけが画像サイズの天井を Worker から切り離せる。proxy 案は上限が機能の欠落として利用者に見える",
-          "tco": "proxy 案は追加費用ゼロ、直接 PUT も無料枠内で月数百円規模。費用差では決まらない",
-          "security": "proxy 案が優位 (保管前検査・CORS 不要)。直接 PUT はこの差を受領後検査と短い期限で埋める",
-          "operations": "直接 PUT は署名発行だけで、アップロード負荷が Worker の障害対象から外れる",
-          "lock_in": "直接 PUT は S3 互換のため他ストレージへ移せるが CORS と署名実装が付随する。proxy 案の方がわずかに移しやすい"
+          "goal_fit": "Worker経由は8 MiBまでの統合編集と現実装に一致する。直接PUTはより大きい画像に強いが、今回の製品上限には不要",
+          "tco": "どちらも想定規模では無料枠中心。Worker経由は既存経路を再利用でき、直接PUT用の追加実装と運用を避ける",
+          "security": "Worker経由は認可・容量・形式をR2保存前に一括拒否できるため優位。直接PUTは保存後検査と短命署名が別途必要",
+          "operations": "Worker経由は負荷監視が必要だが、API・エラー処理・監査点を一つに集約できる。直接PUTは署名、CORS、保存後検査の監視が増える",
+          "lock_in": "両案ともR2依存は残る。Worker経由はアプリ側APIを保ったまま保存先を差し替えやすい"
         }
       },
       "user_decision": {
-        "option_id": "opt-r2-direct-put",
-        "confirmed_at": "2026-09-05T01:20:00Z",
-        "note": "利用者が選択肢ラベル「Cloudflare R2 へ直接アップロード（推奨）」を選択した。承認の経路と逐語根拠は approval_log.approval-article-image-upload-path に記録。",
+        "option_id": "opt-worker-proxy-upload",
+        "confirmed_at": "2026-09-06T11:41:42Z",
+        "note": "利用者が『画像送信を、確定仕様の「R2へ直接送信」から、現実装の「Workerで認可・容量・形式を検査して保存」に統一してよいですか？』という確認へ逐語で『ok』と回答。以前の直接PUT選択はapproval-article-image-upload-pathに履歴として保持する。",
         "decided_by": "利用者本人",
-        "confirmation_mode": "AskUserQuestion 経由の選択 (提示 2 択から本人が 1 つを選んだ)",
-        "approval_ref": "approval-article-image-upload-path"
+        "confirmation_mode": "直前のyes/no確認への逐語回答",
+        "approval_ref": "approval-article-image-upload-path-worker-20260906"
       },
-      "approval_ref": "approval-article-image-upload-path",
+      "approval_ref": "approval-article-image-upload-path-worker-20260906",
       "recorded_with": "set-decision"
     },
     {
@@ -10647,10 +10632,10 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 2,
     "next_question": null,
     "complete": true,
-    "max_loops": 10,
+    "max_loops": 5,
     "max_loops_policy": "strict"
   },
   "asks_for_contract": {
@@ -10725,6 +10710,18 @@
         "body": "以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。\n\nこの本文はもともと質疑 `qa-uiux-web-block-editor-wysiwyg` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。\n\n**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-uiux-web-editor-verbatim` である。\n\n利用者の逐語は `qa-uiux-web-editor-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。\n\n---\n\n**当初の問い**\n\n> ui-ux×web: 記事エディターを、出来上がりの見た目のまま編集できるブロックエディターにするとき、(a) 見出しの層が意図せず動く問題をどう防ぎ、(b) どの断片まで見た目で見せ、(c) 画像をどう添えさせるか。\n\n**設計宣言の本文**\n\n**2 層を維持し、層を UI に見せる。**記事は外側 (節 = ArticleBlockKind 15 種) と内側 (本文の断片 = ProseNode) の 2 層である。節の見出しは常に h2 に固定し、本文の中の見出しは h3 と h4 しか取らない。Notion で起きる「編集したら見出し2が見出し1になる」は、見出しを 1 つの平らな列として扱い、見た目の大きさで層を選ばせることから来る。ここではその選択肢を与えない。節の見出し欄には「この記事の第 N 節 (h2)」と層を明示し、本文の見出し断片には「節の中の小見出し (h3)」「その下 (h4)」とラベルを出す。層はドラッグや Backspace の副作用では変わらず、断片の種類を選び直したときだけ変わる。\n\n**全断片を見た目のまま見せる。**現行は断片ごとに欄が分かれていて崩れないという利点があるが、商品カードが productId の素の入力欄のままで、書いている最中に何が出るか分からない。欄という単位は保ったまま、欄の中身を公開時の見た目で描く。商品カードは ID 手入力をやめ、商品を検索して選ぶ UI にし、選んだ瞬間にカードの姿 (画像・名称・価格・リンク) が出る。比較表・引用・囲み・コードブロック・自由表・画像の横並びも同様に、編集中の姿と公開時の姿を揃える。\n\n**画像はドラッグ&ドロップとファイル選択で添える。**URL の手入力を必須にしない。落とした瞬間にアップロードが始まり、進捗が出て、終わったら本文にその画像が出る。alt は未入力のまま公開できないようにし、装飾目的なら「装飾」と明示的に宣言させる。\n\n**入口は `/` だけに頼らない。**各断片の下に「+」があり、そこから種類を選べる。`/` を知らない運営者でも全種類へ到達できる。",
         "reason": "C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "歴史的スナップショット（現行規範ではない、2026-09-06 移送）",
+        "body": "> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。\n\n## 状態の意味 (State semantics)\n\n- `confirmed` / 「確定」は画面に載せる業務状態の**要求判断を収集済み**であることを表し、画面完成やユーザビリティ/アクセシビリティ検証済みを表さない。\n- 後段の `採否: applied` は設計判断に採用したことを表し、UI への実装または利用者検証済みを表さない。\n- 本章の実装状態は `partial`、検証状態は `unverified`。案件一覧のみ実装済みで、統計表示と業務ダッシュボードは未実装。\n- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/01` §17.4 / §22、`docs/spec/03` §7〜§8、および本章の Apple HIG 公式出典とする。\n\n\n## As-Is\n\n- PC 主体の1ページに案件一覧を表示し、「DBに接続できない」と「案件がない」を分岐している。\n- 未処理URL、確認/生成/承認待ち、投稿失敗、リンク切れ、更新期限、成果/収益、媒体接続状態のダッシュボードは未実装。\n- 速報/確定、n不足、同意の影響、再試行の画面規約は未検証。\n- 記事編集は、断片を記法の文字列として打ち込む欄で行っており、公開時の見た目は編集中に確認できない。カード・画像・表・コード・色といった記事を構成する要素の大半が、編集面では記法のまま見えている。\n\n\n## To-Be\n\n| 要件ID | 目標状態 |\n|---|---|\n| UIUX-REQ-001 | 記事ごとの成績比較を第1位、判断・回復すべき業務状態を第2位とし、1画面の主要アクションを1つにする (2026-08-22 の利用者本人の決定で先頭を差し替え。旧本文と経緯は「## 履歴」を見ること) |\n| UIUX-REQ-002 | 全画面に理想/空/ローディング/部分/エラー/低速の6状態を定義し、エラーは事象・データ安全性・次の行動を伝える |\n| UIUX-REQ-003 | 速報/確定と n不足は色だけに依存せず、ラベル・数値・補足で同じ意味を伝える |\n| UIUX-REQ-004 | 外部公開はプレビューと明示承認を経由し、失敗時は入力を保持して有限回の再試行へ進める |\n| UIUX-REQ-005 | 記事編集画面は、書いた断片を記法のまま見せず、公開時と同じ見た目で描く。19 種の断片すべてが対象で、「編集中は生の記法・確認は別画面」という分割を持たない |\n| UIUX-REQ-006 | 節 (外側・見出し2 固定) と本文の断片 (内側・見出し3/4) の 2 層を UI 上で明示し、節の見出しレベルを編集操作で変更できないことを画面上で伝える。階層が編集操作の副作用で動かない (`decisions[].dec-editor-editing-model`) |\n| UIUX-REQ-007 | 断片の挿入口は `/` だけに依存しない。挿入ボタンと `/` の双方から同じ 19 種へ到達でき、一覧は 文章 / 一覧 / 見せ方 / データ / 差し込み の 5 群に分けて提示する |\n\n\n## Delta\n\n1. 既存の案件一覧を捨てず、「案件管理」の局所ビューとして位置付ける。\n2. 業務キュー、Analytics、承認/公開を別ジャーニーに分け、表示トークンや KPI 式を画面ごとに重複させない。\n3. 共通の状態プレゼンタでローディング、権限不足、n不足、失敗/再試行を統一する。\n4. 記事編集画面を、記法を打ち込む入力欄から、公開時の見た目のまま編集する面へ置き換える。骨格 (`ArticleBlockKind` 15 種)・目次生成・必須ブロック検査は捨てず、節の層としてそのまま残す。\n5. 断片カタログを 10 種から 19 種へ広げる (追加 = code / table / image-row / toggle / checklist / embed / cta-button / link-card / columns)。文字の装飾 (太字・斜体・打ち消し・行内コード・リンク・文字色/背景色) は断片ではなく、文字を持つ断片の内側の装飾として扱う。色は名前付きトークンに限り、任意の 16 進値を受け取らない。\n6. 商品カードは URL の手入力ではなく、ワークスペース内の商品を検索して選ぶ操作で挿入する。画像は選択と drag&drop の双方で受け取り、代替テキストの入力を挿入完了の条件にする。\n\n\n## Dependencies\n\n`Workspace / role` → `業務状態・Analytics API` → `共通表示モデル` → `6状態の画面実装` → `キーボード/支援技術/E2E 検証`\n\n- 数値の意味と n 閾値は frontend で再定義せず、`docs/spec/03` と Analytics 表示モデルに従属する。\n\n記事エディターの従属:\n\n`節の骨格 (ArticleBlockKind 15 種)` → `断片カタログ 19 種と 5 群の分類` → `編集面の描画部品` → `公開ページと同一の描画経路` → `キーボード/支援技術/視覚差分の検証`\n\n- 断片の種類と記法は ui-ux で新たに定義せず、backend の `parseProse` / `serializeProse` の対応表を唯一の入力にする。編集面が描けて公開ページが描けない断片、またはその逆を作らない。\n- 商品カードの表示項目は ui-ux で決めず、backend の商品検索 API が返す項目 (id / 名称 / 画像 URL / 価格 / リンク) に従属する。\n- 画像の受け取り経路と鍵の並びは infrastructure の `decisions[].dec-article-image-upload-path` に従属する。\n\n\n## Acceptance evidence\n\n| 受入ID | シナリオ | PASS の証跡 |\n|---|---|---|\n| UIUX-ACC-001 | 速報/確定の同時表示 | ラベルを隠した色だけでは区別せず、可視テキストと accessible name で「速報」「確定」を識別。スクリーンリーダー記録と視覚差分を保存 |\n| UIUX-ACC-002 | n 閾値の直下/以上を表示 | 直下は「サンプル不足」と n を読み上げ、勝者/結論操作なし。以上でのみ許可される境界値 E2E を保存 |\n| UIUX-ACC-003 | API障害中の入力、一覧、再試行 | 入力を消さず、障害内容/データ安全性/次の行動を表示。再試行後の復帰までを E2E 録画で保存 |\n| UIUX-ACC-004 | キーボードのみ・200%拡大で承認前プレビューまで操作 | 焦点喪失、意図しない焦点移動、2次元スクロール強制なしで完了。手動検証記録と自動 a11y 結果を保存 |\n| UIUX-ACC-005 | 19 種の断片を 1 つずつ挿入し、編集面と公開ページを同一データで描画して突き合わせる | 19 種すべてで、編集面に記法の文字列 (`:::` や `|---|` 等) がそのまま見えていないこと、および編集面と公開ページの視覚差分が許容閾値内であることを、断片ごとのスクリーンショット比較で保存 |\n| UIUX-ACC-006 | 節の見出し上でレベル変更を試み、節の並べ替え・削除・断片の挿入と削除を行う | どの操作後も節の見出しが `h2` のままで、本文の断片の見出しが `h3`/`h4` の範囲から外れない。操作列を変えた 3 系統の E2E で、操作前後の見出しレベル列が一致することを保存 |\n| UIUX-ACC-007 | 挿入ボタンからのみ (キーボードで `/` を打たずに) 19 種すべてへ到達し、うち 1 件を挿入する | 5 群の一覧が表示され、19 種すべてが挿入ボタン経由で選択可能。支援技術で群の名前と断片名が読み上げられることを記録して保存 |\n| UIUX-ACC-008 | 商品カードを検索から挿入し、画像を drag&drop で添付する | 商品は検索結果からの選択のみで挿入でき、URL の手入力欄が存在しない。画像は代替テキストが空のままでは挿入が完了せず、その旨が画面に出る。両方の E2E 録画を保存 |\n\n\n## 履歴\n\n### 決定日 2026-08-22 / 書き戻し 2026-08-23 — `UIUX-REQ-001` の主タスク優先順位を利用者決定へ差し替え\n\n**旧本文 (逐語):**\n\n> | UIUX-REQ-001 | 一覧ではなく「今、利用者が判断・回復すべき業務状態」を優先順位にし、1画面の主要アクションを1つにする |\n\n**新本文:** 記事ごとの成績比較を第1位、判断・回復すべき業務状態を第2位とし、1画面の主要アクションを1つにする。\n\n**根拠:** 利用者本人の **2026-08-22** の決定 (`decisions[].decision-screen-priority.user_decision.confirmed_at = 2026-08-22T00:00:00Z`、`option_id: opt-performance-first`)。`## 確定内容 (質疑録)` の主タスク（優先順）の回答 (①記事ごとの成績比較 ②手を入れるべきもの ③成果と収益の数字) を一次根拠とし、その逐語回答自体は 2026-08-20 の対話 (`qa-uiux-web-screen-priority`) に遡る。章へ書き戻したのは 2026-08-23 で、これは決定日ではない。旧本文は書面 (`docs/spec/01` §17.4 / §22、`docs/spec/03` §7〜§8) から後に導かれた設計判断で、本人に確認していなかった。`#### 既存記録との食い違い` の (1) が「解消は設計側の判断として別に行う」と書いていた、その解消がこれである。\n\n**変えたもの・変えなかったもの:**\n\n- 変えたのは**先頭に何を置くか**だけ。「業務状態を出すこと」自体は第 2 位として残っており、`## Delta` の業務キュー・`UIUX-REQ-002` の 6 状態定義は影響を受けない。\n- 第 3 位の「成果と収益の数字」は `UIUX-REQ-001` の本文へ入れていない。要件文が優先順位の完全列挙になると、順位の変更が毎回この行の書き換えを要求する。一次根拠は質疑録の表であり、要件文はそこから「1 画面の主要アクションを 1 つに絞るときに何を先頭に採るか」だけを取る。\n- 旧本文と、収集時点でそれが食い違いとして記録されていた事実は消していない (上記の逐語引用と `#### 既存記録との食い違い` の (1))。\n\n**手続き:** 確定章の直接編集は C11 hook と C01 writer が拒否するため、R4-reopen を経由した。`apply-spec-transition.py apply --op '{\"action\":\"reopen\",\"category\":\"ui-ux\",\"platform\":\"web\",\"reason\":...}'` で `ui-ux.web` を `未収集` へ戻し、本文を改めたうえで同じ `qa_ref` (`qa-uiux-web-screen-priority`)・同じ `required_info` 3 件・`serves_goals: [G1]` で再確定した。根拠は `spec-state.json` の `reopen_log` に残る。\n\n**この往復で失ったもの:** `ui-ux.web` の `required_info_checks` にあった「2026-08-21 に 3 件を数えた」記録は、再確定時に writer が当日日付で付け直すため `2026-08-23` になった。writer は日付を引数で受け取らない (受け取れると数えていない日を名乗れる) ため、元の日付は復元できない。退避値は `reopen_log[].discarded.required_info_checks` にある。\n\n**`reopen_log` に誤った日付が残っている (訂正できないので明記する):**\n\nこの差し替えのために 2026-08-23 に 2 度 R4-reopen を行った。1 度目の `reason` は決定日を「2026-08-23」と書いているが、これは**誤り**である。決定日は上記のとおり 2026-08-22 で、2026-08-23 は章へ書き戻した日である。C06 ヒアリング品質監査がこの食い違いを MEDIUM finding として検出した。\n\n`reopen_log` は append-only で、writer に過去 entry の `reason` を訂正する op は無い。**誤った日付を含む reason は消えない。**2 度目の reopen (`reason` に訂正の経緯を記載) と、この節が訂正の記録である。`reopen_log` の ui-ux/web entry を読む人は、1 つ目の日付ではなく `decisions[].decision-screen-priority.user_decision.confirmed_at` を一次根拠として採ること。",
+        "reason": "既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "To-Be（規範契約）",
+        "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| UIUX-REQ-001 | 記事ごとの成績比較を第1位、判断・回復すべき業務状態を第2位とし、1画面の主要アクションを1つにする (2026-08-22 の利用者本人の決定で先頭を差し替え。旧本文と経緯は「## 履歴」を見ること) |\n| UIUX-REQ-002 | 全画面に理想/空/ローディング/部分/エラー/低速の6状態を定義し、エラーは事象・データ安全性・次の行動を伝える |\n| UIUX-REQ-003 | 速報/確定と n不足は色だけに依存せず、ラベル・数値・補足で同じ意味を伝える |\n| UIUX-REQ-004 | 外部公開はプレビューと明示承認を経由し、失敗時は入力を保持して有限回の再試行へ進める |\n| UIUX-REQ-005 | 記事編集画面は、書いた断片を記法のまま見せず、公開時と同じ見た目で描く。19 種の断片すべてが対象で、「編集中は生の記法・確認は別画面」という分割を持たない |\n| UIUX-REQ-006 | 節 (外側・見出し2 固定) と本文の断片 (内側・見出し3/4) の 2 層を UI 上で明示し、節の見出しレベルを編集操作で変更できないことを画面上で伝える。階層が編集操作の副作用で動かない (`decisions[].dec-editor-editing-model`) |\n| UIUX-REQ-007 | 断片の挿入口は `/` だけに依存しない。挿入ボタンと `/` の双方から同じ 19 種へ到達でき、一覧は 文章 / 一覧 / 見せ方 / データ / 差し込み の 5 群に分けて提示する |",
+        "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "frontend": [
@@ -10756,6 +10753,18 @@
         "heading": "AI が起草した設計宣言（質疑から移した本文）",
         "body": "以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。\n\nこの本文はもともと質疑 `qa-frontend-web-prose-fragment-catalog` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。\n\n**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-frontend-web-editor-verbatim` である。\n\n利用者の逐語は `qa-frontend-web-editor-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。\n\n---\n\n**当初の問い**\n\n> frontend×web: 記事作成に要る表現を賄うため、本文断片 (ProseNode) のカタログを現行 10 種からどこまで広げ、編集画面でどう出すか。\n\n**設計宣言の本文**\n\n**現行 10 種を保ったまま 9 種を足し、19 種にする。**現行は paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider。既存記事を壊さないため、この 10 種の記法は変えない。足すのは次の 9 種である。\n\n1. **code** — 言語指定つきコードブロック。言語を選ぶと編集中も色分けして出る。言語不明は plain。\n2. **table** — 行数と列数を自由に決められる表。comparison-table (商品比較の定型) とは別物として持つ。見出し行の有無を選べる。\n3. **image-row** — 画像を横に 2〜4 枚並べる。各枚に alt とキャプションを持つ。狭い画面では縦に落ちる。\n4. **toggle** — 見出しをたたんで中に段落を隠す折りたたみ。長い補足を本筋から外に出すために使う。\n5. **checklist** — チェック状態つきの箇条書き。手順の確認に使う。\n6. **embed** — 外部埋め込み (YouTube / X / 汎用 iframe)。許可した提供元だけを受ける。\n7. **cta-button** — 文言とリンク先と見た目 (主/副) を持つボタン。アフィリエイト計測の属性を落とさない。\n8. **link-card** — URL を入れると題名・説明・画像を引いてカードで出す。取得できないときは素のリンクへ落とす。\n9. **columns** — 2 段組み。左右それぞれに断片を入れられる。狭い画面では縦に落ちる。\n\n**文字の装飾は断片ではなく段落の中に持つ。**太字・斜体・打ち消し・行内コード・リンク・**文字色と背景色**は、段落・箇条書き・表のセルといった文字を持つ断片の中で効く行内装飾とする。色は自由な hex ではなく、記事のトークンから引いた名前つきの色 (既定/強調/注意/控えめ など) の許可リストに絞る。自由な色指定を許すと記事ごとに配色が壊れ、暗い配色での可読性も保証できない。\n\n**編集画面での出し方。**各断片の下の「+」と `/` の両方から全 19 種へ到達できる。種類は「文章」「一覧」「見せ方」「データ」「差し込み」の 5 群に分けて出す。19 個を平らに並べると選べない。",
         "reason": "C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "歴史的スナップショット（現行規範ではない、2026-09-06 移送）",
+        "body": "> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。\n\n## 状態の意味 (State semantics)\n\n- `confirmed` / 「確定」は Analytics 画面要求の**判断済み**を表し、画面実装や受入試験の完了を表さない。\n- 後段の `採否: applied` は設計に採用したことを表し、画面実装済みを表さない。\n- 本章の実装状態は `partial`、検証状態は `unverified`。「Analytics 拡張」は未実装。\n- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §7〜§8、`00-requirements-definition.md` の I3〜I4、および本章の公式出典とする。\n\n\n## As-Is\n\n- `src/app/page.tsx` に D1 から最大20件を読む案件一覧がある。空状態と DB 接続失敗状態は表示する。\n- `WebMcpProvider` と `/api/mcp` による WebMCP / Remote MCP PoC、`list_programs` / `record_conversion` / `get_revenue_summary` の3ツールがある。\n- Analytics のルート、KPI、ファネル、ヒートマップ、インサイト受信箱、実験、ASP突合画面は未実装。\n- 記事本文の断片は 10 種で、編集面には描画部品が無く記法の文字列として扱われる。コード・表・画像の横並び・トグル・チェックリスト・埋め込み・CTA ボタン・リンクカード・段組みの 9 種は存在しない。文字色/背景色の概念も無い。\n\n\n## To-Be\n\n| 要件ID | 目標状態 |\n|---|---|\n| FRONT-REQ-001 | `docs/spec/03` §8 の8ビューを、共通の Workspace / 期間 / ディメンション条件で表示する |\n| FRONT-REQ-002 | 発生見込・承認報酬・支払報酬をラベル・定義・数値のいずれでも混同させず、合算値を単一の「確定収益」として表示しない |\n| FRONT-REQ-003 | 比較セルにnと期間を常時付与し、設定閾値未満は結論・率・勝者操作を抑止する |\n| FRONT-REQ-004 | データ取得とドメイン判断を分離し、UI は同じ KPI 定義の表示モデルのみを消費する |\n| FRONT-REQ-005 | 断片カタログを 19 種で実装する。既存 10 種 (paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider) に加え、code (言語指定つき) / table (自由な行列) / image-row (2〜4 枚を横並び) / toggle / checklist / embed / cta-button / link-card / columns (2 段組) を持つ |\n| FRONT-REQ-006 | 編集面の描画と公開ページの描画は同一の描画部品を通る。断片ごとに 2 系統の実装を持たない |\n| FRONT-REQ-007 | 文字の装飾 (太字・斜体・打ち消し・行内コード・リンク・文字色/背景色) は断片ではなく、文字を持つ断片の内側の装飾として実装する。色は名前付きトークンの集合に限り、任意の 16 進値を受け取らない |\n| FRONT-REQ-008 | 節の見出しレベルは編集器の状態ではなく骨格から導出する。利用者操作で節の見出しレベルを変更する経路を実装しない |\n\n\n## Delta\n\n1. 案件一覧は維持し、Analytics ルートとサーバー側データ取得境界を追加する。\n2. KPI 式をコンポーネント内に重複実装せず、Analytics API / rollup の定義を唯一の入力にする。\n3. 速報/確定、n不足、同意の影響、更新時刻を共通表示モデルで扱う。\n4. 記事編集の入力欄を、断片ごとの描画部品を並べる編集面へ置き換える。描画部品は公開ページと共有し、編集面専用の描画を作らない。\n5. 断片の描画部品を 9 種追加する。追加分も既存 10 種と同じ登録表 (断片種別 → 描画部品 → 挿入メニューの群) を通し、種別ごとの分岐をコンポーネント内へ散らさない。\n6. 文字装飾を断片種別から分離し、文字を持つ断片が共通の装飾レイヤを使う形にする。色トークンの集合を 1 か所で定義する。\n\n\n## Dependencies\n\n`auth / Workspace context` → `tenant 付き Analytics API` → `MetricRollup / KPI dictionary` → `Analytics 表示モデル` → `8ビュー`\n\n- 生イベントテーブルを画面から直接参照しない。同意ゲート、速報/確定判定、n閾値は backend/database/security の正本に従属する。\n\n記事エディターの従属:\n\n`断片種別の定義 (backend の parseProse/serializeProse)` → `断片 → 描画部品の登録表` → `編集面と公開ページの共通描画` → `挿入メニュー 5 群` → `視覚差分・a11y 検証`\n\n- 断片の種別と記法を frontend で新設しない。増やすときは backend の往復変換を先に通す。\n- 描画時の許可リスト (どの要素・属性を通すか) は security の正本に従属し、frontend で緩めない。\n- 商品検索と画像アップロードの経路は backend / infrastructure に従属する。frontend は結果を描くだけで、R2 の鍵の並びを組み立てない。\n\n\n## Acceptance evidence\n\n| 受入ID | シナリオ | PASS の証跡 |\n|---|---|---|\n| FRONT-ACC-001 | `commission_amount_pending=1000円` / `commission_amount_approved=500円` / `commission_amount_paid=300円` の fixture を表示 | 「発生見込 1,000円」「承認報酬 500円」「支払報酬 300円」が別表示され、合算値を「確定収益」とする表示がない。コンポーネントテストとスクリーンショットを保存 |\n| FRONT-ACC-002 | `n < configured_min_sample` の比較セル | nと「サンプル不足」を表示し、率・勝者ラベル・結論操作を表示しない/無効化する。境界値前後の自動テストを保存 |\n| FRONT-ACC-003 | Analytics API が `503`の後に復旧 | 何が起き、データが安全か、次の行動が何かを表示。「再試行」の1回で復帰する E2E 記録を保存 |\n| FRONT-ACC-004 | Workspace A から B のクエリ条件を送信 | B の数値・名前・件数を DOM / RSC payload / CSV に含まないことを統合テストで証明 |\n| FRONT-ACC-005 | 19 種すべてを含む記事 fixture を、編集面と公開ページの両方で描画する | 断片 → 描画部品の登録表に 19 件が揃い、未登録の種別が 0 件。両面が同一部品を通ることを、部品呼び出しを記録するテストで証明して保存 |\n| FRONT-ACC-006 | 文字色・背景色に、トークン外の値 (`#ff0000` 等) を指定した本文を読み込む | トークン外の値は描画に反映されず、既定の文字色で描かれる。トークン一覧の定義箇所が 1 か所であることを検査するテストと併せて保存 |\n| FRONT-ACC-007 | 節の見出し要素に対して、キーボードとツールバーの双方からレベル変更を試みる | レベルを変更する操作が提供されておらず、DOM 上の節見出しが `h2` のまま。断片側の見出しは `h3`/`h4` のみ出現することを、描画結果の見出し列を検査するテストで保存 |\n| FRONT-ACC-008 | code 断片に言語指定つきの内容、table 断片に 3 行 4 列、image-row に 4 枚、columns に 2 段を入れて描画する | いずれも記法の文字列が画面に露出せず、横に長い表とコードは横スクロールが表内に収まり、ページ本体が横スクロールしない。4 断片ぶんのスクリーンショットを保存 |",
+        "reason": "既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "To-Be（規範契約）",
+        "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| FRONT-REQ-001 | `docs/spec/03` §8 の8ビューを、共通の Workspace / 期間 / ディメンション条件で表示する |\n| FRONT-REQ-002 | 発生見込・承認報酬・支払報酬をラベル・定義・数値のいずれでも混同させず、合算値を単一の「確定収益」として表示しない |\n| FRONT-REQ-003 | 比較セルにnと期間を常時付与し、設定閾値未満は結論・率・勝者操作を抑止する |\n| FRONT-REQ-004 | データ取得とドメイン判断を分離し、UI は同じ KPI 定義の表示モデルのみを消費する |\n| FRONT-REQ-005 | 断片カタログを 19 種で実装する。既存 10 種 (paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider) に加え、code (言語指定つき) / table (自由な行列) / image-row (2〜4 枚を横並び) / toggle / checklist / embed / cta-button / link-card / columns (2 段組) を持つ |\n| FRONT-REQ-006 | 編集面の描画と公開ページの描画は同一の描画部品を通る。断片ごとに 2 系統の実装を持たない |\n| FRONT-REQ-007 | 文字の装飾 (太字・斜体・打ち消し・行内コード・リンク・文字色/背景色) は断片ではなく、文字を持つ断片の内側の装飾として実装する。色は名前付きトークンの集合に限り、任意の 16 進値を受け取らない |\n| FRONT-REQ-008 | 節の見出しレベルは編集器の状態ではなく骨格から導出する。利用者操作で節の見出しレベルを変更する経路を実装しない |",
+        "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -10795,6 +10804,24 @@
         "body": "この章の DB-IMAGE-01〜03 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。\n\n**利用者の逐語（`qa-database-web-article-image-verbatim` の answer に原文がある）**\n\n> カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように\n\n**そこから AI が導いた受入条件**\n\n- どの記事がどの R2 鍵を参照しているかの正本を Editorial 側の D1 が単独で持つこと\n- R2 側のオブジェクト一覧を参照状態の正本にしないこと\n- 参照の消滅と実体の消滅がずれる期間を、状態として表現できること\n\n**利用者の確認を受けている範囲**\n\nAskUserQuestion で「Cloudflare R2 へ直接アップロード（推奨）」を選択済み（承認記録 approval-article-image-upload-path）。参照状態をどこが持つかは提示していない。\n\nこの区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。",
         "reason": "C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。質疑側は逐語だけに作り直したので、章側で要件 ID の出所 (逐語 / AI 導出 / 利用者確認済みの範囲) を名乗らせる。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "画像送信経路変更後も維持するデータ契約（2026-09-06）",
+        "body": "`DB-IMAGE-01〜03` の参照台帳・状態遷移・回収猶予は、アップロード経路を Worker に統一しても維持する。2026-09-06 の現行承認は `approval-article-image-upload-path-worker-20260906` であり、画像は Worker の保存前検査を通って R2 へ入る。\n\nこの章に先に残る「R2 へ直接アップロードを選択済み」は 2026-09-05 時点の確認範囲を記録した履歴で、現行の送信経路ではない。参照状態の正本を D1 に置き、R2 オブジェクト一覧を正本にしないという本章の契約は変わらない。",
+        "reason": "送信経路の変更と参照台帳の不変契約を分け、旧承認の記述を現行決定と誤読させない",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "歴史的スナップショット（現行規範ではない、2026-09-06 移送）",
+        "body": "> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。\n\n## 状態の意味と実装差分\n\n`confirmed` は要求判断と採用方針が確定していることを表す。**スキーマ適用済み・データ移行済み・分離検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。\n\n- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §2 / §5、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。\n\n### As-Is（2026-08-16 のリポジトリ実体、Phase 1 マージ後）\n\n- 環境ごとに D1 binding `DB` が1つある。運営者ドメインは `asps`、`programs`、`conversions` の3テーブル。読者ドメインは Phase 1 で `categories`、`people`、`disclosures`、`products`、`articles`、`article_people`、`article_products`、`conversation_blocks` 等を追加した。両ドメインは同一 D1 に同居するが、コードコメントと `docs/spec/data-model-gap.md` で分離を宣言している。\n- 全テーブルに `workspace_id` がなく、actor / Workspace / membership / role / consent の永続化もない。D1 自体に行レベル認可はないため、現状はテナント分離を満たさない。\n- `conversions.external_id` は任意かつ非一意で、単一 `status` は `pending | approved | rejected` の判断現在値だけ。取込原票、冪等性、判断履歴、`cancelled`、独立した入金状態を保持しない。\n- ClickEvent、BehaviorEvent、MetricRollup、KPI辞書、`content_analytics_projection`、outbox は未実装である。\n- 公開ゲート `src/lib/content/publish-gate.ts` は記事メタ（著者・広告表記・更新責任者・結論・カテゴリー・次回確認日）だけを検査する。Claim / Evidence は未実装。\n- 記事画像の参照状態を持つテーブルが無い。どの記事がどの保管領域の実体を参照しているかを引く手段が無いため、記事から外された画像を孤児と判定できない。\n\n### To-Be（規範契約）\n\n| ID | 契約 | 配置 / 状態 |\n|---|---|---|\n| DB-BOUNDARY-01 | `EDITORIAL_DB` と `COMMERCIAL_DB` の2つの D1 を物理境界とする。Editorial は利用者・Workspace・コンテンツ・根拠・公開業務、Commercial は affiliate account/link、tracking、consent、event、conversion、attribution、rollup を所有する。cross-D1 foreign key / transaction は前提にしない | 未実装 |\n| DB-TENANT-01 | tenant-owned row は `workspace_id NOT NULL`。主キー以外の business uniqueness、検索 index、repository 条件は workspace scope を先頭に含める。グローバル辞書だけを明示的な例外とする | 未実装 |\n| DB-IDENTITY-01 | Editorial に actor（user / service account）と `workspace_membership(actor_id, workspace_id, role, status)` を持つ。認可の同一性は actor ID 単体でなく、この membership tuple とする。Commercial へは監査用 actor ID のみ記録し、権限判定を複製しない | 未実装 |\n| DB-CONSENT-01 | Commercial に `consent_record(workspace_id, site_id, consent_key_hash, purpose, state, policy_version, effective_at)` を履歴として保持する。state は `granted \\| denied \\| withdrawn`。granted 前の event は session ID / IP hash を持たず、withdrawn 後は新規の識別可能 event を拒否する | 未実装 |\n| DB-CONVERSION-01 | backend の BE-CONV-01 に従い conversion、import record、decision / settlement history を分離する。`conversion_key` は Workspace と affiliate account に scope された一意制約、`import_record_key` は再送 no-op の一意制約とする。conversion の現在値は二軸を投影し、単一 `status` 列は持たない | 未実装 |\n| DB-STATE-01 | 承認軸は `approval_status = pending \\| approved \\| rejected \\| cancelled`、支払軸は `payment_status = not_eligible \\| unpaid \\| scheduled \\| paid \\| reversed` とする。`scheduled/paid` は `approval_status=approved` の場合だけ許可する CHECK 制約を持つ。各軸の source timestamp と遷移を append し、古い原票で現在値を巻き戻さない。各変更は outbox event で集計再計算を要求する | 未実装 |\n| DB-KPI-01 | KPI名、version、分子、分母、bot/速報/承認/支払の除外規則、最低標本数を辞書として一元化し、rollup に `kpi_definition_version` / `aggregation_set_version` を記録する。`revenue_approved` は `approval_status=approved` の `commission_amount_approved`、`revenue_paid` は `payment_status=paid` の `commission_amount_paid` と定義し、混同・合算しない。その他の定義は `docs/spec/03-分析・解析基盤仕様.md` §4–§5 を参照し、画面ごとに式を複製しない | 未実装 |\n| DB-IMAGE-01 | Editorial に記事画像の参照状態を持つ。最低限 `article_image(workspace_id, article_id, object_key, referenced, last_referenced_at)` に相当する情報を保持し、「どの記事がどの R2 の鍵を参照しているか」を保管領域を走査せずに引けるようにする。孤児判定の根拠はここが唯一の正本であり、maintenance-ops の掃除ジョブは自前で数え直さない | 未実装 |\n| DB-IMAGE-02 | 記事から画像を外す操作は、参照状態を「参照なし」へ更新して `last_referenced_at` を打つだけにし、実体の削除を伴わない。猶予期間内に同じ鍵が再び参照されたら「参照あり」へ戻る。物理削除は maintenance-ops の掃除ジョブが `OPS-REQ-009` の猶予を過ぎたものだけに対して行う | 未実装 |\n| DB-IMAGE-03 | `object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする | 未実装 |\n| DB-PROJECTION-01 | Editorial の transaction は同一DB内の `outbox_event` へ、分析に必要な非機密の content dimension 変更を同時記録する。consumer は event ID で冪等化し、Commercial の `content_analytics_projection` を upsert する。projection は `workspace_id + content/variant/publication ID + dimension values + source_version` を持ち、収益を Editorial へ逆流させない | 未実装 |\n\n### Delta\n\n1. `EDITORIAL_DB` / `COMMERCIAL_DB` の migration と binding を用意し、legacy `DB` の3テーブルを所有境界へ割り当てる。切替完了までは dual-write でなく、停止可能な backfill + 検証 + cutover を使う。\n2. DB-TENANT-01 / DB-IDENTITY-01 を先行し、テナント条件のない repository を許可しない。\n3. DB-CONSENT-01 / DB-CONVERSION-01 / DB-STATE-01 と append-only event を追加する。\n4. DB-PROJECTION-01 の outbox relay 後に DB-KPI-01 と MetricRollup を構築する。\n5. 記事画像の参照状態 (DB-IMAGE-01) を Editorial へ追加する。責務の分け方をここで明記するのは、以前この参照状態の持ち主が居らず、外した画像の実体が保管領域に残り続ける状態だったためである。database が「参照されているか」を持ち、maintenance-ops が「掃除を回す」。片方だけでは孤児は消えない。\n\n### Dependencies\n\n依存方向は `前提 → 後続` とする。\n\n- DB-BOUNDARY-01 → infrastructure の2 D1 binding、環境別 migration、backup / restore 手順。\n- auth の session / service-account identity + DB-IDENTITY-01 → backend の BE-AUTH-01。\n- DB-CONSENT-01 → 計測タグと event ingestion の同意判定。\n- DB-PROJECTION-01 の outbox + Queue / dead-letter → projection consumer。consumer は `source_version` で順序逆転を解決する。\n- DB-KPI-01 → BE-ANA-01 と Analytics 表示/API。Commercial data を商品評価・ランキングへ入力しない。\n- DB-TENANT-01 → DB-IMAGE-01/03。参照状態も tenant-owned row であり、workspace scope の例外にしない。\n- DB-IMAGE-01/02 → maintenance-ops の `OPS-REQ-008/009` の掃除ジョブ → infrastructure の R2 削除。この順を逆にすると、参照状態を持たないまま保管領域を走査する掃除になる。\n\n### Acceptance evidence\n\n- schema snapshot で2 D1の所有テーブル、全 tenant-owned table の `workspace_id NOT NULL` と scoped unique/index を検査した記録。\n- cross-workspace fixture が repository / API / MCP の全経路で分離されるテスト。\n- granted 前・withdrawn 後の event に session ID / IP hash が保存されない privacy test。\n- outbox を重複・順序逆転で配送しても projection が一意かつ最新になり、再送後に未処理 outbox がゼロになる recovery test。\n- conversion の再取込・遅延した二軸の状態更新・rollup 再計算と、KPI version 一致を示す migration / contract test。DB が `scheduled/paid + approval_status!=approved` を拒否し、approved/unpaid は `revenue_approved` のみ、approved/paid は `revenue_paid` も計上すること。\n- **DB-IMAGE-01**: 記事へ画像を 3 枚入れて保存し、うち 1 枚を外して保存する。参照状態から「参照なし」の鍵が 1 件だけ引けること、その問い合わせが R2 の一覧取得を伴わないことを、クエリログと併せて保存。\n- **DB-IMAGE-02**: 外した画像を猶予期間内に元へ戻して保存する。参照状態が「参照あり」へ戻り、`last_referenced_at` が更新されること。この時点で実体が削除されていないことを R2 のオブジェクト一覧で確認して保存。\n- **DB-IMAGE-03**: Workspace A の記事が参照する鍵と同じ `object_key` を、Workspace B の記事から参照させる挿入を試みる。制約により作れないか、`workspace_id` が異なるため別行として扱われ、A の参照状態が B の操作で変化しないことを示す tenant 越境テスト。",
+        "reason": "既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "To-Be（規範契約）",
+        "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| DB-BOUNDARY-01 | `EDITORIAL_DB` と `COMMERCIAL_DB` の2つの D1 を物理境界とする。Editorial は利用者・Workspace・コンテンツ・根拠・公開業務、Commercial は affiliate account/link、tracking、consent、event、conversion、attribution、rollup を所有する。cross-D1 foreign key / transaction は前提にしない |\n| DB-TENANT-01 | tenant-owned row は `workspace_id NOT NULL`。主キー以外の business uniqueness、検索 index、repository 条件は workspace scope を先頭に含める。グローバル辞書だけを明示的な例外とする |\n| DB-IDENTITY-01 | Editorial に actor（user / service account）と `workspace_membership(actor_id, workspace_id, role, status)` を持つ。認可の同一性は actor ID 単体でなく、この membership tuple とする。Commercial へは監査用 actor ID のみ記録し、権限判定を複製しない |\n| DB-CONSENT-01 | Commercial に `consent_record(workspace_id, site_id, consent_key_hash, purpose, state, policy_version, effective_at)` を履歴として保持する。state は `granted \\| denied \\| withdrawn`。granted 前の event は session ID / IP hash を持たず、withdrawn 後は新規の識別可能 event を拒否する |\n| DB-CONVERSION-01 | backend の BE-CONV-01 に従い conversion、import record、decision / settlement history を分離する。`conversion_key` は Workspace と affiliate account に scope された一意制約、`import_record_key` は再送 no-op の一意制約とする。conversion の現在値は二軸を投影し、単一 `status` 列は持たない |\n| DB-STATE-01 | 承認軸は `approval_status = pending \\| approved \\| rejected \\| cancelled`、支払軸は `payment_status = not_eligible \\| unpaid \\| scheduled \\| paid \\| reversed` とする。`scheduled/paid` は `approval_status=approved` の場合だけ許可する CHECK 制約を持つ。各軸の source timestamp と遷移を append し、古い原票で現在値を巻き戻さない。各変更は outbox event で集計再計算を要求する |\n| DB-KPI-01 | KPI名、version、分子、分母、bot/速報/承認/支払の除外規則、最低標本数を辞書として一元化し、rollup に `kpi_definition_version` / `aggregation_set_version` を記録する。`revenue_approved` は `approval_status=approved` の `commission_amount_approved`、`revenue_paid` は `payment_status=paid` の `commission_amount_paid` と定義し、混同・合算しない。その他の定義は `docs/spec/03-分析・解析基盤仕様.md` §4–§5 を参照し、画面ごとに式を複製しない |\n| DB-IMAGE-01 | 記事画像のライフサイクル台帳を同一 D1 の article_image で保持する。workspace_id、article_id、object_key、pending/ready/deleting/deleted、参照状態と切断時刻を持ち、記事保存と参照状態更新を同一 transaction で同期する。孤児判定とdeleting（削除 claim）の判定は台帳と現在の本文/公開 JSON の参照を根拠とする。 |\n| DB-IMAGE-02 | 記事保存時に参照が切れた画像の detachment timestamp を記録する。ready の猶予期間内なら再参照できるが、deleting（削除 claim）/deleted は不可逆とし再参照・復元を拒否する。保存時は物理削除せず、掃除ジョブが deleting（削除 claim）→R2 delete→deleted 墓標へ遷移する。 |\n| DB-IMAGE-03 | `object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする |\n| DB-PROJECTION-01 | Editorial の transaction は同一DB内の `outbox_event` へ、分析に必要な非機密の content dimension 変更を同時記録する。consumer は event ID で冪等化し、Commercial の `content_analytics_projection` を upsert する。projection は `workspace_id + content/variant/publication ID + dimension values + source_version` を持ち、収益を Editorial へ逆流させない |",
+        "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "auth": [
@@ -10808,6 +10835,18 @@
         "heading": "章の規範本文を正本から再生成しない理由",
         "body": "`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。\n一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は\n正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /\n正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が\n8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。\n**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。",
         "reason": "確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "歴史的スナップショット（現行規範ではない、2026-09-06 移送）",
+        "body": "> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。\n\n## 状態の意味 (State semantics)\n\n- `confirmed` / 「確定」は、認証方式の**要求判断を収集済み**であることを表す。実装済み・統合済み・受入試験合格を表さない。\n- 後段の `採否: applied` も「設計判断に採用」の意味であり、コードへの適用済みを意味しない。\n- 本章の実装状態は `partial`。ローカルの受入・結合試験は `pass` だが、Google OAuth の実往復、Workers 上の実 HTTP、dev / production D1 migration は `unverified`。要求判断の確定とリリース検証を混同しない。\n- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**とする。規範根拠は `docs/spec/01` §25〜§26、`00-requirements-definition.md` の U8、本章の「最新ドキュメント出典」に記録した公式出典とする。\n\n\n## As-Is\n\n- Better Auth + Google OAuth の adapter、D1 の認証・セッション表、許可メールと membership の二段ゲートが実装されている。`/admin` の入口は `src/middleware.ts`、操作権限は application 層の `requireCapability` が担う。\n- Workspace / membership / role、tenant-scoped port、他 Workspace の存在を隠す応答、request ID 付きの拒否監査が実装され、ローカルの受入・D1 結合試験で検証されている。\n- ブランドの標準 CTA・標準免責は、Workspace にブランドが 1 件だけなら管理画面と MCP の生成経路へ既定値として届く。複数ブランド時の選択 UI と `brands` の本番永続化は未完了。\n- `src/lib/mcp/auth.ts` の `MCP_TOKEN` と `same-origin` 読み取り WebMCP は PoC 経路として残る。`same-origin` は利用者の身元を証明せず、Workspace 認可の代替ではない。\n- Google OAuth の実往復、本番 Secrets、本番 D1 への migration 適用は未検証である。コードとローカル試験があることを、本番利用可能の証拠にはしない。\n\n\n## To-Be\n\n| 要件ID | 目標状態 |\n|---|---|\n| AUTH-REQ-001 | Better Auth + Google OAuth で人の身元を確認し、セッションを D1 で管理する |\n| AUTH-REQ-002 | 全ユースケースで `session -> workspace_membership -> role` をサーバー側で検証する |\n| AUTH-REQ-003 | `MCP_TOKEN` は PoC 限定とし、本番の機械間 MCP は許可 Workspace と最小権限に紐付く service identity を使う。`same-origin` は公開読み取りのみ、保護 WebMCP は Better Auth セッション + Workspace 認可を要求する |\n| AUTH-REQ-004 | 公開・削除・権限変更等はロール認可と明示承認の両方を満たし、監査イベントを残す |\n\n\n## Delta\n\n1. dev 環境で Google OAuth の実往復を行い、認証 callback、cookie 属性、D1 セッション作成、ログアウト後の無効化を実測する。\n2. `brands` の永続化と複数ブランド時の明示選択を実装し、誤った CTA・免責を自動選択しない状態を保つ。\n3. PoC の `MCP_TOKEN` を Workspace と最小権限に結びつく service identity へ置き換え、`same-origin` は公開読み取りだけに限定し続ける。\n4. migration `0022` / `0023` を dev D1 へ適用する前に既存 `disclosures` 行数を確認し、適用後に tenant 分離と request ID 索引を実測する。\n\n### Implementation evidence (2026-08-24 final review)\n\n| 観点 | 状態 | 証跡 |\n|---|---|---|\n| 未認証の `/admin` 遮断 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/admin-entry-middleware.test.ts` |\n| tenant / capability 境界 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/access-boundary.test.ts`、`tests/architecture/tenant-scoped-schema.test.ts` |\n| 拒否の request ID 付き監査 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/denial-audit.test.ts`、`drizzle/0024_aromatic_flatman.sql` |\n| ブランド既定値の配線 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/brand-defaults-wiring.test.ts` |\n| Google OAuth / Workers / dev・production D1 | 未検証 | `docs/spec/feat-auth-workspace/release-notes.md` §7 |\n\n書き戻しは `system-spec/spec-state.json` の `auth.web` を R4 `reopen` し、要求判断 `qa-auth-web` を変えずに本文を更新して再確定した。受領記録は `docs/spec-writeback-receipt.md` にある。正本 state の `implementation_snapshot` は現行 writer に更新 action が無いため古いままであり、writer 拡張は Beads `ah-u5l` で追跡する。\n\n\n## Dependencies\n\n`Better Auth / Google OAuth シークレット` → `D1 認証スキーマ` → `Workspace membership / role` → `共通認可ゲート` → `AuditLog`\n\n- 本章は security の tenant 分離と frontend の Workspace 選択の前提。認証のみでテナント分離済みとみなさない。\n\n\n## Acceptance evidence\n\n| 受入ID | シナリオ | PASS の証跡 |\n|---|---|---|\n| AUTH-ACC-001 | 未認証で保護ルート/APIへアクセス | リダイレクトまたは `401`、応答に保護データなし。統合テストログを保存 |\n| AUTH-ACC-002 | Workspace A のセッションで Workspace B の既知IDを参照 | 未存在IDと同一の `404` 応答・本文で、B の値を一切返さない。拒否は request ID 付きで監査記録 |\n| AUTH-ACC-003 | Analyst が分析閲覧と公開操作を実行 | 分析閲覧は成功し、公開は `403`。actor / workspace / action / result を含む監査記録と認可テストを保存 |\n| AUTH-ACC-004 | ログアウト後に旧セッションを再利用 | `401`、セッション無効化レコードと自動テスト結果を保存 |\n| AUTH-ACC-005 | 未認証 `same-origin` と Workspace A 限定の service identity で保護ツールを呼ぶ | `same-origin` に保護ツールを公開せず、service identity は A のみ成功、B は拒否。`tools/list` / `tools/call` の契約テストと監査記録を保存 |",
+        "reason": "既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "To-Be（規範契約）",
+        "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| AUTH-REQ-001 | Better Auth + Google OAuth で人の身元を確認し、セッションを D1 で管理する |\n| AUTH-REQ-002 | 全ユースケースで `session -> workspace_membership -> role` をサーバー側で検証する |\n| AUTH-REQ-003 | `MCP_TOKEN` は PoC 限定とし、本番の機械間 MCP は許可 Workspace と最小権限に紐付く service identity を使う。`same-origin` は公開読み取りのみ、保護 WebMCP は Better Auth セッション + Workspace 認可を要求する |\n| AUTH-REQ-004 | 公開・削除・権限変更等はロール認可と明示承認の両方を満たし、監査イベントを残す |",
+        "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -10841,6 +10880,18 @@
         "body": "以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。\n\nこの本文はもともと質疑 `qa-backend-web-prose-roundtrip-and-product-search` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。\n\n**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-backend-web-prose-verbatim` である。\n\n利用者の逐語は `qa-backend-web-prose-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。\n\n---\n\n**当初の問い**\n\n> backend×web: 本文断片を 19 種へ増やしても保存形 (拡張 Markdown 文字列) を保つために、往復変換と未知記法の扱い、および商品カードの選択に要る検索をどう定めるか。\n\n**設計宣言の本文**\n\n**保存形は拡張 Markdown 文字列のままにする。**JSON の木へ移さない理由は 3 つある。既存記事のデータが 1 件も壊れない、人が読める、AI が書ける。断片を 9 種足しても、足すのは記法であって保存形ではない。\n\n**往復の不変条件。**`parseProse(serializeProse(nodes)) === nodes` を全 19 種について保証する。新しい記法は、既存の Markdown 記法と衝突しない形で足す。コードブロックは三連バッククォートに言語名、表は既存の Markdown table、それ以外 (image-row / toggle / checklist / embed / cta-button / link-card / columns) は既存の callout や product-card と同じ「ディレクティブ行」の書き方に揃える。1 種類ごとに固有の記法を発明しない。\n\n**未知の記法に出会ったら、落とさず段落へ退避する。**版が進んで新しい記法が入った記事を古い版が読むことは起こりうる。そのとき解釈できない行を捨てると本文が消える。解釈できないものは、書かれた文字列そのままを持つ段落として保持し、保存し直しても元の文字列が戻るようにする。**読めないことと、失ってよいことは違う。**\n\n**商品検索 API。**商品カードで ID を手入力させないため、workspace 内の商品を名前で絞り込む読み取り専用の検索を足す。actor の workspace_id で必ず絞り、他 workspace の商品は 1 件も返さない。返すのはカードの描画に要る最小限 (id / 名称 / 画像 URL / 価格 / リンク) だけで、原価や内部メモは返さない。件数は上限を置き、無制限の全件取得にしない。",
         "reason": "C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "歴史的スナップショット（現行規範ではない、2026-09-06 移送）",
+        "body": "> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。\n\n## 状態の意味と実装差分\n\n`confirmed` は要求判断と採用方針が確定していることを表す。**実装済み・デプロイ済み・検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。\n\n- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §1、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。\n\n### As-Is（2026-08-16 のリポジトリ実体）\n\n- Next.js / OpenNext の単一アプリ内に、D1 を直接読む stateless MCP PoC がある。\n- MCP PoC は `list_programs`、`record_conversion`、`get_revenue_summary` の3ツールのみ。単一の `MCP_TOKEN` または same-origin 判定で入口を分けるが、利用者主体、Workspace membership、role による認可はない。same-origin は主体認証ではない。\n- `record_conversion` は成果を1件追加するだけで、ASP API / CSV の一括取り込み、安定した成果同一性、再取り込みの冪等化、判断・入金の状態履歴はない。現在の単一 `status` は `pending | approved | rejected` のみで、入金状態を表現できない。任意の `external_id` に一意制約もない。\n- ClickEvent / BehaviorEvent / Channel Insights の収集、正規化、MetricRollup、Attribution、Insight Engine、Brief への提案は未実装である。\n- 記事本文の断片は 10 種で、`parseProse` / `serializeProse` の往復を 19 種で保証する検証はない。未知記法は保持されず落ちる。商品カード挿入のための商品検索 API と、記事画像の署名付き URL を発行する経路はいずれも存在しない。\n\n### To-Be（規範契約）\n\n| ID | 契約 | 状態 |\n|---|---|---|\n| BE-ANA-01 | 収集→正規化→集計→分析→活用の責務境界は `docs/spec/03-分析・解析基盤仕様.md` §1–§7 を正本とする。各段は再実行可能な idempotent consumer とし、append-only の入力から同じ rollup を再構築できること | 未実装 |\n| BE-CONV-01 | 成果の安定同一性 `conversion_key` は `(workspace_id, affiliate_account_id, import_source, source_record_id)`。source ID がない取込元だけ、状態を除く不変項目から source fingerprint を作る。`import_record_key` は原票1行の canonical hash とし、同一キー再送は no-op、同一 `conversion_key` の新しい原票は承認または支払の状態更新履歴として扱う。現在値は `approval_status ∈ {pending, approved, rejected, cancelled}` と `payment_status ∈ {not_eligible, unpaid, scheduled, paid, reversed}` の二軸で投影し、単一 `status` へ合成しない。`scheduled/paid` は `approval_status=approved` の場合だけ許可する | 未実装 |\n| BE-AUTH-01 | UI / REST / WebMCP / backend MCP は共通の use-case 境界を呼び、そこで `actor(type, id) + workspace_id + membership status + role` を認可する。actor と workspace は検証済み session/token から導出し、ツール引数を信用しない | 未実装 |\n| BE-MCP-01 | 現行 MCP は接続性検証用 PoC。製品版では BE-AUTH-01 を通る薄い adapter とし、§24.3 の resource/tool 契約、監査、確認必須操作、集計値のみの開示を通常 API と共有する | PoC のみ |\n| BE-PROSE-01 | 記事本文の保存形は拡張 Markdown 文字列を維持する (`decisions[].dec-article-body-storage-format`)。構造化 JSON ツリーへ移さない。理由は 3 つ — 公開済み記事のデータが壊れない (移行不要)、DB を直接見て本文が読める、AI が文字列として本文を書ける | 未実装 |\n| BE-PROSE-02 | 断片 19 種すべてで `parseProse(serializeProse(nodes)) === nodes` が成り立つ。往復で失われる断片・属性を 0 件にする | 未実装 |\n| BE-PROSE-03 | `parseProse` が解釈できない記法は、捨てずに**その文字列を literal に保持する段落**として通す。読めないことと、失ってよいことは違う。未知記法を含む本文を保存し直しても、元の文字列が消えない | 未実装 |\n| BE-PRODUCT-01 | 商品カード挿入のための、ワークスペース内商品の読み取り専用検索 API を持つ。返す項目は id / 名称 / 画像 URL / 価格 / リンクに限り、それ以外の商品属性を返さない。`workspace_id` はセッションから導出し、引数を信用しない (BE-AUTH-01 に従う) | 未実装 |\n| BE-IMAGE-01 | 記事画像の署名付き URL 発行は backend の use-case 境界を通る。鍵は `workspace_id/記事id/一意なid.拡張子` の形で backend が組み立て、クライアントから受け取った鍵に署名しない | 未実装 |\n\n### Delta\n\n1. BE-AUTH-01 を先に実装し、すべての repository query に workspace scope を必須化する。\n2. BE-CONV-01 の import command、idempotency ledger、判断・入金の状態履歴を実装する。現行 `record_conversion` の無条件 insert と単一 `status` は、移行後に二軸を扱う内部 command へ置換する。\n3. BE-ANA-01 を収集・正規化・rollup・分析の順に追加し、同じ KPI 契約を画面/API/MCPで使用する。\n4. 最後に BE-MCP-01 を PoC token 依存から actor-scoped credential に移行する。\n5. `parseProse` / `serializeProse` を断片 10 種から 19 種へ広げる。保存形は変えないため既存記事の移行は発生しない。追加する記法は既存本文と衝突しないことを、予約記法の衝突検査で先に確かめる。\n6. 未知記法の扱いを「落とす」から「literal な文字列を持つ段落として保持する」へ改める。これがないと、新しい記法で書かれた記事を古い版のコードが読んだときに本文が欠ける。\n7. 商品検索 API と署名付き URL 発行 API を、いずれも BE-AUTH-01 の use-case 境界の上に追加する。MCP 側にも同じ境界を通した薄い adapter としてのみ露出する。\n\n### Dependencies\n\n依存方向は `前提 → 後続` とする。\n\n- `DB-IDENTITY-01` / `DB-TENANT-01` + auth 章の session 方針 → BE-AUTH-01。\n- `DB-CONVERSION-01` + Commercial D1 + ASPごとの原票正規化規則 → BE-CONV-01。\n- `DB-PROJECTION-01` / `DB-KPI-01` + infrastructure の Queue / Cron / Redirect Resolver → BE-ANA-01。\n- BE-AUTH-01 + 各 use case → BE-MCP-01。MCP 固有ロジックから DB を直接操作しない。\n- `ArticleBlockKind` の節骨格 + 断片カタログ 19 種の定義 → BE-PROSE-01/02/03。frontend の描画部品は本契約の後段であり、断片の種別を frontend 側で新設しない。\n- BE-AUTH-01 + database の商品テーブル → BE-PRODUCT-01。\n- BE-AUTH-01 + infrastructure の R2 バケットと鍵の並び → BE-IMAGE-01。署名で縛れる範囲は security の SEC-REQ-006/007 に従属する。\n\n### Acceptance evidence\n\n- 同一取込ファイルを2回処理して成果件数・金額が増えず、後続の `approval_status` / `payment_status` 変更だけが同じ成果へ反映される自動テスト。\n- 異なる Workspace の actor が同じ resource ID を指定しても参照・変更できず、role 不足が拒否される API/MCP 共通の認可テスト。\n- 生イベントから rollup を全再計算した結果が増分集計と一致する fixture テスト。`approval_status=approved, payment_status=unpaid` では `revenue_approved` のみ、`payment_status=paid` への変更後は `revenue_paid` も計上され、承認報酬が二重加算されないこと。\n- MCP の tool call と通常 API が同一 use case / KPI 定義 / 監査記録を使うことを示す contract test。\n- **BE-PROSE-02**: 断片 19 種それぞれについて `parseProse(serializeProse(nodes)) === nodes` を検証する往復テスト。19 種すべてを含む 1 本の記事 fixture でも同じ等式が成り立つこと。属性 (コードの言語指定・表の列数・画像の代替テキスト・色トークン) が往復で失われないことを個別に検証した結果を保存。\n- **BE-PROSE-03**: 未知の記法 (将来の断片を模した文字列) を含む本文を保存 → 読み出し → 再保存する往復テスト。元の文字列がバイト単位で一致して残り、段落として描かれることを保存。\n- **BE-PROSE-01**: 現行の公開済み記事 fixture 全件を新しい `parseProse` で読み、既存の描画結果と差分が出ないことを示す退行テスト。保存形を変えていないため移行スクリプトが存在しないことを併せて記録。\n- **BE-PRODUCT-01**: Workspace A のセッションで商品を検索し、B の商品名・画像・価格が結果に含まれないことを示す tenant 越境テスト。返却項目が id / 名称 / 画像 URL / 価格 / リンクの 5 つに限られ、それ以外の属性が response に無いことを schema テストで保存。\n- **BE-IMAGE-01**: クライアントが `../` や別 workspace の鍵を指定して署名を要求し、いずれも拒否されるか、backend が組み立てた `workspace_id/記事id/一意なid.拡張子` の鍵でのみ署名が返ることを示す認可テストと、その拒否の監査記録。",
+        "reason": "既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "To-Be（規範契約）",
+        "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| BE-ANA-01 | 収集→正規化→集計→分析→活用の責務境界は `docs/spec/03-分析・解析基盤仕様.md` §1–§7 を正本とする。各段は再実行可能な idempotent consumer とし、append-only の入力から同じ rollup を再構築できること |\n| BE-CONV-01 | 成果の安定同一性 `conversion_key` は `(workspace_id, affiliate_account_id, import_source, source_record_id)`。source ID がない取込元だけ、状態を除く不変項目から source fingerprint を作る。`import_record_key` は原票1行の canonical hash とし、同一キー再送は no-op、同一 `conversion_key` の新しい原票は承認または支払の状態更新履歴として扱う。現在値は `approval_status ∈ {pending, approved, rejected, cancelled}` と `payment_status ∈ {not_eligible, unpaid, scheduled, paid, reversed}` の二軸で投影し、単一 `status` へ合成しない。`scheduled/paid` は `approval_status=approved` の場合だけ許可する |\n| BE-AUTH-01 | UI / REST / WebMCP / backend MCP は共通の use-case 境界を呼び、そこで `actor(type, id) + workspace_id + membership status + role` を認可する。actor と workspace は検証済み session/token から導出し、ツール引数を信用しない |\n| BE-MCP-01 | 現行 MCP は接続性検証用 PoC。製品版では BE-AUTH-01 を通る薄い adapter とし、§24.3 の resource/tool 契約、監査、確認必須操作、集計値のみの開示を通常 API と共有する |\n| BE-PROSE-01 | 記事本文の保存形は拡張 Markdown 文字列を維持する (`decisions[].dec-article-body-storage-format`)。構造化 JSON ツリーへ移さない。理由は 3 つ — 公開済み記事のデータが壊れない (移行不要)、DB を直接見て本文が読める、AI が文字列として本文を書ける |\n| BE-PROSE-02 | 断片 19 種すべてで `parseProse(serializeProse(nodes)) === nodes` が成り立つ。往復で失われる断片・属性を 0 件にする |\n| BE-PROSE-03 | `parseProse` が解釈できない記法は、捨てずに**その文字列を literal に保持する段落**として通す。読めないことと、失ってよいことは違う。未知記法を含む本文を保存し直しても、元の文字列が消えない |\n| BE-PRODUCT-01 | 商品カード挿入のための、ワークスペース内商品の読み取り専用検索 API を持つ。返す項目は id / 名称 / 画像 URL / 価格 / リンクに限り、それ以外の商品属性を返さない。`workspace_id` はセッションから導出し、引数を信用しない (BE-AUTH-01 に従う) |\n| BE-IMAGE-01 | 記事画像は同一生成元の Worker API と共通 use-case 認可境界を通る。workspace と記事の編集権限を検証し、鍵はサーバーが article-images/workspace_id/article_id/一意なid.拡張子として生成する。pending 予約→R2 put→ready 確定を経て利用可能とし、クライアント指定鍵や署名付き直接 PUT を受け付けない。 |",
+        "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "infrastructure": [
@@ -10860,6 +10911,30 @@
         "heading": "AI が起草した設計宣言（質疑から移した本文）",
         "body": "以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。\n\nこの本文はもともと質疑 `qa-infrastructure-web-article-image-r2-upload` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。\n\n**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-infrastructure-web-r2-upload-actual-capability` である。\n\n利用者の逐語は `qa-infrastructure-web-r2-upload-actual-capability` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。\n\n---\n\n**当初の問い**\n\n> infrastructure×web: 記事画像を Cloudflare R2 へ直接アップロードする経路をどう組むか。\n\n**設計宣言の本文**\n\n**R2 へ直接上げる。**画像の本体を Worker が中継しない。中継すると Worker のリクエスト上限と実行時間に画像の大きさが縛られ、大きい画像で失敗する。\n\n**流れ。**編集画面が「この名前・この型・この大きさで上げたい」と申告する → Worker が検査した上で、その 1 件だけに有効な署名付きアップロード URL を返す → ブラウザがその URL へ直接 PUT する → 完了後、編集画面が公開 URL を本文へ書く。\n\n**置き場。**記事画像専用のバケットを 1 つ持ち、鍵は `workspace_id/記事id/一意なid.拡張子` の形にする。workspace を先頭に置くのは、後から一括で消したり移したりする単位が workspace だからである。ファイル名は利用者が付けた名前をそのまま使わず、一意な id へ置き換える。名前の衝突と、名前に混ざる文字の問題を両方消せる。\n\n**配信。**バケットを直接公開せず、独自ドメインを通して配信する。キャッシュはこの層で効かせる。\n\n**消し方。**記事から画像を外しただけでは R2 の実体を消さない。編集の取り消しで戻せなくなるためである。参照されなくなった実体の刈り取りは、記事の公開状態が確定してから別の掃除として行う。",
         "reason": "C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "画像アップロード経路の再検討（2026-09-06、回答待ち）",
+        "body": "これは実装観察であり、利用者の回答原文や新たな採用決定ではない。\n\n`dec-article-image-upload-path` は、2026-09-05 の利用者回答に基づく R2 直接 PUT を記録している。一方、現在の `src/app/api/article-images/route.ts` は Worker が認可・容量・画像先頭バイトを検査して R2 へ保存する経路であり、両者は一致していない。過去の回答を現実装の承認へ読み替えない。\n\n2026-09-06 に infrastructure.web と security.web を正規 writer の R4-reopen で再オープンした。正規経路をどちらにするか利用者へ確認中であり、本章は draft とする。既存の qa_refs・serves_goals・required_info_checks は reopen_log.discarded に保持されている。回答後は依存する検査境界、API、運用記述を揃えて再検証する。\n\n画像の保存と回収の競合対策、公開参照の権限、検証結果の最新記録は [ブロックエディターの検証報告](../docs/spec/feat-article-block-editor/elegant-review.md) を参照する。ここへ件数や実装一覧を重複転記しない。",
+        "reason": "承認済みの再検討を実施し、旧決定と実装観察を区別する。利用者発言を改変せず、未回答を確定扱いしない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "画像アップロード経路の確定（2026-09-06）",
+        "body": "`dec-article-image-upload-path` の現行決定は `opt-worker-proxy-upload` である。2026-09-06、利用者は「現実装の Worker で認可・容量・形式を検査して保存」に統一する確認へ「ok」と回答した。根拠は `approval-article-image-upload-path-worker-20260906` に記録した。\n\n現在の経路は、編集画面 → `POST /api/article-images` → Worker の認可・入力検査 → R2 保存である。画像1件の製品上限は 8 MiB。台帳を `pending` で予約し、R2 保存後に `ready` へ確定する。途中失敗・応答不明・参照解除は即時削除だけに頼らず、台帳と回収処理で収束させる。\n\nこの章に先に残る「R2 へ直接上げる」と「回答待ち」は、2026-09-05 の旧決定と2026-09-06の再検討中スナップショットであり、現行要件ではない。署名付き PUT URL の発行、ブラウザからの直接 PUT、R2 用 CORS は現在の実装対象に含めない。旧承認は監査履歴として `approval-article-image-upload-path` に保持する。",
+        "reason": "旧直接PUT決定と回答待ちスナップショットを監査履歴として残しつつ、利用者が承認したWorker経由を現行要件として一意に示す",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "歴史的スナップショット（現行規範ではない、2026-09-06 移送）",
+        "body": "> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。\n\n## 状態の意味と実装差分\n\n`confirmed` は要求判断と採用方針が確定していることを表す。**binding 作成済み・本番反映済み・SLO 達成済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。\n\n- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/02` §1、`docs/spec/03` §1.2、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。\n\n### As-Is（2026-08-16 のリポジトリ実体）\n\n- Cloudflare Workers（OpenNext）に observability を有効化し、環境ごとに単一 D1 binding `DB` と R2 binding `BUCKET` を定義している。\n- `EDITORIAL_DB` / `COMMERCIAL_DB`、Redirect Resolver Store（KV等）、Queue、Cron trigger、dead-letter queue は未定義である。\n- `/go/{tracking_link_id}` と ClickEvent producer/consumer は未実装。したがって現状は D1 障害時の転送継続性を実証していない。\n- R2 binding `BUCKET` は定義済みだが、記事画像の用途では使っていない。署名付き URL の発行経路・バケットの CORS ポリシー・配信用カスタムドメインはいずれも未設定である。\n\n### To-Be（規範契約）\n\n| ID | 契約 | 状態 |\n|---|---|---|\n| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない | 未実装 |\n| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する | 未実装 |\n| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る | 未実装 |\n| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ | 未実装 |\n| INF-IMG-01 | 記事画像は Cloudflare R2 へ、ブラウザから署名付き URL で直接 PUT する (`decisions[].dec-article-image-upload-path`)。画像本体を Worker に通さない。理由は、Worker のリクエストボディ上限が「貼れる画像の大きさ」の天井になることを避けるためである | 未実装 |\n| INF-IMG-02 | オブジェクトの鍵は `workspace_id/記事id/一意なid.拡張子` に固定する。鍵の先頭が workspace であることで、テナントを越えた参照が鍵の並びの上で生じない | 未実装 |\n| INF-IMG-03 | 配信は R2 のカスタムドメイン経由で行い、バケットの公開 URL を記事本文へ直接埋めない。配信元を差し替えても記事本文の書き換えが要らない状態にする | 未実装 |\n| INF-IMG-04 | R2 バケットに CORS ポリシーを設定する。`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間を置く。設定しない限りブラウザからの直接 PUT は preflight で落ちる | 未実装 |\n| INF-IMG-05 | 単一 PUT の上限は 5 GiB である。これを超える画像は multipart upload へ切り替えるか、上限として拒否する。どちらを採るかを実装時に決め、暗黙に失敗させない | 未実装 |\n\n### 故障モード\n\n| 故障 | 転送 | 計測 / 復旧 |\n|---|---|---|\n| Commercial D1 停止 | LKG で302を継続 | Queue に滞留し、consumer retry。redirect handler は D1 を参照しない |\n| Queue enqueue 失敗 | 302を継続 | `click_enqueue_failed_total` を記録し、計測欠損としてエラーバジェットへ算入 |\n| consumer / migration 障害 | 302を継続 | retry 後に dead-letter。修復後、event ID で安全に replay |\n| KV 読み取り障害 | Cache API の LKG hit 時だけ302 | cache miss では安全な転送先を推測せず503。resolver error alert を発報 |\n| resolver key 欠落・無効・停止済み | 転送しない | 404 / 410 を区別し、D1 fallback はしない |\n| resolver 更新失敗・遅延 | 旧LKGで302 | version / updated_at の鮮度を観測し、outbox / Queue から再配送 |\n| 画像の PUT が preflight で落ちる | 影響なし | CORS ポリシーの欠落・出所不一致として扱う。編集画面は「画像を保存できなかった」ことを本文の編集内容を失わずに伝える |\n| 署名の期限切れ後に PUT | 影響なし | 401/403 を受けて署名を再発行し、同じ鍵へ再送する。鍵は再発行しても変わらないため記事本文の参照は保たれる |\n| R2 停止 | 影響なし (転送経路とは独立) | 画像の追加のみ失敗する。既存記事の表示はカスタムドメインのキャッシュに従う。編集内容は保持し、再試行へ進める |\n\n### 測定可能な初期 SLO\n\n実測ベースライン取得までの**暫定値**とし、28日 rolling window で評価する。\n\n| SLI | 初期目標 | 測定条件 |\n|---|---|---|\n| Redirect success | 有効な resolver key の 302 成功率 99.95%以上 | 無効ID、停止済みlink、client cancellationを分母から除外 |\n| Redirect latency | Worker 処理時間 p95 < 100 ms、p99 < 250 ms | `/go/*` の edge server timing。遷移先サイト時間は除外 |\n| Resolver freshness | 検証済み link 更新の99%が5分以内にLKGへ反映 | outbox timestamp→KV version 観測時刻 |\n| Click acceptance | redirect request に対する Queue accepted 率 99.9%以上 | 同意・botに関係なく producer の配送成否を測定し、分析採用可否とは分離 |\n| Queue recovery | oldest-message age p95 < 60秒、99% < 5分 | consumer retry を含み、dead-letter は別途即時alert |\n\n### Delta\n\n1. INF-DB-01 の2 D1と型定義を追加し、database の所有境界ごとに migration command を分ける。\n2. validated original_url を outbox → Queue → KV へ発行する control plane と INF-REDIRECT-01 の read path を作る。\n3. INF-EVENT-01 の Queue / dead-letter / consumer を接続し、INF-OBS-01 の metrics と alert を追加する。\n4. D1・Queue・KV の故障注入後に上記 SLO を再測定し、暫定値を実測値でレビューする。\n5. 既に定義済みの R2 binding `BUCKET` を記事画像の保管先として使う。新たに要るのは CORS ポリシー・カスタムドメイン・署名付き URL の発行経路の 3 つで、バケット自体の新設ではない。\n6. 画像の削除は記事保存の同期処理に入れない。参照が切れた実体の刈り取りは maintenance-ops の掃除ジョブへ渡す (`OPS-REQ-008`)。infrastructure は保管と配信の側だけを持つ。\n\n### Dependencies\n\n依存方向は `前提 → 後続` とする。\n\n- database の `DB-BOUNDARY-01` → INF-DB-01 → 環境ごとの schema migration。\n- AffiliateLink / TrackingLink の検証、`original_url` 無改変、`redirect_allowed` / channel policy、outbox relay → INF-REDIRECT-01。\n- event ID / dedup key、Commercial D1 の append-only schema、consent policy → INF-EVENT-01。\n- log/metric retention、alert routing、dead-letter replay runbook → INF-OBS-01 の運用開始。\n- auth の Workspace membership + backend の `BE-IMAGE-01` (鍵の組み立て) → INF-IMG-01/02。infrastructure は鍵を受け取って保管する側であり、鍵を組み立てない。\n- INF-IMG-04 (CORS) → INF-IMG-01。CORS を設定しない限り直接 PUT は成立しないため、順序が逆にならない。\n- database の画像参照状態 → maintenance-ops の掃除ジョブ → R2 の削除。infrastructure から直接刈り取らない。\n\n### Acceptance evidence\n\n- `wrangler` 設定と生成型に全環境の2 D1 / KV / Queue bindings が存在し、legacy `DB` の runtime read がない静的検査。\n- Commercial D1 を停止した故障注入で、有効なLKGへの302が継続し、復旧後にQueue滞留分が重複なく反映されるテスト。\n- KV更新失敗時に既存LKGが維持され、`original_url` のbyte列を変更せず302 `Location` に返す contract test。\n- dashboard / alert 上で各 SLI の分子・分母、Queue lag、dead-letter 件数を再現できる観測記録。\n- **INF-IMG-01/02**: 管理画面から画像を 1 枚アップロードし、R2 のオブジェクト一覧で鍵が `workspace_id/記事id/一意なid.拡張子` の形であることを確認。アップロード中の Worker のリクエスト数・CPU 時間が画像サイズに比例して増えないこと (本体が Worker を通っていないこと) を、Worker のログと突き合わせて保存。\n- **INF-IMG-03**: 記事本文に保存された画像の URL がカスタムドメインを指し、バケットの公開 URL を含まないことを検査するテスト。配信元のドメインだけを差し替え、記事本文を書き換えずに表示が続くことを実測して保存。\n- **INF-IMG-04**: CORS ポリシーを外した状態でブラウザから PUT し、preflight で落ちることを確認。設定を戻して成功することを確認。両方の HTTP トレース (`Origin` ヘッダを含む要求と、`Access-Control-*` 応答ヘッダの有無) を保存。\n- **INF-IMG-05**: 5 GiB を超える入力に対して、選んだ方 (multipart へ切り替える / 上限として拒否する) の挙動が実際に起きることを示すテスト。暗黙に失敗せず、利用者に理由が伝わることを併せて保存。",
+        "reason": "既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "To-Be（規範契約）",
+        "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない |\n| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する |\n| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る |\n| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ |\n| INF-IMG-01 | 記事画像は認証済み管理画面から同一生成元の Worker API へ送り、Worker が検証後に R2 binding で格納する。2026-09-06 の dec-article-image-upload-path 改訂に従い、旧署名付き URL によるブラウザ直接 PUT は採用しない。 |\n| INF-IMG-02 | オブジェクト鍵は article-images/workspace_id/article_id/一意なid.拡張子に統一し、サーバーだけが組み立てる。workspace と記事の所有関係は鍵の並びだけに頼らず、認可・台帳・保存時の制約で検証する。 |\n| INF-IMG-03 | 記事本文の画像参照は /api/article-images/{imageId} の不透明な ID を用い、R2 バケット URL や object_key を埋めない。配信口は台帳の ready 状態と公開本文参照または編集権限を検証し、保管場所の変更を本文から切り離す。 |\n| INF-IMG-04 | R2 への書き込みは Worker binding に限定し、ブラウザ向け直接 PUT/CORS 設定や署名発行を前提としない。管理 API は同一生成元の送信とサーバー側認証・認可を要求する。 |\n| INF-IMG-05 | 記事画像は 1 枚 8 MiB 以下の PNG/JPEG/WebP/GIF に限定する。API 入口と use-case で容量・実バイトの画像型を検証し、上限超過や不一致を R2 保存前に拒否する。multipart upload はこの契約に含めない。 |",
+        "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -10881,6 +10956,24 @@
         "body": "この章の OPS-REQ-008〜010 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。\n\n**利用者の逐語（`qa-maintenance-ops-web-orphan-image-verbatim` の answer に原文がある）**\n\n> （該当する逐語は無い）\n\n**そこから AI が導いた受入条件**\n\n- 参照されない R2 実体を検出し、猶予期間を置いてから掃除する経路を持つこと\n- 掃除の対象を、参照状態の正本（D1）との突き合わせだけで決めること\n- 掃除の実行結果を、誤削除が起きたときに追跡できる形で残すこと\n\n**利用者の確認を受けている範囲**\n\n**利用者はこの掃除について一言も述べていない。** 「R2 へ直接アップロード」という選択の帰結として、参照されない実体が残りうるため、運用側の責務として AI が追加した。この運用を持たない（実体を残し続ける）という選択もありうる。\n\nこの区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。",
         "reason": "C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。掃除の運用は利用者が一言も述べていない AI 追加であり、その事実を章側で名乗らせる。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "Worker経由での画像回収責務（2026-09-06）",
+        "body": "画像アップロードを Worker 経由へ統一しても、失敗途中の実体、応答不明の保存、本文から外された画像により孤立オブジェクトは生じうる。したがって `OPS-REQ-008〜010` の検出・猶予・回収・監査は維持する。\n\nこの章に先に残る「R2 へ直接アップロードの帰結」という説明は旧決定時の導出履歴であり、現行方式の根拠ではない。現在は `pending` 予約、R2 保存、`ready` 確定の途中失敗を含めて台帳から回収対象を導く。現行承認は `approval-article-image-upload-path-worker-20260906` に記録する。",
+        "reason": "直接PUT固有に見えた回収責務を、Worker経由でも生じる状態遷移上の運用責務として再接地する",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "歴史的スナップショット（現行規範ではない、2026-09-06 移送）",
+        "body": "> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。\n\n## 状態の意味 (State semantics)\n\n- `confirmed` / 「確定」は保守運用の**要求判断を収集済み**であることを表し、ジョブ稼働、通知到達、リストア成功または SLO 達成を表さない。\n- 後段の `採否: applied` は運用設計への採用を表し、ジョブ/通知/監査の実装または稼働検証済みを表さない。\n- Analytics 運用の実装状態は `not_started`、検証状態は `unverified`。Queue、Cron、運用通知、MetricRollup、再試行/DLQ は未実装。\n- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/01` §18.3、`docs/spec/02` §7、`docs/spec/03` §5/§11、および本章の Google SRE 公式出典とする。\n\n\n## As-Is\n\n- アプリは案件一覧と3つの MCP ツールを同期的に D1 へ接続する PoC。案件一覧は DB 失敗を画面表示できる。\n- Queue consumer / producer、Cron trigger、rollup 再構築、有限再試行、DLQ、Workspace 通知チャネル、AuditLog は存在しない。\n- 計測 DB 障害中の既知リンク転送、ジョブ重複実行、pending→approved 後の過去再集計は未検証。\n- 記事から外された画像の実体を刈り取る仕組みは無く、責務の持ち主も決まっていない。実体は保管領域に残り続ける。\n\n\n## To-Be\n\n| 要件ID | 目標状態 |\n|---|---|\n| OPS-REQ-001 | Queue/Cron の各ジョブに idempotency key、状態、試行回数、次回時刻、最終エラーを持たせ、無限再試行を禁止する |\n| OPS-REQ-002 | MetricRollup を生イベントから再構築でき、成果状態変更時は対象日を再集計して速報/確定を更新する |\n| OPS-REQ-003 | 投稿失敗/リンク切れ/プログラム終了/成果確定を Workspace 設定のチャネルへ通知し、dedupe key で利用者向け重複を抑止する |\n| OPS-REQ-004 | 計測 DB 障害中も既知リンクの転送を優先し、計測失敗は監査可能な再処理経路へ退避する |\n| OPS-REQ-005 | 公開/削除/リンク差し替え/権限変更/成果修正/エクスポートと、ジョブの成功/失敗/再試行を AuditLog へ残す |\n| OPS-REQ-006 | Connector ごとにレートとコスト上限を強制し、接近時は警告、超過時は外部呼び出しを自動停止する |\n| OPS-REQ-007 | Workspace 単位の記事/商品/リンク/成果エクスポートとテナント分離済み横断検索を提供する |\n| OPS-REQ-008 | 記事から外された画像の実体 (R2 オブジェクト) を刈り取る責務は maintenance-ops が持つ。記事の保存操作の中で即座に物理削除せず、参照されなくなった実体を後から掃除する定期ジョブとして回す |\n| OPS-REQ-009 | 孤児画像の掃除は猶予期間を置く。参照が切れてから猶予を過ぎた実体だけを削除対象にし、下書きの往復や誤操作の取り消しで復帰した画像を消さない |\n| OPS-REQ-010 | 掃除ジョブは他のジョブと同じ job contract に載せる。idempotency key・試行回数・最終エラーを持ち、削除した鍵を AuditLog へ残して、消えた画像を後から追跡できるようにする |\n\n\n## Delta\n\n1. まず job contract、idempotency key、AuditLog を共通化し、その上に Queue/Cron を置く。\n2. リンク転送と計測書き込みを分離し、通知はジョブ状態から派生させて各コネクタの個別判定を減らす。\n3. rollup は加算だけでなく再構築可能にし、重複実行で値が増えないことを保証する。\n4. 記事画像の刈り取りを、記事保存の同期処理ではなく Cron ジョブとして置く。判定に要る参照状態は database が持ち、maintenance-ops はその判定結果を読んで掃除を回す側に立つ。責務の分け方を明示するのは、以前この掃除の持ち主が居らず、実体が R2 に残り続ける状態だったためである。\n\n\n## Dependencies\n\n`Analytics event contract` → `job / idempotency / AuditLog contract` → `Queue / Cron` → `rollup / retry / DLQ` → `notification adapters` → `Runbook / alert`\n\n- tenant 分離と同意実装の完了前に本番イベントを集計しない。通知は Queue 処理と結合させず、通知事業者の障害が本体ジョブを失敗させない。\n\n記事画像の刈り取りの従属:\n\n`database の画像参照状態 (どの記事がどの鍵を参照しているか)` → `孤児判定と猶予期間` → `掃除 Cron ジョブ` → `R2 の削除` → `AuditLog`\n\n- 孤児かどうかの判定根拠 (参照状態の保持) は database の正本に従属する。maintenance-ops は参照状態を自前で数え直さない。\n- 鍵の並びと保管先は infrastructure の正本に従属する。\n\n\n## Acceptance evidence\n\n| 受入ID | シナリオ | PASS の証跡 |\n|---|---|---|\n| OPS-ACC-001 | 計測 D1 を強制失敗させて既知 `/go/{id}` へアクセス | リンク先への `3xx` を維持し、計測失敗を request ID / tracking link ID 付きで再処理経路へ記録。HTTP トレースとキュー証跡を保存 |\n| OPS-ACC-002 | テスト設定 `max_attempts=3` で同じ job を3回失敗 | attempt 1〜3 のみ実行し、4回目を実行せず DLQ/要手動対応へ移行。各試行の job ID / attempt / error / next_at と監査レコードを保存 |\n| OPS-ACC-003 | 同一 Cron 区間を2回実行し、同一成果を再取込後に `approval_status: pending→approved`、`payment_status: unpaid→paid` へ更新 | イベント・rollup・通知が重複せず、対象日の発生見込・承認報酬・支払報酬だけが再計算される。DB 差分と job 履歴を保存 |\n| OPS-ACC-004 | 通知事業者を障害化した状態で投稿ジョブを実行 | 本体ジョブの結果は保持し、通知だけを再試行。復旧後は dedupe key 単位で1件のみ配信し、ジョブ/通知/監査の相関を示す |\n| OPS-ACC-005 | 監査必須の6操作とジョブ失敗/再試行を実行 | actorまたは service、workspace、action、target、result、request/job ID、timestamp が全件にあり、通常の業務ロールから改変不可。監査クエリ結果を保存 |\n| OPS-ACC-006 | コスト上限前後で Connector を呼び出す | 接近時に1回の警告、超過後は外部通信なしで自動停止。カウンタ、通信トレース、監査記録を保存 |\n| OPS-ACC-007 | Workspace A の検索とエクスポートに B と同名データを混在 | A のレコードだけが含まれ、マニフェストの件数/チェックサムと元データが一致。tenant 越境テストと出力証跡を保存 |\n| OPS-ACC-008 | 記事から画像を外して保存し、掃除ジョブを猶予期間の前後で実行する | 猶予前の実行では R2 の実体が残り、猶予後の実行で削除される。記事保存の応答時間に削除処理が含まれないことを併せて記録し、両時点の R2 オブジェクト一覧を保存 |\n| OPS-ACC-009 | 画像を外した記事を、猶予期間内に元へ戻して保存し、その後に掃除ジョブを実行する | 実体が削除されておらず、記事が画像を表示できる。取り消し操作を含む E2E と R2 オブジェクト一覧を保存 |\n| OPS-ACC-010 | 同一の掃除ジョブを同じ区間で 2 回実行する | 2 回目で追加の削除が発生せず、AuditLog に削除の重複記録がない。削除した鍵と workspace が AuditLog から引けることを、監査クエリの結果として保存 |",
+        "reason": "既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "To-Be（規範契約）",
+        "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| OPS-REQ-001 | Queue/Cron の各ジョブに idempotency key、状態、試行回数、次回時刻、最終エラーを持たせ、無限再試行を禁止する |\n| OPS-REQ-002 | MetricRollup を生イベントから再構築でき、成果状態変更時は対象日を再集計して速報/確定を更新する |\n| OPS-REQ-003 | 投稿失敗/リンク切れ/プログラム終了/成果確定を Workspace 設定のチャネルへ通知し、dedupe key で利用者向け重複を抑止する |\n| OPS-REQ-004 | 計測 DB 障害中も既知リンクの転送を優先し、計測失敗は監査可能な再処理経路へ退避する |\n| OPS-REQ-005 | 公開/削除/リンク差し替え/権限変更/成果修正/エクスポートと、ジョブの成功/失敗/再試行を AuditLog へ残す |\n| OPS-REQ-006 | Connector ごとにレートとコスト上限を強制し、接近時は警告、超過時は外部呼び出しを自動停止する |\n| OPS-REQ-007 | Workspace 単位の記事/商品/リンク/成果エクスポートとテナント分離済み横断検索を提供する |\n| OPS-REQ-008 | 記事から外された画像の実体 (R2 オブジェクト) を刈り取る責務は maintenance-ops が持つ。記事の保存操作の中で即座に物理削除せず、参照されなくなった実体を後から掃除する定期ジョブとして回す |\n| OPS-REQ-009 | 孤児画像の猶予は一度も本文参照されていないものを 24 時間、本文から外れたものを保存時の detachment timestamp から 30 日とする。台帳の現在参照と構造化 JSON の復号した画像 ID を検査し、deleting（削除 claim）への遷移前に保護する。deleting（削除 claim）への遷移後は復帰させない。 |\n| OPS-REQ-010 | 掃除ジョブは定期実行で、台帳 500 件の公平な取得と article-images/ prefix 100 件の cursor/version CAS 走査を行う。deleting（削除 claim）→R2 delete→deleted 墓標の失敗は再実行可能にし、削除結果を監査記録へ残す。失敗応答を理由とした即時補償 delete は行わず、遅延 put による再出現も再回収する。 |",
+        "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "security": [
@@ -10900,6 +10993,30 @@
         "heading": "この章の要件 ID を書いたのは誰か",
         "body": "この章の SEC-REQ-006〜009 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。\n\n**利用者の逐語（`qa-security-web-upload-hardening-corrected` の answer に原文がある）**\n\n> （該当する逐語は無い）\n\n**そこから AI が導いた受入条件**\n\n- 署名付き URL が期限まで再利用可能である事実を前提に、期限を分単位に留めること\n- 容量と型の検査を、署名ではなく受領後の実体検査で行うこと\n- ブラウザからの直接 PUT に必要な CORS 設定を明示すること\n\n**利用者の確認を受けている範囲**\n\nこの章の要件は利用者の発言ではなく、Cloudflare R2 公式ドキュメント（system-spec/retrieval-evidence/cloudflare-r2.json、2026-09-05 取得）の一次情報から導いた。利用者へは提示していない。\n\nこの区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。",
         "reason": "C06 round3 の指摘: 要件の出所が機械で辿れない。この章は利用者の発言ではなく Cloudflare R2 公式ドキュメントの一次情報から導いたので、その事実を章側で名乗らせる。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "画像検査境界の再検討（2026-09-06、回答待ち）",
+        "body": "これは実装観察であり、利用者の回答原文や新たな採用決定ではない。\n\n画像を Worker で受領して検査後に R2 へ保存する現実装と、署名付き URL で R2 へ直接 PUT して受領後に検査する旧決定では、検査前オブジェクトを信頼しないための境界が異なる。経路の選択は [インフラ章の再検討記録](infrastructure.md) と連動し、利用者の回答前に本章を再確定しない。\n\n共通の安全条件は、同一作業場所・所属記事の認可、検査完了前と回収中の画像への新規参照拒否、公開時だけ許可する匿名閲覧、削除済み画像 ID の再利用禁止である。現実装の確認結果は [ブロックエディターの検証報告](../docs/spec/feat-article-block-editor/elegant-review.md) に記録する。過去の公開・機密保護要件は削除せず、再確定時に reopen_log.discarded の参照と突き合わせる。",
+        "reason": "画像方式の再選択に依存する安全境界を明示し、既存の技術解釈を利用者承認として再使用しない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "画像検査境界の確定（2026-09-06）",
+        "body": "画像アップロードの現行の信頼境界は Worker である。R2 へ保存する前に、認証、`content.write`、workspace と記事の所属、同一 Origin、受信量、許可 MIME、ファイル先頭のシグネチャを検査する。検査前・回収中・削除済みの画像を新規本文参照へ使わせず、匿名閲覧は公開済み記事から到達する画像だけに限定する。\n\n2026-09-06 の利用者回答「ok」により、`dec-article-image-upload-path` は `opt-worker-proxy-upload` へ更新済みである。この章に先に残る署名付き URL・受領後検査・CORS の記述と「回答待ち」は、旧決定または再検討中の履歴であり現行要件ではない。現行承認は `approval-article-image-upload-path-worker-20260906`、旧承認は履歴 `approval-article-image-upload-path` として区別する。",
+        "reason": "再検討中の安全境界を、利用者承認後のWorker保存前検査へ確定し、旧方式を現行要件と誤読させない",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "歴史的スナップショット（現行規範ではない、2026-09-06 移送）",
+        "body": "> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。\n\n## 状態の意味 (State semantics)\n\n- `confirmed` / 「確定」はセキュリティ要求の**判断済み**を表す。防御の実装済み・脅威検証済み・監査済みを意味しない。\n- 後段の `採否: applied` は設計への採用を表し、統制の実装または有効性検証済みを表さない。\n- 本章の実装状態は `partial`、検証状態は `unverified`。tenant 分離、同意ゲート、Analyst を含むロール認可は未実装。\n- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は U8、`docs/spec/01` §25〜§26、`docs/spec/02` §6、`docs/spec/03` §9と、本章の OWASP 公式出典とする。\n\n\n## As-Is\n\n- MCP 経路は `MCP_TOKEN` を定数時間比較し、未設定時は fail-closed。`same-origin` 経路ではブラウザ公開対象の読み取りツールのみを許可する PoC である。\n- シークレットの環境分離はあるが、現行データに Workspace 境界と利用者ロールがない。\n- SSRF 対策群、ConsentRecord、同意前の識別子抑止、AuditLog、Analyst 認可は要求のみで未実装。\n- 記事画像をブラウザから直接アップロードする経路は存在せず、署名付き URL の発行・R2 の CORS ポリシー・受領後の型/大きさ検査のいずれも未実装。記事本文の描画時に要素・属性・URL スキームを絞る許可リストも未実装。\n\n\n## To-Be\n\n| 要件ID | 目標状態 |\n|---|---|\n| SEC-REQ-001 | 全クエリ・更新・出力で `workspace_id` をサーバー側のセッションから導出し、クライアント指定値を信頼しない |\n| SEC-REQ-002 | 同意前または撤回後は session ID、IP hash、経路復元可能な識別子を保存せず、匿名集計用イベントのみに限定する |\n| SEC-REQ-003 | Owner〜Analyst の deny-by-default ポリシーを共通認可ゲートに集約し、Analyst は分析/レポートの読み取りのみ許可する |\n| SEC-REQ-004 | 認証失敗、tenant 越境、認可拒否、公開/削除/権限変更/データ修正/出力を request ID と共に監査記録する |\n| SEC-REQ-005 | URL 取得は私有/メタデータIPと危険ドメインの遮断、各リダイレクト後の DNS 再検証、回数/時間/サイズ上限、MIME 検証、HTML サニタイズ、JS非実行、本文と命令の分離を強制する |\n| SEC-REQ-006 | 記事画像の署名付き URL は、資源 (アカウント・バケット・オブジェクトパス)・操作 (PUT)・期限だけを縛る。**同じ署名付き URL は期限まで何度でも再利用できる**ため、1 回きりの使い捨てとして設計しない。期限は分単位に留め、上限 7 日 (604,800 秒) の余地を使わない |\n| SEC-REQ-007 | 署名で容量を縛れないこと (容量を署名へ含める S3 POST policy は R2 の S3 互換表に記載が無い) を前提に、型と大きさの検査を受領後に行う。拡張子と申告 MIME を信頼せず、保管された実体の先頭バイトで型を判定し、許可した画像型かつ上限以下でなければ公開経路へ出さない |\n| SEC-REQ-008 | R2 バケットの CORS ポリシーで、ブラウザから直接 PUT できる出所を管理画面の生成元だけに限定する。`AllowedOrigins` にワイルドカードを置かず、`AllowedMethods` は PUT に絞り、`ExposeHeaders` は ETag に留める |\n| SEC-REQ-009 | 記事本文の描画は、要素・属性・URL スキームの許可リストで絞る。埋め込み (embed) の宛先ホストも許可リストで限定し、任意ホストの iframe を通さない。文字色/背景色は名前付きトークンのみを受け、任意の値をスタイルとして注入させない |\n\n\n## Delta\n\n1. auth の Workspace membership を全 data access の入口に統合し、テーブル・検索インデックス・エクスポートまで同じ境界を使う。\n2. 同意判定を計測タグと受信 API の両方で強制し、クライアントだけに依存しない。\n3. ロール定義と監査対象を1か所のポリシーに集約し、各ルートの独自判定を禁止する。\n4. 画像アップロードの防御を「署名で全部縛る」前提から、「署名は資源・操作・期限だけを縛り、型と大きさは受領後に検める」二段構えへ改める。これは Cloudflare R2 の実能力に合わせた訂正であり、防御の水準を下げる変更ではない。\n5. 記事本文の描画経路に許可リストを置く。断片が 19 種へ増え、code / table / embed / columns といった構造の深い断片が入るため、許可リストを断片ごとの分岐ではなく 1 か所に集約する。\n\n\n## Dependencies\n\n`Better Auth` → `Workspace membership / role` → `tenant scope helper` → `ConsentRecord / collection gate` → `AuditLog / alert`\n\n- URL 安全取得は利用者認可とは別の外部入力境界として実装する。security の PASS は auth の PASS だけで代替できない。\n\n記事エディターの従属:\n\n`Workspace membership` → `署名付き URL の発行 (資源・操作・期限)` → `R2 の CORS ポリシー` → `受領後の型・大きさ検査` → `描画時の許可リスト`\n\n- 署名で縛れる範囲は Cloudflare R2 の公式仕様 (`system-spec/retrieval-evidence/cloudflare-r2.json`) に従属する。仕様を超えた制約を要件へ書かない。\n- 鍵の並び (`workspace_id/記事id/一意なid.拡張子`) は infrastructure の正本に従属する。security はその並びが workspace 境界と一致していることを検める側に立つ。\n\n\n## Acceptance evidence\n\n| 受入ID | シナリオ | PASS の証跡 |\n|---|---|---|\n| SEC-ACC-001 | Workspace A のメンバーが B の記事・リンク・集計・出力の既知IDを指定 | 全経路が未存在と同一の `404`。B のデータが response / log / export に漏れず、actor/workspace/request ID 付きの拒否監査あり |\n| SEC-ACC-002 | 未同意と同意撤回後の訪問で行動イベントを送信 | 保存レコードの `session_id=null` / `ip_hash=null`、DB とアプリ管理ログに raw IP なし。複数イベントから個人経路を復元できないことを DB/ログ検査で証明 |\n| SEC-ACC-003 | Analyst が分析閲覧、公開、削除、権限変更を実行 | 閲覧のみ成功、他は `403`。認可マトリクステストと各拒否の監査レコードを保存 |\n| SEC-ACC-004 | loopback、RFC1918、link-local/メタデータIP、およびリダイレクト先が私有IPのURLを取得 | すべて取得前に拒否し、内容を返さない。DNS 再検証を含む自動テストと監査記録を保存 |\n| SEC-ACC-005 | リダイレクト超過、タイムアウト、上限超過、MIME偽装、script/プロンプト命令を含むHTMLを取得 | 上限違反と MIME 不一致は拒否。許可HTMLでも script を実行せず、サニタイズ後の本文を命令として実行しないことを fixture テストで証明 |\n| SEC-ACC-006 | 発行した署名付き URL で同じ鍵へ 2 回 PUT し、期限切れ後にもう 1 回 PUT する | 期限内の 2 回目が成功すること (再利用可能である事実の確認) と、期限後が失敗することの両方を記録。発行時の有効期限が分単位であることを、発行経路の単体テストで固定して保存 |\n| SEC-ACC-007 | 拡張子 `.png` / 申告 MIME `image/png` で、実体が実行可能ファイルまたは上限超過の画像を PUT する | 受領後の検査が先頭バイトで型不一致を検出し、上限超過を検出して、いずれも公開経路へ出さない。検査の判定と拒否の監査記録を保存 |\n| SEC-ACC-008 | 管理画面の生成元以外 (別ドメイン) から、同じ署名付き URL で PUT を試みる | preflight が CORS ポリシーで拒否される。バケットの CORS ポリシーに `AllowedOrigins: *` が含まれないことを、設定を読み出す検査で併せて保存 |\n| SEC-ACC-009 | 19 種の断片に、`javascript:` リンク・許可外ホストの iframe・`<script>`・任意の 16 進色を仕込んだ本文を描画する | いずれも描画結果に残らず、リンクは無効化、iframe は許可ホスト外なら描かれず、色はトークン外なら既定色になる。許可リストの定義が 1 か所であることの検査と、断片ごとの fixture テストを保存 |",
+        "reason": "既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "To-Be（規範契約）",
+        "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| SEC-REQ-001 | 全クエリ・更新・出力で `workspace_id` をサーバー側のセッションから導出し、クライアント指定値を信頼しない |\n| SEC-REQ-002 | 同意前または撤回後は session ID、IP hash、経路復元可能な識別子を保存せず、匿名集計用イベントのみに限定する |\n| SEC-REQ-003 | Owner〜Analyst の deny-by-default ポリシーを共通認可ゲートに集約し、Analyst は分析/レポートの読み取りのみ許可する |\n| SEC-REQ-004 | 認証失敗、tenant 越境、認可拒否、公開/削除/権限変更/データ修正/出力を request ID と共に監査記録する |\n| SEC-REQ-005 | URL 取得は私有/メタデータIPと危険ドメインの遮断、各リダイレクト後の DNS 再検証、回数/時間/サイズ上限、MIME 検証、HTML サニタイズ、JS非実行、本文と命令の分離を強制する |\n| SEC-REQ-006 | 記事画像のアップロードに署名付き URL を発行しない。同一生成元の Worker API でログイン、workspace、記事の編集権限を検証し、サーバー生成鍵と pending/ready 台帳を用いる。画像 ID や鍵を知るだけでは更新・参照できない。 |\n| SEC-REQ-007 | 画像の拡張子と申告 MIME を信用せず、受領した実バイトで PNG/JPEG/WebP/GIF を検証し、1 枚 8 MiB の上限と MIME 一致を R2 put 前に強制する。ready の確定に失敗した画像を公開配信しない。 |\n| SEC-REQ-008 | 画像の書き込み API は same-origin 検証と認証・tenant 認可を通す。R2 バケットへのブラウザ直接 PUT を許可する CORS や公開書込経路は作らない。公開配信は ready かつ現行公開本文から参照された画像に限定する。 |\n| SEC-REQ-009 | 記事本文の描画は、要素・属性・URL スキームの許可リストで絞る。埋め込み (embed) の宛先ホストも許可リストで限定し、任意ホストの iframe を通さない。文字色/背景色は名前付きトークンのみを受け、任意の値をスタイルとして注入させない |",
+        "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
         "recorded_with": "set-chapter-note"
       }
     ]
@@ -11468,6 +11585,241 @@
             ]
           }
         ]
+      }
+    },
+    {
+      "id": "qa-infrastructure-web-r2-upload-actual-capability",
+      "retraction_id": "retract-invalid-infrastructure-r2-upload-20260906",
+      "reason": "written-requirements を名乗るが source.path / section / sha256 を欠く AI 設計解釈であるため取り下げる。原文と旧後継関係は退避し、現行の利用者確認済み Worker QA を後継とする。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-invalid-qa",
+      "entry": {
+        "id": "qa-infrastructure-web-r2-upload-actual-capability",
+        "question": "infrastructure×web: 記事画像を R2 へ直接アップロードする経路を、Cloudflare R2 が実際にできることに合わせて確定し直すとどうなるか。",
+        "answer": "**先に訂正する。**前回の確定は「署名付き URL は短命かつ 1 回きり」「発行した鍵と型と大きさ以外には使えない」と書いていた。公式ドキュメント (取得日 2026-09-05、`system-spec/retrieval-evidence/cloudflare-r2.json`) を読むと、いずれも成立しない。\n\n- 公式は **The same presigned URL can be reused multiple times until it expires** と明記している。1 回きりではない。\n- 署名で縛れるのは **資源** (アカウント ID・バケット・オブジェクトパス)・**操作** (GET / PUT / HEAD / DELETE の 4 つ)・**期限** (1 秒〜7 日 = 604,800 秒) の 3 つだけである。\n- 容量の上下限を署名へ含める S3 POST policy は、R2 の S3 API 互換表に記載が無い。**大きさは署名で縛れない。**\n\n**実能力に合わせた確定。**(1) ブラウザから署名付き URL で直接 PUT する。画像本体を Worker に通さないのは、Worker のリクエストボディ上限が『貼れる画像の大きさ』の天井になるのを避けるためである。(2) 鍵は `workspace_id/記事id/一意なid.拡張子` に固定し、鍵の先頭が workspace であることでテナント越えが鍵の並びの上で生じないようにする。(3) 配信は R2 のカスタムドメイン経由とし、バケットの公開 URL を記事本文へ埋めない。配信元を差し替えても本文の書き換えが要らない。(4) **バケットに CORS ポリシーが要る。**`AllowedMethods` に PUT、`AllowedHeaders` にクライアントが送るヘッダ (Content-Type 等)、`ExposeHeaders` に ETag、`MaxAgeSeconds` に preflight のキャッシュ時間。設定しない限りブラウザからの直接 PUT は preflight で落ちる。前回の確定にはこれが抜けていた。(5) 単一 PUT の上限は 5 GiB。超える画像は multipart へ切り替えるか上限として拒否するかを実装時に決め、暗黙に失敗させない。\n\n**削除は持たない。**記事から外した画像の刈り取りは maintenance-ops の掃除ジョブへ渡す。infrastructure は保管と配信の側だけを持つ。",
+        "source": {
+          "kind": "written-requirements",
+          "ref": "system-spec/retrieval-evidence/cloudflare-r2.json"
+        },
+        "asks_for": [
+          {
+            "category": "infrastructure",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "site-reliability-engineering.md#中核概念",
+            "principle": "使う仕組みが実際にできることを確かめてから要件にする",
+            "applicability": "applied",
+            "rationale": "『1 回きりの署名』を前提に設計すると、実際には再利用できる URL を配ることになり、想定した防御が最初から存在しない。公式の記述に合わせて要件を書き直せば、防御の位置が実物と一致する",
+            "tradeoffs": [
+              "署名で大きさを縛れないぶん、検査を受領後へ回す必要がある。防御の点が 1 つ増える"
+            ]
+          }
+        ],
+        "basis": "observed-fact"
+      },
+      "request": {
+        "retraction_id": "retract-invalid-infrastructure-r2-upload-20260906",
+        "qa_id": "qa-infrastructure-web-r2-upload-actual-capability",
+        "expected_entry_sha256": "cba58fa2991414176869c52d3517bc922be883da70d2e35ac24f43dd5c7d5ab7",
+        "replacement_qa_id": "qa-infrastructure-web-worker-image-upload-confirmed-20260906",
+        "expected_replacement_sha256": "53ddd4d45cbc0f392812e7995cde45aeaca1a921b2c9cdd48329a3c0456cf2b3",
+        "predecessors": [],
+        "reason": "written-requirements を名乗るが source.path / section / sha256 を欠く AI 設計解釈であるため取り下げる。原文と旧後継関係は退避し、現行の利用者確認済み Worker QA を後継とする。"
+      },
+      "supersession_history": []
+    },
+    {
+      "id": "qa-security-web-upload-hardening-corrected",
+      "retraction_id": "retract-invalid-security-r2-upload-20260906",
+      "reason": "written-requirements を名乗るが source.path / section / sha256 を欠く AI 設計解釈であるため取り下げる。原文と旧後継関係は退避し、現行の利用者確認済み Worker QA を後継とする。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-invalid-qa",
+      "entry": {
+        "id": "qa-security-web-upload-hardening-corrected",
+        "question": "security×web: 署名で大きさを縛れないという実能力を踏まえ、記事画像のアップロードと本文の描画をどう守るか。",
+        "answer": "**前回の確定を訂正する。**「署名付き URL は 1 回きり」「発行した鍵と型と大きさ以外には使えない」は、Cloudflare R2 の公式仕様と矛盾する。署名が縛れるのは資源・操作・期限だけで、同じ URL は期限まで再利用できる。この訂正は防御を下げる変更ではなく、防御の位置を実物へ合わせる変更である。\n\n**二段構えにする。**\n\n(1) **署名の側**: 資源 (アカウント・バケット・オブジェクトパス)・操作 (PUT)・期限だけを縛る。期限は分単位に留め、上限 7 日の余地を使わない。再利用できることを前提に、漏れたときの窓を短く保つ。\n\n(2) **受領後の側**: 拡張子と申告 MIME を信頼せず、保管された実体の先頭バイトで型を判定する。許可した画像型かつ上限以下でなければ公開経路へ出さない。署名で大きさを縛れない以上、ここが大きさの唯一の検査点である。\n\n(3) **出所の側**: R2 の CORS ポリシーで、ブラウザから直接 PUT できる出所を管理画面の生成元だけに限定する。`AllowedOrigins` にワイルドカードを置かず、`AllowedMethods` は PUT に絞り、`ExposeHeaders` は ETag に留める。\n\n**描画は許可リストで絞る。**断片が 19 種へ増え、code / table / embed / columns といった構造の深いものが入る。要素・属性・URL スキームの許可リストを 1 か所に置き、断片ごとの分岐へ散らさない。embed の宛先ホストも許可リストで限定し、任意ホストの iframe を通さない。文字色/背景色は名前付きトークンのみを受け、任意の値をスタイルとして注入させない。\n\n**受入**: 同じ署名付き URL で 2 回 PUT して期限内の 2 回目が通ること (再利用可能である事実の確認) と期限後が落ちること。拡張子 `.png` で実体が実行可能ファイルまたは上限超過のものを PUT して、受領後検査が捕まえること。別ドメインからの PUT が preflight で落ち、CORS に `AllowedOrigins: *` が無いこと。`javascript:` リンク・許可外ホストの iframe・`<script>`・任意の 16 進色を仕込んだ本文が、描画結果に残らないこと。",
+        "source": {
+          "kind": "written-requirements",
+          "ref": "system-spec/retrieval-evidence/cloudflare-r2.json"
+        },
+        "asks_for": [
+          {
+            "category": "security",
+            "platform": "web"
+          }
+        ],
+        "design_applications": [
+          {
+            "knowledge_ref": "secure-by-design.md#中核概念",
+            "principle": "信頼できない入力は、境界を越えた後にもう一度検める",
+            "applicability": "applied",
+            "rationale": "署名で大きさと型を縛れないため、アップロード経路の入口だけでは検査が完結しない。保管された実体の先頭バイトで型を判定し、公開経路へ出す前に検めることで、入口で縛れなかったぶんを補える",
+            "tradeoffs": [
+              "不正な実体が一時的に保管領域へ到達する。到達しても公開経路へ出ないことと、掃除ジョブが刈り取ることで影響を閉じる"
+            ]
+          },
+          {
+            "knowledge_ref": "secure-by-design.md#中核概念",
+            "principle": "通すものを列挙する。塞ぐものを列挙しない",
+            "applicability": "applied",
+            "rationale": "断片が 19 種へ増え、埋め込みや自由な表など構造の深いものが入る。危ない書き方を数え上げる方式では、断片が増えるたびに数え漏れが増える。通す要素・属性・スキーム・ホストを 1 か所で列挙すれば、増えても漏れない",
+            "tradeoffs": [
+              "新しい断片を足すたびに許可リストへ追記が要る。追記を忘れると描画されないので、漏れは静かに通るのではなく目に見える形で出る"
+            ]
+          }
+        ],
+        "basis": "observed-fact"
+      },
+      "request": {
+        "retraction_id": "retract-invalid-security-r2-upload-20260906",
+        "qa_id": "qa-security-web-upload-hardening-corrected",
+        "expected_entry_sha256": "5050961eb1e05db04878a5a84d787d9a11622e539a7a59b7dfbc0efe81156956",
+        "replacement_qa_id": "qa-security-web-worker-image-upload-confirmed-20260906",
+        "expected_replacement_sha256": "ffeb7390e8b7139e55550cea5b038adbe7a136f1c53724618007993eb5223936",
+        "predecessors": [
+          {
+            "qa_id": "qa-security-web-editor-upload-and-render-hardening",
+            "expected_entry_sha256": "3eb98b63291ad7dd2df560c59f35f541c47d2e66c638762c98682d2b759726c5"
+          }
+        ],
+        "reason": "written-requirements を名乗るが source.path / section / sha256 を欠く AI 設計解釈であるため取り下げる。原文と旧後継関係は退避し、現行の利用者確認済み Worker QA を後継とする。"
+      },
+      "supersession_history": [
+        {
+          "id": "qa-security-web-editor-upload-and-render-hardening",
+          "question": "security×web: 画像アップロードと本文断片の増加に伴い、どこで何を止めるか。",
+          "answer": "**署名付き URL は短命かつ 1 回きりにする。**寿命は数分とし、発行した鍵と型と大きさ以外には使えないようにする。長命の URL は、漏れた瞬間に誰でも書き込める口になる。\n\n**型と大きさは発行時に検査する。**受けるのは png / jpeg / webp / gif / avif に限る。svg は受けない。svg は中に script を書ける画像であり、配信ドメインで実行されると同一ドメインの資格情報に手が届く。大きさにも上限を置く。\n\n**申告と実体の食い違いを事後に確かめる。**直接アップロードでは中身を Worker が見られない。アップロード完了の通知を受けた側で、実体の先頭バイト (マジックナンバー) が申告した型と一致するかを確かめ、食い違えば公開 URL を発行せず実体を消す。\n\n**本文の描画は許可リストで絞る。**保存する拡張 Markdown は、それ自体は無害な文字列にすぎない。危ないのは描画である。embed の提供元は許可した host だけを受け、それ以外は素のリンクへ落とす。cta-button と link-card のリンク先は http/https だけを受け、javascript: と data: は受けない。色指定は名前つきトークンの許可リストに限り、任意の CSS を通さない。コードブロックの中身は必ず文字として描き、解釈しない。\n\n**alt の欠落は公開を止める。**装飾目的と宣言した画像を除き、alt が空の記事は公開できない。これは守りではなく届く記事のための規則だが、同じ検証の場所に置く。",
+          "source": {
+            "kind": "user-dialogue"
+          },
+          "asks_for": [
+            {
+              "category": "security",
+              "platform": "web"
+            }
+          ],
+          "design_applications": [
+            {
+              "knowledge_ref": "secure-by-design.md#中核概念",
+              "principle": "受け入れる形を許可リストで定義し、拒否リストで追いかけない",
+              "applicability": "applied",
+              "rationale": "埋め込み先・リンクのスキーム・色・画像の型のいずれも、危ないものを列挙し続けるのではなく、通してよいものだけを挙げる。新しい攻撃手口が出ても既定で通らない",
+              "tradeoffs": [
+                "運営者が使いたい埋め込み先が増えるたびに許可リストへの追加という手続きが要る"
+              ]
+            },
+            {
+              "knowledge_ref": "secure-by-design.md#中核概念",
+              "principle": "検査できない経路には、事後の突き合わせを対で置く",
+              "applicability": "applied",
+              "rationale": "直接アップロードは中身を通過時に見られない。申告した型と実体のマジックナンバーを完了後に突き合わせ、食い違えば公開 URL を出さずに消すことで、見られない区間の穴を塞ぐ",
+              "tradeoffs": [
+                "アップロード完了から公開 URL 発行までに一拍入るため、編集画面はその待ちを見せる必要がある"
+              ]
+            },
+            {
+              "knowledge_ref": "usability-accessibility.md#中核概念",
+              "principle": "alt の欠落を、書き手が気付ける場所で止める",
+              "applicability": "applied",
+              "rationale": "alt は公開後には誰も直さない。公開の手前で止めれば、書き手が文脈を覚えているうちに書ける。装飾目的の宣言を用意することで、意味のない alt を埋めさせる圧力を避ける",
+              "tradeoffs": [
+                "装飾と宣言すれば通るため、宣言の乱用は機械では止められず、記事の点検側で見ることになる"
+              ]
+            }
+          ],
+          "superseded_by": "qa-security-web-upload-hardening-corrected"
+        }
+      ]
+    },
+    {
+      "id": "qa-auth-platform-exclusion-consequence",
+      "reason": "対象外セルの固有帰結は cell.reason に既に存在し、利用者承認は cell.approval_ref で追跡できる。QA entry は利用者対話でも書面逐語でもない派生記述で source 契約を満たさず重複するため取り下げる。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-auth-platform-exclusion-consequence",
+        "question": "auth: 対象プラットフォームを Web だけにしたことは、認証の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+        "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、認証にとって何が設計対象から外れたのかが読めない。そこで 認証 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。"
+      }
+    },
+    {
+      "id": "qa-backend-platform-exclusion-consequence",
+      "reason": "対象外セルの固有帰結は cell.reason に既に存在し、利用者承認は cell.approval_ref で追跡できる。QA entry は利用者対話でも書面逐語でもない派生記述で source 契約を満たさず重複するため取り下げる。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-backend-platform-exclusion-consequence",
+        "question": "backend: 対象プラットフォームを Web だけにしたことは、バックエンドの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+        "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、バックエンドにとって何が設計対象から外れたのかが読めない。そこで バックエンド 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。"
+      }
+    },
+    {
+      "id": "qa-database-platform-exclusion-consequence",
+      "reason": "対象外セルの固有帰結は cell.reason に既に存在し、利用者承認は cell.approval_ref で追跡できる。QA entry は利用者対話でも書面逐語でもない派生記述で source 契約を満たさず重複するため取り下げる。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-database-platform-exclusion-consequence",
+        "question": "database: 対象プラットフォームを Web だけにしたことは、データ層の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+        "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、データ層にとって何が設計対象から外れたのかが読めない。そこで データ層 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。"
+      }
+    },
+    {
+      "id": "qa-frontend-platform-exclusion-consequence",
+      "reason": "対象外セルの固有帰結は cell.reason に既に存在し、利用者承認は cell.approval_ref で追跡できる。QA entry は利用者対話でも書面逐語でもない派生記述で source 契約を満たさず重複するため取り下げる。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-frontend-platform-exclusion-consequence",
+        "question": "frontend: 対象プラットフォームを Web だけにしたことは、フロントエンドの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+        "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、フロントエンドにとって何が設計対象から外れたのかが読めない。そこで フロントエンド 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。"
+      }
+    },
+    {
+      "id": "qa-infrastructure-platform-exclusion-consequence",
+      "reason": "対象外セルの固有帰結は cell.reason に既に存在し、利用者承認は cell.approval_ref で追跡できる。QA entry は利用者対話でも書面逐語でもない派生記述で source 契約を満たさず重複するため取り下げる。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-infrastructure-platform-exclusion-consequence",
+        "question": "infrastructure: 対象プラットフォームを Web だけにしたことは、インフラの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+        "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、インフラにとって何が設計対象から外れたのかが読めない。そこで インフラ 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。"
+      }
+    },
+    {
+      "id": "qa-maintenance-ops-platform-exclusion-consequence",
+      "reason": "対象外セルの固有帰結は cell.reason に既に存在し、利用者承認は cell.approval_ref で追跡できる。QA entry は利用者対話でも書面逐語でもない派生記述で source 契約を満たさず重複するため取り下げる。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-maintenance-ops-platform-exclusion-consequence",
+        "question": "maintenance-ops: 対象プラットフォームを Web だけにしたことは、保守運用の設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+        "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、保守運用にとって何が設計対象から外れたのかが読めない。そこで 保守運用 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。"
+      }
+    },
+    {
+      "id": "qa-security-platform-exclusion-consequence",
+      "reason": "対象外セルの固有帰結は cell.reason に既に存在し、利用者承認は cell.approval_ref で追跡できる。QA entry は利用者対話でも書面逐語でもない派生記述で source 契約を満たさず重複するため取り下げる。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-security-platform-exclusion-consequence",
+        "question": "security: 対象プラットフォームを Web だけにしたことは、セキュリティの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+        "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、セキュリティにとって何が設計対象から外れたのかが読めない。そこで セキュリティ 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。"
+      }
+    },
+    {
+      "id": "qa-ui-ux-platform-exclusion-consequence",
+      "reason": "対象外セルの固有帰結は cell.reason に既に存在し、利用者承認は cell.approval_ref で追跡できる。QA entry は利用者対話でも書面逐語でもない派生記述で source 契約を満たさず重複するため取り下げる。",
+      "retracted_on": "2026-09-06",
+      "retracted_with": "retract-qa",
+      "entry": {
+        "id": "qa-ui-ux-platform-exclusion-consequence",
+        "question": "ui-ux: 対象プラットフォームを Web だけにしたことは、UI/UXの設計に具体的に何をもたらすか。共通の承認根拠ではなく、このカテゴリ固有の帰結を記録したい。",
+        "answer": "Web 以外 (mobile / tablet / desktop-windows / desktop-linux / desktop-macos) を対象外とする判断そのものは全カテゴリ共通で、利用者承認 `approval-platform-web-only` が根拠である。ただし承認の文面をそのまま各セルへ複写すると、UI/UXにとって何が設計対象から外れたのかが読めない。そこで UI/UX 固有の帰結として次を記録する。\n\nWeb 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。"
       }
     }
   ]

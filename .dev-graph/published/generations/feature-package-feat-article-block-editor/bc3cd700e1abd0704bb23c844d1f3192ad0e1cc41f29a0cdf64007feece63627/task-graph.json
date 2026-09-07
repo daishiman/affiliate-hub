@@ -1,0 +1,146 @@
+{
+  "feature_package_id": "feature-package/feat-article-block-editor",
+  "parent_feature": "feat-article-block-editor",
+  "source_feature_digest": "sha256:9a9bfacc9dd444dfcaaf27d9ac1d83a0a3596dce3afffc094f1ace4d430eac02",
+  "nodes": [
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P01",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P01",
+      "title": "19種断片カタログと保存形式・Worker API画像契約の要求ベースライン確定",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p01.md",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P02",
+      "title": "ブロックエディター描画・保存契約とWorker API画像アップロード経路の設計",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p02.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P01"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P03",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P03",
+      "title": "設計レビュー — Worker API契約とpresigned PUT残滓の不在確認",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p03.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P02"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P04",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P04",
+      "title": "受入7件に対応するテスト設計 (Worker API境界値含む)",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p04.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P03"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P05",
+      "title": "ブロックエディターWYSIWYG化とWorker API画像アップロード・許可リスト描画の実装",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p05.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P04"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P06",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P06",
+      "title": "テスト実行 — 実装全量の回帰・境界値・Worker APIシナリオ",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p06.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P05"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P07",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P07",
+      "title": "受入確認 — A1-A7 全件のPASS証跡取得",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p07.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P06"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P08",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P08",
+      "title": "リファクタリング・既存記事移行互換確認",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p08.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P05"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P09",
+      "title": "品質保証 — Worker API認可境界・セキュリティ・パフォーマンス検証",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p09.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P08"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P10",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P10",
+      "title": "最終レビューと残課題の確定",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p10.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P09"]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P11",
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p11.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P07",
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P12",
+      "title": "運用手順と文書化 — 孤児画像回収と管理者向け説明",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p12.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P10",
+        "SYS-ARTICLE-BLOCK-EDITOR-P11"
+      ]
+    },
+    {
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P13",
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P13",
+      "title": "開発環境へのリリースとWorker API決定のsystem-specへの書き戻し",
+      "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p13.md",
+      "depends_on": ["SYS-ARTICLE-BLOCK-EDITOR-P12"]
+    }
+  ],
+  "edges": [
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P01", "to": "SYS-ARTICLE-BLOCK-EDITOR-P02"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P02", "to": "SYS-ARTICLE-BLOCK-EDITOR-P03"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P03", "to": "SYS-ARTICLE-BLOCK-EDITOR-P04"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P04", "to": "SYS-ARTICLE-BLOCK-EDITOR-P05"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P05", "to": "SYS-ARTICLE-BLOCK-EDITOR-P06"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P06", "to": "SYS-ARTICLE-BLOCK-EDITOR-P07"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P05", "to": "SYS-ARTICLE-BLOCK-EDITOR-P08"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P08", "to": "SYS-ARTICLE-BLOCK-EDITOR-P09"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P09", "to": "SYS-ARTICLE-BLOCK-EDITOR-P10"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P07", "to": "SYS-ARTICLE-BLOCK-EDITOR-P11"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P09", "to": "SYS-ARTICLE-BLOCK-EDITOR-P11"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P10", "to": "SYS-ARTICLE-BLOCK-EDITOR-P12"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P11", "to": "SYS-ARTICLE-BLOCK-EDITOR-P12"},
+    {"type": "depends_on", "from": "SYS-ARTICLE-BLOCK-EDITOR-P12", "to": "SYS-ARTICLE-BLOCK-EDITOR-P13"}
+  ]
+}

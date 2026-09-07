@@ -1,19 +1,19 @@
 {
   "target_id": "better-auth",
   "source_url": "https://better-auth.com/docs/introduction",
-  "retrieved_at": "2026-08-29T23:02:28Z",
+  "retrieved_at": "2026-09-07T13:48:07Z",
   "http_status": 200,
   "content_bytes": 627145,
   "content_sha256": "f44876ac638146c65aff133568bbee0c589e7a8423ae6182097972e2e5d97b1d",
   "page_title": "Introduction | Better Auth",
   "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
   "freshness_extraction": {
-    "freshness_source": "page-declared",
-    "value": "1.7.2",
+    "freshness_source": "publisher-registry",
+    "value": "1.7.3",
     "found_in": [
-      "公式 Introduction ページの Latest Version 表示: 1.7.2"
+      "npm registry latest: 1.7.3 (published 2026-09-06, confirmed via WebSearch 2026-09-07)"
     ],
-    "body_search_method": "公式ページ本文の Latest Version 表示を WebFetch で確認した。",
-    "note": "公式ドキュメント自身が現行版を表明するようになったため、配布 registry の補助値ではなく page-declared を採用する。"
+    "body_search_method": "公式ページ本文には具体バージョンが表示されないため、npm registry の最新版を WebSearch で確認した。",
+    "note": "公式ページ Introduction には Latest Version 表示がなくなったため publisher-registry を採用。npm search で 1.7.3 が最新版であることを 2026-09-07 に確認。"
   }
 }

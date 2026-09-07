@@ -1,5 +1,5 @@
 import type { WorkspaceId } from "@/domain/shared";
-import type { BlogArticleBlock } from "@/domain/blogops";
+import type { SaveBlogArticleInput } from "./blog-ops";
 import type { PortResult } from "./common";
 
 /**
@@ -35,6 +35,11 @@ export type AffiliatePlacement = {
 export type ArticlePlacements = {
   readonly articleSlug: string;
   readonly placements: readonly AffiliatePlacement[];
+};
+
+/** 配置変更は既存記事の更新だけであり、新規作成用の版番省略を認めない。 */
+export type AffiliatePlacementArticleUpdate = SaveBlogArticleInput & {
+  readonly expectedRevision: number;
 };
 
 export type BlogAffiliatePlacementPort = {
@@ -77,11 +82,11 @@ export type BlogAffiliatePlacementPort = {
   save(input: {
     readonly workspaceId: WorkspaceId;
     readonly placement: AffiliatePlacement;
-    /** 台帳と同じ原子的保存へ含める、公開記事側の CTA projection。 */
-    readonly publicArticleBlock?: {
-      readonly articleId: string;
-      readonly block: BlogArticleBlock;
-    };
+    /**
+     * 現存記事では必須。同じ記事の読取版を持つ集約を通常の記事保存へ渡し、
+     * 台帳・本文・版番・公開JSONを一括確定する。省略は記事の無い台帳の取込専用。
+     */
+    readonly articleUpdate?: AffiliatePlacementArticleUpdate;
   }): PortResult<AffiliatePlacement>;
 
   /**
@@ -97,7 +102,7 @@ export type BlogAffiliatePlacementPort = {
     readonly articleSlug: string;
     readonly placement: string;
     readonly trackingCode?: string;
-    /** 台帳と同じ原子的削除へ含める公開記事側の CTA projection。 */
-    readonly publicArticleBlockId?: string;
+    /** 現存記事では必須。省略は物理的に記事の無い孤児台帳の掃除専用。削除済記事は復元して変更する。 */
+    readonly articleUpdate?: AffiliatePlacementArticleUpdate;
   }): PortResult<void>;
 };

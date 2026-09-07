@@ -37,7 +37,7 @@ import {
   summarizeRatings,
   UNCATEGORIZED_ARTICLE_CATEGORY,
 } from "@/domain/blogops";
-import { domainError, err, ok, validationError } from "@/domain/shared";
+import { domainError, err, ok, validationError, type WorkspaceId } from "@/domain/shared";
 import {
   type BlogArticleRow,
   articles as blogArticles,
@@ -260,7 +260,15 @@ async function resolvePublicSiteIdentity(
   return ok({ workspaceId: row.workspaceId, siteSlug, blueprint });
 }
 
-export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort {
+export function createD1BlogOpsRepository(
+  db: DrizzleD1,
+  /** 同じ集約に属する台帳変更だけを通常の記事保存transactionへ同梱する。 */
+  articleSaveCompanion?: {
+    readonly workspaceId: WorkspaceId;
+    readonly articleId: string;
+    readonly statements: readonly BatchItem<"sqlite">[];
+  },
+): BlogOpsRepositoryPort {
   return {
     async listNetwork(workspaceId): PortResult<readonly SiteNetworkRecord[]> {
       try {
@@ -723,6 +731,12 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
 
     async saveArticle(workspaceId, input: SaveBlogArticleInput): PortResult<true> {
       try {
+        if (
+          articleSaveCompanion !== undefined &&
+          (articleSaveCompanion.workspaceId !== workspaceId || articleSaveCompanion.articleId !== input.id)
+        ) {
+          return err(validationError("同じ記事の変更だけを一緒に保存してください。", "articleId"));
+        }
         if (new Set(input.tagIds).size !== input.tagIds.length) {
           return err(validationError("同じタグを記事へ複数回付けることはできません。", "tagIds"));
         }
@@ -1033,6 +1047,7 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
         batch.push(deleteTags);
         if (insertTags !== null) batch.push(insertTags);
         batch.push(...projectionStatements);
+        batch.push(...(articleSaveCompanion?.statements ?? []));
         await db.batch(batch as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
         return ok(true);
       } catch (cause) {
@@ -1142,16 +1157,23 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           )
           .limit(1);
         const row = rows[0];
-        if (row === undefined) return ownedResourceNotFound("削除済み記事");
+        if (row === undefined || row.deletedAt === null) return ownedResourceNotFound("削除済み記事");
 
+        const restoreToken = crypto.randomUUID();
         const mutation = db
           .update(blogArticles)
-          .set({ deletedAt: null, updatedAt: restoredAt })
+          .set({
+            deletedAt: null,
+            updatedAt: restoredAt,
+            revision: row.revision + 1,
+            saveToken: restoreToken,
+          })
           .where(
             and(
               eq(blogArticles.workspaceId, workspaceId),
               eq(blogArticles.id, articleId),
-              isNotNull(blogArticles.deletedAt),
+              eq(blogArticles.revision, row.revision),
+              eq(blogArticles.deletedAt, row.deletedAt),
             ),
           )
           .returning({ id: blogArticles.id });
@@ -1236,8 +1258,18 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
           updatedAt: restoredAt,
           blocks: detail.blocks,
         });
+        // 復元UPDATEが0行なら、旧projectionを保存する前に同じbatchを失敗させる。
+        // revisionに加えて勝者固有tokenを照合し、二重復元と復元→再削除のABAを防ぐ。
+        const restoreGuard = db.insert(blogArticles).select(
+          db.select().from(blogArticles).where(and(
+            eq(blogArticles.workspaceId, workspaceId),
+            eq(blogArticles.id, articleId),
+            or(isNull(blogArticles.saveToken), ne(blogArticles.saveToken, restoreToken)),
+          )),
+        );
         const results = await db.batch([
           mutation,
+          restoreGuard,
           ...publishedArticleSaveStatements(
             db,
             workspaceId,
@@ -1248,6 +1280,16 @@ export function createD1BlogOpsRepository(db: DrizzleD1): BlogOpsRepositoryPort 
         if (results[0].length === 0) return ownedResourceNotFound("削除済み記事");
         return ok(true);
       } catch (cause) {
+        const reason = cause instanceof Error ? cause.message.toLowerCase() : "";
+        if (
+          reason.includes("unique constraint failed: articles.id") ||
+          reason.includes("unique constraint failed: articles.workspace_id, articles.site_slug, articles.slug")
+        ) {
+          return err(domainError("CONFLICT", "ほかの人が先にこの記事を変更しました。", {
+            field: "revision",
+            suggestedAction: "記事の一覧を開き直して、最新の状態を確認してください。",
+          }));
+        }
         return storageFailure("記事の復元", cause);
       }
     },

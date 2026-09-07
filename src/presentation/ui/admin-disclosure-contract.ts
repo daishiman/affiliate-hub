@@ -10,6 +10,7 @@ export type AdminDisclosureContract =
     };
 
 const FOLDABLE_ROUTES = new Set<AdminRouteId>([
+  "blog/articles/[article]",
   "evidence",
   "personas/audiences",
   "feedback/[report]",

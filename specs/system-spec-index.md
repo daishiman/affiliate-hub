@@ -11,8 +11,8 @@ target_date: null
 iteration: null
 title: "system-spec compiled specification"
 owners: ["system-spec-harness"]
-created_at: "2026-09-05T12:23:57Z"
-updated_at: "2026-09-05T12:23:57Z"
+created_at: "2026-09-07T17:03:03Z"
+updated_at: "2026-09-07T17:03:03Z"
 status: "active"
 depends_on: []
 related_nodes: []
@@ -31,8 +31,8 @@ template_id: "specification"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
-confirmation_evidence: {"evaluated_digest":"546d06b9f45347acb70909ee5fb71fab872965a793a69d2036b46981db138329","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-05T12:23:57Z","origin_kind":"system-spec-harness","source_digest":"27f101ae73a2ff370445807032d1f5462fe0878231228b13e76820216aa27d40","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+confirmation_evidence: {"evaluated_digest":"dc69e4f245e9093bc9d0855dd3757a613a2283a7e2475d2f18ba50253728fa91","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
+source_lineage: {"imported_at":"2026-09-07T17:03:03Z","origin_kind":"system-spec-harness","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 1.0
 classification_reason: "system-spec-harness が compile した specification index の import。"
 classification_candidates: [{"artifact_kind":"specification","candidate_path":"specs/system-spec-index.md","confidence":1.0}]
@@ -43,8 +43,8 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-09-05T12:23:57Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-09-05T12:23:57Z","source":"manual","status":"done"}
-implementation_readiness: {"checked_at":"2026-09-05T12:23:57Z","missing_sections":[],"status":"complete"}
+completion_evidence: {"completed_at":"2026-09-07T17:03:03Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-09-07T17:03:03Z","source":"manual","status":"done"}
+implementation_readiness: {"checked_at":"2026-09-07T17:03:03Z","missing_sections":[],"status":"complete"}
 ---
 
 # システム構築仕様書 index
@@ -65,7 +65,7 @@ implementation_readiness: {"checked_at":"2026-09-05T12:23:57Z","missing_sections
 | カテゴリ | 章 | 集約状態 | 確定マーカー | 資するゴール | 対応セル |
 |---|---|---|---|---|---|
 | データベース (database) | [database.md](./database.md) | 確定 | `confirmed` | G1 G2 G3 | database.web database.mobile database.tablet database.desktop-windows database.desktop-linux database.desktop-macos |
-| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `confirmed` | G1 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
+| 認証(ログイン) (auth) | [auth.md](./auth.md) | 確定 | `confirmed` | G1 G2 | auth.web auth.mobile auth.tablet auth.desktop-windows auth.desktop-linux auth.desktop-macos |
 | UI-UX (ui-ux) | [ui-ux.md](./ui-ux.md) | 確定 | `confirmed` | G1 G2 G3 | ui-ux.web ui-ux.mobile ui-ux.tablet ui-ux.desktop-windows ui-ux.desktop-linux ui-ux.desktop-macos |
 | セキュリティ (security) | [security.md](./security.md) | 確定 | `confirmed` | G1 G2 G3 | security.web security.mobile security.tablet security.desktop-windows security.desktop-linux security.desktop-macos |
 | インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `confirmed` | G1 G2 G3 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |

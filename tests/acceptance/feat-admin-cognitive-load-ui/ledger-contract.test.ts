@@ -397,6 +397,8 @@ describe("管理画面の情報台帳", () => {
       .map((route) => route.routeId)
       .sort();
     expect(actualFoldable).toEqual(declaredFoldable);
+    expect(ADMIN_DISCLOSURE_CONTRACTS.find((contract) => contract.routeId === "blog/articles/[article]"))
+      .toEqual({ routeId: "blog/articles/[article]", strategy: "foldable" });
 
     for (const contract of ADMIN_DISCLOSURE_CONTRACTS) {
       if (contract.strategy !== "dedicated-route") continue;

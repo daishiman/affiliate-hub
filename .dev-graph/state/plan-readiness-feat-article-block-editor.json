@@ -1,7 +1,7 @@
 {
   "status": "complete",
   "missing_sections": [],
-  "checked_at": "2026-09-05T12:45:46Z",
+  "checked_at": "2026-09-07T15:17:24Z",
   "repository_id": "github:daishiman/affiliate-hub",
   "system_spec_root": "system-spec",
   "architecture_root": "architecture",
@@ -11,7 +11,7 @@
     "version": "0.1.0",
     "compile_entrypoint": "run-system-spec-compile",
     "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
-    "source_digest": "sha256:8c50f65f26812bb8b6d7a51569a674455bc3bcfd55d34214dedf12e9d02a95cb"
+    "source_digest": "sha256:9c2dfbf366556b4fbefb1588243343cb928644a36c5dd92f295d3e1146dd8071"
   },
   "probes": {
     "system_spec_index": {
@@ -28,7 +28,7 @@
       "exists": true,
       "non_empty": true,
       "placeholder_free": true,
-      "heading_count": 16,
+      "heading_count": 15,
       "verified": true,
       "detail": ""
     },

@@ -1,4 +1,6 @@
 import { runScheduledAiSearchReaudit } from "./ai-search-reaudit-scheduler";
+import type { ArticleImageBucket } from "./article-image-r2";
+import { runArticleImageReclaim } from "./article-image-reclaim";
 import { runScheduledDistribution, runPublicationDeliveryAuditFlush } from "./distribution-scheduler";
 import { type CaptureBucket, sweepExpiredCaptures } from "./feedback-capture-r2";
 import { runFeedbackDiagnosticsPurge } from "./feedback-diagnostics-purge";
@@ -154,10 +156,38 @@ async function runSeoAssessmentJob(env: ScheduledMaintenanceEnv, now: Date): Pro
   }
 }
 
+/** 記事から外れた画像を置き場から回収する。 */
+async function runArticleImageReclaimJob(env: ScheduledMaintenanceEnv, now: Date): Promise<void> {
+  if (env.DB === undefined || env.BUCKET === undefined) {
+    console.warn("[article-image] 置き場か保存先がつながっていないので、回収を行いませんでした");
+    return;
+  }
+  try {
+    const result = await runArticleImageReclaim(
+      env.DB,
+      env.BUCKET as unknown as ArticleImageBucket,
+      now,
+    );
+    console.log("[article-image] 画像の参照を点検しました", {
+      scanned: result.scanned,
+      reclaimed: result.reclaimed,
+      kept: result.kept,
+      failed: result.failed,
+      deferred: result.deferred,
+      orphanScanned: result.orphanScanned,
+      orphanReclaimed: result.orphanReclaimed,
+      orphanFailed: result.orphanFailed,
+    });
+  } catch {
+    // 記事の中身や置き場の鍵はログへ載せない。残った分は次の回が拾い直す。
+    console.error("[article-image] 画像の回収に失敗しました");
+  }
+}
+
 /**
  * Worker の scheduled handler が呼ぶ、定期メンテナンスの配線。
  *
- * 7 つは因果のない仕事なので、独立した Promise として登録する。
+ * 8 つは因果のない仕事なので、独立した Promise として登録する。
  * それぞれが自分の失敗を記録して完了し、別の仕事とCloudflare retryへ波及させない。
  */
 export function scheduleMaintenanceJobs(
@@ -172,4 +202,5 @@ export function scheduleMaintenanceJobs(
   ctx.waitUntil(runAiSearchReauditJob(env, now));
   ctx.waitUntil(runReaderMetricsRollupJob(env, now));
   ctx.waitUntil(runSeoAssessmentJob(env, now));
+  ctx.waitUntil(runArticleImageReclaimJob(env, now));
 }

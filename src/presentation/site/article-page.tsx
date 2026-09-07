@@ -15,6 +15,7 @@ import {
   Section,
 } from "@/presentation/ui";
 import { ArticleStructuredData } from "./article-structured-data";
+import { renderCanonicalSectionBody } from "./canonical-section-body";
 import { ShortlistSaveButton } from "./shortlist-buttons";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
 import { ReaderRatingForm } from "./reader-rating-form";
@@ -42,6 +43,9 @@ const PAGE_KIND_BY_PREFIX: Readonly<Record<string, PageKind>> = {
   "/reviews": "product",
   "/guides": "article",
 };
+
+// 既存のimport元を保ちつつ、実体は副作用のないleaf moduleに一つだけ置く。
+export { renderCanonicalSectionBody } from "./canonical-section-body";
 
 export async function ArticlePage({
   siteSlug,
@@ -193,8 +197,9 @@ export async function ArticlePage({
                             />
                           ),
                         },
-                  ),
+                    ),
                 }}
+                renderSectionBody={renderCanonicalSectionBody}
               />
             )}
             {sourceArticleId?.ok === true && sourceArticleId.value !== null ? (

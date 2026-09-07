@@ -1,4 +1,5 @@
 import { getBucket } from "@/db";
+import type { ArticleImageBucket } from "./article-image-r2";
 import type { CaptureBucket } from "./feedback-capture-r2";
 
 /**
@@ -12,6 +13,21 @@ import type { CaptureBucket } from "./feedback-capture-r2";
 export async function tryGetBucket(): Promise<CaptureBucket | null> {
   try {
     return (await getBucket()) as unknown as CaptureBucket;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 同じ置き場を、記事の画像として使う口から取る。
+ *
+ * **バケットは 1 つで、見えている面だけが違う。** 別の型で取り直すのは、
+ * 写しの側が使う `list()` を記事の画像側から呼べないようにするため。
+ * 呼べてしまうと、前置きを間違えた 1 行が他の用途の物まで数え上げる。
+ */
+export async function tryGetArticleImageBucket(): Promise<ArticleImageBucket | null> {
+  try {
+    return (await getBucket()) as unknown as ArticleImageBucket;
   } catch {
     return null;
   }

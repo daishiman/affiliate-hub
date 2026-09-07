@@ -1,5 +1,5 @@
 {
-  "graph_revision": 588,
+  "graph_revision": 646,
   "nodes": [
     {
       "acceptance": [],
@@ -658,9 +658,9 @@
         "exact-13 feature package"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-16T11:19:17Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "409add2dc4ceef4637f1a2048bdd9a2e54a4a9873cc4e70a9d160a13c5d63e44",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -676,7 +676,7 @@
       "template_version": "1.0.0",
       "title": "仕様正本の整理と投影",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-16T13:45:23.772678Z"
+      "updated_at": "2026-09-07T15:54:17.171448Z"
     },
     {
       "acceptance": [],
@@ -813,22 +813,22 @@
       "classification_confidence": 1.0,
       "classification_reason": "system-spec-harness が確定した architecture context の import。",
       "completion_evidence": {
-        "completed_at": "2026-09-05T12:23:57Z",
+        "completed_at": "2026-09-07T17:03:03Z",
         "evidence_refs": [
           "system-spec/completeness-report.json"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-09-05T12:23:57Z",
+        "reconciled_at": "2026-09-07T17:03:03Z",
         "source": "manual",
         "status": "done"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "546d06b9f45347acb70909ee5fb71fab872965a793a69d2036b46981db138329",
+        "evaluated_digest": "dc69e4f245e9093bc9d0855dd3757a613a2283a7e2475d2f18ba50253728fa91",
         "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
         "evidence_ref": "system-spec/completeness-report.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:23:57Z",
+      "created_at": "2026-09-07T17:03:03Z",
       "depends_on": [],
       "domain": "system-spec",
       "evaluation_status": "pass",
@@ -845,7 +845,7 @@
       "goal": "仕様由来の architecture context を feature から参照できる状態。",
       "graph_node_id": "arch-system-spec-overview",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T12:23:57Z",
+        "checked_at": "2026-09-07T17:03:03Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -872,9 +872,9 @@
         "confirmed artifacts are not rewritten by this adapter"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:23:57Z",
+        "imported_at": "2026-09-07T17:03:03Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "5ec66abed2c0d11425c0cf434c317f1c65c80fe5c6112e4ac0df21026bd44df6",
+        "source_digest": "cf8c44862e1a45d8b2a5fc7b72555e2bf5c5dd04f8514f11e1ce0dfc1d4310b4",
         "source_path": "system-spec/00-requirements-definition.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -891,7 +891,7 @@
       "template_version": "1.0.0",
       "title": "system-spec architecture overview",
       "tracker_binding": "none",
-      "updated_at": "2026-09-05T12:23:57Z"
+      "updated_at": "2026-09-07T17:03:03Z"
     },
     {
       "acceptance": [
@@ -919,22 +919,22 @@
       "classification_confidence": 1.0,
       "classification_reason": "system-spec-harness が compile した specification index の import。",
       "completion_evidence": {
-        "completed_at": "2026-09-05T12:23:57Z",
+        "completed_at": "2026-09-07T17:03:03Z",
         "evidence_refs": [
           "system-spec/completeness-report.json"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-09-05T12:23:57Z",
+        "reconciled_at": "2026-09-07T17:03:03Z",
         "source": "manual",
         "status": "done"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "546d06b9f45347acb70909ee5fb71fab872965a793a69d2036b46981db138329",
+        "evaluated_digest": "dc69e4f245e9093bc9d0855dd3757a613a2283a7e2475d2f18ba50253728fa91",
         "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
         "evidence_ref": "system-spec/completeness-report.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:23:57Z",
+      "created_at": "2026-09-07T17:03:03Z",
       "depends_on": [],
       "domain": "system-spec",
       "evaluation_status": "pass",
@@ -951,7 +951,7 @@
       "goal": "仕様と architecture context を source lineage 付きで結ぶ。",
       "graph_node_id": "spec-system-spec-index",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T12:23:57Z",
+        "checked_at": "2026-09-07T17:03:03Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -978,9 +978,9 @@
         "confirmed artifacts are not rewritten by this adapter"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:23:57Z",
+        "imported_at": "2026-09-07T17:03:03Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "27f101ae73a2ff370445807032d1f5462fe0878231228b13e76820216aa27d40",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -997,7 +997,7 @@
       "template_version": "1.0.0",
       "title": "system-spec compiled specification",
       "tracker_binding": "none",
-      "updated_at": "2026-09-05T12:23:57Z"
+      "updated_at": "2026-09-07T17:03:03Z"
     },
     {
       "acceptance": [
@@ -13956,9 +13956,9 @@
       "artifact_kind": "feature",
       "artifact_subtypes": [],
       "beads_linkage": {
-        "bd_issue_id": "ah-6lf",
+        "bd_issue_id": "ah-45ba",
         "github_mirror": null,
-        "linked_at": "2026-08-24T12:00:00Z",
+        "linked_at": "2026-08-29T21:57:21Z",
         "sync_state": "linked"
       },
       "classification_candidates": [
@@ -13988,7 +13988,11 @@
       },
       "confirmation_status": "confirmed",
       "created_at": "2026-08-24T02:20:00Z",
-      "depends_on": [],
+      "depends_on": [
+        "feat-ui-foundation",
+        "feat-site-builder",
+        "feat-affiliate-hub"
+      ],
       "domain": "frontend",
       "evaluation_status": "pass",
       "execution_contexts": [],
@@ -14061,9 +14065,9 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-05T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "974f5e0048c16afd9cb4a518a31073e47683c582456488e467d15bd45f7f1983",
+        "source_digest": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -14083,7 +14087,7 @@
       "template_version": "1.0.0",
       "title": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T00:00:00Z"
+      "updated_at": "2026-09-07T15:54:25.989531Z"
     },
     {
       "acceptance": [
@@ -15653,9 +15657,9 @@
         "独自ドメイン・DNS 運用"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-25T09:40:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "832eb4a42809637b35a5619a2d058cc4c8a184d2b770fd0693e94aeb0c497d00",
+        "source_digest": "b510acf0dcaa4ac8731560386a1e2ab0fa3284fed594391394628aa5e19eb6fa",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -15676,7 +15680,7 @@
       "template_version": "1.0.0",
       "title": "ブログ運用 CRUD とサイト網ブループリント再現 (作成者面・閲覧者面)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T06:00:53.386277Z"
+      "updated_at": "2026-09-07T15:54:27.577180Z"
     },
     {
       "acceptance": [
@@ -17265,9 +17269,9 @@
         "この段階での本番公開、全記事の再編集、既存データの一括破壊的移行"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-29T14:36:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "832eb4a42809637b35a5619a2d058cc4c8a184d2b770fd0693e94aeb0c497d00",
+        "source_digest": "b510acf0dcaa4ac8731560386a1e2ab0fa3284fed594391394628aa5e19eb6fa",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -17288,7 +17292,7 @@
       "template_version": "1.0.0",
       "title": "参照ブログ解析と低認知負荷の運用 UX",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T06:01:14.811140Z"
+      "updated_at": "2026-09-07T15:54:28.391966Z"
     },
     {
       "artifact_kind": "task",
@@ -18592,9 +18596,9 @@
         "写し以外の添付手段の追加"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-30T03:37:16Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "832eb4a42809637b35a5619a2d058cc4c8a184d2b770fd0693e94aeb0c497d00",
+        "source_digest": "b510acf0dcaa4ac8731560386a1e2ab0fa3284fed594391394628aa5e19eb6fa",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -18611,7 +18615,7 @@
       "template_version": "1.0.0",
       "title": "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T06:01:34.624751Z"
+      "updated_at": "2026-09-07T15:54:29.215008Z"
     },
     {
       "acceptance": [
@@ -20385,9 +20389,9 @@
         "閲覧者向けレンダリングの部品仕様 (feat-blog-ops-crud)"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-31T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -20407,7 +20411,7 @@
       "template_version": "1.0.0",
       "title": "ブログ作成の原子性と公開必須要素の充足 (作成済み表示と読者到達の一致)",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-31T00:00:00Z"
+      "updated_at": "2026-09-07T15:54:17.944152Z"
     },
     {
       "acceptance": [
@@ -20521,9 +20525,9 @@
         "管理画面での住所表示 UI (feat-blog-composition-visibility)"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-31T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -20543,7 +20547,7 @@
       "template_version": "1.0.0",
       "title": "サブドメイン方式のブログ住所付与とホスト解決",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-31T00:00:00Z"
+      "updated_at": "2026-09-07T15:54:18.741919Z"
     },
     {
       "acceptance": [
@@ -20662,9 +20666,9 @@
         "テンプレート・配色の選択 UI (feat-blog-ui-builder)"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-31T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "9853917fad7f15aca04f95d9c8e47819b99ad56f3bcb59e030191c1ee62e7a62",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -20684,7 +20688,7 @@
       "template_version": "1.0.0",
       "title": "ブログ構成要素の可視化・管理画面プレビュー・不足要素の提示",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-31T00:00:00Z"
+      "updated_at": "2026-09-07T15:54:19.533150Z"
     },
     {
       "acceptance": [
@@ -21263,7 +21267,7 @@
         "各画面の表示情報がタスク遂行に必要な項目のみに絞られ、不要な文章・説明が非表示になっている (認知負荷の低減)"
       ],
       "acceptance_reconciliation": {
-        "evaluated_digest": "sha256:2b80d8c94d52abca9ed4f7904271321f6dc103e56861ca6bc3e327c6da0eab6b",
+        "evaluated_digest": "sha256:987d0bccdcc1138883872d35736d34ecdd27680e36f8cab0bebefc40885a3cf2",
         "implementation_status": "pass",
         "manifest_ref": "docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json",
         "release_status": "unpublished",
@@ -21381,9 +21385,9 @@
         "読者向け公開面 (feat-reader-surface)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "33d644c2cb19eee116a4d365c0a50c84c697f9a2e9afcc7afef6f06a3d9ad527",
+        "source_digest": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -21403,7 +21407,7 @@
       "template_version": "1.0.0",
       "title": "管理画面 UI/UX 全面改善",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T06:01:53.906511Z"
+      "updated_at": "2026-09-07T16:12:05.419068Z"
     },
     {
       "acceptance": [
@@ -21507,9 +21511,9 @@
         "参考ブログ水準の読者導線・目次・サイドバー配置 (feat-reference-blog-admin-ux)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "d31f307c93a74bb01f1263c0ab956cd3c8b09bb4caa23857531cd8a4c8f60df9",
+        "source_digest": "bd4cb7171cd7d1749f92b31c2a42b159b05b339c1d39d05d1daddc064ef6803e",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -21528,7 +21532,7 @@
       "template_version": "1.0.0",
       "title": "SEO/AEO の未実装差分を埋める",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T06:02:12.846812Z"
+      "updated_at": "2026-09-07T15:54:30.015955Z"
     },
     {
       "acceptance": [
@@ -22982,7 +22986,7 @@
         "節の見出しは常に見出し2、断片の見出しは見出し3/4 に固定され、挿入・移動・削除・貼り付けのいずれでもレベルが動かない",
         "19 種の断片すべてを `/` から挿入でき、編集でき、公開ページで編集面と同じ見た目で表示される",
         "商品カードは検索結果からの選択でのみ挿入でき、商品 id の手入力欄が存在しない",
-        "画像はブラウザから R2 へ直接アップロードでき、URL の手入力欄が存在しない",
+        "画像は URL・object key の手入力やブラウザから R2 への直接 PUT を使わず、同一生成元の Worker API から添付できる。8 MiB 超過、許可外形式、MIME/実バイト不一致は R2 保存前に理由付きで拒否され、成功時だけサーバー生成鍵の台帳が pending→ready になる",
         "公開ページの描画が許可リストで絞られ、許可外の断片・属性・スタイルが出力されない",
         "現行 10 種の断片で書かれた既存記事が壊れずに読み込め、保存し直しても内容が変わらない"
       ],
@@ -23001,7 +23005,7 @@
         }
       ],
       "classification_confidence": 0.95,
-      "classification_reason": "2026-09-05 の R4-reopen で ui-ux/frontend/backend/infrastructure/security × web を再確定した「編集面の WYSIWYG 化・2 層の可視化・断片 10→19 種・R2 直接アップロード」に対応する macro feature。既存 34 feature に同等のものが無いことを graph.json 全走査で確認済み。",
+      "classification_reason": "2026-09-07 の再検証で、画像送信契約を旧ブラウザ直接 PUT から同一生成元 Worker API へ改訂した既存 macro feature。別 feature を重複追加せず、この node と後続 P01〜P13 を再計画して契約を一本化する。",
       "completion_evidence": {
         "completed_at": null,
         "evidence_refs": [],
@@ -23011,9 +23015,9 @@
         "status": "open"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
       "created_at": "2026-09-05T03:05:03.225569Z",
@@ -23032,10 +23036,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
-      "goal": "編集面と公開ページが同一の描画部品を通り、節 (見出し2 固定) と本文断片 (見出し3/4) の 2 層が UI 上で見分けられ、どの編集操作でも見出しレベルが動かず、19 種の断片 (コードブロック・商品カード・並列画像・表・色付き文字を含む) が `/` から挿入・編集・公開でき、商品と画像が手入力ではなく検索選択と直接アップロードで入る状態になっている",
+      "goal": "編集面と公開ページが同一の描画部品を通り、節 (見出し2 固定) と本文断片 (見出し3/4) の 2 層が UI 上で見分けられ、どの編集操作でも見出しレベルが動かず、19 種の断片 (コードブロック・商品カード・並列画像・表・色付き文字を含む) が `/` から挿入・編集・公開できる。商品は検索選択、画像は URL や object key の手入力・ブラウザ直接 PUT ではなく同一生成元の Worker API への添付で入り、Worker が認可・8 MiB 上限・実バイト形式を検査し、サーバー生成鍵で pending 予約→R2 put→ready 確定する状態になっている",
       "graph_node_id": "feat-article-block-editor",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23064,7 +23068,7 @@
         "節 (外側・見出し2 固定) と本文断片 (内側・見出し3/4) の 2 層を UI で見せ、編集操作で見出しレベルが動かないようにする (FRONT-REQ-006〜008, UIUX-ACC-005〜007)",
         "本文断片カタログを現行 10 種から 19 種へ拡張する (コードブロック・商品カード・並列画像・表・色付き文字を含む) (BE-PROSE-01〜03)",
         "商品カードを商品検索結果からの選択で挿入し、商品 id の手入力欄を無くす (BE-PRODUCT-01, UIUX-ACC-008)",
-        "画像を Cloudflare R2 へブラウザから直接アップロードし、URL の手入力欄を無くす。参照状態の正本は Editorial 側の D1 が持つ (BE-IMAGE-01, DB-IMAGE-01〜03, INF-IMG-01)",
+        "画像を同一生成元の認証済み Worker API へ送信し、Worker が編集権限・workspace/article 所属・8 MiB 上限・PNG/JPEG/WebP/GIF の実バイトと MIME 一致を検査し、サーバー生成鍵で pending 予約→R2 put→ready 確定する。URL・object key の手入力、署名付き URL、ブラウザから R2 への直接 PUT、R2 書込 CORS は採用しない。参照状態の正本は Editorial 側の D1 が持つ (BE-IMAGE-01, DB-IMAGE-01〜03, INF-IMG-01〜05, SEC-REQ-006〜008)",
         "保存形式の往復保全 — 拡張 Markdown 文字列と断片木の相互変換が情報を落とさない (BE-PROSE-02〜03)",
         "描画時の許可リスト絞り込みと投稿内容の無害化 (SEC-REQ-006〜009, SEC-ACC-006)",
         "参照されなくなった画像の回収と、現行記事の移行手順 (OPS-REQ-008〜010)"
@@ -23080,11 +23084,11 @@
         "商品データそのものの取込・更新 (feat-blog-ui-builder が持つ)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-05T00:00:00Z",
-        "origin_kind": "generated",
-        "source_digest": "7f419a85768a0e12a1f864dffb46c01a57d889a0823f0f3aa0733b8f868ce69e",
+        "imported_at": "2026-09-07T14:07:47Z",
+        "origin_kind": "system-spec-harness",
+        "source_digest": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
         "source_path": "system-spec/ui-ux.md",
-        "source_plugin": "dev-graph",
+        "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
       },
       "start_date": null,
@@ -23093,7 +23097,7 @@
         "editor",
         "wysiwyg",
         "prose-node",
-        "r2-upload",
+        "worker-upload",
         "admin"
       ],
       "target_date": null,
@@ -23101,9 +23105,18 @@
       "template_version": "1.0.0",
       "title": "記事を出来上がりの見た目のまま編集できるブロックエディター",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:31:08Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (文書が参照する既存型契約の同定に破れが無いことを静的に確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P01 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23125,12 +23138,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [],
       "domain": "documentation",
       "evaluation_status": "pass",
@@ -23144,9 +23157,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "feat-article-block-editor の受入7件 (A1-A7) を実装着手前に一意で検証可能な要求ベースラインへ確定し、19種の断片カタログ・拡張 Markdown ⇄ ProseNode 木の相互変換規約・Worker API 画像アップロード契約 (pending 予約→R2 put→ready 確定、8 MiB 上限・マジックバイト検査・presigned PUT 不使用) ・公開ページ描画の許可リストの範囲を、実装済みの `prose-node.ts` と `article-images/route.ts` の実測に接地させて決める。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P01",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23160,17 +23174,29 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "feat-article-block-editor の受入7件 (A1-A7) を実装着手前に一意で検証可能な要求ベースラインへ確定する。19種の断片カタログ (現行10種 + code/table/image-row/toggle/checklist/embed/cta-button/link-card/columns の追加9種) の名称・属性・保存形式表現、拡張Markdown文字列 (prose-format.ts) と ProseNode 木の相互変換規約、画像参照の正本 (Editorial 側 D1 の article_image テーブル) と同一生成元 Worker API (`POST /api/article-images`) によるアップロード契約、公開ページ描画の許可リストの範囲を、実装済みの `src/domain/blogops/prose-node.ts` (19種・373行) と `src/app/api/article-images/route.ts` (138行) の実測に接地させて決める。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-article-block-editor/requirements-baseline.md",
         "docs/spec/feat-article-block-editor/block-catalog-decisions.md",
         "docs/spec/feat-article-block-editor/image-upload-decisions.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/requirements-baseline.md (A1-A7 の検証可能化と要件ID対応表); docs/spec/feat-article-block-editor/block-catalog-decisions.md (19種の断片カタログと各種属性・保存形式表現の決定と根拠); docs/spec/feat-article-block-editor/image-upload-decisions.md (画像参照の正本所在・Worker API 契約の確定記録と 2026-09-06 承認の引用・許可リストの範囲)",
+        "Consumed artifacts: features/feat-article-block-editor.md, features/feat-article-block-editor.context.json, system-spec/ui-ux.md, system-spec/frontend.md, system-spec/backend.md, system-spec/database.md, system-spec/infrastructure.md, system-spec/security.md, src/domain/blogops/prose-node.ts, src/domain/blogops/article-image-policy.ts, src/app/api/article-images/route.ts, src/db/schema.ts",
+        "Write scope/touches: docs/spec/feat-article-block-editor/requirements-baseline.md, docs/spec/feat-article-block-editor/block-catalog-decisions.md, docs/spec/feat-article-block-editor/image-upload-decisions.md"
+      ],
+      "scope_out": [
+        "feat-article-block-editor の scope_out (記事本文の AI 生成、SEO/AEO の構造化データ導出と公開時点検、公開ページ側の読者導線・目次・サイドバー配置、管理画面全体の単一用途画面再編、複数媒体向け原稿の生成ハーネス、複数人の同時編集と競合解決、記事のバージョン履歴 UI と差分表示、商品データそのものの取込・更新) に該当する変更",
+        "src/domain/authoring/blog-template.ts の ExpressionBlock レジストリと src/application/adapters/expression-article-block.ts の型・変換ロジックの書き換え (表現ブロックと記事版面ブロックの意味を統合しない)",
+        "参考ブログの文章・素材・デザインの複製",
+        "presigned URL の発行、ブラウザから R2 への直接 PUT、R2 write CORS の採用検討 (2026-09-06 承認により採用しないことが確定している)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-01-requirements.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-01-requirements.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23183,11 +23209,20 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "19種断片カタログと保存形式・画像参照の要求ベースライン確定",
+      "title": "19種断片カタログと保存形式・Worker API画像契約の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:12.764974Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (文書が参照する既存型契約の同定に破れが無いことを静的に確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P02 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23209,12 +23244,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P01"
       ],
@@ -23230,9 +23265,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P01 の要求に沿って、節/断片2層の UI 表現契約、`/` 挿入メニューの19種構成、19種それぞれの編集面コンポーネント構成と公開ページ描画部品の共有方式、拡張 Markdown ⇄ ProseNode 木の変換規則の追加分、商品検索結果選択 UI の契約、Worker API `POST /api/article-images` と Editorial D1 の画像参照テーブル (DB-IMAGE-01〜03) の設計、公開ページ許可リストレンダラの設計を確定する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P02",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23246,17 +23282,29 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "P01 の要求に沿って、節 (外側・ArticleBlockKind・見出し2固定) / 断片 (内側・ProseNode・見出し3/4) 2層の UI 表現契約、`/` 挿入メニューの19種構成と5群分類 (文章/一覧/見せ方/データ/差し込み)、19種それぞれの編集面コンポーネント構成と公開ページ描画部品の共有方式、拡張 Markdown ⇄ ProseNode 木の変換規則の追加分、商品検索結果選択 UI の契約、同一生成元 Worker API (`POST /api/article-images`) による画像アップロード経路の設計と Editorial D1 の画像参照テーブル (DB-IMAGE-01〜03) の設計、公開ページ許可リストレンダラの設計を確定する。presigned PUT 発行 API は設計対象に含めない。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-article-block-editor/architecture.md",
         "docs/spec/feat-article-block-editor/data-model.md",
         "docs/spec/feat-article-block-editor/api-contract.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/architecture.md (2層 UI 表現・19種コンポーネント構成・許可リストレンダラの設計); docs/spec/feat-article-block-editor/data-model.md (article_image テーブルと ProseNode 拡張の列/属性定義・lifecycle 状態機械); docs/spec/feat-article-block-editor/api-contract.md (Worker API `POST /api/article-images` の契約と商品検索連携の契約、presigned PUT 不採用の根拠記録)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/requirements-baseline.md, docs/spec/feat-article-block-editor/block-catalog-decisions.md, docs/spec/feat-article-block-editor/image-upload-decisions.md, src/presentation/prose/prose-editor.tsx, src/presentation/prose/prose-body.tsx, src/app/api/article-images/route.ts, src/infrastructure/platform/article-image-r2.ts, src/domain/blogops/article-image-policy.ts, src/db/schema.ts, src/application/ports/product.ts",
+        "Write scope/touches: docs/spec/feat-article-block-editor/architecture.md, docs/spec/feat-article-block-editor/data-model.md, docs/spec/feat-article-block-editor/api-contract.md"
+      ],
+      "scope_out": [
+        "feat-article-block-editor の scope_out (記事本文の AI 生成、SEO/AEO の構造化データ導出と公開時点検、公開ページ側の読者導線・目次・サイドバー配置、管理画面全体の単一用途画面再編、複数媒体向け原稿の生成ハーネス、複数人の同時編集と競合解決、記事のバージョン履歴 UI と差分表示、商品データそのものの取込・更新) に該当する変更",
+        "presigned PUT 発行 API の設計 (採用しないことが確定しており、設計対象に含めない)",
+        "ブラウザ向け R2 write CORS 設定の設計 (同上)",
+        "src/presentation/site/expression-block-view.tsx が担う表現ブロック描画の変更"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-02-architecture.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-02-architecture.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23269,11 +23317,20 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "ブロックエディター描画・保存契約とR2アップロード経路の設計",
+      "title": "ブロックエディター描画・保存契約とWorker API画像アップロード経路の設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:13.532223Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (文書が参照する既存型契約の同定に破れが無いことを静的に確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: docs/spec/feat-article-block-editor/design-review.md の存在と4点チェックリスト全件 PASS の記録"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23295,12 +23352,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P02"
       ],
@@ -23316,9 +23373,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P02 の設計成果物に presigned PUT 残滓が無いこと・Worker API 契約が4層で一貫していること・19種カタログが要求と整合していること・SEC-REQ-006〜009 が各層に割り当てられていることを独立に確認し、findings を design-review.md に記録する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P03",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23332,15 +23390,26 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "P02 の設計成果物 (architecture.md / data-model.md / api-contract.md) を独立した目線でレビューし、(1) presigned PUT・ブラウザ直接 PUT・R2 write CORS・signed URL への言及が設計文書に残っていないこと、(2) Worker API の認可・8 MiB 上限・マジックバイト検査・状態機械・same-origin 検証が設計文書で一貫していること、(3) 節/断片 2層モデルと19種カタログが要求 (P01 成果物) と整合していること、(4) セキュリティ要件 (SEC-REQ-006〜009) が設計の各層に割り当てられていること、の4点を確認し、findings を記録した design-review.md を生成する。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-article-block-editor/design-review.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/design-review.md (4点のレビューチェックリスト結果・findings・差し戻し判定または承認の記録)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/architecture.md, docs/spec/feat-article-block-editor/data-model.md, docs/spec/feat-article-block-editor/api-contract.md, docs/spec/feat-article-block-editor/requirements-baseline.md, system-spec/security.md",
+        "Write scope/touches: docs/spec/feat-article-block-editor/design-review.md"
+      ],
+      "scope_out": [
+        "P02 の設計文書の書き直し (findings を P02 差し戻しとして記録し、P02 の write_scope で修正する。P03 は設計文書を上書きしない)",
+        "src の実装コードの変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-03-design-review.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-03-design-review.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23353,11 +23422,20 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "設計レビューと既存表現ブロック境界の独立検証",
+      "title": "設計レビュー — Worker API契約とpresigned PUT残滓の不在確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:14.311373Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (文書が参照する既存型契約の同定に破れが無いことを静的に確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: docs/spec/feat-article-block-editor/test-design.md の存在と A1-A7 対応表・Worker API 境界値・回帰スイート指定の記載"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23379,12 +23457,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P03"
       ],
@@ -23400,9 +23478,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "A1-A7 の各項目に対して最低1件の落とせるテストケースを対応づけ、Worker API の画像アップロード境界値 (8 MiB 上限・マジックバイト検査・認可・same-origin・状態機械) を含む境界値ケースを列挙し、既存回帰スイートを名前で指定する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P04",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23416,15 +23495,26 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "A1-A7 の各項目に対して最低1件の落とせるテストケースを対応づけ、19種の断片それぞれの挿入・編集・公開描画、見出しレベル固定の挿入・移動・削除・貼り付け全操作、商品検索 0件/複数件、Worker API 画像アップロードの境界値 (8 MiB 以下成功・8 MiB 超過拒否・許可外 MIME 拒否・MIME 申告と実バイト不一致拒否・未認証拒否・same-origin 違反拒否・記事所属不正拒否・pending→R2 put 失敗時の挙動・R2 put→ready 確定失敗時の挙動)、許可リスト外タグ混入時の無害化、既存 10種の断片で書かれた記事の読み込みと再保存の不変性を境界値として列挙し、既存回帰スイートを名前で指定する。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-article-block-editor/test-design.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/test-design.md (A1-A7 対応表・Worker API 境界値ケース・回帰スイート指定)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/architecture.md, docs/spec/feat-article-block-editor/data-model.md, docs/spec/feat-article-block-editor/api-contract.md, docs/spec/feat-article-block-editor/design-review.md",
+        "Write scope/touches: docs/spec/feat-article-block-editor/test-design.md"
+      ],
+      "scope_out": [
+        "feat-article-block-editor の scope_out (記事本文の AI 生成、SEO/AEO、公開ページ側の読者導線、管理画面全体の再編、複数媒体向け原稿生成、複数人同時編集、バージョン履歴 UI、商品データ取込・更新) に該当するテストケース",
+        "presigned PUT / signed URL / ブラウザ直接 PUT / R2 write CORS のテストシナリオ (採用しないことが確定しており、テスト対象に含めない)",
+        "P05 実装コードそのもの (テスト設計文書のみを書く)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-04-test-design.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-04-test-design.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23437,11 +23527,22 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "受入7件に対応するテスト設計",
+      "title": "受入7件に対応するテスト設計 (Worker API境界値含む)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:15.077918Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `pnpm vitest run --reporter=dot` (P04 が指定した回帰スイートを含む全量)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: P05 の 成果物 section に記載した produced artifacts のパス"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23463,12 +23564,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P04"
       ],
@@ -23484,9 +23585,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P02 の設計と P04 のテスト設計に沿って、ProseNode を19種へ拡張・確認し、prose-editor.tsx を WYSIWYG へ置き換え、商品カードを検索結果選択のみで挿入できるようにし、画像を同一生成元 Worker API への送信でアップロードできるようにし (presigned PUT・ブラウザ直接 PUT・R2 write CORS は実装しない)、公開ページの描画を許可リストで絞り込む。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P05",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23500,6 +23602,7 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "P02 の設計と P04 のテスト設計に沿って、ProseNode を19種へ拡張し (既に `prose-node.ts` で実装済みの場合は確認・補完)、`prose-editor.tsx` を入力欄集約から WYSIWYG へ置き換え、商品カードを検索結果選択のみで挿入できるようにし、画像を同一生成元 Worker API (`POST /api/article-images`) への multipart/form-data 送信でアップロードできるようにし (presigned PUT・ブラウザ直接 PUT・R2 write CORS は実装しない)、公開ページの描画を許可リストで絞り込む。P04 が指定したテストケースを緑化することを完了条件とする。",
       "related_nodes": [],
       "resource_scope": [
         "src/domain/blogops",
@@ -23518,11 +23621,23 @@
         "worker-entry.js",
         "tests"
       ],
+      "scope_in": [
+        "Produced artifacts: src/domain/blogops/ (ProseNode 19種の確認・prose-format.ts の相互変換完成); src/presentation/prose/ (prose-editor.tsx 等の WYSIWYG 化・商品検索選択 UI・画像 Worker API 送信 UI); src/presentation/admin/publish/ (節/断片2層の UI 表現); src/application/ports/ と src/application/usecases/ (画像参照 port/usecase・商品検索 usecase の確認・補完); src/infrastructure/persistence/d1/ (article-image-repository の確認・補完); src/db/schema.ts と drizzle/ (article_image テーブルとマイグレーションの確認・補完); src/app/api/ (Worker API ルートハンドラの確認・補完・presigned PUT エンドポイントの不在確認); src/app/s/ (公開ページの許可リストレンダラ); 上記に対応する tests/ 配下のテスト",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/architecture.md, docs/spec/feat-article-block-editor/data-model.md, docs/spec/feat-article-block-editor/api-contract.md, docs/spec/feat-article-block-editor/test-design.md, docs/spec/feat-article-block-editor/block-catalog-decisions.md, docs/spec/feat-article-block-editor/image-upload-decisions.md, src/application/ports/product.ts",
+        "Write scope/touches: src/domain/blogops, src/domain/authoring/article-structure.ts, src/presentation/prose, src/presentation/admin/publish, src/application/ports, src/application/usecases, src/infrastructure/persistence/d1, src/infrastructure, src/db/schema.ts, drizzle, src/app/admin, src/app/api, src/app/s, worker-entry.js, tests"
+      ],
+      "scope_out": [
+        "feat-article-block-editor の scope_out (記事本文の AI 生成、SEO/AEO の構造化データ導出と公開時点検、公開ページ側の読者導線・目次・サイドバー配置、管理画面全体の単一用途画面再編、複数媒体向け原稿の生成ハーネス、複数人の同時編集と競合解決、記事のバージョン履歴 UI と差分表示、商品データそのものの取込・更新) に該当する変更",
+        "presigned PUT 発行 API・ブラウザ向け R2 write CORS 設定・signed URL 生成の実装 (採用しないことが確定している)",
+        "src/domain/authoring/blog-template.ts の ExpressionBlock レジストリと src/application/adapters/expression-article-block.ts の型・変換ロジックの書き換え",
+        "src/presentation/site/expression-block-view.tsx が担う表現ブロック描画の変更",
+        "参考ブログの文章・素材・デザインの複製"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-05-implementation.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-05-implementation.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23535,11 +23650,22 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "ブロックエディターWYSIWYG化とR2直接アップロード・許可リスト描画の実装",
+      "title": "ブロックエディターWYSIWYG化とWorker API画像アップロード・許可リスト描画の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:15.836446Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `pnpm vitest run --reporter=dot` (全量 0件失敗)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor`",
+        "Required evidence: docs/spec/feat-article-block-editor/test-run.md の存在と全件緑の記録"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23561,12 +23687,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P05"
       ],
@@ -23582,9 +23708,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P05 の実装に対して P04 が設計したテストスイート全量を実行し、回帰・境界値・Worker API シナリオの全ケースが緑であることを確認する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P06",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23598,15 +23725,27 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "P05 の実装に対して P04 が設計したテストスイート全量を実行し、回帰・境界値・Worker API シナリオの全ケースが緑であることを確認する。失敗ケースを P05 差し戻しとして記録し、全件緑になるまで P05 との往復を行う。P06 の完了条件は `pnpm vitest run --reporter=dot` が 0件失敗で終了することである。",
       "related_nodes": [],
       "resource_scope": [
-        "docs/spec/feat-article-block-editor/test-run.md"
+        "docs/spec/feat-article-block-editor/test-run.md",
+        "tests"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/test-run.md (テスト実行結果サマリ・失敗ケース差し戻し記録・全件緑の確認)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/test-design.md, src (P05 実装全量)",
+        "Write scope/touches: docs/spec/feat-article-block-editor/test-run.md, tests (失敗修正分のみ)"
+      ],
+      "scope_out": [
+        "P05 実装コードの変更 (テスト結果に基づく差し戻しは P05 の write_scope で行う)",
+        "presigned PUT シナリオのテスト実行 (存在しないことを確認するのみ)",
+        "P04 設計文書の変更"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-06-test-run.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-06-test-run.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23619,11 +23758,21 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "テスト全量実行と回帰0件の確認",
+      "title": "テスト実行 — 実装全量の回帰・境界値・Worker APIシナリオ",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:16.593646Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm vitest run --reporter=dot`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor`",
+        "Required evidence: docs/spec/feat-article-block-editor/acceptance.md の存在と A1-A7 全件 PASS の記録"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23645,12 +23794,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P06"
       ],
@@ -23666,9 +23815,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "feat-article-block-editor の受入7件 (A1-A7) すべてに対して PASS の証跡を取得し、acceptance.md へ記録する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P07",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23682,15 +23832,26 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "feat-article-block-editor の受入7件 (A1-A7) すべてに対して PASS の証跡を取得し、acceptance.md へ記録する。A1 (編集面に記法の生テキストが現れない) から A7 (既存 10種記事の不変性) までを、スクリーンショット・E2E ログ・自動テスト結果のいずれか1種以上で裏付ける。画像アップロードの受入項目 (A5) は Worker API 経由の添付であり、presigned URL・ブラウザ直接 PUT・R2 write CORS の経路が存在しないことも証跡に含める。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-article-block-editor/acceptance.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/acceptance.md (A1-A7 各項目の PASS 判定と証跡ファイル参照)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/test-run.md, features/feat-article-block-editor.context.json (acceptance 定義)",
+        "Write scope/touches: docs/spec/feat-article-block-editor/acceptance.md"
+      ],
+      "scope_out": [
+        "P05/P06 実装コードの変更",
+        "A1-A7 の定義変更 (feat-article-block-editor.context.json の acceptance を変更しない)",
+        "presigned URL・ブラウザ直接 PUT・R2 write CORS の動作確認 (存在しないことの確認のみ)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-07-acceptance.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-07-acceptance.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23703,11 +23864,22 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "受入7件の受け入れ判定",
+      "title": "受入確認 — A1-A7 全件のPASS証跡取得",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:17.366700Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `pnpm vitest run --reporter=dot`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor`",
+        "Required evidence: P08 の 成果物 section に記載した produced artifacts のパスと、退行テスト全件 PASS の記録"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23729,12 +23901,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P05"
       ],
@@ -23750,9 +23922,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P05 の実装の技術的負債を整理し、既存 10種記事が新しい parseProse で壊れずに読み込め、保存し直しても内容が変わらないことを確認する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P08",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23766,18 +23939,31 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "P05 の実装で発生した技術的負債を整理し、既存 10種の断片で書かれた記事が新しい `parseProse` で壊れずに読み込め、保存し直しても内容が変わらないこと (BE-PROSE-01/03、受入 A7) を、既存記事 fixture 全件を使った退行テストで確認する。保存形式 (拡張 Markdown 文字列) を変えていないため移行スクリプトが不要であることを記録する。",
       "related_nodes": [],
       "resource_scope": [
         "src/domain/blogops",
-        "drizzle",
-        "docs/spec/feat-article-block-editor/migration-compatibility.md",
+        "src/presentation/prose",
+        "src/application",
+        "src/infrastructure/persistence/d1",
         "tests"
       ],
+      "scope_in": [
+        "Produced artifacts: src/domain/blogops/ (リファクタリング済み・退行テスト確認); src/presentation/prose/ (リファクタリング済み); src/application/ (リファクタリング済み); src/infrastructure/persistence/d1/ (リファクタリング済み); tests/ (既存10種記事 fixture を使った退行テストの追加)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/test-design.md, docs/spec/feat-article-block-editor/test-run.md",
+        "Write scope/touches: src/domain/blogops, src/presentation/prose, src/application, src/infrastructure/persistence/d1, tests"
+      ],
+      "scope_out": [
+        "振る舞いを変えるリファクタリング (振る舞いを変えずに整理する)",
+        "保存形式 (拡張 Markdown 文字列) の変更 (変えないことが決定済み)",
+        "移行スクリプトの実装 (不要であることを記録するのみ)",
+        "presigned PUT / signed URL / R2 CORS のコードが残っている場合はここで除去する (P09 の QA 前に除去を完了させる)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-08-refactoring-migration.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-08-refactoring-migration.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23790,11 +23976,21 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "既存記事マイグレーションと保存形式の前方互換確認",
+      "title": "リファクタリング・既存記事移行互換確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:18.124874Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm vitest run --reporter=dot`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor`",
+        "Required evidence: docs/spec/feat-article-block-editor/qa-report.md の存在と SEC-REQ-006〜009 の PASS 記録・presigned PUT 不在の静的検査結果"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23816,12 +24012,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P08"
       ],
@@ -23837,9 +24033,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P08 のリファクタリング済み実装に対して Worker API 認可境界の検証・SEC-REQ-006〜009 の PASS 確認・presigned PUT 不在の静的確認・パフォーマンス計測を行い、qa-report.md に findings を記録する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P09",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23853,16 +24050,26 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "P08 のリファクタリング済み実装に対して、Worker API 認可境界の検証 (SEC-REQ-006〜008)、許可リスト描画の無害化検証 (SEC-REQ-009)、パフォーマンス計測を行い、qa-report.md に findings を記録する。特に、presigned PUT 発行エンドポイント・ブラウザ向け R2 write CORS 設定・signed URL 生成コードが実装に含まれていないことを静的検査とコードレビューで確認する。SEC-ACC-006 (presigned URL の再利用シナリオ) は本実装で採用していないため検証対象外とし、代わりに Worker API の same-origin 検証・認可拒否・マジックバイト拒否の3シナリオを検証する。",
       "related_nodes": [],
       "resource_scope": [
-        "docs/spec/feat-article-block-editor/quality-assurance.md",
-        "tests"
+        "docs/spec/feat-article-block-editor/qa-report.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/qa-report.md (Worker API 認可境界の検証結果・SEC-REQ-006〜009 の PASS/FAIL・presigned PUT 不在確認・パフォーマンス計測・findings)",
+        "Consumed artifacts: src (P08 リファクタリング済み実装全量), system-spec/security.md, docs/spec/feat-article-block-editor/design-review.md",
+        "Write scope/touches: docs/spec/feat-article-block-editor/qa-report.md"
+      ],
+      "scope_out": [
+        "P08 実装コードの変更 (findings は P10 で対応する)",
+        "SEC-ACC-006 (presigned URL の再利用シナリオ) の検証 (本実装に presigned URL が存在しないため対象外)",
+        "presigned PUT / signed URL / R2 write CORS の動作検証 (存在しないことの静的確認のみ)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-09-quality-assurance.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-09-quality-assurance.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23875,11 +24082,22 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "品質保証と非機能検査",
+      "title": "品質保証 — Worker API認可境界・セキュリティ・パフォーマンス検証",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:18.889169Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck`",
+        "Automated commands: `pnpm run lint`",
+        "Automated commands: `pnpm vitest run --reporter=dot`",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor`",
+        "Required evidence: docs/spec/feat-article-block-editor/final-review.md の存在と全 findings 解決確認の記録"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23901,12 +24119,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P09"
       ],
@@ -23922,9 +24140,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P09 の qa-report.md に記録された findings を解決し、final-review.md に解決確認を記録する。全テストが 0件失敗で通ることを確認する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P10",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -23938,15 +24157,26 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "P09 の qa-report.md に記録された findings を解決し、final-review.md に解決確認を記録する。解決の内容が実装変更を伴う場合は write_scope 内で修正し、`pnpm vitest run` が 0件失敗で通ることを確認する。findings が 0件の場合は P09 の PASS を確認して final-review.md に記録し、本 phase を完了とする。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-article-block-editor/final-review.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/final-review.md (P09 findings の解決確認記録・全テスト緑の再確認)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/qa-report.md",
+        "Write scope/touches: docs/spec/feat-article-block-editor/final-review.md, src (P09 findings 修正分のみ), tests (P09 findings 修正分のみ)"
+      ],
+      "scope_out": [
+        "P09 が findings として記録していない項目の修正 (スコープを qa-report.md の findings に限定する)",
+        "presigned PUT / signed URL / R2 write CORS の実装 (採用しないことが確定している)",
+        "system-spec への書き戻し (P13 が所有する)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-10-final-review.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-10-final-review.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -23961,9 +24191,17 @@
       "template_version": "1.1.0",
       "title": "最終レビューと残課題の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:19.664464Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor`",
+        "Required evidence: docs/spec/feat-article-block-editor/evidence.md の存在と17件の証跡カバレッジの記録"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -23985,12 +24223,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P07",
         "SYS-ARTICLE-BLOCK-EDITOR-P09"
@@ -24007,9 +24245,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "P07 の acceptance.md と P09 の qa-report.md を統合し、A1-A7 PASS 証跡・Worker API 画像ライフサイクル記録・SEC-REQ-006〜009 PASS 記録・DB-IMAGE-01〜03 受入証跡・OPS-REQ-008〜010 掃除ジョブ設計根拠を含む evidence.md を生成する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P11",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -24023,15 +24262,26 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "P07 の acceptance.md と P09 の qa-report.md を統合し、evidence.md として本 feature の最終エビデンスパッケージを生成する。エビデンスには A1-A7 の PASS 証跡 (スクリーンショット参照・テスト実行結果)、Worker API 画像ライフサイクル記録 (pending 予約→R2 put→ready 確定の D1 遷移ログ、DB-IMAGE-01〜03 の受入証跡、OPS-REQ-008〜010 の掃除ジョブ設計の根拠記録)、SEC-REQ-006〜009 の PASS 記録を含める。",
       "related_nodes": [],
       "resource_scope": [
         "docs/spec/feat-article-block-editor/evidence.md"
       ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/evidence.md (A1-A7 PASS 証跡・Worker API 画像ライフサイクル記録・DB-IMAGE-01〜03 受入証跡・SEC-REQ-006〜009 PASS 記録・OPS-REQ-008〜010 掃除ジョブ設計根拠・presigned PUT 不在確認)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/acceptance.md (P07), docs/spec/feat-article-block-editor/qa-report.md (P09), docs/spec/feat-article-block-editor/test-run.md (P06)",
+        "Write scope/touches: docs/spec/feat-article-block-editor/evidence.md"
+      ],
+      "scope_out": [
+        "実装コードの変更",
+        "system-spec への書き戻し (P13 が所有する)",
+        "presigned PUT のエビデンス収集 (存在しないことの確認のみ)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-11-evidence.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-11-evidence.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -24046,9 +24296,17 @@
       "template_version": "1.1.0",
       "title": "受入・品質証跡の集約と検証可能性の確保",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:20.463649Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor`",
+        "Required evidence: docs/spec/feat-article-block-editor/operations.md の存在と OPS-REQ-008〜010 全3件カバレッジの記録"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -24070,17 +24328,17 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P10",
         "SYS-ARTICLE-BLOCK-EDITOR-P11"
       ],
-      "domain": "documentation",
+      "domain": "operations",
       "evaluation_status": "pass",
       "execution_contexts": [],
       "feature_package_id": "feature-package/feat-article-block-editor",
@@ -24092,9 +24350,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "孤児画像の回収運用手順 (OPS-REQ-008〜010 対応ランブック) と管理者向け説明・移行スクリプト不要の記録を operations.md として生成する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P12",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -24108,16 +24367,27 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "孤児画像の回収運用手順 (OPS-REQ-008〜010 に対応するランブック) と管理者向けの説明文書を operations.md として生成する。画像ライフサイクル (pending 予約→R2 put→ready 確定→記事から外す→deleting→R2 delete→deleted 墓標) の各段階の説明、24時間猶予 (未参照)/30日猶予 (参照後外した) の設定根拠、掃除ジョブの実行形式 (Cron Trigger)・idempotency key・AuditLog への削除記録・失敗時の再実行手順を記載する。Worker API 経由でのアップロードに特有の途中失敗 (pending のまま残ったオブジェクト) の回収方法を明記する。",
       "related_nodes": [],
       "resource_scope": [
-        "docs/spec/feat-article-block-editor/operations.md",
-        "docs/spec/feat-article-block-editor/documentation.md"
+        "docs/spec/feat-article-block-editor/operations.md"
+      ],
+      "scope_in": [
+        "Produced artifacts: docs/spec/feat-article-block-editor/operations.md (画像ライフサイクル説明・孤児回収ランブック・掃除ジョブの実行形式・猶予期間設定根拠・途中失敗 (pending残存) の回収方法・管理者向け説明・移行スクリプト不要の記録)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/evidence.md (P11), docs/spec/feat-article-block-editor/final-review.md (P10), system-spec/maintenance-ops.md, src/domain/blogops/article-image-policy.ts, src/infrastructure/platform/article-image-reclaim.ts",
+        "Write scope/touches: docs/spec/feat-article-block-editor/operations.md"
+      ],
+      "scope_out": [
+        "実装コードの変更",
+        "system-spec への書き戻し (P13 が所有する)",
+        "掃除ジョブの実装 (operations.md への手順記載のみ。実装は別 feature が所有する)",
+        "presigned PUT / signed URL / R2 write CORS に関する運用手順 (採用していないため不要)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-12-documentation-operations.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-12-documentation-operations.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -24130,11 +24400,20 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "運用手順と文書化",
+      "title": "運用手順と文書化 — 孤児画像回収と管理者向け説明",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:21.280544Z"
     },
     {
+      "acceptance": [
+        "Automated commands: `pnpm run typecheck` (文書が参照する既存型契約の同定に破れが無いことを静的に確認する)",
+        "Automated commands: `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-article-block-editor` (本 package の C12 決定論検証を世代非依存に再実行する)",
+        "Required evidence: docs/spec/feat-article-block-editor/release.md の存在と smoke 3経路の PASS 記録・system-spec 5章への書き戻し完了の記録"
+      ],
+      "architecture_refs": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
       "artifact_kind": "task",
       "artifact_subtypes": [],
       "beads_linkage": null,
@@ -24156,12 +24435,12 @@
         "status": "in_progress"
       },
       "confirmation_evidence": {
-        "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+        "evaluated_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
         "evaluator": "system-dev-plan-evaluator",
-        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"
       },
       "confirmation_status": "confirmed",
-      "created_at": "2026-09-05T12:56:06Z",
+      "created_at": "2026-09-07T15:31:08Z",
       "depends_on": [
         "SYS-ARTICLE-BLOCK-EDITOR-P12"
       ],
@@ -24177,9 +24456,10 @@
         "mode": "local_only",
         "project_aliases": []
       },
+      "goal": "変更を dev ブランチへのマージを経て開発環境へ出し、実装で確定した19種断片カタログ・保存形式 (拡張 Markdown 文字列維持)・Worker API 画像アップロード契約 (presigned URL 不採用・8 MiB 上限・マジックバイト検査・pending→ready 状態機械) を system-spec の各章へ書き戻し、切り戻し手順を記載した release.md を生成する。",
       "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P13",
       "implementation_readiness": {
-        "checked_at": "2026-09-05T04:00:00Z",
+        "checked_at": "2026-09-07T14:20:00Z",
         "missing_sections": [],
         "status": "complete"
       },
@@ -24193,18 +24473,31 @@
       "priority": null,
       "project_id": "feature-package-feat-article-block-editor",
       "pull_request_linkages": [],
+      "purpose": "変更を dev ブランチへのマージを経て開発環境へ出し、実装で確定した19種断片カタログ・保存形式 (`decisions[].dec-article-body-storage-format` = 拡張 Markdown 文字列維持)・Worker API 画像アップロード契約 (同一生成元 Worker API・8 MiB 上限・マジックバイト検査・pending 予約→R2 put→ready 確定・presigned URL 不採用) を system-spec の各章 (frontend.md / backend.md / database.md / infrastructure.md / security.md) へ書き戻し、切り戻し手順を記載した release.md を生成する。",
       "related_nodes": [],
       "resource_scope": [
         "system-spec/frontend.md",
         "system-spec/backend.md",
         "system-spec/database.md",
+        "system-spec/infrastructure.md",
         "docs/spec/feat-article-block-editor/release.md"
       ],
+      "scope_in": [
+        "Produced artifacts: system-spec/frontend.md への書き戻し (FRONT-REQ-005〜008 の19種断片カタログ確定); system-spec/backend.md への書き戻し (BE-PROSE-01〜03・BE-IMAGE-01 の Worker API 契約確定); system-spec/database.md への書き戻し (DB-IMAGE-01〜03 の lifecycle 状態機械確定); system-spec/infrastructure.md への書き戻し (INF-IMG-01〜05 の Worker API 方式確定); system-spec/security.md への書き戻し (SEC-REQ-006〜008 の Worker API 認可・マジックバイト・same-origin 制約の確定、presigned URL 不採用の記録); docs/spec/feat-article-block-editor/release.md (リリース記録・開発環境疎通確認・切り戻し手順)",
+        "Consumed artifacts: docs/spec/feat-article-block-editor/evidence.md (P11), docs/spec/feat-article-block-editor/operations.md (P12)",
+        "Write scope/touches: system-spec/frontend.md, system-spec/backend.md, system-spec/database.md, system-spec/infrastructure.md, system-spec/security.md, docs/spec/feat-article-block-editor/release.md"
+      ],
+      "scope_out": [
+        "feat-article-block-editor の scope_out (記事本文の AI 生成、SEO/AEO の構造化データ導出と公開時点検、公開ページ側の読者導線・目次・サイドバー配置、管理画面全体の単一用途画面再編、複数媒体向け原稿の生成ハーネス、複数人の同時編集と競合解決、記事のバージョン履歴 UI と差分表示、商品データそのものの取込・更新) に該当する変更",
+        "実装コードの変更 (system-spec への書き戻しと release.md の生成のみを行う)",
+        "presigned URL / ブラウザ直接 PUT / R2 write CORS の system-spec への追記 (採用していないため追記しない)",
+        "system-spec 内の他 feature の要件との整合 (本 feature の担当範囲のみを書き戻す)"
+      ],
       "source_lineage": {
-        "imported_at": "2026-09-05T12:56:06Z",
+        "imported_at": "2026-09-07T15:31:08Z",
         "origin_kind": "system-dev-planner",
-        "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
-        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-13-release-deploy.md",
+        "source_digest": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/task-specs/phase-13-release-deploy.md",
         "source_plugin": "system-dev-planner",
         "source_version": "0.1.0"
       },
@@ -24217,9 +24510,9 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.1.0",
-      "title": "開発環境へのリリースとsystem-specへの書き戻し",
+      "title": "開発環境へのリリースとWorker API決定のsystem-specへの書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T12:56:06Z"
+      "updated_at": "2026-09-07T15:51:22.044600Z"
     },
     {
       "acceptance": [
@@ -24323,9 +24616,9 @@
         "権限モデルそのもの (既存 workspace 権限)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -24345,7 +24638,7 @@
       "template_version": "1.0.0",
       "title": "ブログ単位運営コンソールのアーキテクチャ",
       "tracker_binding": "none",
-      "updated_at": "2026-09-04T00:00:00Z"
+      "updated_at": "2026-09-07T15:54:20.326826Z"
     },
     {
       "acceptance": [
@@ -24462,9 +24755,9 @@
         "残数・優先度の提示順序 (feat-blog-scoped-admin-console)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -24484,7 +24777,7 @@
       "template_version": "1.0.0",
       "title": "回答エンジン向けの回答単位整備と引用可能化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T02:27:58.830900Z"
+      "updated_at": "2026-09-07T15:54:21.127899Z"
     },
     {
       "acceptance": [
@@ -24603,9 +24896,9 @@
         "ドメイン状態の定期監視と期限警告の掲出順序 (feat-blog-scoped-admin-console)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -24625,7 +24918,7 @@
       "template_version": "1.0.0",
       "title": "ブログごとの独自ドメイン接続と一式管理",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T02:28:24.476655Z"
+      "updated_at": "2026-09-07T15:54:21.941192Z"
     },
     {
       "acceptance": [
@@ -24738,9 +25031,9 @@
         "示唆エンジンのモデル (feat-analytics-insight)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -24760,7 +25053,7 @@
       "template_version": "1.0.0",
       "title": "ブログ・記事の日次指標ロールアップ",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T02:28:49.037614Z"
+      "updated_at": "2026-09-07T15:54:22.761514Z"
     },
     {
       "acceptance": [
@@ -24883,9 +25176,9 @@
         "ブログの作成・削除そのもの (feat-blog-ops-crud)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -24904,7 +25197,7 @@
       "template_version": "1.0.0",
       "title": "ブログ単位の管理コンソールへの再編",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T02:29:14.474337Z"
+      "updated_at": "2026-09-07T15:54:23.582036Z"
     },
     {
       "acceptance": [
@@ -25021,9 +25314,9 @@
         "既存の汎用イベント/KPI 基盤そのもの (feat-analytics-insight)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -25043,7 +25336,7 @@
       "template_version": "1.0.0",
       "title": "読者行動の計測とヒートマップ可視化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T02:29:38.781419Z"
+      "updated_at": "2026-09-07T15:54:24.373341Z"
     },
     {
       "acceptance": [
@@ -25162,9 +25455,9 @@
         "診断結果の残数表示と提示順序 (feat-blog-scoped-admin-console)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e",
+        "source_digest": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
         "source_path": "system-spec/index.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -25183,7 +25476,7 @@
       "template_version": "1.0.0",
       "title": "記事の SEO 診断と下書きへの反映",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T02:30:02.398664Z"
+      "updated_at": "2026-09-07T15:54:25.202355Z"
     },
     {
       "acceptance": [

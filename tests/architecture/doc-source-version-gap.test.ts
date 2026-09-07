@@ -6,6 +6,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  declaredSourceTargets,
+  EMPTY_INVENTORY_DELTA,
+  inventoryDelta,
+  SOURCE_TARGET_FLOOR,
+} from "./spec-source-inventory";
 
 /**
  * 「最新ドキュメント出典」の欄が、欄の名前どおりの値を持っているか。
@@ -76,44 +82,11 @@ const ROOT = process.cwd();
 const SPEC_DIR = "system" + "-spec";
 
 /**
- * 章 → その章が宣言する出典対象。**1 本とは限らない。**
- *
- * 旧版はここを 1 章 1 本と決め打ちしていた。`maintenance-ops` が 4 本になった日、
- * 決め打ちのほうが折れた——**固定していたのは事実ではなく、当時の形だった。**
- * 章は宣言した対象以外も持ってよい。**足りないことだけを赤にする。**
+ * 2026-09-06: 固定 21 行では、正しく追加された R2 overview まで不具合になる。
+ * 全 22 対象の名前を床として保持し、実際に検査する集合は targets[] と照合する。
+ * 追加は自動的に全件検査へ入り、欠落・同数での置換・重複は赤になる。
  */
-const CHAPTER_TARGETS = {
-  auth: ["better-auth"],
-  backend: ["drizzle-orm"],
-  database: ["cloudflare-d1"],
-  frontend: ["nextjs"],
-  infrastructure: ["cloudflare-workers", "cloudflare-for-saas", "cloudflare-r2"],
-  "maintenance-ops": ["google-sre", "vitest", "github-actions", "stryker-mutator"],
-  security: ["owasp-asvs"],
-  "ui-ux": ["apple-hig"],
-} as const;
-
-/**
- * 章別の出典本数の実測 (2026-09-04)。
- *
- * **前提ではなく測定値として置く。**旧版はこれを 1 と決め打ちし、増えた日に
- * 試験ファイルごと沈黙した。増減はここが赤くなって知らせる。
- *
- * 2026-09-03 に infrastructure が 1 → 3 になった。C08 の鮮度監査が、
- * 独自ドメイン (`cloudflare-for-saas`) と画像の保管 (`cloudflare-r2`) を
- * 確定質疑が依拠しているのに `targets[]` の外に置いていたと指摘し、
- * 2 本が取得対象へ入ったため。**この増加は見えてよい増加である。**
- */
-const EXPECTED_ROW_COUNTS: Record<string, number> = {
-  auth: 1,
-  backend: 4,
-  database: 1,
-  frontend: 5,
-  infrastructure: 3,
-  "maintenance-ops": 4,
-  security: 1,
-  "ui-ux": 2,
-};
+const CHAPTERS = Object.keys(SOURCE_TARGET_FLOOR);
 
 /** 版番号ではなく日付が書かれている、という判定。`1.6.29` を日付と読まないこと。 */
 function looksLikeDate(version: string): boolean {
@@ -169,10 +142,10 @@ type Reference = {
   freshness_source: string | null;
 };
 
-function references(): Map<string, Reference> {
+function references(): Reference[] {
   const raw = readFileSync(join(ROOT, `${SPEC_DIR}/fetched-references.json`), "utf8");
   const parsed = JSON.parse(raw) as { references: Reference[] };
-  return new Map(parsed.references.map((r) => [r.target_id, r]));
+  return parsed.references;
 }
 
 /**
@@ -214,28 +187,43 @@ function driftBetween(rows: readonly Row[], refs: Map<string, Reference>): strin
   return drifted;
 }
 
-const CHAPTERS = Object.keys(CHAPTER_TARGETS);
-
 describe("最新ドキュメント出典の欄が欄名どおりの値を持っているか", () => {
   const rowsByChapter = new Map(CHAPTERS.map((c) => [c, sourceRows(c)]));
   const rows = CHAPTERS.flatMap((c) => rowsByChapter.get(c) ?? []);
-  const refs = references();
+  const referenceRows = references();
+  const refs = new Map(referenceRows.map((r) => [r.target_id, r]));
+  const targets = declaredSourceTargets(ROOT);
+  const targetIds = targets.map((target) => target.target_id);
+
+  function expectCompletePopulation() {
+    const floor = Object.values(SOURCE_TARGET_FLOOR).flat();
+    expect(targetIds).toEqual(expect.arrayContaining(floor));
+    expect(new Set(targetIds).size).toBe(targetIds.length);
+    expect(inventoryDelta(rows.map((r) => r.target), targetIds)).toEqual(EMPTY_INVENTORY_DELTA);
+    expect(inventoryDelta(referenceRows.map((r) => r.target_id), targetIds)).toEqual(EMPTY_INVENTORY_DELTA);
+  }
 
   it("確定 8 章が宣言した出典を 1 本も落としていない（数える対象が消えていない）", () => {
     // **欠けたものを名指しで出す。**真偽値の一覧だと、8 章が全部 false になった日に
     // 「何が消えたのか」がこの試験からは読めない（2026-08-25 に実際そうなった）。
     const missing = CHAPTERS.flatMap((c) => {
       const present = new Set((rowsByChapter.get(c) ?? []).map((r) => r.target));
-      return CHAPTER_TARGETS[c as keyof typeof CHAPTER_TARGETS]
+      return SOURCE_TARGET_FLOOR[c as keyof typeof SOURCE_TARGET_FLOOR]
         .filter((target) => !present.has(target))
         .map((target) => `${c}: ${target}`);
     });
     expect(missing).toEqual([]);
+    expectCompletePopulation();
   });
 
-  it("章別の出典本数が実測どおり——増えても減っても赤くなる", () => {
-    const counts = Object.fromEntries(CHAPTERS.map((c) => [c, (rowsByChapter.get(c) ?? []).length]));
-    expect(counts).toEqual(EXPECTED_ROW_COUNTS);
+  it("章別の出典対象が targets[] の全宣言と一致する（同数の置換も検出する）", () => {
+    expect([...new Set(targets.map((target) => target.category))].sort()).toEqual([...CHAPTERS].sort());
+    for (const chapter of CHAPTERS) {
+      const expected = targets.filter((target) => target.category === chapter).map((target) => target.target_id);
+      const actual = (rowsByChapter.get(chapter) ?? []).map((row) => row.target);
+      expect(inventoryDelta(actual, expected), chapter).toEqual(EMPTY_INVENTORY_DELTA);
+    }
+    expectCompletePopulation();
   });
 
   it("版の欄が取得日そのものになっている行は 0 件——戻れば赤くなる", () => {
@@ -243,13 +231,13 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
     // **0 件の主張が母数 0 由来でないことを、同じ it で示す。**
     // 上の等号は rows が空でも通る。読み取りが黙って全滅した日に、
     // この検査が「違反なし」と報せるのを止めている。
-    expect(rows.length).toBe(21);
+    expectCompletePopulation();
   });
 
-  it("全 21 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
+  it("宣言した全出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
     const missing = [...refs.values()].filter((r) => !r.freshness_source);
     expect(missing.map((r) => r.target_id)).toEqual([]);
-    expect(refs.size).toBe(21);
+    expectCompletePopulation();
   });
 
   /**
@@ -257,9 +245,9 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
    * 章が純関数になった今も、写しである以上ずれる道は残っている。
    * **食い違いが減っても増えても赤くする**のがこの検査の役目である。
    */
-  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 21 行）", () => {
+  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく宣言した全出典）", () => {
     expect(driftBetween(rows, refs)).toEqual([]);
-    expect(rows.length).toBe(21); // 母数。突合する相手が消えたら赤くする。
+    expectCompletePopulation();
   });
 
   /**
@@ -277,6 +265,7 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
       .filter((r) => Date.parse(r.confirmedAt) < Date.parse(r.retrievedAt))
       .map((r) => `${r.target}: 取得=${r.retrievedAt} / 最新確認=${r.confirmedAt}`);
     expect(offenders).toEqual([]);
+    expectCompletePopulation();
   });
 
   it("確認が取得より前になっている行は、いずれも本文以外を鮮度根拠にしている", () => {
@@ -287,7 +276,7 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
     // なる行が 1 つも無くなった。**期待値を消さず空配列として残す**のは、`page-declared` 以外を
     // 逃がす抜け道がここに再び開いたとき、名指しで赤くするためである。
     expect(early.map((r) => `${r.target}=${refs.get(r.target)?.freshness_source}`)).toEqual([]);
-    expect(rows.length).toBe(21); // 母数。読み取りが全滅した状態を「例外 0 件」と読ませない。
+    expectCompletePopulation();
   });
 
   /**
@@ -296,6 +285,19 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
    * 区別できない。2026-08-25 に起きたのはまさにその区別がつかない状態だった。
    */
   describe("見つける側が効いていること", () => {
+    it.each([
+      ["同数での置換", ["a", "ghost"], { missing: ["b"], unexpected: ["ghost"], duplicate: [] }],
+      ["同数での重複", ["a", "a"], { missing: ["b"], unexpected: [], duplicate: ["a"] }],
+      ["全件消失", [], { missing: ["a", "b"], unexpected: [], duplicate: [] }],
+      ["宣言漏れ", ["a", "b", "c"], { missing: [], unexpected: ["c"], duplicate: [] }],
+    ])("出典集合の %s を名指しする", (_label, actual, expected) => {
+      expect(inventoryDelta(actual, ["a", "b"])).toEqual(expected);
+    });
+
+    it("宣言へ追加した出典は既存の母数を保ったまま検査される", () => {
+      expect(inventoryDelta(["c", "a", "b"], ["a", "b", "c"])).toEqual(EMPTY_INVENTORY_DELTA);
+    });
+
     it.each(["2026-08-16", "2020-01-01"])("%s は日付として数えられる", (v) => {
       expect(looksLikeDate(v)).toBe(true);
     });

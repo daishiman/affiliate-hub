@@ -2,16 +2,16 @@
   "references": [
     {
       "target_id": "better-auth",
-      "retrieved_at": "2026-08-29T23:02:28Z",
+      "retrieved_at": "2026-09-07T13:48:07Z",
       "source_url": "https://better-auth.com/docs/introduction",
       "official_publisher": "Better Auth",
       "official_host": "better-auth.com",
-      "version": "1.7.2",
-      "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-29T23:02:28Z",
+      "version": "1.7.3",
+      "freshness_source": "publisher-registry",
+      "latest_checked_at": "2026-09-07T13:48:07Z",
       "evidence_ref": "system-spec/retrieval-evidence/better-auth.json",
-      "evidence_sha256": "db6005079d6beb8b25869d785051e14ab8767f10506b07fed2bb4f56757b0959",
-      "summary": "Better Auth 公式 Introduction。TypeScript 向け認証・認可フレームワークで、公式ページ自身の Latest Version 表示 1.7.2 を 2026-08-29 に再取得して確認した。OAuth、セッション、組織、パスキー等のプラグインと Drizzle アダプタを提供する。"
+      "evidence_sha256": "00f4fab8c840b951df98650d809a4d941bc434d437afc47f492207c446265196",
+      "summary": "Better Auth 公式 Introduction。TypeScript 向け認証・認可フレームワークで、npm registry の最新版 1.7.3 を 2026-09-07 に WebSearch で確認した。OAuth、セッション、組織、パスキー等のプラグインと Drizzle アダプタを提供する。"
     },
     {
       "target_id": "nextjs",

@@ -12,7 +12,7 @@ iteration: null
 title: "ブログ単位運営コンソールのアーキテクチャ"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-04T00:00:00Z"
+updated_at: "2026-09-07T15:54:20.326826Z"
 status: "active"
 depends_on: []
 related_nodes: ["arch-two-layer-platform","arch-system-spec-overview","spec-system-spec-index"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"0e5aa65c5941663f8eb6fa391cc451343491e0e7cc81bde96e88c25788ceeb31","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "確定済み system-spec 8 章 (auth/backend/database/frontend/infrastructure/maintenance-ops/security/ui-ux) の web 確定セルから、ブログ単位運営に要る 4 層の責務境界を抽出したアーキテクチャ文脈。"
 classification_candidates: [{"artifact_kind":"architecture","candidate_path":"architecture/arch-blog-operations-console.md","confidence":0.95}]

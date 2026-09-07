@@ -18,7 +18,7 @@
  * 3. 保存前の記事実在確認 — 台帳は `article_slug` に外部キーを持たない。
  *    ここで見ないと、打ち間違えた slug の掲載がどの一覧にも出ないまま残る
  * 4. 権限の振り分け — 読むのは `content.read`（掲載漏れは編集の判断材料）、
- *    書き換えは `site.manage`
+ *    書き換えは `site.manage`、公開記事なら `content.publish` も必要
  *
  * **金額は 1 つも出てこない。**この台帳が答えるのは「どこに出ていないか」
  * だけで、報酬は `affiliate_links` と `conversion` の担当である（不変条件 I4）。
@@ -28,7 +28,8 @@ import type {
   AffiliatePlacement,
   BlogAffiliatePlacementPort,
 } from "@/application/ports/blog-affiliate-placement";
-import type { BlogOpsRepositoryPort } from "@/application/ports/blog-ops";
+import type { BlogArticleDetail, BlogOpsRepositoryPort, SaveBlogArticleInput } from "@/application/ports/blog-ops";
+import { toAffiliatePlacementArticleBlock } from "@/application/adapters/expression-article-block";
 import { createReviewBlogPlacementsUseCase } from "@/application/usecases/authoring/review-blog-placements";
 import type { BlogArticle } from "@/domain/blogops";
 import { type ActorContext, domainError, err, ok } from "@/domain/shared";
@@ -68,6 +69,7 @@ function article(slug: string, siteSlug = "blog", status: BlogArticle["status"] 
     title: slug,
     lead: "",
     status,
+    revision: 1,
     // 既定が `published` なので、公開に必要なカテゴリを実在の slug で埋める。
     // `null` にすると「公開なのにカテゴリ未選択」という、ドメインが禁じた
     // 組み合わせを検査の前提にしてしまう。
@@ -88,6 +90,7 @@ function placement(
 
 type Fixture = {
   articles?: readonly BlogArticle[];
+  details?: readonly BlogArticleDetail[];
   ledger?: readonly AffiliatePlacement[];
 };
 
@@ -135,10 +138,16 @@ function fakes(fixture: Fixture = {}) {
     },
   };
 
-  const blogOps: Pick<BlogOpsRepositoryPort, "listArticles"> = {
+  const blogOps: Pick<BlogOpsRepositoryPort, "listArticles" | "findArticle"> = {
     async listArticles(_workspaceId, siteSlug) {
       calls.push({ op: "listArticles", arg: siteSlug });
       return ok(siteSlug === null ? articles : articles.filter((a) => a.siteSlug === siteSlug));
+    },
+    async findArticle(_workspaceId, articleId) {
+      calls.push({ op: "findArticle", arg: articleId });
+      const found = articles.find((a) => a.id === articleId);
+      return ok(fixture.details?.find((detail) => detail.article.id === articleId) ??
+        (found === undefined ? null : { article: found, blocks: [], tagIds: [] }));
     },
   };
 
@@ -187,6 +196,87 @@ describe("掲載状況 — 権限の振り分け", () => {
 
     expect(result.ok).toBe(false);
     expect(opsOf()).toEqual([]);
+  });
+
+  it.each(["save", "remove"] as const)("%s は公開権限のない AI が公開記事を変える前に断る", async (action) => {
+    const { uc, opsOf, audit } = fakes({ articles: [article("a")] });
+    const result = await uc.execute({ ...manager, isAiServiceAccount: true }, {
+      action, siteSlug: "blog", articleSlug: "a", placement: "intro",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("FORBIDDEN");
+    expect(opsOf()).not.toContain(action);
+    expect(audit.entries()).toEqual([]);
+  });
+
+  it.each(["save", "remove"] as const)("%s は site.manage を持つ AI の下書き編集を維持する", async (action) => {
+    const { uc, opsOf } = fakes({ articles: [article("a", "blog", "draft")] });
+    const result = await uc.execute({ ...manager, isAiServiceAccount: true }, {
+      action, siteSlug: "blog", articleSlug: "a", placement: "intro",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(opsOf()).toContain(action);
+  });
+
+  it.each(["save", "remove"] as const)("%s は記事の公開状態が読めなければ台帳を書き換えない", async (action) => {
+    const base = fakes();
+    const uc = createReviewBlogPlacementsUseCase({
+      ...auditParts().deps,
+      placements: base.placements,
+      blogOps: {
+        ...base.blogOps,
+        async listArticles() {
+          return err(domainError("UPSTREAM_UNAVAILABLE", "記事表が落ちています"));
+        },
+      },
+    });
+    const result = await uc.execute(manager, {
+      action, siteSlug: "blog", articleSlug: "a", placement: "intro",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(base.opsOf()).toEqual([]);
+  });
+});
+
+describe("掲載変更 — 記事集約との同期", () => {
+  it.each(["save", "remove"] as const)("%s は最新詳細の公開状態で認可する", async (action) => {
+    const base = fakes({ articles: [article("a", "blog", "draft")], details: [
+      { article: article("a"), blocks: [], tagIds: [] },
+    ] });
+    const result = await base.uc.execute({ ...manager, isAiServiceAccount: true }, {
+      action, siteSlug: "blog", articleSlug: "a", placement: "intro",
+    });
+    expect(result.ok ? null : result.error.code).toBe("FORBIDDEN");
+    expect(base.opsOf()).not.toContain(action);
+  });
+
+  it.each(["save", "remove"] as const)("%s は対象CTA以外の本文・タグ・版番を保持する", async (action) => {
+    const original = { ...article("a"), revision: 7 };
+    const target = toAffiliatePlacementArticleBlock({ workspaceId: manager.workspaceId, ...placement("a", "intro") });
+    const body = { id: "body", kind: "summary-section" as const, heading: "本文", body: "編集済み本文", position: 3 };
+    const base = fakes({ articles: [original], details: [{ article: original, blocks: [target, body], tagIds: ["tag_keep"] }] });
+    const result = await base.uc.execute(manager, {
+      action, siteSlug: "blog", articleSlug: "a", placement: "intro", ...(action === "save" ? { position: 9 } : {}),
+    });
+    expect(result.ok).toBe(true);
+    const input = base.calls.find((call) => call.op === action)?.arg as { articleUpdate: SaveBlogArticleInput };
+    expect(input.articleUpdate).toMatchObject({ id: original.id, expectedRevision: 7, tagIds: ["tag_keep"], updatedAt: NOW });
+    expect(input.articleUpdate.blocks).toContainEqual(body);
+    expect(input.articleUpdate.blocks.filter((block) => block.id === target.id)).toEqual(action === "save" ? [{ ...target, position: target.position + 9 }] : []);
+  });
+
+  it.each(["save", "remove"] as const)("%s は一覧取得後に記事が消えたら台帳も変更しない", async (action) => {
+    const base = fakes({ articles: [article("a")] });
+    const uc = createReviewBlogPlacementsUseCase({ ...auditParts().deps, placements: base.placements, blogOps: {
+      ...base.blogOps, async findArticle() { return ok(null); },
+    } });
+    const result = await uc.execute(manager, { action, siteSlug: "blog", articleSlug: "a", placement: "intro" });
+    expect(result.ok).toBe(false);
+    expect(base.opsOf()).not.toContain(action);
   });
 });
 
@@ -244,6 +334,7 @@ describe("掲載状況 — ブログ 1 つぶんの一覧（A6）", () => {
       ...auditParts().deps,
       placements: base.placements,
       blogOps: {
+        ...base.blogOps,
         async listArticles() {
           return err(domainError("UPSTREAM_UNAVAILABLE", "記事表が落ちています"));
         },
@@ -432,10 +523,12 @@ describe("掲載状況 — 記録する", () => {
     });
 
     const saved = calls.find((c) => c.op === "save")?.arg as
-      | { publicArticleBlock?: { articleId: string } }
+      | { articleUpdate?: SaveBlogArticleInput }
       | undefined;
     // 台帳だけ書いて記事側を書かないと、A7 の 3 面一致が崩れる。
-    expect(saved?.publicArticleBlock?.articleId).toBe("art_a");
+    expect(saved?.articleUpdate?.id).toBe("art_a");
+    expect(saved?.articleUpdate?.expectedRevision).toBe(1);
+    expect(saved?.articleUpdate?.blocks).toHaveLength(1);
   });
 
   it("保存できたら、そのブログの一覧を読み直して返す", async () => {
@@ -491,7 +584,7 @@ describe("掲載状況 — 取り消す", () => {
     expect(calls.map((c) => c.op)).toContain("listBySite");
   });
 
-  it("記事の実在は確かめない。消すのは台帳の行だけである", async () => {
+  it("記事が既に無い場合も、残った台帳の行を取り消せる", async () => {
     const { uc, opsOf } = fakes({ articles: [], ledger: [placement("ghost", "intro")] });
     const result = await uc.execute(manager, {
       action: "remove",
@@ -505,7 +598,7 @@ describe("掲載状況 — 取り消す", () => {
     expect(opsOf()).toContain("remove");
   });
 
-  it("公開記事側の CTA の ID も渡し、同じ削除へ含める", async () => {
+  it("公開記事側の CTA を外した集約を同じ削除へ含める", async () => {
     const { uc, calls } = fakes({ articles: [article("a")], ledger: [placement("a", "intro")] });
     await uc.execute(manager, {
       action: "remove",
@@ -515,9 +608,9 @@ describe("掲載状況 — 取り消す", () => {
     });
 
     const removed = calls.find((c) => c.op === "remove")?.arg as
-      | { publicArticleBlockId?: string }
+      | { articleUpdate?: SaveBlogArticleInput }
       | undefined;
-    expect(removed?.publicArticleBlockId).toBeTruthy();
+    expect(removed?.articleUpdate).toMatchObject({ id: "art_a", expectedRevision: 1, blocks: [] });
   });
 
   it("語彙に無い位置は断り、台帳に触らない", async () => {

@@ -1,6 +1,7 @@
 /** @tier 1 */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import {
   OPEN_DOORS_MAX_IRREVERSIBLE,
@@ -42,8 +43,8 @@ import { expectLedgerFile } from "../support/ledger-file";
 const ROOT = process.cwd();
 const LEDGER_PATH = join(ROOT, "docs/product/open-doors.md");
 
-/** 通れる人の区分。狭い順に並べてある（表示の並びもこの順）。 */
-type Gate = "誰でも" | "ログイン" | "鍵";
+/** 条件付き公開は「ログイン必須」でも「全画像を匿名公開」でもない。 */
+type Gate = "誰でも" | "公開参照／同一作業場所" | "ログイン" | "鍵";
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
@@ -166,8 +167,56 @@ function gateOfRoute(source: string): Gate {
   const code = codeOnly(source);
   if (/authenticate(Api)?Request\s*\(/.test(code)) return "鍵";
   if (/resolveIntegrationAccess\s*\(/.test(code)) return "鍵";
+  if (hasArticleImageAccessGate(source)) return "公開参照／同一作業場所";
   if (/signedInActor\s*\(/.test(code)) return "ログイン";
   return "誰でも";
+}
+
+/**
+ * 画像 GET の分岐を構文として読む。optional な身元取得を一律のログイン門と
+ * 誤認しない。名前が出るだけでなく、非公開分岐の全拒否条件が R2 読取に先行
+ * している形を測る。判定関数の実動作は下の 2 本の回帰試験が引き受ける。
+ * 別の制御構造へ変更された場合は推測せず、台帳との差として再確認を求める。
+ */
+const ARTICLE_IMAGE_ACCESS_PROOFS = {
+  route: "tests/presentation/article-images-route.test.ts",
+  reference: "tests/integration/d1-article-image-lifecycle.test.ts",
+} as const;
+
+function hasArticleImageAccessGate(source: string): boolean {
+  const file = ts.createSourceFile("route.ts", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const get = file.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === "GET");
+  const attempt = get?.body?.statements.find(ts.isTryStatement);
+  if (attempt === undefined) return false;
+  const compact = (node: ts.Node) => node.getText(file).replace(/\s+/g, "");
+  const statements = attempt.tryBlock.statements;
+  const imageRead = statements.findIndex((node) =>
+    ts.isVariableStatement(node)
+      && compact(node) === "constbytes=awaitreadArticleImageObject(bucket,record.objectKey);");
+  if (imageRead < 3) return false;
+  const guard = statements[imageRead - 1];
+  const found = statements[imageRead - 3];
+  const missing = statements[imageRead - 2];
+  if (!ts.isVariableStatement(found)
+    || compact(found) !== "constrecord=awaitfindArticleImage(db,image);"
+    || !ts.isIfStatement(missing)
+    || compact(missing) !== "if(record===null)returnnotFound();"
+    || !ts.isIfStatement(guard) || guard.elseStatement !== undefined
+    || compact(guard.expression) !== "!(awaitisArticleImagePublic(db,record))"
+    || !ts.isBlock(guard.thenStatement)) return false;
+  const [actor, rejection, ...rest] = guard.thenStatement.statements;
+  if (actor === undefined || rejection === undefined || rest.length !== 0
+    || !ts.isVariableStatement(actor) || compact(actor) !== "constactor=awaitsignedInActor();"
+    || !ts.isIfStatement(rejection) || rejection.elseStatement !== undefined
+    || !ts.isReturnStatement(rejection.thenStatement)
+    || compact(rejection.thenStatement) !== "returnnotFound();") return false;
+  const checks = compact(rejection.expression).split("||");
+  return checks.length === 4
+    && checks[0] === "actor===null"
+    && checks[1] === "actor.workspaceId!==record.workspaceId"
+    && /^!requireWorkspaceWideCapability\(actor,["']content.read["'],["'][^"']+["']\)\.ok$/.test(checks[2])
+    && checks[3] === "!(awaitownsImageArticle(db,actor.workspaceId,record.articleId))";
 }
 
 /**
@@ -213,6 +262,20 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
   "src/app/api/feedback-captures/[capture]/route.ts": {
     intent: "ログイン",
     what: "指摘に添えた画面の写しの取り出し",
+  },
+  "src/app/api/article-images/route.ts": {
+    intent: "ログイン",
+    what: "記事に貼る画像を送る口（置き場に物を置ける口なので、門は必須）",
+  },
+  "src/app/api/article-images/[image]/route.ts": {
+    // 匿名に出せるのは現在公開中の記事が参照する画像だけ。
+    // 下書きは同 workspace の閲覧権限・記事所有確認を別途満たした人に限る。
+    intent: "公開参照／同一作業場所",
+    what: "公開記事が参照する挿絵、または同じ作業場所で閲覧権限のある記事の下書きプレビュー",
+  },
+  "src/app/api/article-products/route.ts": {
+    intent: "ログイン",
+    what: "商品カードを挿すときの検索（作業場所は呼び出し元の身元から決める）",
   },
   "src/app/api/auth/[...all]/route.ts": {
     // ログインの入口そのもの。ここに門を置くと、誰もログインできない。
@@ -861,7 +924,7 @@ function table(subset: readonly Row[], withReversible = false): string[] {
 }
 
 /**
- * **「誰でも」と宣言した行そのもの。**
+ * **匿名閲覧を宣言した行そのもの（条件付き公開も含む）。**
  *
  * 意図は人が書くので、行を 1 つ「誰でも」にすれば、その扉は差の数から消える。
  * 今のところ正しく使われているが、**上限で詰まった人が最短路として選べる形**が
@@ -869,7 +932,7 @@ function table(subset: readonly Row[], withReversible = false): string[] {
  *
  * ここを増やすには上限を上げる diff が要り、上げた事実が記録に残る。
  */
-const declaredPublic = rows.filter((r) => r.intent === "誰でも");
+const declaredPublic = rows.filter((r) => r.intent === "誰でも" || r.intent === "公開参照／同一作業場所");
 
 /** 走査が見つけた「変更を起こす入口」。**上限 0 を支える母集団**（下限 ④ の対象）。 */
 const actionRows = rows.filter((r) => r.kind === "操作");
@@ -902,7 +965,7 @@ function renderLedger(): string {
     "",
     `開いている扉: **${gaps.length} 件** / 全 ${rows.length} 件`,
     "",
-    `「誰でも」と宣言してある行: **${declaredPublic.length} 件**`,
+    `匿名閲覧を含むと宣言してある行（「誰でも」・条件付き公開）: **${declaredPublic.length} 件**`,
     "（宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）",
     "",
     ...declaredPublic.map((r) => `- \`${r.id}\` — ${r.what}`),
@@ -974,6 +1037,11 @@ function renderLedger(): string {
     ...table(of("画面")),
     "",
     "## REST・転送",
+    "",
+    "「公開参照／同一作業場所」は条件付き公開。画像は公開中の記事が現在参照する場合のみ匿名取得できる。",
+    "それ以外はログイン・同一 workspace・content.read・記事所有の全確認が必要で、認可変更を反映するため no-store で返す。",
+    `分岐の接続はこの検査、応答の実動作は \`${ARTICLE_IMAGE_ACCESS_PROOFS.route}\`、公開参照判定は \`${ARTICLE_IMAGE_ACCESS_PROOFS.reference}\` が検証する。`,
+    "条件付き公開も上記の公開宣言数に含める。守りを削って匿名公開へ戻すと意図と実測の差になる。",
     "",
     ...table([...of("REST"), ...of("転送")]),
     "",
@@ -1089,6 +1157,46 @@ describe("いま開いている入口", () => {
     expect(gateOfRoute(`/** signedInActor() で判定する。 */\nconst a = await currentActor();`)).toBe(
       "誰でも",
     );
+  });
+
+  const articleImageRouteSource = read(join(ROOT, "src/app/api/article-images/[image]/route.ts"));
+
+  it("画像 GET は公開参照または同じ作業場所の閲覧権限を必要とする条件付き公開である", () => {
+    expect(gateOfRoute(articleImageRouteSource)).toBe("公開参照／同一作業場所");
+  });
+
+  it.each([
+    ["公開参照判定の除去", "isArticleImagePublic(db, record)", "true"],
+    ["公開参照判定の反転", "!(await isArticleImagePublic(db, record))", "(await isArticleImagePublic(db, record))"],
+    ["身元確認の除去", "actor === null || ", ""],
+    ["workspace確認の除去", "actor.workspaceId !== record.workspaceId", "false"],
+    ["workspace確認の反転", "actor.workspaceId !== record.workspaceId", "actor.workspaceId === record.workspaceId"],
+    ["閲覧権限の除去", '!requireWorkspaceWideCapability(actor, "content.read", "記事画像の確認").ok', "false"],
+    ["記事所有確認の除去", "!(await ownsImageArticle(db, actor.workspaceId, record.articleId))", "false"],
+    ["拒否の無効化", "|| !(await ownsImageArticle(db, actor.workspaceId, record.articleId))) return notFound();", "|| !(await ownsImageArticle(db, actor.workspaceId, record.articleId))) void 0;"],
+    ["認可前の画像読取", "if (!(await isArticleImagePublic", "const bytes = await readArticleImageObject(bucket, record.objectKey); if (!(await isArticleImagePublic"],
+  ])("%s を条件付き公開として認めない", (_name, before, after) => {
+    expect(articleImageRouteSource).toContain(before);
+    expect(articleImageRouteSource.split(before)).toHaveLength(2);
+    expect(gateOfRoute(articleImageRouteSource.replace(before, after))).not.toBe("公開参照／同一作業場所");
+  });
+
+  it("画像 GET の守りを注釈や文字列へ写しても条件付き公開にはならない", () => {
+    expect(gateOfRoute(`/* ${articleImageRouteSource.replace(/\*\//g, "* /")} */`)).not.toBe("公開参照／同一作業場所");
+    expect(gateOfRoute(`const explanation = ${JSON.stringify(articleImageRouteSource)};`)).not.toBe("公開参照／同一作業場所");
+  });
+
+  it("条件付き公開の証拠は実際の画像 GET と公開参照 repository を使う試験へつながる", () => {
+    const routeProof = codeOnly(read(join(ROOT, ARTICLE_IMAGE_ACCESS_PROOFS.route)));
+    const referenceProof = codeOnly(read(join(ROOT, ARTICLE_IMAGE_ACCESS_PROOFS.reference)));
+    expect(routeProof).toContain('import("@/app/api/article-images/[image]/route")');
+    expect(routeProof).toMatch(/\bGET\s*\(/);
+    expect(referenceProof).toContain('from "@/infrastructure/persistence/d1/article-image-repository"');
+    expect(referenceProof).toMatch(/\bisArticleImagePublic\s*\(/);
+  });
+
+  it("条件付き公開へ分類し直しても、画像 GET を匿名公開の宣言数から除外しない", () => {
+    expect(declaredPublic.map((row) => row.id)).toContain("src/app/api/article-images/[image]/route.ts");
   });
 
   it("開いている扉が増えていない", () => {
@@ -1214,12 +1322,12 @@ describe("いま開いている入口", () => {
     ).toBe(1);
   });
 
-  it("「誰でも」と宣言した行が増えていない", () => {
+  it("条件付き公開を含め、匿名閲覧を宣言した行が増えていない", () => {
     // この一覧は人が手で書く。1 行足せば、その扉は差の数から黙って消える。
     // 上限で詰まったとき、いちばん短い道がこれになってしまうのを塞ぐ。
     expect(
       declaredPublic.length,
-      `「誰でも」と宣言してある行が ${declaredPublic.length} 件` +
+      `匿名閲覧（条件付き公開を含む）を宣言してある行が ${declaredPublic.length} 件` +
         `（上限 ${OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION} 件）: ` +
         `${declaredPublic.map((r) => r.id).join(" / ")}。` +
         "扉を数から消すために宣言を足していないか確かめてください。",

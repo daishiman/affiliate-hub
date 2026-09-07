@@ -12,7 +12,7 @@ iteration: null
 title: "管理画面 UI/UX 全面改善"
 owners: ["daishiman"]
 created_at: "2026-08-21T12:00:00Z"
-updated_at: "2026-09-04T06:01:53.906511Z"
+updated_at: "2026-09-07T16:12:05.419068Z"
 status: "active"
 depends_on: ["feat-ui-foundation","feat-distribution-hub"]
 related_nodes: []
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"c3b797019d4e6a44859a1e502255b51ee723bdc471d184e6f5b3a625728c7089","evaluator":"system-spec-harness/aggregate-completeness (C05, forks C06/C07/C08 resolved)","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"33d644c2cb19eee116a4d365c0a50c84c697f9a2e9afcc7afef6f06a3d9ad527","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "ユーザー要望の macro want を C14 分解で feature 化 (単一用途画面分割/基本管理/密度最適化/サイドバー/投稿反映/マルチSNS/複数ブログ/共通コンポーネント)"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-uiux-overhaul.md","confidence":0.95}]
@@ -43,9 +43,9 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: [{"base_branch":"dev","closing_reference_verified":false,"head_branch":"devgraph/feat-uiux-overhaul","linked_at":"2026-08-23T11:34:01Z","merge_commit_sha":"eccadc2c44c598119c3dfa18bb65e202ddef4296","merged_at":"2026-08-23T19:41:21Z","pr_number":23,"repo":"daishiman/affiliate-hub","state":"merged","url":"https://github.com/daishiman/affiliate-hub/pull/23"}]
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"],"policy":"reconciliation-gate","reconciled_at":null,"source":"acceptance-reconciliation","status":"open"}
+completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"],"policy":"manual","reconciled_at":null,"source":"reconciliation","status":"open"}
 implementation_readiness: {"checked_at":"2026-08-21T12:00:00Z","missing_sections":[],"status":"complete"}
-acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:094f6b85c45cb3bce427336dcc3cd88262dcdc37251a05c18c501eefa2a1f5c4","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
+acceptance_reconciliation: {"evaluated_digest":"sha256:987d0bccdcc1138883872d35736d34ecdd27680e36f8cab0bebefc40885a3cf2","implementation_status":"pass","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","release_status":"unpublished","tracking_status":"active"}
 ---
 
 # 目的

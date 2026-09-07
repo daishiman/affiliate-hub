@@ -17,6 +17,7 @@ import { domainError, err, markEditorial, ok, type WorkspaceId } from "@/domain/
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { findSiteDocument } from "./site-document-repository";
 import { storageFailure } from "./storage-failure";
+import { resolvePublishedProseProducts } from "./published-prose-products";
 
 /**
  * 読者ページへ出した記事の保存先（D1）。
@@ -398,6 +399,7 @@ export function createD1ContentRepository(
       try {
         const rows = await db
           .select({
+            workspaceId: publishedArticles.workspaceId,
             archivedAt: publishedArticles.archivedAt,
             articleJson: publishedArticles.articleJson,
           })
@@ -405,7 +407,9 @@ export function createD1ContentRepository(
           .where(and(eq(publishedArticles.siteSlug, siteSlug), eq(publishedArticles.slug, slug)))
           .limit(1);
         const row = rows[0];
-        return ok(row !== undefined && row.archivedAt === null ? parse(row.articleJson) : null);
+        return ok(row !== undefined && row.archivedAt === null
+          ? await resolvePublishedProseProducts(db, row.workspaceId, parse(row.articleJson))
+          : null);
       } catch (cause) {
         return storageFailure("記事の読み込み", cause);
       }

@@ -11,9 +11,9 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 209 件
+開いている扉: **0 件** / 全 212 件
 
-「誰でも」と宣言してある行: **42 件**
+匿名閲覧を含むと宣言してある行（「誰でも」・条件付き公開）: **43 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
 
 - `src/app/page.tsx` — 入口の案内
@@ -43,6 +43,7 @@
 - `src/app/s/[site]/tokushoho/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/tools/[tool]/page.tsx` — 読者向けの公開ページ
 - `src/app/signin/page.tsx` — サインイン画面
+- `src/app/api/article-images/[image]/route.ts` — 公開記事が参照する挿絵、または同じ作業場所で閲覧権限のある記事の下書きプレビュー
 - `src/app/api/auth/[...all]/route.ts` — ログインの入口（Google との往復）
 - `src/app/api/dev-signin/route.ts` — 手元で画面を確かめるための入口（積んだ環境には存在しない）
 - `src/app/api/reader-events/route.ts` — 公開ブログの読者行動の記録（未ログインの読者が送るので、門は置けない）
@@ -239,8 +240,16 @@
 
 ## REST・転送
 
+「公開参照／同一作業場所」は条件付き公開。画像は公開中の記事が現在参照する場合のみ匿名取得できる。
+それ以外はログイン・同一 workspace・content.read・記事所有の全確認が必要で、認可変更を反映するため no-store で返す。
+分岐の接続はこの検査、応答の実動作は `tests/presentation/article-images-route.test.ts`、公開参照判定は `tests/integration/d1-article-image-lifecycle.test.ts` が検証する。
+条件付き公開も上記の公開宣言数に含める。守りを削って匿名公開へ戻すと意図と実測の差になる。
+
 | 入口・操作 | 何ができるか | 本来 | いま | 差 |
 |---|---|---|---|---|
+| `src/app/api/article-images/[image]/route.ts` | 公開記事が参照する挿絵、または同じ作業場所で閲覧権限のある記事の下書きプレビュー | 公開参照／同一作業場所 | 公開参照／同一作業場所 | — |
+| `src/app/api/article-images/route.ts` | 記事に貼る画像を送る口（置き場に物を置ける口なので、門は必須） | ログイン | ログイン | — |
+| `src/app/api/article-products/route.ts` | 商品カードを挿すときの検索（作業場所は呼び出し元の身元から決める） | ログイン | ログイン | — |
 | `src/app/api/auth/[...all]/route.ts` | ログインの入口（Google との往復） | 誰でも | 誰でも | — |
 | `src/app/api/dev-signin/route.ts` | 手元で画面を確かめるための入口（積んだ環境には存在しない） | 誰でも | 誰でも | — |
 | `src/app/api/feedback-captures/[capture]/route.ts` | 指摘に添えた画面の写しの取り出し | ログイン | ログイン | — |
@@ -349,4 +358,4 @@
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/material/product-form-action.ts） | ログイン | ログイン | — | つく |
 | `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/publish/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `updateWorkspaceAction()` | 作業場所の名前・契約の区分・時間帯・通貨を直す（src/presentation/admin/maintain/settings-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:af4545f3221bfe7cf819fe4070f2f6064d8d894cfbe87a4b28a7fb2665266f99 -->
+<!-- 生成物の指紋 sha256:52cc919f1f1a2babdc59d74b1f83f5cdee1e733989d3b149cf7b11e5de67fa19 -->

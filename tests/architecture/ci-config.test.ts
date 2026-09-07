@@ -496,6 +496,17 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         手で繋ぎ直すと、間違えても流すまで気づけない）。
       */
       "0046_blog_operations_console",
+      "0047_article_image",
+      /*
+        記事の挿絵の台帳を足したあと、掃除が拾う索引を
+        (referenced, created_at) から (created_at) へ変えた。
+        0047 はもう journal に載っているので、作り直さず 1 本足している。
+      */
+      "0048_article_image_sweep_index",
+      // 未点検・最終点検時刻の古い順に循環させ、先頭500枚への固定を防ぐ。
+      "0049_article_image_check_rotation",
+      // 画像の不可逆回収claim・保存trigger・R2孤児の永続巡回位置。
+      "0050_article_image_lifecycle",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string }>;

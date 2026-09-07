@@ -12,7 +12,7 @@ iteration: null
 title: "ブログごとの独自ドメイン接続と一式管理"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-04T02:28:24.476655Z"
+updated_at: "2026-09-07T15:54:21.941192Z"
 status: "active"
 depends_on: ["feat-blog-ops-crud","feat-blog-subdomain-routing","feat-auth-workspace"]
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview","feat-reader-surface"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "確定質疑 qa-infra-web-custom-hostname / qa-database-web-domain-aeo-behavior / qa-backend-web-domain-aeo-behavior / qa-security-web-domain-behavior-privacy / qa-auth-web-domain-analytics-authority を lineage 参照。利用者要望『各ブログごとにドメインを取得して、そのドメインをここの管理画面で一式で管理できるような構成』への対応"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-custom-domain.md","confidence":0.95}]

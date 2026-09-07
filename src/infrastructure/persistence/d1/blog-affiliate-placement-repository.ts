@@ -1,11 +1,14 @@
-import { and, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, eq, getTableColumns, isNotNull, isNull } from "drizzle-orm";
+import type { BatchItem } from "drizzle-orm/batch";
 import type {
   AffiliatePlacement,
+  AffiliatePlacementArticleUpdate,
   ArticlePlacements,
   BlogAffiliatePlacementPort,
 } from "@/application/ports/blog-affiliate-placement";
-import { blogAffiliatePlacements, blogArticleBlocks } from "@/db/schema";
-import { ok } from "@/domain/shared";
+import { blogAffiliatePlacements, articles } from "@/db/schema";
+import { err, ok, validationError, type WorkspaceId } from "@/domain/shared";
+import { createD1BlogOpsRepository } from "./blog-ops-repository";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
 
@@ -55,6 +58,63 @@ export function createD1BlogAffiliatePlacementRepository(
     trackingCode === undefined
       ? isNull(blogAffiliatePlacements.trackingCode)
       : eq(blogAffiliatePlacements.trackingCode, trackingCode);
+
+  async function validateArticleUpdate(
+    input: {
+      readonly workspaceId: WorkspaceId;
+      readonly siteSlug: string;
+      readonly articleSlug: string;
+      readonly articleUpdate?: AffiliatePlacementArticleUpdate;
+    },
+  ) {
+    const { workspaceId, siteSlug, articleSlug, articleUpdate } = input;
+    const [article] = await db
+      .select({ id: articles.id })
+      .from(articles)
+      .where(and(
+        eq(articles.workspaceId, workspaceId),
+        eq(articles.siteSlug, siteSlug),
+        eq(articles.slug, articleSlug),
+      ))
+      .limit(1);
+    if (articleUpdate === undefined) {
+      return article === undefined
+        ? ok(true)
+        : err(validationError("記事全体と一緒に保存してください。削除済みの記事は先に復元してください。", "articleUpdate"));
+    }
+    if (
+      article === undefined || article.id !== articleUpdate.id ||
+      articleUpdate.siteSlug !== siteSlug || articleUpdate.slug !== articleSlug ||
+      !Number.isInteger(articleUpdate.expectedRevision) || articleUpdate.expectedRevision < 1
+    ) {
+      return err(validationError("同じ記事の最新版を開いて掲載を変更してください。", "articleUpdate"));
+    }
+    return ok(true);
+  }
+
+  async function commitPlacement(
+    workspaceId: WorkspaceId,
+    scope: Pick<AffiliatePlacement, "siteSlug" | "articleSlug">,
+    articleUpdate: AffiliatePlacementArticleUpdate | undefined,
+    mutation: BatchItem<"sqlite">,
+  ) {
+    if (articleUpdate !== undefined) {
+      return createD1BlogOpsRepository(db, {
+        workspaceId, articleId: articleUpdate.id, statements: [mutation],
+      }).saveArticle(workspaceId, articleUpdate);
+    }
+    // 孤児の事前確認直後に記事が作成されても、台帳だけを変更しない。
+    // 削除済記事も復元用本文を持つため孤児とはみなさない。
+    // 現存記事があれば主キー重複で同じbatchを中断し、無ければ0行で通過する。
+    const orphanGuard = db.insert(articles).select(
+      db.select(getTableColumns(articles)).from(articles).where(and(
+        eq(articles.workspaceId, workspaceId), eq(articles.siteSlug, scope.siteSlug),
+        eq(articles.slug, scope.articleSlug),
+      )),
+    );
+    await db.batch([orphanGuard, mutation]);
+    return ok(true);
+  }
 
   return {
     async listBySite({ workspaceId, siteSlug, knownArticleSlugs }) {
@@ -117,8 +177,10 @@ export function createD1BlogAffiliatePlacementRepository(
       }
     },
 
-    async save({ workspaceId, placement, publicArticleBlock }) {
+    async save({ workspaceId, placement, articleUpdate }) {
       try {
+        const valid = await validateArticleUpdate({ workspaceId, ...placement, articleUpdate });
+        if (!valid.ok) return valid;
         const row = {
           id: newId(),
           workspaceId,
@@ -153,35 +215,8 @@ export function createD1BlogAffiliatePlacementRepository(
                 set: { position: placement.position },
               });
 
-        if (publicArticleBlock === undefined) {
-          await placementMutation;
-        } else {
-          const { block } = publicArticleBlock;
-          const publicBlockMutation = db
-            .insert(blogArticleBlocks)
-            .values({
-              id: block.id,
-              workspaceId,
-              articleId: publicArticleBlock.articleId,
-              kind: block.kind,
-              heading: block.heading,
-              body: block.body,
-              position: block.position,
-            })
-            .onConflictDoUpdate({
-              target: blogArticleBlocks.id,
-              set: {
-                workspaceId,
-                articleId: publicArticleBlock.articleId,
-                kind: block.kind,
-                heading: block.heading,
-                body: block.body,
-                position: block.position,
-              },
-            });
-          // D1 batch は全成功か全取消。公開 CTA だけ／台帳だけの中間状態を作らない。
-          await db.batch([publicBlockMutation, placementMutation]);
-        }
+        const saved = await commitPlacement(workspaceId, placement, articleUpdate, placementMutation);
+        if (!saved.ok) return saved;
         return ok(placement);
       } catch (cause) {
         return storageFailure("掲載の保存", cause);
@@ -194,9 +229,11 @@ export function createD1BlogAffiliatePlacementRepository(
       articleSlug,
       placement,
       trackingCode,
-      publicArticleBlockId,
+      articleUpdate,
     }) {
       try {
+        const valid = await validateArticleUpdate({ workspaceId, siteSlug, articleSlug, articleUpdate });
+        if (!valid.ok) return valid;
         const placementMutation = db
           .delete(blogAffiliatePlacements)
           .where(
@@ -208,19 +245,8 @@ export function createD1BlogAffiliatePlacementRepository(
               codeMatches(trackingCode),
             ),
           );
-        if (publicArticleBlockId === undefined) {
-          await placementMutation;
-        } else {
-          const publicBlockMutation = db
-            .delete(blogArticleBlocks)
-            .where(
-              and(
-                eq(blogArticleBlocks.workspaceId, workspaceId),
-                eq(blogArticleBlocks.id, publicArticleBlockId),
-              ),
-            );
-          await db.batch([publicBlockMutation, placementMutation]);
-        }
+        const saved = await commitPlacement(workspaceId, { siteSlug, articleSlug }, articleUpdate, placementMutation);
+        if (!saved.ok) return saved;
         return ok(undefined);
       } catch (cause) {
         return storageFailure("掲載の削除", cause);

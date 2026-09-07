@@ -6,9 +6,198 @@
   },
   "spec_dir": "system-spec",
   "verdict": "PASS",
+  "audit_delegations": [
+    {
+      "aspect": "matrix_coverage",
+      "role": "primary",
+      "auditor": "system-spec-matrix-auditor",
+      "component": "C07",
+      "dispatch": {
+        "tool": "Task",
+        "subagent_type": "system-spec-matrix-auditor",
+        "session_id": "83b6e6d3-3955-448e-b151-cce45e56d408",
+        "tool_use_id": "toolu_01MWrCCyr1G9QxJkmVRWiVuU",
+        "response_sha256": "3f675e525305d02deadc7fc796133e8b170135cdfd64158b2c4d2f4539636aed"
+      },
+      "verdict": "PASS",
+      "evidence": [
+        "validate-coverage-matrix --require-complete exit 0",
+        "all 48 cells covered (8 confirmed web, 40 excluded with reasons)",
+        "no dangling qa_refs (64 refs all resolve)",
+        "full-flag mode (6 flags) exit 0",
+        "category_aggregate truth table consistent"
+      ]
+    },
+    {
+      "aspect": "matrix_coverage",
+      "role": "sub_input",
+      "auditor": "system-spec-hearing-auditor",
+      "component": "C06",
+      "dispatch": {
+        "tool": "Task",
+        "subagent_type": "system-spec-hearing-auditor",
+        "session_id": "83b6e6d3-3955-448e-b151-cce45e56d408",
+        "tool_use_id": "toolu_011s25qSw77enbHRz2hg8vUo",
+        "response_sha256": "39f4b9e9fcc3dbff7393154f7bd0bdcfb643ce799e65e1d51b089a65bb8cc1d5"
+      },
+      "verdict": "PASS",
+      "evidence": [
+        "5-axis hearing audit clean",
+        "no missed collection (0 uncollected)",
+        "no leading questions (71 questions checked)",
+        "no premature stop (loop 2/5, complete=true)",
+        "full traceability (64 qa_refs all resolve)",
+        "foundation grounded (U1-U9 via provenance + approval)"
+      ]
+    },
+    {
+      "aspect": "doc_freshness",
+      "role": "primary",
+      "auditor": "system-spec-doc-freshness-auditor",
+      "component": "C08",
+      "dispatch": {
+        "tool": "Task",
+        "subagent_type": "system-spec-doc-freshness-auditor",
+        "session_id": "83b6e6d3-3955-448e-b151-cce45e56d408",
+        "tool_use_id": "toolu_018ERj8cJ3FMYadCvoMS7KgB",
+        "response_sha256": "d7ae1fea74103f8d6b69143d0cab1dea177bb1fd28c466ac730bf3ba1e4da6c6"
+      },
+      "verdict": "PASS",
+      "evidence": [
+        "validate-source-citation exit 0",
+        "all 22 targets current via public site re-check",
+        "no unofficial hosts, no stale versions"
+      ]
+    }
+  ],
+  "aspects": {
+    "foundation_trace": {
+      "verdict": "PASS",
+      "auditor": "assign-system-spec-completeness-evaluator",
+      "component": "C05",
+      "summary": "U1-U9 confirmed (approval_ref=approval-foundation-2). serves_goals in all 8 chapters. validate-coverage-matrix --require-foundation exit 0. No dangling goal-objective-intent-cell-chapter trace."
+    },
+    "decision_guidance": {
+      "verdict": "PASS",
+      "auditor": "assign-system-spec-completeness-evaluator",
+      "component": "C05",
+      "summary": "15 decisions confirmed. All have 2-3 options with cost_model (free/low-cost), goal_fit, security_fit, pros/cons, risks, lock_in, evidence_refs. No AI-only confirmations."
+    },
+    "matrix_coverage": {
+      "verdict": "PASS",
+      "auditor": "system-spec-matrix-auditor",
+      "component": "C07",
+      "summary": "C07 PASS + C06 sub-input PASS. 48 cells covered (8 confirmed web, 40 excluded). validate-coverage-matrix --require-complete exit 0. C16 required-info grounded (aggregate-completeness.py --knowledge-graph exit 0, all 4 profiles pass).",
+      "evidence": [
+        "G-matrix exit 0",
+        "G-knowledge-graph exit 0 (knowledge/doctrine/required-info/cross all exit 0)"
+      ]
+    },
+    "design_knowledge_reflection": {
+      "verdict": "PASS",
+      "auditor": "assign-system-spec-completeness-evaluator",
+      "component": "C05",
+      "summary": "All 8 chapters have ref-system-design-knowledge pointers with concrete principle applications to confirmed cell requirements. Knowledge graph C13/C14/C15 gates all exit 0 via aggregate-completeness.py --knowledge-graph. Doctrine anchors present and category-concern surjection verified."
+    },
+    "doc_freshness": {
+      "verdict": "PASS",
+      "auditor": "system-spec-doc-freshness-auditor",
+      "component": "C08",
+      "summary": "C08 PASS. validate-source-citation exit 0. All 22 targets verified current via public site re-check. No unofficial hosts, no stale versions, no unreachable targets."
+    },
+    "prompt_quality": {
+      "verdict": "PASS",
+      "auditor": "assign-system-spec-completeness-evaluator",
+      "component": "C05",
+      "summary": "All 18 prompts pass validate-prompt.py (7-layer structure) and verify-completeness.py (L5 goal-seek contract v2.0). No high design findings."
+    }
+  },
+  "gate_results": [
+    {
+      "id": "G-matrix",
+      "name": "validate-coverage-matrix --require-complete",
+      "exit_code": 0,
+      "output": "OK"
+    },
+    {
+      "id": "G-matrix-foundation",
+      "name": "validate-coverage-matrix --require-foundation",
+      "exit_code": 0,
+      "output": "OK"
+    },
+    {
+      "id": "G-source-citation",
+      "name": "validate-source-citation",
+      "exit_code": 0,
+      "output": "OK"
+    },
+    {
+      "id": "G-knowledge-graph",
+      "name": "aggregate-completeness.py --knowledge-graph (C13/C14/C15/C16)",
+      "exit_code": 0,
+      "output": "knowledge exit 0, doctrine exit 0, required-info exit 0, cross exit 0"
+    },
+    {
+      "id": "G-prompt-validate",
+      "name": "validate-prompt.py (18 prompts)",
+      "exit_code": 0,
+      "output": "18/18 PASS"
+    },
+    {
+      "id": "G-prompt-verify",
+      "name": "verify-completeness.py (18 prompts)",
+      "exit_code": 0,
+      "output": "18/18 PASS"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "foundation_trace",
+      "observation": "U1-U9 confirmed, serves_goals all 8 chapters, G-matrix-foundation exit 0.",
+      "suggested_fix": null
+    },
+    {
+      "severity": "info",
+      "bucket": "decision_guidance",
+      "observation": "15 decisions confirmed with 2-3 options, cost/goal/security fit.",
+      "suggested_fix": null
+    },
+    {
+      "severity": "info",
+      "bucket": "matrix_coverage",
+      "observation": "C07 PASS, C06 sub-input PASS, G-matrix exit 0, G-knowledge-graph exit 0.",
+      "suggested_fix": null
+    },
+    {
+      "severity": "info",
+      "bucket": "design_knowledge_reflection",
+      "observation": "All chapters have concrete design knowledge applications. C13/C14/C15 exit 0.",
+      "suggested_fix": null
+    },
+    {
+      "severity": "info",
+      "bucket": "doc_freshness",
+      "observation": "C08 PASS, validate-source-citation exit 0, 22 targets current.",
+      "suggested_fix": null
+    },
+    {
+      "severity": "info",
+      "bucket": "prompt_quality",
+      "observation": "18/18 validate-prompt + verify-completeness PASS.",
+      "suggested_fix": null
+    },
+    {
+      "severity": "info",
+      "bucket": "matrix_coverage",
+      "observation": "Input fingerprint changed (docs/spec/feat-article-block-editor updates). Auditor target inputs (spec-state.json, fetched-references.json) unchanged; existing resolved forks reused.",
+      "suggested_fix": null
+    }
+  ],
+  "gaps": [],
   "inputs": {
-    "sha256": "23d3fc8ef76ef6cda172b6cbf257434b61986f9caa6ddea4ce47a5d049cf4f40",
-    "file_count": 177,
+    "file_count": 306,
+    "sha256": "580dc16860037e5784faef1b2be41f87930275d4f3f8650d589247f487b42918",
     "files": [
       {
         "path": "docs/spec/00-README.md",
@@ -177,8 +366,8 @@
       },
       {
         "path": "docs/spec/feat-admin-cognitive-load-ui/progressive-disclosure-contract.md",
-        "sha256": "e9d3854bfdbfbd31456b836f2457a95fcbd0559dcad5850b09b8345bfb69deb8",
-        "mtime": 1788557455
+        "sha256": "61b30c7e6f8166f8a3a8835c9339ae0abd5d78f374fbcb3a7b80009c742bf290",
+        "mtime": 1788691314
       },
       {
         "path": "docs/spec/feat-admin-cognitive-load-ui/quality-assurance-report.md",
@@ -229,6 +418,196 @@
         "path": "docs/spec/feat-admin-cognitive-load-ui/test-run-report.md",
         "sha256": "434f5fcaabd62da0e6ed4317c173e9e0f8c7a2f65d4e46129300aebb176a1ee8",
         "mtime": 1788557455
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/acceptance-report.md",
+        "sha256": "420a31e1f0edf426d534d3cfae93ee5922cb59e716ca0a2c1c03c152db0ff277",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/answer-unit-catalog.md",
+        "sha256": "bda72641b1335097f0aeef4a3c63720ae87d1b90a60e152c2c1cfed07e34ae55",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/author-profile-design.md",
+        "sha256": "9fcda7bd52bc2b15f2c4750c0a8e13785afa29b87cdcc6a940bad33cb74837f6",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/citation-ledger-design.md",
+        "sha256": "2de079a76e2e2dbf8601fb0b8d35bac1d4d981329bc73dfc7cc82cf41fbec17d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/crawler-policy.md",
+        "sha256": "6edc0005f7431ecae1242e13693b45e00b94ef1ea5bad22c84d45a9d58308aeb",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/data-model.md",
+        "sha256": "e16ed45283e0d0f90ec4a652ee76c2daef964033264e62aa627273c914d8dd28",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/delivery-design.md",
+        "sha256": "2fbe97a919ab583ee2184d1ff95f6f4c41a137a4f0ad20ba7cb7be1e8463e45a",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/delivery-path-diagram.md",
+        "sha256": "6d2a7933004f5c97b66dabf9bb45d55f2dad0fe8ecf26f171d8b5a67c0db5f1a",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/design-review-findings.md",
+        "sha256": "dccf43ef7ff54db388a63309003653275243a12250ab245a36ce690441b6b57d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/evidence-index.md",
+        "sha256": "69e10824d39ebf3656040468afcb4b098c086f34b3680e6359c81f546562d403",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/final-review.md",
+        "sha256": "32444f75576739d7215d5b31c8b2c54e7d1f46876dbcfc4e21e2ffa6ceaaaea8",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/migration-notes.md",
+        "sha256": "059bfa93ea9a3269a7f4b359db2269249dda1a1289fe73a6f15632601323753d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/operations-runbook.md",
+        "sha256": "c49f03a0f573725d0836f6b87cba7d3761f2d07287a61c5d08328818390ee515",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/quality-report.md",
+        "sha256": "6d6c9021d17182970f2569c6df2cf940fbaba4fdee7308b29ce0bbb6536c3ef4",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/release-notes.md",
+        "sha256": "d8411c17d9ecdcc3fca96257f636b8069074b9966a59fbee8ecac25e4b1f801f",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/requirements-baseline.md",
+        "sha256": "e16bd7c07a2df04373cdbf5491a70f6bf27ee110817cf11993cf7d0c4bf62d7d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/structured-data-design.md",
+        "sha256": "c1821177694c34740e8b5768e7f347eaf9579370ab973e4c3f5a1069975096ab",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/test-cases.md",
+        "sha256": "bad89bc0bb57a16892a1158b3f7347019e1264eb329914acf2ad0979e0285901",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/test-plan.md",
+        "sha256": "7b09aae523de7b96ee8fc14ab0820eb7c860c12c01586e9799164b5a66207545",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-aeo-answer-optimization/test-run-report.md",
+        "sha256": "8dfa14fcb53813820f123bdc4a1bad77da5a999820a9ac5082a499073aaaa1b3",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/acceptance.md",
+        "sha256": "92c2541247286d3de66d86bc56e4a82031dca85c123efeec9fb7fd753a938413",
+        "mtime": 1788688414
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/api-contract.md",
+        "sha256": "68ad1353921082ba666e6ad5e302360a125887c9a4827c1f290b22cac15e572a",
+        "mtime": 1788695821
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/architecture.md",
+        "sha256": "9024c4b19fb5d905fb424bb1fdb44dc5e621d0e4f17c5ebaf2b7d0a0dc8d91dc",
+        "mtime": 1788695821
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/block-catalog-decisions.md",
+        "sha256": "0192b205d666b2585a03fbc11850050e4c2e02ef9a5979f09c996534831a5045",
+        "mtime": 1788642696
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/data-model.md",
+        "sha256": "428d2b33ff4e85c07da3aa528fe7e4168640a9d9434a71974c89cb2e84dc34c9",
+        "mtime": 1788690220
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/design-review.md",
+        "sha256": "0846afe7878a534a6a889c1791762c774aa9e387f9a5e0716447ef5c23081b35",
+        "mtime": 1788642895
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/documentation.md",
+        "sha256": "7ec6fc01a3d9ada4e82b5c3fd8f8e67b92805887fb5c849ea3321aba3eb402d2",
+        "mtime": 1788690315
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/elegant-review.md",
+        "sha256": "e39f1201defc968d8e9004cba5ee6e10f3c5b05252754c114c33602feb16d563",
+        "mtime": 1788800332
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/evidence.md",
+        "sha256": "2a5ce3b733ae8a396506636594ac4931f282bb9e28c1e4a3898d8f0d94860d52",
+        "mtime": 1788643936
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/final-review.md",
+        "sha256": "642a2130eec24c4ec9872d3316a70e0114c0500d1fa1e6893b8e96d0776783bd",
+        "mtime": 1788687407
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/image-upload-decisions.md",
+        "sha256": "fa531c08a8b17840ea833bbafc0b42976507e5af542ca68259885abc8acd4e97",
+        "mtime": 1788695821
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/migration-compatibility.md",
+        "sha256": "6d867fd432736253f2d8c0c97b30a6df93098fbdc4d484f8eb2e9357475f80cd",
+        "mtime": 1788643807
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/operations.md",
+        "sha256": "270a1361f9e3fe5bd7ac840e1c3d652bdec95f5e428ca95f778531451d935dad",
+        "mtime": 1788691531
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/quality-assurance.md",
+        "sha256": "f33860ec9da95452ca9c71f1832335af93a5b79e2e3bc4df1ccc50f4a0ecb1c1",
+        "mtime": 1788643864
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/release.md",
+        "sha256": "8c55d4cc9b4ae54bbf0d5f99f4dad20540d6169a2ca84f90fa8824cc8038c100",
+        "mtime": 1788800332
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/requirements-baseline.md",
+        "sha256": "c388e78bb180ae959821e97f330c290f09299daceec702d70edf6e8817341307",
+        "mtime": 1788695821
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/test-design.md",
+        "sha256": "93cbb9ba65b55cc86de2a3126b6dac1de012cca6700a9846f1e741b513acd534",
+        "mtime": 1788642942
+      },
+      {
+        "path": "docs/spec/feat-article-block-editor/test-run.md",
+        "sha256": "26509cbeda3227df5c27ef461df982d451ac14b4aec0ce2d34ca63086e8e82ba",
+        "mtime": 1788688414
       },
       {
         "path": "docs/spec/feat-auth-workspace/acceptance-report.md",
@@ -284,6 +663,186 @@
         "path": "docs/spec/feat-auth-workspace/test-design.md",
         "sha256": "020dc16b26abafbd8173da335fb1314a51eaf3bf4f96981b308219fdeb9a65f2",
         "mtime": 1788557455
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/acceptance-report.md",
+        "sha256": "086f770098c998381a6f7d2e6187a67a47c67856d72ebd64c99fd40c4a32c58f",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/admin-api-contract.md",
+        "sha256": "5788b2f17bacfa94cd195fa118be5df8fc5993bd5f8f1d5bc0a6960a45b8ea76",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/data-model.md",
+        "sha256": "54f777e3a31e5ed33d90a121a21777e8283bde5b2392955227a96902d9807f24",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/design-review-findings.md",
+        "sha256": "b0153568b8b3ad037aaf0ddcbe715a6f898e6e1b8fe44af7d2d6fc791d03905f",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/domain-state-machine.md",
+        "sha256": "58fb952d1395d8608d224143e5ed036cf85579f934ae53ff12daaf5fe08a2c26",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/evidence-index.md",
+        "sha256": "5bb84c95ce43585216da64cb8a5268a9123940e6f2d85138ed4117e150530a8f",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/final-review.md",
+        "sha256": "8bbb95a0a95e40b8a6366480bc59d99c7d5440a7a41b9adfa3e9121386f99be6",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/host-resolution-design.md",
+        "sha256": "ef8d6f3ffbba7a6e0e490ff5b352cfb5648cf81900c8e828842b0a1b36ced2fb",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/invariant-checklist.md",
+        "sha256": "c5b26b8ccd470621bb78d4269374750306074e73b2c6e6df4e90e00aac42bcf1",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/migration-notes.md",
+        "sha256": "b0a620a03947f8d3f9940b065523a2383cbe2b2e7e1421a4e3a897ecced5fdd2",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/operations-runbook.md",
+        "sha256": "24c6b397e04b2363c26db53f6149f8ac9e15972d0f7330dd5067a36b6869475a",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/quality-report.md",
+        "sha256": "f8d66a5708c28f9a80423efe0d0ddd53debc6cb06cba52a3e0d46c5f6b1b4592",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/release-notes.md",
+        "sha256": "c3289ee70439df097a9ceaef10696def1b83769f9ed4ecd2f88b519cb2e4b350",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/requirements-baseline.md",
+        "sha256": "cb1f2c80ebbba817f975da8b8aee67913f3d3ad507ece5e97d5a820b9c55f611",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/screen-inventory.md",
+        "sha256": "d53eee109cfb2fc2a5098c587eee5376490669d92cddcca26749b761669cfb72",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/test-cases.md",
+        "sha256": "ce69ca8527178265bbf59a1dc1edfe7f59c38b4a547a0dc8b0732824ce140ab6",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/test-plan.md",
+        "sha256": "93a2379d6bbd1a95666ff79743635c9018d745e6de84be64c1d852d840b33e7c",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-custom-domain/test-run-report.md",
+        "sha256": "00fbc6c0c0d81d31c131a56dce4002c5803923884810fba90a7ba22fcaa8caca",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/acceptance-report.md",
+        "sha256": "100968578c80f43b9940141e8ebfbff8de61925807ce510fde7480b5ec34795c",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/data-model.md",
+        "sha256": "f5ab22fc3295003bcbece21ee6787e92f18df1f35ff5cb74446551ab113888df",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/design-review-findings.md",
+        "sha256": "db0056d1e0156ae30d9e0862a5bce5cb2545792a5df91bab1ca268c8d426c034",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/evidence-index.md",
+        "sha256": "d711c73f566524a26c92ae26f69def57f40fc73eb4d9cc83583b03d6db42f25b",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/final-review.md",
+        "sha256": "478e98f7ab72e002da841692ec9bcdf6e3ae9c9b20a88ce553ece67ec3fdea9d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/idempotency-contract.md",
+        "sha256": "4954bfd088a4dbf60d05f003360eb23963fffbc9de939b270e0358827b960fea",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/input-mapping.md",
+        "sha256": "5e0a756214969b3e0466ab4eeae70b043d61e6092c50f148bf5cbecd44f4f87d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/metric-definitions.md",
+        "sha256": "3dfab9ca86e5096c55430c4a8b90e9ae0ee93844679cb64b93e67508dda653ee",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/migration-notes.md",
+        "sha256": "ea5bda3577d227a6aaf45bae01dacea1c454715a7b08574b99e7af98a0611ab2",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/missing-data-policy.md",
+        "sha256": "9858b51bb82123ee00764f3a66b4cdccba007255a7042ddc1964a3ed969bd830",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/operations-runbook.md",
+        "sha256": "35e73ecadb587bd2fbaca1dc44b7333513767a2364d5ef6605a654f64e33c44c",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/quality-report.md",
+        "sha256": "a9879bf4243530f15c4e20ff86643974ccffbda58c1b5b292f9ddde6d6f1aa3f",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/release-notes.md",
+        "sha256": "a60b762ba4ea8cfb3ff9954ab2cb86a4adfec5f57123b05936bb78698717ea1b",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/requirements-baseline.md",
+        "sha256": "6aa406c8f5d9d5f6bfec72507aa563eba6a31d312d9541cd3c092ad9e1632708",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/retention-independence.md",
+        "sha256": "0971f7878c55b36cf9d8c054d0d517d9c0dc8fa11f22cce5fff9c36d7e1b00a6",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/test-cases.md",
+        "sha256": "bc1f5c2bfa8d3356fbf83806cc7d61747af690f95f989edb02687b4a54f92521",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/test-plan.md",
+        "sha256": "5766428fb65a7cf0c03f0d21d58bf29128836347332ddcf4e6da54c33f8c40bf",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-metrics-rollup/test-run-report.md",
+        "sha256": "c20cd36378cc25d7042c5bfc7b997e44032932c1a6866c5ac816b42f7c61b36c",
+        "mtime": 1788613580
       },
       {
         "path": "docs/spec/feat-blog-ops-crud/acceptance-report.md",
@@ -364,6 +923,96 @@
         "path": "docs/spec/feat-blog-ops-crud/test-run-report.md",
         "sha256": "60af15e4bc098da84041ef8f31f07430c52a48df00a371fdfcde7dff242bc305",
         "mtime": 1788557455
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/acceptance-report.md",
+        "sha256": "26a62dbcdd3fdb9e79b2ba1da12d85bc2a6d77d8088ea70d6a341b162f8ff5ac",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/alerting-design.md",
+        "sha256": "9b568472b5cfeb797787c7fad98c54dd9b5c5d7ff9d08679d90d940faa914272",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/dependency-direction-check.md",
+        "sha256": "c9033db2f9c6918c8ab3e1216014998c4268a342c84c23d676c18c9c8ded6b0d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/design-review-findings.md",
+        "sha256": "050d212efa2833982a685fad01cf7c11c18f2e6ba9ba9b38c99b8b13991679a3",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/evidence-index.md",
+        "sha256": "59b7b12b7234c4fc16427bfda13dab6990e50e0b8e49d5efd01325e1d899675b",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/final-review.md",
+        "sha256": "a8fcc529f28fe565f87fbaa0f2aa6a3715a41e915a96c67dd23a68fefaca4742",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/migration-notes.md",
+        "sha256": "46c2e0ab35a2ccc550aaa583774b0927082a3421c5f1b2d943642e841a311698",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/navigation-inventory.md",
+        "sha256": "6174186158c24530a035d093d8e4022847da28557cdf875b008db1201a2d4ece",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/operations-runbook.md",
+        "sha256": "a9fde3f4bd27441ad73c0e648f70760cd7e031300a64405d6001d1e8d108aeed",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/quality-report.md",
+        "sha256": "21bcdcceedfb48abe60ab69266767d55c4710699accce542267c9760079dd5dc",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/read-path-design.md",
+        "sha256": "a73b8c376b86ad772e97f7bb0eb5e01984283a5e3075942e0abb69acf08b3be1",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/release-notes.md",
+        "sha256": "85a6df38031929b4cf2c072b3a6ff994f2403c31abf7ce193fe7fb43650ef347",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/requirements-baseline.md",
+        "sha256": "1a826387c0020d2b362eb1ae409e2552478d390a0156636dbbd0a666f236d24d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/routing-design.md",
+        "sha256": "13f9e664eb509e831a1f5790b560148a8aeab3af86da79ffccaf4a967f89441e",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/screen-responsibility-map.md",
+        "sha256": "4d7804d0b2e92912ef2122c431408f1e05d13507f47a9234c58e58c63146ac73",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/test-cases.md",
+        "sha256": "5aacb9a55526ca454de9aee1bad569d729bebc8b68c4945decd9381359285914",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/test-plan.md",
+        "sha256": "3842a7067c04ae5fa1404fb7e5ed5becdd1556346214b5a23260a58197e61b51",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-blog-scoped-admin-console/test-run-report.md",
+        "sha256": "b495ee9258bb2eaf205ef065b94cf568b457cab8f76554e1675be489c8b24bdf",
+        "mtime": 1788613580
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/acceptance-report.md",
@@ -534,6 +1183,101 @@
         "path": "docs/spec/feat-feedback-capture-self-exclusion/test-design.md",
         "sha256": "6b99b78bf00ac948263891272a2367c278590c052bee6fe1f3872ce34dae8230",
         "mtime": 1788557455
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/acceptance-report.md",
+        "sha256": "0e36db1c5043b8061672b737bbf6a7a08cd22b884155350a597ef38827ce2758",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/aggregation-design.md",
+        "sha256": "409fa89ea5c13a359eef4d06e0dbcf03f123986c89c39336d3b3bef98651654e",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/data-model.md",
+        "sha256": "a40bf00854119d7998f5363434730fd33dcd9a3fc5b82e61d92e34cd9202cf08",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/design-review-findings.md",
+        "sha256": "40cab4c80979b84b1c0e5a39fbf78fc73ad3d7ff8b714c491fa6f905cafd81bd",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/evidence-index.md",
+        "sha256": "1f907a4a0e757d13ce468ad014a1f2620b98c543c13749359e542ae7e1416618",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/final-review.md",
+        "sha256": "d661243c9ac5fe66cd0ab4ca75c54f639797556dae70ac31289a8a41a98a092e",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/ingest-contract.md",
+        "sha256": "2b76797fc5056d574380a86ee63175199fb63ac0592e225502aa9f9496a7b422",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/invariant-checklist.md",
+        "sha256": "d6ce73f81e4c4b18057eb83c6cc9f4990430ecbd7ade6dba98e54191c473fdf3",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/measurement-inventory.md",
+        "sha256": "3073f153e401742115e105a17077ebeb2ac2fdc6814eed3bf14ee87e9a4cb975",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/migration-notes.md",
+        "sha256": "49d68f32790c9939e6c47eaff1edee1e53f603bec352f15c95a442ac203f66dc",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/operations-runbook.md",
+        "sha256": "f3653eb6001ade61a57f459530760894ec9798774731861438d22d476c7cdde3",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/privacy-constraints.md",
+        "sha256": "fa14fe9575b70c81542d33a0aa26f382b117af68f1ff67693f9f055984fb5ec4",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/quality-report.md",
+        "sha256": "702f906c366d0b295de547bdafcedaf6e263a69353d1fef9918cd1c21db97f46",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/release-notes.md",
+        "sha256": "abf1ba84fc55f48833dc4361ab7ba03c7c6827134dcfbd82fb405519b1d887af",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/requirements-baseline.md",
+        "sha256": "5e5d4bae3de049ab98c2146e0350291a1674488c509491ce7f52c8f84fb4a1a6",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/subject-request-design.md",
+        "sha256": "180d0942acea343ee68ee17d370497dce5e249234c486d639e93f61e65e5142d",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/test-cases.md",
+        "sha256": "08d5f0d69c11d7b48d36948f6a0d44f476ccedea8c24818aa30579f5561e60e5",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/test-plan.md",
+        "sha256": "08cc4a5c7348c3c496235648c128aa00dbd487a1c40e278f3f0ab67859475c2e",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-reader-behavior-analytics/test-run-report.md",
+        "sha256": "da708536d6752b65a6a2d9413eec83ecca67a82b8da61f5aff304fa69527edc1",
+        "mtime": 1788613580
       },
       {
         "path": "docs/spec/feat-reference-blog-admin-ux/acceptance-report.md",
@@ -746,9 +1490,99 @@
         "mtime": 1788557455
       },
       {
+        "path": "docs/spec/feat-seo-assessment-reflection/acceptance-report.md",
+        "sha256": "0053d7b32ec4957ec96de6a5bef4adae7667c11037a5181fdf32d75af83c9d87",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/approval-path-diagram.md",
+        "sha256": "4254c22c6e7752cdde10cf698d119d755b7539780414460ad4d47af2ac3d1d92",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/assessment-catalog.md",
+        "sha256": "dc778e92340e0fbc7d217fdf6efa80bc95c8feaf43067746c958e3de76b2ba45",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/data-model.md",
+        "sha256": "0595fc1f967a5d3a1576741244409ee45cbb7ab3209438020710ba9b66f708f1",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/design-review-findings.md",
+        "sha256": "12b784d39f2bf75ae52577decf81d432a9dba311f4791ed41ee034d28745b31a",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/evidence-index.md",
+        "sha256": "7ec18b6760855158cb3213a95def120d240743ed8f096509f98a13d6602d8849",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/final-review.md",
+        "sha256": "140006a5df391a9ad24118900e443c382b0438712c4ac0c7ea5f6eb3e66dd453",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/migration-notes.md",
+        "sha256": "bc3daa2d2cd73e7ff2ed9b7c050e1be5684878d4af738925b8e5808b67df131e",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/operations-runbook.md",
+        "sha256": "9292dc36f9cee75eb267ce781af4e2b0bbd4c2aa9504b3dc7677ed1514ee8ba1",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/quality-report.md",
+        "sha256": "cbb0335e7b6a536b3a6d6c5d5c2f7247214d6bc614a975be66b2a2e993d845b1",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/release-notes.md",
+        "sha256": "40ed5c75f340ce15375ad55920f97aeccc31bf231b0aa1f80762083a23260e0e",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/requirements-baseline.md",
+        "sha256": "f750dd8be5865bc4bfbaeb2478280edba1053124e9c6e9dda302ba97c6ec4b40",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/test-cases.md",
+        "sha256": "a12999d7035a94c4dc5400359b02a66f0f71513757987ee1cfe5e13e1b605d21",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/test-plan.md",
+        "sha256": "903cea2e461f1b02f76248cf9df1ecfc64c180a67e6178c25f3a6874786288d9",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/test-run-report.md",
+        "sha256": "592e081008edcecd7644d7e09bf65b616f992858dec49c764007f8b8a67f2c13",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/validation-design.md",
+        "sha256": "a8361664bc3c8916248d7d2aba556c019dc89905f51cf3f2801d1405f75ebc0b",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/writeback-constraints.md",
+        "sha256": "f7e42faf77ca8a46afd669f5ab8c1cdc2bf3f4a0574e4a151ad182f478755525",
+        "mtime": 1788613580
+      },
+      {
+        "path": "docs/spec/feat-seo-assessment-reflection/writeback-design.md",
+        "sha256": "f7ebfd451769bad21ea3e6fef5c7386bf9847aa3e29e9141f787d96523827993",
+        "mtime": 1788613580
+      },
+      {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
-        "sha256": "92601820e3c870513070e12111177f4323529b1703f76445b58c44845e780c41",
-        "mtime": 1788557455
+        "sha256": "f40da5165b4d7f41d2db25c935a2b19dfd54d2c05697d5db658ec071c7e9e786",
+        "mtime": 1788797502
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
@@ -777,8 +1611,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
-        "sha256": "09e37ce9113f3fa8086a0a594667767ccf7c279487929aadce07e088c27a9c40",
-        "mtime": 1788557455
+        "sha256": "523135d0ee4295bf48b6bd01ba08cd08634284b906dc97e72a5fa70bd744611f",
+        "mtime": 1788797502
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
@@ -797,8 +1631,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
-        "sha256": "42cb1b32238b60fc13cb8f23e3ecd49f37bb38f8e023c7206a7c79bb5fe29de6",
-        "mtime": 1788557455
+        "sha256": "c6b64c2e4c56df3bc566b9e12dfefde786761d497a960373cab4c60f1e81ad20",
+        "mtime": 1788797502
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
@@ -842,252 +1676,59 @@
       },
       {
         "path": "system-spec/00-requirements-definition.md",
-        "sha256": "5ec66abed2c0d11425c0cf434c317f1c65c80fe5c6112e4ac0df21026bd44df6",
-        "mtime": 1788610735
+        "sha256": "cf8c44862e1a45d8b2a5fc7b72555e2bf5c5dd04f8514f11e1ce0dfc1d4310b4",
+        "mtime": 1788788917
       },
       {
         "path": "system-spec/auth.md",
-        "sha256": "c8aa2ee4a09021cd46628c075570bca9407c195ef5b7172a52238cfe6674ca11",
-        "mtime": 1788610735
+        "sha256": "39abb1d3d4cec17ba63cebd6411129e69f020fde83335ae14022bb61c299497e",
+        "mtime": 1788797633
       },
       {
         "path": "system-spec/backend.md",
-        "sha256": "937da921874be1fc199c278f35df90fffd439281762c2c65d7b165e94cf80a2c",
-        "mtime": 1788610735
+        "sha256": "bd4cb7171cd7d1749f92b31c2a42b159b05b339c1d39d05d1daddc064ef6803e",
+        "mtime": 1788788917
       },
       {
         "path": "system-spec/database.md",
-        "sha256": "829b9237e54ec4d6650203cc72d16c78dd87e8a1834b866a95c11b6bcb00b67c",
-        "mtime": 1788610735
+        "sha256": "7f3ad0dbc59c6d329ad8acb478db2b5ecc94e77f5368808ceed72878283bae90",
+        "mtime": 1788788917
       },
       {
         "path": "system-spec/frontend.md",
-        "sha256": "8e029550d4e493aa2ce443fed363de91f2c67d4c020a2bcb540411d707794502",
-        "mtime": 1788610735
+        "sha256": "b510acf0dcaa4ac8731560386a1e2ab0fa3284fed594391394628aa5e19eb6fa",
+        "mtime": 1788788917
       },
       {
         "path": "system-spec/index.md",
-        "sha256": "27f101ae73a2ff370445807032d1f5462fe0878231228b13e76820216aa27d40",
-        "mtime": 1788610735
+        "sha256": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
+        "mtime": 1788788917
       },
       {
         "path": "system-spec/infrastructure.md",
-        "sha256": "4fbd1e620e09394b41f027633dfe27194c890196ce796a7fd404d4ab7cae6e0a",
-        "mtime": 1788610735
+        "sha256": "efdd6943ce4134b315cd08faec2119854db4a43a06f6d05161a9535daf9d7a71",
+        "mtime": 1788788917
       },
       {
         "path": "system-spec/maintenance-ops.md",
-        "sha256": "82973d8c3677ee4fa95fd429982d5cb3328606381de6241d1a08617b6be5c625",
-        "mtime": 1788610735
+        "sha256": "964e46c321a93eef3ff944b08eb517d5cdcac0cdd2e6df92512f48e2f1984b23",
+        "mtime": 1788788917
       },
       {
         "path": "system-spec/security.md",
-        "sha256": "0e9c1caf64d2a363d41e6f41831dfb753352af165aa999f36272168a0077e4ac",
-        "mtime": 1788610735
+        "sha256": "8e958f748863afbc955e1dcbbdf8cd43d9b1d9bbbb844c9596baf69acac6614d",
+        "mtime": 1788788917
       },
       {
         "path": "system-spec/spec-state.json",
-        "sha256": "efeb0f22be734ac0b81c47cd74dbb68752f2ac67bed0898b6472c9b7b6d62a9c",
-        "mtime": 1788610268
+        "sha256": "eebd9b084ff53e2447e41b221875df8eb8597fa7003da68a56b1aeb412399fec",
+        "mtime": 1788698916
       },
       {
         "path": "system-spec/ui-ux.md",
-        "sha256": "541b1e39f8139d282366f45920ea64fad98f14e264064768eb868357caa70428",
-        "mtime": 1788610735
+        "sha256": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
+        "mtime": 1788788917
       }
-    ],
-    "pinned_at": "2026-09-05T12:23:26.964Z"
-  },
-  "aspects": {
-    "foundation_trace": {
-      "verdict": "PASS",
-      "auditor": "assign-system-spec-completeness-evaluator",
-      "component": "C05",
-      "score": 1,
-      "summary": "requirements_foundation U1〜U9 と decisions・goal トレースを validate-coverage-matrix.py --require-foundation で機械検証し exit 0。C16 の block item 6 件 (product-goal / context-of-use / target-platforms / domain-model / auth-model / security-posture) はいずれも grounded_by を持ち、--require-counted-required-info で『数えた 0』であることまで裏取りされている。",
-      "evidence": [
-        "system-spec/spec-state.json#requirements_foundation",
-        "gate_results[G-matrix]"
-      ]
-    },
-    "decision_guidance": {
-      "verdict": "PASS",
-      "auditor": "assign-system-spec-completeness-evaluator",
-      "component": "C05",
-      "score": 1,
-      "summary": "decisions 15 件すべてが status=confirmed で、各件が選択肢・cost・選定理由を持つ。未確定 decision は 0 件であり、実装段階で判断を戻す先が残っていない。",
-      "evidence": [
-        "system-spec/spec-state.json#decisions"
-      ]
-    },
-    "matrix_coverage": {
-      "verdict": "PASS",
-      "auditor": "system-spec-matrix-auditor",
-      "component": "C07",
-      "summary": "独立 context の C07 が 48 セルの収集状態を監査し PASS。設計適用の接地 (--require-grounded-design-applications) と孤立質疑の後継申告まで含めて validate-coverage-matrix.py が exit 0。C06 (hearing) を sub_input として同一 spec 版へ当て、聞き漏れ・誘導質問・早期停止が無いことも PASS で確認した。",
-      "evidence": [
-        "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
-        "gate_results[G-matrix]"
-      ]
-    },
-    "design_knowledge_reflection": {
-      "verdict": "PASS",
-      "auditor": "assign-system-spec-completeness-evaluator",
-      "component": "C05",
-      "score": 0.85,
-      "summary": "compile 再実行により全 8 章の「適用された設計知識」が実体化した。各接地根拠が原則・採否 (applied/not_applicable)・章固有の根拠・トレードオフを持ち、deep knowledge card の逐語コピーだけを置く旧形は解消済み。残る「未記入」は --on-handwritten preserve が温存した正本未接続の旧手書き区画に限られ、生成本体には存在しない (findings 参照)。",
-      "evidence": [
-        "system-spec/frontend.md#適用された設計知識",
-        "system-spec/spec-state.json#qa_log[].design_applications"
-      ]
-    },
-    "doc_freshness": {
-      "verdict": "PASS",
-      "auditor": "system-spec-doc-freshness-auditor",
-      "component": "C08",
-      "summary": "独立 context の C08 が取得済み公式ドキュメントを公式サイトへ再照合し PASS。非公式 host・version 齟齬・確認時刻の欠落は検出されていない。validate-source-citation.py も exit 0 で、出典を持たない主張が本文に無いことを機械確認した。",
-      "evidence": [
-        "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
-        "gate_results[G-source-citation]"
-      ]
-    },
-    "prompt_quality": {
-      "verdict": "PASS",
-      "auditor": "assign-system-spec-completeness-evaluator",
-      "component": "C05",
-      "score": 1,
-      "summary": "監査を委譲する prompt の supply_neutrality (proposer ≠ approver の文法門) を SKILL.md と prompts/R2-delegate.md の双方で検査し exit 0。参照は SUPPLIED_LOCATORS / SUPPLIED_INPUTS 区画内に 1 行 1 locator で閉じており、区画内の散文 (prose_in_block) も区画外の参照 token (locator_outside) も無い。",
-      "evidence": [
-        "gate_results[G-supply-neutrality]"
-      ]
-    }
-  },
-  "audit_delegations": [
-    {
-      "aspect": "matrix_coverage",
-      "role": "primary",
-      "auditor": "system-spec-matrix-auditor",
-      "component": "C07",
-      "dispatch": {
-        "tool": "Agent",
-        "subagent_type": "system-spec-matrix-auditor",
-        "session_id": "f0776f7c-3258-4af6-880b-07cd81b6f0fe",
-        "tool_use_id": "toolu_016KiyjD9qYUh9kvztxAzUfY",
-        "response_sha256": "6bee59d9d5384628865f6412f22da92dc8d7ab0b0323309dbd56e95a345827d6"
-      },
-      "verdict": "PASS",
-      "evidence": [
-        "eval-log/system-spec-harness/audit-fork-ledger.jsonl"
-      ]
-    },
-    {
-      "aspect": "matrix_coverage",
-      "role": "sub_input",
-      "auditor": "system-spec-hearing-auditor",
-      "component": "C06",
-      "dispatch": {
-        "tool": "Agent",
-        "subagent_type": "system-spec-hearing-auditor",
-        "session_id": "f0776f7c-3258-4af6-880b-07cd81b6f0fe",
-        "tool_use_id": "toolu_01WoYZdJy7K1DiHPXE83JaGx",
-        "response_sha256": "ce29525d0b60d5ba99d88f226c688dfeab13d6fb3e53203f33163dd609458ac6"
-      },
-      "verdict": "PASS",
-      "evidence": [
-        "eval-log/system-spec-harness/audit-fork-ledger.jsonl"
-      ]
-    },
-    {
-      "aspect": "doc_freshness",
-      "role": "primary",
-      "auditor": "system-spec-doc-freshness-auditor",
-      "component": "C08",
-      "dispatch": {
-        "tool": "Agent",
-        "subagent_type": "system-spec-doc-freshness-auditor",
-        "session_id": "f0776f7c-3258-4af6-880b-07cd81b6f0fe",
-        "tool_use_id": "toolu_01KTwvMSohwq4WxaA17wb6fR",
-        "response_sha256": "ad195bf5eb13b75c2c3633de6fb3d218840617fb68a44aaf09294758f24007ff"
-      },
-      "verdict": "PASS",
-      "evidence": [
-        "eval-log/system-spec-harness/audit-fork-ledger.jsonl"
-      ]
-    }
-  ],
-  "gate_results": [
-    {
-      "id": "G-matrix",
-      "name": "収集マトリクス網羅性 (C7 + C9 + C16 + 設計適用接地 + 後継申告)",
-      "exit_code": 0,
-      "command": "python3 .claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py --matrix system-spec/spec-state.json --require-complete --require-foundation --require-counted-required-info --require-catalog-domain-coverage --require-grounded-design-applications --require-declared-qa-supersession"
-    },
-    {
-      "id": "G-source-citation",
-      "name": "出典接地 (主張と取得済み出典の対応)",
-      "exit_code": 0,
-      "command": "python3 .claude/plugins/system-spec-harness/scripts/validate-source-citation.py --targets system-spec/spec-state.json --references system-spec/fetched-references.json --state system-spec/spec-state.json --repo-root ."
-    },
-    {
-      "id": "G-supply-neutrality",
-      "name": "供給中立性 (proposer ≠ approver の文法門)",
-      "exit_code": 0,
-      "command": "python3 .../assign-system-spec-completeness-evaluator/scripts/supply_neutrality.py --prompt-file <SKILL.md|prompts/R2-delegate.md> --repo-root ."
-    },
-    {
-      "id": "G-compile",
-      "name": "仕様書生成 (単一 writer)",
-      "exit_code": 0,
-      "command": "python3 .../run-system-spec-compile/scripts/compile-spec-doc.py compile --spec system-spec/spec-state.json --references system-spec/fetched-references.json --out-dir system-spec --on-handwritten preserve"
-    }
-  ],
-  "findings": [
-    {
-      "severity": "medium",
-      "bucket": "design_knowledge_reflection",
-      "observation": "auth / backend / database / frontend / infrastructure / maintenance-ops / security / ui-ux の 8 章に、compile が正本へ写せず preserve で温存した旧手書き区画が残る。内訳は旧 doctrine 表 (`## 上流指針 (doctrine anchors)` 複数形、「本章の確定セルへの反映」列が **未記入**) と `## 章にしか無い記述 (正本へ未接続)` の h3 「本章での適用」。生成本体 (`## 上流指針 (doctrine anchor)` 単数形と `## 適用された設計知識`) は 同じ concern を条項引用可否まで含めて記述しており、未記入は生成物側には無い。",
-      "suggested_fix": "旧区画は正本 (spec-state.json) へ接続されていないため、次の compile 世代で `## 章にしか無い記述 (正本へ未接続)` の内容を chapter_notes か design_applications へ 取り込んだうえで削除する。今すぐ手で消すと『章にしか無い記述』が根拠ごと消えるため、正本へ写す前の削除は行わない。",
-      "evidence": [
-        "system-spec/frontend.md#章にしか無い記述-正本へ未接続",
-        "system-spec/frontend.md#上流指針-doctrine-anchors"
-      ]
-    },
-    {
-      "severity": "low",
-      "bucket": "doc_freshness",
-      "observation": "C08 の監査は compile 再実行より前に走った。compile が書き換えたのは system-spec/*.md であり、C08 の検査対象である fetched-references.json と retrieval-evidence/ は変更していない。出典の鮮度判定は同一入力に対する結論として有効である。",
-      "suggested_fix": "出典を追加取得したときは C08 を再起動し、台帳へ新しい resolution 行を積んでから report の dispatch.response_sha256 を差し替える。",
-      "evidence": [
-        "eval-log/system-spec-harness/audit-fork-ledger.jsonl"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "matrix_coverage",
-      "observation": "qa-foundation-u1 と qa-platform-scope は 2026-09-05 に design_applications を 後付けで結線して G-matrix 違反を解消した。両者はどのセルからも qa_ref として引かれず、ui-ux×web の qa_refs 経由でのみ参照される。qa_ref を外す op が存在しないため、この参照は今後も残る。",
-      "evidence": [
-        "system-spec/spec-state.json#matrix.ui-ux.web.qa_refs"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "merge_hearing_progress_overrun",
-      "observation": "2026-09-05 の dev 合流で hearing_progress に loop_count=8 > max_loops=5 の組が生じ、set-hearing-policy --overrun で由来を記名したあと chunk で本ブランチ側の方針値へ戻したが、limit_overrun の痕跡そのものは残っていた (recorded_at: null)。C06 はこれを 『是正が writer を一度も通っていない自認』として早期停止軸の検出に計上した。set-hearing-policy --policy strict の再実行で writer 自身が痕跡を外し、解消した。",
-      "suggested_fix": "合流の解決で hearing_progress の loop_count と max_loops を別々の側から採らないこと。この節は writer の産物なので、合流では片側を丸ごと採るか、合流後に chunk を通し直すのが正しい。",
-      "evidence": [
-        "set_hearing_limit_policy は loop_limit_is_violated が偽のとき limit_overrun を pop する",
-        "実行後 hearing_progress 以外の全節が不変であることを差分で確認"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "reference_version_not_readable_from_body",
-      "observation": "github-actions の記録値 free-pro-team@latest は、docs.github.com の本文をマークダウンへ変換すると version selector が落ちるため本文からは読めない。C08 は URL 構造と GitHub Docs の版セレクタ仕様から『記録と矛盾なし』と判定した。記録が誤りである証拠は無いが、他の 20 件のように本文の表明で確かめられてはいない。",
-      "suggested_fix": "この 1 件だけ freshness_source を publisher-registry 相当の由来で名乗らせるか、版が本文に現れる別の公式ページ (例: リリースノート) を source_url に採ることを検討する。",
-      "evidence": [
-        "C08 の層2 再照合で本文から版表記を読めなかった 1 件"
-      ]
-    }
-  ],
-  "gaps": []
+    ]
+  }
 }

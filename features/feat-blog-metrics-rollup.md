@@ -12,7 +12,7 @@ iteration: null
 title: "ブログ・記事の日次指標ロールアップ"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-04T02:28:49.037614Z"
+updated_at: "2026-09-07T15:54:22.761514Z"
 status: "active"
 depends_on: ["feat-reader-behavior-analytics","feat-affiliate-hub","feat-analytics-insight"]
 related_nodes: ["spec-system-spec-index","feat-blog-scoped-admin-console"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-metrics-rollup/f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"bfd54655ae9a9f448eca91fcd6f57a9a30520bf4632c5f709f4ca504130cff7e","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "確定質疑 qa-database-web-domain-aeo-behavior / qa-backend-web-domain-aeo-behavior / qa-uiux-web-blog-scoped-admin を lineage 参照。利用者要望『トータルでどの記事がどれくらいの売上を出しているか、記事ごとのPV、その他ブログを管理する上で必要な情報』への対応"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-metrics-rollup.md","confidence":0.95}]

@@ -47,6 +47,7 @@
       "feedback"
     ],
     "foldableRouteIds": [
+      "blog/articles/[article]",
       "feedback/[report]",
       "personas/audiences"
     ],
