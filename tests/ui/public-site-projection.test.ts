@@ -8,38 +8,44 @@ import {
   SITE_DOCUMENT_KEYS,
   SITE_PROVISIONING_REQUIRED_COUNTS,
 } from "@/domain/authoring";
+import { domainError } from "@/domain/shared/errors";
 import { err, ok } from "@/domain/shared";
 import {
   projectPublicSiteComposition,
   readPublicSiteProjection,
   type PublicSiteProjection,
 } from "@/presentation/site/public-site-projection";
+import {
+  aLayoutBand,
+  aLayoutSlot,
+  anArticleSummary,
+  aPublicSiteProjection,
+  aPublicSiteReader,
+  aSiteNetworkNode,
+} from "../support/factories";
 
+/**
+ * 設計図に固定ページが宣言されていても、実在する公開固定ページとは数えない
+ * ——という約束を測るための投影。`aSiteBlueprint` の既定は信頼ページが
+ * 揃っているので、`blueprint.pages` は空でない。**それでも
+ * `counts.site_documents` は 0 になる**ことが、ここで見たい形である。
+ *
+ * 以前は各項目を `{} as never` で埋めていた。枠も帯も節点も
+ * **項目を 1 つも持たない空オブジェクト**で、件数だけが合っていた。
+ * その形だと、数え方が「行の有無」から「行の中身」へ変わった日に
+ * この検査は黙って通り続ける。
+ */
 function projectionWith(
   over: Partial<PublicSiteProjection> = {},
 ): PublicSiteProjection {
-  return {
-    source: "live",
-    reader: {
-      // 設計図に固定ページが宣言されていても、実在する公開固定ページとは数えない。
-      blueprint: {
-        pages: ["profile", "contact"],
-        categories: [{ slug: "guide" }],
-      } as never,
-    } as never,
-    slots: [{}] as never,
-    provisionedSlots: [{}] as never,
-    bands: [{}] as never,
-    provisionedBands: [{}] as never,
-    articles: [],
-    featuredArticles: { selectedCount: 0, articles: [] },
-    network: [{}] as never,
-    tags: [],
-    documents: [],
-    deliveryParts: [],
-    chrome: { headerSlots: [], footerSlots: [] },
+  return aPublicSiteProjection({
+    slots: [aLayoutSlot()],
+    provisionedSlots: [aLayoutSlot()],
+    bands: [aLayoutBand()],
+    provisionedBands: [aLayoutBand()],
+    network: [aSiteNetworkNode()],
     ...over,
-  };
+  });
 }
 
 describe("PublicSiteProjection", () => {
@@ -89,12 +95,12 @@ describe("PublicSiteProjection", () => {
         documents: [],
         provisionedBands: Array.from(
           { length: SITE_PROVISIONING_REQUIRED_COUNTS.layout_bands },
-          () => ({}),
-        ) as never,
+          () => aLayoutBand(),
+        ),
         provisionedSlots: Array.from(
           { length: SITE_PROVISIONING_REQUIRED_COUNTS.layout_slots },
-          () => ({}),
-        ) as never,
+          () => aLayoutSlot(),
+        ),
       }),
     );
 
@@ -109,7 +115,7 @@ describe("PublicSiteProjection", () => {
 
   it("公開投影の記事を構成要素から漏らさない", () => {
     const report = projectPublicSiteComposition(
-      projectionWith({ articles: [{ id: "article-1" }, { id: "article-2" }] as never }),
+      projectionWith({ articles: [anArticleSummary(), anArticleSummary()] }),
     );
 
     expect(report.counts.articles).toBe(2);
@@ -117,8 +123,13 @@ describe("PublicSiteProjection", () => {
   });
 
   it("公開サイトに必要な保存値を各 1 回だけ読む", async () => {
-    const reader = {
-      blueprint: {} as never,
+    /*
+      **数えたい 10 口だけを `vi.fn` で名指しする。**残り 4 口は雛形が埋める。
+      以前は 14 口を手で並べ `blueprint: {} as never` で締めていたが、
+      その形だと口が 1 つ増えた日にこの検査は「増えた口を読んでいない」まま
+      緑になる。雛形経由なら、増えた口は `factories.ts` 1 か所に現れる。
+    */
+    const reads = {
       listLayoutSlots: vi.fn(async () => ok([])),
       listProvisionedLayoutSlots: vi.fn(async () => ok([])),
       listLayoutBands: vi.fn(async () => ok([])),
@@ -129,11 +140,8 @@ describe("PublicSiteProjection", () => {
       listTags: vi.fn(async () => ok([])),
       listDocuments: vi.fn(async () => ok([])),
       listDeliveryParts: vi.fn(async () => ok([])),
-      findArticleBySlug: vi.fn(async () => ok(null)),
-      findSourceArticleId: vi.fn(async () => ok(null)),
-      summarizeReaderRatings: vi.fn(async () => ok({})),
     };
-    const port = { openSite: vi.fn(async () => ok(reader)) };
+    const port = { openSite: vi.fn(async () => ok(aPublicSiteReader(reads))) };
 
     const result = await readPublicSiteProjection("hub", {
       source: "sample",
@@ -143,18 +151,7 @@ describe("PublicSiteProjection", () => {
     expect(result.ok).toBe(true);
     expect(port.openSite).toHaveBeenCalledTimes(1);
     expect(port.openSite).toHaveBeenCalledWith("hub");
-    for (const read of [
-      reader.listLayoutSlots,
-      reader.listProvisionedLayoutSlots,
-      reader.listLayoutBands,
-      reader.listProvisionedLayoutBands,
-      reader.listPublished,
-      reader.listFeaturedArticles,
-      reader.listNetwork,
-      reader.listTags,
-      reader.listDocuments,
-      reader.listDeliveryParts,
-    ]) {
+    for (const read of Object.values(reads)) {
       expect(read).toHaveBeenCalledTimes(1);
     }
     if (result.ok) expect(result.value?.source).toBe("sample");
@@ -163,28 +160,22 @@ describe("PublicSiteProjection", () => {
   it("読み取りが 1 つ失敗したら、他が揃っていても投影を作らず閉じる", async () => {
     // 「一部だけ古い公開面を描かない」は本体のコメントが宣言している約束で、
     // ここで初めて機械が確かめる。番人を 1 つに束ねた後も約束が残ることを固定する。
-    const reader = {
-      blueprint: {} as never,
-      listLayoutSlots: vi.fn(async () => ok([])),
-      listProvisionedLayoutSlots: vi.fn(async () => ok([])),
-      listLayoutBands: vi.fn(async () => ok([])),
-      listProvisionedLayoutBands: vi.fn(async () => ok([])),
-      listPublished: vi.fn(async () => ok([])),
-      listFeaturedArticles: vi.fn(async () => ok({ selectedCount: 0, articles: [] })),
-      listNetwork: vi.fn(async () => ok([])),
-      listTags: vi.fn(async () => err({ kind: "storage", message: "タグが読めません" })),
-      listDocuments: vi.fn(async () => ok([])),
-      listDeliveryParts: vi.fn(async () => ok([])),
-      findArticleBySlug: vi.fn(async () => ok(null)),
-      findSourceArticleId: vi.fn(async () => ok(null)),
-      summarizeReaderRatings: vi.fn(async () => ok({})),
-    };
+    /*
+      以前この失敗は `{ kind: "storage", message: ... }` だった。**`DomainError`
+      ではない**——`code` も `retryable` も無い。読み口ごと `as never` で締めて
+      いたので型検査に掛からず、呼び出し側にまで `as never` が伝染していた。
+      正本の生成関数を通すと、その 2 つの偽装がどちらも要らなくなる。
+    */
+    const failure = domainError("UPSTREAM_UNAVAILABLE", "タグが読めません", {
+      retryable: true,
+    });
+    const reader = aPublicSiteReader({ listTags: async () => err(failure) });
     const port = { openSite: vi.fn(async () => ok(reader)) };
 
-    const result = await readPublicSiteProjection("hub", { source: "live", port } as never);
+    const result = await readPublicSiteProjection("hub", { source: "live", port });
 
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toEqual({ kind: "storage", message: "タグが読めません" });
+    if (!result.ok) expect(result.error).toEqual(failure);
   });
 
   it("公開identityが無ければ空の投影を作らずnullで閉じる", async () => {
@@ -196,28 +187,15 @@ describe("PublicSiteProjection", () => {
   });
 
   it("公開投影は旧固定ページ一覧へ依存せず、正本文書の可否を各canonical routeへ委ねる", async () => {
-    const reader = {
-      blueprint: {} as never,
-      listLayoutSlots: async () => ok([]),
-      listLayoutBands: async () => ok([]),
-      // 描画用（enabled のみ）とは別に、作成完了の判定が読む「未削除の実体」。
-      // ここを省くと、版面が 0 枚のまま provisioningComplete を語れなくなる。
-      listProvisionedLayoutSlots: async () => ok([]),
-      listProvisionedLayoutBands: async () => ok([]),
-      listPublished: async () => ok([]),
-      listFeaturedArticles: async () => ok({ selectedCount: 0, articles: [] }),
-      findSourceArticleId: async () => ok(null),
-      summarizeReaderRatings: async () => ok({}),
-      listNetwork: async () => ok([]),
-      listTags: async () => ok([]),
-      listDocuments: async () => ok([]),
-      listDeliveryParts: async () => ok([]),
-      findArticleBySlug: async () => ok(null),
-    };
-
+    /*
+      **この検査は読み口の中身に関心が無い。**見たいのは投影に旧語彙が
+      残っていないことだけなので、14 口を並べ直さず雛形を使う。
+      「描画用（enabled のみ）とは別に作成完了が読む未削除の実体」も
+      雛形が持っているので、ここで数え直さなくてよい。
+    */
     const result = await readPublicSiteProjection("hub", {
       source: "sample",
-      port: { openSite: async () => ok(reader) },
+      port: { openSite: async () => ok(aPublicSiteReader()) },
     });
 
     expect(result.ok && result.value).not.toBeNull();

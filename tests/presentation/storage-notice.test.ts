@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
+import type { StorageStatus } from "@/presentation/ui/patterns/stub-notice";
 
 /**
  * 「いま何で動いているか」の言葉が、接続の有無で本当に変わることを見る。
@@ -26,19 +27,34 @@ vi.mock("server-only", () => ({}));
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 
 /** 入口から、保存先のお知らせを返す関数の名前を読み取る。 */
-function noticeNames(): readonly string[] {
+function noticeNames(): readonly NoticeName[] {
   const source = readFileSync(`${ROOT}src/presentation/composition.ts`, "utf-8");
   // **返す型で選ぶ。** 名前だけで選ぶと、ログイン状態の案内（ただの文字列）まで
   // 拾ってしまい、検査が「何を見ているのか」を言えなくなる。
   const names = [
     ...source.matchAll(/export async function (\w+)\(\): Promise<StorageStatus>/g),
-  ].map((m) => m[1]);
+    // 本文を正規表現で走査して得た名前なので、型の側からは検査できない。
+    // ここは「入口に実在する綴りである」ことを表明する箇所。綴りが外れれば
+    // 下の `mod[name]()` が実行時に落ちる。
+  ].map((m) => m[1] as NoticeName);
   // 1 件も拾えていないのに緑になるのが最悪なので、そこだけ先に落とす。
   expect(names.length).toBeGreaterThan(0);
   return names;
 }
 
-type Notices = Record<string, () => Promise<Record<string, unknown>>>;
+/**
+ * お知らせの束は、入口の module そのものから型を引く。
+ *
+ * 以前はここを `Record<string, () => Promise<Record<string, unknown>>>` と
+ * 名乗り、import の戻りを `as unknown as` で押し込んでいた。その形だと
+ * `StorageStatus` の欄が増えても減ってもこの検査は何も言わない——
+ * 「入口を全部見る」と言いながら、入口の形は一切見ていなかった。
+ */
+type Composition = typeof import("@/presentation/composition");
+type NoticeName = {
+  [K in keyof Composition]: Composition[K] extends () => Promise<StorageStatus> ? K : never;
+}[keyof Composition];
+type Notices = Pick<Composition, NoticeName>;
 
 /**
  * 「つながっている」状態の env。
@@ -59,7 +75,8 @@ async function noticesWith(env: Record<string, unknown>): Promise<Notices> {
     // D1 の実体は要らない。お知らせは問い合わせを 1 度もしない。
     getCloudflareContext: async () => ({ env }),
   }));
-  return (await import("@/presentation/composition")) as unknown as Notices;
+  // 入口の module は `Notices` を満たすので、名乗り直しは要らない。
+  return await import("@/presentation/composition");
 }
 
 describe("いま何で動いているかのお知らせ", () => {

@@ -11,6 +11,7 @@ import { type WorkspaceId, domainError, err, ok } from "@/domain/shared";
 import { OTHER_WORKSPACE, WORKSPACE } from "../support/actors";
 import { aWorkspace } from "../support/factories";
 import { NOW } from "../support/clock";
+import { testDeps } from "../support/doubles";
 
 const limits: Readonly<Record<CapacityKind, number>> = {
   brand: PLAN_LIMITS.solo.maxBrands,
@@ -27,6 +28,9 @@ function guard(counts: Readonly<Record<string, number>>) {
   const count = (workspaceId: WorkspaceId, kind: CapacityKind) =>
     counts[`${String(workspaceId)}:${kind}`] ?? 0;
   const workspaces = {
+    // 見本の保存先を土台にする。この検査が動かすのは容量の 3 口だけで、
+    // 残りの口は見本の実装がそのまま埋める。
+    ...testDeps().workspaces,
     findById: async (workspaceId: WorkspaceId) =>
       ok(aWorkspace({ id: workspaceId, plan: "solo" })),
     async acquireCapacityLease(workspaceId: WorkspaceId, input: AcquireCapacityLeaseInput) {
@@ -50,7 +54,7 @@ function guard(counts: Readonly<Record<string, number>>) {
       }
       return ok(undefined);
     },
-  } as unknown as WorkspaceRepositoryPort;
+  } satisfies WorkspaceRepositoryPort;
   return {
     active,
     capacity: createCapacityGuard({ workspaces, now: () => NOW }),

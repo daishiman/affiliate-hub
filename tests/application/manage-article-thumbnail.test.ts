@@ -237,6 +237,9 @@ describe("誰が触れるか", () => {
     expect(() =>
       createSetArticleThumbnailUseCase({
         ...deps,
+        // 見ているのは**印だけ**。中身が空でも組み立てが止まることを確かめる
+        // ための偽装なので、`as never` はここでは表明として置いている。
+        // 口を揃えると「印が違う」以外の理由でも止まり、何を見たのか読めなくなる。
         affiliateLinks: markCommercial({}) as never,
       }),
     ).toThrow(/商業データ/);

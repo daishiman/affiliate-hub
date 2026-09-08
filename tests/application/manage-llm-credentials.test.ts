@@ -1,6 +1,5 @@
 /** @tier 1 */
 import { describe, expect, it } from "vitest";
-import type { AuditLogPort } from "@/application/ports/compliance";
 import type {
   LlmConnectivityPort,
   LlmCredentialVaultPort,
@@ -8,10 +7,10 @@ import type {
 } from "@/application/ports/llm-credential";
 import { createManageLlmCredentialsUseCase } from "@/application/usecases/generation/manage-llm-credentials";
 import type { LlmCredentialSummary } from "@/domain/generation/llm-credential";
-import type { AuditLogEntry } from "@/domain/compliance";
 import { domainError, ok } from "@/domain/shared";
 import type { UserId, WorkspaceId } from "@/domain/shared";
 import { WORKSPACE, aNobody, anAiAccount, anOwner } from "../support/actors";
+import { recordingAuditLog } from "../support/doubles";
 
 /**
  * 生成 AI の API キーの登録・確認・失効。
@@ -93,16 +92,19 @@ function fakeCatalog(models: Record<string, (typeof MODEL)[]> = { anthropic: [MO
   return port;
 }
 
+/*
+  操作の記録は見本の受け口をそのまま使う。ここで痩せた形を書くと、
+  `append` が記録の番号ではなく `undefined` を返すような、正本の約束と
+  食い違う実装が検査の中に住み着く。
+*/
 function fakeAudit() {
-  const entries: AuditLogEntry[] = [];
-  const port = {
-    append: async (entry: AuditLogEntry) => {
-      entries.push(entry);
-      return ok(undefined);
+  const recorder = recordingAuditLog();
+  return {
+    port: recorder.port,
+    get entries() {
+      return recorder.entries();
     },
-    list: async () => ok([]),
-  } as unknown as AuditLogPort;
-  return { port, entries };
+  };
 }
 
 function fakeConnectivity(succeed: boolean): { port: LlmConnectivityPort; calls: number[] } {

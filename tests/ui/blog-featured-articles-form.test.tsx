@@ -6,10 +6,10 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ComponentType } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { ComponentProps } from "react";
 import type { ArticleSummary } from "@/application/read-models/published-article";
-import * as blogLayoutForms from "@/presentation/admin/publish/blog-featured-articles-form";
+import { BlogFeaturedArticlesForm } from "@/presentation/admin/publish/blog-featured-articles-form";
 
 /**
  * 運営者は数値の position を編集するのではなく、記事名を見ながら
@@ -23,29 +23,6 @@ vi.mock("@/presentation/admin/publish/blog-layout-action", () => ({
   manageBlogLayoutAction: async () => ({ status: "idle", message: "" }),
   manageBlogFeaturedArticlesAction: saveFeatured,
 }));
-
-type SelectedArticle = {
-  readonly articleSlug: string;
-  readonly article: ArticleSummary | null;
-};
-
-type FeaturedFormProps = {
-  readonly siteSlug: string;
-  readonly selectedArticles: readonly SelectedArticle[];
-  readonly candidateArticles: readonly ArticleSummary[];
-};
-
-function featuredForm(): ComponentType<FeaturedFormProps> {
-  const found = (
-    blogLayoutForms as unknown as {
-      readonly BlogFeaturedArticlesForm?: ComponentType<FeaturedFormProps>;
-    }
-  ).BlogFeaturedArticlesForm;
-  expect(found, "版面画面におすすめ記事の編集欄がまだありません").toBeTypeOf(
-    "function",
-  );
-  return found as ComponentType<FeaturedFormProps>;
-}
 
 function article(slug: string, title: string): ArticleSummary {
   return {
@@ -64,12 +41,16 @@ const A = article("featured-a", "最初の記事");
 const B = article("featured-b", "二番目の記事");
 const C = article("featured-c", "追加候補の記事");
 
-function renderForm(
-  over: Partial<FeaturedFormProps> = {},
-) {
-  const Form = featuredForm();
+/*
+  欄の形は部品そのものから引く。以前はここで自前の `FeaturedFormProps` を並べ、
+  部品は namespace を `as unknown as` で覗いて取り出していた。部品側が受け取る
+  欄が変わっても、この検査は何も言わない状態だった。
+*/
+type FeaturedFormProps = ComponentProps<typeof BlogFeaturedArticlesForm>;
+
+function renderForm(over: Partial<FeaturedFormProps> = {}) {
   return render(
-    <Form
+    <BlogFeaturedArticlesForm
       siteSlug="hub"
       selectedArticles={[
         { articleSlug: A.slug, article: A },
@@ -165,8 +146,7 @@ describe("おすすめ記事の編集欄", () => {
     const user = userEvent.setup();
     const view = renderForm();
     await user.click(screen.getByRole("button", { name: `${B.title}を1つ上へ` }));
-    const Form = featuredForm();
-    view.rerender(<Form siteSlug="another" selectedArticles={[{ articleSlug: C.slug, article: C }]} candidateArticles={[]} />);
+      view.rerender(<BlogFeaturedArticlesForm siteSlug="another" selectedArticles={[{ articleSlug: C.slug, article: C }]} candidateArticles={[]} />);
 
     expect(selectedLinkNames()).toEqual([C.title]);
     const form = screen.getByRole("button", { name: "おすすめ記事の並びを保存" }).closest("form")!;

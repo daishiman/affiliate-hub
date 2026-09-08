@@ -543,6 +543,25 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0060_seo_static_audit_scans",
       // 表示中の完了検索語と、その完了時刻・API上限状態を同じsnapshotへ固定する。
       "0061_seo_query_snapshot_state",
+      /*
+        **上の振り直しが `meta/` まで届いていなかったのを、ここで畳む。**
+
+        番号を 0044〜0054 から 0051〜0061 へ送ったとき、動いたのは `*.sql` だけで、
+        `meta/*_snapshot.json` の親子（`prevId` の鎖）は元のままだった。
+        結果、`0044` と `0057` が同じ `0043` を親に持つ二股になり、
+        `drizzle-kit generate` が collision で止まっていた。**新しい migration を
+        誰も作れない状態**で、止まっていたおかげで壊れた SQL は出ていない。
+
+        直し方は 2 つ。`0057` の親を `0050` へ付け替えて鎖を一本に戻すのと、
+        末尾に**いまの `schema.ts` そのままの snapshot** を 1 枚積むこと。
+        前者だけでは足りない。`0057` の中身は 0043 時点の姿で、
+        `0044`〜`0050` が足した 12 表を知らないままだからで、
+        次の `generate` がその 12 表を「まだ無い」と読んで作り直そうとする。
+
+        だからこの回の `*.sql` は**空**にしてある。実体にはもう全部あるので、
+        流すものが無い。進めるのは snapshot の側だけ。
+      */
+      "0062_realign_snapshot_lineage",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string; idx: number; when: number }>;

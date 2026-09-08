@@ -6,6 +6,7 @@ import {
 } from "@/infrastructure/persistence/sample/distribution-sample-repository";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aPublication } from "../support/factories";
+import { asChannelConnectionId, asPublicationId } from "@/domain/shared";
 
 describe("見本の配信接続ページング", () => {
   it("cursorをたどると、決定的な順序で全接続を重複なく読める", async () => {
@@ -31,10 +32,10 @@ describe("見本の即時配信", () => {
   it("scheduledAtがnullの外部配信をdueとして返す", async () => {
     const repository = createSamplePublicationRepository();
     const immediate = aPublication({
-      id: "sample-immediate-due" as never,
+      id: asPublicationId("sample-immediate-due"),
       workspaceId: SAMPLE_WORKSPACE_ID,
       channelKind: "bluesky",
-      connectionId: "conn_bluesky" as never,
+      connectionId: asChannelConnectionId("conn_bluesky"),
       state: "QUEUED",
       scheduledAt: null,
       publishedAt: null,

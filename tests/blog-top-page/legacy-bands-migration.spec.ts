@@ -22,7 +22,7 @@ import {
 } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { BlogTopBands } from "@/presentation/site/blog-top-bands";
 import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
-import type { PublicSiteProjection } from "@/presentation/site/public-site-projection";
+import { aPublicSiteProjection } from "../support/factories";
 import { intoDom, renderDom } from "../support/render";
 
 /**
@@ -93,12 +93,13 @@ async function bandsDom(
 ) {
   const node = BlogTopBands({
     siteSlug: SITE,
-    projection: {
+    // 帯が読む 4 項目だけを渡し、残りは雛形の既定に任せる（型を外さない）。
+    projection: aPublicSiteProjection({
       bands,
       articles: over.articles ?? [],
       network: over.network ?? [],
       tags: over.tags ?? [],
-    } as unknown as PublicSiteProjection,
+    }),
   });
   return node === null ? intoDom("") : renderDom(node);
 }

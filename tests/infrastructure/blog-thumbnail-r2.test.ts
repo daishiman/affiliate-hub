@@ -126,6 +126,7 @@ describe("1 世代を置く", () => {
   it("置けない形式は R2 に触れる前に断る", async () => {
     const result = await putThumbnailGeneration(store.bucket, {
       ...AN_UPLOAD,
+      // 受け付けない形式を**わざと**渡す表明。実装が断ることをここで見る。
       mimeType: "image/svg+xml" as never,
     });
     expect(result.ok).toBe(false);
@@ -146,7 +147,8 @@ describe("1 世代を置く", () => {
       ...AN_UPLOAD,
       derived: [
         { width: 640 as const, bytes: bytes(1024) },
-        { width: 999 as never, bytes: bytes(1024) },
+        // 決めた幅の一覧に無い値を**わざと**渡す表明。
+      { width: 999 as never, bytes: bytes(1024) },
       ],
     });
     expect(result.ok).toBe(true);

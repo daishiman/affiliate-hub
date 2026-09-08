@@ -28,11 +28,23 @@ import {
   createSaveContentPackageUseCase,
 } from "@/application/usecases/authoring/manage-content-packages";
 import type { ContentPackage } from "@/domain/authoring";
-import { markEditorial, ok, taggedString } from "@/domain/shared";
+import {
+  asAudiencePersonaId,
+  asAuthorPersonaId,
+  asWorkspaceId,
+  markEditorial,
+  ok,
+  taggedString,
+} from "@/domain/shared";
 import type { AudiencePersonaId, AuthorPersonaId } from "@/domain/shared";
-import { SAMPLE_CONTENT_PACKAGES } from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
+import {
+  SAMPLE_AUDIENCE_PERSONAS,
+  SAMPLE_AUTHOR_PERSONAS,
+  SAMPLE_CONTENT_PACKAGES,
+} from "@/infrastructure/persistence/sample/content-editorial-sample-repository";
 import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
+import { aBrand, aProduct } from "../support/factories";
 import { recordingAuditLog } from "../support/doubles";
 
 // この単体検査の既定actorと同じworkspaceへ置く。sample保存先のworkspaceを
@@ -68,7 +80,7 @@ function packagesPort(items: readonly ContentPackage[] = [SAMPLE]) {
       saved.push(pkg);
       return ok(pkg);
     },
-  }) as unknown as EditorialContentPackageRepositoryPort;
+  }) satisfies EditorialContentPackageRepositoryPort;
   return { port, saved };
 }
 
@@ -78,26 +90,42 @@ function personasPort(
   audiences: readonly { id: string; name: string; workspaceId?: string }[],
 ) {
   const page = <T>(items: readonly T[]) => ok({ items, total: items.length, nextCursor: null });
-  return markEditorial({
-    listAuthors: async () => page(authors),
-    listAudiences: async () => page(audiences),
-    findAuthor: async (_workspaceId: unknown, id: unknown) => {
-      const found = authors.find((author) => author.id === String(id));
-      return ok(found === undefined ? null : { ...found, workspaceId: found.workspaceId ?? WORKSPACE });
-    },
-    findAudience: async (_workspaceId: unknown, id: unknown) => {
-      const found = audiences.find((audience) => audience.id === String(id));
-      return ok(found === undefined ? null : { ...found, workspaceId: found.workspaceId ?? WORKSPACE });
-    },
-    saveAuthor: async () => ok(null),
-    saveAudience: async () => ok(null),
-  }) as unknown as EditorialPersonaRepositoryPort;
+  /*
+    見本の書き手・読者像を土台に、この検査が動かす欄 (番号・名前・作業場所) だけを
+    差し替える。以前は 3 欄だけの形を `as unknown as` で正本と名乗らせていたので、
+    「名前を引く」以外の欄を読む変更が入っても、コンパイルは黙って通っていた。
+  */
+  const authorRows = authors.map((author) => ({
+    ...SAMPLE_AUTHOR_PERSONAS[0],
+    id: asAuthorPersonaId(author.id),
+    displayName: author.displayName,
+    workspaceId: asWorkspaceId(author.workspaceId ?? WORKSPACE),
+  }));
+  const audienceRows = audiences.map((audience) => ({
+    ...SAMPLE_AUDIENCE_PERSONAS[0],
+    id: asAudiencePersonaId(audience.id),
+    name: audience.name,
+    workspaceId: asWorkspaceId(audience.workspaceId ?? WORKSPACE),
+  }));
+  const port: EditorialPersonaRepositoryPort = markEditorial({
+    listAuthors: async () => page(authorRows),
+    listAudiences: async () => page(audienceRows),
+    findAuthor: async (_workspaceId, id) =>
+      ok(authorRows.find((author) => String(author.id) === String(id)) ?? null),
+    findAudience: async (_workspaceId, id) =>
+      ok(audienceRows.find((audience) => String(audience.id) === String(id)) ?? null),
+    // 保存の口はこの検査の主題ではないが、正本は保存したものを返す約束なので
+    // そのまま返す。`ok(null)` を返す形は型を外していたから書けていた。
+    saveAuthor: async (author) => ok(author),
+    saveAudience: async (audience) => ok(audience),
+  });
+  return port;
 }
 
 function brandPort(workspaceId: string | null = WORKSPACE): BrandRepositoryPort {
   return {
     findById: async (_workspaceId, id) =>
-      ok(workspaceId === null ? null : ({ id, workspaceId } as never)),
+      ok(workspaceId === null ? null : aBrand({ id, workspaceId: asWorkspaceId(workspaceId) })),
     list: async () => ok({ items: [], nextCursor: null }),
     save: async (brand) => ok(brand),
   };
@@ -105,13 +133,13 @@ function brandPort(workspaceId: string | null = WORKSPACE): BrandRepositoryPort 
 
 function productPort(workspaceId: string | null = WORKSPACE): EditorialProductRepositoryPort {
   return markEditorial({
-    findById: async (_workspaceId: unknown, id: unknown) =>
-      ok(workspaceId === null ? null : ({ id, workspaceId } as never)),
+    findById: async (_workspaceId, id) =>
+      ok(workspaceId === null ? null : aProduct({ id, workspaceId: asWorkspaceId(workspaceId) })),
     findByIdentityKey: async () => ok(null),
     search: async () => ok({ items: [], nextCursor: null }),
-    save: async (product: unknown) => ok(product),
+    save: async (product) => ok(product),
     remove: async () => ok(true),
-  }) as unknown as EditorialProductRepositoryPort;
+  });
 }
 
 function deps(over: Partial<RecordedContentPackagesDeps> = {}): RecordedContentPackagesDeps {

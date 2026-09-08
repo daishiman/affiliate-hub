@@ -61,7 +61,7 @@ function historyReturning(
       return ok(rows.slice(0, input.limit));
     },
     getCoverage: async () => ok(coverage),
-  } as unknown as AiSearchAuditHistoryPort;
+  } satisfies AiSearchAuditHistoryPort;
   return { port, asked };
 }
 

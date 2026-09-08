@@ -2,8 +2,12 @@
 import { getAllByRole, getByRole, queryByRole, within } from "@testing-library/dom";
 import { createElement, Fragment, type ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
+import type { PublicSiteReader } from "@/application/ports/blog-ops";
 import type { ArticleSummary } from "@/application/read-models/published-article";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
+import { domainError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
+import type { SiteContext } from "@/presentation/site/page-frame";
 import {
   SAMPLE_SITE_SLUG,
   sampleSites,
@@ -13,7 +17,11 @@ import {
   toSiteHomeView,
   type SiteHomeView,
 } from "@/presentation/site/home-content";
-import type { PublicSiteProjection } from "@/presentation/site/public-site-projection";
+import {
+  aPublicSiteProjection,
+  aPublicSiteReader,
+  aSiteChrome,
+} from "../support/factories";
 import { renderDom } from "../support/render";
 
 /**
@@ -48,20 +56,21 @@ const LATEST = article("latest", "最新の記事");
 const RECENT = [FEATURED_A, LATEST, FEATURED_B] as const;
 const FEATURED = [FEATURED_B, FEATURED_A] as const;
 
-type FeaturedHomeView = SiteHomeView & {
-  readonly featuredArticles: SiteHomeView["recentArticles"];
-  readonly featuredSelectedCount: number;
-};
-
+/*
+  ここには `as never` と `as FeaturedHomeView` の 2 つの偽装が置いてあった。
+  `SiteHomeView` が `featuredArticles` / `featuredSelectedCount` を持つ前の名残で、
+  **いまは正本の型がそのまま受け取る**。偽装を残すと、options の名前が変わった日に
+  この呼び出しだけが黙って素通りする。
+*/
 function homeView(input: {
   readonly articles?: readonly ArticleSummary[];
   readonly featuredArticles?: readonly ArticleSummary[];
   readonly selectedCount?: number;
-} = {}): FeaturedHomeView {
+} = {}): SiteHomeView {
   return toSiteHomeView(SITE, BLUEPRINT, input.articles ?? RECENT, {
     featuredArticles: input.featuredArticles ?? FEATURED,
     featuredSelectedCount: input.selectedCount ?? FEATURED.length,
-  } as never) as FeaturedHomeView;
+  });
 }
 
 describe("おすすめ記事の表示", () => {
@@ -120,21 +129,50 @@ describe("おすすめ記事の表示", () => {
  * SiteFrame のクロームや保存先はこの契約の対象外なので、children に
  * 公開投影を渡す境界だけに縮める。
  */
-const pageWorld = vi.hoisted(() => ({
-  context: null as null | {
-    readonly siteSlug: string;
-    readonly blueprint: PublicSiteBlueprint;
-    readonly chrome: Record<string, never>;
-    readonly projection: PublicSiteProjection;
-  },
-}));
+const pageWorld = vi.hoisted(() => ({ context: null as null | SiteContext }));
+
+/**
+ * この検査が関心を持つのは**評価の読み取りが成功したか失敗したか**だけ。
+ * 残りは `tests/support/factories.ts` の雛形が正本から埋める。
+ *
+ * 以前はここで投影を丸ごと手で組み、`as unknown as PublicSiteProjection` で
+ * 締めていた。読み口は 14 個の口を持つのに 2 つしか無く、`chrome` は
+ * `SiteChrome` ですらなかった——**型が表明している契約を、型の外から破っていた**。
+ */
+function contextWith(
+  ratings: PublicSiteReader["summarizeReaderRatings"],
+): SiteContext {
+  return {
+    siteSlug: SITE,
+    blueprint: BLUEPRINT,
+    chrome: aSiteChrome({ siteName: BLUEPRINT.name }),
+    projection: aPublicSiteProjection({
+      reader: aPublicSiteReader({ blueprint: BLUEPRINT, summarizeReaderRatings: ratings }),
+      articles: RECENT,
+      featuredArticles: { articles: FEATURED, selectedCount: FEATURED.length },
+    }),
+  };
+}
 
 vi.mock("@/presentation/site/page-frame", () => ({
+  /*
+    **`value: unknown` で受けない。**`vi.mock` の factory は戻り値の型検査が
+    効かないので、ここを緩めると `SiteContext` に項目が増えたことに気づけない。
+    以前は `chrome` を `Record<string, never>` で埋めていたが、これは
+    `SiteChrome` ではない——**型の外から契約を破っていた**。
+  */
   SiteFrame: async ({
     children,
   }: {
-    readonly children: (value: unknown) => ReactNode | Promise<ReactNode>;
-  }) => createElement(Fragment, null, await children(pageWorld.context)),
+    readonly children: (value: SiteContext) => ReactNode | Promise<ReactNode>;
+  }) =>
+    createElement(
+      Fragment,
+      null,
+      await children(
+        pageWorld.context ?? (() => { throw new Error("pageWorld.context が未設定です。"); })(),
+      ),
+    ),
 }));
 
 vi.mock("@/presentation/http/request-origin", () => ({
@@ -143,29 +181,7 @@ vi.mock("@/presentation/http/request-origin", () => ({
 
 describe("おすすめを含むトップの構造化データ", () => {
   it("ItemListは見えるおすすめ→後続記事の重複なし順と一致する", async () => {
-    pageWorld.context = {
-      siteSlug: SITE,
-      blueprint: BLUEPRINT,
-      chrome: {},
-      projection: {
-        source: "live",
-        reader: {
-          blueprint: BLUEPRINT,
-          summarizeReaderRatings: async () => ({ ok: true, value: {} }),
-        },
-        articles: RECENT,
-        featuredArticles: { articles: FEATURED, selectedCount: FEATURED.length },
-        bands: [],
-        provisionedBands: [],
-        slots: [],
-        provisionedSlots: [],
-        network: [],
-        tags: [],
-        documents: [],
-        deliveryParts: [],
-        chrome: { headerSlots: [], footerSlots: [] },
-      } as unknown as PublicSiteProjection,
-    };
+    pageWorld.context = contextWith(async () => ok({}));
     const { default: SiteHomePage } = await import("@/app/s/[site]/page");
     const { document, cleanup } = await renderDom(
       SiteHomePage({
@@ -189,32 +205,9 @@ describe("おすすめを含むトップの構造化データ", () => {
   });
 
   it("人気順の評価取得が失敗したら最新順と偽らず、おすすめだけを宣言する", async () => {
-    pageWorld.context = {
-      siteSlug: SITE,
-      blueprint: BLUEPRINT,
-      chrome: {},
-      projection: {
-        source: "live",
-        reader: {
-          blueprint: BLUEPRINT,
-          summarizeReaderRatings: async () => ({
-            ok: false,
-            error: { message: "評価を読み込めません。", suggestedAction: null },
-          }),
-        },
-        articles: RECENT,
-        featuredArticles: { articles: FEATURED, selectedCount: FEATURED.length },
-        bands: [],
-        provisionedBands: [],
-        slots: [],
-        provisionedSlots: [],
-        network: [],
-        tags: [],
-        documents: [],
-        deliveryParts: [],
-        chrome: { headerSlots: [], footerSlots: [] },
-      } as unknown as PublicSiteProjection,
-    };
+    pageWorld.context = contextWith(async () =>
+      err(domainError("UPSTREAM_UNAVAILABLE", "評価を読み込めません。", { retryable: true })),
+    );
     const { default: SiteHomePage } = await import("@/app/s/[site]/page");
     const { document, cleanup } = await renderDom(
       SiteHomePage({

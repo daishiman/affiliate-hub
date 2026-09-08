@@ -23,10 +23,11 @@ import {
   DEFAULT_WORKSPACE_TIME_ZONE,
   HUMAN_ONLY_CAPABILITIES,
 } from "@/domain/identity";
-import type { Brand, Workspace } from "@/domain/identity";
-import { ok } from "@/domain/shared";
+import type { AuditLogEntry, Disclosure } from "@/domain/compliance";
+import type { Brand, Membership, Workspace } from "@/domain/identity";
+import { asBrandId, asWorkspaceId, ok } from "@/domain/shared";
 import { aNobody, anAnalyst, anOwner, aWriter } from "../support/actors";
-import { aBrand, aDisclosure, aMembership, aWorkspace } from "../support/factories";
+import { aBrand, aDisclosure, aMembership, aWorkspace, anAuditLogEntry } from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
 import { failing, testDeps } from "../support/doubles";
 
@@ -59,17 +60,22 @@ function deps(over: Partial<ManageWorkspaceDeps> = {}): ManageWorkspaceDeps {
   };
 }
 
+/*
+  差し替えは正本の口の形をそのまま受ける。以前は土台を
+  `Record<string, object>` へ落として添字で引いていたので、綴り違いの口名も、
+  引数や戻り値の食い違いも素通りした。`Partial<ManageWorkspaceDeps[K]>` で
+  受ければ、正本に無い口を差し替えた時点で型検査に出る。
+*/
 function portOf<K extends keyof ManageWorkspaceDeps>(
   key: K,
-  over: Record<string, unknown>,
+  over: Partial<ManageWorkspaceDeps[K]>,
 ): ManageWorkspaceDeps[K] {
-  const base = testDeps() as unknown as Record<string, object>;
-  return { ...base[key], ...over } as ManageWorkspaceDeps[K];
+  return { ...testDeps()[key], ...over };
 }
 
 describe("設定の概要", () => {
   function withWorkspace(
-    workspace: unknown,
+    workspace: Workspace | null,
     counts: { brands?: number; sites?: number; members?: number } = {},
   ): Partial<ManageWorkspaceDeps> {
     return {
@@ -257,7 +263,10 @@ describe("役割とできること", () => {
 });
 
 describe("担当者の一覧", () => {
-  function withMembers(items: readonly unknown[], ownerFound: unknown = aMembership()) {
+  function withMembers(
+    items: readonly Membership[],
+    ownerFound: Membership | null = aMembership(),
+  ) {
     return {
       memberships: portOf("memberships", {
         list: async () => ok({ items, nextCursor: null }),
@@ -306,7 +315,7 @@ describe("担当者の一覧", () => {
     const view = await members(
       withMembers([
         aMembership({ scopedBrandIds: [] }),
-        aMembership({ scopedBrandIds: ["brand-1", "brand-2"] as never }),
+        aMembership({ scopedBrandIds: [asBrandId("brand-1"), asBrandId("brand-2")] }),
       ]),
     );
     expect(view.rows[0].scopeLabel).toBe("すべてのブランド");
@@ -350,7 +359,7 @@ describe("担当者の一覧", () => {
 });
 
 describe("ブランドの公開準備", () => {
-  function withBrands(items: readonly unknown[]) {
+  function withBrands(items: readonly Brand[]) {
     return { brands: portOf("brands", { list: async () => ok({ items, nextCursor: null }) }) };
   }
 
@@ -414,11 +423,11 @@ describe("ブランドの公開準備", () => {
   });
 
   it("担当ブランドが限定された人には、担当外と別workspaceのブランドを一覧で渡さない", async () => {
-    const allowed = aBrand({ id: "brand-allowed" as never });
-    const outsideScope = aBrand({ id: "brand-outside-scope" as never });
+    const allowed = aBrand({ id: asBrandId("brand-allowed") });
+    const outsideScope = aBrand({ id: asBrandId("brand-outside-scope") });
     const outsideWorkspace = aBrand({
-      id: "brand-outside-workspace" as never,
-      workspaceId: "ws-other" as never,
+      id: asBrandId("brand-outside-workspace"),
+      workspaceId: asWorkspaceId("ws-other"),
     });
     const scopedOwner = { ...owner, scopedBrandIds: [allowed.id] };
 
@@ -433,7 +442,7 @@ describe("ブランドの公開準備", () => {
 });
 
 describe("広告表記", () => {
-  function withDisclosures(items: readonly unknown[]) {
+  function withDisclosures(items: readonly Disclosure[]) {
     return {
       disclosures: portOf("disclosures", { list: async () => ok({ items, nextCursor: null }) }),
     };
@@ -508,22 +517,25 @@ describe("広告表記", () => {
 });
 
 describe("操作の記録", () => {
-  function entry(over: Record<string, unknown> = {}) {
-    return {
+  /*
+    記録の行は正本のファクトリから作る。以前はここで 6 欄だけを手で並べており、
+    `id` / `workspaceId` / `before` / `after` / `requestId` の 5 欄が**丸ごと
+    欠けていた**。差し替え先の口を痩せさせていたので、その欠落が型検査に出ず、
+    「一覧に出す行」として正本と違う形を配っていた。
+  */
+  function entry(over: Partial<AuditLogEntry> = {}): AuditLogEntry {
+    return anAuditLogEntry({
       action: "content.approved",
-      actor: { userId: "user-owner", isAiServiceAccount: false, modelId: null },
-      occurredAt: NOW,
       targetType: "content_variant",
       targetId: "cv_alpha_review",
-      reason: null,
       ...over,
-    };
+    });
   }
 
-  function withEntries(items: readonly unknown[], capture?: (limit: number) => void) {
+  function withEntries(items: readonly AuditLogEntry[], capture?: (limit: number) => void) {
     return {
       auditLog: portOf("auditLog", {
-        search: async (_ws: unknown, _filter: unknown, page: { limit: number }) => {
+        search: async (_ws, _filter, page) => {
           capture?.(page.limit);
           return ok({ items, nextCursor: null });
         },
@@ -539,7 +551,9 @@ describe("操作の記録", () => {
     const got = await log(
       withEntries([
         entry(),
-        entry({ actor: { userId: null, isAiServiceAccount: true, modelId: "test-model" } }),
+        entry({
+          actor: { userId: null, isAiServiceAccount: true, modelId: "test-model", identified: false },
+        }),
       ]),
     );
     if (!got.ok) throw got.error;
@@ -553,7 +567,9 @@ describe("操作の記録", () => {
 
   it("誰か分からない記録も、人の操作として数えない", async () => {
     const got = await log(
-      withEntries([entry({ actor: { userId: null, isAiServiceAccount: false, modelId: null } })]),
+      withEntries([entry({
+        actor: { userId: null, isAiServiceAccount: false, modelId: null, identified: false },
+      })]),
     );
     if (!got.ok) throw got.error;
 
@@ -563,7 +579,9 @@ describe("操作の記録", () => {
 
   it("機械の名前が分からないときも、機械であることは隠さない", async () => {
     const got = await log(
-      withEntries([entry({ actor: { userId: null, isAiServiceAccount: true, modelId: null } })]),
+      withEntries([entry({
+        actor: { userId: null, isAiServiceAccount: true, modelId: null, identified: false },
+      })]),
     );
     if (!got.ok) throw got.error;
     expect(got.value.rows[0].actorLabel).toContain("機械");
@@ -579,7 +597,10 @@ describe("操作の記録", () => {
   });
 
   it("知らない操作でも、記録を落とさずそのまま出す", async () => {
-    const got = await log(withEntries([entry({ action: "something.unknown" })]));
+    // 語彙に無い綴りを**わざと**渡す表明。型が禁じている値を保存層から
+    // 受け取った回を再現するのがこの検査の主題なので、ここは型を外す。
+    const unknownAction = "something.unknown" as AuditLogEntry["action"];
+    const got = await log(withEntries([entry({ action: unknownAction })]));
     if (!got.ok) throw got.error;
     // 表に無いからと消すと、後から追えなくなる。記録は残す方を選ぶ。
     expect(got.value.rows[0].action).toBe("something.unknown");
@@ -635,7 +656,7 @@ describe("操作の記録", () => {
 describe("ブランドを作る・直す", () => {
   function brandDeps(over: Partial<ManageWorkspaceDeps> = {}) {
     const saved: Brand[] = [];
-    const appended: { action: string }[] = [];
+    const appended: AuditLogEntry[] = [];
     const base = deps({
       brands: portOf("brands", {
         findById: async () => ok(null),
@@ -645,9 +666,15 @@ describe("ブランドを作る・直す", () => {
         },
       }),
       auditLog: portOf("auditLog", {
-        append: async (entry: { action: string }) => {
+        /*
+          正本の `append` が返すのは**記録の番号**であって行そのものではない。
+          以前はここで受け取った行をそのまま返しており、口を痩せさせて
+          （`entry: { action: string }`）代入を押し通していた。
+          口を揃えれば、返す形の食い違いは型検査に出る。
+        */
+        append: async (entry) => {
           appended.push(entry);
-          return ok(entry);
+          return ok(entry.id);
         },
       }),
       ...over,
@@ -713,7 +740,7 @@ describe("ブランドを作る・直す", () => {
 
   it("担当ブランドが限定された人には、新しいブランドを作らせない", async () => {
     const { uc, saved } = brandDeps();
-    const scopedOwner = { ...owner, scopedBrandIds: ["brand-allowed" as never] };
+    const scopedOwner = { ...owner, scopedBrandIds: [asBrandId("brand-allowed")] };
     const got = await uc.execute(scopedOwner, A_BRAND);
 
     expect(got.ok).toBe(false);
@@ -781,11 +808,11 @@ describe("ブランドを作る・直す", () => {
   });
 
   it("担当外ブランドは番号を知っていても直せず、保存も起きない", async () => {
-    const existing = aBrand({ id: "brand-outside-scope" as never });
+    const existing = aBrand({ id: asBrandId("brand-outside-scope") });
     const { uc, saved } = brandDeps({
       brands: portOf("brands", { findById: async () => ok(existing) }),
     });
-    const scopedOwner = { ...owner, scopedBrandIds: ["brand-allowed" as never] };
+    const scopedOwner = { ...owner, scopedBrandIds: [asBrandId("brand-allowed")] };
 
     const got = await uc.execute(scopedOwner, {
       ...A_BRAND,
@@ -827,7 +854,7 @@ describe("作業場所の設定を直す", () => {
     over: Partial<ManageWorkspaceDeps> = {},
   ) {
     const saved: Workspace[] = [];
-    const appended: { action: string }[] = [];
+    const appended: AuditLogEntry[] = [];
     const base = deps({
       workspaces: portOf("workspaces", {
         findById: async () => ok(aWorkspace({ plan: "business" })),
@@ -839,9 +866,15 @@ describe("作業場所の設定を直す", () => {
         },
       }),
       auditLog: portOf("auditLog", {
-        append: async (entry: { action: string }) => {
+        /*
+          正本の `append` が返すのは**記録の番号**であって行そのものではない。
+          以前はここで受け取った行をそのまま返しており、口を痩せさせて
+          （`entry: { action: string }`）代入を押し通していた。
+          口を揃えれば、返す形の食い違いは型検査に出る。
+        */
+        append: async (entry) => {
           appended.push(entry);
-          return ok(entry);
+          return ok(entry.id);
         },
       }),
       ...over,

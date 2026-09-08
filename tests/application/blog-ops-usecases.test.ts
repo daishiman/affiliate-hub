@@ -65,6 +65,7 @@ import {
   ok,
 } from "@/domain/shared";
 import { aNobody, anOutsider, anOwner, aWriter } from "../support/actors";
+import { aPublicSiteReader } from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
 import { recordingAuditLog } from "../support/doubles";
 import {
@@ -1165,25 +1166,23 @@ describe("読者の評価の受け取り", () => {
           summarize: async () => ok(seed.summary ?? { count: 1, average: 5 }),
         },
         publicBlog: {
+          /*
+            この検査が読ませたいのは**記事 1 本が公開されているかどうか**だけ。
+            残りの 12 口は「空だが正しい」既定を雛形が埋める。以前は 14 口を
+            並べたうえで `blueprint: {} as never` で締めていたが、設計図の型が
+            項目を増やしても、この痩せた `{}` は素通りしていた。
+          */
           openSite: async (siteSlug: string) =>
-            ok(siteSlug !== "hub" ? null : {
-              blueprint: {} as never,
-              findArticleBySlug: async (slug: string) =>
-                ok(slug === "review" && seed.published !== false ? detail : null),
-              findSourceArticleId: async (slug: string) =>
-                ok(slug === "review" && seed.published !== false ? "a1" : null),
-              summarizeReaderRatings: async () => ok({}),
-              listFeaturedArticles: async () => ok({ selectedCount: 0, articles: [] }),
-              listPublished: async () => ok([]),
-              listLayoutSlots: async () => ok([]),
-              listProvisionedLayoutSlots: async () => ok([]),
-              listLayoutBands: async () => ok([]),
-              listProvisionedLayoutBands: async () => ok([]),
-              listDeliveryParts: async () => ok([]),
-              listNetwork: async () => ok([]),
-              listTags: async () => ok([]),
-              listDocuments: async () => ok([]),
-            }),
+            ok(
+              siteSlug !== "hub"
+                ? null
+                : aPublicSiteReader({
+                    findArticleBySlug: async (slug: string) =>
+                      ok(slug === "review" && seed.published !== false ? detail : null),
+                    findSourceArticleId: async (slug: string) =>
+                      ok(slug === "review" && seed.published !== false ? "a1" : null),
+                  }),
+            ),
         },
         ids: sequentialIds(),
         now: () => NOW,

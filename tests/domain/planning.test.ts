@@ -276,6 +276,7 @@ describe("記事の企画", () => {
     ["supplement", "一覧に無い分野"],
     [1, "数値"],
   ])("一覧に無い %s（%s）は断る", (bad, _why) => {
+    // 語彙に無い領域名を**わざと**渡す表明。
     expect(pkg({ domainScope: bad as never }).ok).toBe(false);
   });
 

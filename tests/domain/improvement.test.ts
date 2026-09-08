@@ -474,6 +474,7 @@ describe("ループの 1 周", () => {
   });
 
   it("定義されていない指標では判定の土俵に上げられない", () => {
+    // 指標の一覧に無い綴りを**わざと**渡す表明。
     const r = draftWith({ primaryMetric: "no_such_metric" as never });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error.field).toBe("primaryMetric");

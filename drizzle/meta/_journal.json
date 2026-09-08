@@ -435,6 +435,13 @@
       "when": 1789689271691,
       "tag": "0061_seo_query_snapshot_state",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "6",
+      "when": 1789689271692,
+      "tag": "0062_realign_snapshot_lineage",
+      "breakpoints": true
     }
   ]
 }

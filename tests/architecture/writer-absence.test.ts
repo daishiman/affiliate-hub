@@ -369,16 +369,18 @@ describe("B. 採否の欄に書き手が居ない (塞げていないことの�
     // 2026-08-25: 正本の実測値を混ぜていたので、正本が増えるたびにここも赤くなり、
     // **数える側が動いているかとは無関係な理由で書き換えられていた。**
     // 合成の入力だけで閉じれば、この対照は正本の増減から独立する。
-    const synthetic = [
+    // 合成の入力でも、正本と同じ形（`qa_log` の要素）として型検査を通す。
+    // 名乗り直し（`as unknown as`）で押し込むと、欄が増えた日にここだけ黙る。
+    const synthetic: typeof state.qa_log = [
       { design_applications: [{ applicability: "applied" }] },
       { design_applications: [{ applicability: "not_applicable" }] },
-    ] as unknown as typeof state.qa_log;
+    ];
     expect(countApplicability(synthetic)).toEqual({ applied: 1, not_applicable: 1 });
     // 正本に混ぜても、増えるのは `not_applicable` の 1 件だけである。
-    const withRejection = [
+    const withRejection: typeof state.qa_log = [
       ...state.qa_log,
       { design_applications: [{ applicability: "not_applicable" }] },
-    ] as unknown as typeof state.qa_log;
+    ];
     expect(countApplicability(withRejection).not_applicable).toBe(1);
   });
 });

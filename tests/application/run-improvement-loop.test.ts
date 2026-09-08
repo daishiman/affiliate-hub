@@ -18,6 +18,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ImprovementRepositoryPort, LoopObservation } from "@/application/ports/improvement";
 import type { AuditLogPort } from "@/application/ports/compliance";
+import type { AuditLogEntry } from "@/domain/compliance";
 import {
   createApproveVariantSpecUseCase,
   createConcludeLoopRunUseCase,
@@ -87,7 +88,7 @@ function depsOf(setup: Setup = {}) {
     specs: [] as { spec: VariantSpec; siteSlug: string }[],
     runs: [] as LoopRun[],
     observations: [] as (LoopObservation & { observedAt: Date })[],
-    audits: [] as { action: string; reason: string | null; targetId: string }[],
+    audits: [] as AuditLogEntry[],
   };
   const broken = setup.breaks ?? {};
   const repository: ImprovementRepositoryPort = {
@@ -119,8 +120,13 @@ function depsOf(setup: Setup = {}) {
       return ok(true);
     },
   };
-  const auditLog = {
-    async append(entry: { action: string; reason: string | null; targetId: string }) {
+  /*
+    記録の受け口は正本の 3 口をそのまま満たす。以前は `append` 1 口だけを
+    `as unknown as` で正本と名乗らせ、しかも記録の番号ではなく渡された行を
+    そのまま返していた。返す値が違っても型が外れていたので黙っていた。
+  */
+  const auditLog: AuditLogPort = {
+    async append(entry) {
       if (broken.audit) {
         return err(
           domainError("UPSTREAM_UNAVAILABLE", "記録先が応答しません。", {
@@ -129,9 +135,17 @@ function depsOf(setup: Setup = {}) {
         );
       }
       saved.audits.push(entry);
-      return ok(entry);
+      return ok(entry.id);
     },
-  } as unknown as AuditLogPort;
+    async listByTarget(_workspaceId, targetType, targetId) {
+      return ok(
+        saved.audits.filter((e) => e.targetType === targetType && e.targetId === targetId),
+      );
+    },
+    async search(_workspaceId, _query, page) {
+      return ok({ items: saved.audits.slice(0, page.limit), nextCursor: null });
+    },
+  };
 
   let seq = 0;
   return {
@@ -338,7 +352,7 @@ describe("比較を始める", () => {
   it("一度に変えている軸が多すぎる組み合わせは、始める前に断る", async () => {
     const tooMany = depsOf({
       specs: [
-        aSpec({ settings: [] as never }),
+        aSpec({ settings: [] }),
         aSpec({
           id: "vs-cand",
           settings: [

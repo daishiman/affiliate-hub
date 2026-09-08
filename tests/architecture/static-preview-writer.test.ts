@@ -47,13 +47,13 @@ const COMPLETE = {
   bodyHtml: '<div class="navLink">商品</div>',
   htmlAttributes: { lang: "ja" },
   generatedAt: "2026-08-19",
-} as const;
+};
 
 type Input = Parameters<typeof buildDocument>[0];
 
 describe("静止した写しの組み立て", () => {
   it("そろった入力なら CSS・中身・静止中の説明を 1 枚に焼ける", () => {
-    const html = buildDocument(COMPLETE as unknown as Input);
+    const html = buildDocument(COMPLETE);
 
     expect(html.startsWith("<!doctype html>")).toBe(true);
     expect(html).toContain('<html lang="ja">');
@@ -67,7 +67,7 @@ describe("静止した写しの組み立て", () => {
 
   it("冊子の案内だけは押せる場所に残す", () => {
     const html = buildDocument({
-      ...(COMPLETE as unknown as Input),
+      ...COMPLETE,
       title: "ある記事",
       navHtml: '<a href="index.html">目次</a>',
     });
@@ -79,7 +79,7 @@ describe("静止した写しの組み立て", () => {
   });
 
   it("題も案内も渡さない 1 枚ものは、従来の題だけを使う", () => {
-    const html = buildDocument(COMPLETE as unknown as Input);
+    const html = buildDocument(COMPLETE);
 
     expect(html).toContain("<title>静止した写し");
     expect(html).not.toContain('<nav class="static-nav">');
@@ -95,7 +95,7 @@ describe("静止した写しの組み立て", () => {
 
   for (const [name, hole] of missing) {
     it(`${name}なら焼かずに投げる`, () => {
-      expect(() => buildDocument({ ...(COMPLETE as unknown as Input), ...hole })).toThrow();
+      expect(() => buildDocument({ ...COMPLETE, ...hole })).toThrow();
     });
   }
 

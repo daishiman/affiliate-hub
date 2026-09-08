@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { LlmUsagePort, LlmUsageSummary } from "@/application/ports/llm-usage";
 import { createReadLlmUsageUseCase } from "@/application/usecases/generation/read-llm-usage";
 import { asWorkspaceId, ok } from "@/domain/shared";
-import type { ActorContext, WorkspaceId } from "@/domain/shared";
+import type { ActorContext, Role, WorkspaceId } from "@/domain/shared";
+import { aNobody } from "../support/actors";
 
 /**
  * 生成 AI の利用量を読む。
@@ -20,13 +21,12 @@ const WS = asWorkspaceId("ws_a") as WorkspaceId;
 const FROM = new Date("2026-08-01T00:00:00Z");
 const TO = new Date("2026-08-31T00:00:00Z");
 
-const actor = (role: string): ActorContext =>
-  ({
-    workspaceId: WS,
-    userId: "u_1",
-    roles: [role],
-    isAiServiceAccount: false,
-  }) as unknown as ActorContext;
+/*
+  実行主体は `tests/support/actors.ts` に任せる。以前はここで 4 欄を手で並べ
+  `as unknown as ActorContext` で締めていた——`scopedBrandIds` も `identified` も
+  無い形が正本を名乗っていた。
+*/
+const actor = (role: Role): ActorContext => aNobody({ workspaceId: WS, userId: "u_1", roles: [role] });
 
 function row(over: Partial<LlmUsageSummary> = {}): LlmUsageSummary {
   return {

@@ -21,7 +21,7 @@ import type {
 } from "@/application/ports/blog-ops";
 import type { ArticleSummary } from "@/application/read-models/published-article";
 import { BlogTopBands } from "@/presentation/site/blog-top-bands";
-import type { PublicSiteProjection } from "@/presentation/site/public-site-projection";
+import { aPublicSiteProjection } from "../support/factories";
 
 function band(over: Partial<BlogLayoutBandRecord> = {}): BlogLayoutBandRecord {
   return {
@@ -85,12 +85,15 @@ function render(
 ): string | null {
   const node = BlogTopBands({
     siteSlug: "test",
-    projection: {
+    // 帯が読むのはこの 4 項目だけ。残りは雛形の「空だが正しい」既定に任せる。
+    // 型を外して 4 項目だけの別物を渡すと、帯が 5 つめを読み始めた日に
+    // コンパイルではなく実行時に落ちる。
+    projection: aPublicSiteProjection({
       bands,
       articles: over.articles ?? [],
       network: over.network ?? [],
       tags: over.tags ?? [],
-    } as unknown as PublicSiteProjection,
+    }),
   });
   return node === null ? null : renderToStaticMarkup(node);
 }

@@ -95,6 +95,7 @@ describe("イベントの組み立て", () => {
 
   it("表にない名前は送れない", () => {
     const r = buildTelemetryEvent({
+      // 語彙に無い綴りを**わざと**渡す表明。実装が断ることをここで見る。
       key: "cta_click" as never,
       occurredAt: at,
       readerKey: null,

@@ -23,7 +23,7 @@ import { createLlmPorts } from "@/infrastructure/llm/llm-setup";
 import type { ActorContext } from "@/domain/shared";
 import { domainError, err, ok, taggedString } from "@/domain/shared";
 import { OUTPUT_REQUIRED_FIELDS } from "@/domain/generation";
-import { anLlmRequest } from "../support/doubles";
+import { anLlmRequest, testDeps } from "../support/doubles";
 import { aBrand } from "../support/factories";
 
 /**
@@ -151,6 +151,7 @@ describe("そろっていなければ生成 AI を呼ばない", () => {
     const { llm, calls } = spyLlm(validOutput());
     const targetBrandId = taggedString<"BrandId">("brand-outside-scope");
     const brands = {
+      ...testDeps().brands,
       findById: async () =>
         ok(
           aBrand({
@@ -158,7 +159,7 @@ describe("そろっていなければ生成 AI を呼ばない", () => {
             workspaceId: actor.workspaceId,
           }),
         ),
-    } as unknown as BrandRepositoryPort;
+    } satisfies BrandRepositoryPort;
     const scopedActor = {
       ...actor,
       scopedBrandIds: [taggedString<"BrandId">("brand-allowed")],

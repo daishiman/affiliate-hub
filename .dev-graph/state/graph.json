@@ -1,5 +1,5 @@
 {
-  "graph_revision": 647,
+  "graph_revision": 650,
   "nodes": [
     {
       "acceptance": [],
@@ -43411,6 +43411,329 @@
       "title": "管理画面のリリースと仕様書への書き戻し",
       "tracker_binding": "beads",
       "updated_at": "2026-09-04T02:52:41.927544Z"
+    },
+    {
+      "acceptance": [
+        "ドメイン型を as never / as unknown as で偽装している箇所が洗い出され、ブラウザ API のモック (MediaStream, CanvasRenderingContext2D 等) と区別されている",
+        "tests/support/factories.ts が正本を引くファクトリを提供し、痩せたモックがそれに置き換わっている",
+        "blueprint: {} as never のように「その経路は読まない」ことの表明として残す箇所には、その意図がコメントで書かれている"
+      ],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-t1df",
+        "github_mirror": null,
+        "linked_at": "2026-09-08T12:12:48Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-thin-test-mocks-break-domain-contracts.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "article-page-prose の実害から一般化した、テスト側の型契約の穴を 1 件の作業として立てた",
+      "completion_evidence": {
+        "completed_at": "2026-09-08T12:52:05Z",
+        "evidence_refs": [
+          "tests/support/factories.ts",
+          "docs/spec/feat-blog-top-page-composition/final-review.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-09-08T12:52:05Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "c174b75ed0b6296d171b3796d80d4cda2edf506ed4b59fb5ac6db0902fdf898a",
+        "evaluator": "final-review",
+        "evidence_ref": "docs/spec/feat-blog-top-page-composition/final-review.md"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-08T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-thin-test-mocks-break-domain-contracts.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-thin-test-mocks-break-domain-contracts",
+      "implementation_readiness": {
+        "checked_at": "2026-09-08T20:35:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "2026-09-08、article-page-prose.test.tsx の SiteFrame モックが blueprint: { name } だけを渡していた。SiteBlueprint は theme と categories を必須で持つ。thumbnailContextOf が theme を読むようになった瞬間、画面の描画そのものが 'Cannot read properties of undefined (reading brandTheme)' で落ち、テストの主題である Prose の描画すら測れなくなった。tests/ 全体では as never が 180 箇所ある",
+        "mvp_fit": "enabling",
+        "purpose": "実装が正しく前へ進んだ日に、テストが主題と無関係な場所で落ちるのを止める",
+        "rationale": "as never は型検査を完全に無効化するので、契約破りがコンパイル時に見えない。壊れるのは実装が前へ進んだ日で、壊れ方が主題と無関係なため原因の特定に時間がかかる"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "tests"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-09-08T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "tests/ui/article-page-prose.test.tsx",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-09-08",
+      "status": "done",
+      "tags": [
+        "tests",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "痩せたテストモックが型必須フィールドを欠いたまま as never で通っている",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-08T12:52:05Z"
+    },
+    {
+      "acceptance": [
+        "drizzle-kit check が collision を報告しない (Everything's fine)",
+        "drizzle-kit generate が空の差分を返す (No schema changes)",
+        "適用済みの *.sql を 1 本も書き換えず、_journal.json は末尾追記のみである",
+        "tests/architecture/ と tests/integration/ が全緑である"
+      ],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-9tx5",
+        "github_mirror": null,
+        "linked_at": "2026-09-08T12:12:42Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-drizzle-snapshot-lineage-forked-at-0043.md",
+          "confidence": 0.95
+        }
+      ],
+      "classification_confidence": 0.95,
+      "classification_reason": "dev 合流でリネームされた snapshot の親ポインタが繋ぎ変わらず、drizzle-kit check が collision を報告している",
+      "completion_evidence": {
+        "completed_at": "2026-09-08T12:52:05Z",
+        "evidence_refs": [
+          "drizzle/meta/0062_snapshot.json",
+          "drizzle/0062_realign_snapshot_lineage.sql",
+          "tests/architecture/ci-config.test.ts",
+          "docs/spec/feat-blog-top-page-composition/final-review.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-09-08T12:52:05Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "c174b75ed0b6296d171b3796d80d4cda2edf506ed4b59fb5ac6db0902fdf898a",
+        "evaluator": "final-review",
+        "evidence_ref": "docs/spec/feat-blog-top-page-composition/final-review.md"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-08T00:00:00Z",
+      "depends_on": [],
+      "domain": "database",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-drizzle-snapshot-lineage-forked-at-0043.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-drizzle-snapshot-lineage-forked-at-0043",
+      "implementation_readiness": {
+        "checked_at": "2026-09-08T09:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "drizzle/meta/ の snapshot が 0035,0036,0051-0056 の 8 件欠けている。残った 0057_snapshot.json の prevId が 0043_snapshot を指しており、0044_snapshot と同じ親を持つ fork になっている。drizzle-kit check は「[0044_snapshot.json, 0057_snapshot.json] are pointing to a parent snapshot: 0043 which is a collision」を報告する (exit は 0 だが警告として出る)",
+        "mvp_fit": "enabling",
+        "purpose": "次に drizzle-kit generate したとき、既に在るテーブルを作り直す/落とす SQL が出るのを防ぐ",
+        "rationale": "journal は 62 エントリ・sql も 0000-0061 が全て在るので、既に適用済みの環境は壊れていない。壊れるのは次に generate したときで、0061_snapshot を親にした差分は 0044-0050 で入れた ai_search_audit_history / blog_operations_console / article_image 系を「無い」ものとして扱う"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "high",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "drizzle"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-09-08T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "drizzle/meta/_journal.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-09-08",
+      "status": "done",
+      "tags": [
+        "database",
+        "migration"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "drizzle の snapshot 系譜が 0043 で分岐していて、次の generate が 0044-0050 を見落とす",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-08T12:52:05Z"
+    },
+    {
+      "acceptance": [
+        "2 つの spec-state.json を入力に、追記専用ログを要素単位で合流する経路が apply-spec-transition.py 側に在る",
+        "同じ id の要素は重複せず、片側にしか無い要素は落ちない",
+        "合流できない衝突 (同じセルが両側で別の状態へ確定している等) は自動で解決せず、人へ差し出して止まる",
+        "合流後の state が validate-coverage-matrix.py --require-complete --require-foundation を通る"
+      ],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-2ann",
+        "github_mirror": null,
+        "linked_at": "2026-09-08T12:12:45Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-spec-state-has-no-merge-path-between-branches.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "dev 合流の実測で、追記専用ログが片側しか残らないことが確かめられた",
+      "completion_evidence": {
+        "completed_at": "2026-09-08T12:52:05Z",
+        "evidence_refs": [
+          ".claude/plugins/system-spec-harness/skills/run-system-spec-elicit/scripts/state_transition_merge.py",
+          ".claude/plugins/system-spec-harness/tests/test_spec_state_merge.py",
+          "docs/spec/feat-blog-top-page-composition/final-review.md"
+        ],
+        "policy": "manual",
+        "reconciled_at": "2026-09-08T12:52:05Z",
+        "source": "manual",
+        "status": "done"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": "c174b75ed0b6296d171b3796d80d4cda2edf506ed4b59fb5ac6db0902fdf898a",
+        "evaluator": "final-review",
+        "evidence_ref": "docs/spec/feat-blog-top-page-composition/final-review.md"
+      },
+      "confirmation_status": "confirmed",
+      "created_at": "2026-09-08T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pass",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-spec-state-has-no-merge-path-between-branches.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-spec-state-has-no-merge-path-between-branches",
+      "implementation_readiness": {
+        "checked_at": "2026-09-08T21:05:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "2026-09-08 の dev 合流で実測: retracted_qa_log は dev に 28 件・本ブランチに 0 件。reopen_log は dev のみ 55 件・本ブランチのみ 43 件。qa_log は本ブランチが dev の上位集合 (dev のみ 0 件・共通 76 件・本ブランチのみ 37 件) で取りこぼしなし",
+        "mvp_fit": "enabling",
+        "purpose": "枝で積んだ判断の記録が、合流のときに黙って消えないようにする",
+        "rationale": "spec-state.json は 1 つの JSON に複数の追記専用ログを持つ。git のテキストマージは配列の要素単位で合流できないので、衝突すればどちらか片方が丸ごと残る。落ちても validator は通る (各ログの中身は独立して整合するため) ので、失われたことに気づけない"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-09-08T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "system-spec/spec-state.json",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-09-08",
+      "status": "done",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "spec-state.json に枝どうしの合流経路が無く、片方の追記記録が黙って落ちる",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-08T12:52:05Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

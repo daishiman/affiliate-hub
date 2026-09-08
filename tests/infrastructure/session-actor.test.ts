@@ -13,9 +13,10 @@ import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
 import type { DrizzleD1 } from "@/infrastructure/persistence/d1/link-inbox-repository";
 import type { MembershipRepositoryPort } from "@/application/ports/identity";
 import type { SessionRow } from "@/db/schema";
-import { asUserId, asWorkspaceId, domainError, err, ok } from "@/domain/shared";
+import { asBrandId, asUserId, asWorkspaceId, domainError, err, ok } from "@/domain/shared";
 import type { Role, UserId, WorkspaceId } from "@/domain/shared";
 import type { Membership } from "@/domain/identity";
+import { aMembership } from "../support/factories";
 
 /**
  * ログインの仕組みを差し替えたときの確認（変更容易性シナリオ ⑦）。
@@ -68,20 +69,23 @@ function membershipRepo(membership: Membership | null): MembershipRepositoryPort
   };
 }
 
+/*
+  参加の記録は見本のファクトリから引く。以前はここで 10 欄を手で並べ、
+  しかも `id` に**利用者の番号**（`asUserId`）を `as unknown as` で
+  参加の番号として名乗らせていた。別の種類の番号がそこに入っても、
+  型では止まらない形だった。
+*/
 function membership(over: Partial<Membership> = {}): Membership {
-  return {
-    id: asUserId("m_1") as unknown as Membership["id"],
+  return aMembership({
     workspaceId: WS,
     userId: USER,
     invitedEmail: "member@example.com",
-    roles: ["writer"] as readonly Role[],
-    scopedBrandIds: [],
+    roles: ["writer"],
     displayName: "見本 太郎",
     invitedAt: NOW,
     acceptedAt: NOW,
-    revokedAt: null,
     ...over,
-  };
+  });
 }
 
 describe("合言葉の確かめ方", () => {
@@ -173,7 +177,7 @@ describe("合言葉から「いま操作している人」を決める", () => {
     const resolve = createSessionActorResolver({
       sessions: validSessions,
       memberships: membershipRepo(
-        membership({ scopedBrandIds: ["brand-a", "brand-b"] as never }),
+        membership({ scopedBrandIds: [asBrandId("brand-a"), asBrandId("brand-b")] }),
       ),
       now: () => NOW,
     });

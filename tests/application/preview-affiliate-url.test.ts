@@ -82,16 +82,25 @@ function anIngestion(id: string, normalizedUrl: string): LinkIngestion {
 }
 
 function aLinkRow(id: string, originalUrl: string, productName: string): AffiliateLinkWithSnapshot {
-  const link = {
+  /*
+    正本の欄をすべて埋める。以前は `productId` / `merchantId` /
+    `alterationProhibited` を落とした形を `as unknown as AffiliateLink` で
+    通していた。改変禁止かどうかは、この検査が見ている URL の組み立てに
+    直に効く欄である——欠けたまま緑になる形は残せない。
+  */
+  const link: AffiliateLink = {
     id: taggedString<"AffiliateLinkId">(id) as AffiliateLinkId,
     workspaceId: WS,
     programId: taggedString<"AffiliateProgramId">("prg_amazon_pc"),
+    productId: null,
+    merchantId: null,
     originalUrl,
+    alterationProhibited: true,
     trackingRef: `ref_${id}`,
     createdAt: new Date("2026-06-01T00:00:00Z"),
     expiresAt: null,
     disabledAt: null,
-  } as unknown as AffiliateLink;
+  };
   return { link, snapshot: { productName, brand: "Alpha", oneLine: null } };
 }
 
@@ -118,10 +127,13 @@ function ports(
     async claimNormalizedUrl() {
       throw new Error("プレビューは書かない。");
     },
+    async releaseNormalizedUrl() {
+      throw new Error("プレビューは書かない。");
+    },
     async save() {
       throw new Error("プレビューは書かない。");
     },
-  }) as unknown as CommercialLinkIngestionRepositoryPort;
+  }) satisfies CommercialLinkIngestionRepositoryPort;
 
   const links = markCommercial({
     async listWithSnapshot() {
@@ -142,13 +154,16 @@ function ports(
     async listNeedingAttention() {
       return ok([]);
     },
+    async createIfNoUsableUrl() {
+      throw new Error("プレビューは書かない。");
+    },
     async save() {
       throw new Error("プレビューは書かない。");
     },
     async disable() {
       throw new Error("プレビューは書かない。");
     },
-  }) as unknown as CommercialAffiliateLinkRepositoryPort;
+  }) satisfies CommercialAffiliateLinkRepositoryPort;
 
   return { inbox, links, listCalls };
 }

@@ -15,79 +15,22 @@ import type {
   ArticleSummary,
   PublishedArticle,
 } from "@/application/read-models/published-article";
-import * as blogOpsUseCases from "@/application/usecases/blog-ops";
-import { isErr, isOk, ok } from "@/domain/shared";
+import {
+  type ManageBlogHomeFeaturedArticlesDeps,
+  createReadBlogHomeFeaturedArticlesUseCase,
+  createReplaceBlogHomeFeaturedArticlesUseCase,
+} from "@/application/usecases/blog-ops";
+import { createSampleContentRepository } from "@/infrastructure/persistence/sample/content-sample-repository";
+import { isErr, isOk, markEditorial, ok } from "@/domain/shared";
 import { anOwner, aWriter, WORKSPACE } from "../support/actors";
 import { NOW } from "../support/clock";
+import { fakeRepository } from "../support/blog-ops-fake";
 import { recordingAuditLog } from "../support/doubles";
 
 type FeaturedConfig = {
   readonly siteSlug: string;
   readonly articleSlugs: readonly string[];
 };
-
-type SelectedArticle = {
-  readonly articleSlug: string;
-  readonly article: ArticleSummary | null;
-};
-
-type ReadOutput = {
-  readonly siteSlug: string;
-  readonly selectedArticles: readonly SelectedArticle[];
-  readonly candidateArticles: readonly ArticleSummary[];
-  readonly selectedCount: number;
-};
-
-type ReadFactory = (deps: unknown) => {
-  execute(
-    actor: ReturnType<typeof anOwner>,
-    input: { readonly siteSlug: string },
-  ): Promise<ReturnType<typeof ok<ReadOutput>>>;
-};
-
-type ReplaceFactory = (deps: unknown) => {
-  execute(
-    actor: ReturnType<typeof anOwner>,
-    input: {
-      readonly siteSlug: string;
-      readonly articleSlugs: readonly string[];
-    },
-  ): Promise<
-    | ReturnType<typeof ok<{ readonly articleSlugs: readonly string[] }>>
-    | { readonly ok: false; readonly error: { readonly code: string; readonly field?: string } }
-  >;
-};
-
-/**
- * RED の間も suite 全体を収集し、欠けた入り口を名指しする。
- * named import にすると module の読み込み自体が落ち、下の業務契約が
- * 1 件もテスト名として報告されないため、namespace から確認する。
- */
-function readFactory(): ReadFactory {
-  const found = (
-    blogOpsUseCases as unknown as {
-      readonly createReadBlogHomeFeaturedArticlesUseCase?: ReadFactory;
-    }
-  ).createReadBlogHomeFeaturedArticlesUseCase;
-  expect(
-    found,
-    "Blog Ops におすすめ記事の読み口がまだありません",
-  ).toBeTypeOf("function");
-  return found as ReadFactory;
-}
-
-function replaceFactory(): ReplaceFactory {
-  const found = (
-    blogOpsUseCases as unknown as {
-      readonly createReplaceBlogHomeFeaturedArticlesUseCase?: ReplaceFactory;
-    }
-  ).createReplaceBlogHomeFeaturedArticlesUseCase;
-  expect(
-    found,
-    "Blog Ops におすすめ記事の一括置換の口がまだありません",
-  ).toBeTypeOf("function");
-  return found as ReplaceFactory;
-}
 
 function summary(slug: string, over: Partial<ArticleSummary> = {}): ArticleSummary {
   return {
@@ -114,11 +57,22 @@ function published(row: ArticleSummary): PublishedArticle {
   };
 }
 
+/**
+ * 保存先と読み口を、どちらも正本の口をそのまま満たす形で用意する。
+ *
+ * 以前はここで `findBlogHomeFeaturedArticles` と `replaceBlogHomeFeaturedArticles`
+ * の 2 口だけ、しかも `workspaceId: string` という痩せた引数で組み、
+ * 使う側は namespace を `as unknown as` で覗いて関数を取り出していた。
+ * その形だと、ユースケースが受け取る `deps` の型は**どこにも現れない**——
+ * 正本のポートに口が増えても、引数の別名型が変わっても、この検査は黙る。
+ *
+ * いまは保管庫は `fakeRepository`、読み口は見本の実装を土台にする。
+ * 展開すると Editorial の印が落ちるので `markEditorial` で付け直す。
+ */
 function world(input: {
   readonly config?: FeaturedConfig | null;
   readonly published?: readonly ArticleSummary[];
 } = {}) {
-  let config = input.config ?? null;
   const publicArticles = input.published ?? [];
   const audit = recordingAuditLog();
   const writes: Array<{
@@ -127,45 +81,39 @@ function world(input: {
     readonly articleSlugs: readonly string[];
   }> = [];
 
-  const repository = {
-    findBlogHomeFeaturedArticles: async (workspaceId: string, siteSlug: string) =>
-      ok(workspaceId === WORKSPACE && config?.siteSlug === siteSlug ? config : null),
-    replaceBlogHomeFeaturedArticles: async (
-      workspaceId: string,
-      replacement: {
-        readonly siteSlug: string;
-        readonly articleSlugs: readonly string[];
+  const fake = fakeRepository({
+    featured: input.config === null || input.config === undefined ? [] : [{ ...input.config }],
+  });
+
+  const deps: ManageBlogHomeFeaturedArticlesDeps = {
+    repository: {
+      ...fake.port,
+      replaceBlogHomeFeaturedArticles: async (workspaceId, replacement) => {
+        writes.push({ workspaceId: String(workspaceId), ...replacement });
+        return fake.port.replaceBlogHomeFeaturedArticles(workspaceId, replacement);
       },
-    ) => {
-      writes.push({ workspaceId, ...replacement });
-      config = {
-        siteSlug: replacement.siteSlug,
-        articleSlugs: [...replacement.articleSlugs],
-      };
-      return ok(true as const);
     },
+    publishedContent: markEditorial({
+      ...createSampleContentRepository(),
+      listRecent: async (siteSlug: string, limit: number) =>
+        ok(publicArticles.filter((article) => article.siteSlug === siteSlug).slice(0, limit)),
+      findArticle: async (siteSlug: string, slug: string) => {
+        const found = publicArticles.find(
+          (article) => article.siteSlug === siteSlug && article.slug === slug,
+        );
+        return ok(found === undefined ? null : published(found));
+      },
+    }),
+    auditLog: audit.port,
+    ids: { newId: () => "featured-audit-1" },
+    now: () => NOW,
   };
 
   return {
-    deps: {
-      repository,
-      publishedContent: {
-        listRecent: async (siteSlug: string, limit: number) =>
-          ok(publicArticles.filter((article) => article.siteSlug === siteSlug).slice(0, limit)),
-        findArticle: async (siteSlug: string, slug: string) => {
-          const found = publicArticles.find(
-            (article) => article.siteSlug === siteSlug && article.slug === slug,
-          );
-          return ok(found === undefined ? null : published(found));
-        },
-      },
-      auditLog: audit.port,
-      ids: { newId: () => "featured-audit-1" },
-      now: () => NOW,
-    },
+    deps,
     writes,
     audit,
-    config: () => config,
+    config: () => fake.store.featured.find((row) => row.siteSlug === "hub") ?? null,
   };
 }
 
@@ -178,7 +126,7 @@ describe("ブログトップのおすすめ記事", () => {
       published: [liveA, liveB],
     });
 
-    const result = await readFactory()(state.deps).execute(anOwner(), { siteSlug: "hub" });
+    const result = await createReadBlogHomeFeaturedArticlesUseCase(state.deps).execute(anOwner(), { siteSlug: "hub" });
 
     expect(isOk(result)).toBe(true);
     if (!isOk(result)) return;
@@ -195,7 +143,7 @@ describe("ブログトップのおすすめ記事", () => {
       config: { siteSlug: "hub", articleSlugs: ["stale", "live-a"] },
       published: [summary("live-a"), summary("live-b")],
     });
-    const replace = replaceFactory()(state.deps);
+    const replace = createReplaceBlogHomeFeaturedArticlesUseCase(state.deps);
 
     const kept = await replace.execute(anOwner(), {
       siteSlug: "hub",
@@ -218,7 +166,7 @@ describe("ブログトップのおすすめ記事", () => {
       config: { siteSlug: "hub", articleSlugs: ["a"] },
       published: [summary("a"), summary("b"), summary("c"), summary("d")],
     });
-    const replace = replaceFactory()(state.deps);
+    const replace = createReplaceBlogHomeFeaturedArticlesUseCase(state.deps);
 
     for (const articleSlugs of [
       ["a", "b", "c", "d"],
@@ -241,7 +189,7 @@ describe("ブログトップのおすすめ記事", () => {
       config: { siteSlug: "hub", articleSlugs: ["a"] },
       published: [summary("a"), summary("b")],
     });
-    const replace = replaceFactory()(state.deps);
+    const replace = createReplaceBlogHomeFeaturedArticlesUseCase(state.deps);
 
     const reordered = await replace.execute(anOwner(), {
       siteSlug: "hub",
@@ -269,7 +217,7 @@ describe("ブログトップのおすすめ記事", () => {
 
   it("記事を書けてもサイト設定を触れない人には保存させない", async () => {
     const state = world({ published: [summary("a")] });
-    const result = await replaceFactory()(state.deps).execute(aWriter(), {
+    const result = await createReplaceBlogHomeFeaturedArticlesUseCase(state.deps).execute(aWriter(), {
       siteSlug: "hub",
       articleSlugs: ["a"],
     });

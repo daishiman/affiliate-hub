@@ -37,14 +37,16 @@ import {
   type ContentVariantId,
   type Result,
   type WorkspaceId,
+  asAffiliateLinkId,
   domainError,
   err,
+  markEditorial,
   ok,
   taggedString,
 } from "@/domain/shared";
 import type { AuditLogEntry } from "@/domain/compliance";
 import { OTHER_WORKSPACE, WORKSPACE, anOwner, aWriter } from "../support/actors";
-import { aPublication } from "../support/factories";
+import { aContentVariant, aPublication } from "../support/factories";
 import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 
 /**
@@ -115,35 +117,18 @@ function aBlueprint(over: Partial<SiteBlueprint> = {}): SiteBlueprint {
   return { ...built.value, ...over };
 }
 
+/*
+  この検査で使う版。中身は見本の版そのままで、番号だけをこのファイルの
+  ものへ寄せる。以前はここに 20 欄を並べ、末尾を `as ContentVariant` で
+  締めていた——正本に欄が増えても、増えた欄が無いまま通り続ける形だった。
+*/
 function aVariant(over: Partial<ContentVariant> = {}): ContentVariant {
-  return {
+  return aContentVariant({
     id: VARIANT_ID,
     workspaceId: WORKSPACE,
     contentPackageId: PACKAGE_ID,
-    channel: "own_site",
-    format: "article",
-    authorPersonaId: taggedString<"AuthorPersonaId">("author_yamada"),
-    audiencePersonaId: taggedString<"AudiencePersonaId">("aud_1"),
-    angle: "conclusion_first",
-    title: "静かなノートパソコンの選び方",
-    body: "結論から書く。\n\n書き出しの速さで選ぶ。",
-    summary: "書き出しの速さで選ぶ。",
-    cta: "check_official",
-    disclosure: "この記事には広告が含まれます。",
-    affiliateLinkIds: [],
-    claimIds: [],
-    evidenceIds: [],
-    assumptions: [],
-    platformWarnings: [],
-    factualityScore: 0.9,
-    personaFitScore: 0.8,
-    channelFitScore: 0.8,
-    complianceStatus: "pass",
-    generationPromptVersion: "v1",
-    modelId: "test",
-    status: "approved",
     ...over,
-  } as ContentVariant;
+  });
 }
 
 /** 必須の節を全部埋めた入力。個々のテストは、ここから 1 つだけ崩す。 */
@@ -227,24 +212,33 @@ function harness(options: {
       publishedAt: null,
     });
 
+  const base = testDeps();
   const siteRows = options.sites ?? [{ slug: SITE_SLUG, blueprint: aBlueprint() }];
-  const sites = {
+  /*
+    見本の保存先を土台に、この検査が動かす口だけを差し替える。
+    以前はここが 2 口だけの痩せた形で、口が増えても
+    落ちるのは「関数ではありません」という実行時の例外だった。
+  */
+  const sites = markEditorial({
+    ...base.sites,
     async findBySlug(slug: string) {
       return ok(siteRows.find((entry) => entry.slug === slug)?.blueprint ?? null);
     },
     async list() {
       return ok(siteRows);
     },
-  } as unknown as EditorialSiteRepositoryPort;
+  });
 
-  const variants = {
+  const variants = markEditorial({
+    ...base.contentVariants,
     async findById() {
       return ok(options.variant === undefined ? aVariant() : options.variant);
     },
-  } as unknown as EditorialContentVariantRepositoryPort;
+  });
 
   const contentPackage = options.contentPackage === undefined ? aPackage() : options.contentPackage;
-  const packages = {
+  const packages = markEditorial({
+    ...base.contentPackages,
     async findById(workspaceId: WorkspaceId, id: string) {
       const hit =
         contentPackage !== null &&
@@ -252,9 +246,10 @@ function harness(options: {
         String(id) === String(contentPackage.id);
       return ok(hit ? contentPackage : null);
     },
-  } as unknown as EditorialContentPackageRepositoryPort;
+  });
 
   const pubs = {
+    ...base.publications,
     async findById(workspaceId: WorkspaceId, id: string) {
       // 作業場所と ID の両方で引く。ID を見ないと「無い配信」を試せない。
       const hit = workspaceId === publication.workspaceId && String(id) === String(publication.id);
@@ -264,9 +259,10 @@ function harness(options: {
       publications.push(p);
       return ok(p);
     },
-  } as unknown as PublicationRepositoryPort;
+  } satisfies PublicationRepositoryPort;
 
-  const articles = {
+  const articles = markEditorial({
+    ...base.publishedArticles,
     async save(_workspaceId: WorkspaceId, article: PublishedArticle) {
       if (options.writerFails) {
         return err(
@@ -278,9 +274,10 @@ function harness(options: {
       saved.push(article);
       return ok(true as const);
     },
-  } as unknown as EditorialPublishedArticleWriterPort;
+  });
 
-  const offers = {
+  const offers = markEditorial({
+    ...base.articleOffers,
     async listByIds(_workspaceId: WorkspaceId, ids: readonly string[]) {
       if (options.offersFail) {
         return err(
@@ -293,10 +290,9 @@ function harness(options: {
       // 見つからない ID は返さない（本物の実装と同じ約束）。
       return ok(ids.map((id) => table[id]).filter((o): o is ArticleOffer => o !== undefined));
     },
-  } as unknown as EditorialArticleOfferPort;
+  });
 
   const auditLog = recordingAuditLog();
-  const base = testDeps();
   // 記録の口だけ差し替えた偽物を三項で作ると、型が「本物 | 差し替え」の
   // 和に広がって、同じ組み立てを 2 つのユースケースへ渡せなくなる。
   // 先に `AuditLogPort` として畳んでおく。
@@ -329,8 +325,8 @@ function harness(options: {
     saved,
     publications,
     audit: auditLog.entries,
-    run: (input = {}, actor = anOwner()) => uc.execute(actor, fullInput(input)) as never,
-    check: (input = {}, actor = anOwner()) => checkUc.execute(actor, fullInput(input)) as never,
+    run: (input = {}, actor = anOwner()) => uc.execute(actor, fullInput(input)),
+    check: (input = {}, actor = anOwner()) => checkUc.execute(actor, fullInput(input)),
     prepare: (input = {}, actor = anOwner()) =>
       prepareUc.execute(actor, { publicationId: "pub_own", ...input }),
   };
@@ -751,7 +747,7 @@ describe("出す前の画面に出すもの", () => {
   });
 
   it("公開の権限が無い人には出さない", async () => {
-    const result = await h.prepare({}, aWriter() as never);
+    const result = await h.prepare({}, aWriter());
     expect(result.ok).toBe(false);
   });
 
@@ -809,7 +805,7 @@ describe("版の成果リンクが読者の記事に出る", () => {
     table: Readonly<Record<string, ArticleOffer>>,
     extra: Parameters<typeof harness>[0] = {},
   ): Harness {
-    return harness({ variant: aVariant({ affiliateLinkIds: ids as never }), offers: table, ...extra });
+    return harness({ variant: aVariant({ affiliateLinkIds: ids.map(asAffiliateLinkId) }), offers: table, ...extra });
   }
 
   it("成果リンクを持つ版から、商品カードができる", async () => {
@@ -940,7 +936,7 @@ describe("出す前の点検", () => {
   });
 
   it("公開と点検は、ゲート未実施と未登録リンクを同じ警告として返す", async () => {
-    const variant = aVariant({ affiliateLinkIds: ["lnk_missing"] as never });
+    const variant = aVariant({ affiliateLinkIds: [asAffiliateLinkId("lnk_missing")] });
     const checked = await harness({ variant, offers: {} }).check();
     const published = await harness({ variant, offers: {} }).run();
 
@@ -960,7 +956,7 @@ describe("出す前の点検", () => {
 
   it("引き当てられなかった成果リンクを、点検の時点で名指しで出す", async () => {
     // 出してから知らせても遅い。読者にはもう買う導線の無い記事が見えている。
-    const h2 = harness({ variant: aVariant({ affiliateLinkIds: ["lnk_missing"] as never }), offers: {} });
+    const h2 = harness({ variant: aVariant({ affiliateLinkIds: [asAffiliateLinkId("lnk_missing")] }), offers: {} });
     const result = await h2.check();
     if (!result.ok) throw new Error(result.error.message);
     expect(result.value.skipped.some((s) => s.reason.includes("lnk_missing"))).toBe(true);

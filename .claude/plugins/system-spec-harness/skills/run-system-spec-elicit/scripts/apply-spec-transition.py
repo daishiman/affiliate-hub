@@ -3,7 +3,7 @@
 # name: apply-spec-transition
 # version: 0.2.0
 # purpose: spec-state の単一 writer CLI。各責務は state_transition_{matrix,foundation,knowledge}.py へ分離する。
-# inputs: [bootstrap|init|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|attach-qa-design-applications|set-qa-scope-notes|split-qa-bundle|supersede-qa|retract-qa|retract-invalid-qa|set-chapter-note|set-qa-source|declare-excluded-category|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
+# inputs: [bootstrap|init|merge|add-category|apply|chunk|aggregate|set-targets|set-foundation|seal-foundation-sources|set-decision|set-knowledge-candidate|set-qa-design-applications|attach-qa-design-applications|set-qa-scope-notes|split-qa-bundle|supersede-qa|retract-qa|retract-invalid-qa|set-chapter-note|set-qa-source|declare-excluded-category|reanchor-split-scope-notes|requote-written-source|reseal-written-source|set-qa-written-up|set-hearing-policy|enable-asks-for]
 # outputs: [spec-state.json or stdout]
 # network: false
 # write-scope: spec-state.json
@@ -82,6 +82,7 @@ from state_transition_matrix import (
     supersede_qa,
 )
 from state_transition_matrix import enable_asks_for_contract
+from state_transition_merge import format_report, merge_states
 
 
 def _require_writable_state(state: dict) -> None:
@@ -193,6 +194,18 @@ def main(argv: list[str]) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     boot = sub.add_parser("bootstrap", help="R0 用の空 state envelope を生成")
     boot.add_argument("--out")
+    merge = sub.add_parser(
+        "merge",
+        help="枝どうしの state を、追記専用ログだけ要素単位で合流させる",
+    )
+    merge.add_argument("--state", required=True, help="合流先 (base)")
+    merge.add_argument("--other", required=True, help="取り込む側 (other)")
+    merge.add_argument("--out", help="書き出し先 (既定は --state を上書き)")
+    merge.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="何が合流し何が衝突するかを報告するだけで、1 バイトも書かない",
+    )
     init = sub.add_parser("init", help="taxonomy からマトリクスを初期化")
     init.add_argument("--taxonomy", required=True)
     init.add_argument("--state", help="bootstrap済みstate (foundation/decisionsを保持)")
@@ -484,6 +497,26 @@ def main(argv: list[str]) -> int:
             _emit(bootstrap_state(), args.out)
         elif args.cmd == "init":
             _emit(init_state(load_json(args.taxonomy), load_json(args.state) if args.state else None), args.out)
+        elif args.cmd == "merge":
+            base = load_json(args.state)
+            other = load_json(args.other)
+            _require_writable_state(base)
+            _require_writable_state(other)
+            sections_before = _snapshot_versioned_sections(base)
+            merged, report = merge_states(base, other)
+            print(format_report(report), file=sys.stderr)
+            if report["conflicts"]:
+                # **数えずに止める。**衝突を機械が選ぶと根拠の無い確定が生まれる。
+                raise TransitionError(
+                    f"衝突 {len(report['conflicts'])} 件があるため合流しない。"
+                    "上の一覧を見て人が決めること (追記専用ログの合流だけを求めるなら、"
+                    "衝突している節を先に揃えてから再実行する)"
+                )
+            _require_sections_preserved(sections_before, merged)
+            if args.dry_run:
+                print("--dry-run: 書き込みなし", file=sys.stderr)
+            else:
+                _emit(merged, args.out or args.state)
         else:
             state = load_json(args.state)
             _require_writable_state(state)

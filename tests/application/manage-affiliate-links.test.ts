@@ -81,6 +81,9 @@ function linksOf(seed: readonly AffiliateLink[]) {
     async findUsableByOriginalUrl() {
       return ok(null);
     },
+    async createIfNoUsableUrl() {
+      throw new Error("この検査では呼ばれない口です。");
+    },
     async listByProduct() {
       return ok([]);
     },
@@ -101,7 +104,7 @@ function linksOf(seed: readonly AffiliateLink[]) {
       row.link = { ...row.link, disabledAt: at };
       return ok(row.link);
     },
-  }) as unknown as CommercialAffiliateLinkRepositoryPort;
+  }) satisfies CommercialAffiliateLinkRepositoryPort;
   return { port, rows };
 }
 

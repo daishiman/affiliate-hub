@@ -14,6 +14,7 @@ import { getPlatformProxy } from "wrangler";
 import * as schema from "@/db/schema";
 import type { WorkspaceId } from "@/domain/shared";
 import { createD1BlogOpsRepository } from "@/infrastructure/persistence/d1/blog-ops-repository";
+import { splitStatements } from "../support/migrations";
 
 type TestEnv = { readonly DB: D1Database };
 type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
@@ -24,11 +25,14 @@ const OUTSIDER = "ws_backfill_outsider";
 const SITE = "backfill-site";
 const DRIZZLE_DIR = path.resolve(process.cwd(), "drizzle");
 
+/*
+  割り方は `tests/support/migrations.ts` が正本。ここに写しを置いていたせいで、
+  **中身がコメントだけの回**（`0062_realign_snapshot_lineage`）を D1 へ渡し、
+  `SQL code did not contain a statement.` で止まっていた。
+  正本側だけを直しても、写しが残っていると直らない。
+*/
 function statements(file: string): readonly string[] {
-  return readFileSync(file, "utf8")
-    .split("--> statement-breakpoint")
-    .map((statement) => statement.trim())
-    .filter((statement) => statement !== "");
+  return splitStatements(readFileSync(file, "utf8"));
 }
 
 async function openBeforeCanonical(): Promise<Proxy> {

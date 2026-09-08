@@ -26,6 +26,7 @@ import {
   sampleProducts,
 } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
+import { asEvidenceId, asTestRunId } from "@/domain/shared";
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;
 const PAGE = { limit: 50, cursor: null };
@@ -165,6 +166,7 @@ describe("見本の主張・根拠・検証記録", () => {
   });
 
   it("主張の保存は断る", async () => {
+    // 空の入力を**わざと**渡す表明。見本の保存先が黙って受け取らないことを見る。
     const result = await createSampleClaimRepository().save({} as never);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("NOT_IMPLEMENTED");
@@ -188,12 +190,13 @@ describe("見本の主張・根拠・検証記録", () => {
     const byText = await repo.search(WS, { text: first.title.toUpperCase() }, PAGE);
     if (byText.ok) expect(byText.value.items.map((e) => String(e.id))).toContain(String(first.id));
 
-    const missing = await repo.findById(WS, "ev_nonexistent" as never);
+    const missing = await repo.findById(WS, asEvidenceId("ev_nonexistent"));
     expect(missing.ok).toBe(true);
     if (missing.ok) expect(missing.value).toBeNull();
   });
 
   it("根拠の保存は断る", async () => {
+    // 空の入力を**わざと**渡す表明。
     const result = await createSampleEvidenceRepository().save({} as never);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("NOT_IMPLEMENTED");
@@ -202,7 +205,7 @@ describe("見本の主張・根拠・検証記録", () => {
   it("検証記録は 1 件も無い状態で返る（記録が無い画面を必ず一度は通す）", async () => {
     const repo = createSampleTestRunRepository();
 
-    const byId = await repo.findById(WS, "tr_any" as never);
+    const byId = await repo.findById(WS, asTestRunId("tr_any"));
     expect(byId.ok).toBe(true);
     if (byId.ok) expect(byId.value).toBeNull();
 
@@ -210,6 +213,7 @@ describe("見本の主張・根拠・検証記録", () => {
     expect(byProduct.ok).toBe(true);
     if (byProduct.ok) expect(byProduct.value).toHaveLength(0);
 
+    // 空の入力を**わざと**渡す表明。
     const saved = await repo.save({} as never);
     expect(saved.ok).toBe(false);
     if (!saved.ok) expect(saved.error.code).toBe("NOT_IMPLEMENTED");

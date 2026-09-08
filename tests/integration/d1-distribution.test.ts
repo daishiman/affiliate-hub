@@ -21,7 +21,7 @@ import {
 } from "@/application/usecases/distribution/publication-calendar";
 import type { PublicationCalendarDeps } from "@/application/usecases/distribution/publication-calendar";
 import type { ActorContext, AuditLogId, BrandId, ContentPackageId, ContentVariantId, PublicationId } from "@/domain/shared";
-import { ok, taggedString } from "@/domain/shared";
+import { asChannelConnectionId, ok, taggedString } from "@/domain/shared";
 import {
   SAMPLE_CONTENT_PACKAGES,
   sampleContentVariants,
@@ -137,7 +137,7 @@ function deliveryTransition(suffix: string): {
     variantId: APPROVED_VARIANT as ContentVariantId,
     variantRevision: 1,
     channelKind: "bluesky",
-    connectionId: `conn_audit_${suffix}` as never,
+    connectionId: asChannelConnectionId(`conn_audit_${suffix}`),
     state: "SENDING",
     scheduledAt: new Date("2026-08-27T00:00:00Z"),
     deliveryLeaseUntil: new Date("2026-08-27T00:05:00Z"),
@@ -239,7 +239,7 @@ describe("予約workerのD1 claim", () => {
       workspaceId: SAMPLE_WORKSPACE_ID,
       variantId: taggedString<"ContentVariantId">(APPROVED_VARIANT) as ContentVariantId,
       channelKind: "bluesky",
-      connectionId: "conn_claim" as never,
+      connectionId: asChannelConnectionId("conn_claim"),
       state: "QUEUED",
       scheduledAt: new Date("2026-08-27T00:00:00Z"),
       attempts: 0,
@@ -288,7 +288,7 @@ describe("予約workerのD1 claim", () => {
       variantId,
       variantRevision: versioned.value.revision,
       channelKind: "bluesky",
-      connectionId: "conn_claim" as never,
+      connectionId: asChannelConnectionId("conn_claim"),
       state: "QUEUED",
       scheduledAt: new Date("2099-08-27T00:00:00Z"),
       attempts: 0,
@@ -334,7 +334,7 @@ describe("予約workerのD1 claim", () => {
       variantId,
       variantRevision: null,
       channelKind: "bluesky",
-      connectionId: "conn_claim" as never,
+      connectionId: asChannelConnectionId("conn_claim"),
       state: "QUEUED",
       scheduledAt: new Date("2099-08-27T00:00:00Z"),
       attempts: 0,
@@ -365,7 +365,7 @@ describe("予約workerのD1 claim", () => {
       aPublication({
         id: "due_retry" as PublicationId,
         channelKind: "bluesky",
-        connectionId: "conn_due" as never,
+        connectionId: asChannelConnectionId("conn_due"),
         state: "RETRY_SCHEDULED",
         retryAt: new Date(at.getTime() - 1),
         scheduledAt: new Date("2026-08-26T00:00:00Z"),
@@ -373,7 +373,7 @@ describe("予約workerのD1 claim", () => {
       aPublication({
         id: "due_immediate" as PublicationId,
         channelKind: "bluesky",
-        connectionId: "conn_due" as never,
+        connectionId: asChannelConnectionId("conn_due"),
         state: "QUEUED",
         scheduledAt: null,
         publishedAt: null,
@@ -381,7 +381,7 @@ describe("予約workerのD1 claim", () => {
       aPublication({
         id: "due_stale" as PublicationId,
         channelKind: "bluesky",
-        connectionId: "conn_due" as never,
+        connectionId: asChannelConnectionId("conn_due"),
         state: "SENDING",
         attempts: 5,
         providerDeliveryKey: "3m4exampletid",
@@ -391,14 +391,14 @@ describe("予約workerのD1 claim", () => {
       aPublication({
         id: "not_due_future" as PublicationId,
         channelKind: "bluesky",
-        connectionId: "conn_due" as never,
+        connectionId: asChannelConnectionId("conn_due"),
         state: "QUEUED",
         scheduledAt: new Date(at.getTime() + 60_000),
       }),
       aPublication({
         id: "not_due_leased" as PublicationId,
         channelKind: "bluesky",
-        connectionId: "conn_due" as never,
+        connectionId: asChannelConnectionId("conn_due"),
         state: "SENDING",
         providerDeliveryKey: "3m4exampletid",
         deliveryLeaseUntil: new Date(at.getTime() + 60_000),
@@ -423,7 +423,7 @@ describe("予約workerのD1 claim", () => {
       workspaceId: SAMPLE_WORKSPACE_ID,
       variantId: APPROVED_VARIANT as ContentVariantId,
       channelKind: "bluesky",
-      connectionId: "conn_old" as never,
+      connectionId: asChannelConnectionId("conn_old"),
       state: "QUEUED",
       scheduledAt: new Date("2026-08-27T00:00:00Z"),
       attempts: 0,
@@ -460,7 +460,7 @@ describe("予約workerのD1 claim", () => {
       workspaceId: SAMPLE_WORKSPACE_ID,
       variantId: APPROVED_VARIANT as ContentVariantId,
       channelKind: "bluesky",
-      connectionId: "conn_claim" as never,
+      connectionId: asChannelConnectionId("conn_claim"),
       state: "QUEUED",
       scheduledAt: new Date("2099-08-27T00:00:00Z"),
       attempts: 0,
@@ -744,7 +744,7 @@ describe("予約が保存される（読み直して確かめる）", () => {
     expect(stored.value.revision).toBe(sampleOnly.value.revision + 1);
 
     const connection = aChannelConnection({
-      id: "conn_revision_pinned" as never,
+      id: asChannelConnectionId("conn_revision_pinned"),
       workspaceId: publisher.workspaceId,
       kind: "bluesky",
       providerIdentity: "did:plc:revision-pinned",
@@ -941,7 +941,7 @@ describe("予約が保存される（読み直して確かめる）", () => {
       workspaceId: SAMPLE_WORKSPACE_ID,
       variantId: APPROVED_VARIANT as ContentVariantId,
       channelKind: "bluesky",
-      connectionId: "conn_retry" as never,
+      connectionId: asChannelConnectionId("conn_retry"),
       state: "FAILED_SEND",
       scheduledAt: new Date("2026-08-26T00:00:00Z"),
       retryAt: null,
@@ -1110,7 +1110,7 @@ describe("外部配信の保存境界", () => {
       variantId: APPROVED_VARIANT as ContentVariantId,
       idempotencyKey: "provider-record-created-at",
       channelKind: "bluesky",
-      connectionId: "conn_provider_record_created_at" as never,
+      connectionId: asChannelConnectionId("conn_provider_record_created_at"),
       providerIdentity: "did:plc:provider-record-created-at",
       providerDeliveryKey: "3m4exampletid",
       providerRecordCreatedAt,

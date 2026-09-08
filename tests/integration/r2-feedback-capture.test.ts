@@ -85,6 +85,8 @@ beforeAll(async () => {
     environment: "dev",
     persist: false,
   });
+  // 実行基盤（wrangler の R2 束縛）を、こちらの読み口として名乗り直す。
+  // ドメイン型の偽装ではなく**基盤の境界**なので、ここは名乗り直しのまま残す。
   bucket = proxy.env.BUCKET as unknown as CaptureBucket;
   store = createR2FeedbackCaptureStore(bucket);
 }, 60_000);

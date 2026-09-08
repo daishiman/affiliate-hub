@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "recorded_at": "2026-09-08T12:52:05Z",
+  "feature_id": "feat-blog-top-page-composition",
+  "dev_graph_node_id": "feat-blog-top-page-composition",
+  "beads_ids": [
+    "ah-v2xx",
+    "ah-9tx5",
+    "ah-2ann",
+    "ah-t1df"
+  ],
+  "product_spec_impact": {
+    "status": "none",
+    "reason": "The MVP slice stays within the existing A1-A8 behavior and existing ownership boundaries; it adds no external API, authorization boundary, persistence owner, or reader-surface scope."
+  },
+  "spec_governance_impact": {
+    "status": "none",
+    "reason": "No product requirement, ownership boundary, external API, authorization rule, or persistence responsibility changed. Existing QA-reference, foundation-section, and source-freshness findings are separated from this change."
+  },
+  "audits": {
+    "matrix": "PASS",
+    "hearing": "FAIL: three pre-existing leading QA entries remain active",
+    "doc_freshness": "REVIEWED: 29 of 29 evidence records inspected; pre-existing SQLite FTS5 and WebMCP freshness drift remains outside this change",
+    "task_spec_gate": "PASS: sha256:a3ead33cd3c445dbd86ac6bb7b301323862bd442b445d6160e30036b75f9f680"
+  },
+  "feature_completion": {
+    "status": "open",
+    "reason": "A4, A7, A8 and development deployment evidence are incomplete; exact-13 atomic promotion is also blocked by the C08 producer/manifest readiness check; the pull request remains draft."
+  },
+  "human_receipt": "docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md"
+}

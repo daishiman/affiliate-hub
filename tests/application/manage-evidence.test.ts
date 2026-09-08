@@ -32,10 +32,11 @@ import {
   createSearchEvidenceUseCase,
 } from "@/application/usecases/evidence/manage-evidence";
 import type { Claim, Evidence, TestRun } from "@/domain/evidence";
-import { markEditorial, ok, taggedString } from "@/domain/shared";
+import { asEvidenceId, asWorkspaceId, markEditorial, ok, taggedString } from "@/domain/shared";
 import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
+import { aMembership, aProduct, anEvidence } from "../support/factories";
 
 /** 保存されたものを覚えておくだけの偽の保存先。根拠は登録済みの番号だけを返す。 */
 function fakes(
@@ -50,71 +51,71 @@ function fakes(
   const savedClaims: { productId: string; claim: Claim }[] = [];
   const savedRuns: TestRun[] = [];
 
-  const evidence = markEditorial({
-    findById: async (_ws: unknown, id: unknown) =>
+  const evidence: EditorialEvidenceRepositoryPort = markEditorial({
+    findById: async (_ws, id) =>
       ok(
         registered.includes(String(id))
-          ? ({ id, workspaceId: owners.evidence ?? WORKSPACE } as Evidence)
+          ? anEvidence({ id, workspaceId: asWorkspaceId(owners.evidence ?? WORKSPACE) })
           : null,
       ),
-    listByIds: async (_ws: unknown, ids: readonly unknown[]) =>
+    listByIds: async (_ws, ids) =>
       // 登録済みのものだけ返す。ここが「全部返す」になっていると、
       // 存在しない根拠を指した主張が通ってしまう。
-      ok(ids.filter((id) => registered.includes(String(id))).map((id) => ({ id }))),
+      ok(ids.filter((id) => registered.includes(String(id))).map((id) => anEvidence({ id }))),
     search: async () => ok({ items: [], nextCursor: null }),
-    save: async (e: Evidence) => {
+    save: async (e) => {
       savedEvidence.push(e);
       return ok(e);
     },
-  }) as unknown as EditorialEvidenceRepositoryPort;
+  });
 
-  const claims = markEditorial({
+  const claims: EditorialClaimRepositoryPort = markEditorial({
     findById: async () => ok(null),
     listByProduct: async () => ok([]),
     listExpiringBefore: async () => ok([]),
-    save: async (c: Claim) => ok(c),
-    saveForProduct: async (_ws: unknown, productId: unknown, c: Claim) => {
+    save: async (c) => ok(c),
+    saveForProduct: async (_ws, productId, c) => {
       savedClaims.push({ productId: String(productId), claim: c });
       return ok(c);
     },
-  }) as unknown as EditorialClaimRepositoryPort;
+  });
 
-  const testRuns = markEditorial({
+  const testRuns: EditorialTestRunRepositoryPort = markEditorial({
     findById: async () => ok(null),
     listByProduct: async () => ok([]),
-    save: async (r: TestRun) => {
+    save: async (r) => {
       savedRuns.push(r);
       return ok(r);
     },
-  }) as unknown as EditorialTestRunRepositoryPort;
+  });
 
-  const products = markEditorial({
-    findById: async (_ws: unknown, id: unknown) =>
+  const products: EditorialProductRepositoryPort = markEditorial({
+    findById: async (_ws, id) =>
       ok(
         owners.product === null
           ? null
-          : ({ id, workspaceId: owners.product ?? WORKSPACE } as never),
+          : aProduct({ id, workspaceId: asWorkspaceId(owners.product ?? WORKSPACE) }),
       ),
     findByIdentityKey: async () => ok(null),
     search: async () => ok({ items: [], nextCursor: null }),
-    save: async (product: unknown) => ok(product),
+    save: async (product) => ok(product),
     remove: async () => ok(true),
-  }) as unknown as EditorialProductRepositoryPort;
+  });
 
-  const memberships = {
+  const memberships: MembershipRepositoryPort = {
     findById: async () => ok(null),
-    findByUser: async (_ws: unknown, userId: unknown) =>
+    findByUser: async (_ws, userId) =>
       ok(
         owners.tester === null
           ? null
-          : ({ userId, workspaceId: owners.tester ?? WORKSPACE } as never),
+          : aMembership({ userId, workspaceId: asWorkspaceId(owners.tester ?? WORKSPACE) }),
       ),
     findByInvitedEmail: async () => ok(null),
     list: async () => ok({ items: [], nextCursor: null }),
     countCurrent: async () => ok(0),
-    save: async (membership: unknown) => ok(membership),
+    save: async (membership) => ok(membership),
     findOwner: async () => ok(null),
-  } as unknown as MembershipRepositoryPort;
+  };
 
   return {
     evidence,
@@ -417,28 +418,28 @@ describe("検証記録の登録", () => {
  * ここが崩れると、開いても何も出ないリンクや、探し方の分からない空欄が出る。
  */
 describe("根拠をさがす", () => {
-  const AN_EVIDENCE_ROW = {
-    id: "ev_known",
+  const AN_EVIDENCE_ROW = anEvidence({
+    id: asEvidenceId("ev_known"),
     type: "official_source",
     title: "書き出し時間の公式値",
     sourceOwner: "製造元",
     capturedAt: new Date("2026-08-01T09:00:00.000Z"),
     urlOrAssetId: "https://example.com/spec",
     excerptOrSummary: "4K10分の素材を6分12秒で書き出す",
-  };
+  });
 
   /** 探した結果を差し替えられる保存先。呼ばれた引数もそのまま覚えておく。 */
-  function searching(items: readonly Record<string, unknown>[]) {
+  function searching(items: readonly Evidence[]) {
     const calls: { filter: unknown; page: unknown }[] = [];
-    const evidence = markEditorial({
+    const evidence: EditorialEvidenceRepositoryPort = markEditorial({
       findById: async () => ok(null),
       listByIds: async () => ok([]),
-      search: async (_ws: unknown, filter: unknown, page: unknown) => {
+      search: async (_ws, filter, page) => {
         calls.push({ filter, page });
         return ok({ items, nextCursor: null });
       },
-      save: async (e: Evidence) => ok(e),
-    }) as unknown as EditorialEvidenceRepositoryPort;
+      save: async (e) => ok(e),
+    });
     return { evidence, calls };
   }
 
@@ -648,6 +649,7 @@ describe("読めない値は入口で断る", () => {
     const got = await make()({
       ...deps({ evidence: f.evidence, claims: f.claims, testRuns: f.testRuns }),
       ids: undefined,
+    // 型が受け付けない入力を**わざと**渡す表明。実装が断ることをここで見る。
     }).execute(anOwner(), input as never);
 
     expect(got.ok).toBe(false);

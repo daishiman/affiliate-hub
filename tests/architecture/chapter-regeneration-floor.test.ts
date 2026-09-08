@@ -137,7 +137,7 @@ function withoutResidue(text: string): string {
   let dropping = false;
   for (const line of text.split("\n")) {
     if (/^## /.test(line)) {
-      dropping = RESIDUE_SECTIONS.includes(line.slice(3) as never);
+      dropping = RESIDUE_SECTIONS.some((section) => section === line.slice(3));
     }
     if (!dropping) out.push(line);
   }
@@ -757,7 +757,7 @@ const GENERATED_SECTIONS = [
 /** 宣言した節の集合を、再生成後に現れる並びへ写す。 */
 function regeneratedOrder(sections: readonly string[]): string[] {
   const generated = GENERATED_SECTIONS.filter((s) => sections.includes(s));
-  const handwritten = sections.filter((s) => !GENERATED_SECTIONS.includes(s as never));
+  const handwritten = sections.filter((s) => !GENERATED_SECTIONS.some((g) => g === s));
   return [...generated, ...handwritten];
 }
 

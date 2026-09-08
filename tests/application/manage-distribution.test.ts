@@ -22,9 +22,14 @@ import {
   createUpdatePublicationUseCase,
 } from "@/application/usecases/distribution/manage-distribution";
 import { CHANNEL_CAPABILITIES, type Publication } from "@/domain/distribution";
-import { markEditorial, ok } from "@/domain/shared";
+import { asBrandId, asChannelConnectionId, asContentPackageId, asContentVariantId, asPublicationId, markEditorial, ok } from "@/domain/shared";
 import { OTHER_WORKSPACE, aNobody, anOutsider, anOwner, aWriter } from "../support/actors";
-import { aChannelConnection, aPublication } from "../support/factories";
+import {
+  aChannelConnection,
+  aContentPackage,
+  aContentVariant,
+  aPublication,
+} from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
 import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
@@ -229,7 +234,7 @@ describe("出し先の一覧", () => {
 });
 
 describe("ブランド限定担当者の配信境界", () => {
-  const limited = anOwner({ scopedBrandIds: ["brand-allowed" as never] });
+  const limited = anOwner({ scopedBrandIds: [asBrandId("brand-allowed")] });
 
   function branded(
     publications: readonly Publication[],
@@ -259,10 +264,10 @@ describe("ブランド限定担当者の配信境界", () => {
           return ok(
             packageId === undefined
               ? null
-              : ({
+              : aContentVariant({
                   workspaceId: owner.workspaceId,
-                  contentPackageId: packageId,
-                } as never),
+                  contentPackageId: asContentPackageId(String(packageId)),
+                }),
           );
         },
       }),
@@ -277,7 +282,7 @@ describe("ブランド限定担当者の配信境界", () => {
           return ok(
             brandId == null
               ? null
-              : ({ workspaceId: owner.workspaceId, brandId } as never),
+              : aContentPackage({ workspaceId: owner.workspaceId, brandId }),
           );
         },
       }),
@@ -286,9 +291,9 @@ describe("ブランド限定担当者の配信境界", () => {
   }
 
   it("一覧は担当ブランドだけを返し、担当外と所有元不明の配信を隠す", async () => {
-    const allowed = aPublication({ id: "pub-allowed" as never, variantId: "cv-allowed" as never });
-    const outside = aPublication({ id: "pub-outside" as never, variantId: "cv-outside" as never });
-    const orphan = aPublication({ id: "pub-orphan" as never, variantId: "cv-orphan" as never });
+    const allowed = aPublication({ id: asPublicationId("pub-allowed"), variantId: asContentVariantId("cv-allowed") });
+    const outside = aPublication({ id: asPublicationId("pub-outside"), variantId: asContentVariantId("cv-outside") });
+    const orphan = aPublication({ id: asPublicationId("pub-orphan"), variantId: asContentVariantId("cv-orphan") });
     const got = await createListPublicationsUseCase(
       branded([allowed, outside, orphan], {
         "cv-allowed": "brand-allowed",
@@ -302,9 +307,9 @@ describe("ブランド限定担当者の配信境界", () => {
   });
 
   it("limitより前が担当外で埋まっていても、担当ブランドの次ページ候補を欠落させない", async () => {
-    const outsideA = aPublication({ id: "pub-outside-a" as never, variantId: "cv-outside-a" as never });
-    const outsideB = aPublication({ id: "pub-outside-b" as never, variantId: "cv-outside-b" as never });
-    const allowed = aPublication({ id: "pub-allowed" as never, variantId: "cv-allowed" as never });
+    const outsideA = aPublication({ id: asPublicationId("pub-outside-a"), variantId: asContentVariantId("cv-outside-a") });
+    const outsideB = aPublication({ id: asPublicationId("pub-outside-b"), variantId: asContentVariantId("cv-outside-b") });
+    const allowed = aPublication({ id: asPublicationId("pub-allowed"), variantId: asContentVariantId("cv-allowed") });
     const rows = [outsideA, outsideB, allowed];
     const got = await createListPublicationsUseCase(
       branded(
@@ -334,7 +339,7 @@ describe("ブランド限定担当者の配信境界", () => {
   });
 
   it("担当外ブランドの配信は詳細を返さない", async () => {
-    const outside = aPublication({ id: "pub-outside" as never, variantId: "cv-outside" as never });
+    const outside = aPublication({ id: asPublicationId("pub-outside"), variantId: asContentVariantId("cv-outside") });
     const got = await createGetPublicationUseCase(
       branded([outside], { "cv-outside": "brand-outside" }),
     ).execute(limited, { publicationId: "pub-outside" });
@@ -347,8 +352,8 @@ describe("ブランド限定担当者の配信境界", () => {
 
   it("担当外ブランドの配信は取りやめ・修正・本文書き出しを行わない", async () => {
     const outside = aPublication({
-      id: "pub-outside" as never,
-      variantId: "cv-outside" as never,
+      id: asPublicationId("pub-outside"),
+      variantId: asContentVariantId("cv-outside"),
       state: "QUEUED",
       channelKind: "note",
     });
@@ -383,10 +388,10 @@ describe("ブランド限定担当者の配信境界", () => {
 
   it("担当ブランドの配信でも、所有brand不明の共有接続を使う直接配信は修正できない", async () => {
     const publication = aPublication({
-      id: "pub-allowed" as never,
-      variantId: "cv-allowed" as never,
+      id: asPublicationId("pub-allowed"),
+      variantId: asContentVariantId("cv-allowed"),
       channelKind: "x",
-      connectionId: "conn-brandless" as never,
+      connectionId: asChannelConnectionId("conn-brandless"),
       state: "QUEUED",
     });
     const saved: Publication[] = [];
@@ -412,7 +417,7 @@ describe("ブランド限定担当者の配信境界", () => {
   });
 
   it("担当外ブランドの記事IDでは配信状況も返さない", async () => {
-    const outside = aPublication({ id: "pub-outside" as never, variantId: "cv-outside" as never });
+    const outside = aPublication({ id: asPublicationId("pub-outside"), variantId: asContentVariantId("cv-outside") });
     const got = await createGetContentChannelStatusUseCase(
       branded([outside], { "cv-outside": "brand-outside" }),
     ).execute(limited, { variantId: "cv-outside" });
@@ -728,11 +733,11 @@ describe("手作業での書き出し", () => {
   }
 
   const NOTE_BODY = "この記事は、実際に 3 か月使った記録です。";
-  const noteVariant = {
+  const noteVariant = aContentVariant({
     title: "3 か月使った記録",
     body: NOTE_BODY,
     disclosure: "この記事には広告が含まれます。",
-  };
+  });
 
   async function exportDraft(
     publication: Publication | null,
@@ -818,7 +823,7 @@ describe("手作業での書き出し", () => {
         variants: {
           ...testDeps().contentVariants,
           findVersionedById: async () =>
-            ok({ variant: noteVariant as never, revision: 2, persisted: true }),
+            ok({ variant: noteVariant, revision: 2, persisted: true }),
         } as ManageDistributionDeps["variants"],
       },
     );
@@ -885,7 +890,7 @@ describe("配信の修正", () => {
     const sampleOwner = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID as typeof owner.workspaceId });
     const publication = aPublication({
       workspaceId: sampleOwner.workspaceId,
-      variantId: "cv_alpha_approved" as never,
+      variantId: asContentVariantId("cv_alpha_approved"),
       variantRevision: 1,
       state: "QUEUED",
       channelKind: "note",
@@ -912,7 +917,7 @@ describe("配信の修正", () => {
     const sampleOwner = anOwner({ workspaceId: SAMPLE_WORKSPACE_ID as typeof owner.workspaceId });
     const current = await base.contentVariants.findVersionedById(
       sampleOwner.workspaceId,
-      "cv_alpha_approved" as never,
+      asContentVariantId("cv_alpha_approved"),
     );
     if (!current.ok || current.value === null) throw new Error("承認済み見本がありません。");
     const currentVariant = current.value.variant;
@@ -985,7 +990,7 @@ describe("配信の修正", () => {
     const base = testDeps();
     const current = await base.contentVariants.findVersionedById(
       SAMPLE_WORKSPACE_ID,
-      "cv_alpha_approved" as never,
+      asContentVariantId("cv_alpha_approved"),
     );
     if (!current.ok || current.value === null) throw new Error("承認済み見本がありません。");
     const currentVariant = current.value.variant;
@@ -1023,7 +1028,7 @@ describe("配信の修正", () => {
     const publication = aPublication({
       state: "QUEUED",
       channelKind: "bluesky",
-      connectionId: "conn-old" as never,
+      connectionId: asChannelConnectionId("conn-old"),
       scheduledAt: new Date("2099-03-04T10:30:00.000Z"),
     });
     const got = await createUpdatePublicationUseCase(
@@ -1117,7 +1122,7 @@ describe("配信の修正", () => {
     const publication = aPublication({
       state: "QUEUED",
       channelKind: "x",
-      connectionId: "conn-x-old" as never,
+      connectionId: asChannelConnectionId("conn-x-old"),
     });
     const got = await createUpdatePublicationUseCase(
       deps(withPublication(publication)),

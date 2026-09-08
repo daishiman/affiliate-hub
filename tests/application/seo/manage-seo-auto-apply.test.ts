@@ -171,6 +171,9 @@ describe("記事を選び、差分を承認して反映する", () => {
   });
   it("旧一括run経路を受け付けない", async () => {
     const h = harness();
+    // 旧経路の入力は、いまの正本の入力型に**存在しない**。型を外して渡すのは、
+    // 古い呼び出しが残っている場所から実際に届く形を再現するため。
+    // 口を揃えると「型で止まる入力」しか試せず、実行時の断りを見られない。
     const result = await h.uc.execute(anOwner(), { action: "run", limit: 50 } as unknown as ManageSeoAutoApplyInput);
     expect(result).toMatchObject({ ok: false, error: { code: "VALIDATION_FAILED" } });
     expect(h.deps.revisions.applyApproved).not.toHaveBeenCalled();

@@ -17,7 +17,7 @@ import {
 } from "@/application/usecases/site/build-site";
 import { SITE_WIZARD_STEPS } from "@/domain/authoring";
 import type { SiteProvisionRequest } from "@/application/ports/authoring";
-import type { ActorContext } from "@/domain/shared";
+import type { ActorContext, SiteDraftId } from "@/domain/shared";
 import { domainError, err, markEditorial } from "@/domain/shared";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
@@ -765,7 +765,12 @@ describe("D1 batch の原子性", () => {
   it("create 完了後に古い save が到着しても、createdSiteSlug を null へ戻さない", async () => {
     const slug = "stale-save-after-create";
     const draftId = await completeDraft(slug, "作成時の名前");
-    const stale = await deps.drafts.find(owner.workspaceId, draftId as never);
+    /*
+      ユースケースの出力は素の文字列で返るが、保存口は印の付いた `SiteDraftId` を
+      要る。`as never` で締めると**文字列であることすら見なくなる**ので、
+      印だけを名乗り直す形にしてある。
+    */
+    const stale = await deps.drafts.find(owner.workspaceId, draftId as SiteDraftId);
     expect(stale.ok && stale.value !== null).toBe(true);
     if (!stale.ok || stale.value === null) return;
 
@@ -789,8 +794,12 @@ describe("D1 batch の原子性", () => {
     const started = await createStartSiteDraftUseCase(deps).execute(owner, {});
     expect(started.ok).toBe(true);
     if (!started.ok) return;
-    const firstRead = await deps.drafts.find(owner.workspaceId, started.value.draftId as never);
-    const secondRead = await deps.drafts.find(owner.workspaceId, started.value.draftId as never);
+    // 上と同じく、印だけを名乗り直す（`as never` では文字列かどうかも見ない）。
+    const firstRead = await deps.drafts.find(owner.workspaceId, started.value.draftId as SiteDraftId);
+    const secondRead = await deps.drafts.find(
+      owner.workspaceId,
+      started.value.draftId as SiteDraftId,
+    );
     expect(firstRead.ok && firstRead.value !== null).toBe(true);
     expect(secondRead.ok && secondRead.value !== null).toBe(true);
     if (!firstRead.ok || firstRead.value === null || !secondRead.ok || secondRead.value === null) {

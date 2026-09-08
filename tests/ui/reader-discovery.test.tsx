@@ -46,9 +46,22 @@ it("フッターのカテゴリーは専用索引に1回だけ現れ、方針リ
   const { toChrome } = await import("@/presentation/site/view-model");
   const { SiteShell } = await import("@/presentation/ui");
   const site = sampleSites()[0]!;
-  const projection = {
-    chrome: { headerSlots: [], footerSlots: [{ slotKey: "footer-logo-nav" }, { slotKey: "footer-category-tree" }] },
-  } as unknown as import("@/presentation/site/public-site-projection").PublicSiteProjection;
+  const { aLayoutSlot, aPublicSiteProjection } = await import("../support/factories");
+  /*
+    見たいのはフッターに置かれた枠 2 つの `slotKey` だけ。だが型を外して
+    `{ slotKey }` だけの別物を渡していたのを雛形へ寄せた途端、
+    **`BlogLayoutSlotRecord` の 7 項目が足りない**と型検査が言った。
+    実際 `toChrome` はこれらの枠を `region` で振り分けている。
+  */
+  const projection = aPublicSiteProjection({
+    chrome: {
+      headerSlots: [],
+      footerSlots: [
+        aLayoutSlot({ region: "footer", slotKey: "footer-logo-nav" }),
+        aLayoutSlot({ region: "footer", slotKey: "footer-category-tree" }),
+      ],
+    },
+  });
   const chrome = toChrome(site.slug, site.blueprint, projection);
   const doc = new JSDOM(renderToStaticMarkup(<SiteShell chrome={chrome} currentPath="/"><p>本文</p></SiteShell>)).window.document;
   const footer = doc.querySelector("footer")!;
