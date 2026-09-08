@@ -47,10 +47,23 @@ beforeEach(() => {
 });
 
 describe("createAuthorPersonaAction", () => {
+  it("site 配下で登録したら、同じ site の書き手一覧を再検証して返す", async () => {
+    executeAuthor.mockResolvedValue(ok({ displayName: "山田" }));
+
+    const state = await createAuthorPersonaAction(
+      "first-camera",
+      IDLE,
+      form({ displayName: "山田" }),
+    );
+
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/sites/first-camera/authors");
+    expect(state.personaListPath).toBe("/admin/sites/first-camera/authors");
+  });
+
   it("未ログインなら、FormData を 1 度も読まずに断る", async () => {
     signedIn = null;
     const get = vi.fn();
-    const state = await createAuthorPersonaAction(IDLE, { get } as unknown as FormData);
+    const state = await createAuthorPersonaAction(null, IDLE, { get } as unknown as FormData);
 
     expect(state.status).toBe("failed");
     expect(get).not.toHaveBeenCalled();
@@ -58,7 +71,11 @@ describe("createAuthorPersonaAction", () => {
   });
 
   it("経験年数が数でなければ、欄を名指しして断り、domain まで運ばない", async () => {
-    const state = await createAuthorPersonaAction(IDLE, form({ experienceYears: "3年くらい" }));
+    const state = await createAuthorPersonaAction(
+      null,
+      IDLE,
+      form({ experienceYears: "3年くらい" }),
+    );
 
     expect(state.status).toBe("failed");
     expect(state.field).toBe("experienceYears");
@@ -67,7 +84,7 @@ describe("createAuthorPersonaAction", () => {
 
   it("空欄のまま出すと、経験年数は 0 ではなく null、文体は既定の 0.5 で渡る", async () => {
     executeAuthor.mockResolvedValue(ok({ displayName: "名無し" }));
-    await createAuthorPersonaAction(IDLE, form({}));
+    await createAuthorPersonaAction(null, IDLE, form({}));
 
     const input = executeAuthor.mock.calls[0][1];
     expect(input.experienceYears).toBeNull();
@@ -86,6 +103,7 @@ describe("createAuthorPersonaAction", () => {
   it("埋めて出すと、行の欄は 1 行 1 件へ割られ、登録後に一覧が描き直される", async () => {
     executeAuthor.mockResolvedValue(ok({ displayName: "山田" }));
     const state = await createAuthorPersonaAction(
+      null,
       IDLE,
       form({
         displayName: "山田",
@@ -123,7 +141,7 @@ describe("createAuthorPersonaAction", () => {
     executeAuthor.mockResolvedValue(
       err(domainError("FORBIDDEN", "資格を名乗れません。", { field: "verifiedCredentials" })),
     );
-    const state = await createAuthorPersonaAction(IDLE, form({ displayName: "山田" }));
+    const state = await createAuthorPersonaAction(null, IDLE, form({ displayName: "山田" }));
 
     expect(state.status).toBe("failed");
     expect(state.field).toBe("verifiedCredentials");
@@ -133,10 +151,31 @@ describe("createAuthorPersonaAction", () => {
 });
 
 describe("createAudiencePersonaAction", () => {
+  it("site 配下で登録したら、同じ site の読者像一覧を再検証して返す", async () => {
+    executeAudience.mockResolvedValue(ok({ name: "初心者" }));
+
+    const state = await createAudiencePersonaAction(
+      "first-camera",
+      IDLE,
+      form({ name: "初心者" }),
+    );
+
+    expect(revalidatePath).toHaveBeenCalledWith(
+      "/admin/sites/first-camera/audience/personas",
+    );
+    expect(state.personaListPath).toBe(
+      "/admin/sites/first-camera/audience/personas",
+    );
+  });
+
   it("未ログインなら、FormData を 1 度も読まずに断る", async () => {
     signedIn = null;
     const get = vi.fn();
-    const state = await createAudiencePersonaAction(IDLE, { get } as unknown as FormData);
+    const state = await createAudiencePersonaAction(
+      null,
+      IDLE,
+      { get } as unknown as FormData,
+    );
 
     expect(state.status).toBe("failed");
     expect(get).not.toHaveBeenCalled();
@@ -145,7 +184,11 @@ describe("createAudiencePersonaAction", () => {
 
   it("空欄の予算・時間・いまの状況は、空文字ではない形で渡る", async () => {
     executeAudience.mockResolvedValue(ok({ name: "読者" }));
-    await createAudiencePersonaAction(IDLE, form({ name: "読者", budgetContext: "  " }));
+    await createAudiencePersonaAction(
+      null,
+      IDLE,
+      form({ name: "読者", budgetContext: "  " }),
+    );
 
     const input = executeAudience.mock.calls[0][1];
     // 鍵の有無では分けられない。渡す形が object literal なので、
@@ -159,6 +202,7 @@ describe("createAudiencePersonaAction", () => {
   it("埋めて出すと、決めた値がそのまま渡り、読者像の一覧が描き直される", async () => {
     executeAudience.mockResolvedValue(ok({ name: "初心者" }));
     const state = await createAudiencePersonaAction(
+      null,
       IDLE,
       form({
         name: "初心者",
@@ -195,7 +239,7 @@ describe("createAudiencePersonaAction", () => {
 
   it("domain が断ったら、断りの文を画面へ返し、一覧を描き直さない", async () => {
     executeAudience.mockResolvedValue(err(domainError("CONFLICT", "同じ名前の読者像があります。")));
-    const state = await createAudiencePersonaAction(IDLE, form({ name: "初心者" }));
+    const state = await createAudiencePersonaAction(null, IDLE, form({ name: "初心者" }));
 
     expect(state.status).toBe("failed");
     expect(state.message).toContain("同じ名前の読者像があります。");

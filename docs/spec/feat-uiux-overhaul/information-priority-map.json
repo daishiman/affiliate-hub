@@ -972,7 +972,7 @@
     },
     {
       "route": "/admin/personas",
-      "primary_task": "書き手と読者像を決める",
+      "primary_task": "開いているブログの書き手の画面へ送る",
       "task_frequency": "low",
       "failure_cost": "medium",
       "keep": [
@@ -1010,11 +1010,12 @@
         "always_visible_callouts": 4,
         "cards": 3,
         "forms": 0
-      }
+      },
+      "note": "2026-09-08 に中身を /admin/sites/[site]/authors へ所属替え。この route は転送の殻として残る。"
     },
     {
       "route": "/admin/personas/audiences",
-      "primary_task": "誰に向けて書くかを決める",
+      "primary_task": "開いているブログの読者像の画面へ送る",
       "task_frequency": "low",
       "failure_cost": "low",
       "keep": [
@@ -1038,7 +1039,8 @@
         "always_visible_callouts": 0,
         "cards": 0,
         "forms": 0
-      }
+      },
+      "note": "2026-09-08 に中身を /admin/sites/[site]/audience/personas へ所属替え。この route は転送の殻として残る。"
     },
     {
       "route": "/admin/products",
@@ -1848,7 +1850,7 @@
     },
     {
       "route": "/admin/writing",
-      "primary_task": "書き方の決めごとを調べる (参照専用)",
+      "primary_task": "開いているブログの書き方の決めごとへ送る",
       "task_frequency": "low",
       "failure_cost": "low",
       "keep": [
@@ -1878,7 +1880,8 @@
         "always_visible_callouts": 2,
         "cards": 7,
         "forms": 0
-      }
+      },
+      "note": "2026-09-08 に中身を /admin/sites/[site]/writing へ所属替え。この route は転送の殻として残る。"
     },
     {
       "route": "/admin/site-network",
@@ -2651,7 +2654,7 @@
     },
     {
       "route": "/admin/personas/new",
-      "primary_task": "書き手を 1 人作る",
+      "primary_task": "開いているブログの「書き手を作る」へ送る",
       "task_frequency": "low",
       "failure_cost": "medium",
       "keep": [
@@ -2678,7 +2681,7 @@
           "why": "読んでから避けるより、入れられない形にするほうが短い"
         }
       ],
-      "note": "架空の人格を選ぶと資格と経験年数の欄が消える。断るのは domain だが、出したまま断ると「入れたのに消された」に見える",
+      "note": "2026-09-08 に中身を /admin/sites/[site]/authors/new へ所属替え。この route は転送の殻として残る。",
       "baseline": {
         "source": "src/app/admin/personas/new/page.tsx",
         "lines": 33,
@@ -2690,7 +2693,7 @@
     },
     {
       "route": "/admin/personas/audiences/new",
-      "primary_task": "読者像を 1 つ作る",
+      "primary_task": "開いているブログの「読者像を作る」へ送る",
       "task_frequency": "low",
       "failure_cost": "low",
       "keep": [
@@ -2718,7 +2721,8 @@
         "always_visible_callouts": 0,
         "cards": 0,
         "forms": 0
-      }
+      },
+      "note": "2026-09-08 に中身を /admin/sites/[site]/audience/personas/new へ所属替え。この route は転送の殻として残る。"
     },
     {
       "route": "/admin/rankings/models",
@@ -3304,6 +3308,208 @@
         }
       ],
       "note": "AI から呼べる。取り出しも構えの保存も読者に出ている文を書き換えない (AD-3)"
+    },
+    {
+      "route": "/admin/sites/[site]/authors",
+      "primary_task": "全ブログで使う書き手を、このブログの文脈で確かめる",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "書き手の一覧",
+          "why": "選ぶ対象"
+        },
+        {
+          "item": "書ける事実の範囲",
+          "why": "越えると記事が破綻する境界"
+        },
+        {
+          "item": "全ブログで共通であることの説明",
+          "why": "ブログ配下の住所だけでは保存範囲を誤認するため"
+        }
+      ],
+      "drop": [],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/authors/page.tsx",
+        "lines": 0,
+        "lead_chars": 0,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      },
+      "note": "2026-09-08 に /admin/personas から所属替え。旧行は転送の殻として残る。"
+    },
+    {
+      "route": "/admin/sites/[site]/authors/new",
+      "primary_task": "全ブログで使う書き手を 1 人作る",
+      "task_frequency": "low",
+      "failure_cost": "medium",
+      "keep": [
+        {
+          "item": "入力欄と、書ける事実の範囲",
+          "why": "作るのに要る"
+        },
+        {
+          "item": "全ブログで共通であることの説明",
+          "why": "登録前に影響範囲を伝えるため"
+        }
+      ],
+      "drop": [
+        {
+          "item": "書き手と読者像の関係の説明",
+          "why": "一覧側が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/authors/new/page.tsx",
+        "lines": 0,
+        "lead_chars": 0,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 1
+      },
+      "note": "2026-09-08 に /admin/personas/new から所属替え。"
+    },
+    {
+      "route": "/admin/sites/[site]/audience/personas",
+      "primary_task": "全ブログで使う読者像を、このブログの文脈で確かめる",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "読者像の一覧と特徴",
+          "why": "選ぶ対象"
+        },
+        {
+          "item": "全ブログで共通であることの説明",
+          "why": "ブログ配下の住所だけでは保存範囲を誤認するため"
+        }
+      ],
+      "drop": [
+        {
+          "item": "書き手の人物像",
+          "why": "書き手の画面が持つ。混ぜると「誰の話か」が分からなくなる",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/audience/personas/page.tsx",
+        "lines": 0,
+        "lead_chars": 0,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 0
+      },
+      "note": "2026-09-08 に /admin/personas/audiences から所属替え。"
+    },
+    {
+      "route": "/admin/sites/[site]/audience/personas/new",
+      "primary_task": "全ブログで使う読者像を 1 つ作る",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "入力欄",
+          "why": "作るのに要る"
+        },
+        {
+          "item": "全ブログで共通であることの説明",
+          "why": "登録前に影響範囲を伝えるため"
+        }
+      ],
+      "drop": [
+        {
+          "item": "読者像の考え方の説明",
+          "why": "一覧側が持つ",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/audience/personas/new/page.tsx",
+        "lines": 0,
+        "lead_chars": 0,
+        "always_visible_callouts": 0,
+        "cards": 0,
+        "forms": 1
+      },
+      "note": "2026-09-08 に /admin/personas/audiences/new から所属替え。"
+    },
+    {
+      "route": "/admin/sites/[site]/writing",
+      "primary_task": "このブログの書き方の決めごとを調べる (参照専用)",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "記事の型ごとの節の並び",
+          "why": "最も参照される項目"
+        },
+        {
+          "item": "このブログで特に見る節の印",
+          "why": "型ごとの重みはここでしか分からない"
+        }
+      ],
+      "drop": [
+        {
+          "item": "文体の決まり・事実の書き分け・説明の深さの本文",
+          "why": "調べに来た 1 項目だけ開けば足りる",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "強調の理由",
+          "to": "表の隣の注記",
+          "why": "画面先頭の注意書きに置くと、表を見るころには忘れている"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/sites/[site]/writing/page.tsx",
+        "lines": 0,
+        "lead_chars": 0,
+        "always_visible_callouts": 2,
+        "cards": 0,
+        "forms": 0
+      },
+      "note": "2026-09-08 に /admin/writing から所属替え。決めごと自体は複製せず共通の雛形を参照する。"
+    },
+    {
+      "route": "/admin/writing/template",
+      "primary_task": "全ブログが参照している書き方の雛形を調べる (参照専用)",
+      "task_frequency": "low",
+      "failure_cost": "low",
+      "keep": [
+        {
+          "item": "型ごとの重みの表",
+          "why": "どの型がどこを強く見るかの正本"
+        },
+        {
+          "item": "この雛形を使っているブログの一覧",
+          "why": "直したとき何に効くかが分かる"
+        }
+      ],
+      "drop": [
+        {
+          "item": "ブログ 1 本だけ上書きする欄",
+          "why": "例外が増えると公開前の検査がどれを見るか決まらなくなる",
+          "method": "remove"
+        }
+      ],
+      "transform": [],
+      "baseline": {
+        "source": "src/app/admin/writing/template/page.tsx",
+        "lines": 0,
+        "lead_chars": 0,
+        "always_visible_callouts": 1,
+        "cards": 0,
+        "forms": 0
+      },
+      "note": "2026-09-08 新設。雛形の正本を 1 か所に見せる画面。"
     }
   ],
   "current_measurement": {

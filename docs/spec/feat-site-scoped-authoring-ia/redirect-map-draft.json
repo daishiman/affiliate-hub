@@ -1,0 +1,122 @@
+{
+  "$comment": "P01 の下書き。確定契約は P02 の redirect-contract.md と src/presentation/admin/site-scoped-redirect.ts が持つ。",
+  "site_resolution_order": [
+    {
+      "rank": 1,
+      "source": "path",
+      "rule": "旧 URL 自身が site セグメントを持つ場合はそれを使う",
+      "applies_to": [
+        "/admin/content/published/[site]/[slug]/edit"
+      ]
+    },
+    {
+      "rank": 2,
+      "source": "query",
+      "rule": "?site=<slug> があればその slug を使う",
+      "applies_to": [
+        "すべての旧 URL"
+      ]
+    },
+    {
+      "rank": 3,
+      "source": "cookie",
+      "rule": "直近に開いていたブログ (cookie ah_last_site) を使う",
+      "applies_to": [
+        "すべての旧 URL"
+      ]
+    },
+    {
+      "rank": 4,
+      "source": "sole-site",
+      "rule": "ワークスペースにブログが 1 本だけならそれを使う",
+      "applies_to": [
+        "すべての旧 URL"
+      ]
+    },
+    {
+      "rank": 5,
+      "source": "unresolved",
+      "rule": "特定できない。ブログ選択 (/admin/sites) へ送る",
+      "applies_to": [
+        "すべての旧 URL"
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "from": "/admin/personas",
+      "to": "/admin/sites/[site]/authors",
+      "kind": "relocated"
+    },
+    {
+      "from": "/admin/personas/new",
+      "to": "/admin/sites/[site]/authors/new",
+      "kind": "relocated"
+    },
+    {
+      "from": "/admin/personas/audiences",
+      "to": "/admin/sites/[site]/audience/personas",
+      "kind": "relocated"
+    },
+    {
+      "from": "/admin/personas/audiences/new",
+      "to": "/admin/sites/[site]/audience/personas/new",
+      "kind": "relocated"
+    },
+    {
+      "from": "/admin/writing",
+      "to": "/admin/sites/[site]/writing",
+      "kind": "relocated"
+    }
+  ],
+  "not_redirected": [
+    {
+      "route": "/admin/content/new",
+      "reason": "記事を作る画面そのものの site 配下への新設は feat-blog-scoped-admin-console の担当。本 feature の scope_out。"
+    },
+    {
+      "route": "/admin/content/matrix",
+      "reason": "記事案をまとめて作る画面は複数ブログをまたいで使う。1 ブログの下へ寄せると用途が変わる。"
+    },
+    {
+      "route": "/admin/content/packages",
+      "reason": "企画は複数ブログにまたがりうる。所属替えの対象外。"
+    },
+    {
+      "route": "/admin/content/packages/new",
+      "reason": "同上。"
+    },
+    {
+      "route": "/admin/content/[variant]",
+      "reason": "下書きは variant id で一意に決まり、id からブログが決まる。取り違えが起こせないので URL に site を重ねない。site 配下の一覧から入る導線だけを足す。"
+    },
+    {
+      "route": "/admin/content/[variant]/edit",
+      "reason": "同上。"
+    },
+    {
+      "route": "/admin/content/[variant]/progress",
+      "reason": "同上。"
+    },
+    {
+      "route": "/admin/content/published/[site]/[slug]/edit",
+      "reason": "既に path に site を持っており、取り違えが起こせない。転送すると編集画面へ辿り着けなくなる。"
+    },
+    {
+      "route": "/admin/content",
+      "reason": "転送先 /admin/sites/[site]/articles が存在しない。記事一覧の site 配下への新設は feat-blog-scoped-admin-console の担当 (本 feature の scope_out)。存在しない先へ送ると 404 になり、転送しない今より悪い。先が出来た時点で転送へ移す。"
+    },
+    {
+      "route": "/admin/content/published",
+      "reason": "転送先 /admin/sites/[site]/articles が存在しない。記事一覧の site 配下への新設は feat-blog-scoped-admin-console の担当 (本 feature の scope_out)。存在しない先へ送ると 404 になり、転送しない今より悪い。先が出来た時点で転送へ移す。"
+    },
+    {
+      "route": "/admin/blog/pages",
+      "reason": "本 feature 着手前に別 feature が既に site 配下へ移設済み (permanentRedirect で /admin/sites/[site]/documents へ送っている)。本 feature の対応表へ取り込まないが、ここに載せないと『所属替えの漏れ』と区別がつかないため理由付きで記録する。解決規則は ?site= のみで cookie も単独サイトも見ないので、legacyAdminRedirect とは別規則である。統一は feat-blog-scoped-admin-console の担当。"
+    },
+    {
+      "route": "/admin/blog/{articles,delivery,evaluate,layout,tags}",
+      "reason": "転送ではなく画面内でブログを選ぶ形 (pickSiteSlug: ?site= が無ければ先頭のブログ)。所属替えの対象ではないので転送しないが、legacyAdminRedirect (cookie を見る) と挙動が食い違う点は既知の残課題として記録する。同一セッションで『いまのブログ』が食い違いうる。統一は feat-blog-scoped-admin-console の担当。"
+    }
+  ]
+}

@@ -92,6 +92,7 @@ function importsOf(file: string): readonly ImportedBinding[] {
 
 function runtimeNamesInNode(node: ts.Node): ReadonlySet<string> {
   const names = new Set<string>();
+  const boundActions = new Map<string, Set<string>>();
   const visit = (node: ts.Node): void => {
     if (
       ts.isCallExpression(node) &&
@@ -113,9 +114,38 @@ function runtimeNamesInNode(node: ts.Node): ReadonlySet<string> {
       node.name.getText().replaceAll(/["']/g, "") === "onSubmit" &&
       ts.isIdentifier(node.initializer)
     ) names.add(node.initializer.text);
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      node.initializer !== undefined &&
+      ts.isCallExpression(node.initializer) &&
+      ts.isPropertyAccessExpression(node.initializer.expression) &&
+      node.initializer.expression.name.text === "bind" &&
+      ts.isIdentifier(node.initializer.expression.expression)
+    ) {
+      const actions = boundActions.get(node.name.text) ?? new Set<string>();
+      actions.add(node.initializer.expression.expression.text);
+      boundActions.set(node.name.text, actions);
+    }
     ts.forEachChild(node, visit);
   };
   visit(node);
+
+  // Server Action に route 文脈を閉じ込める `action.bind(null, value)` も、
+  // 元の import まで辿る。alias だけを見ると action が消えたように見える。
+  let added = true;
+  while (added) {
+    added = false;
+    for (const [alias, actions] of boundActions) {
+      if (!names.has(alias)) continue;
+      for (const action of actions) {
+        if (!names.has(action)) {
+          names.add(action);
+          added = true;
+        }
+      }
+    }
+  }
   return names;
 }
 
@@ -533,7 +563,12 @@ describe("A1 §3 route → component → action edgeが実在する", () => {
       // 「本当に転送しているか」は tests/ui/route-cases.ts が転送先込みで実測する。
       const shellRoutes = ADMIN_ROUTE_METADATA.filter((route) => !route.redirectOnly);
       // 除外を増やして緑にする逃げ道を塞ぐ床。2026-08-31 実測 1 件 (blog/pages)。
-      expect(ADMIN_ROUTE_METADATA.length - shellRoutes.length).toBe(1);
+      // 2026-09-08: 1 → 6。書き手・読者像・書き方の 5 画面を site 配下へ所属替えし、
+      // 旧 5 route を転送の殻に変えた。**数を増やすときは、増やした分が
+      // 本当に転送になっているかを別に確かめること。** それは
+      // tests/acceptance/site-scoped-redirect-map.test.ts が
+      // 「転送表の旧 URL すべてが legacyAdminRedirect を呼ぶ」として見ている。
+      expect(ADMIN_ROUTE_METADATA.length - shellRoutes.length).toBe(6);
       for (const route of shellRoutes) {
         const page = join(ROOT, "src/app", route.file);
         expect(importsAndRenders(page, {

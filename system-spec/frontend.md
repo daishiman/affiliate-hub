@@ -532,6 +532,88 @@ site_blueprint.theme（設計図の既定）
 
 - 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
+### 実装で確定した URL 階層・転送規則・雛形複製経路 (feat-site-scoped-authoring-ia)
+
+**以下は利用者の回答ではない。** `feat-site-scoped-authoring-ia` の実装 (2026-09-08) で
+確定した URL 階層と転送規則を、章にしか居場所が無いまま消えないよう正本へ移したものである。
+上の質疑録と混ぜて読まないために区切ってある。
+
+`qa-frontend-web-site-scoped-route-ownership` で利用者は「ブログ単位へ移す画面の URL 階層」と
+「横断 URL を転送で受ける」方針を決めた。**どの住所をどこへ送るか、送らない住所はどれかは、
+受け皿の有無で決まる。**実装で確定した対応を残す。
+
+#### 所属替えした 6 route
+
+| 新しい住所 | 何の画面か |
+|---|---|
+| `/admin/sites/[site]/authors` | 書き手 |
+| `/admin/sites/[site]/authors/new` | 書き手を作る |
+| `/admin/sites/[site]/audience/personas` | 読者像 |
+| `/admin/sites/[site]/audience/personas/new` | 読者像を作る |
+| `/admin/sites/[site]/writing` | 書き方の決めごと (ブログの型で重み付けした複製) |
+| `/admin/writing/template` | 共通の雛形そのもの (横断に残す 1 枚) |
+
+管理 route は 93 本から 99 本になった。**畳んだのは入口の段であって route の本数ではない。**
+
+#### データ層は動かしていない
+
+**site 配下へ移ったのは画面 (住所) だけで、データはワークスペース単位のままである。**
+書き手も読者像も `workspaceId` で引く。
+
+この境界は意図的である。データを site 単位へ割ると既存ブログ全部に移行が要り、
+新規ブログを足すたびに初期データの作成が要る。住所だけを移せば、新しいブログを
+足した瞬間から書き手も読者像も配下に見える。ブログ固有の書き手が要るという要望が
+出たときに初めてデータ層を割る。
+
+その代わり **site 配下の画面は中身を読む前に必ず `resolveSiteOrNotFound(site)` を通す。**
+順番が逆だと、存在しないブログの住所でも一覧が出る。`getSite` が失敗したときは
+理由を言い分けずに `notFound()` を返す。「権限がありません」と「ありません」を
+出し分けると、住所を打つだけで他ワークスペースのブログの存否が読み取れる。
+受け先の `not-found.tsx` は `AppShell` を import も描画もしないので、
+サイドバーにブログ名が並ぶこともない。
+
+#### 転送規則
+
+転送する 5 本 (`legacyAdminRedirect` だけを呼ぶ殻。DOM を持たず `redirectOnly: true`):
+`/admin/personas`, `/admin/personas/new`, `/admin/personas/audiences`,
+`/admin/personas/audiences/new`, `/admin/writing`。
+
+ブログを特定できないとき (cookie 無し / 一覧が引けない / `?site=` が配列 /
+対応表に無い住所) は、どの不調でも `/admin/sites` (ブログ選択) へ出す。
+外の世界が期待どおり返らなかったことを利用者の画面に例外として見せない。
+
+**`/admin/content/*` は転送していない。**転送先の `/admin/sites/[site]/articles` が
+存在しない (正本は `feat-blog-scoped-admin-console`) ためで、存在しない住所へ
+転送する殻を先に置くと旧 URL が今より確実に壊れる。**移設は、受け皿が立ってから
+でなければ移設ではなく破壊である。**受け皿が入れば対応表 `LEGACY_SITE_SCOPED_ROUTES` に
+1 行足すだけで他の 5 本と同じ形になる。未転送の理由は
+`docs/spec/feat-site-scoped-authoring-ia/redirect-map-draft.json` の `not_redirected` に
+理由付きで載っており、黙って落としてはいない。
+
+#### 雛形の複製経路 — 複製するのは重みだけ
+
+`/admin/sites/[site]/writing` は `cloneWritingMethodForSite(共通雛形, そのブログの型)` を呼ぶ。
+**節も文体の決まりも共通のままで、変わるのは「このブログの型で特に外せない節に印が付く」
+ことだけである。**
+
+決めごとを丸ごと複製すると 10 本のブログで 10 通りの決まりができ、公開前の検査が
+どれを見るか決まらなくなる。この画面と公開前の検査は、コードの中の同じ 1 つの定義を読む。
+手引きを別文書として書けば、どちらかが必ず古くなり「手引きどおりに書いたのに検査で落ちる」が起きる。
+
+#### route を 1 本足すと同時に整合が要求される表
+
+`admin-route-metadata.ts` (route の正本) / `ADMIN_NAV_GROUPS` / `screen-information-ledger.json` /
+`admin-disclosure-contract.ts` / `tests/ui/route-cases.ts`。
+
+**後ろの 4 つは手書きの一覧ではなく正本からの射影である。**
+`tests/ui/route-cases.ts` の管理画面ケースが `ADMIN_ROUTE_METADATA.map(...)` である結果、
+route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + best-practice、違反 0 が条件) の
+対象になる。「画面は足したが検査の一覧に足し忘れた」という抜け方ができない。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: P13 書き戻し: 所属替えした6route・データ層を動かさない境界・転送5本と未転送/admin/content/*の理由・複製するのは重みだけ、は実装で確定した内容で章にしか居場所が無い。利用者の逐語には足さない。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |

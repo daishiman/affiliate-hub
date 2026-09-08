@@ -70,9 +70,10 @@ const INITIAL_TONE: Record<keyof Tone, string> = {
  * 範囲の空いた書き手で記事が書かれ、公開直前の判定で初めて止まる。
  * 止まるのは正しいが、そこまで書いた文章が丸ごと無駄になる。
  */
-export function CreateAuthorPersonaForm() {
+export function CreateAuthorPersonaForm({ siteSlug }: { readonly siteSlug?: string }) {
+  const createForContext = createAuthorPersonaAction.bind(null, siteSlug ?? null);
   const [state, action, pending] = useActionState(
-    createAuthorPersonaAction,
+    createForContext,
     INITIAL_PERSONA_FORM_STATE,
   );
   const [displayName, setDisplayName] = useState("");
@@ -316,9 +317,10 @@ function ToneFields({
  * **判断基準を必須にしている。** ここが空の読者像で比較表を組むと、列が立たない。
  * 「あとで足す」を許すと、列の無い比較表が公開まで進む。
  */
-export function CreateAudiencePersonaForm() {
+export function CreateAudiencePersonaForm({ siteSlug }: { readonly siteSlug?: string }) {
+  const createForContext = createAudiencePersonaAction.bind(null, siteSlug ?? null);
   const [state, action, pending] = useActionState(
-    createAudiencePersonaAction,
+    createForContext,
     INITIAL_PERSONA_FORM_STATE,
   );
   const [name, setName] = useState("");

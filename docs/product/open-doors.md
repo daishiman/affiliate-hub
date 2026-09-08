@@ -11,7 +11,7 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 212 件
+開いている扉: **0 件** / 全 218 件
 
 匿名閲覧を含むと宣言してある行（「誰でも」・条件付き公開）: **43 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
@@ -198,6 +198,10 @@
 | `src/app/admin/sites/[site]/aeo/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/appearance/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/audience/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/audience/personas/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/audience/personas/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/authors/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/authors/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/documents/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/domains/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/edit/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -205,11 +209,13 @@
 | `src/app/admin/sites/[site]/placements/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/revenue/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/seo/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/writing/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/tools/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/ui-catalog/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/writing/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/writing/template/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/page.tsx` | 入口の案内 | 誰でも | 誰でも | — |
 | `src/app/s/[site]/[fixedPage]/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
 | `src/app/s/[site]/advertising-policy/page.tsx` | 読者向けの公開ページ | 誰でも | 誰でも | — |
@@ -358,4 +364,4 @@
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/material/product-form-action.ts） | ログイン | ログイン | — | つく |
 | `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/publish/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `updateWorkspaceAction()` | 作業場所の名前・契約の区分・時間帯・通貨を直す（src/presentation/admin/maintain/settings-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:52cc919f1f1a2babdc59d74b1f83f5cdee1e733989d3b149cf7b11e5de67fa19 -->
+<!-- 生成物の指紋 sha256:bc4aa4154e50d1e59e1329392dfcf52b20edd0b4809ff58054775579fe4dbd7b -->

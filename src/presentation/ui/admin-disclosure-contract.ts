@@ -12,7 +12,10 @@ export type AdminDisclosureContract =
 const FOLDABLE_ROUTES = new Set<AdminRouteId>([
   "blog/articles/[article]",
   "evidence",
-  "personas/audiences",
+  // 2026-09-08: `personas/audiences` は転送の殻になったため、たたむ中身を持つ
+  // 実体である site 配下へ移した。転送だけの route を foldable と宣言し続けると、
+  // 「たたんである」と台帳が言うのに開く物が無い状態になる。
+  "sites/[site]/audience/personas",
   "feedback/[report]",
 ]);
 

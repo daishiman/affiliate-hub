@@ -1,13 +1,13 @@
 # acceptance reconciliation（自動生成）
 
-- generated_at: 2026-09-08T00:08:00.865Z
+- generated_at: 2026-09-08T13:24:42.722Z
 - feature_id: feat-uiux-overhaul
 - implementation_status: pass
 - release_status: unpublished
 - tracking_status: active
 - acceptance_count: 10
-- evidence_file_count: 214
-- evaluated_digest: sha256:6b4aa6eae074b0329dc04488f1dc1cda33957af3baa2cc32b3cbdf47b52727a5
+- evidence_file_count: 220
+- evaluated_digest: sha256:21b9f20d83a9cb354e162b08ac503f88265d2aede5b60644e7cf9498a75120df
 - verdict: PASS
 
 ## 検査対象パターンと実測（下限 / 実測）
@@ -15,8 +15,8 @@
 件数の総和ではなく、どのパターンが何件を掴んでいたかを残す。
 パターンを書き換えて別の母集団を数えても総数は変わらないことがあるため。
 
-- `src/app/admin/{content,products,sites,distribution}/**/page.tsx`: min 16 / actual 32
-- `src/app/admin/**/page.tsx`: min 49 / actual 93
+- `src/app/admin/{content,products,sites,distribution}/**/page.tsx`: min 16 / actual 37
+- `src/app/admin/**/page.tsx`: min 49 / actual 99
 - `src/presentation/admin/**/*form*.tsx`: min 10 / actual 46
 - `src/presentation/ui/**/*.tsx`: min 30 / actual 50
 
