@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-S09 @types ownership, screen-states */
+/** @tier 2 @req REQ-S09 @types screen-states, code-boundary */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createElement } from "react";

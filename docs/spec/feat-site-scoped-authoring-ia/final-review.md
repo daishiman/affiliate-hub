@@ -76,7 +76,7 @@
 3 を「コピー」にすると、雛形を直しても古い内容が残るブログが静かに増える。
 本 feature が無くそうとしている形と同じなので、**差分として持つ**ことを勧める。
 
-## 6. 残課題 4: 既存テストの失敗 3 ファイル（本 feature 由来ではない）
+## 6. 文書ガバナンスのテスト失敗 3 ファイル — 解消済み（判定を訂正した）
 
 | ファイル | 失敗 | 領域 |
 |---|---:|---|
@@ -84,9 +84,15 @@
 | `tests/architecture/chapter-regeneration-floor.test.ts` | 3 | `system-spec/` の `frontend` / `ui-ux` 章の再生成 |
 | `tests/architecture/reopen-discard-restore-gap.test.ts` | 1 | `ui-ux/web: required_info_checks` の復帰 |
 
-`HEAD`（`ed98785a`）の一時 worktree で同じ 3 ファイルを走らせ、**同じ 5 件が同じ理由で落ちた**。
-本 feature の作業ツリーは `system-spec/` と `.dev-graph/` を 1 バイトも変更していない。
-本 feature の残課題ではなく、**別 feature の文書世代の残課題**として切り出す。
+**最初「本 feature 由来ではない」と書いたのは誤りだった。**
+`HEAD`（`ed98785a`）の worktree で走らせて同じ 5 件が落ちたことを根拠にしたが、
+`ed98785a` は**本 PR の書き戻し commit そのもの**である。基準点が PR の中にあった。
+
+PR の base（`origin/dev` = `b6f0e24b`）と、main 側を取り込んだマージ commit
+（`3146ca37`）では **3 ファイルとも通る**。落としたのは `ed98785a` である。
+
+CI（PR #56）が赤くなったのは正しい。3 件とも直して 91 ファイル / 1136 件 全通過にした。
+何を直したかは `release-report.md` §2-4 にある。閾値は 1 つも動かしていない。
 
 ## 7. 実行中に判明した申し送り（伏せない）
 

@@ -79,8 +79,8 @@
     {
       "id": "p10-final-review",
       "path": "docs/spec/feat-site-scoped-authoring-ia/final-review.md",
-      "sha256": "d69e056324e767d7b3b1e6dc742b6029c88f0b9c585616c0516c623b3950f2d5",
-      "captured_at": "2026-09-08T22:45:03+09:00",
+      "sha256": "65070d872e34caca13b7a64e938009e056bf96eaefd96efcac6a0ba2116a6c36",
+      "captured_at": "2026-09-09T06:30:00+09:00",
       "requirements": [
         "A1",
         "A2",

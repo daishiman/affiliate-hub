@@ -115,22 +115,54 @@ compile-spec-doc.py compile --spec system-spec/spec-state.json \
 > 既により新しい行へ置き換わっているものも含む。現物の差分（削除 0 行）で確かめてある。
 > 警告の文面だけで「11 行消えた」と報告すると、起きていないことを報告することになる。
 
-### 2-4. 既存の失敗テストへの影響 — 増減なし
+### 2-4. 文書ガバナンス 3 ファイルの失敗 — **本 PR 由来である（前の判定を訂正する）**
 
-`system-spec/` を触ったので、文書ガバナンスの 3 ファイルを書き戻しの前後で比べた。
+**この節は一度誤った判定を書いた。訂正した内容を残す。**
 
-| ファイル | 前 | 後 |
-|---|---:|---:|
-| `tests/architecture/blog-ui-spec-governance.test.ts` | 1 | 1 |
-| `tests/architecture/chapter-regeneration-floor.test.ts` | 3 | 3 |
-| `tests/architecture/reopen-discard-restore-gap.test.ts` | 1 | 1 |
+最初、文書ガバナンスの 3 ファイル（`blog-ui-spec-governance` / `chapter-regeneration-floor` /
+`reopen-discard-restore-gap`、計 5 件）を「既存分・本 PR 由来ではない」と報告した。
+**比較の基準点が間違っていた。** 比べた相手は `HEAD`（`ed98785a`）で、
+これは**書き戻しコミットそのもの**である。書き戻しの影響を「前」の側に含めて
+「前後で同じ」と言っていたので、同じになるのは当たり前だった。
 
-`chapter-regeneration-floor` が数える
-「`## compile が保てなかった行 (要判断)` を持つ章の数」は 2 のままである。
-**この節は `HEAD` の両章に既に在り、今回の差分に含まれていない**ことを確認した
-（`git show HEAD:system-spec/ui-ux.md | grep -c` = 1、frontend も 1、差分側は 0 件）。
+正しい基準点は PR の base、すなわち `origin/dev`（`b6f0e24b`）である。
+別 worktree で実測した:
 
-つまり書き戻しは既存の失敗を**増やしても減らしてもいない**。
+| 基準点 | 3 ファイルの結果 |
+|---|---|
+| `b6f0e24b`（= `origin/dev`、PR の base） | **3 passed / 150 passed** |
+| `3146ca37`（main 側を取り込んだマージ commit） | **3 passed / 150 passed** |
+| `ed98785a`（P13 の書き戻し） | **3 failed / 5 failed** |
+
+つまり **`ed98785a` が入れた失敗**であり、本 PR の中にある。CI が赤くなったのは正しい。
+
+#### 何が起きていたか
+
+1. **`chapter-regeneration-floor`（3 件）** — 書き戻しで `frontend.md` / `ui-ux.md` の
+   確定質疑（`qa_ref`）が `qa-*-editor-verbatim` から今回の
+   `qa-*-site-scoped-*` へ移った。compile はそのとき、旧版の行 5 本 / 6 本を
+   `## compile が保てなかった行 (要判断)` として章末に積む。この節を持つ章の数を
+   0 から 2 へ増やしたのが失敗の中身である。
+2. **`reopen-discard-restore-gap`（1 件）** — 書き戻しの reopen が `ui-ux/web` から
+   退避した `required_info_checks` が、再確定のときに戻っていなかった。
+3. **`blog-ui-spec-governance`（1 件）** — `feat-blog-ui-builder` の feature node が
+   `system-spec/ui-ux.md` の bytes を pin している。章を再生成したのに pin を
+   更新していなかった。
+
+#### どう直したか（閾値は動かしていない）
+
+1. 積まれた 11 行を 1 本ずつ現物と突き合わせ、**全 11 行が新しい行へ置き換わっている**
+   ことを確認した（旧セル行→新セル行、`確定内容` 見出し→`接地根拠` 見出し、
+   `design_applications 2 件`→`3 件`、旧 確定要件→新 確定要件）。
+   その上で compile の `--acknowledge-prior-residue`（= 「読んだ上で持ち越さない」口）で
+   再生成した。差分は**削除 21 行のみ・追加 0 行**で、残骸の節だけが消えている。
+2. `apply-spec-transition.py` の `record-required-info-check` を `ui-ux/web` に実行した。
+   件数は writer が数える（`blocking_item_count: 3` / `unmet_blocking_items: 0`）。
+   こちらが数字を書いてはいない。
+3. `upsert-node.py`（C02 の単一 writer）で feature node の
+   `source_lineage.source_digest` を現物の bytes へ pin し直した。
+
+`TEST_TYPES_MAX_UNDECLARED` も章の下限も、**何一つ緩めていない。**
 
 ---
 
@@ -191,11 +223,9 @@ A6 と `/admin/content/*` は**本 feature の中では閉じられない**種�
 
 - 受入 10 件: 7 PASS / 2 PARTIAL（A2 / A8）/ 1 BLOCKED（A6）
 - 品質検査: 動詞ラベルの正答率を除き全件 PASS
-- 本 feature 由来のテスト失敗: **0 件**
-- 全量: 530 ファイル中 527 通過 / 3 失敗（11,879 件中 5 件）。3 ファイルはいずれも
-  `HEAD` でも同じ理由で落ちる既存分で、`system-spec/` と `.dev-graph/` の
-  文書ガバナンス側にある
-
+- テスト失敗: **0 件**（`tests/architecture` + `tests/acceptance` = 91 ファイル / 1136 件 全通過）
+  - 一度は 3 ファイル 5 件が落ちていた。**本 PR の書き戻し（`ed98785a`）由来**で、
+    §2-4 に原因と直し方を書いた。「既存分」と報告した最初の判定は誤りで、そこで訂正してある
 - Required evidence: 本ファイル
 
 ---
@@ -231,11 +261,10 @@ A6 と `/admin/content/*` は**本 feature の中では閉じられない**種�
 
 | 検査 | 結果 |
 |---|---|
-| `npx vitest run tests/acceptance tests/architecture` | 3 failed / 88 passed (91 ファイル)、5 failed / **1130 passed** (1135 件) |
+| `npx vitest run tests/acceptance tests/architecture` | **91 ファイル / 1136 件 全通過**（文書ガバナンス修正後の再測。§2-4） |
 | `pnpm run typecheck` | exit 0 |
 | `verify_evidence_index.py` | `stale: []` / `duplicates: []` / `invalid: []` |
 
-通過テストが 1129 → 1130 へ増えたのが追加した R5 の検査で、
-**失敗 3 ファイル 5 件は増減していない**(既存分と同一)。
-
-§5 の全量値は追加検査とリファクタリング後に測り直した実測である。
+追加した R5 の検査で通過件数が 1 件増えている。
+この時点では文書ガバナンス 3 ファイル 5 件がまだ落ちており、
+**それを「既存分」と誤って報告していた。**原因と訂正は §2-4 にある。

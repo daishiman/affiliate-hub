@@ -19,3 +19,7 @@ $ python3 scripts/reference-site-analysis/verify_evidence_index.py --index docs/
 #
 # 2026-09-08 再実行: P03 独立レビューを受けて redirect-map-draft.json を更新したため
 # p05-redirect-map-draft の digest を取り直した。stale が空へ戻ったことを確認済み。
+#
+# 2026-09-09 再実行: CI (PR #56) の指摘で文書ガバナンス 3 ファイルの失敗が
+# 「既存分ではなく本 PR 由来」と判明し、final-review.md §6 を訂正した。
+# p10-final-review の digest を取り直した。stale が空へ戻ったことを確認済み。

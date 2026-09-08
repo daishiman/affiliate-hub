@@ -1,5 +1,5 @@
 {
-  "graph_revision": 903,
+  "graph_revision": 904,
   "nodes": [
     {
       "acceptance": [],
@@ -14445,9 +14445,9 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-07T15:53:28Z",
+        "imported_at": "2026-09-09T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
+        "source_digest": "bef023dc0ff29a657d06abb23ac11a6475c9be637ba2fc7f4d5eab4ecbe87d05",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
