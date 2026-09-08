@@ -196,8 +196,8 @@
   ],
   "gaps": [],
   "inputs": {
+    "sha256": "9456f5b89a25afdcbd9cf7ce08551fba35f4dcdea865e9f1643cdca4cee0b2c2",
     "file_count": 306,
-    "sha256": "580dc16860037e5784faef1b2be41f87930275d4f3f8650d589247f487b42918",
     "files": [
       {
         "path": "docs/spec/00-README.md",
@@ -1581,8 +1581,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
-        "sha256": "f40da5165b4d7f41d2db25c935a2b19dfd54d2c05697d5db658ec071c7e9e786",
-        "mtime": 1788797502
+        "sha256": "a5bed45f9b8369ff1f7f8ea858cb3a4c7c809bc54206b3536e5516a9e2e8290a",
+        "mtime": 1788826080
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
@@ -1611,8 +1611,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
-        "sha256": "523135d0ee4295bf48b6bd01ba08cd08634284b906dc97e72a5fa70bd744611f",
-        "mtime": 1788797502
+        "sha256": "ae1f90660e196282ebacb1fdb1af3c0659a0a5edbb98003dae3c2064e9545842",
+        "mtime": 1788826080
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
@@ -1631,8 +1631,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
-        "sha256": "c6b64c2e4c56df3bc566b9e12dfefde786761d497a960373cab4c60f1e81ad20",
-        "mtime": 1788797502
+        "sha256": "5dc79edc059a790e96a485592af05ca468a1c112e97d134e62d65ed20202ea26",
+        "mtime": 1788826080
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
@@ -1729,6 +1729,7 @@
         "sha256": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
         "mtime": 1788788917
       }
-    ]
+    ],
+    "pinned_at": "2026-09-08T00:17:30.952Z"
   }
 }

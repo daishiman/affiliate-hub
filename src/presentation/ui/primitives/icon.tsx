@@ -44,6 +44,7 @@ import {
   Network,
   Package,
   PenLine,
+  GripVertical,
   Pilcrow,
   Plus,
   Quote,
@@ -147,6 +148,7 @@ const ICONS = {
   calloutNote: Quote,
   /* 編集の操作 — ここも絵文字を使わない。読み上げ名は呼び出し側の aria-label が持つ。 */
   proseParagraph: Pilcrow,
+  grip: GripVertical,
   moveUp: ArrowUp,
   moveDown: ArrowDown,
   removeItem: Trash2,

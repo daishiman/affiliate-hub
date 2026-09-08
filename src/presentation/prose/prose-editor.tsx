@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { PROSE_MENU_ORDER, PROSE_NODE_METADATA, type ProseNode, type ProseNodeKind, emptyProseNode } from "@/domain/blogops";
 import { Icon } from "@/presentation/ui";
 import { ProseBody, type ProductCardRenderer } from "./prose-body";
-import { useProseDraft } from "./use-prose-draft";
+import { useProseDraft, type ProseRow } from "./use-prose-draft";
 import { canConvertText, convertTextBlock, TEXT_BLOCK_KINDS } from "./prose-conversion";
 import { PROSE_NODE_ICON } from "./prose-node-icons";
 import { ProseMenu } from "./prose-menu";
@@ -128,6 +128,23 @@ export function ProseEditor({
     });
   }
 
+  /** 掴んで動かしている断片。掴んでいなければ `null`。 */
+  const [dragging, setDragging] = useState<string | null>(null);
+  /** いま離すとどこへ入るか。線を出す位置でもある。 */
+  const [dropTo, setDropTo] = useState<{ id: string; side: DropSide } | null>(null);
+
+  function endDrag() {
+    setDragging(null);
+    setDropTo(null);
+  }
+
+  function dropOn(targetId: string, side: DropSide) {
+    const draggedId = dragging;
+    endDrag();
+    if (draggedId === null) return;
+    draft.change((current) => reorder(current, draggedId, targetId, side));
+  }
+
   function insertAfter(id: string, kind: ProseNodeKind, copy?: ProseNode) {
     const added = draft.createRow(copy ?? emptyProseNode(kind));
     draft.change((current) => {
@@ -185,9 +202,30 @@ export function ProseEditor({
       <div hidden={preview} aria-labelledby={`${groupId}-label`} className={styles.proseEditor} role="group">
         {rows.map(({ node, id }, index) => (
           <div
-            className={styles.proseEditorRow}
+            className={[
+              styles.proseEditorRow,
+              dragging === id ? styles.proseEditorRowDragging : "",
+              dropTo?.id === id ? (dropTo.side === "before" ? styles.proseEditorRowDropBefore : styles.proseEditorRowDropAfter) : "",
+            ].filter(Boolean).join(" ")}
             data-prose-row={id}
+            data-drop-side={dropTo?.id === id ? dropTo.side : undefined}
             key={id}
+            onDragOver={(event) => {
+              if (dragging === null) return;
+              /* 既定の動作を止めないと、ブラウザは「ここには落とせない」と見なす。 */
+              event.preventDefault();
+              setDropTo({ id, side: sideOfPointer(event.currentTarget.getBoundingClientRect(), event.clientY) });
+            }}
+            onDragLeave={(event) => {
+              /* 子要素へ移っただけの離脱では線を消さない。 */
+              if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+              setDropTo((current) => (current?.id === id ? null : current));
+            }}
+            onDrop={(event) => {
+              if (dragging === null) return;
+              event.preventDefault();
+              dropOn(id, sideOfPointer(event.currentTarget.getBoundingClientRect(), event.clientY));
+            }}
           >
             <div className={styles.proseEditorBar} onMouseDown={(event) => {
               // 押下途中に本文がblurすると装飾帯が消え、SPのscroll anchoringで
@@ -195,6 +233,22 @@ export function ProseEditor({
               if (event.button === 0 && (event.target as Element).closest("button")) event.preventDefault();
             }}>
               <span className={styles.proseEditorKind}>
+                <button
+                  aria-label={`${PROSE_NODE_METADATA[node.kind].label}を掴んで動かす`}
+                  className={`${styles.proseEditorIconButton} ${styles.proseEditorGrip}`}
+                  draggable
+                  onDragEnd={endDrag}
+                  onDragStart={(event) => {
+                    setDragging(id);
+                    /* 何も入れないと Firefox がドラッグを始めない。 */
+                    event.dataTransfer.setData("text/plain", id);
+                    event.dataTransfer.effectAllowed = "move";
+                  }}
+                  title="掴んで動かす"
+                  type="button"
+                >
+                  <Icon name="grip" size="sm" />
+                </button>
                 <Icon name={PROSE_NODE_ICON[node.kind]} size="sm" />
                 {canConvertText(node) ? <select aria-label={`${PROSE_NODE_METADATA[node.kind].label}の種類を変更`} className={styles.proseEditorSelect} value={node.kind} onChange={(event) => replaceAt(id, convertTextBlock(node, event.target.value as ProseNodeKind))}>
                   {TEXT_BLOCK_KINDS.map((kind) => <option key={kind} value={kind} disabled={kind === "heading" && (("text" in node && node.text.includes("\n")) || ("items" in node && node.items.length > 1))}>{PROSE_NODE_METADATA[kind].label}</option>)}
@@ -286,6 +340,57 @@ export function ProseEditor({
       </div>
     </div>
   );
+}
+
+/* ---------------------------------------------------------------------------
+   掴んで動かす
+   --------------------------------------------------------------------------- */
+
+type DropSide = "before" | "after";
+
+/**
+ * 指した縦位置が、その断片の上半分か下半分か。
+ *
+ * 断片の**真ん中**で切る。上端・下端の細い帯だけを落とし口にすると、
+ * 狙いを定める操作になり、掴んで放るという動作にならない。
+ */
+function sideOfPointer(box: { top: number; height: number }, y: number): DropSide {
+  return y < box.top + box.height / 2 ? "before" : "after";
+}
+
+/**
+ * 掴んだ断片 `draggedId` を、`targetId` の `side` 側へ移した並びを返す。
+ *
+ * `draft.change` に渡す純関数なので、ここが返した配列がそのまま
+ * undo/redo の 1 手になる。**動かす必要が無いときは `current` を
+ * そのまま返すこと。**新しい配列を返すと、見た目が変わらないのに
+ * 「元に戻す」を 1 回押しても何も起きない手が履歴へ積まれる。
+ */
+function reorder(
+  current: readonly ProseRow[],
+  draggedId: string,
+  targetId: string,
+  side: DropSide,
+): readonly ProseRow[] {
+  const from = current.findIndex((row) => row.id === draggedId);
+  const target = current.findIndex((row) => row.id === targetId);
+  /* 自分自身へ落としたときと、消えた行へ落としたときは動かさない。 */
+  if (from < 0 || target < 0 || from === target) return current;
+
+  const to = side === "before" ? target : target + 1;
+  /*
+    **抜いてから挿すので、添字が 1 つずれる。**掴んだ断片より後ろへ入れる場合、
+    抜いた時点で目標の添字が 1 つ手前へ寄る。ここを直さないと、
+    下へ 1 つだけ動かしたときに元の位置へ戻り、掴んでも動かないように見える。
+  */
+  const insert = from < to ? to - 1 : to;
+  /* すでにそこに居るなら、空の「元に戻す」を履歴へ積まない。 */
+  if (insert === from) return current;
+
+  const next = [...current];
+  const [moved] = next.splice(from, 1);
+  next.splice(insert, 0, moved as ProseRow);
+  return next;
 }
 
 /** メニューの並びは 19 種すべてを覆う。`PROSE_MENU_ORDER` が正本。 */
