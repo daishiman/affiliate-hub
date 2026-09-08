@@ -532,6 +532,49 @@
   gap: var(--space-1);
 }
 
+/*
+  掴む取っ手。**ボタンとしても押せる形にしておく。**
+  掴んで動かす操作はポインタが要るので、これだけにすると
+  キーボードと読み上げで操作する人が並べ替えできなくなる。
+  上へ/下へのボタンは消さずに残す。
+
+  大きさ・枠・色は `.proseEditorIconButton` と一緒に着せる。
+  ここで書き直すと、押しどころの下限 (`--tap-target-min`) を
+  取っ手だけが持たない形になる。上げ下げ・削除と隣り合って並ぶので、
+  取っ手だけ小さいと押し間違えて隣の断片が動く（2026-08-27 の赤と同じ形）。
+  この規則が足すのは「掴める」という手つきの合図だけにする。
+*/
+.proseEditorGrip {
+  cursor: grab;
+}
+
+.proseEditorGrip:active {
+  cursor: grabbing;
+}
+
+.proseEditorRowDragging {
+  opacity: 0.5;
+}
+
+/*
+  落ちる場所は**行が既に着ている枠の、上辺か下辺だけを塗って**示す。
+
+  掴んだ断片を実際に動かして見せると、離すまで確定しない位置が
+  確定したように見え、離した先が違ったときに「戻す」から始めることになる。
+
+  影ではなく枠にするのは 2 つの理由による。影は強制配色（ハイコントラスト）で
+  消えるので、そこでだけ落ちる場所が見えなくなる。そして枠は
+  `.proseEditorRow` が透明な状態で先に置いてあるため、色を差すだけでよく、
+  太さも位置も動かない——刻みを外れた寸法を書かずに済む。
+*/
+.proseEditorRowDropBefore {
+  border-top-color: var(--color-border-strong);
+}
+
+.proseEditorRowDropAfter {
+  border-bottom-color: var(--color-border-strong);
+}
+
 .proseEditorIconButton {
   display: inline-flex;
   align-items: center;
