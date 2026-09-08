@@ -1,0 +1,1030 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+  "parent_feature": "feat-seo-aeo-measurement-loop",
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/backend.md",
+      "system-spec/database.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P01",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "3データ源SEO/AEO計測ループの要件ベースライン (自動反映・可逆性・時間範囲限定の非機能要件を含む)",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "documentation",
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/requirements.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-seo-aeo-measurement-loop.md",
+        "features/feat-seo-aeo-measurement-loop.context.json",
+        "system-spec/backend.md",
+        "system-spec/maintenance-ops.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP01 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: features/feat-seo-aeo-measurement-loop.md の受入 A1〜A8 (frontmatter canonical) と、system-spec/maintenance-ops.md qa-ops-web-aeo-auto-apply-v6 系および system-spec/backend.md qa-backend-web-aeo-analysis-pipeline-v6 由来の非機能要件 NFR1〜NFR9 (可逆性・時間範囲限定・事後通知・停止可能性・根拠系統限定・停止検出・効果判定遅延・秘密情報境界・費用上限) を1件も欠落・改変なく要件定義書へ転記し、以降のP02〜P13が参照する固定ベースラインとして確定する。"
+      ],
+      "verification": [
+        "P01のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P01のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P01",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p01.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "3データ源収集・突合・自動反映アーキテクチャ設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "backend",
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/architecture.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-seo-aeo-measurement-loop.md",
+        "system-spec/backend.md",
+        "system-spec/maintenance-ops.md",
+        "system-spec/database.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP02 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: 3データ源収集・突合・所見生成・自動反映・通知・停止制御・停止検出の各コンポーネント境界とデータモデル(記事識別子・所見・反映ログ・差分・保留状態・系統別最終収集時刻)を設計し、NFR1(反映前スナップショット必須)・NFR2(記事作成時刻による範囲判定)・NFR5(反映根拠を系統①へ限定する型)・NFR8(資格情報が実装コードへ現れない境界)が設計図上で機械的に追跡できる状態にする。"
+      ],
+      "verification": [
+        "P02のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P02のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p02.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "自動反映アーキテクチャの独立設計レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "quality",
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/design-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "system-spec/backend.md",
+        "system-spec/maintenance-ops.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP03 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: P02設計をNFR1〜NFR9全項目と照合する独立レビューを実施し、指摘があればP02を更新し、可逆性・時間範囲限定・根拠系統限定・秘密情報境界の4点に単一障害点がないことをレビュー記録として残す。"
+      ],
+      "verification": [
+        "P03のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P03のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p03.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "A1-A8とNFR1-9のテスト設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "quality",
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P03"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/test-design.md",
+        "tests/fixtures/feat-seo-aeo-measurement-loop/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-seo-aeo-measurement-loop.md",
+        "system-spec/backend.md",
+        "system-spec/maintenance-ops.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP04 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: A1〜A8とNFR1〜NFR9を単体・contract・integration・E2E・security・performanceの実行可能なテストへ写像し、可逆性(記録失敗時は書き換え不実行)・時間範囲境界(作成時刻の境界値)・根拠系統限定(系統②③を反映根拠に使うとfailする否定テスト)・停止中でも収集継続・停止検出の系統別閾値・効果判定の保留状態・費用上限到達時の停止・資格情報非露出の機械検査ケースを含むテストIDが一意に定義される。"
+      ],
+      "verification": [
+        "P04のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P04のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p04.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "3データ源収集器・突合・自動反映エンジンの実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "backend",
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P04"
+      ],
+      "write_scope": [
+        "src/domain/seo/aeo-measurement/",
+        "src/application/seo/aeo-measurement/",
+        "src/infrastructure/seo/aeo-measurement/",
+        "src/presentation/admin/seo-aeo/",
+        "drizzle/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "system-spec/backend.md",
+        "system-spec/maintenance-ops.md",
+        "system-spec/database.md",
+        "system-spec/ui-ux.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP05 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: 3データ源収集器・突合エンジン・所見/改善案エンジン・自動反映エンジン(事前スナップショット→反映→差分記録→1操作revert)・作成時刻による対象範囲判定・事後通知・停止/再開トグルと停止中も収集継続する経路・系統別停止検出(収集とは別契機)・効果判定の保留状態管理・被引用チェックの実行上限がP04で定義したテストを全てPASSする形で実装され、write_scope内にのみ変更が閉じている。"
+      ],
+      "verification": [
+        "P05のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P05のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p05.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "テスト実行と証跡記録",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "quality",
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P05"
+      ],
+      "write_scope": [
+        "tests/feat-seo-aeo-measurement-loop/",
+        "docs/spec/feat-seo-aeo-measurement-loop/test-run.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "system-spec/backend.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP06 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: P04で定義した全テストをP05実装に対して実行し、既定80%を下回らないカバレッジとNFR1〜NFR9対応ケース0 failureの実行結果が再現可能な証跡として記録される。"
+      ],
+      "verification": [
+        "P06のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P06のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p06.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "feature受入 A1-A8 の検証",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "quality",
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/acceptance.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-seo-aeo-measurement-loop.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP07 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: features/feat-seo-aeo-measurement-loop.md の受入A1〜A8を実装済みシステムに対して1件ずつ検証し、全件成立をacceptance evidenceとして記録する。"
+      ],
+      "verification": [
+        "P07のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P07のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p07.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "永続化スキーマの移行 (所見・反映ログ・系統別最終収集時刻)",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "data",
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P05"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/refactoring-migration.md",
+        "drizzle/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "system-spec/database.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP08 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 3データ源の永続化スキーマ(所見・反映ログ・差分・系統別最終収集時刻)に対する移行が必要な場合はdry-runとrollback証跡を伴って実施し、不要な場合はN/A理由をevidenceとして記録する。"
+      ],
+      "verification": [
+        "P08のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P08のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p08.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "品質・セキュリティ・運用保証",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "security",
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/quality-assurance.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "system-spec/backend.md",
+        "system-spec/maintenance-ops.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP09 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: 資格情報がリポジトリ・管理画面・ログのいずれにも現れないことを機械検査で確認し、停止/再開の運用シナリオ・系統別停止検出・費用上限到達時の停止・反映のrevertが実運用相当のQAシナリオで全てPASSすることを記録する。"
+      ],
+      "verification": [
+        "P09のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P09のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p09.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "独立最終レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "quality",
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/final-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-seo-aeo-measurement-loop.md",
+        "system-spec/backend.md",
+        "system-spec/maintenance-ops.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP10 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: P01〜P09の成果物と証跡を独立レビューし、NFR1〜NFR9とA1〜A8の対応表に欠落がないことを最終レビュー記録として残す。"
+      ],
+      "verification": [
+        "P10のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P10のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p10.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "再現可能な証跡の確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "quality",
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P10"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/evidence/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-seo-aeo-measurement-loop.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP11 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P11: P04〜P09で得た全テスト結果・QA結果・レビュー記録を再現可能な証跡バンドルとしてwrite_scope配下へまとめ、再実行コマンドで同じ結果が再現できることを確認する。"
+      ],
+      "verification": [
+        "P11のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P11のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p11.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "運用文書・runbook整備",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "documentation",
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/runbook.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "system-spec/maintenance-ops.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP12 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: 自動反映の停止/再開手順・反映のrevert手順・系統別停止検出時の運用者対応・資格情報登録手順(Cloudflare画面/wrangler限定)・被引用チェック上限の変更手順をrunbookとして文書化し、管理画面の該当箇所とrunbookの手順が一致することを確認する。"
+      ],
+      "verification": [
+        "P12のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P12のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p12.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P13",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "title": "リリース・デプロイとclose-out",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "workstream_kind": "operations",
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/release-deploy.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "system-spec/backend.md",
+        "system-spec/maintenance-ops.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-seo-aeo-measurement-loopのP13 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: Cron Trigger・自動反映エンジン・停止検出をリリース計画へ反映し、リリース後に停止トグルが運営画面から機能すること、およびspec/architecture writebackをclose-out証跡として記録する。"
+      ],
+      "verification": [
+        "P13のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P13のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P13",
+        "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p13.md",
+        "parent_feature": "feat-seo-aeo-measurement-loop",
+        "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "featureId": "feat-admin-cognitive-load-ui",
   "generatedFrom": "ADMIN_ROUTE_METADATA",
   "generatedAt": "2026-08-31",
-  "routeCount": 88,
+  "routeCount": 89,
   "undecidedCount": 0,
   "allowedRepresentations": [
     "summary",
@@ -47,8 +47,11 @@
       "feedback"
     ],
     "foldableRouteIds": [
+      "analytics",
       "feedback/[report]",
-      "personas/audiences"
+      "personas/audiences",
+      "seo",
+      "ui-catalog"
     ],
     "foldableComponent": "Foldable",
     "initialOpen": false,
@@ -2920,15 +2923,15 @@
       "file": "src/app/admin/analytics/page.tsx",
       "screenName": "数字",
       "purpose": "どこに手を入れるべきかを決める",
-      "primaryAction": "数字の伸び縮みから手を入れる先を決める",
+      "primaryAction": "探す・読む・次へ進むの実測から記事と導線の見直しへ進む",
       "permission": "analytics.read",
       "representation": {
-        "primary": "graph",
+        "primary": "summary",
         "secondary": [
-          "summary",
-          "table"
+          "table",
+          "list"
         ],
-        "plannedPrimary": "graph"
+        "plannedPrimary": "summary"
       },
       "keep": [
         "対象を識別する名前",
@@ -2940,7 +2943,7 @@
         "同じ意味の重複説明",
         "通常判断に不要な詳細"
       ],
-      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "removalRationale": "主情報は読者行動の3要点と次の編集先に絞る。すべての指標と数え方は初期状態で閉じたFoldableへ置く。",
       "states": [
         "ideal",
         "empty",
@@ -2951,10 +2954,10 @@
       ],
       "decision": "decided",
       "keyboardAction": {
-        "role": "button",
-        "accessibleName": "絞り込む",
+        "role": "link",
+        "accessibleName": "記事の題名・要約を見直す",
         "occurrence": 1,
-        "completion": "form-submit",
+        "completion": "internal-navigation",
         "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
       }
     },
@@ -3044,6 +3047,50 @@
         "occurrence": 1,
         "completion": "internal-navigation",
         "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "seo",
+      "path": "/admin/seo",
+      "file": "src/app/admin/seo/page.tsx",
+      "screenName": "検索とAIからの見え方",
+      "purpose": "記事ごとの差分を確認して反映し、同じページの観測値を確かめる",
+      "primaryAction": "候補の記事を選び、変更前後を確認して、この差分だけを反映する",
+      "permission": "analytics.read",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "summary",
+          "list"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この差分を反映",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "記事の差分確認時 / 384px CSS viewport (768px at 200% zoom equivalent)"
       }
     },
     {

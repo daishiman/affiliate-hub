@@ -249,7 +249,7 @@ def test_reopen_carries_the_record_into_the_discard_log() -> None:
     state = _state()
     mod.apply_cell_op(state, _confirm("auth", _auth_grounded()))
     mod.apply_cell_op(
-        state, {"action": "reopen", "category": "auth", "platform": "web", "reason": "方式変更"}
+        state, {"action": "reopen", "category": "auth", "platform": "web", "reason": "方式変更", "qa_ref": "qa-auth"}
     )
     discarded = state["reopen_log"][-1]["discarded"]
     assert discarded["required_info"][0]["item_id"] == "auth-model"

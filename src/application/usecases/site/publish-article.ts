@@ -33,6 +33,7 @@ import {
   sectionsFor,
   siteBasePathBySlug,
 } from "@/domain/authoring";
+import { firstImageUrlInBody } from "@/domain/blogops";
 import type { RelationshipType } from "@/domain/compliance";
 import {
   GATE_REQUIREMENT_LABEL,
@@ -705,6 +706,19 @@ export function buildArticle(
     ...(s.id === claimHost && claims.length > 0 ? { claims } : {}),
   }));
 
+  /*
+    本文の先頭画像は**公開のこの瞬間に確定させる。**
+
+    読むたびに本文を走査する形にすると、一覧 1 画面で 20 本ぶんの本文を
+    全部読み込むことになる。一覧は本文を積まない形（`ArticleSummary`）で
+    作ってあるので、そちらへは走査した結果だけを運ぶ。
+
+    ここで確定させた URL は、記事を書き直して画像を差し替えたときに
+    次の公開で上書きされる。公開していない編集は読者に出ないので、
+    「読者が見ている絵」と「保存されている候補」はここで一致する。
+  */
+  const bodyFirstImageUrl = firstImageInSections(sections);
+
   const productCards = toProductCards(offers);
 
   // 問いと答えが**両方**あるものだけ残す。片方だけの行は、
@@ -723,6 +737,7 @@ export function buildArticle(
     title: input.title.trim(),
     summary: input.conclusion.trim(),
     categorySlug: input.categorySlug,
+    createdAt: variant.createdAt?.toISOString() ?? null,
     publishedAt: toDateString(at),
     updatedAt: toDateString(at),
     author: {
@@ -740,5 +755,29 @@ export function buildArticle(
     ...(productCards.length === 0 ? {} : { productCards }),
     // 空配列を入れない理由は productCards と同じ（見出しだけの空欄を出さない）。
     ...(faq.length === 0 ? {} : { faq }),
+    // 画像が 1 枚も無い記事では、欄ごと省く。`null` を入れると
+    // 「調べた結果 無かった」と「まだ調べていない」が区別できなくなる。
+    ...(bodyFirstImageUrl === null ? {} : { bodyFirstImageUrl }),
   };
+}
+
+/**
+ * 記事の節を上から見て、最初に出てくる画像の URL を返す。
+ *
+ * 「上から」であることが要点である。読者が最初に目にする絵と、
+ * 一覧のサムネイルを一致させたい。節をまたいで探すのは、
+ * 導入に画像を置かない書き方（結論だけ先に置く型）があるためで、
+ * その場合でも本文中の絵を拾えるようにする。
+ *
+ * URL の安全性（`javascript:` や `data:` を弾く）は
+ * `firstImageUrlInBody` が持つ。ここでは走査の順番だけを決める。
+ */
+function firstImageInSections(sections: readonly PublishedSection[]): string | null {
+  for (const section of sections) {
+    for (const paragraph of section.paragraphs) {
+      const url = firstImageUrlInBody(paragraph);
+      if (url !== null) return url;
+    }
+  }
+  return null;
 }

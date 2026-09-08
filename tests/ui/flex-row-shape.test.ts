@@ -250,6 +250,24 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "168 回 / 子 0 のみ（18:20）",
     reason: "中身が文字だけ。折り返しは器の .footerLinks 側が持っている",
   },
+  "src/presentation/ui/templates/site.module.css :: .homeAllArticles a": {
+    measured: "2026-09-04。規則の宣言と home-content.tsx の JSX を読んで確認（描いての実測はしていない）",
+    reason:
+      "「公開中の記事をすべて見る」の 1 本。中身が文字だけで、44px の押しどころを作るための inline-flex。" +
+      "文字そのものは通常の行の折り返しで折れる",
+  },
+  "src/presentation/ui/templates/site.module.css :: .homeSortSwitch a": {
+    measured: "2026-09-04。規則の宣言と home-content.tsx の JSX を読んで確認（描いての実測はしていない）",
+    reason:
+      "「最新順」「人気順」の札。中身が文字だけで、44px の押しどころを作るための inline-flex。" +
+      "折り返しは器の .homeSortSwitch が flex-wrap: wrap で持っている",
+  },
+  "src/presentation/ui/templates/site.module.css :: .siteNavSummary": {
+    measured: "2026-09-04。規則の宣言と site-shell.tsx の details/summary を読んで確認（描いての実測はしていない）",
+    reason:
+      "小画面でだけ現れるカテゴリーの取っ手。並ぶのは「カテゴリー」の文字 1 つと開閉の印（::after の ▾/▴）だけで、" +
+      "どちらも器の幅を超えない。折り返させると印が文字から離れて、取っ手に見えなくなる",
+  },
   // `site.module.css :: .breadcrumb a, nav.section a` はここに在ったが、
   // パンくずの押しどころが `ui.module.css` の 1 本に寄り、こちら側は色の指定だけに
   // なった（2026-08-31）。折り返さない規則ではなくなったので一覧から外す。
@@ -364,16 +382,6 @@ const EXEMPT: Record<string, Exemption> = {
       "横並びにしているのは中身を並べるためではなく、`min-height: var(--tap-target-min)` の" +
       "中央へ文字を置くため。子は文字ひとかたまりだけで**折り返す先が無い**。" +
       "帯の側（`.headerActions`）が `flex-wrap: wrap` を持ち、操作と操作の間で折れる",
-  },
-  "src/presentation/ui/templates/site.module.css :: .categoryArticleGroupHead": {
-    measured: "分類ごとの見出し帯。左に題と説明の列、右に「もっと見る」1 個（2026-08-30）",
-    reason:
-      "題の列と、その分類へ進むリンク。**割れると「もっと見る」がどの分類のものか読めなくなる**。" +
-      "縮む役は左の `div`（`display: grid`）が持ち、題も説明も文字の側で折り返す",
-  },
-  "src/presentation/ui/templates/site.module.css :: .categoryArticleGroupHead > a": {
-    measured: "上の帯の右端のリンク 1 個。中身は「もっと見る」程度の短い語（2026-08-30）",
-    reason: "押しどころの下限へ文字を収めるための包み。子は文字ひとかたまりだけで、折り返す先が無い",
   },
   "src/presentation/ui/templates/site.module.css :: .sidebarLinks a": {
     measured: "補助列の 1 項目。中身は分類名か記事の題（2026-08-30）",

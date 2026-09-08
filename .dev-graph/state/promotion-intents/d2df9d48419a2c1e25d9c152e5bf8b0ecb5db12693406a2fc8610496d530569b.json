@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-blog-top-page-composition",
+  "destination": ".dev-graph/published/feature-package-feat-blog-top-page-composition",
+  "digest": "sha256:527391117e2989ab2cdfba1fe6e95b526a8246a10561987153453687d101333c",
+  "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "receipt": ".dev-graph/published/feature-package-feat-blog-top-page-composition/atomic-promotion-receipt.json",
+  "completed_at": "2026-09-04T06:00:30Z"
+}

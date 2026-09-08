@@ -1,4 +1,5 @@
-import { and, desc, eq, isNotNull, isNull, like, ne, or, sql } from "drizzle-orm";
+import { articleSearchSnippet, type ArticleBrowseRequest } from "@/application/read-models/article-discovery";
+import { and, desc, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import type {
   EditorialPublishedArticleAdminPort,
   EditorialPublishedArticleWriterPort,
@@ -11,6 +12,10 @@ import {
   type PublishedPerson,
   toSummary,
 } from "@/application/read-models/published-article";
+import {
+  TRIGRAM_MIN_LENGTH,
+  searchableTextOf,
+} from "@/application/read-models/searchable-text";
 import { publishedArticles, publishedArticleTombstones } from "@/db/schema";
 import { domainError, err, markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import type { DrizzleD1 } from "./link-inbox-repository";
@@ -46,6 +51,32 @@ function byUpdatedDesc(a: ArticleSummary, b: ArticleSummary): number {
   return b.updatedAt.localeCompare(a.updatedAt) || a.slug.localeCompare(b.slug);
 }
 
+/**
+ * 読者が入れた言葉を、FTS5 が読める式へ包む。
+ *
+ * ==========================================================================
+ * なぜ「そのまま渡す」ではいけないのか
+ * ==========================================================================
+ *
+ * FTS5 の `MATCH` が受け取るのは**式**であって文字列ではない。
+ * `AND` `OR` `NOT` `NEAR` `*` `^` `:` `-` `(` `)` `"` はどれも意味を持つ。
+ * 読者が「AND」と入れれば構文エラーで検索が落ち、
+ * `title:` と入れれば列を指定した検索になる。
+ *
+ * 値を SQL の引数として渡しても、この層は守られない。**引数の中身が
+ * 式として解釈される**ので、SQL インジェクションとは別の入口になる。
+ *
+ * 全体を二重引用符で囲むと、FTS5 はそれを「並びとしての語句」と見る。
+ * 中の記号は演算子ではなくなる。中に含まれる `"` だけは、
+ * 囲みを閉じてしまうので 2 つに増やして逃がす（FTS5 の決まり）。
+ *
+ * trigram の索引では、この語句は「3 文字の並びが全部その順で出る」
+ * ことを求める形になり、結果として部分一致として働く。
+ */
+export function ftsMatchQuery(raw: string): string {
+  return `"${raw.replace(/"/g, '""')}"`;
+}
+
 const URL_STATE_CONFLICT = "published_article_url_state_conflict";
 
 function isUrlStateConflict(cause: unknown): boolean {
@@ -77,6 +108,30 @@ function unpublishNotFound() {
   );
 }
 
+/** 本文JSON・一覧列・検索索引の元を同じ内容から確定する。 */
+function publishedArticleContentChanges(article: PublishedArticle) {
+  return {
+    title: article.title,
+    summary: article.summary,
+    updatedAt: article.updatedAt,
+    articleJson: JSON.stringify(article),
+    searchText: searchableTextOf(article),
+  };
+}
+
+/** 承認・取消の原子batchへ組み込む、現在の公開版だけを変更する文。 */
+export function publishedArticleRevisionStatement(
+  db: DrizzleD1,
+  workspaceId: string,
+  article: PublishedArticle,
+  expectedRevision: number,
+) {
+  return db.update(publishedArticles).set(publishedArticleContentChanges(article)).where(and(
+    eq(publishedArticles.workspaceId, workspaceId), eq(publishedArticles.siteSlug, article.siteSlug),
+    eq(publishedArticles.slug, article.slug), eq(publishedArticles.revision, expectedRevision), isNull(publishedArticles.archivedAt),
+  ));
+}
+
 /**
  * canonical public projection の保存文。AI 公開と BlogOps 公開が共有する。
  *
@@ -90,20 +145,17 @@ export function publishedArticleSaveStatements(
   sourceArticleId: string | null,
 ) {
   const row = {
+    ...publishedArticleContentChanges(article),
     siteSlug: article.siteSlug,
     slug: article.slug,
     workspaceId: String(workspaceId),
     sourceArticleId,
     type: article.type,
-    title: article.title,
-    summary: article.summary,
     categorySlug: article.categorySlug,
     authorSlug: article.author.slug,
     authorName: article.author.name,
     publishedAt: article.publishedAt,
-    updatedAt: article.updatedAt,
     archivedAt: null,
-    articleJson: JSON.stringify(article),
   };
   return [
     db
@@ -117,10 +169,13 @@ export function publishedArticleSaveStatements(
       ),
     db
       .insert(publishedArticles)
-      .values(row)
+      .values({ ...row, createdAt: article.createdAt ?? null })
       .onConflictDoUpdate({
         target: [publishedArticles.siteSlug, publishedArticles.slug],
-        set: row,
+        set: { ...row,
+          articleJson: article.createdAt === undefined ? row.articleJson
+            : sql`json_set(${row.articleJson}, '$.createdAt', ${publishedArticles.createdAt})`,
+        },
         setWhere: and(
           eq(publishedArticles.workspaceId, String(workspaceId)),
           sourceArticleId === null
@@ -149,8 +204,11 @@ export function publishedArticleSaveStatements(
           authorName: publishedArticles.authorName,
           publishedAt: publishedArticles.publishedAt,
           updatedAt: publishedArticles.updatedAt,
+          createdAt: publishedArticles.createdAt,
+          revision: publishedArticles.revision,
           archivedAt: publishedArticles.archivedAt,
           articleJson: publishedArticles.articleJson,
+          searchText: publishedArticles.searchText,
         })
         .from(publishedArticles)
         .where(
@@ -320,30 +378,52 @@ export function createD1ContentRepository(
   db: DrizzleD1,
   sites: EditorialSiteRepositoryPort,
 ): EditorialPublishedContentPort {
-  /** そのブログで出した記事を、更新日の新しい順で読む。 */
-  async function storedSummaries(siteSlug: string): Promise<readonly ArticleSummary[]> {
-    const rows = await db
-      .select({
-        slug: publishedArticles.slug,
-        archivedAt: publishedArticles.archivedAt,
-        articleJson: publishedArticles.articleJson,
-      })
-      .from(publishedArticles)
-      .where(eq(publishedArticles.siteSlug, siteSlug))
-      .orderBy(desc(publishedArticles.updatedAt));
-    return rows
-      .filter((row) => row.archivedAt === null)
-      .map((row) => toSummary(parse(row.articleJson)))
-      .sort(byUpdatedDesc);
+  async function browse(siteSlug: string, request: ArticleBrowseRequest) {
+    try {
+      const query = request.query?.trim() ?? "";
+      const fullText = query.length >= TRIGRAM_MIN_LENGTH;
+      const literalPattern = `%${query.replace(/[!%_]/g, (char) => `!${char}`)}%`;
+      const queryCondition = query === ""
+        ? sql`1 = 1`
+        : fullText
+          ? sql`published_article_search MATCH ${ftsMatchQuery(query)}`
+          : sql`(a.title LIKE ${literalPattern} ESCAPE '!' OR a.summary LIKE ${literalPattern} ESCAPE '!')`;
+      const tagCondition = request.tag === undefined
+        ? sql`1 = 1`
+        : sql`EXISTS (
+            SELECT 1 FROM blog_article_tag AS at
+            JOIN blog_tag AS t ON t.id = at.tag_id AND t.workspace_id = at.workspace_id
+            WHERE at.article_id = a.source_article_id
+              AND at.workspace_id = a.workspace_id
+              AND t.site_slug = a.site_slug AND t.slug = ${request.tag}
+          )`;
+      const rows = await db.all<{ articleJson: string }>(sql`
+        SELECT a.article_json AS articleJson FROM published_articles AS a
+        ${fullText ? sql`JOIN published_article_search AS s ON s.site_slug = a.site_slug AND s.slug = a.slug` : sql``}
+        WHERE a.site_slug = ${siteSlug} AND a.archived_at IS NULL
+          AND ${request.type === undefined ? sql`1 = 1` : sql`a.type = ${request.type}`}
+          AND ${queryCondition} AND ${tagCondition}
+        ORDER BY ${fullText ? sql`bm25(published_article_search, 0.0, 0.0, 10.0, 4.0, 1.0),` : sql``}
+          a.updated_at DESC, a.slug ASC
+        LIMIT ${request.limit + 1} OFFSET ${request.offset}
+      `);
+      return ok({
+        articles: rows.slice(0, request.limit).map((row) => {
+          const article = parse(row.articleJson);
+          return { ...toSummary(article), ...(query === "" ? {} : { snippet: articleSearchSnippet(article, query) }) };
+        }),
+        hasMore: rows.length > request.limit,
+      });
+    } catch (cause) {
+      return storageFailure("記事の一覧・検索", cause);
+    }
   }
 
   return markEditorial({
+    browse,
     async listRecent(siteSlug: string, limit: number) {
-      try {
-        return ok((await storedSummaries(siteSlug)).slice(0, limit));
-      } catch (cause) {
-        return storageFailure("新着記事の読み込み", cause);
-      }
+      const page = await browse(siteSlug, { limit, offset: 0 });
+      return page.ok ? ok(page.value.articles) : page;
     },
 
     async listByCategory(siteSlug: string, categorySlug: string) {
@@ -389,36 +469,9 @@ export function createD1ContentRepository(
     },
 
     async search(siteSlug: string, query: string, limit: number) {
-      try {
-        const trimmed = query.trim();
-        // 空の検索語で全件を返さない（一覧と区別がつかなくなる）。
-        const stored =
-          trimmed === ""
-            ? []
-            : (
-                await db
-                  .select({
-                    archivedAt: publishedArticles.archivedAt,
-                    articleJson: publishedArticles.articleJson,
-                  })
-                  .from(publishedArticles)
-                  .where(
-                    and(
-                      eq(publishedArticles.siteSlug, siteSlug),
-                      or(
-                        like(publishedArticles.title, `%${trimmed}%`),
-                        like(publishedArticles.summary, `%${trimmed}%`),
-                      ),
-                    ),
-                  )
-                  .orderBy(desc(publishedArticles.updatedAt))
-              )
-                .filter((row) => row.archivedAt === null)
-                .map((row) => toSummary(parse(row.articleJson)));
-        return ok(stored.sort(byUpdatedDesc).slice(0, limit));
-      } catch (cause) {
-        return storageFailure("記事の検索", cause);
-      }
+      if (query.trim() === "") return ok([]);
+      const page = await browse(siteSlug, { query, limit, offset: 0 });
+      return page.ok ? ok(page.value.articles) : page;
     },
 
     async findPerson(siteSlug: string, kind: "author" | "expert", slug: string) {
@@ -515,6 +568,7 @@ export function createD1PublishedArticleAdminRepository(
           .select({
             articleJson: publishedArticles.articleJson,
             archivedAt: publishedArticles.archivedAt,
+            revision: publishedArticles.revision,
           })
           .from(publishedArticles)
           .where(
@@ -525,7 +579,7 @@ export function createD1PublishedArticleAdminRepository(
           )
           .orderBy(desc(publishedArticles.updatedAt))
           .limit(100);
-        return ok(rows.map((row) => ({ article: parse(row.articleJson), archivedAt: row.archivedAt })));
+        return ok(rows.map((row) => ({ article: parse(row.articleJson), archivedAt: row.archivedAt, revision: row.revision })));
       } catch (cause) {
         return storageFailure("公開済み記事の一覧", cause);
       }
@@ -536,6 +590,7 @@ export function createD1PublishedArticleAdminRepository(
           .select({
             articleJson: publishedArticles.articleJson,
             archivedAt: publishedArticles.archivedAt,
+            revision: publishedArticles.revision,
           })
           .from(publishedArticles)
           .where(
@@ -548,33 +603,41 @@ export function createD1PublishedArticleAdminRepository(
           )
           .limit(1);
         const row = rows[0];
-        return ok(row === undefined ? null : { article: parse(row.articleJson), archivedAt: row.archivedAt });
+        return ok(row === undefined ? null : { article: parse(row.articleJson), archivedAt: row.archivedAt, revision: row.revision });
       } catch (cause) {
         return storageFailure("公開済み記事の読み込み", cause);
       }
     },
-    async replace(workspaceId, article) {
+    async replace(workspaceId, article, expectedRevision) {
+      if (!Number.isSafeInteger(expectedRevision) || expectedRevision < 1) {
+        return err(domainError("VALIDATION_FAILED", "保存元の版を確認できません。記事を開き直してください。"));
+      }
       try {
         const changed = await db
           .update(publishedArticles)
           .set({
-            title: article.title,
-            summary: article.summary,
+            ...publishedArticleContentChanges(article),
             categorySlug: article.categorySlug,
             authorSlug: article.author.slug,
             authorName: article.author.name,
-            updatedAt: article.updatedAt,
-            articleJson: JSON.stringify(article),
+            articleJson: article.createdAt === undefined ? JSON.stringify(article)
+              : sql`json_set(${JSON.stringify(article)}, '$.createdAt', ${publishedArticles.createdAt})`,
           })
           .where(
             and(
               eq(publishedArticles.workspaceId, String(workspaceId)),
               eq(publishedArticles.siteSlug, article.siteSlug),
               eq(publishedArticles.slug, article.slug),
+              eq(publishedArticles.revision, expectedRevision),
               isNull(publishedArticles.sourceArticleId),
             ),
           );
-        return ok(changed.meta.changes > 0);
+        if (changed.meta.changes > 0) return ok(true);
+        const [current] = await db.select({ revision: publishedArticles.revision }).from(publishedArticles).where(and(
+          eq(publishedArticles.workspaceId, String(workspaceId)), eq(publishedArticles.siteSlug, article.siteSlug),
+          eq(publishedArticles.slug, article.slug), isNull(publishedArticles.sourceArticleId),
+        )).limit(1);
+        return current ? err(domainError("CONFLICT", "記事が別の操作で更新されました。開き直して変更内容を確認してください。")) : ok(false);
       } catch (cause) {
         return storageFailure("公開済み記事の訂正", cause);
       }

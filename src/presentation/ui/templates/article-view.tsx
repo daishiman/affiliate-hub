@@ -15,7 +15,7 @@ import {
 } from "../patterns/ranking-table";
 import { StubNotice } from "../patterns/stub-notice";
 import { EmptyView } from "../primitives/state-view";
-import { type TelemetrySectionKind, telemetrySectionAttrs } from "../telemetry-attrs";
+import { type TelemetrySectionKind, telemetryAttrs, telemetrySectionAttrs } from "../telemetry-attrs";
 import { FactList } from "./screen-parts";
 import styles from "./site.module.css";
 
@@ -198,7 +198,7 @@ export function ArticleTableOfContents({
       <ul>
         {sections.map((s) => (
           <li key={s.id}>
-            <a href={`#${s.id}`}>{s.heading}</a>
+            <a href={`#${s.id}`} {...telemetryAttrs({ kind: "toc_item", id: s.id, placement })}>{s.heading}</a>
           </li>
         ))}
       </ul>
@@ -458,6 +458,7 @@ export function ArticleView({ article }: { readonly article: ArticleViewModel })
           </h2>
           <ArticleList
             articles={article.relatedArticles}
+            telemetryPlacement="関連記事"
             emptyTitle=""
             emptyBody=""
             headingLevel="h3"
@@ -474,7 +475,19 @@ export type ArticleCardView = {
   readonly title: string;
   readonly summary: string;
   readonly updatedAt: string;
+  readonly publishedAt?: string;
   readonly authorName: string;
+  /**
+   * 16:9 の図版。**必ず値が入る**（画像が無い記事には代替図版が入る）。
+   * 任意にすると、無い記事だけカードの高さが変わって一覧が段違いになる。
+   */
+  readonly thumbnailUrl: string;
+  readonly thumbnailAlt: string;
+  /** 自動生成の図版か。写真と同じ見せ方をしないための印。 */
+  readonly thumbnailIsGenerated: boolean;
+  /** カテゴリー名。空なら肩書きを出さない。 */
+  readonly categoryLabel: string;
+  readonly categoryHref: string;
 };
 
 /**
@@ -489,12 +502,19 @@ export function ArticleList({
   emptyBody,
   emptyAction,
   headingLevel = "h2",
+  showCategory = true,
+  showAuthor = true,
+  telemetryPlacement = "記事一覧",
 }: {
   readonly articles: readonly ArticleCardView[];
   readonly emptyTitle: string;
   readonly emptyBody: string;
   readonly emptyAction?: ReactNode;
   readonly headingLevel?: "h2" | "h3" | "h4";
+  /** 同じ画面の直後にカテゴリー索引がある一覧では、重複する導線を省ける。 */
+  readonly showCategory?: boolean;
+  readonly showAuthor?: boolean;
+  readonly telemetryPlacement?: string;
 }) {
   if (articles.length === 0) {
     return <EmptyView title={emptyTitle} body={emptyBody} action={emptyAction} />;
@@ -506,20 +526,61 @@ export function ArticleList({
     <ul className={styles.articleList}>
       {articles.map((a) => (
         <li key={a.slug} className={styles.articleListItem}>
-          <time className={styles.articleListDate} dateTime={a.updatedAt}>
-            {a.updatedAt}
-          </time>
+          {/*
+            図版は `aria-hidden`。すぐ下の見出しが同じ記事を同じ言葉で指すので、
+            読み上げると同じ題が 2 回続く。装飾ではないが、**情報としては重複**。
+            width/height を属性で持たせているのは、読み込み前から場所を確保して
+            後から本文が押し下がらないようにするため（CLS を出さない）。
+
+            `next/image` を使わない理由は `Figure`（screen-parts.tsx）と同じ。
+            最適化は画像を別の場所へ複製し、複製先は保存期間の外に出る。
+            サムネイルは記事に紐づく派生物なので、記事が消えたら一緒に消える必要がある。
+          */}
+          <Link href={a.href} {...telemetryAttrs({ kind: "internal_link", id: a.href, placement: telemetryPlacement })} className={styles.articleListThumb} tabIndex={-1} aria-hidden>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={a.thumbnailUrl}
+              alt=""
+              width={640}
+              height={360}
+              loading="lazy"
+              decoding="async"
+              data-generated={a.thumbnailIsGenerated ? "true" : undefined}
+            />
+          </Link>
           <div className={styles.articleListBody}>
+            <div className={styles.articleListMeta}>
+              {a.publishedAt && (
+                <time className={styles.articleListDate} dateTime={a.publishedAt}>
+                  公開 {cardDate(a.publishedAt)}
+                </time>
+              )}
+              {a.updatedAt !== "" && a.updatedAt.slice(0, 10) !== a.publishedAt?.slice(0, 10) && (
+                <time className={styles.articleListDate} dateTime={a.updatedAt}>
+                  更新 {cardDate(a.updatedAt)}
+                </time>
+              )}
+              {showCategory && a.categoryLabel !== "" && (
+                <Link href={a.categoryHref} {...telemetryAttrs({ kind: "internal_link", id: a.categoryHref, placement: telemetryPlacement })} className={styles.articleListCategory}>
+                  {a.categoryLabel}
+                </Link>
+              )}
+            </div>
             <Heading className={styles.cardTitle}>
-              <Link href={a.href}>{a.title}</Link>
+              <Link href={a.href} {...telemetryAttrs({ kind: "internal_link", id: a.href, placement: telemetryPlacement })}>{a.title}</Link>
             </Heading>
             <p>{a.summary}</p>
-            <span className={styles.cardMeta}>書き手: {a.authorName}</span>
+            {showAuthor && <span className={styles.cardMeta}>書き手: {a.authorName}</span>}
           </div>
         </li>
       ))}
     </ul>
   );
+}
+
+function cardDate(value: string): string {
+  const date = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  return date ? `${date[1]}/${Number(date[2])}/${Number(date[3])}` : value;
 }
 
 /** 人物の紹介。資格が無いことを隠さない（無いなら「登録されていません」と書く）。 */

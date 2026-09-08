@@ -87,9 +87,12 @@ const CHAPTER_TARGETS = {
  */
 const EXPECTED_ROW_COUNTS: Record<string, number> = {
   auth: 1,
-  backend: 4,
-  database: 1,
-  frontend: 2,
+  // 2026-09-04: 検索と AI からの見え方のために出典が増えた。
+  // backend 4→7 (search-console-api / web-search-tool / search-grounding)、
+  // database 1→3 (d1-use-indexes / fts5)、frontend 2→4 (llms-txt / webmcp)。
+  backend: 7,
+  database: 3,
+  frontend: 4,
   infrastructure: 1,
   "maintenance-ops": 4,
   security: 1,
@@ -172,8 +175,44 @@ function references(): Map<string, Reference> {
  *
  * **判定の中身は 1 つも変えていない。**渡す先を実ファイル固定から引数へ移しただけである。
  */
-function retrievalDated(rows: readonly Row[]): string[] {
-  return rows.filter(isRetrievalDate).map((r) => `${r.target}=${r.version}`);
+function retrievalDated(rows: readonly Row[], refs: Map<string, Reference>): string[] {
+  return rows
+    .filter(isRetrievalDate)
+    .filter((r) => !declaredOnPage(r, refs))
+    .map((r) => `${r.target}=${r.version}`);
+}
+
+/**
+ * 版の欄の日付が、**取得した日ではなく相手の本文が名乗っている日**であること。
+ *
+ * 2026-09-04、`webmcp` がこの検査に当たった。仕様が rolling draft で、
+ * その日の版表示がちょうど取得日と同じ 2026-09-03 だったためである。
+ * これは「確かめた値が無いので取得日で埋めた」——この検査が止めたいこと——の
+ * 逆であり、**本文・`<time datetime>`・HTTP Last-Modified の 3 つが同日で
+ * 一致することを確かめた**結果として同じ日になっている。
+ *
+ * 正しい記録を違反と呼ぶ検査は、記録を歪ませる圧力になる（この試験は
+ * 2026-08-25 に `vitest` で同じ判断をしている）。そこで除外する。
+ *
+ * ただし `freshness_source` の自己申告だけでは除外しない。それだと
+ * 「取得日を書いて page-declared と名乗る」で素通りできてしまう。
+ * **証跡に「本文のどこにその日付があったか」(`found_in`) が書かれており、
+ * かつ抜き出した値が章の版欄と一致すること**まで求める。
+ * 逃げ道を塞ぐのは申告ではなく、逐語の引用である。
+ */
+function declaredOnPage(row: Row, refs: Map<string, Reference>): boolean {
+  const ref = refs.get(row.target);
+  if (ref?.freshness_source !== "page-declared") return false;
+  const evidence = JSON.parse(
+    readFileSync(join(ROOT, `${SPEC_DIR}/retrieval-evidence/${row.target}.json`), "utf8"),
+  ) as { freshness_extraction?: { value?: string; found_in?: unknown } };
+  const extraction = evidence.freshness_extraction;
+  if (extraction === undefined) return false;
+  return (
+    extraction.value === row.version.trim() &&
+    Array.isArray(extraction.found_in) &&
+    extraction.found_in.length > 0
+  );
 }
 
 /** 章 md と `fetched-references.json` の食い違い。名指しで返す。 */
@@ -220,17 +259,17 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
   });
 
   it("版の欄が取得日そのものになっている行は 0 件——戻れば赤くなる", () => {
-    expect(retrievalDated(rows)).toEqual([]);
+    expect(retrievalDated(rows, refs)).toEqual([]);
     // **0 件の主張が母数 0 由来でないことを、同じ it で示す。**
     // 上の等号は rows が空でも通る。読み取りが黙って全滅した日に、
     // この検査が「違反なし」と報せるのを止めている。
-    expect(rows.length).toBe(15);
+    expect(rows.length).toBe(22);
   });
 
-  it("全 15 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
+  it("全 22 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
     const missing = [...refs.values()].filter((r) => !r.freshness_source);
     expect(missing.map((r) => r.target_id)).toEqual([]);
-    expect(refs.size).toBe(15);
+    expect(refs.size).toBe(22);
   });
 
   /**
@@ -238,9 +277,9 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
    * 章が純関数になった今も、写しである以上ずれる道は残っている。
    * **食い違いが減っても増えても赤くする**のがこの検査の役目である。
    */
-  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 15 行）", () => {
+  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 22 行）", () => {
     expect(driftBetween(rows, refs)).toEqual([]);
-    expect(rows.length).toBe(15); // 母数。突合する相手が消えたら赤くする。
+    expect(rows.length).toBe(22); // 母数。突合する相手が消えたら赤くする。
   });
 
   /**
@@ -260,11 +299,17 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
     expect(offenders).toEqual([]);
   });
 
+  /*
+    2026-09-04: 期待が 1 件から 0 件になった。`vitest` を 2026-09-03 に取り直し、
+    registry 照会と本文取得を同じ時刻で記録したためである。**列挙を消さない**のは、
+    確認が取得に先行する行が再び現れたとき、それが registry のような別行為なのか、
+    順序を取り違えた記録なのかを、この場で名指しさせるためである。
+    0 件のままだと「判定が何も当たらない」と区別がつかないので、
+    下の「見つける側が効いていること」に合成行の陽性対照を置いてある。
+  */
   it("確認が取得より前になっている行は、いずれも本文以外を鮮度根拠にしている", () => {
     const early = rows.filter((r) => Date.parse(r.confirmedAt) < Date.parse(r.retrievedAt));
-    expect(early.map((r) => `${r.target}=${refs.get(r.target)?.freshness_source}`)).toEqual([
-      "vitest=publisher-registry",
-    ]);
+    expect(early.map((r) => `${r.target}=${refs.get(r.target)?.freshness_source}`)).toEqual([]);
   });
 
   /**
@@ -316,11 +361,45 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
         "anthropic-claude",
         "openai-platform",
         "google-gemini",
+        "google-search-console-api",
+        "anthropic-web-search-tool",
+        "gemini-google-search-grounding",
       ]);
     });
 
     it("出典表を持たない名前でも throw せず空を返す（収集時に試験ごと沈黙させない）", () => {
       expect(sourceRows("index")).toEqual([]);
+    });
+
+    /*
+      **除外が「効いている」ことと「効きすぎていない」ことを、同じ場で示す。**
+
+      `retrievalDated` は page-declared かつ証跡に逐語がある行を通す。除外が
+      1 件も働いていなければ、除外そのものを消しても誰も気づかない。逆に
+      除外が広すぎれば、取得日で埋めた行まで通る。そこで
+      「素の判定では当たる行が実在する」ことと「除外後は 0 件」を並べて置く。
+    */
+    it("版が取得日と同じ行は実在し、除外はそれを本文由来としてだけ通している", () => {
+      const raw = rows.filter(isRetrievalDate).map((r) => r.target);
+      expect(raw, "素の判定に 1 件も当たらないなら、除外は消しても同じになる").not.toEqual([]);
+      expect(raw.every((target) => declaredOnPage(rows.find((r) => r.target === target)!, refs))).toBe(
+        true,
+      );
+    });
+
+    /*
+      確認が取得より前、の判定が動いていること。実物が 0 件になったので、
+      **合成した行で赤くなる側を見せる。**章は 1 バイトも触らない。
+    */
+    it("確認が取得より前の行は、合成すれば見つけられる", () => {
+      const synthetic: Row = {
+        chapter: "x",
+        target: "x",
+        version: "1.0.0",
+        retrievedAt: "2026-09-03T13:09:07Z",
+        confirmedAt: "2026-09-03T13:09:06Z",
+      };
+      expect(Date.parse(synthetic.confirmedAt) < Date.parse(synthetic.retrievedAt)).toBe(true);
     });
 
     /**
@@ -348,7 +427,7 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
         row({ target: "ok", version: "1.6.29" }),
         row({ target: "bad", version: "2026-08-19" }),
       ];
-      expect(retrievalDated(dirty)).toEqual(["bad=2026-08-19"]);
+      expect(retrievalDated(dirty, refs)).toEqual(["bad=2026-08-19"]);
     });
 
     it("章と参照の値がずれた行を混ぜると、両方の値つきで挙がる", () => {
@@ -385,7 +464,7 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
       const refs = new Map<string, Reference>([
         ["t", { target_id: "t", version: "1.0.0", last_updated: null, freshness_source: "x" }],
       ]);
-      expect(retrievalDated([row()])).toEqual([]);
+      expect(retrievalDated([row()], refs)).toEqual([]);
       expect(driftBetween([row()], refs)).toEqual([]);
     });
   });

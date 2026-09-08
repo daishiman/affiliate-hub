@@ -88,7 +88,7 @@
       "freshness_source": "page-declared",
       "latest_checked_at": "2026-09-02T21:40:54Z",
       "evidence_ref": "system-spec/retrieval-evidence/apple-hig.json",
-      "evidence_sha256": "dc4cfb0afe3dabefa32c7a4f1e536f574f8f270aa2f8ddc61420770fdc3d35aa",
+      "evidence_sha256": "7d19508ca6da2b946fecf8b1295f58c16595626221d24189a428980b86248820",
       "summary": "Apple Human Interface Guidelines の Design principles。presentation concern の doctrine authority。人間向け URL (https://developer.apple.com/design/human-interface-guidelines/design-principles) は JavaScript の殻しか返さず独立監査が表明日を再現できないため、出典を同一公式 host のドキュメントデータ endpoint へ寄せた。metadata.customMetadata.alert-date が 2026-06-08 (Reintroduced design principles.) を自ら表明する。表明値は据え置きで、変えたのは再現可能性のみ。"
     },
     {
@@ -119,16 +119,16 @@
     },
     {
       "target_id": "openai-platform",
-      "retrieved_at": "2026-08-22T15:05:04Z",
+      "retrieved_at": "2026-09-03T21:46:11Z",
       "source_url": "https://developers.openai.com/api/docs/models",
       "official_publisher": "OpenAI",
       "official_host": "developers.openai.com",
-      "version": "gpt-5.6",
+      "version": "gpt-6-astra",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-08-22T15:05:04Z",
+      "latest_checked_at": "2026-09-03T21:46:11Z",
       "evidence_ref": "system-spec/retrieval-evidence/openai-platform.json",
-      "evidence_sha256": "7c25b37bf000f16da095044fe18ea9f3ec2cd0f74fed1a05241f51770a97b427",
-      "summary": "OpenAI API 公式モデル一覧。決定 decision-llm-provider の対抗候補 authority。現行世代 GPT-5.6 系 (Cyber / Luna / Sol / Terra) と Responses API・会話状態の仕様を示す。要求した platform.openai.com は developers.openai.com へ移送されたため最終 URL を採る。ページは更新日を表明しないので、鮮度は説明対象の版で表す。"
+      "evidence_sha256": "688949e9093673adff6ad1b85a95148d36158f7c4c1dbc59d3bc8ab7338b6969",
+      "summary": "OpenAI API 公式モデル一覧。決定 decision-llm-provider の対抗候補 authority。旗艦は GPT-6 Astra (gpt-6-astra) で、本文が \"our flagship model for complex reasoning and coding\" / \"Our most capable model\" と申告する。前世代 GPT-5.6 系 (Cyber / Luna / Sol / Terra) は一覧に併載され続けている。Responses API・会話状態の仕様も同ページが示す。要求した platform.openai.com は developers.openai.com へ移送されたため最終 URL を採る。ページは更新日を表明しないので、鮮度は説明対象の版で表す。"
     },
     {
       "target_id": "mdn-light-dark",
@@ -145,16 +145,16 @@
     },
     {
       "target_id": "vitest",
-      "retrieved_at": "2026-08-24T11:38:56Z",
+      "retrieved_at": "2026-09-03T13:09:07Z",
       "source_url": "https://vitest.dev/guide/",
       "official_publisher": "Vitest",
       "official_host": "vitest.dev",
-      "version": "4.1.11",
+      "version": "5.0.0",
       "freshness_source": "publisher-registry",
-      "latest_checked_at": "2026-08-24T11:38:55Z",
+      "latest_checked_at": "2026-09-03T13:09:07Z",
       "evidence_ref": "system-spec/retrieval-evidence/vitest.json",
-      "evidence_sha256": "59cd11c79f1052aeb64e0d74e420cebd15afaa61f96257b676aab0b83a4d9d97",
-      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。配信中 HTML は Last updated 2026-04-08 のままだが、公式 repository の同ファイル履歴は 2026-06-18 まで進んでいるため、その日付は鮮度根拠に採らない。2026-08-24T11:38:55Z に publisher registry を照合し、version / dist-tags.latest とも現行版 4.1.11 であることを確認した。"
+      "evidence_sha256": "2f68be27ec622a91f8424fff9e31311e0004e4b7b50496ac7ff1bd069fbce544",
+      "summary": "Vitest 公式ガイド Getting Started。決定 decision-test-ci-tooling (試験と CI に何を使うか) の authority。2026-09-03T13:09:07Z に再取得し、publisher registry の dist-tags.latest が 5.0.0 であること、配信 HTML の版切替 UI も v5.0.0 を示すことを確認した。前提環境の申告は 4.1.11 時点の \"Vite >=v6.0.0 / Node >=v20.0.0\" から \"Vite >=v6.4.0 / Node >=v22.12.0\" へ引き上がっている (repository 履歴 3876283e, 2026-05-07, \"feat!: require Node.js 22 and Vite 6.4\")。配信 HTML の \"Last updated\" は 2026-06-18 で repository 履歴の最新コミットと一致するが、この target が支えるのは現行版なので鮮度根拠は registry を採る。"
     },
     {
       "target_id": "github-actions",
@@ -194,6 +194,97 @@
       "evidence_ref": "system-spec/retrieval-evidence/stryker-mutator.json",
       "evidence_sha256": "3ae09df999fec24351fd7e38a441c870a26de4699644970612168e52b3ced2a9",
       "summary": "StrykerJS 公式ドキュメント導入章。決定 decision-test-ci-tooling のミューテーション試験側 authority。TypeScript/React/Angular/Vue/Svelte/Node を対象に、試験そのものの有効性を変異で測る枠組み。docs は rolling で版も日付も表明しないため version は配布 registry の現行版 10.0.0 (`npm view @stryker-mutator/core` を 2026-08-22T21:19:48Z に照会)。HTTP Last-Modified は取得日と同日で Docusaurus のデプロイ時刻でしかないため採らず、退けた理由を証跡の rejected_candidate に残してある。"
+    },
+    {
+      "target_id": "cloudflare-d1-use-indexes",
+      "retrieved_at": "2026-09-03T00:00:00Z",
+      "source_url": "https://developers.cloudflare.com/d1/best-practices/use-indexes/",
+      "official_publisher": "Cloudflare",
+      "official_host": "developers.cloudflare.com",
+      "last_updated": "2026-08-10",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T00:00:00Z",
+      "evidence_ref": "system-spec/retrieval-evidence/cloudflare-d1-use-indexes.json",
+      "evidence_sha256": "b872a1a948cd7cf144de4a7107782ed148fa5209aa252092eafe70f112d8b9cb",
+      "summary": "Cloudflare D1 公式『Use indexes』。任意の部分一致検索に FTS5 の trigram トークナイザを挙げ、3文字以上の連続する非ワイルドカード文字を含むパターンを最適化できるとする。FTS5 索引が保存量と書込費用を増やすこと、EXPLAIN QUERY PLAN で確認することも明記。database×web の全文検索トークナイザ決定の直接根拠。"
+    },
+    {
+      "target_id": "sqlite-fts5",
+      "retrieved_at": "2026-09-03T00:00:00Z",
+      "source_url": "https://www.sqlite.org/fts5.html",
+      "official_publisher": "SQLite",
+      "official_host": "www.sqlite.org",
+      "last_updated": "2026-08-27",
+      "freshness_source": "http-last-modified",
+      "latest_checked_at": "2026-09-03T00:00:00Z",
+      "evidence_ref": "system-spec/retrieval-evidence/sqlite-fts5.json",
+      "evidence_sha256": "107ff2a7ae5fb65fcde8792bf44699816b33bec903b4c5ab50a8a58d6d63db63",
+      "summary": "SQLite FTS5 公式仕様。組込トークナイザは unicode61 / ascii / porter / trigram の4種で bigram は存在しない。trigram は通常のトークン一致ではなく部分一致を可能にする。『bigram 系トークナイザ』という当初の指定が実装不能であったことの一次根拠。"
+    },
+    {
+      "target_id": "google-search-console-api",
+      "retrieved_at": "2026-09-03T12:43:18Z",
+      "source_url": "https://developers.google.com/webmaster-tools/v1/searchanalytics/query",
+      "official_publisher": "Google",
+      "official_host": "developers.google.com",
+      "last_updated": "2026-08-11",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T12:43:18Z",
+      "evidence_ref": "system-spec/retrieval-evidence/google-search-console-api.json",
+      "evidence_sha256": "bda414ce8c9204466ba16b2abe462d98e02f169d70ea1176d37477b982d3213e",
+      "summary": "Search Console API の Search Analytics: query 公式仕様。startDate/endDate 必須、絞り込み次元は query / page / country / device / searchAppearance、1 回の応答は既定 1,000 行・最大 25,000 行。読み取りのみなら webmasters.readonly スコープで足りる。上限は Search Console 側の内部制約に従うとだけ述べられ、具体的なクォータ値は公表されていない。AEO/SEO 分析の第 2 データ源 (Google Search Console 連携) が前提にする事柄の一次根拠。"
+    },
+    {
+      "target_id": "llms-txt",
+      "retrieved_at": "2026-09-03T12:43:18Z",
+      "source_url": "https://llmstxt.org/",
+      "official_publisher": "Jeremy Howard (Answer.AI)",
+      "official_host": "llmstxt.org",
+      "last_updated": "2026-08-10",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T12:43:18Z",
+      "evidence_ref": "system-spec/retrieval-evidence/llms-txt.json",
+      "evidence_sha256": "3855e131ab26b1c37a5b145834e9aa572bcaad0e36303a2cbdf1483c3acc30f0",
+      "summary": "llms.txt の提唱元。サイト直下に置く markdown ファイルで、必須は H1 のみ、H2 で区切られた節が詳細への URL を並べる file lists になる。重要: 『llms-full.txt』という語はこの文書に現れない。全文を 1 ファイルにまとめて出す運用は標準が定めるものではなく実装側の慣行であり、仕様書では標準の定めと書かないこと。"
+    },
+    {
+      "target_id": "webmcp",
+      "retrieved_at": "2026-09-03T22:38:16Z",
+      "source_url": "https://webmachinelearning.github.io/webmcp/",
+      "official_publisher": "W3C Web Machine Learning Community Group",
+      "official_host": "webmachinelearning.github.io",
+      "last_updated": "2026-09-03",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T22:38:16Z",
+      "evidence_ref": "system-spec/retrieval-evidence/webmcp.json",
+      "evidence_sha256": "ed23d510c9187fceedb831b04c0fa47c1da7cc7a8e1bfd253ddf0cf75c4d6925",
+      "summary": "WebMCP の一次仕様 (2026-09-03 版 Draft Community Group Report)。W3C 標準ではなく標準化トラック上にもない。接点は Document の modelContext 属性で SecureContext 限定、道具の登録は registerTool が Promise を返し、登録解除の専用メソッドは無く options の AbortSignal で取り消す。認証済み状態で道具を露出すると追加検証なしに高権限操作が実行されうると自ら警告している。二次記事が述べる unregisterTool と SubmitEvent.agentInvoked は現行版にも存在しない。rolling draft のため版日付は動き続けるが、上記 4 点の設計上の申告は 2026-09-02 版から変わっていない。"
+    },
+    {
+      "target_id": "anthropic-web-search-tool",
+      "retrieved_at": "2026-09-03T20:57:54Z",
+      "source_url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+      "official_publisher": "Anthropic",
+      "official_host": "platform.claude.com",
+      "version": "web_search_20260318",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T21:02:59Z",
+      "evidence_ref": "system-spec/retrieval-evidence/anthropic-web-search-tool.json",
+      "evidence_sha256": "231a483f4a3d9e4901a9acafe89f508deea07a302d32c9a34b6d907425fb1532",
+      "summary": "Anthropic 公式 Web search tool ドキュメント。AEO 系統3 (AI 検索での被引用チェック) の技術的前提の authority。引用は常に有効で、各 web_search_result_location が引用先の url と title を持つため、返る引用 URL に自サイトが含まれるかを機械で判定できる。課金は検索回数の従量 (1,000 件単位) と、検索結果が入力トークンとして数えられる分の二階建てで、検索結果は同一ターン内の検索反復でも以後の会話ターンでも入力トークンに数え続けられる。よってモデルを小さくしても検索の従量分は下がらず、費用の主たる制御点は max_uses による1 リクエストあたり検索回数の上限である。tool version は日付付きで固定でき、2026-09-03 時点の最新は web_search_20260318 (旧版 web_search_20250305 / web_search_20260209 も併記)。配信 HTML は文書の更新日を持たず、埋め込み JSON の UpdatedAt は取得ごとに動く描画時刻のため、鮮度根拠は本文申告の tool version を採る。"
+    },
+    {
+      "target_id": "gemini-google-search-grounding",
+      "retrieved_at": "2026-09-03T20:57:55Z",
+      "source_url": "https://ai.google.dev/gemini-api/docs/google-search.md.txt",
+      "official_publisher": "Google",
+      "official_host": "ai.google.dev",
+      "version": "Gemini 3.8 Flash",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-03T20:57:55Z",
+      "evidence_ref": "system-spec/retrieval-evidence/gemini-google-search-grounding.json",
+      "evidence_sha256": "df0bcdc0a853843bacc97549bb2f88f7cac3e7c11dbf988467119a6978b5c34d",
+      "summary": "Google 公式 Grounding with Google Search ドキュメント (同一公式 host が配信するテキスト版 .md.txt)。AEO 系統3 を Anthropic 一社に依存させないための第二の authority。接地された応答は本文テキストブロックに inline annotations が直接付き、各注記が type=url_citation・url・title・start_index・end_index を持つため、自サイトの被引用を機械で判定できる。課金の単位が Anthropic と違い、Gemini 3 ではモデルが実行を決めた検索クエリごとに課金されるため、実行頻度の見積りは 2 系統で別式になる。現行版は Interactions API 形式であり、旧 generateContent 系の groundingMetadata / groundingChunks / groundingSupports / webSearchQueries / searchEntryPoint はいずれも本文に存在しない (二次情報が混ぜて述べるため参照しない)。通常ページは JS 描画で逐語を一語も返さないため .md.txt を証跡に採った。配信物は Last-Modified も更新日表示も持たないため、鮮度根拠は本文申告の対応モデル最新版を採る。"
     }
   ]
 }

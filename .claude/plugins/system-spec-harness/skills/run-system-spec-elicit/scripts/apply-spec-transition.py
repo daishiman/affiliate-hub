@@ -72,6 +72,7 @@ from state_transition_matrix import (
     set_qa_written_up,
     set_targets,
     split_qa_bundle,
+    retire_chapter_note,
     set_chapter_note,
     set_qa_source,
     declare_excluded_category,
@@ -281,6 +282,21 @@ def main(argv: list[str]) -> int:
             "そこへ足すと、利用者が言っていないことが利用者の声の顔で残る。"
         ),
     )
+    retire_note = sub.add_parser(
+        "retire-chapter-note",
+        help="正本へ入れるべきでなかった注記を、章へ描かれない場所へ移す (消さない)",
+        description=(
+            "`##` 単位の節は `--on-handwritten preserve` が引き継ぐので、正本へ移す必要が無い。"
+            "移すと同じ本文が章に 2 回出る (正本から描いた `###` と、preserve が引き継いだ `##`)。"
+            "**本文は消さない。**`retired_chapter_notes` へ理由と一緒に残し、描画対象から外すだけ。"
+            "消す口と取り消す口を同じにしないためである。"
+        ),
+    )
+    retire_note.add_argument("--state", required=True)
+    retire_note.add_argument("--category", required=True)
+    retire_note.add_argument("--heading", required=True)
+    retire_note.add_argument("--reason", required=True, help="なぜ正本に置くべきでなかったのか")
+    retire_note.add_argument("--out")
     chapter_note.add_argument("--state", required=True)
     chapter_note.add_argument("--category", required=True)
     chapter_note.add_argument("--heading", required=True)
@@ -335,6 +351,12 @@ def main(argv: list[str]) -> int:
             "writer が自分で引き、取り込まれた節が取り込み元の回答と byte 単位で一致する"
             "ときだけ外す。渡せると、渡す側がどの節を『取り込みだった』と名乗るか選べ、"
             "自分の本文を他所のせいにして消せる。"
+            "\n\n束ねの形式は 2 つ受ける。`### 見出し` で節を立てたものと、回答を `／` で"
+            "連ねたものである。`／` は文中の並列にも使われる (「並べて比べる／絞り込む」) "
+            "ので、区切りと見なすのは **割った節の数が topics の数と一致し、かつ各節に"
+            "その論点の answer_span が逐語で 1 箇所在るとき** だけである。合わなければ"
+            "割らずに止める — 誤って割った束ねは正しく割れたように見えるが、解けない"
+            "束ねは束ねのまま見えるからである。"
         ),
     )
     split_bundle.add_argument("--state", required=True)
@@ -429,7 +451,22 @@ def main(argv: list[str]) -> int:
             elif args.cmd == "apply":
                 apply_turn(state, {"ops": [json.loads(args.op)]})
             elif args.cmd == "chunk":
-                run_chunk(state, load_json(args.turns), max_loops=args.max_loops)
+                turns = load_json(args.turns)
+                processed = run_chunk(state, turns, max_loops=args.max_loops)
+                # **切ったことを名乗る。**run_chunk は max_loops を超えた turn を
+                # 適用せずに落とす (resume させる設計なので、落とすこと自体は正しい)。
+                # 落ちたことが stdout にも exit code にも出ないのが誤りだった——
+                # 6 turn を投げて 5 しか当たらない回が exit 0 で返り、
+                # maintenance-ops x web が qa_refs と required_info_checks を持たないまま
+                # 確定になった (2026-09-02 実測)。**部分適用は全部当たったのと同じ姿に見える。**
+                dropped = len(turns) - processed
+                if dropped > 0:
+                    print(
+                        f"未適用 {dropped} turn: max_loops={args.max_loops} を超えた分は"
+                        f"当たっていない (投入 {len(turns)} / 適用 {processed})。"
+                        "残りは次の chunk へ回すか --max-loops を上げること",
+                        file=sys.stderr,
+                    )
             elif args.cmd == "aggregate":
                 recompute_aggregates(state)
             elif args.cmd == "set-targets":
@@ -484,6 +521,8 @@ def main(argv: list[str]) -> int:
                     Path(args.body_file).read_text(encoding="utf-8"),
                     args.reason,
                 )
+            elif args.cmd == "retire-chapter-note":
+                retire_chapter_note(state, args.category, args.heading, args.reason)
             elif args.cmd == "split-qa-bundle":
                 split_qa_bundle(state, args.qa_id)
             elif args.cmd == "reanchor-split-scope-notes":

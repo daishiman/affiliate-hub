@@ -1,5 +1,5 @@
-import type { ArticleType } from "@/domain/authoring";
-import { UNKNOWN_ARTICLE_AUTHOR } from "@/domain/blogops";
+import { articleIndexRoute, type ArticleType } from "@/domain/authoring";
+import { UNKNOWN_ARTICLE_AUTHOR } from "@/domain/blogops/blog-article";
 import { trackingPathForCode } from "@/domain/monetization";
 
 /**
@@ -161,6 +161,8 @@ export type PublishedArticle = {
   /** 検索結果と一覧に出す 1 文。 */
   readonly summary: string;
   readonly categorySlug: string;
+  /** 元記事の実作成時刻。公開日から推測せず、未記録はnull。 */
+  readonly createdAt?: string | null;
   readonly publishedAt: string;
   readonly updatedAt: string;
   readonly author: PublishedPerson;
@@ -205,6 +207,17 @@ export type PublishedArticle = {
   };
   /** 「まだ中身が無い」記事であることの明示。見本を本物に見せない。 */
   readonly stub?: { readonly label: string; readonly blockedBy: string };
+  /**
+   * 記事編集でアップロードした画像。一覧のサムネイルと OGP の第 1 候補。
+   *
+   * 無い記事の方が多いので任意。**無いことは異常ではない**ので、
+   * 欠けたときは `resolveThumbnail` が代替図版へ落とす。
+   */
+  readonly uploadedImageUrl?: string;
+  /** アイキャッチ指定。アップロードが無いときの第 2 候補。 */
+  readonly eyecatchImageUrl?: string;
+  /** 本文の先頭画像。第 3 候補。保存時に確定させ、読むたびに本文を走査しない。 */
+  readonly bodyFirstImageUrl?: string;
 };
 
 /** 一覧に出すときの短い形。本文を積まない（一覧で全文を読み込ませない）。 */
@@ -215,8 +228,22 @@ export type ArticleSummary = {
   readonly title: string;
   readonly summary: string;
   readonly categorySlug: string;
+  readonly publishedAt?: string;
   readonly updatedAt: string;
   readonly authorName: string;
+  /**
+   * サムネイルの候補。**どれを使うかはここでは決めない**
+   * （決めるのは `resolveThumbnail` 1 本だけ）。
+   *
+   * 一覧の型に「解決済みの 1 本の URL」を持たせると、代替図版が要るかどうかを
+   * 一覧の型が知ることになり、配色を知らない層で図版を作る羽目になる。
+   * ここは候補を運ぶだけにする。
+   */
+  readonly thumbnail?: {
+    readonly uploadedUrl?: string;
+    readonly eyecatchUrl?: string;
+    readonly bodyFirstImageUrl?: string;
+  };
 };
 
 /**
@@ -226,16 +253,26 @@ export type ArticleSummary = {
  * 組み立てさせると、一覧・検索・記事内リンクで違う URL ができ、
  * 同じ記事に 2 つの入口ができてしまう。
  */
-const PATH_PREFIX: Readonly<Record<ArticleType, string>> = {
-  ranking: "/best",
-  review: "/reviews",
-  comparison: "/compare",
-  guide: "/guides",
-  tool: "/tools",
-};
-
+/**
+ * 前半（`/best` など）は**ルート表から取る。**ここに書き写さない。
+ *
+ * 2026-09-05 まで、この直下に `PATH_PREFIX` という写しがあった。
+ * `/best` の索引（`articleIndexRoute`）を作った時点で、同じ文字列が
+ * ルート表とここの 2 か所に載ることになる。片方だけ直した日に、
+ * 記事の URL と索引の URL が別の場所を指す——しかもどちらも 200 を返すので、
+ * **重複した入口ができたことに誰も気づかない。**
+ */
 export function articleHref(article: Pick<ArticleSummary, "type" | "slug">): string {
-  return `${PATH_PREFIX[article.type]}/${article.slug}`;
+  return `${articleIndexRoute(article.type).path}/${article.slug}`;
+}
+
+/**
+ * 記事タイプの索引の URL（`/best` など）。
+ *
+ * パンくずの親と `BreadcrumbList` の親 URL はどちらもこれを使う。
+ */
+export function articleIndexHref(type: ArticleType): string {
+  return articleIndexRoute(type).path;
 }
 
 /**
@@ -323,7 +360,29 @@ export function toSummary(article: PublishedArticle): ArticleSummary {
     title: article.title,
     summary: article.summary,
     categorySlug: article.categorySlug,
+    publishedAt: article.publishedAt,
     updatedAt: article.updatedAt,
     authorName: article.author.name,
+    ...thumbnailCandidatesOf(article),
   };
+}
+
+/**
+ * サムネイル候補を一覧の形へ移す。
+ *
+ * 候補が 1 つも無いときは **`thumbnail` キーごと省く。**
+ * 空オブジェクトを入れると「候補を調べた結果ゼロ」と
+ * 「まだ調べていない」が区別できなくなる。
+ */
+function thumbnailCandidatesOf(
+  article: PublishedArticle,
+): Pick<ArticleSummary, "thumbnail"> | Record<string, never> {
+  const thumbnail = {
+    ...(article.uploadedImageUrl === undefined ? {} : { uploadedUrl: article.uploadedImageUrl }),
+    ...(article.eyecatchImageUrl === undefined ? {} : { eyecatchUrl: article.eyecatchImageUrl }),
+    ...(article.bodyFirstImageUrl === undefined
+      ? {}
+      : { bodyFirstImageUrl: article.bodyFirstImageUrl }),
+  };
+  return Object.keys(thumbnail).length === 0 ? {} : { thumbnail };
 }

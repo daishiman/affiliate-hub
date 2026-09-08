@@ -326,6 +326,17 @@ function underSizedControls(document: Document, sized: Set<Element>): readonly s
     "button, select, textarea, input:not([type=hidden]), a[href]",
   );
   for (const el of controls) {
+    /*
+      描かれていない欄には押しどころが無い。**`type="hidden"` だけを外すのでは
+      足りない。**`input[type=file]` の値はプログラムから書けないので、
+      ブラウザで作った絵を `DataTransfer` で運ぶ欄は `type="file"` のまま
+      隠すしかない（記事の表紙の縮小版 320/640/1280 がこれ）。
+
+      `hidden` だけでは通さず `aria-hidden="true"` も要求する。片方だけの
+      要素は「目には出ないが読み上げには出る」食い違った状態で、
+      押しどころを免れてよい対象ではない。
+    */
+    if (el.hasAttribute("hidden") && el.getAttribute("aria-hidden") === "true") continue;
     if (el.tagName === "A" && isInlineLink(el)) continue;
     if (sized.has(el)) continue;
     const label = el.closest("label");

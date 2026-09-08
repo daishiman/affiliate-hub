@@ -479,6 +479,7 @@ const NON_WRITE_VERBS = [
   "list",
   "find",
   "search",
+  "browse",
   "read",
   "count",
   "exists",
@@ -542,6 +543,9 @@ const NON_WRITE_EXACT = new Set([
   "themeOf",
 ]);
 const WRITE_VERBS = [
+  // 承認した記事差分を保存する / その保存済み版を照合して取り消す。
+  "apply",
+  "revert",
   "save",
   "create",
   "update",

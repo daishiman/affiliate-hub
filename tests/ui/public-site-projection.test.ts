@@ -32,6 +32,7 @@ function projectionWith(
     bands: [{}] as never,
     provisionedBands: [{}] as never,
     articles: [],
+    featuredArticles: { selectedCount: 0, articles: [] },
     network: [{}] as never,
     tags: [],
     documents: [],
@@ -123,12 +124,14 @@ describe("PublicSiteProjection", () => {
       listLayoutBands: vi.fn(async () => ok([])),
       listProvisionedLayoutBands: vi.fn(async () => ok([])),
       listPublished: vi.fn(async () => ok([])),
+      listFeaturedArticles: vi.fn(async () => ok({ selectedCount: 0, articles: [] })),
       listNetwork: vi.fn(async () => ok([])),
       listTags: vi.fn(async () => ok([])),
       listDocuments: vi.fn(async () => ok([])),
       listDeliveryParts: vi.fn(async () => ok([])),
       findArticleBySlug: vi.fn(async () => ok(null)),
       findSourceArticleId: vi.fn(async () => ok(null)),
+      summarizeReaderRatings: vi.fn(async () => ok({})),
     };
     const port = { openSite: vi.fn(async () => ok(reader)) };
 
@@ -146,6 +149,7 @@ describe("PublicSiteProjection", () => {
       reader.listLayoutBands,
       reader.listProvisionedLayoutBands,
       reader.listPublished,
+      reader.listFeaturedArticles,
       reader.listNetwork,
       reader.listTags,
       reader.listDocuments,
@@ -166,12 +170,14 @@ describe("PublicSiteProjection", () => {
       listLayoutBands: vi.fn(async () => ok([])),
       listProvisionedLayoutBands: vi.fn(async () => ok([])),
       listPublished: vi.fn(async () => ok([])),
+      listFeaturedArticles: vi.fn(async () => ok({ selectedCount: 0, articles: [] })),
       listNetwork: vi.fn(async () => ok([])),
       listTags: vi.fn(async () => err({ kind: "storage", message: "タグが読めません" })),
       listDocuments: vi.fn(async () => ok([])),
       listDeliveryParts: vi.fn(async () => ok([])),
       findArticleBySlug: vi.fn(async () => ok(null)),
       findSourceArticleId: vi.fn(async () => ok(null)),
+      summarizeReaderRatings: vi.fn(async () => ok({})),
     };
     const port = { openSite: vi.fn(async () => ok(reader)) };
 
@@ -199,7 +205,9 @@ describe("PublicSiteProjection", () => {
       listProvisionedLayoutSlots: async () => ok([]),
       listProvisionedLayoutBands: async () => ok([]),
       listPublished: async () => ok([]),
+      listFeaturedArticles: async () => ok({ selectedCount: 0, articles: [] }),
       findSourceArticleId: async () => ok(null),
+      summarizeReaderRatings: async () => ok({}),
       listNetwork: async () => ok([]),
       listTags: async () => ok([]),
       listDocuments: async () => ok([]),

@@ -154,6 +154,7 @@ def test_update_fields_cover_every_declared_flag(bridge):
         "priority": "--priority",
         "assignee": "--assignee",
         "labels": "--set-labels",
+        "issue_type": "--type",
     }
 
 
@@ -250,4 +251,131 @@ def test_create_priority_rejects_projection_silent_drop(bridge, calls, monkeypat
             "--op", "create", "--repo-root", tmp_path,
             "--projection-manifest", "projection.json", "--priority", "low", "--dry-run",
         )
+    assert calls == []
+
+
+# 契約 5: issue_type。値域を縛り、rollup ゲートが緩む向きだけを拒む。
+#
+# この field が無かった間、feature の投影が task 型で作られている issue (ah-6lf) を
+# 直す経路が存在しなかった。経路が無いことは素の `bd update` を使ってよい理由ではなく、
+# 経路を足すべき理由である — というのがこの追加の趣旨。
+
+
+def _show_returning(bridge, monkeypatch, issue_type: str | None):
+    """`bd show` の返す現在値だけを差し替える。向きの判定は現在値に依存する。"""
+    recorded: list[list[str]] = []
+
+    def fake_bd(args, cwd, check=True):
+        recorded.append(list(args))
+        if args[0] == "show":
+            row = {"id": args[1], "status": "open", "dependencies": []}
+            if issue_type is not None:
+                row["issue_type"] = issue_type
+            return row
+        return {"id": args[1] if len(args) > 1 else None, "ok": True}
+
+    monkeypatch.setattr(bridge, "bd", fake_bd)
+    return recorded
+
+
+@pytest.mark.parametrize("issue_type", ["bug", "feature", "task", "epic", "chore", "decision"])
+def test_issue_type_is_forwarded_as_bd_type(bridge, monkeypatch, capsys, tmp_path, issue_type):
+    recorded = _show_returning(bridge, monkeypatch, "task")
+    code, receipt = call_main(
+        bridge, monkeypatch, capsys,
+        "--op", "update", "--repo-root", tmp_path, "--bd-issue-id", "B1", "--issue-type", issue_type,
+    )
+    assert code == 0
+    assert _flag_value(_update_call(recorded), "--type") == issue_type
+    assert receipt["applied_fields"] == ["issue_type"]
+
+
+@pytest.mark.parametrize("issue_type", ["epic ", "EPIC"])
+def test_issue_type_is_normalized_before_forwarding(bridge, monkeypatch, capsys, tmp_path, issue_type):
+    recorded = _show_returning(bridge, monkeypatch, "task")
+    code, _ = call_main(
+        bridge, monkeypatch, capsys,
+        "--op", "update", "--repo-root", tmp_path, "--bd-issue-id", "B1", "--issue-type", issue_type,
+    )
+    assert code == 0
+    assert _flag_value(_update_call(recorded), "--type") == "epic"
+
+
+@pytest.mark.parametrize("issue_type", ["", "story", "spike", "enhancement", "feat"])
+def test_issue_type_outside_the_vocabulary_is_rejected_before_write(
+    bridge, monkeypatch, capsys, tmp_path, issue_type,
+):
+    """別名 (`enhancement`/`feat`) も拒む。bd が畳んだ結果は receipt に残らない。"""
+    from _common import ContractError
+
+    recorded = _show_returning(bridge, monkeypatch, "task")
+    with pytest.raises(ContractError, match="issue type must be one of"):
+        call_main(
+            bridge, monkeypatch, capsys,
+            "--op", "update", "--repo-root", tmp_path, "--bd-issue-id", "B1", "--issue-type", issue_type,
+        )
+    assert not [args for args in recorded if args and args[0] == "update"]
+
+
+@pytest.mark.parametrize("requested", ["task", "feature", "chore", "bug", "decision"])
+def test_demoting_an_epic_is_rejected_before_write(bridge, monkeypatch, capsys, tmp_path, requested):
+    """epic からの降格は close ゲート (`--feature-rollup-manifest`) の迂回そのもの。
+
+    close は**その時点の** issue_type を見て rollup manifest を要求する。先に task へ
+    落とせば、子が全部閉じたことを機械が確かめる工程を通らずに親を閉じられる。
+    """
+    from _common import ContractError
+
+    recorded = _show_returning(bridge, monkeypatch, "epic")
+    with pytest.raises(ContractError, match="away from epic"):
+        call_main(
+            bridge, monkeypatch, capsys,
+            "--op", "update", "--repo-root", tmp_path, "--bd-issue-id", "B1", "--issue-type", requested,
+        )
+    assert not [args for args in recorded if args and args[0] == "update"]
+
+
+def test_epic_to_epic_stays_allowed_as_a_no_op(bridge, monkeypatch, capsys, tmp_path):
+    """冪等な再実行を降格と読み違えない。"""
+    recorded = _show_returning(bridge, monkeypatch, "epic")
+    code, _ = call_main(
+        bridge, monkeypatch, capsys,
+        "--op", "update", "--repo-root", tmp_path, "--bd-issue-id", "B1", "--issue-type", "epic",
+    )
+    assert code == 0
+    assert _flag_value(_update_call(recorded), "--type") == "epic"
+
+
+def test_promoting_a_mistyped_feature_to_epic_is_allowed(bridge, monkeypatch, capsys, tmp_path):
+    """締まる向きは通す。この経路が要る動機 (ah-6lf) がまさにこれ。"""
+    recorded = _show_returning(bridge, monkeypatch, "task")
+    code, _ = call_main(
+        bridge, monkeypatch, capsys,
+        "--op", "update", "--repo-root", tmp_path, "--bd-issue-id", "B1", "--issue-type", "epic",
+    )
+    assert code == 0
+    assert _flag_value(_update_call(recorded), "--type") == "epic"
+
+
+def test_issue_type_is_rejected_outside_update(bridge, calls, monkeypatch, capsys, tmp_path):
+    from _common import ContractError
+
+    with pytest.raises(ContractError, match="only by --op update"):
+        call_main(
+            bridge, monkeypatch, capsys,
+            "--op", "show", "--repo-root", tmp_path, "--bd-issue-id", "B1", "--issue-type", "epic",
+        )
+    assert calls == []
+
+
+def test_issue_type_dry_run_previews_the_normalized_value(bridge, calls, monkeypatch, capsys, tmp_path):
+    """値域の検査は preview でも効く。向きの検査は現在値が要るので apply 時に落ちる。"""
+    code, receipt = call_main(
+        bridge, monkeypatch, capsys,
+        "--op", "update", "--repo-root", tmp_path, "--bd-issue-id", "B1",
+        "--issue-type", "EPIC", "--dry-run",
+    )
+    assert code == 0
+    assert receipt["dry_run_preview"]["issue_type"] == "epic"
+    assert receipt["dry_run_preview"]["applied_fields"] == ["issue_type"]
     assert calls == []

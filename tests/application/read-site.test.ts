@@ -66,6 +66,7 @@ function brokenContent(): EditorialPublishedContentPort {
     listByCategory: boom,
     findArticle: boom,
     search: boom,
+    browse: boom,
     findPerson: boom,
     listByPerson: boom,
     listCorrections: boom,
@@ -315,9 +316,9 @@ describe("探す", () => {
   it("件数を指定しなければ、既定の上限で探す", async () => {
     let askedLimit = -1;
     const content = markEditorial({
-      async search(_slug: string, _q: string, limit: number) {
-        askedLimit = limit;
-        return ok([]);
+      async browse(_slug: string, request: { limit: number }) {
+        askedLimit = request.limit;
+        return ok({ articles: [], hasMore: false });
       },
     }) as unknown as EditorialPublishedContentPort;
 
@@ -463,5 +464,21 @@ describe("訂正と方針", () => {
     ).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, key: "methodology" });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+  });
+});
+
+
+describe("検索入力の境界", () => {
+  it.each([-1, 0, 1.5, 101, Number.NaN])("不正な件数 %s を拒否する", async (limit) => {
+    const result = await createSearchArticlesUseCase(realDeps()).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, query: "編集", limit });
+    expect(result.ok).toBe(false);
+  });
+  it("長すぎる検索語を黙って切らず入力エラーを返す", async () => {
+    const result = await createSearchArticlesUseCase(realDeps()).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, query: "あ".repeat(201) });
+    expect(result.ok).toBe(false);
+  });
+  it("検索語なしのタグ条件も検索と同じユースケースで扱える", async () => {
+    const result = await createSearchArticlesUseCase(realDeps()).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, query: "", tag: "north" });
+    expect(result.ok).toBe(true);
   });
 });

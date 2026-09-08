@@ -50,6 +50,7 @@ import { ArticleView, SiteShell } from "@/presentation/ui";
 import { AppShell } from "@/presentation/ui/templates/app-shell";
 import { DensitySamples } from "@/app/admin/ui-catalog/density-samples";
 import { createSampleContentRepository } from "@/infrastructure/persistence/sample/content-sample-repository";
+import { sampleFeaturedArticleSlugs } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import {
   createSampleSiteRepository,
   SAMPLE_SITE_SLUG,
@@ -113,9 +114,20 @@ function siteBody(
   recent: readonly ArticleSummary[],
 ): string {
   const chrome = toChrome(siteSlug, blueprint);
+  const selectedSlugs = sampleFeaturedArticleSlugs(siteSlug);
+  const bySlug = new Map(recent.map((article) => [article.slug, article] as const));
+  const featuredArticles = selectedSlugs.flatMap((slug) => {
+    const article = bySlug.get(slug);
+    return article === undefined ? [] : [article];
+  });
   return renderToStaticMarkup(
     <SiteShell chrome={chrome} currentPath={siteHref(siteSlug, "/")}>
-      <SiteHomeContent view={toSiteHomeView(siteSlug, blueprint, recent)} />
+      <SiteHomeContent
+        view={toSiteHomeView(siteSlug, blueprint, recent, {
+          featuredArticles,
+          featuredSelectedCount: selectedSlugs.length,
+        })}
+      />
     </SiteShell>,
   );
 }

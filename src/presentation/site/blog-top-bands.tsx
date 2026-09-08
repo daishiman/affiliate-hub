@@ -1,45 +1,33 @@
 import type { BlogLayoutBandRecord } from "@/application/ports/blog-ops";
-import { articleHref } from "@/application/read-models/published-article";
-import { brandTagCloud, TOP_BAND_LABEL } from "@/domain/blogops";
+import { brandTagCloud, isSupplementalTopBand, TOP_BAND_LABEL, type SupplementalTopBand } from "@/domain/blogops";
 import { EmptyView, ListView, Section } from "@/presentation/ui";
+import { articlePageHref } from "./article-pagination";
 import type { PublicSiteProjection } from "./public-site-projection";
 import { siteHref } from "./view-model";
 
 /**
- * トップの帯。
+ * トップの補助帯。
  *
- * **並び順と件数を画面に持たせない。** 帯の順番・見出し・出す件数は
- * 管理画面 (`/admin/blog/layout`) が保存した設定が正本で、ここは
- * 保存された通りに描くだけにしてある。画面側に既定値を書くと、
- * 管理画面で変えたのに変わらない帯が生まれる。
+ * canonical な記事一覧とカテゴリー索引は `SiteHomeContent` が描く。
+ * ここはそれらと重複しない姉妹サイトと作り手ナビゲータだけを、
+ * 旧設定の後方互換として描く。
  *
- * 設定が 1 件も無いブログでは何も描かない（`null` を返す）。
- * 「まだ設定していない」は読者に見せる情報ではないので、
- * 空の見出しだけを並べることはしない。
+ * 補助帯が 1 件も無ければ何も描かない（`null` を返す）。
  */
 
-export type TopBandCategory = {
-  readonly slug: string;
-  readonly name: string;
-  readonly oneLine: string;
+type SupplementalBand = BlogLayoutBandRecord & {
+  readonly band: SupplementalTopBand;
 };
 
+function isSupplementalBand(band: BlogLayoutBandRecord): band is SupplementalBand {
+  return isSupplementalTopBand(band.band);
+}
+
 function bandRows(
-  band: BlogLayoutBandRecord,
+  band: SupplementalBand,
   siteSlug: string,
-  categories: readonly TopBandCategory[],
   projection: PublicSiteProjection,
 ): readonly { key: string; label: string; href: string; note: string }[] {
-
-  if (band.band === "latest_posts") {
-    return projection.articles.slice(0, band.itemLimit).map((a) => ({
-      key: a.slug,
-      label: a.title,
-      href: siteHref(siteSlug, articleHref(a)),
-      note: a.summary === "" ? a.updatedAt.slice(0, 10) : a.summary,
-    }));
-  }
-
   if (band.band === "sister_sites") {
     /*
       自分自身は姉妹サイトではない。網の読み取りは「自分と自分の子」を返すので、
@@ -56,15 +44,6 @@ function bandRows(
       }));
   }
 
-  if (band.band === "category_hub") {
-    return categories.slice(0, band.itemLimit).map((c) => ({
-      key: c.slug,
-      label: c.name,
-      href: siteHref(siteSlug, `/categories/${c.slug}`),
-      note: c.oneLine,
-    }));
-  }
-
   // navigator: 記事の入口になる目印（タグ）。
   //
   // **ここは `brandTagCloud()` を通す。**この帯は読者に「これは商品の作り手だ」と
@@ -74,26 +53,26 @@ function bandRows(
   return brandTagCloud(projection.tags, band.itemLimit).map((t) => ({
     key: t.id,
     label: t.name,
-    href: siteHref(siteSlug, `/search?tag=${encodeURIComponent(t.slug)}`),
+    href: articlePageHref(siteHref(siteSlug, "/search"), 1, { tag: t.slug }),
     note: t.description,
   }));
 }
 
 export function BlogTopBands({
   siteSlug,
-  categories,
   projection,
 }: {
   readonly siteSlug: string;
-  readonly categories: readonly TopBandCategory[];
   readonly projection: PublicSiteProjection;
 }) {
-  if (projection.bands.length === 0) return null;
+  const ordered = projection.bands
+    .filter(isSupplementalBand)
+    .sort((a, b) => a.position - b.position);
+  if (ordered.length === 0) return null;
 
-  const ordered = [...projection.bands].sort((a, b) => a.position - b.position);
   const sections = ordered.map((band) => ({
     band,
-    rows: bandRows(band, siteSlug, categories, projection),
+    rows: bandRows(band, siteSlug, projection),
   }));
 
   return (

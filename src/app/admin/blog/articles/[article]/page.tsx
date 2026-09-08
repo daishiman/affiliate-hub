@@ -1,9 +1,11 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { ArticleThumbnailForm } from "@/presentation/admin/publish/article-thumbnail-form";
 import { BlogArticleEditForm } from "@/presentation/admin/publish/blog-article-form";
 import { blogSiteOptions } from "@/presentation/admin/publish/blog-site-options";
 import { ExpressionBlockAppendForm } from "@/presentation/admin/publish/expression-block-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
-import { ErrorView, FactList, Note, Section, TextLink } from "@/presentation/ui";
+import { blogThumbnailHref } from "@/infrastructure/platform/blog-thumbnail-r2";
+import { Callout, ErrorView, FactList, Note, Section, TextLink } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -65,9 +67,10 @@ export default async function BlogArticleEditPage({
   }
 
   const view = found.value;
-  const [tags, sites] = await Promise.all([
+  const [tags, sites, thumbnail] = await Promise.all([
     entry.listTags.execute(actor, { siteSlug: view.siteSlug }),
     blogSiteOptions(),
+    entry.getThumbnail.execute(actor, { articleId: view.articleId }),
   ]);
   const categoryOptions =
     sites.options.find((site) => site.value === view.siteSlug)?.categories ?? [];
@@ -90,6 +93,39 @@ export default async function BlogArticleEditPage({
           ]}
         />
         <Note>{view.titleRule}</Note>
+      </Section>
+
+      {/*
+        表紙は本文より先に置く。一覧・トップ・SNS の写しに出るのはこの 1 枚で、
+        本文を直しても差し替わらない。後ろに置くと、記事を書き終えた人が
+        画面を閉じるまでここに辿り着かない。
+      */}
+      <Section title="表紙の絵">
+        {thumbnail.ok ? (
+          <ArticleThumbnailForm
+            articleId={view.articleId}
+            current={
+              thumbnail.value === null
+                ? null
+                : {
+                    href: blogThumbnailHref(thumbnail.value.objectKey),
+                    altText: thumbnail.value.altText,
+                    derivedWidths: thumbnail.value.derivedWidths,
+                  }
+            }
+          />
+        ) : (
+          /*
+            **読めなかったことを空欄で描かない。** 空欄にすると運営者は
+            「表紙が無い」と読んで上げ直し、読める状態に戻った瞬間に
+            前の絵が置き場へ取り残される。
+          */
+          <Callout
+            tone="warn"
+            title="いま付いている表紙を読めませんでした"
+            reason={thumbnail.error.message}
+          />
+        )}
       </Section>
 
       <Section title="中身">

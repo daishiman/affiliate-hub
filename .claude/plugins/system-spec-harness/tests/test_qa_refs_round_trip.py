@@ -98,7 +98,7 @@ def _state() -> dict:
 def _reopen(state: dict) -> None:
     stm.apply_cell_op(
         state,
-        {"action": "reopen", "category": "database", "platform": "web", "reason": "測定のため"},
+        {"action": "reopen", "category": "database", "platform": "web", "reason": "測定のため", "qa_ref": ORIGIN_ID},
     )
 
 

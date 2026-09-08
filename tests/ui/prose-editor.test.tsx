@@ -300,7 +300,13 @@ describe("断片ごとの欄", () => {
   });
 
   it("画像は、場所を入れたときだけ実物を見せる", () => {
-    render(<Harness initial={serializeProse([{ kind: "image", src: "", alt: "" }])} />);
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "", alt: "", width: null, height: null },
+        ])}
+      />,
+    );
 
     // 空のまま `img` を出すと、壊れた絵の記号が並ぶ。
     expect(document.querySelector("img")).toBeNull();
@@ -311,7 +317,62 @@ describe("断片ごとの欄", () => {
     });
 
     expect(document.querySelector("img")?.getAttribute("alt")).toBe("棚の写真");
-    expect(savedNodes()).toEqual([{ kind: "image", src: "/media/a.png", alt: "棚の写真" }]);
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/a.png", alt: "棚の写真", width: null, height: null },
+    ]);
+  });
+
+  it("下絵が読めたら実寸を書き取り、場所を変えたら捨てる", () => {
+    /*
+      **測り直しに 2 度目の取得を使わない。**下絵は既に読み込まれているので、
+      届いた寸法をそのまま書き取る。`new Image()` で測ると、同じ絵を
+      運営者の回線でもう一度取りに行くことになる。
+    */
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "/media/a.png", alt: "棚", width: null, height: null },
+        ])}
+      />,
+    );
+
+    const img = document.querySelector("img") as HTMLImageElement;
+    Object.defineProperty(img, "naturalWidth", { value: 1200, configurable: true });
+    Object.defineProperty(img, "naturalHeight", { value: 800, configurable: true });
+    fireEvent.load(img);
+
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/a.png", alt: "棚", width: 1200, height: 800 },
+    ]);
+
+    // 前の絵の寸法を次の絵へ持ち越すと、場所だけ空けて中身が合わない箱ができる。
+    fireEvent.change(screen.getByLabelText("画像の場所"), { target: { value: "/media/b.png" } });
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/b.png", alt: "棚", width: null, height: null },
+    ]);
+  });
+
+  it("測れない絵でも保存は落ちない（寸法は無いまま残る）", () => {
+    /*
+      外部ホストの絵は読み込みに失敗しうる。**測れないことは書けないことでは
+      ない。**貼った直後に保存を押しても通ること自体を当てている。
+    */
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "https://example.test/x.png", alt: "外", width: null, height: null },
+        ])}
+      />,
+    );
+
+    const img = document.querySelector("img") as HTMLImageElement;
+    Object.defineProperty(img, "naturalWidth", { value: 0, configurable: true });
+    Object.defineProperty(img, "naturalHeight", { value: 0, configurable: true });
+    fireEvent.load(img);
+
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "https://example.test/x.png", alt: "外", width: null, height: null },
+    ]);
   });
 
   it("比較表は列と行を足せ、いちばん下の行だけは残る", () => {
@@ -352,7 +413,7 @@ describe("読み上げと操作", () => {
           { kind: "bullet-list", items: ["あ", "い"] },
           { kind: "callout", tone: "tip", title: "こつ", text: "中身" },
           { kind: "comparison-table", headers: ["型", "値"], rows: [["A", "1"]] },
-          { kind: "image", src: "/media/a.png", alt: "棚の写真" },
+          { kind: "image", src: "/media/a.png", alt: "棚の写真", width: null, height: null },
           { kind: "divider" },
         ])}
       />,

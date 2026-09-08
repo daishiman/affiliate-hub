@@ -11,7 +11,10 @@ import type { AdminActionState } from "../use-case-result";
  * ここへ写すと、失敗の伝え方を変えた日にこの画面だけ古い形で残る
  * （`tests/presentation/admin-action-result.test.ts`）。
  */
-export type PublishedArticleFormState = AdminActionState;
+export type PublishedArticleFormState = AdminActionState & {
+  readonly revision?: number;
+  readonly errorCode?: "CONFLICT";
+};
 
 export const INITIAL_PUBLISHED_ARTICLE_STATE: PublishedArticleFormState = {
   status: "idle",

@@ -1,0 +1,48 @@
+{
+ "target_id": "webmcp",
+ "source_url": "https://webmachinelearning.github.io/webmcp/",
+ "retrieved_at": "2026-09-03T22:38:16Z",
+ "http_status": 200,
+ "content_bytes": 460448,
+ "content_sha256": "5e51db68bfec6124b961b1949d3d4139aca72662131441bc25afe7de96d64d39",
+ "page_title": "WebMCP",
+ "refetch_note": "2026-09-04 の出典鮮度監査 (R8 再走) が 1 日分の世代落ちを検出したため再取得した。前版は retrieved_at 2026-09-03T12:43:18Z / content_sha256 92356bcf9a59ca7a9a5a85778a5bd5a3f6325b3ca0cfdf3af7429459f3e0e0cd / value \"2026-09-02\" で、当時の本文とは逐語一致していた。**転記が誤っていたのではなく、上流が進んだ。**これは Community Group の rolling draft であり、日付は動き続ける。下の quoted_for_design 4 件は再取得後の本文にも逐語で在ることを確かめてから版を上げた (版だけ上げて根拠の生死を見ないと、切れた引用が残る)。",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-09-03",
+  "found_in": [
+   "Draft Community Group Report, 3 September 2026",
+   "機械可読な版表示 (逐語): <time class=\"dt-updated\" datetime=\"2026-09-03\">3 September 2026</time>"
+  ],
+  "http_last_modified": "Thu, 03 Sep 2026 18:23:59 GMT",
+  "note": "本文の版表示・<time datetime> 属性・HTTP Last-Modified の 3 つが同日で一致する。"
+ },
+ "quoted_for_design": [
+  {
+   "claim": "WebMCP は W3C 標準ではなく標準化トラック上にもない Community Group の草案報告である。採用は将来の非互換変更を前提にしなければならない",
+   "verbatim": "This specification was published by the Web Machine Learning Community Group. It is not a W3C Standard nor is it on the W3C Standards Track.",
+   "used_by": "qa-neutral-ai-surface-v6"
+  },
+  {
+   "claim": "接点は Document の modelContext 属性であり、secure context に限定される。したがって HTTPS 配信が前提になる",
+   "verbatim": "partial interface Document { [SecureContext, SameObject] readonly attribute ModelContext modelContext; };",
+   "used_by": "qa-frontend-web-fixed-header-seo-aio-v6"
+  },
+  {
+   "claim": "道具の登録は registerTool で行い、Promise を返す。登録解除の専用メソッドは無く、options の AbortSignal で取り消す",
+   "verbatim": "Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});",
+   "used_by": "qa-neutral-ai-surface-v6"
+  },
+  {
+   "claim": "認証済みの状態で道具を露出すると、追加の検証なしに高権限の操作が実行されうる。露出する道具は読み取りに限り、書き込み系を露出しない設計上の理由になる",
+   "verbatim": "Even when an agent does not share sensitive user data through tool parameters, having an authenticated state means tools can perform high-privilege actions without additional verification.",
+   "used_by": "qa-backend-web-aeo-analysis-pipeline-v6"
+  }
+ ],
+ "not_found_in_source": [
+  {
+   "looked_for": "unregisterTool メソッド / SubmitEvent.agentInvoked",
+   "result": "いずれも現行版に存在しない。二次記事はこれらが在ると述べているが、一次資料には見つからない。仕様書で参照しないこと。"
+  }
+ ]
+}

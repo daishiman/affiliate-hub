@@ -130,6 +130,7 @@ def main(argv: list[str]) -> int:
             on_handwritten=args.on_handwritten,
             loss_report=losses,
             acknowledge_prior_residue=args.acknowledge_prior_residue,
+            canonical_state=spec,
         )
     except (OSError, json.JSONDecodeError) as exc:
         print(f"IO/JSON error: {exc}", file=sys.stderr)
@@ -137,7 +138,10 @@ def main(argv: list[str]) -> int:
     except CompileError as exc:
         print(f"CompileError: {exc}", file=sys.stderr)
         return 1
-    print(f"OK: {len(written)} ファイルを {args.out_dir}/ へ生成 " f"({', '.join(p.name for p in written)})")
+    # out_dir 相対で出す。`p.name` だと `applied/ui-ux.md` が `ui-ux.md` に潰れ、
+    # 同じ名前が 2 回並んで「二重に書いた」ように読める。
+    rel = ", ".join(str(p.relative_to(args.out_dir)) for p in written)
+    print(f"OK: {len(written)} ファイルを {args.out_dir}/ へ生成 ({rel})")
 
     # 節を引き継いでも、生成節の中の手書き行までは守れない。黙って消さず必ず出す。
     if losses:

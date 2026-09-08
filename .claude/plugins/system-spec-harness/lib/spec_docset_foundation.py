@@ -374,6 +374,8 @@ def compile_docset(spec: dict, refs_data: dict) -> dict[str, str]:
     docset[REQUIREMENTS_CHAPTER] = render_requirements_definition(spec)
     for cat_id in cat_ids:
         docset[f"{cat_id}.md"] = render_chapter(spec, cat_id, refs_by_cat)
+        # 「本章での適用」は章と同じ正本から導くが、別ファイルへ出す (APPLIED_DIR の注記)。
+        docset[applied_doc_name(cat_id)] = render_chapter_application_doc(spec, cat_id)
     docset["index.md"] = render_index(spec, refs_by_cat, unassigned)
     return docset
 
@@ -382,21 +384,26 @@ def _section_map(text: str) -> "dict[str, str]":
     """Markdown 本文を `## 見出し` 単位へ割る。{見出し行: 節本文 (見出し含む)}。
 
     frontmatter と最初の `## ` より前の導入部は節に属さないので含めない。
-    見出しが重複する場合は最後の 1 つを採る (同名節を 2 つ持つ章は無い前提)。
+    生成器の保全報告が複数ある場合だけ本文を合わせる。その他の同名節の扱いは従来どおり。
     """
     sections: dict[str, str] = {}
     current: str | None = None
     buf: list[str] = []
+    def keep() -> None:
+        if current == CARRIED_HEADING and current in sections:
+            sections[current] = sections[current].rstrip() + "\n\n" + "\n".join(buf[1:]).strip() + "\n"
+        elif current is not None:
+            sections[current] = "\n".join(buf).rstrip() + "\n"
     for line in text.splitlines():
         if line.startswith("## "):
             if current is not None:
-                sections[current] = "\n".join(buf).rstrip() + "\n"
+                keep()
             current = line.strip()
             buf = [line]
         elif current is not None:
             buf.append(line)
     if current is not None:
-        sections[current] = "\n".join(buf).rstrip() + "\n"
+        keep()
     return sections
 
 
@@ -505,8 +512,8 @@ def split_residue(text: str) -> "tuple[str, list[str]]":
 
     よって落としたうえで**今回の報告へ持ち越す**。節は毎回作り直され、中身は減らない。
 
-    `CARRIED_HEADING` のほうは触らない。あちらの中身は写しではなく本文であり、生成物に
-    無い `##` 節として `handwritten_sections` の引き継ぎ経路に乗る。
+    `CARRIED_HEADING` のほうは `split_carried` が別に扱う。あちらの中身は写しではなく
+    本文なので、落とすのではなく**小節ごと今回の棚へ入れ直す**。
     """
     body: list[str] = []
     carried: list[str] = []
@@ -521,6 +528,79 @@ def split_residue(text: str) -> "tuple[str, list[str]]":
         else:
             body.append(line)
     return ("\n".join(body).rstrip("\n") + "\n" if body else "", carried)
+
+
+def _merge_carried_subsections(
+    prior: "list[tuple[str, str]]", found: "list[tuple[str, str]]", generated: str
+) -> "list[tuple[str, str]]":
+    """前回の棚の中身と、今回新たに見つかった手書き小節を 1 つの棚へまとめる。
+
+    見出しで重複を除く。**先に見つかったほうを残す** — 生成節の内側にまだ同じ小節が
+    残っているなら、そちらが今の本文であり、棚の写しは前回の姿だからである。
+
+    **今回の生成物に在る見出しは持ち越さない。**棚は「今この回に正本から導けないもの」
+    の一覧である。一度載った小節を無条件に持ち越すと、正本へ繋ぎ直した後も棚に残り、
+    棚が「直しても減らない箱」になる。減らない箱は読まれなくなる。
+    """
+    gen_keys = {
+        _subsection_key(m.group(1), m.group(2))
+        for m in (_SUBSECTION.match(line) for line in generated.splitlines())
+        if m
+    }
+    merged: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for head, body in list(found) + [
+        (h, b) for h, b in prior
+        if (m := _SUBSECTION.match(h)) is None
+        or _subsection_key(m.group(1), m.group(2)) not in gen_keys
+    ]:
+        if head in seen:
+            continue
+        seen.add(head)
+        merged.append((head, body))
+    return merged
+
+
+def split_carried(text: str) -> "tuple[str, list[tuple[str, str]]]":
+    """前回の compile が置いた「章にしか無い記述」の棚を、本文と中身の小節へ分ける。
+
+    **なぜ要るか。**棚は compile の生成物だが、`##` 節として次回の生成物には現れない。
+    そのため `handwritten_sections` が「人が書いた節」と見なして丸ごと引き継ぎ、compile は
+    その隣へ新しい棚を作る。**新しい棚は古い棚を「正本へ未接続の節」として数える。**
+    回すたび棚が 1 つ増え、数え上げも 1 つ増える。実測 2026-09-08 (ah-lwmf): 8 章で
+    棚が 2 段になり、正本へ未接続の章の数が 8 から 12 へ増えた。
+
+    **なぜ落とすだけにしないか。**棚の中身は写しではなく本文である。元の場所 (生成節の
+    内側) にはもう無いので、落とせばその記述はこの世から消える。だから中身を小節の対
+    `(見出し行, 本文)` として返し、今回の棚へ入れ直す。棚は毎回 1 つ作り直され、
+    中身は減らない。
+
+    棚の頭に付く `>` の説明文は compile が毎回書き直すので持ち越さない。
+    """
+    body: list[str] = []
+    inside = False
+    collected: list[str] = []
+    for line in text.splitlines():
+        if line.startswith("## "):
+            inside = line.strip() == CARRIED_HEADING
+        if inside:
+            collected.append(line)
+        else:
+            body.append(line)
+
+    blocks: list[tuple[str, str]] = []
+    start: int | None = None
+    for i, line in enumerate(collected + ["## "]):
+        if _SUBSECTION.match(line) or line.startswith("## "):
+            if start is not None:
+                blocks.append(
+                    (
+                        collected[start].strip(),
+                        "\n".join(collected[start:i]).rstrip() + "\n",
+                    )
+                )
+            start = i if _SUBSECTION.match(line) else None
+    return ("\n".join(body).rstrip("\n") + "\n" if body else "", blocks)
 
 
 def vanishing_lines(existing: str, final: str) -> "list[str]":
@@ -554,6 +634,54 @@ def vanishing_lines(existing: str, final: str) -> "list[str]":
     return lost
 
 
+def sync_confirmed_cell_transcript(text: str, canonical_state: dict | None, category: str) -> str:
+    """手書き節内の正本転記欄だけを同期し、独立した歴史説明は保存する。"""
+    if canonical_state is None:
+        return text
+    pattern = r"(## 確定セルの記録 \(正本 spec-state\.json\)\n)(.*?)(?=\n## |\Z)"
+    def sync(match: re.Match) -> str:
+        body = match.group(2)
+        declared = re.search(r"^\| セル \| ([^|]+) \|$", body, re.M)
+        if declared is None:
+            raise CompileError("確定セルの転記に対象セルがありません")
+        parts = [part.strip() for part in declared.group(1).split("×")]
+        if len(parts) != 2 or parts[0] != category:
+            raise CompileError("確定セルの転記と出力章が一致しません")
+        cell = (canonical_state.get("matrix") or {}).get(category, {}).get(parts[1])
+        if not isinstance(cell, dict) or cell.get("state") != "確定":
+            raise CompileError("確定セルの転記を現在の確定セルへ接続できません")
+        infos = []
+        for info in cell.get("required_info") or []:
+            status = info.get("status")
+            grounded = f"接地: 済 (`{info.get('grounded_by')}`)" if status == "grounded" else f"接地: {'未' if status == 'missing' else status}"
+            infos.append(f"`{info.get('item_id')}` — missing_effect: {info.get('missing_effect')} / {grounded}")
+        fields = {"状態": cell["state"], "確定質疑 (qa_ref)": f"`{cell.get('qa_ref')}`",
+                  "資するゴール (serves_goals)": ", ".join(cell.get("serves_goals") or []),
+                  "required-info": "<br>".join(infos) or "なし (この確定に block 指定の必須情報は登録されていない)"}
+        for label, value in fields.items():
+            body = re.sub(r"^\| " + re.escape(label) + r" \| .*? \|$", lambda _: f"| {label} | {value} |", body, flags=re.M)
+        return match.group(1) + body
+    return re.sub(pattern, sync, text, flags=re.S)
+
+
+def relocation_companion(docset: dict[str, str], name: str) -> str:
+    """`name` から**同じ docset の別ファイルへ移した**本文があれば、それを返す。
+
+    消失検査をファイル単位でなく docset 単位にするための補助である。章から
+    `applied/<cat>.md` へ移した「本章での適用」は、章だけを見れば消えているが
+    docset 全体からは 1 行も消えていない。companion を足さずに検査すると、移した本文が
+    「生成物に無い＝人が書いた」と誤判定され、`preserve` は章へ引き戻し、`refuse` は
+    止める。**どちらでも分割が成立しない**ので、移動先を検査の視野に入れる。
+
+    ここが見ているのは「移動先が同じ書き出しに含まれているか」だけである。docset に
+    入っていない移動先 (別 run で書く等) は companion にならず、従来どおり消失として
+    報告される。移した証拠が同時に手元に無いなら、それは移動ではなく削除だからである。
+    """
+    if "/" in name or not name.endswith(".md"):
+        return ""
+    return docset.get(applied_doc_name(name[: -len(".md")]), "")
+
+
 def write_docset(
     docset: dict[str, str],
     out_dir: Path,
@@ -561,6 +689,7 @@ def write_docset(
     on_handwritten: str = "refuse",
     loss_report: "list[tuple[str, list[str]]] | None" = None,
     acknowledge_prior_residue: bool = False,
+    canonical_state: dict | None = None,
 ) -> list[Path]:
     """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。
 
@@ -599,10 +728,18 @@ def write_docset(
         if not p.is_file():
             continue
         existing_text, _ = split_residue(p.read_text(encoding="utf-8"))
-        lost = handwritten_sections(existing_text, content)
+        # 前回の棚は compile の生成物であって手書きではない。中身だけを今回の棚へ移す
+        # (`split_carried` 参照)。ここで外さないと棚が回ごとに 1 段ずつ積み上がる。
+        existing_text, prior_carried_sub = split_carried(existing_text)
+        existing_text = sync_confirmed_cell_transcript(existing_text, canonical_state, p.stem)
+        # 移動先を足してから比べる (`relocation_companion` 参照)。
+        generated = content + "\n" + relocation_companion(docset, name)
+        lost = handwritten_sections(existing_text, generated)
         if lost:
             carried[name] = lost
-        lost_sub = handwritten_subsections(existing_text, content)
+        lost_sub = _merge_carried_subsections(
+            prior_carried_sub, handwritten_subsections(existing_text, generated), generated
+        )
         if lost_sub:
             carried_sub[name] = lost_sub
 
@@ -629,6 +766,15 @@ def write_docset(
         before, prior_residue = (
             split_residue(p.read_text(encoding="utf-8")) if p.is_file() else (None, [])
         )
+        if before is not None:
+            before, _ = split_carried(before)
+            before = sync_confirmed_cell_transcript(before, canonical_state, p.stem)
+            # 他章の正本へ明示参照した同一全文は消失ではない。未知の手書き行は従来どおり報告。
+            moved_lines = set()
+            for full, reference in shared_chapter_note_copies(canonical_state or {}, p.stem).items():
+                before = before.replace(full, reference)
+                moved_lines.update(line.strip() for line in full.splitlines() if line.strip())
+            prior_residue = [line for line in prior_residue if line.strip() not in moved_lines]
         text = content if content.endswith("\n") else content + "\n"
         if name in carried:
             existing = _section_map(before or "")
@@ -647,10 +793,15 @@ def write_docset(
                 + "ある性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。\n\n"
                 + "\n".join(body for _, body in carried_sub[name])
             )
-        residue = vanishing_lines(before, text) if before is not None else []
+        residue = (
+            vanishing_lines(before, text + "\n" + relocation_companion(docset, name))
+            if before is not None
+            else []
+        )
         if not acknowledge_prior_residue:
             # 持ち越し分を先に置く。順序を回ごとに入れ替えると、差分が中身の変化に見える。
-            residue = [l for l in prior_residue if l not in residue] + residue
+            present_lines = {line.strip() for line in text.splitlines()}
+            residue = [l for l in prior_residue if l not in residue and l.strip() not in present_lines] + residue
         if loss_report is not None and residue:
             loss_report.append((name, residue))
         if residue:
@@ -670,6 +821,7 @@ def write_docset(
                 + "\n".join(f"- `{line}`" for line in residue)
                 + "\n"
             )
+        p.parent.mkdir(parents=True, exist_ok=True)  # applied/<cat>.md のような下位ディレクトリ
         p.write_text(text, encoding="utf-8")
         written.append(p)
     return written

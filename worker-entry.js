@@ -26,6 +26,8 @@ import {
   runPublicationDeliveryAuditFlush,
   runScheduledDistribution,
 } from "./src/infrastructure/platform/distribution-scheduler.ts";
+import { runSeoMeasurementCollection } from "./src/infrastructure/platform/seo-measurement-scheduler.ts";
+import { sweepUnreferencedThumbnails } from "./src/infrastructure/platform/blog-thumbnail-sweeper.ts";
 
 // キャッシュの仕組みが使う入れ物。生成物が公開しているものをそのまま通す。
 // ここで落とすと、公開時に「宣言された入れ物が見つからない」で失敗する。
@@ -138,6 +140,72 @@ const handlers = {
           }
         } catch (error) {
           console.error("[retention] 技術情報の削除に失敗しました", error);
+        }
+      })(),
+    );
+
+    /*
+     * SEO / AEO の計測（受入 A1）。
+     *
+     * **掃除や配信とは別の待ち行列にする。** 外向きの読み取りを含むので
+     * 一番落ちやすく、まとめると外部の不調が保持期限の削除を巻き添えにする。
+     * 収集は自動反映を止めていても続ける。止めるのは書き換えだけで、
+     * 何が起きているかを見せるのは止めない。
+     */
+    ctx.waitUntil(
+      (async () => {
+        if (env.DB === undefined) {
+          console.warn("[seo] 保存先がつながっていないので、計測を行いませんでした");
+          return;
+        }
+        try {
+          const result = await runSeoMeasurementCollection(env.DB, env, now);
+          console.log(`[seo] ${result.sites} 件のブログを計測しました`, {
+            collected: result.outcomes.length,
+          });
+          // 見送った回は、所見が増えないだけで失敗には見えない。
+          // 理由を出さないと「動いているのに何も出ない」に見える。
+          for (const outcome of result.outcomes) {
+            if (outcome.skippedReason !== null) {
+              console.warn(`[seo] ${outcome.siteSlug}/${outcome.source}: ${outcome.skippedReason}`);
+            }
+          }
+          for (const failure of result.failures) {
+            console.error(`[seo] ${failure.siteSlug}: ${failure.message}`);
+          }
+        } catch (error) {
+          console.error("[seo] 計測に失敗しました", error);
+        }
+      })(),
+    );
+
+    /*
+     * 参照が外れた古い表紙（サムネイル）の掃除。
+     *
+     * **置き場と台帳の両方が要る**（消してよいかは台帳が決める）ので、
+     * 上のどれとも条件が違う。片方だけ欠けている環境で黙って止まると
+     * 「毎晩動いているのに減らない」に見えるため、理由を出す。
+     */
+    ctx.waitUntil(
+      (async () => {
+        if (env.BUCKET === undefined || env.DB === undefined) {
+          console.warn("[thumbnail-sweep] 置き場か台帳がつながっていないので、掃除を行いませんでした");
+          return;
+        }
+        try {
+          const result = await sweepUnreferencedThumbnails(env.BUCKET, env.DB, now);
+          // 見送りは失敗ではないが、黙ると「動いているのに何も消えない」に見える。
+          if (result.skipped !== null) {
+            console.warn(`[thumbnail-sweep] 掃除を見送りました: ${result.skipped}`);
+            return;
+          }
+          console.log(
+            `[thumbnail-sweep] 参照の外れた表紙を ${result.deleted} 枚消しました` +
+              `（台帳が参照している世代 ${result.referenced} 件）` +
+              (result.finished ? "" : "（上限に達したため、続きは次の回で消します）"),
+          );
+        } catch (error) {
+          console.error("[thumbnail-sweep] 掃除に失敗しました", error);
         }
       })(),
     );

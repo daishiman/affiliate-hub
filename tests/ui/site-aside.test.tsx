@@ -31,8 +31,11 @@ const chrome: SiteChrome = {
   categoryNav: [{ href: "/s/quiet/categories/kitchen", label: "台所" }],
   homeHref: "/s/quiet",
   searchHref: "/s/quiet/search",
+  allArticlesHref: "/s/quiet/blog",
   aboutHref: "/s/quiet/editorial-policy",
   footer: [{ href: "/s/quiet/policy", label: "方針" }],
+  footerCategories: [{ href: "/s/quiet/categories/pc", label: "パソコン" }],
+  feedHref: "/s/quiet/feed.xml",
 };
 
 function shell(props: { sidebar?: React.ReactNode; sidebarSticky?: React.ReactNode }): string {

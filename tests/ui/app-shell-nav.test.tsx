@@ -94,7 +94,8 @@ describe("管理画面route metadataの正本", () => {
     // `[site]/[slug]/edit` の 2 枚が加わった。数は手で決めず、
     // `find src/app/admin -name page.tsx | wc -l` で数え直すこと。
     // 2026-08-30: 86 → 88。ブログの「見せ方と配色」と「成果リンクの掲載」を足した。
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(88);
+    // 2026-09-04: 88 → 89。「検索とAIからの見え方」を足した。
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(89);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));

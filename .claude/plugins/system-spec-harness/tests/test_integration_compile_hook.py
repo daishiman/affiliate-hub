@@ -89,7 +89,9 @@ def _materialize(tmp_path: Path, spec: dict, docset: dict[str, str]) -> Path:
     ss.mkdir()
     (ss / "spec-state.json").write_text(json.dumps(spec, ensure_ascii=False), encoding="utf-8")
     for name, content in docset.items():
-        (ss / name).write_text(content if content.endswith("\n") else content + "\n", encoding="utf-8")
+        p = ss / name
+        p.parent.mkdir(parents=True, exist_ok=True)  # applied/<cat>.md は下位ディレクトリに出る
+        p.write_text(content if content.endswith("\n") else content + "\n", encoding="utf-8")
     return tmp_path
 
 

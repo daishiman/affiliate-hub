@@ -95,18 +95,60 @@ describe("10 種の断片を、それぞれの意味を持つ印で描く", () =
   });
 
   it("画像は alt を必ず持つ", () => {
-    renderBody([{ kind: "image", src: "https://example.test/a.png", alt: "机の全体" }]);
+    renderBody([
+      { kind: "image", src: "https://example.test/a.png", alt: "机の全体", width: null, height: null },
+    ]);
 
     expect(screen.getByRole("img", { name: "机の全体" })).not.toBeNull();
   });
 
   it("代替文が空でも、属性そのものは落とさない", () => {
-    const { container } = renderBody([{ kind: "image", src: "https://example.test/a.png", alt: "" }]);
+    const { container } = renderBody([
+      { kind: "image", src: "https://example.test/a.png", alt: "", width: null, height: null },
+    ]);
 
     const img = container.querySelector("img");
     // 空の `alt` は「読み飛ばしてよい絵」の意味。属性ごと落とすと、
     // 読み上げはファイル名を読み始める。**無いのと空は別。**
     expect(img?.getAttribute("alt")).toBe("");
+  });
+
+  it("実寸があれば width と height を属性で出す（読んでいる行が飛ばない）", () => {
+    /*
+      **当てているのは属性であって見た目ではない。**ブラウザが場所を先に
+      空けるのに使うのは `width`/`height` の比だけで、表示の大きさは CSS が
+      決める。属性が落ちた日に、読者側の飛びだけが静かに戻る。
+    */
+    const { container } = renderBody([
+      {
+        kind: "image",
+        src: "https://example.test/a.png",
+        alt: "机の全体",
+        width: 1600,
+        height: 900,
+      },
+    ]);
+
+    const img = container.querySelector("img");
+    expect(img?.getAttribute("width")).toBe("1600");
+    expect(img?.getAttribute("height")).toBe("900");
+  });
+
+  it("実寸が無い絵は、寸法属性を出さずに場所だけ確保する印を付ける", () => {
+    /*
+      既存の記事には寸法が無く、あとから測る手段も無い (workerd に画像
+      デコーダは無い)。**何も付けなければ読者は読んでいた行を飛ばされる。**
+      仮の比で場所を空けるのは見た目の妥協だが、飛びは毎回起きる。
+    */
+    const { container } = renderBody([
+      { kind: "image", src: "https://example.test/a.png", alt: "机", width: null, height: null },
+    ]);
+
+    const img = container.querySelector("img");
+    expect(img?.getAttribute("width")).toBeNull();
+    expect(img?.getAttribute("height")).toBeNull();
+    // CSS Modules 下では実名が変わるので、素の名前ではなく「増えていること」を見る。
+    expect(img?.className.split(/\s+/).length).toBeGreaterThan(1);
   });
 });
 

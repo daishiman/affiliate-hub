@@ -22,7 +22,7 @@
  * 番号付き  1. item
  * 引用      > text
  * 区切り線  ---
- * 画像      ![alt](src)
+ * 画像      ![alt](src)  /  ![alt](src "640x360")  ← 後ろは絵の実寸 (任意)
  * 比較表    | 見出し | 見出し |     ← Markdown の表そのもの
  *           | --- | --- |
  *           | 値 | 値 |
@@ -92,6 +92,27 @@ function parseAttrs(source: string): Readonly<Record<string, string>> {
   return found;
 }
 
+/**
+ * `![alt](...)` の丸括弧の中身を、場所と実寸に分ける。
+ *
+ * **寸法として読むのは `"640x360"` の形だけ。**それ以外の題名 (`![a](b "説明")`)
+ * は場所の一部として残す。**捨てない。**知らない書き方を落とすと、
+ * 保存を押しただけで運営者の書いたものが消える。
+ */
+function splitImageTarget(target: string): {
+  readonly src: string;
+  readonly width: number | null;
+  readonly height: number | null;
+} {
+  const sized = /^(.*?)\s+"(\d+)x(\d+)"$/.exec(target);
+  if (sized === null) return { src: target, width: null, height: null };
+  return {
+    src: sized[1] as string,
+    width: Number(sized[2]),
+    height: Number(sized[3]),
+  };
+}
+
 /** 断片の配列を、保存する 1 本の文字列にする。 */
 export function serializeProse(nodes: readonly ProseNode[]): string {
   return nodes.map(serializeNode).join("\n\n");
@@ -115,7 +136,20 @@ function serializeNode(node: ProseNode): string {
     case "divider":
       return "---";
     case "image":
-      return `![${node.alt}](${node.src})`;
+      /*
+        **寸法は Markdown の題名の場所へ入れる。**`:::image` の囲みを新設せず、
+        素の `![alt](src)` の形を保つ。理由は 2 つある。
+
+        1. **既存の本文が 1 行も変わらない。**寸法を持たない画像は今までどおり
+           `![alt](src)` のまま書き出され、往復しても同じ文字列に戻る。
+        2. **AI に覚えさせるものが増えない。**寸法は任意で、書かなくても正しい。
+           ローカルの CLI が `![alt](src)` とだけ書いても本文は成立する。
+
+        題名の場所は他のどの記法にも使っていないので、衝突しない。
+      */
+      return node.width !== null && node.height !== null
+        ? `![${node.alt}](${node.src} "${node.width}x${node.height}")`
+        : `![${node.alt}](${node.src})`;
     case "comparison-table": {
       const head = `| ${node.headers.join(" | ")} |`;
       const rule = `| ${node.headers.map(() => "---").join(" | ")} |`;
@@ -183,7 +217,7 @@ export function parseProse(source: string): readonly ProseNode[] {
 
     const image = /^!\[([^\]]*)\]\(([^)]*)\)$/.exec(line);
     if (image !== null) {
-      nodes.push({ kind: "image", alt: image[1] as string, src: image[2] as string });
+      nodes.push({ kind: "image", alt: image[1] as string, ...splitImageTarget(image[2] as string) });
       at += 1;
       continue;
     }

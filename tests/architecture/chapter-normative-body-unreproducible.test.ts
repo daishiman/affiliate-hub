@@ -355,7 +355,32 @@ describe("章の規範本文は生成器で再現できない (REQ-TS15 / 塞げ
     const defs = definitionsInChapters();
     expect(defs.size).toBeGreaterThanOrEqual(CHAPTER_ID_FLOOR);
 
-    const state = readFileSync(join(SPEC_DIR, "spec-state.json"), "utf8");
+    /*
+      ── 2026-09-08 (ah-lwmf): 墓標を材料に数えないこと ──────────────────
+
+      この日、章にしか無かった規範本文を `chapter_notes` として正本へ引き上げ、
+      「穴が塞がった」としてこの検査を反転させた。**引き上げのほうが誤りだった。**
+      `chapter_notes` は生成器の**内側**にしか根拠が無い記録を置く場所で、章の
+      規範本文を移す先ではない。引き上げは `retire-chapter-note` で 43 件とも
+      取り消し、この検査も反転前の向きへ戻してある。
+
+      取り消しは削除ではなく `retired_chapter_notes` への移動である（「間違いを
+      戻す」と「都合の悪い記録を消す」を同じ操作にしないため）。すると**墓標の
+      中身が正本ファイルの文字列として残る**ので、`spec-state.json` を丸ごと
+      検索するこの検査は「材料が正本に在る」と読み、65 件すべてが reachable に出た。
+
+      **墓標は材料ではない。**生成器は `retired_chapter_notes` を一度も読まない
+      (`spec_docset_chapters.py` が見るのは `chapter_notes` だけ)。ここは
+      「規範を描く材料が正本側に在るか」を見張る場所なので、読まれない領域を
+      外してから探す。上限も床も動かしていない。**見る対象を、実際に材料である
+      ものへ揃えただけである。**
+    */
+    const rawState = JSON.parse(readFileSync(join(SPEC_DIR, "spec-state.json"), "utf8")) as Record<
+      string,
+      unknown
+    >;
+    delete rawState.retired_chapter_notes;
+    const state = JSON.stringify(rawState);
     const libDir = join(ROOT, ".claude/plugins/system-spec-harness/lib");
     const libSource = readdirSync(libDir)
       .filter((n) => n.endsWith(".py"))
@@ -375,6 +400,36 @@ describe("章の規範本文は生成器で再現できない (REQ-TS15 / 塞げ
       .map(([id]) => id)
       .sort();
     expect(reachable).toEqual([]);
+  });
+
+  /**
+   * 上の検査が `retired_chapter_notes` を外していることの**対照**。
+   *
+   * 外す判断そのものが緩和に転ぶ形は 2 つある——(a) 外す範囲が広がって
+   * 材料まで隠れる、(b) 墓標が空になって、外しても外さなくても同じになる。
+   * (b) だと「外した」という註だけが残り、次に誰かが同じ引き上げをしたとき
+   * 何も止まらない。**外さなければ実際に当たる**ことをここで確かめておく。
+   *
+   * 墓標が空になった日にはこの検査が赤くなる。そのときは削除ではなく、
+   * 上の検査から `delete` を外して同じ緑が出ることを確かめてから消すこと。
+   */
+  it("墓標を外さなければ規範本文が正本に見つかる（外し方が効いていることの裏取り）", () => {
+    const defs = definitionsInChapters();
+    const raw = readFileSync(join(SPEC_DIR, "spec-state.json"), "utf8");
+    // 墓標はカテゴリ名をキーにした辞書で、値がそのカテゴリの取り消し済み注記の配列。
+    const parsed = JSON.parse(raw) as { retired_chapter_notes?: Record<string, unknown[]> };
+
+    // 墓標が実在すること。空なら上の `delete` は何も外していない。
+    const buried = Object.values(parsed.retired_chapter_notes ?? {}).reduce(
+      (n, list) => n + list.length,
+      0,
+    );
+    expect(buried).toBeGreaterThan(0);
+
+    // 生の正本には規範本文が在る（2026-09-08 の引き上げの痕跡）。
+    // 上の検査が緑なのは、それを材料に数えていないからである。
+    const inGraveyard = [...defs].filter(([, d]) => raw.includes(d.def));
+    expect(inGraveyard.length).toBeGreaterThan(0);
   });
 
   // 2026-08-20 夕: 7 → 8。ui-ux.md にも『条項引用の可否』を載せたため、

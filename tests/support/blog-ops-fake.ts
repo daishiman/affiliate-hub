@@ -9,9 +9,11 @@
  * 決まりはユースケース側にあり、それを確かめるのが `tests/application` の役目である。
  */
 import type {
+  ArticleThumbnailRecord,
   BlogArticleDetail,
   BlogDeliveryPartRecord,
   BlogDeliverySnapshotRecord,
+  BlogHomeFeaturedArticlesRecord,
   BlogLayoutBandRecord,
   BlogLayoutSlotRecord,
   BlogOpsRepositoryPort,
@@ -42,6 +44,7 @@ export type Store = {
   deletedNetwork: DeletedSiteNetworkRecord[];
   slots: BlogLayoutSlotRecord[];
   bands: BlogLayoutBandRecord[];
+  featured: BlogHomeFeaturedArticlesRecord[];
   delivery: BlogDeliveryPartRecord[];
   snapshots: BlogDeliverySnapshotRecord[];
   articles: BlogArticleDetail[];
@@ -50,6 +53,8 @@ export type Store = {
   ratings: Record<string, RatingSummary>;
   /** 記事ごとの票を 1 件ずつ。集計 (`ratings`) とは別に持つ。 */
   votes: ArticleRating[];
+  /** 記事 1 本につき 1 枚のサムネイル。 */
+  thumbnails: ArticleThumbnailRecord[];
 };
 
 export function emptyStore(): Store {
@@ -58,6 +63,7 @@ export function emptyStore(): Store {
     deletedNetwork: [],
     slots: [],
     bands: [],
+    featured: [],
     delivery: [],
     snapshots: [],
     articles: [],
@@ -65,6 +71,7 @@ export function emptyStore(): Store {
     tags: [],
     ratings: {},
     votes: [],
+    thumbnails: [],
   };
 }
 
@@ -130,6 +137,16 @@ export function fakeRepository(seed: Partial<Store> = {}): {
     saveLayoutBand: async (ws, input) => {
       const s = of(ws);
       s.bands = [...s.bands.filter((x) => x.id !== input.id), input];
+      return done();
+    },
+    findBlogHomeFeaturedArticles: async (ws, siteSlug) =>
+      ok(of(ws).featured.find((row) => row.siteSlug === siteSlug) ?? null),
+    replaceBlogHomeFeaturedArticles: async (ws, input) => {
+      const s = of(ws);
+      s.featured = [
+        ...s.featured.filter((row) => row.siteSlug !== input.siteSlug),
+        { siteSlug: input.siteSlug, articleSlugs: [...input.articleSlugs] },
+      ];
       return done();
     },
     listDeliveryParts: async (ws, siteSlug) =>
@@ -250,6 +267,19 @@ export function fakeRepository(seed: Partial<Store> = {}): {
       s.votes = s.votes.map((v) => (v.id === ratingId ? { ...v, hidden } : v));
       return done();
     },
+    findArticleThumbnail: async (ws, articleId) =>
+      ok(of(ws).thumbnails.find((t) => t.articleId === articleId) ?? null),
+    saveArticleThumbnail: async (ws, input) => {
+      const s = of(ws);
+      // 記事 1 本につき 1 行。積むと本物（主キーが article_id）と挙動が食い違う。
+      s.thumbnails = [...s.thumbnails.filter((t) => t.articleId !== input.articleId), input];
+      return done();
+    },
+    deleteArticleThumbnail: async (ws, articleId) => {
+      const s = of(ws);
+      s.thumbnails = s.thumbnails.filter((t) => t.articleId !== articleId);
+      return done();
+    },
   };
   return { port, store };
 }
@@ -283,5 +313,17 @@ export function article(over: Partial<BlogArticle> & { id: string }): BlogArticl
     publishedAt: over.publishedAt ?? null,
     updatedAt: over.updatedAt ?? NOW,
     revision: over.revision ?? 1,
+    /*
+      サムネイル候補は**渡されたときだけ**載せる。
+      本物の repository はブロックから導くが、その導出は
+      「どのブロックを候補と見なすか」という保存側の話なので
+      `tests/integration` が見る。ここが見るのは
+      「候補が来たら行にどう出るか」だけである。
+
+      既定で `{}` を入れないのは、`BlogArticle.thumbnail` が
+      「一覧を引くときだけ入る」任意の欄だからで、
+      常に入る形にすると 1 本引きの経路との違いが見本から消える。
+    */
+    ...(over.thumbnail === undefined ? {} : { thumbnail: over.thumbnail }),
   };
 }

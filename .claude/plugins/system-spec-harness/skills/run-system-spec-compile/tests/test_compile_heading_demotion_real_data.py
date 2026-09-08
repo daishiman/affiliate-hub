@@ -117,7 +117,12 @@ def test_the_canonical_source_still_contains_the_shallow_headings_we_guard() -> 
         for line in answer.split("\n")
         if _HEADING.match(line) and len(_HEADING.match(line).group(1)) <= 2
     ]
-    assert len(ANSWERS) == 48, "qa_log の件数が動いた。下の実測値を取り直すこと"
+    # 2026-09-08 に 48 → 89 へ取り直した。**母数だけが動き、守っている量は動いていない**
+    # (`## ` 以浅 16 行 / 見出しを持つ回答 12 件 / h4 経路で乗っ取る 21 行はいずれも同値)。
+    # つまり増えた 41 件の回答は浅い見出しを 1 行も持ち込んでいない。母数を据え置くと
+    # この検査は「件数が動いた」としか言わなくなり、**乗っ取りが起きた日と、単に質疑が
+    # 増えた日とを見分けられない**。取り直すのは母数だけで、下の実測値は動かさない。
+    assert len(ANSWERS) == 89, "qa_log の件数が動いた。下の実測値を取り直すこと"
     assert len(shallow) == 16, f"`## ` 以浅の見出し行が 16 行から動いた: {len(shallow)}"
     assert len(WITH_HEADINGS) == 12
 

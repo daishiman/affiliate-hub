@@ -48,6 +48,7 @@ import {
   createR2FeedbackCaptureStore,
   type CaptureBucket,
 } from "./platform/feedback-capture-r2";
+import { createR2ArticleThumbnailStore } from "./platform/blog-thumbnail-r2";
 import { createLlmPorts } from "./llm/llm-setup";
 import type { LlmKeyAccess, LlmUsageRecorder } from "./llm/key-access";
 import { createLlmProviderCatalog } from "./llm/llm-provider-catalog";
@@ -154,6 +155,7 @@ import { createHandoffTemplates } from "./generation/handoff-templates";
 import { hashSecret, mintSecret } from "./platform/secret-minter";
 import { createSampleLinkIngestionRepository } from "./persistence/sample/link-inbox-sample-repository";
 import {
+  createSampleArticleThumbnailStore,
   createSampleBlogOpsRepository,
   createSamplePublicBlogPort,
 } from "./persistence/sample/blog-ops-sample-repository";
@@ -271,6 +273,14 @@ export function createDeps(
     // 動く。**作成を止めない**のは、住所未設定は障害ではなく構成の状態だから。
     siteBaseDomain: pickSiteBaseDomain(options.env ?? {}),
     blogOps: db === null ? createSampleBlogOpsRepository() : createD1BlogOpsRepository(db),
+    // 表紙の絵の置き場は **R2 の有無だけ**で決まる（D1 の有無ではない）。
+    // 置き場が無いときの代役は「覚えずに断る」側に倒してある。覚えて ok を返すと、
+    // 管理画面には「登録できました」と出て、配る口（R2 だけを引く）が 404 を返し、
+    // 記事の一覧に絵の無い箱が並ぶ。
+    articleThumbnails:
+      bucket === null
+        ? createSampleArticleThumbnailStore()
+        : createR2ArticleThumbnailStore(bucket),
     publicBlog:
       db === null
         ? createSamplePublicBlogPort(sites, publishedContent)

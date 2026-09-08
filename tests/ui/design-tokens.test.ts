@@ -145,6 +145,120 @@ const CODE_COLOR_EXEMPTIONS: readonly { file: string; text: string; reason: stri
     reason:
       "canvas に描く位置の目印。下の画像が何色か分からないので明暗を重ねる。CSS 変数は canvas へ届かない。",
   },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "surface: \"#16171a\",",
+    reason:
+      "SVG は単体の画像として配られる（OGP 画像・`<img src>`）ので、ページの CSS 変数が届かない。canvas と同じ理由で、ここは実際の色値を持つほかない。値は primitives.css の同名 primitive と同じもので、ずれは tests/thumbnail/fallback-cover-palette.test.ts が CSS 側と突き合わせて落とす。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "primary: \"#f59e0b\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "secondary: \"#3d3f47\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "onSurface: \"#e0e1e5\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "surface: \"#12102e\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "primary: \"#a5b4fc\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "secondary: \"#0f766e\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "onSurface: \"#e0e7ff\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "\"teal-clay\": { surface: \"#04211f\", primary: \"#5eead4\", secondary: \"#b23c33\", onSurface: \"#ccfbf1\" },",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "surface: \"#12102e\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "primary: \"#a5b4fc\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "secondary: \"#b23c33\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "onSurface: \"#e0e7ff\",",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "blue: { surface: \"#12224a\", primary: \"#93c5fd\", secondary: \"#0f766e\", onSurface: \"#dbeafe\" },",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "pink: { surface: \"#350b22\", primary: \"#f9a8d4\", secondary: \"#b45309\", onSurface: \"#fce7f3\" },",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "white: { surface: \"#e0e1e5\", primary: \"#3d3f47\", secondary: \"#a3a5ae\", onSurface: \"#1e1f23\" },",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "gray: { surface: \"#1e1f23\", primary: \"#a3a5ae\", secondary: \"#3d3f47\", onSurface: \"#e0e1e5\" },",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "green: { surface: \"#0d2c19\", primary: \"#86efac\", secondary: \"#15803d\", onSurface: \"#dcfce7\" },",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
+  {
+    file: "src/application/seo/fallback-cover.ts",
+    text: "purple: { surface: \"#26043f\", primary: \"#d8b4fe\", secondary: \"#7e22ce\", onSurface: \"#f3e8ff\" },",
+    reason:
+      "同上（COVER_PALETTES。単体画像として配る SVG の色で、CSS 変数が届かない）。",
+  },
 ];
 
 const exemptionFor = (hit: ColorHit) =>

@@ -1,16 +1,15 @@
 import { FEEDBACK_TARGET_LABEL } from "@/application/usecases/analytics/read-metrics";
-import { ANALYTICS_AXIS_KEYS, type AnalyticsAxisKey } from "@/domain/analytics";
+import { ANALYTICS_AXIS_KEYS, type AnalyticsAxisKey, type MetricKey } from "@/domain/analytics";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { analyticsNotice, analyticsUseCases, currentActor } from "@/presentation/composition";
 import {
   ActionNote,
-  BarChart,
   Callout,
   DataTable,
-  DecisionStatus,
   EmptyView,
   ErrorView,
   FilterBar,
+  Foldable,
   ListView,
   Note,
   Section,
@@ -69,27 +68,9 @@ export default async function AnalyticsPage({
 
   const groups = ["reader", "ai", "quality", "commercial"] as const;
 
-  /*
-   * 棒にできるのは「割合」の数字だけ。
-   *
-   * 数字の一覧には件数と割合が混ざっている。混ぜて 1 本の棒にすると、
-   * 「1200 件」と「12%」が同じ物差しで並び、棒の長さだけが比べられそうに見える。
-   * 割合かどうかの見分け方は domain 側の規則（key が `_rate` / `_ratio` で終わる）
-   * に合わせる。画面で判定を書き起こすと、軸を足した日にここだけ古くなる。
-   *
-   * 未計測（value が null）は棒から外す。0 の棒は「0%だった」に見えるが、
-   * 実際は「まだ数えていない」で、意味がまったく違う。
-   */
-  const ratioPoints = !metrics.ok
-    ? []
-    : metrics.value.rows
-        .filter((r) => (r.key.endsWith("_rate") || r.key.endsWith("_ratio")) && r.value !== null)
-        .map((r) => ({
-          key: r.key,
-          label: r.label,
-          value: r.value ?? 0,
-          valueLabel: r.valueLabel,
-        }));
+  const readerValue = (key: MetricKey) => metrics.ok
+    ? metrics.value.rows.find((row) => row.key === key)?.valueLabel ?? "未計測"
+    : "未計測";
 
   return (
     <AdminShell
@@ -109,43 +90,34 @@ export default async function AnalyticsPage({
         <>
           <StorageNotice status={await analyticsNotice()} />
 
-          <Section title="いまの数字の要点">
+          <Section title="読者の動きから改善する" lead="この作業場所の全ブログを対象に、探す・読む・次へ進むの直近30日の記録を見ます。">
             <SummaryStrip
-              label="いまの数字の要点"
+              label="読者の動きから改善する"
               metrics={[
                 {
-                  key: "measured",
-                  label: "数えられている数字",
-                  value: `${metrics.value.measuredCount}件`,
-                  meaning: "この件数の範囲でしか、数字を根拠にできません。",
+                  key: "search",
+                  label: "探す：見つからなかった割合",
+                  value: readerValue("search_no_result_rate"),
+                  meaning: `検索結果の表示 ${readerValue("search_result_count")} が母数です。検索語は保存せず、結果1ページ目の再表示を含みます。`,
+                  action: <TextLink href="/admin/blog/articles">記事の題名・要約を見直す</TextLink>,
                 },
                 {
-                  key: "missing",
-                  label: "まだ数えていない数字",
-                  value: `${metrics.value.missingCount}件`,
-                  meaning: "「未計測」は 0 ではありません。無いものとして扱わないでください。",
-                  action: (
-                    <DecisionStatus
-                      status={metrics.value.missingCount > 0 ? "insufficient-n" : "provisional"}
-                      detail={
-                        metrics.value.missingCount > 0
-                          ? `${metrics.value.missingCount} 件がまだ数えられていません。全体像としては読めません。`
-                          : "直近 30 日ぶんの集計です。期間が動けば値も動きます。"
-                      }
-                    />
-                  ),
+                  key: "read",
+                  label: "読む：スクロール到達",
+                  value: readerValue("scroll_depth_p50"),
+                  meaning: "到達位置の中央値です。記事を読み終えた割合ではありません。",
+                  action: <TextLink href="/admin/blog/articles">記事の内容を確認する</TextLink>,
+                },
+                {
+                  key: "navigate",
+                  label: "次へ：サイト内の移動クリック",
+                  value: readerValue("internal_navigation_count"),
+                  meaning: "記事やカテゴリーなどへのクリック数です。人数や回遊率ではありません。",
+                  action: <TextLink href="/admin/blog/layout">トップの記事導線を見直す</TextLink>,
                 },
               ]}
             />
-            {ratioPoints.length === 0 ? null : (
-              <BarChart
-                title="割合で見る数字"
-                unit="割合"
-                period="直近 30 日"
-                textSummary="件数の数字は混ぜていません。単位がそろっているものだけを並べています。"
-                pointValues={ratioPoints}
-              />
-            )}
+            <Note>行動の記録に同意した読者が対象です。「未計測」は0ではありません。数字だけで改善の効果を断定せず、記事と導線を確かめます。</Note>
           </Section>
 
           {/*
@@ -170,53 +142,55 @@ export default async function AnalyticsPage({
             用途ごとに使える数字を分けており、順位とおすすめの決定では収益の数字を選べません。
           </ActionNote>
 
-          {metrics.value.measuredCount === 0 ? (
-            <Section title="計測の状況">
-              <EmptyView
-                title="まだ計測されていません"
-                body={metrics.value.emptyReason ?? "公開して読まれ始めると数字が入ります。"}
-                action={<TextLink href="/admin/content">記事の進行を見る</TextLink>}
-              />
-            </Section>
-          ) : (
-            groups.map((group) => {
-              const rows = metrics.value.rows.filter((r) => r.category === group);
-              if (rows.length === 0) return null;
-              return (
-                <Section key={group} title={rows[0]?.categoryLabel ?? group}>
-                  <DataTable
-                    caption={`${rows[0]?.categoryLabel ?? group}の数字と、その数え方と使い道`}
-                    columns={[
-                      { key: "metric", label: "数字" },
-                      { key: "value", label: "直近30日", numeric: true },
-                      { key: "denominator", label: "母数", numeric: true },
-                      { key: "how", label: "どう数えたか" },
-                      { key: "usable", label: "編集判断への利用" },
-                    ]}
-                    rows={rows.map((r) => ({
-                      key: r.key,
-                      cells: [
-                        r.label,
-                        r.valueLabel,
-                        r.denominator === null ? "—" : r.denominator.toLocaleString("ja-JP"),
-                        r.howCounted,
-                        r.usableForEditorialJudgement ? "使えます" : "使えません",
-                      ],
-                    }))}
-                  />
-                  {rows
-                    .filter((r) => r.notUsableReason !== null)
-                    .slice(0, 1)
-                    .map((r) => (
-                      <ActionNote key={r.key} tone="danger">
-                        この区分の数字の使い道: {r.notUsableReason ?? ""}
-                      </ActionNote>
-                    ))}
-                  <Note>「未計測」は、まだ数えられていないという意味です。0 ではありません。</Note>
-                </Section>
-              );
-            })
-          )}
+          <Foldable summary="すべての指標と数え方を見る">
+            {metrics.value.measuredCount === 0 ? (
+              <Section title="計測の状況">
+                <EmptyView
+                  title="まだ計測されていません"
+                  body={metrics.value.emptyReason ?? "公開して読まれ始めると数字が入ります。"}
+                  action={<TextLink href="/admin/content">記事の進行を見る</TextLink>}
+                />
+              </Section>
+            ) : (
+              groups.map((group) => {
+                const rows = metrics.value.rows.filter((r) => r.category === group);
+                if (rows.length === 0) return null;
+                return (
+                  <Section key={group} title={rows[0]?.categoryLabel ?? group}>
+                    <DataTable
+                      caption={`${rows[0]?.categoryLabel ?? group}の数字と、その数え方と使い道`}
+                      columns={[
+                        { key: "metric", label: "数字" },
+                        { key: "value", label: "直近30日", numeric: true },
+                        { key: "denominator", label: "母数", numeric: true },
+                        { key: "how", label: "どう数えたか" },
+                        { key: "usable", label: "編集判断への利用" },
+                      ]}
+                      rows={rows.map((r) => ({
+                        key: r.key,
+                        cells: [
+                          r.label,
+                          r.valueLabel,
+                          r.denominator === null ? "—" : r.denominator.toLocaleString("ja-JP"),
+                          r.howCounted,
+                          r.usableForEditorialJudgement ? "使えます" : "使えません",
+                        ],
+                      }))}
+                    />
+                    {rows
+                      .filter((r) => r.notUsableReason !== null)
+                      .slice(0, 1)
+                      .map((r) => (
+                        <ActionNote key={r.key} tone="danger">
+                          この区分の数字の使い道: {r.notUsableReason ?? ""}
+                        </ActionNote>
+                      ))}
+                    <Note>「未計測」は、まだ数えられていないという意味です。0 ではありません。</Note>
+                  </Section>
+                );
+              })
+            )}
+          </Foldable>
 
           <Section title="切り口で絞って見る">
             {!filtered.ok ? (

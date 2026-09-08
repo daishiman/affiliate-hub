@@ -1,0 +1,215 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "1.0.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "矛盾なし。旧決定 qa-ops-web-aeo-proposal-review-v5 (事前承認モデル) の残滓は staging 全体 (goal-spec.json / feature-package.json / task-specs/*.md) に0件で、承認・approve・approvalの語も0件。system-spec/spec-state.json の qa_log では qa-ops-web-aeo-proposal-review-v5 が `superseded_by: qa-ops-web-aeo-auto-apply-v6` として明示的に差し替え済みと記録されており、P01/P04/P05のNFR5節が『人が事前に根拠の弱さを見て止める経路(旧qa-ops-web-aeo-proposal-review-v5)は差し替え済み』と明文で言及するのは旧決定の否定として一貫しており矛盾ではない。scope_out/scope_inが参照する他feature (feat-analytics-insight, feat-blog-ui-builder, feat-reader-surface, feat-blog-subdomain-routing) は全て実在ファイルへ解決する。全13 task-specのスコープ外節はgoal-spec.jsonおよびfeature.mdと同一文言で一致する。",
+      "evidence": [
+        "gate:c1-no-approval-residue-and-scope-refs-real",
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-04-test-design.md",
+        "task-specs/phase-05-implementation.md"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "漏れなし。現行確定要件 (qa-ops-web-aeo-auto-apply-v6, qa-neutral-application-mode-v6, qa-neutral-auto-scope-v6, qa-backend-web-aeo-analysis-pipeline-v6, qa-neutral-citation-check-v6) はいずれもsystem-spec/spec-state.jsonのqa_logへ登録済みで、goal-spec.jsonのpurpose/goal/scope_in/acceptanceおよびquality_constraints (reversible-auto-apply / auto-apply-scope-by-creation-time / auto-apply-must-be-stoppable / auto-apply-evidence-limited-to-source-1) へ意味として反映されている。この確定内容が要求する9つの防御 (1.可逆性3点セット、2.作成時刻による機械判定境界、3.事後通知は気づきの手段に留め通知非依存で辿れる、4.停止可能かつ停止中も収集継続、5.根拠系統を系統①のみへ限定する型、6.系統別最終収集時刻と収集とは別契機の停止検出、7.効果判定の保留状態管理、8.資格情報非露出、9.被引用チェック実行上限) はP01〜P13の非機能要件対応表(NFR1〜NFR9)としてtask-specs全13ファイルへ一字一句同一の形で転記され、P04(テスト設計)はNFR1〜9それぞれに対応する実行可能テスト種別(否定テスト含む)を、P05(実装)はNFR1〜9を満たす実装対象コンポーネントを、P07(受入)はA1〜A8を1件ずつ実装済みシステムに対して検証する手順を、P09(QA)は資格情報非露出・停止/再開・系統別停止検出・費用上限・revertを実運用相当シナリオで検証する手順を、それぞれ具体的な実行内容として持つ。設計phase(P01〜P03)にのみ存在し実装・検証phaseで欠落する制約は無い。",
+      "evidence": [
+        "gate:c2-nfr-a-semantic-coverage-and-qa-log-registered",
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-04-test-design.md",
+        "task-specs/phase-05-implementation.md",
+        "task-specs/phase-07-acceptance.md",
+        "task-specs/phase-09-quality-assurance.md"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "整合性あり。A1-A8相当8件の受入文言はfeature-package投影であるworkstream-inventory.jsonの各task acceptance、task-specs/phase-07-acceptance.mdの受入対応表、goal-spec.jsonのacceptanceの3箇所で分裂なく一致する。digest連鎖はdeterministic-validationゲートがevaluated_digestとvalidated_digestの完全一致を実測で確認しており、feature-package.jsonのsource_feature_digestはgoal-spec.jsonのlineage.feature_context.source_digestと一致する。task-graph.json/workstream-inventory.json/feature-package.jsonのphase_ref・task_node_id・depends_onは相互に完全一致する (機械検査で確認)。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "gate:c4-taskgraph-workstream-depends-on-consistent",
+        "feature-package.json",
+        "task-specs/phase-07-acceptance.md",
+        "task-graph.json"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "依存関係整合。task_count=13, phase_refs=P01..P13, task_node_ids=SYS-SEO-AEO-MEASUREMENT-LOOP-P01..P13がexact-13を満たし、task-graph.jsonの16 edgeは全て低番号phaseから高番号phaseへの前方edgeのみで循環が無い (P01→P02→...→P07の直列鎖に加えP05→P08、P07/P08→P09、P07/P09/P10→P11、P10/P11→P12の分岐合流のみ)。workstream-inventory.jsonのdepends_onはtask-graph.jsonのnode定義と完全一致する (機械検査で確認)。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "gate:c4-taskgraph-workstream-depends-on-consistent",
+        "task-graph.json",
+        "workstream-inventory.json"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda\",\n  \"feature_package_id\": \"feature-package/feat-seo-aeo-measurement-loop\",\n  \"parent_feature\": \"feat-seo-aeo-measurement-loop\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"violations\": []\n}",
+      "stderr": ""
+    },
+    {
+      "id": "c1-no-approval-residue-and-scope-refs-real",
+      "name": "verify-no-approval-residue-and-scope-boundary-references-real",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; test -f \"features/feat-analytics-insight.md\"; test -f \"features/feat-blog-ui-builder.md\"; test -f \"features/feat-reader-surface.md\"; test -f \"features/feat-blog-subdomain-routing.md\"; n=$(grep -rl \"承認\" \".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop/task-specs\" \".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop/goal-spec.json\" \".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop/feature-package.json\" 2>/dev/null | wc -l | tr -d ' '); test \"$n\" -eq 0; n2=$(grep -l \"旧決定 qa-ops-web-aeo-proposal-review-v5 は差し替え済み\" \".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-01-requirements.md\" | wc -l | tr -d ' '); test \"$n2\" -eq 1; echo C1_NO_APPROVAL_RESIDUE_AND_SCOPE_REFS_REAL"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1"
+      ],
+      "stdout": "C1_NO_APPROVAL_RESIDUE_AND_SCOPE_REFS_REAL",
+      "stderr": ""
+    },
+    {
+      "id": "c2-nfr-a-semantic-coverage-and-qa-log-registered",
+      "name": "verify-nfr-a-semantic-coverage-across-all-phases-and-qa-log-registration",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; STAGING=\".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop\"; for n in 1 2 3 4 5 6 7 8 9; do c=$(grep -l \"NFR$n (\" \"$STAGING\"/task-specs/*.md | wc -l | tr -d ' '); test \"$c\" -eq 13; done; for n in 1 2 3 4 5 6 7 8; do c=$(grep -l \"^- A$n:\" \"$STAGING\"/task-specs/*.md | wc -l | tr -d ' '); test \"$c\" -eq 13; done; python3 -c \"\nimport json\nd = json.load(open('system-spec/spec-state.json'))\nlog = d.get('qa_log', [])\nids = {'qa-ops-web-aeo-auto-apply-v6', 'qa-neutral-application-mode-v6', 'qa-neutral-auto-scope-v6', 'qa-backend-web-aeo-analysis-pipeline-v6', 'qa-neutral-citation-check-v6'}\nfound = {e.get('qa_id') or e.get('id') for e in log}\nmissing = ids - found\nassert not missing, missing\n\"; echo C2_NFR_A_SEMANTIC_COVERAGE_AND_QA_LOG_REGISTERED"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C2"
+      ],
+      "stdout": "C2_NFR_A_SEMANTIC_COVERAGE_AND_QA_LOG_REGISTERED",
+      "stderr": ""
+    },
+    {
+      "id": "c4-taskgraph-workstream-depends-on-consistent",
+      "name": "verify-task-graph-workstream-inventory-depends-on-match",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; STAGING=\".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop\"; python3 -c \"\nimport json\ntg = json.load(open('$STAGING/task-graph.json'))\nwi = json.load(open('$STAGING/workstream-inventory.json'))\ntg_dep = {n['id']: n['depends_on'] for n in tg['nodes']}\nwi_dep = {t['id']: t['depends_on'] for t in wi['tasks']}\nassert tg_dep == wi_dep, (tg_dep, wi_dep)\nassert set(tg_dep.keys()) == {f'SYS-SEO-AEO-MEASUREMENT-LOOP-P{i:02d}' for i in range(1,14)}\nassert len(tg['nodes']) == 13\nprint('OK')\n\"; echo C4_TASKGRAPH_WORKSTREAM_DEPENDS_ON_CONSISTENT"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C3",
+        "C4"
+      ],
+      "stdout": "OK\nC4_TASKGRAPH_WORKSTREAM_DEPENDS_ON_CONSISTENT",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "staging-manifest.json",
+      "sha256": "cca56582972a5e3ec8d4e3b1650fa62ac6b8b380f121a3be088e2ce538d529d9"
+    },
+    {
+      "path": "feature-package.json",
+      "sha256": "2aaa7c6a5761aba947e162897efe551d072e23106aea6b98cb9efa97a43a5e0a"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "ce526060dc14061fa413516b7b532f64889ad6ceee0ab51c5c1de37da69cc9f3"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "a7d642f6183ffd76412ae6d51367f47143e359ca5437aeb717a6882dccf99da7"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "f29c17e21b2790ee7b47a0a48cd75d47bd410a53b0d15a270b69028a58ab97ec"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "540def7ec8e21e1dead2fddf82c6743a0bb0815263eb8cebda3a4701755c3362"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "fb645a24492098256965348a4e7aab944aa4049d7b30c0df92a74dedcaa1980b"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "2c4fa39f60c03568fc40e6887475b18f3304c3953c05a719b4857c98d9e81915"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "99bea7ad48b2865e1c61cd9fc4e1efe621d073fc7a7b6cfb0b39e7e72bac229d"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "ac3c73bc41c68f139226948b2af5ef9cabd50b075c176e1d5028d499d2457a19"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "e8a171390dabd4c70c724c2bfcc193211acb637379b383c02962f21420220d73"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "8c2438a0bacd5ffbf7266c701ecc170997e6a814e2697dbb1985a52351e67108"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "4272121245b069c0d55f80f11a808e3a94607061e31bcf86f624bc2df7ac8b48"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "75c812e368e81699427f1e86cdd5d361961861c085c6487772fbbf454547d00d"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "9926239f75d09e5bd5c586cce838eb2df882cf558a0fc0b6a41e8bf308449cc6"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "39ac0b03b39ef677d5fb658b4061640e4ad05e647596b4e93abceac992bb77cb"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "f33580c4b4ddf33a6f3c692926f15207b919b7ea76abc5879b85bb030f4ea2e8"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "f7228dd16b6537cd00c3e20f836293cbf96e1544dd50079ff1274035490764b0"
+    }
+  ],
+  "staleness_rule": "evaluated_inputs の各 path/sha256 は staging-manifest.json['files'] ∪ {staging-manifest.json} と完全一致する現在の staging バイト集合に対してのみ有効であり、いずれか1ファイルでも書き換わった場合はこの plan-findings.json を無効として再評価しなければならない。",
+  "findings": [
+    {
+      "severity": "low",
+      "bucket": "hardcoded-developer-machine-path",
+      "observation": "P01〜P13全task-specのVerification and evidence節にあるAutomated commandは `/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py` という評価者個人の開発機の絶対パスを指している。本評価が実施した機械検査 (deterministic-validation gate含む) はこのパスが現時点で実在し実行可能であることを前提に exit 0 を確認できたが、他の開発者・CI環境では同じ絶対パスが存在しない可能性が高く、そのままでは再現性を欠く。C1-C4の判定・promotion自体はこのpathの実在で成立しているためブロックしないが、後続phase実行者向けにplugin解決パスをrepo相対または環境変数経由に統一する運用上の改善余地がある。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-13-release-deploy.md"
+      ]
+    }
+  ]
+}

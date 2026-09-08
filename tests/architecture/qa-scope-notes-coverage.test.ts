@@ -73,6 +73,7 @@ type QaEntry = {
   question: string;
   answer: string;
   scope_notes?: ScopeNotes;
+  superseded_by?: string;
 };
 type Cell = { state: string; qa_ref?: string; qa_refs?: string[] };
 
@@ -99,6 +100,20 @@ function confirmedCells(matrix: Record<string, Record<string, Cell>>) {
     }
   }
   return out.sort((a, b) => `${a.category}/${a.platform}`.localeCompare(`${b.category}/${b.platform}`));
+}
+
+/** 明示後継が実在し、循環せず現在の確定セルへ接続する履歴だけを非孤立とする。 */
+function reachesCurrentCell(id: string, entries: ReadonlyMap<string, QaEntry>, cited: ReadonlySet<string>): boolean {
+  const visited = new Set<string>();
+  let current: string | undefined = id;
+  while (current !== undefined && !visited.has(current)) {
+    visited.add(current);
+    const entry = entries.get(current);
+    if (entry === undefined) return false;
+    if (cited.has(current)) return true;
+    current = entry.superseded_by;
+  }
+  return false;
 }
 
 /**
@@ -176,6 +191,23 @@ const UNCITED_ANNOTATED_CAP = 1;
 const UNCITED_ANNOTATED_KNOWN = ["qa-uiux-web-screen-priority"];
 /** 束ね解除を通った entry の下限。2026-08-21 実測 6。減る方向は記録の消失を意味する。 */
 const SPLIT_ENTRY_MIN = 6;
+
+/**
+ * `split-qa-bundle` が解けない形で束ねてしまった entry（2026-09-04）。
+ *
+ * 束ねの正規の形は `### 見出し` で節に割った本文で、writer はその節が取り込み元の
+ * 回答と byte 単位で一致することを確かめてから外す。この 5 件は対等提示の再確認を
+ * 論点ごとに別ターンで取り、回答を `／` で連ねたので節の境目が無い。
+ *
+ * **この一覧は増やす側へ動かさない。**減らす（正しい形へ作り直す）ときだけ動かす。
+ */
+const UNSPLITTABLE_BUNDLES = [
+  "qa-uiux-web-top-composition-v6",
+  "qa-frontend-web-fixed-header-seo-aio-v6",
+  "qa-backend-web-aeo-analysis-pipeline-v6",
+  "qa-database-web-aeo-signal-store-v6",
+  "qa-ops-web-aeo-auto-apply-v6",
+];
 /**
  * 取り込み元へ戻した論点の下限。2026-08-21 実測 **10**
  * （backend 2 / database 2 / infra 2 / security 1 / frontend 2 / ops 1）。
@@ -254,7 +286,8 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
     const cited = new Set(
       confirmedCells(matrix).flatMap((cell) => [cell.qaRef, ...(cell.qaRefs ?? [])]),
     );
-    const orphans = annotated.map((entry) => entry.id).filter((id) => !cited.has(id));
+    const entries = new Map(qa_log.map(entry => [entry.id, entry]));
+    const orphans = annotated.map((entry) => entry.id).filter((id) => !reachesCurrentCell(id, entries, cited));
     // 2026-08-26 まで `toStrictEqual([])` だった。**塞げなくなったので測る側へ回す。**
     // 引かれない注記が新しく増えたら赤くなり、既知の 1 件が直れば上限を下げられる。
     // 無名の件数だけにすると、別の entry がこっそり入れ替わっても緑のままになる。
@@ -298,7 +331,38 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
     // （`bundled.length >= 6`）。塞げない穴を検査として書く形（残課題 78 ②）である。
     // 2026-08-21 に qa_refs[] が入って束ねが解け、その検査は赤くなって役目を終えた。
     // **消さずに向きを反転させる**（⑤）。消すと、束ねが戻っても誰も気づかない。
-    expect(qa_log.filter((entry) => entry.scope_notes?.bundled).length).toBe(0);
+    //
+    // ── 【2026-09-04 追記】もう一度、部分的に反転させる ────────────
+    //
+    // 検索と AI からの見え方を要件化するとき、対等提示による再確認を**論点ごとに
+    // 別々の対話ターン**で取り、その回答を `／` で連ねて 1 件の answer にした
+    // entry が 5 件生まれた。つまり束ねが戻っている。上の一文が言うとおり、
+    // 消していなかったのでここが赤くなって知らせた。
+    //
+    // **これは `split-qa-bundle` で解けない。**あの writer が解けるのは
+    // `### 見出し` で節に割った束ねだけで、外す節が取り込み元の回答と byte 単位で
+    // 一致することを確かめてから本文を削る。`／` で連ねた本文には節の境目が無く、
+    // しかも各断片は前置き（「（対等提示での再確認）」）を伴うので取り込み元とは
+    // 一致しない。**writer に通らない形で束ねてしまったので、writer では解けない。**
+    //
+    // 解けないものを「解けた」と書かない。5 件を**名指しで**固定する。
+    // 名前で持つのは、件数だけにすると別の entry がこっそり入れ替わっても
+    // 緑のままになるからである。6 件目が生まれれば赤くなり、この 5 件を
+    // 正しい形へ作り直せば（answer を `### ` 節へ割るか、束ねずに書き直す）
+    // ここは 0 件へ戻して締め直せる。**穴は塞ぐまで見えている。**
+    const bundledIds = qa_log.filter((entry) => entry.scope_notes?.bundled).map((entry) => entry.id);
+    expect(bundledIds.filter((id) => !UNSPLITTABLE_BUNDLES.includes(id))).toStrictEqual([]);
+    expect(bundledIds.length).toBeLessThanOrEqual(UNSPLITTABLE_BUNDLES.length);
+
+    // 名指しした 5 件が、本当に writer が解けない形であること。
+    // これが無いと、`### ` 節で束ねた（＝解ける）ものまでこの名簿へ逃がせる。
+    const escapable = qa_log
+      .filter((entry) => UNSPLITTABLE_BUNDLES.includes(entry.id))
+      .filter((entry) => (entry.answer.match(/^### /gm) ?? []).length > 0)
+      .map((entry) => entry.id);
+    expect(escapable, "### 節を持つ束ねは split-qa-bundle で解ける。名簿へ逃がさない").toStrictEqual(
+      [],
+    );
 
     // 解消の記録を持つ entry。**理由の文面は解消後も消さずに残す**
     // （なぜ束ねが起きたかが消えると、同じ迂回がまた起きる）。
@@ -362,5 +426,21 @@ describe("確定セルの裏付け範囲は機械が読める", () => {
     const referenced = new Set(cells.flatMap((cell) => cell.qaRefs));
     const unreferenced = multiSection.filter((id) => !referenced.has(id));
     expect(unreferenced.length).toBeLessThanOrEqual(UNREFERENCED_BUNDLED_CAP);
+  });
+});
+
+
+describe("注記の後継接続の陽性対照", () => {
+  const qa = (id: string, superseded_by?: string): QaEntry => ({ id, question: "", answer: "", superseded_by });
+  it("直接/多段の明示後継が確定セルに着く時だけ接続済みとする", () => {
+    const entries = new Map([qa("old", "middle"), qa("middle", "current"), qa("current")].map(entry => [entry.id, entry]));
+    expect(reachesCurrentCell("old", entries, new Set(["current"]))).toBe(true);
+    expect(reachesCurrentCell("current", entries, new Set(["current"]))).toBe(true);
+    expect(reachesCurrentCell("old", entries, new Set())).toBe(false);
+  });
+  it("架空後継・自己循環・多段循環・未宣言の孤立は通さない", () => {
+    for (const rows of [[qa("old", "absent")], [qa("old", "old")], [qa("old", "middle"), qa("middle", "old")], [qa("old")]]) {
+      expect(reachesCurrentCell("old", new Map(rows.map(entry => [entry.id, entry])), new Set(["current"]))).toBe(false);
+    }
   });
 });

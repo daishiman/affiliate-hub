@@ -1,0 +1,1213 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "parent_feature": "feat-blog-top-page-composition",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P01": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P02": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P03": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P04": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P05": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P06": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P07": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P08": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P09": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P10": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P11": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P12": "beads",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "トップページ区画構成・カード規約・追従ヘッダー機能予算・非模倣ゲートの要求ベースライン確定",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/requirements-baseline.md",
+        "docs/spec/feat-blog-top-page-composition/as-is-acceptance-baseline.json",
+        "docs/spec/feat-blog-top-page-composition/section-composition-inventory.md",
+        "docs/spec/feat-blog-top-page-composition/sticky-header-function-budget.md",
+        "docs/spec/feat-blog-top-page-composition/non-imitation-gate-definition.md",
+        "docs/spec/feat-blog-top-page-composition/acceptance-traceability.json"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p01.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP01 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p01.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "トップページ構成コンポーネント・URL契約・JSON-LD契約・非模倣静的検査のアーキテクチャ設計",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P01"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/architecture-design.md",
+        "docs/spec/feat-blog-top-page-composition/url-contract.md",
+        "docs/spec/feat-blog-top-page-composition/json-ld-contract.md",
+        "docs/spec/feat-blog-top-page-composition/non-imitation-scan-design.md"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p02.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP02 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p02.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "トップページ設計の独立レビュー",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P02"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/design-review-p03.md"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p03.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP03 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p03.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "テストファースト: 区画構成・追従ヘッダー・JS無効到達性・非模倣・JSON-LDの受入テスト契約",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P03"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/test-design.md",
+        "docs/spec/feat-blog-top-page-composition/acceptance-test-evidence-matrix.json",
+        "tests/blog-top-page/section-composition.spec.ts",
+        "tests/blog-top-page/sticky-header-budget.spec.ts",
+        "tests/blog-top-page/no-js-sort-toggle.spec.ts",
+        "tests/blog-top-page/footer-navigation.spec.ts",
+        "tests/blog-top-page/a11y-contrast.spec.ts",
+        "tests/blog-top-page/thumbnail-card.spec.ts",
+        "tests/blog-top-page/edge-and-failure.spec.ts",
+        "tests/blog-top-page/non-imitation-scan.spec.ts",
+        "tests/blog-top-page/structured-data.spec.ts"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p04.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP04 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p04.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "トップページ区画構成・記事カード・追従ヘッダー配置・URL段階的強化・JSON-LDの実装",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P04"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src/app/s/[site]/page.tsx",
+        "src/presentation/site/home-content.tsx",
+        "src/presentation/site/blog-top-bands.tsx",
+        "src/presentation/site/page-frame.tsx",
+        "src/presentation/site/public-site-projection.ts",
+        "src/presentation/site/view-model.ts",
+        "src/presentation/site/site-metadata.ts",
+        "src/application/seo/structured-data.ts",
+        "src/presentation/ui/index.ts",
+        ".github/workflows/ci.yml"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p05.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP05 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p05.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "単体・結合・境界値・回帰・a11y・no-jsテストの実行",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/test-run-report.md"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p06.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP06 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p06.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "feature acceptance A1-A8の充足判定",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P06"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/acceptance-report.md",
+        "docs/spec/feat-blog-top-page-composition/acceptance-traceability.json"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p07.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP07 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p07.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存トップページ実装のリファクタリングと3機能予算への移行",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P07"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src/presentation/site/home-content.tsx",
+        "src/presentation/site/blog-top-bands.tsx",
+        "docs/spec/feat-blog-top-page-composition/migration-report.md",
+        "docs/spec/feat-blog-top-page-composition/post-migration-acceptance-addendum.md",
+        "docs/spec/feat-blog-top-page-composition/refactoring-rollback-receipt.json"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p08.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP08 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p08.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "品質・セキュリティ・運用readinessの保証",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P08"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/quality-assurance-report.md"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p09.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP09 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p09.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独立最終レビュー",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P09"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/final-review-p10.md"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p10.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP10 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p10.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "再現可能な証跡の確定",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P10"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/evidence-manifest.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/section-composition.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/no-js-behavior.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/sticky-header.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/footer-navigation.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/axe-contrast.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/thumbnail-cls-ogp.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/non-imitation-scan.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/structured-data-validation.json"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p11.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP11 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p11.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "ドキュメント・runbook・引き継ぎの確定",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P11"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/runbook.md",
+        "docs/spec/feat-blog-top-page-composition/handover.md"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p12.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP12 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p12.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "development deployment・rollback確認・仕様書への書き戻し",
+      "project_id": "feature-package-feat-blog-top-page-composition",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-blog-top-page-composition"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-06T00:30:33Z",
+      "updated_at": "2026-09-06T00:30:33Z",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P12"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-blog-top-page-composition/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "parent_feature": "feat-blog-top-page-composition",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p13.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json",
+        "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+        "imported_at": "2026-09-06T00:30:33Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-top-page-compositionのP13 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p13.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    }
+  ]
+}

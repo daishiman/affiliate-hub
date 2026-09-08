@@ -19,6 +19,7 @@ import {
   articleHref,
 } from "@/application/read-models/published-article";
 import { createSampleContentRepository } from "@/infrastructure/persistence/sample/content-sample-repository";
+import { sampleFeaturedArticleSlugs } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import { sampleSites } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
 import { siteHref } from "@/presentation/site/view-model";
@@ -216,9 +217,18 @@ describe("実際に書き出した静止冊子", () => {
     for (const { slug, blueprint } of sampleSites()) {
       const recent = await content.listRecent(slug, 200);
       if (!recent.ok) throw new Error(`記事一覧を検査用に読めませんでした: ${slug}`);
+      const selectedSlugs = sampleFeaturedArticleSlugs(slug);
+      const bySlug = new Map(recent.value.map((article) => [article.slug, article] as const));
+      const featuredArticles = selectedSlugs.flatMap((articleSlug) => {
+        const article = bySlug.get(articleSlug);
+        return article === undefined ? [] : [article];
+      });
       const sharedBody = renderToStaticMarkup(
         createElement(SiteHomeContent, {
-          view: toSiteHomeView(slug, blueprint, recent.value),
+          view: toSiteHomeView(slug, blueprint, recent.value, {
+            featuredArticles,
+            featuredSelectedCount: selectedSlugs.length,
+          }),
         }),
       );
       const generated = readFileSync(join(PREVIEW_DIR, "sites", `${slug}.html`), "utf8");

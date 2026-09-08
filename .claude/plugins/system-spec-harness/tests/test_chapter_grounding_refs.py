@@ -303,6 +303,45 @@ def test_carrying_twice_does_not_duplicate(tmp_path: Path) -> None:
     assert out.count("## 章にしか無い記述 (正本へ未接続)") == 1
 
 
+LATE_HEAD = "#### 後から書かれた考察"
+
+
+def test_a_new_orphan_joins_the_existing_shelf_instead_of_building_a_second_one(
+    tmp_path: Path,
+) -> None:
+    """棚が既に在る回に新しい手書き小節が出ても、棚は 1 つのままである。
+
+    **なぜ落とすか。**棚は compile の生成物だが、次回の生成物には `##` 節として現れない。
+    そのため `handwritten_sections` が「人が書いた節」と見なして丸ごと引き継ぎ、compile は
+    その隣へ新しい棚を作る。**新しい棚は古い棚を「正本へ未接続の節」として数える。**
+    回すたび棚が 1 段ずつ積み上がり、正本へ未接続と報じる章の数も一緒に増える。
+    実測 2026-09-08 (ah-lwmf): 8 章で棚が 2 段になり、数え上げが 8 から 12 へ増えた。
+
+    古い棚の中身は写しではなく本文なので、落とすだけでは記述が消える。今回の棚へ移す。
+    """
+    (tmp_path / "infrastructure.md").write_text(EXISTING, encoding="utf-8")
+    foundation.write_docset(
+        {"infrastructure.md": GENERATED}, tmp_path, on_handwritten="preserve"
+    )
+    # 2 回目は、生成節の内側へ新しい手書き小節が足された状態で回す。
+    first = (tmp_path / "infrastructure.md").read_text(encoding="utf-8")
+    lines = first.splitlines()
+    at = lines.index("**回答**: 今の答え。") + 1
+    lines[at:at] = ["", LATE_HEAD, "", "あとから書いた。"]
+    (tmp_path / "infrastructure.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    foundation.write_docset(
+        {"infrastructure.md": GENERATED}, tmp_path, on_handwritten="preserve"
+    )
+    out = (tmp_path / "infrastructure.md").read_text(encoding="utf-8")
+    assert out.count("## 章にしか無い記述 (正本へ未接続)") == 1
+    # 古い棚の中身も、新しい小節も、両方 1 度ずつ残っている。
+    assert out.count("章にしか無い答え。") == 1
+    assert out.count("あとから書いた。") == 1
+    # 見出しは棚の頭の `>` にも列挙されるので本文と合わせて 2 度出る。3 度目は無い。
+    assert out.count(LATE_HEAD) == 2
+
+
 # --- 節でも小節でもない 1 行を報告として残す側 --------------------------------
 
 STRAY = "| セキュリティ | `partial` (PoC認証のみ) | 人が手で足した列 |"

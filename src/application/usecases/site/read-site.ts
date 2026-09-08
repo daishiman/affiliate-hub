@@ -1,3 +1,4 @@
+import type { ArticleBrowsePage, ArticleBrowseRequest, ArticleSearchHit } from "@/application/read-models/article-discovery";
 import type {
   EditorialPublishedContentPort,
   EditorialSiteRepositoryPort,
@@ -8,7 +9,7 @@ import type {
   PublishedPerson,
 } from "@/application/read-models/published-article";
 import { type SiteBlueprint, routesFor } from "@/domain/authoring";
-import { UNCATEGORIZED_ARTICLE_CATEGORY } from "@/domain/blogops";
+import { UNCATEGORIZED_ARTICLE_CATEGORY, validateShortSlug } from "@/domain/blogops";
 import {
   type ActorContext,
   type DomainError,
@@ -227,15 +228,48 @@ export function createGetArticleUseCase(
 // 探す
 // ---------------------------------------------------------------------------
 
-export type SearchArticlesInput = {
-  readonly siteSlug: string;
-  readonly query: string;
-  readonly limit?: number;
-};
+export const MAX_SEARCH_QUERY_LENGTH = 200;
+export const MAX_ARTICLE_PAGE_SIZE = 100;
+
+export type BrowseArticlesInput = { readonly siteSlug: string } &
+  Partial<ArticleBrowseRequest>;
+
+function browseRequest(input: BrowseArticlesInput): Result<ArticleBrowseRequest, DomainError> {
+  const limit = input.limit ?? DEFAULT_LIST_LIMIT;
+  const offset = input.offset ?? 0;
+  const query = input.query?.trim();
+  const tag = input.tag?.trim() || undefined;
+  if (!Number.isInteger(limit) || limit < 1 || limit > MAX_ARTICLE_PAGE_SIZE) {
+    return err(domainError("VALIDATION_FAILED", `表示件数は1〜${MAX_ARTICLE_PAGE_SIZE}件で指定してください。`, { field: "limit" }));
+  }
+  if (!Number.isSafeInteger(offset) || offset < 0 || offset > Number.MAX_SAFE_INTEGER - limit - 1) {
+    return err(domainError("VALIDATION_FAILED", "表示位置が正しくありません。最初のページから探し直してください。", { field: "offset" }));
+  }
+  if ((query?.length ?? 0) > MAX_SEARCH_QUERY_LENGTH) {
+    return err(domainError("VALIDATION_FAILED", `探す言葉を${MAX_SEARCH_QUERY_LENGTH}文字以内に短くしてください。`, { field: "query" }));
+  }
+  if (tag !== undefined) {
+    const checked = validateShortSlug(tag);
+    if (!checked.ok) return err({ ...checked.error, field: "tag" });
+  }
+  return ok({ query, tag, type: input.type, limit, offset });
+}
+
+export function createBrowseArticlesUseCase(deps: ReadSiteDeps): UseCase<BrowseArticlesInput, ArticleBrowsePage> {
+  guardEditorial(deps);
+  return { async execute(_actor, input) {
+    const request = browseRequest(input);
+    return request.ok ? deps.content.browse(input.siteSlug, request.value) : request;
+  } };
+}
+
+export type SearchArticlesInput = BrowseArticlesInput & { readonly query: string };
 
 export type SearchArticlesOutput = {
   readonly query: string;
-  readonly hits: readonly ArticleSummary[];
+  readonly hits: readonly ArticleSearchHit[];
+  readonly tag?: string;
+  readonly nextOffset: number | null;
 };
 
 /**
@@ -251,16 +285,23 @@ export function createSearchArticlesUseCase(
   return {
     async execute(_actor, input) {
       const query = input.query.trim();
-      if (query === "") {
+      if (query === "" && !input.tag?.trim()) {
         return err(
           domainError("VALIDATION_FAILED", "探したい言葉を入力してください。", {
             field: "query",
           }),
         );
       }
-      const hits = await deps.content.search(input.siteSlug, query, input.limit ?? DEFAULT_LIST_LIMIT);
-      if (!hits.ok) return hits;
-      return ok({ query, hits: hits.value });
+      const request = browseRequest({ ...input, query });
+      if (!request.ok) return request;
+      const page = await deps.content.browse(input.siteSlug, request.value);
+      if (!page.ok) return page;
+      return ok({
+        query,
+        tag: request.value.tag,
+        hits: page.value.articles,
+        nextOffset: page.value.hasMore ? request.value.offset + request.value.limit : null,
+      });
     },
   };
 }

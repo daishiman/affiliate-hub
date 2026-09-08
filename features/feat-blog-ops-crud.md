@@ -12,7 +12,7 @@ iteration: null
 title: "ブログ運用 CRUD とサイト網ブループリント再現 (作成者面・閲覧者面)"
 owners: ["daishiman"]
 created_at: "2026-08-25T09:40:00Z"
-updated_at: "2026-08-26T14:59:23.852748Z"
+updated_at: "2026-09-07T23:37:32.944655Z"
 status: "active"
 depends_on: ["feat-blog-ui-builder","feat-site-blueprint","feat-site-builder"]
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview","feat-reader-surface"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"6ffac8f3a50c77499d310c4be14b89f27ba91cba627b0267c23e3e686c093dee","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-08-25T09:40:00Z","origin_kind":"generated","source_digest":"7b029152ed5130b0c3e331bb390f3f344811fc97f9cb92b9f0b3557d9a9b54c1","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-08T00:00:00Z","origin_kind":"generated","source_digest":"e1055c93f1a5b15c0e118b6dab8650b535c92c137130d5e6c85685dc9f98cced","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望 (ブログ運用ページの完全 CRUD + 参考ブログ全体構成の抽象再現) を C14 macro 分解で 1 feature 化。確定章 qa-*-web-site-blueprint と docs/spec/13 v1.1 を lineage 参照し、細分は system-dev-planner の P01..P13 に委譲"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-ops-crud.md","confidence":0.95}]

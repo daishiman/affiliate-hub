@@ -183,6 +183,50 @@
           }
         }
       }
+    },
+    "retired_chapter_notes": {
+      "type": "object",
+      "description": "正本へ入れるべきでなかった注記の墓標 (カテゴリ id -> 退けた注記の配列)。**なぜ消さずに残すか。**正本から本文を落とす口を作ると、誤りの取り消しと、都合の悪い記録の抹消が同じ操作になる。ここは compile の描画対象から外すだけで、本文・理由・元の recorded_with はそのまま残る。戻せるし、辿れる。compile は chapter_notes しか読まない。writer = retire-chapter-note",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "heading",
+            "body",
+            "reason",
+            "recorded_with",
+            "retired_reason",
+            "retired_with"
+          ],
+          "properties": {
+            "heading": {
+              "type": "string",
+              "description": "退けた注記の見出し。chapter_notes に在ったときのまま"
+            },
+            "body": {
+              "type": "string",
+              "description": "本文。逐語で保つ (退けても消さない)"
+            },
+            "reason": {
+              "type": "string",
+              "description": "当時「なぜ正本へ入れたのか」。書き換えない"
+            },
+            "recorded_with": {
+              "type": "string",
+              "description": "元の writer 名。退けても打ち直さない"
+            },
+            "retired_reason": {
+              "type": "string",
+              "description": "なぜ正本に置くべきでなかったのか"
+            },
+            "retired_with": {
+              "type": "string",
+              "description": "退けた writer 名 (retire-chapter-note)。呼び出し側から受け取らず writer が打刻する。2026-09-08 の最初の 43 件だけは op 名の定数を分ける前に書かれたため set-chapter-note と打たれている。打ち直すには正本を手で書き換えるしかないので、そのままにして事実をここへ書く"
+            }
+          }
+        }
+      }
     }
   },
   "oneOf": [
@@ -479,6 +523,11 @@
               "type": "string",
               "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
               "description": "束ねを解いた日"
+            },
+            "split_form": {
+              "type": "string",
+              "enum": ["heading", "slash"],
+              "description": "どの束ね形式として読んだか。`heading` は `### 見出し` で節を立てた束ね、`slash` は回答を `／` で連ねた束ね。読み方が違えば「何を外したか」も違うので、差分を辿る側が形式を推測せずに済むよう writer が書く"
             },
             "reanchored_with": {
               "type": "string",

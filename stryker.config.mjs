@@ -28,7 +28,7 @@
 import { MUTATION_SCORE } from "./quality-gates.config.mjs";
 
 /** @type {import('@stryker-mutator/api/core').PartialStrykerOptions} */
-export default {
+const config = {
   packageManager: "pnpm",
   // pnpm では自動探索が node_modules の実体配置を辿れないため、runner を明示する。
   plugins: ["@stryker-mutator/vitest-runner"],
@@ -106,3 +106,5 @@ export default {
   tempDirName: ".stryker-tmp",
   cleanTempDir: true,
 };
+
+export default config;

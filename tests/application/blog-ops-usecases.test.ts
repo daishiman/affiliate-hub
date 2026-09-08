@@ -55,7 +55,6 @@ import {
   HEADER_SLOT_KEYS,
   SIDEBAR_SLOT_KEYS,
   SIDEBAR_STICKY_SLOT_KEYS,
-  TOP_BANDS,
 } from "@/domain/blogops";
 import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import type { ArticleRating, RatingSummary } from "@/domain/blogops";
@@ -396,10 +395,21 @@ describe("版面の設定", () => {
     const { deps } = depsWith();
     const r = await createReadBlogLayoutUseCase(deps).execute(anOwner(), { siteSlug: "hub" });
     expect(isOk(r) && r.value.slots.length).toBe(4 + 8 + 2 + 4);
-    expect(isOk(r) && r.value.bands.length).toBe(TOP_BANDS.length);
+    expect(isOk(r) && r.value.bands.map((band) => band.band)).toEqual(["sister_sites", "navigator"]);
     expect(isOk(r) && r.value.deliveryParts.length).toBe(DELIVERY_PARTS.length);
-    // 何も保存していないので、全部が「未整備」。
-    expect(isOk(r) && r.value.untouchedCount).toBe(18 + TOP_BANDS.length + DELIVERY_PARTS.length);
+    // この画面から編集できる枠と補助帯だけを数える。配信と旧2帯は含めない。
+    expect(isOk(r) && r.value.untouchedCount).toBe(20);
+  });
+
+  it("旧トップ帯の保存値を残したまま、公開面に効く補助帯だけを編集対象にする", async () => {
+    const { deps, repo } = depsWith({ bands: [{
+      id: "legacy", siteSlug: "hub", band: "latest_posts", title: "以前の新着", enabled: true,
+      position: 0, itemLimit: 12,
+    }] });
+    const result = await createReadBlogLayoutUseCase(deps).execute(anOwner(), { siteSlug: "hub" });
+    expect(isOk(result) && result.value.bands.map((band) => band.band)).toEqual(["sister_sites", "navigator"]);
+    expect(isOk(result) && result.value.untouchedCount).toBe(20);
+    expect(repo.store.bands).toEqual([{ id: "legacy", siteSlug: "hub", band: "latest_posts", title: "以前の新着", enabled: true, position: 0, itemLimit: 12 }]);
   });
 
   it("サイドバーの通常枠は 8 種ある（設計図の数を画面が減らせない）", async () => {
@@ -554,6 +564,50 @@ describe("記事の一覧と閲覧", () => {
     const r = await createListBlogArticlesUseCase(deps).execute(anOwner(), {});
     expect(isOk(r) && r.value.total).toBe(2);
     expect(isOk(r) && r.value.staleCount).toBe(1);
+  });
+
+  /*
+    一覧の絵は「実画像があるか」と「今どれが使われているか」の 2 つを伝える。
+
+    管理面は読者面と逆で、**絵がまだ無いことを見せる**のが仕事になる。
+    代替図版をここで描くと、配色（サイトごとの `BrandTheme`）を選ぶ必要が出るが、
+    この一覧はサイトを横断するので、選んだ瞬間に読者の見る絵と食い違う。
+    食い違った絵は「差し替えたのに反映されない」という誤った報告を生む。
+  */
+  const rowsOf = async (thumbnail?: Parameters<typeof article>[0]["thumbnail"]) => {
+    const { deps } = depsWith({
+      articles: [{ article: article({ id: "a1", thumbnail }), blocks: [], tagIds: [] }],
+    });
+    const r = await createListBlogArticlesUseCase(deps).execute(anOwner(), {});
+    if (!isOk(r)) throw new Error("一覧が引けませんでした");
+    return r.value.rows[0];
+  };
+
+  it("実画像があれば、その URL と出どころを出す", async () => {
+    const row = await rowsOf({ eyecatchUrl: "/media/cover.png" });
+    expect(row?.thumbnailUrl).toBe("/media/cover.png");
+    expect(row?.thumbnailSource).toBe("eyecatch");
+    expect(row?.thumbnailSourceLabel).toBe("アイキャッチ指定");
+  });
+
+  it("優先順位はドメインに従う（アップロードがアイキャッチより先）", async () => {
+    // 順番をここで数え直さない。`resolveThumbnail` が持つ順番に従っているかだけ見る。
+    const row = await rowsOf({ uploadedUrl: "/media/up.png", eyecatchUrl: "/media/eye.png" });
+    expect(row?.thumbnailUrl).toBe("/media/up.png");
+  });
+
+  it("実画像が無ければ URL を出さず、出どころの名前だけを出す", async () => {
+    const row = await rowsOf();
+    expect(row?.thumbnailUrl).toBeNull();
+    expect(row?.thumbnailSource).toBe("generated");
+    expect(row?.thumbnailSourceLabel).toBe("自動生成の代替図版");
+  });
+
+  it("空文字の候補は「無い」と同じに扱う", async () => {
+    // 保存の入口で空文字と未設定が混ざるのは避けられない。
+    // ここで吸収しないと、空文字の記事だけ壊れた img が出る。
+    const row = await rowsOf({ eyecatchUrl: "   " });
+    expect(row?.thumbnailUrl).toBeNull();
   });
 
   it("ブログを指定すると、そのブログの記事だけになる", async () => {
@@ -1091,6 +1145,8 @@ describe("読者の評価の受け取り", () => {
                 ok(slug === "review" && seed.published !== false ? detail : null),
               findSourceArticleId: async (slug: string) =>
                 ok(slug === "review" && seed.published !== false ? "a1" : null),
+              summarizeReaderRatings: async () => ok({}),
+              listFeaturedArticles: async () => ok({ selectedCount: 0, articles: [] }),
               listPublished: async () => ok([]),
               listLayoutSlots: async () => ok([]),
               listProvisionedLayoutSlots: async () => ok([]),

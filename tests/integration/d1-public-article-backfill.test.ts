@@ -54,6 +54,30 @@ async function applyCanonical(target: Proxy): Promise<void> {
   }
 }
 
+/**
+ * 0043 より後の移行を、残らず当てる。
+ *
+ * この試験の関心は「0043 の**前に**消されていた記事を戻せるか」であって、
+ * 保存先の形が 0043 のままであることではない。実際に `restoreArticle` が
+ * 走るのは全部の移行が当たった後の保存先で、そこには 0044 が足した
+ * `search_text` がある。ここで止めておくと、**本番には無い形の上で試験して
+ * いる**ことになり、通っても通らなくても意味が読めない。
+ *
+ * 一覧を書き並べず、`0043_` より後ろを全部拾うのは、移行を足した人が
+ * この試験の存在を知らなくても正しい形になるようにするためである。
+ * 名前で並べ替えているので、当たる順番は本番と同じになる。
+ */
+async function applyAfterCanonical(target: Proxy): Promise<void> {
+  const later = readdirSync(DRIZZLE_DIR)
+    .filter((file) => file.endsWith(".sql") && file > "0043_z")
+    .sort();
+  for (const file of later) {
+    for (const statement of statements(path.join(DRIZZLE_DIR, file))) {
+      await target.env.DB.prepare(statement).run();
+    }
+  }
+}
+
 beforeAll(async () => {
   proxy = await openBeforeCanonical();
 
@@ -147,6 +171,7 @@ beforeAll(async () => {
     .run();
 
   await applyCanonical(proxy);
+  await applyAfterCanonical(proxy);
 }, 60_000);
 
 afterAll(async () => {
@@ -408,7 +433,12 @@ describe("canonical public article forward backfill", () => {
       "article_deleted",
       new Date("2026-09-02T00:00:00.000Z"),
     );
-    expect(restored.ok).toBe(true);
+    // 失敗したときに理由を出す。`false` だけだと、墓標が邪魔しているのか、
+    // 記事が見つからないのか、書き込みが弾かれたのかを読み分けられない。
+    expect(
+      restored.ok,
+      restored.ok ? "" : `復元できませんでした: ${restored.error.code} / ${restored.error.message}`,
+    ).toBe(true);
     const projection = await proxy.env.DB.prepare(
       `SELECT source_article_id AS sourceArticleId, category_slug AS categorySlug,
           author_name AS authorName

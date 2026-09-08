@@ -19,6 +19,7 @@ import type { UseCase } from "../usecase";
 export type ManagedPublishedArticle = {
   readonly article: PublishedArticle;
   readonly archivedAt: string | null;
+  readonly revision: number;
 };
 
 type ReadDeps = { readonly articles: EditorialPublishedArticleAdminPort };
@@ -71,6 +72,7 @@ export function createGetPublishedArticleUseCase(
 }
 
 export type UpdatePublishedArticleInput = {
+  readonly expectedRevision: number;
   readonly siteSlug: string;
   readonly slug: string;
   readonly title: string;
@@ -108,6 +110,9 @@ export function createUpdatePublishedArticleUseCase(
     async execute(actor: ActorContext, input) {
       const allowed = requireCapability(actor, "content.write", "公開済み記事の訂正");
       if (!allowed.ok) return allowed;
+      if (!Number.isSafeInteger(input.expectedRevision) || input.expectedRevision < 1) {
+        return err(validationError("編集元の版を確認できません。記事を開き直してください。"));
+      }
 
       const title = required(input.title, "記事タイトル", "title");
       if (!title.ok) return title;
@@ -121,6 +126,9 @@ export function createUpdatePublishedArticleUseCase(
       const found = await deps.articles.find(actor.workspaceId, input.siteSlug, input.slug);
       if (!found.ok) return found;
       if (found.value === null) return notFound();
+      if (found.value.revision !== input.expectedRevision) {
+        return err(domainError("CONFLICT", "この記事は別の操作で更新されています。最新の記事を確認してから訂正してください。"));
+      }
       const before = found.value.article;
       const byId = new Map(input.sections.map((section) => [section.id, section]));
       if (byId.size !== before.sections.length || before.sections.some((section) => !byId.has(section.id))) {
@@ -172,9 +180,9 @@ export function createUpdatePublishedArticleUseCase(
       });
       if (!entry.ok) return entry;
 
-      const saved = await deps.articles.replace(actor.workspaceId, next);
+      const saved = await deps.articles.replace(actor.workspaceId, next, input.expectedRevision);
       if (!saved.ok) return saved;
-      if (!saved.value) return notFound();
+      if (!saved.value) return err(domainError("CONFLICT", "保存の直前に記事が更新または削除されました。記事を開き直してください。"));
       const audited = await deps.auditLog.append(entry.value);
       if (!audited.ok) {
         return err(auditWriteFailure("記事の訂正は保存されています", audited.error.details));

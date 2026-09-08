@@ -183,6 +183,9 @@
 | REQ-TH01 | has-screen, has-color-scheme-variants | — |
 | REQ-TH02 | has-enumerated-input, has-color-scheme-variants | — |
 | REQ-TH03 | has-enumerated-input | — |
+| REQ-VIS01 | has-input | — |
+| REQ-VIS02 | has-input, has-external | — |
+| REQ-VIS03 | has-input, has-permission, has-tenant, has-external, has-recorded-operation | — |
 | REQ-FB08 | has-state, has-recorded-operation | — |
 | REQ-FB09 | has-secret, has-recorded-operation | — |
 | REQ-FB12 | has-secret, has-recorded-operation | — |
@@ -260,6 +263,14 @@
 | REQ-SEO03 | has-input | — |
 | REQ-SEO04 | has-input | — |
 | REQ-SEO05 | has-input | — |
+| REQ-SEO06 | has-input | — |
+| REQ-SEO07 | has-input, has-secret | — |
+| REQ-SEO08 | has-input, has-secret | — |
+| REQ-SEO09 | has-input | — |
+| REQ-SEO10 | has-input, has-permission | — |
+| REQ-SEO11 | has-input | — |
+| REQ-SEO12 | has-input, has-state, has-permission | — |
+| REQ-SEO13 | has-state, has-permission | — |
 | REQ-BLOG01 | has-input | — |
 | REQ-BLOG02 | has-input | — |
 | REQ-BLOG03 | has-input | — |

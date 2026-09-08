@@ -64,6 +64,18 @@ export type BlogLayoutBandRecord = {
   readonly itemLimit: number;
 };
 
+/** ブログトップに出す記事の選定intent。slug の順序が表示順である。 */
+export type BlogHomeFeaturedArticlesRecord = {
+  readonly siteSlug: string;
+  readonly articleSlugs: readonly string[];
+};
+
+/** 公開面が返す選定intentの件数と、現在表示できる記事。 */
+export type PublicHomeFeaturedArticles = {
+  readonly selectedCount: number;
+  readonly articles: readonly ArticleSummary[];
+};
+
 export type BlogDeliveryPartRecord = {
   readonly id: string;
   readonly siteSlug: string;
@@ -165,6 +177,14 @@ export type BlogOpsRepositoryPort = {
   saveLayoutSlot(workspaceId: WorkspaceId, input: BlogLayoutSlotRecord): PortResult<true>;
   listLayoutBands(workspaceId: WorkspaceId, siteSlug: string): PortResult<readonly BlogLayoutBandRecord[]>;
   saveLayoutBand(workspaceId: WorkspaceId, input: BlogLayoutBandRecord): PortResult<true>;
+  findBlogHomeFeaturedArticles(
+    workspaceId: WorkspaceId,
+    siteSlug: string,
+  ): PortResult<BlogHomeFeaturedArticlesRecord | null>;
+  replaceBlogHomeFeaturedArticles(
+    workspaceId: WorkspaceId,
+    input: BlogHomeFeaturedArticlesRecord,
+  ): PortResult<true>;
 
   listDeliveryParts(
     workspaceId: WorkspaceId,
@@ -225,6 +245,59 @@ export type BlogOpsRepositoryPort = {
     ratingId: string,
     hidden: boolean,
   ): PortResult<true>;
+
+  /** 記事 1 本のサムネイル（運営者が上げた 1 枚）。未登録なら null。 */
+  findArticleThumbnail(
+    workspaceId: WorkspaceId,
+    articleId: string,
+  ): PortResult<ArticleThumbnailRecord | null>;
+  /** 記事 1 本につき 1 行。上書きで置き換える（世代を積まない）。 */
+  saveArticleThumbnail(workspaceId: WorkspaceId, input: ArticleThumbnailRecord): PortResult<true>;
+  /** 参照を外す。**置き場の絵はここでは消えない**（消すのは呼ぶ側の役目）。 */
+  deleteArticleThumbnail(workspaceId: WorkspaceId, articleId: string): PortResult<true>;
+};
+
+/**
+ * 記事に紐づくサムネイル 1 枚の記録。
+ *
+ * `objectKey` を**そのまま**持つのが要点で、材料（サイト名・記事の URL 名・指紋）
+ * から組み直さない。記事の URL 名は後から変えられるので、変えたあとに組み直すと
+ * 置いたときとは違う鍵ができ、古い世代を消しに行っても空振りする
+ * （`domain/blogops/thumbnail-asset.ts` の同じ理由）。
+ */
+export type ArticleThumbnailRecord = {
+  readonly articleId: string;
+  readonly objectKey: string;
+  readonly mimeType: string;
+  readonly byteLength: number;
+  /** 実際に置けた幅だけ。落ちた幅を含めると `srcset` が 404 を指す。 */
+  readonly derivedWidths: readonly number[];
+  readonly altText: string;
+  readonly uploadedAt: Date;
+};
+
+/**
+ * サムネイルの置き場。
+ *
+ * `*RepositoryPort` を名乗らないのは、置き場の鍵が作業場所ではなく
+ * **サイトと記事の URL 名**で決まるため（読者へ配る住所でもある）。
+ * 作業場所の絞り込みは、鍵を引いてくる `BlogOpsRepositoryPort` 側が負う。
+ */
+export type ArticleThumbnailStoragePort = {
+  /**
+   * 原本 1 枚と派生を 1 世代として置く。
+   * 原本が置けなければ派生へ進まず、派生が落ちても原本は残す。
+   */
+  putGeneration(input: {
+    readonly siteSlug: string;
+    readonly articleSlug: string;
+    readonly mimeType: string;
+    readonly original: ArrayBuffer;
+    readonly derived: readonly { readonly width: number; readonly bytes: ArrayBuffer }[];
+  }): PortResult<{ readonly objectKey: string; readonly derivedWidths: readonly number[] }>;
+
+  /** 1 世代（原本と派生）をまとめて消す。既に無いときも成功。 */
+  deleteGeneration(objectKey: string): PortResult<{ readonly deleted: number }>;
 };
 
 /**
@@ -266,8 +339,22 @@ export type PublicSiteReader = {
   findArticleBySlug(slug: string): PortResult<PublishedArticle | null>;
   /** 公開一覧は本文と同じ projection の要約。 */
   listPublished(limit: number): PortResult<readonly ArticleSummary[]>;
+  /** 選定intentは残し、現在公開中の記事だけを保存順で返す。 */
+  listFeaturedArticles(): PortResult<PublicHomeFeaturedArticles>;
   /** 編集 aggregate から公開した記事だけが持つ、評価の対象 ID。 */
   findSourceArticleId(slug: string): PortResult<string | null>;
+  /**
+   * 公開 slug ごとの読者評価。**トップの「人気」順はこれだけを根拠にする。**
+   *
+   * 記事 1 本ずつ `findSourceArticleId` → 集計と辿ると、一覧 1 画面で
+   * 読み取りが記事数だけ増える。まとめて 1 回で引く口をここに置く。
+   *
+   * 渡した slug は**必ず結果のキーに現れる**（票が無ければ count:0）。
+   * キーを落とすと、呼ぶ側が「票が無い」と「読めなかった」を区別できない。
+   */
+  summarizeReaderRatings(
+    slugs: readonly string[],
+  ): PortResult<Readonly<Record<string, RatingSummary>>>;
   /** 描画用。enabled の枠だけを返す。 */
   listLayoutSlots(): PortResult<readonly BlogLayoutSlotRecord[]>;
   /** 作成完了判定用。disabled を含む未削除の枠実体を返す。 */

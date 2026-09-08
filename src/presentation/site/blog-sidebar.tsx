@@ -3,6 +3,7 @@ import { brandTagCloud, slotHeading } from "@/domain/blogops";
 import { ListView, Prose, Section, TextLink, proseParagraphs } from "@/presentation/ui";
 import type { PublicSiteProjection } from "./public-site-projection";
 import { siteHref } from "./view-model";
+import { articlePageHref } from "./article-pagination";
 
 /**
  * 本文の脇に出る枠（§3.4）。
@@ -70,7 +71,7 @@ function slotBody(
         rows={brands.map((t) => ({
           key: t.id,
           label: t.name,
-          href: siteHref(siteSlug, `/search?tag=${encodeURIComponent(t.slug)}`),
+          href: articlePageHref(siteHref(siteSlug, "/search"), 1, { tag: t.slug }),
         }))}
       />
     );

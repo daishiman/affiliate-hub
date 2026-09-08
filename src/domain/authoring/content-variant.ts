@@ -46,6 +46,8 @@ export type ComplianceStatus = (typeof COMPLIANCE_STATUSES)[number];
 export type ContentVariant = {
   readonly id: ContentVariantId;
   readonly workspaceId: WorkspaceId;
+  /** 最初の永続化時刻。既存記事で記録が無い場合は不明のまま扱う。 */
+  readonly createdAt?: Date | null;
   readonly contentPackageId: ContentPackageId;
   readonly channel: string;
   readonly format: string;

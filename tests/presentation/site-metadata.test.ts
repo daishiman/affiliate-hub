@@ -66,8 +66,15 @@ vi.mock("@/presentation/composition", async () => {
   };
 });
 
-const { articleMetadata, createArticlePageMetadata, siteCanonicalPath, siteHomeMetadata, siteMetadataUrl } =
-  await import("@/presentation/site/site-metadata");
+const {
+  articleMetadata,
+  articleOgImage,
+  createArticlePageMetadata,
+  siteCanonicalPath,
+  siteHomeMetadata,
+  siteListingMetadata,
+  siteMetadataUrl,
+} = await import("@/presentation/site/site-metadata");
 
 beforeEach(() => {
   metadataRequest.headers = new Headers({ host: "example.com", "x-forwarded-proto": "https" });
@@ -227,4 +234,83 @@ describe("記事のmetadataは、読めた分だけ配る", () => {
       authors: ["編集部"],
     });
   });
+});
+
+describe("SNS と AI 検索へ渡す絵", () => {
+  /** 記事の最小形。画像の有無だけを変えて通す。 */
+  const article = (images: Record<string, string> = {}) =>
+    ({
+      slug: "guide-item",
+      siteSlug: "gadget",
+      type: "guide",
+      title: "記事: guide-item",
+      summary: "要約。",
+      categorySlug: "laptops",
+      publishedAt: "2026-08-20",
+      updatedAt: "2026-08-24",
+      author: { slug: "editor", name: "編集部", bio: "紹介。", credentials: [] },
+      disclosureRequired: false,
+      sections: [],
+      ...images,
+    }) as Parameters<typeof articleOgImage>[1];
+
+  it("実在の画像があるときだけ、絵を宣言する", () => {
+    expect(articleOgImage("https://example.com", article())).toBeNull();
+    expect(
+      articleOgImage("https://example.com", article({ uploadedImageUrl: "/media/a.jpg" })),
+    ).toMatchObject({ url: "https://example.com/media/a.jpg" });
+  });
+
+  it("自動生成の代替図版は宣言しない", async () => {
+    /*
+      一覧のサムネイルは画像の無い記事にも必ず 16:9 の図版を返すが、
+      それは `data:` URI の SVG で、og:image を読む他所のサーバーは取りに行けない。
+      **画面に絵が出ていること**と**外へ絵を渡せること**は別である。
+    */
+    const { resolveThumbnail } = await import("@/domain/blogops");
+    const resolved = resolveThumbnail(
+      {
+        siteSlug: "gadget",
+        slug: "guide-item",
+        title: "題",
+        categorySlug: "laptops",
+        brandTheme: "graphite-amber",
+      },
+      {},
+    );
+
+    expect(resolved.kind, "画面側は代替図版を返している前提").toBe("generated");
+    expect(articleOgImage("https://example.com", article())).toBeNull();
+  });
+
+  it("外から取れない住所にはしない", () => {
+    // 絶対 URL はそのまま通す。
+    expect(
+      articleOgImage("https://example.com", article({ uploadedImageUrl: "https://cdn.test/a.jpg" }))
+        ?.url,
+    ).toBe("https://cdn.test/a.jpg");
+    // host が読めないときに `/media/a.jpg` を配ると、他所からは辿れない。
+    expect(articleOgImage(null, article({ uploadedImageUrl: "/media/a.jpg" }))).toBeNull();
+    // どの画面から見た相対かが決まらないものは、当てずっぽうの住所を作らない。
+    expect(
+      articleOgImage("https://example.com", article({ uploadedImageUrl: "./a.jpg" })),
+    ).toBeNull();
+  });
+
+  it("絵があるときだけ、共有カードを大きい形にする", async () => {
+    // 既定の mock は画像を持たない記事。
+    const withoutImage = await articleMetadata("gadget", "guide-item");
+
+    expect(withoutImage.twitter).toMatchObject({ card: "summary" });
+    expect(withoutImage.twitter).not.toHaveProperty("images");
+    expect(withoutImage.openGraph).not.toHaveProperty("images");
+  });
+});
+
+
+it("一覧は自分のURLと共有タイトルを宣言する", async () => {
+  const value = await siteListingMetadata("gadget", "/reviews?page=2", "個別レビュー");
+  expect(value.alternates?.canonical).toBe("https://example.com/s/gadget/reviews?page=2");
+  expect(value.openGraph).toMatchObject({ url: "https://example.com/s/gadget/reviews?page=2", title: "個別レビュー | ガジェット研究室" });
+  expect(value.twitter).toMatchObject({ title: "個別レビュー | ガジェット研究室" });
 });

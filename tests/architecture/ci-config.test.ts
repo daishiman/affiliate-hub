@@ -464,9 +464,41 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         既存データは消さず、曖昧な所有権・URL競合・墓標共存では適用を停止する。
       */
       "0043_canonical_public_articles",
+      /*
+        公開記事の全文検索。trigram の仮想表と、それを本体へ追従させる trigger。
+        本文は `search_text` 列に置き、既存記事は節の本文だけを埋め戻す。
+      */
+      "0044_published_article_search",
+      /*
+        SEO / AEO の計測ループ。所見は (ページ, 規則) を鍵に上書き、
+        反映ログは取り消しても消さずに積む。変更前を必ず携える。
+      */
+      "0045_seo_aeo_measurement_loop",
+      /*
+        記事ごとに 1 枚だけ持つサムネイル（運営者が上げた原本）の在り処。
+        R2 の鍵をそのまま保存する。材料から組み直さないのは、記事の URL 名を
+        変えたあとに組み直すと置いたときと違う鍵になり、古い世代を消しに
+        行っても空振りするため（`domain/blogops/thumbnail-asset.ts`）。
+      */
+      "0046_blog_article_thumbnail",
+      /*
+        トップのおすすめ記事。公開記事の複製ではなく、
+        URL 名と並び順の選定意図を tenant/site ごとに保存する。
+        非公開中も意図を残し、同じ URL 名の再公開で復帰させる。
+      */
+      "0047_blog_home_featured",
+      "0048_seo_approved_article_revisions",
+      "0049_seo_page_observations",
+      "0050_persistent_publication_revisions",
+      "0051_search_console_query_metrics",
+      "0052_ai_citation_monthly_budget",
+      // 公開ページ監査の世代と対象別観測。既存の履歴を改名せず末尾へ追加する。
+      "0053_seo_static_audit_scans",
+      // 表示中の完了検索語と、その完了時刻・API上限状態を同じsnapshotへ固定する。
+      "0054_seo_query_snapshot_state",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
-      entries: Array<{ tag: string }>;
+      entries: Array<{ tag: string; idx: number; when: number }>;
     };
     const sqlFiles = readdirSync(join(ROOT, "drizzle"))
       .filter((name) => name.endsWith(".sql"))
@@ -475,6 +507,11 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
 
     expect(journal.entries.map(({ tag }) => tag)).toEqual(appliedHistory);
     expect(sqlFiles).toEqual(appliedHistory);
+    // 適用済みの時刻を修正せず、新しい末尾だけが直前の履歴より後であることを確認する。
+    const previous = journal.entries.at(-2)!;
+    const latest = journal.entries.at(-1)!;
+    expect(latest.idx).toBe(previous.idx + 1);
+    expect(latest.when).toBeGreaterThan(previous.when);
   });
 });
 
@@ -875,12 +912,65 @@ describe("重い検査の置き場所（REQ-CI09 / REQ-CI10 / REQ-CI11）", () =
     const configSource = read("vitest.config.mts");
     expect(configSource).toContain("projects: createTestProjects(NORMAL_MAX_WORKERS)");
     expect(configSource).not.toMatch(/^ {4}include:/m);
-    expect(normal?.test?.include).toEqual(["tests/**/*.test.ts", "tests/**/*.test.tsx"]);
+    /*
+      normal が集める範囲は「既定の 2 つ + ここに明記した例外」だけ。
+
+      例外を許すのは、promoted された機能パッケージが受け入れ証跡を
+      **ファイル名で名指ししている**場合がある（`Required evidence:` の行）ためである。
+      パッケージは digest 固定なので、こちら側の都合で名前を変えると、
+      仕様書が指す証跡と実物が食い違う。
+
+      とはいえ、ここを素通りにすると「どこに置けば走るのか」が置き場所ごとに散り、
+      **走っていないテストに誰も気づけなくなる。** だから例外は 1 件ずつ、
+      理由と、その理由がまだ生きていることの確かめ方を添えて並べる。
+    */
+    const normalExtraIncludes = [
+      {
+        pattern: "tests/blog-top-page/*.spec.ts",
+        // 実物が在ることを見る。0 件になった例外は、役目を終えているのに残っている。
+        dir: "tests/blog-top-page",
+        suffix: ".spec.ts",
+        why: "feature-package-feat-blog-top-page-composition が P04/P05 の Required evidence として `.spec.ts` を名指ししている",
+      },
+    ];
+
+    expect(normal?.test?.include).toEqual([
+      "tests/**/*.test.ts",
+      "tests/**/*.test.tsx",
+      ...normalExtraIncludes.map((extra) => extra.pattern),
+    ]);
+    for (const extra of normalExtraIncludes) {
+      const matched = readdirSync(join(ROOT, extra.dir)).filter((name) =>
+        name.endsWith(extra.suffix),
+      );
+      expect(
+        matched.length,
+        `${extra.pattern} に当たるファイルがありません。例外の理由（${extra.why}）が生きているか確かめてください`,
+      ).toBeGreaterThan(0);
+    }
     expect(workerRuntime?.test?.include).toEqual([
       "tests/integration/d1-*.test.ts",
       "tests/integration/local-seed-idempotency.test.ts",
       "tests/integration/r2-feedback-capture.test.ts",
+      "tests/integration/workerd-*.test.ts",
     ]);
+    /*
+      `workerd-*` を名指しではなく前方一致にしてあるのは、**置き場所を
+      間違えたら落ちる**ようにするためである。`HTMLRewriter` のように
+      Workers にしか無いものを使う検査を Node 側へ置くと、
+      「実行環境に無い」で落ちる。前方一致にしておけば、名前を
+      `workerd-` で始めた時点で正しい側へ入る。
+
+      とはいえ 0 件になった前方一致は、役目を終えているのに残っている。
+      実物が在ることをここで見る。
+    */
+    const workerdFiles = readdirSync(join(ROOT, "tests/integration")).filter(
+      (name) => name.startsWith("workerd-") && name.endsWith(".test.ts"),
+    );
+    expect(
+      workerdFiles.length,
+      "tests/integration/workerd-*.test.ts に当たるファイルがありません",
+    ).toBeGreaterThan(0);
     expect(normal?.test?.exclude).toEqual(
       expect.arrayContaining([
         ...(a11y?.test?.include ?? []),

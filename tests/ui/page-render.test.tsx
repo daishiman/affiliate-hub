@@ -19,9 +19,8 @@ import { existsSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { ArticleList } from "@/presentation/ui/templates/article-view";
 import {
-  CategoryArticleGroups,
+  CategoryDirectory,
   PublicShell,
   SiteSection,
 } from "@/presentation/ui/templates/site-shell";
@@ -117,86 +116,17 @@ describe("公開画面へ共通で波及する読み順", () => {
     expect(html).toContain('href="#public-main-content"');
   });
 
-  it("ホームは新着のあとにカテゴリー別の実記事と全件導線を並べる", () => {
+  it("カテゴリー索引はテーマ名と説明から記事一覧へ進める", () => {
     const html = renderToStaticMarkup(
-      <>
-        <SiteSection
-          id="recent-articles"
-          eyebrow="新着"
-          title="新着記事"
-          lead="更新順に紹介します。"
-        >
-          <ArticleList
-            articles={[
-              {
-                slug: "recent-pc",
-                href: "/s/demo/guides/recent-pc",
-                title: "最近のパソコン記事",
-                summary: "新しい記事です。",
-                updatedAt: "2026-08-28",
-                authorName: "山田",
-              },
-            ]}
-            emptyTitle=""
-            emptyBody=""
-            headingLevel="h3"
-          />
-        </SiteSection>
-        <SiteSection
-          id="category-articles"
-          eyebrow="カテゴリー"
-          title="テーマから探す"
-          lead="テーマごとの代表記事です。"
-        >
-          <CategoryArticleGroups
-            groups={[
-              {
-                href: "/s/demo/categories/pc",
-                label: "パソコン",
-                description: "選び方と使い方",
-                articles: [
-                  {
-                    slug: "quiet-pc",
-                    href: "/s/demo/guides/quiet-pc",
-                    title: "静かなパソコンの選び方",
-                    summary: "音の見方を紹介します。",
-                    updatedAt: "2026-08-20",
-                    authorName: "山田",
-                  },
-                ],
-              },
-            ]}
-          />
-        </SiteSection>
-      </>,
+      <SiteSection id="categories" eyebrow="カテゴリー" title="カテゴリーから探す" lead="テーマを選べます。">
+        <CategoryDirectory items={[{ href: "/s/demo/categories/audio", label: "オーディオ", description: "音を楽しむ道具" }]} />
+      </SiteSection>,
     );
-
-    expect(html.indexOf("新着記事")).toBeLessThan(html.indexOf("テーマから探す"));
-    expect(html.indexOf("パソコン")).toBeLessThan(html.indexOf("静かなパソコンの選び方"));
-    expect(html).toContain("このカテゴリーをすべて見る");
-    expect(html).toContain('<h2 id="recent-articles"');
-    expect(html).toMatch(/<h3[^>]*><a[^>]*>最近のパソコン記事<\/a><\/h3>/);
-    expect(html).toMatch(/<h4[^>]*><a[^>]*>静かなパソコンの選び方<\/a><\/h4>/);
-  });
-
-  it("代表記事が無いカテゴリーも索引から消さない", () => {
-    const html = renderToStaticMarkup(
-      <CategoryArticleGroups
-        groups={[
-          {
-            href: "/s/demo/categories/audio",
-            label: "オーディオ",
-            description: "音を楽しむ道具",
-            articles: [],
-          },
-        ]}
-      />,
-    );
-
     expect(html).toContain("オーディオ");
-    expect(html).toContain("カテゴリーの案内を見る");
+    expect(html).toContain("音を楽しむ道具");
     expect(html).toContain('href="/s/demo/categories/audio"');
   });
+
 });
 
 describe("画面の一覧", () => {

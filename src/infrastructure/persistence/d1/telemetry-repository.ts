@@ -10,7 +10,7 @@ import {
   deriveMetricSamples,
   rollupAiUsage,
 } from "@/domain/analytics";
-import { type WorkspaceId, domainError, err, ok } from "@/domain/shared";
+import { type WorkspaceId, type DomainError, type Result, domainError, err, ok } from "@/domain/shared";
 import { type TelemetryEventRow, telemetryEvents } from "@/db/schema";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
@@ -36,7 +36,7 @@ import { storageFailure } from "./storage-failure";
 /** 1 回の書き込みで入れる上限。受け口（/api/telemetry）の上限と揃える。 */
 const MAX_INSERT = 50;
 
-/** 集計で 1 度に読む上限。ここを超える期間は、読めた分だけで数える。 */
+/** 集計で1度に読む上限。1件多く取得して超過を検知し、部分集計を全体と表示しない。 */
 const MAX_SCAN = 20_000;
 
 /** 表に出ている項目から、列に出す値を取り出す。 */
@@ -66,7 +66,7 @@ async function loadEvents(
     readonly to: Date;
     readonly siteSlug?: string;
   },
-): Promise<readonly TelemetryEvent[]> {
+): Promise<Result<readonly TelemetryEvent[], DomainError>> {
   const conditions = [
     eq(telemetryEvents.workspaceId, String(workspaceId)),
     gte(telemetryEvents.occurredAt, input.from),
@@ -82,8 +82,13 @@ async function loadEvents(
     .select()
     .from(telemetryEvents)
     .where(and(...conditions))
-    .limit(MAX_SCAN);
-  return rows.map(toDomain).filter((e): e is TelemetryEvent => e !== null);
+    .limit(MAX_SCAN + 1);
+  if (rows.length > MAX_SCAN) {
+    return err(domainError("VALIDATION_FAILED", `集計対象が${MAX_SCAN.toLocaleString("en-US")}件を超えたため、数字を表示できません。一部だけの結果は表示していません。`, {
+      suggestedAction: "管理者へ集計方法の見直しを依頼してください。",
+    }));
+  }
+  return ok(rows.map(toDomain).filter((e): e is TelemetryEvent => e !== null));
 }
 
 export function createD1TelemetrySink(deps: {
@@ -120,7 +125,8 @@ export function createD1TelemetrySink(deps: {
           to: input.to,
           siteSlug: input.siteSlug,
         });
-        return ok(rollupAiUsage(events as readonly TelemetryEvent<"ai_model_usage">[]));
+        if (!events.ok) return events;
+        return ok(rollupAiUsage(events.value as readonly TelemetryEvent<"ai_model_usage">[]));
       } catch (cause) {
         return storageFailure("AI 利用の集計", cause);
       }
@@ -222,7 +228,8 @@ export function createD1TelemetryMetricsRepository(db: DrizzleD1): MetricsReposi
           from: input.from,
           to: input.to,
         });
-        const samples = deriveMetricSamples(events, input.from, input.to).filter((s) =>
+        if (!events.ok) return events;
+        const samples = deriveMetricSamples(events.value, input.from, input.to).filter((s) =>
           wanted.has(s.key),
         );
         return ok(samples);

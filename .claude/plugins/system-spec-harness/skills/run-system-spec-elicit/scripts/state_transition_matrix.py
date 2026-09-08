@@ -1,6 +1,7 @@
 """Matrix, log, and resumable-chunk transitions owned by the spec-state writer."""
 from __future__ import annotations
 
+import copy
 import datetime
 import hashlib
 import re
@@ -18,6 +19,15 @@ from state_transition_common import (
 from state_transition_required_info import blocking_items_for_category, normalize_required_info
 CATEGORY_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 APPLICATION_STATES = {"applied", "not_applicable"}
+
+# reopen が退避**しない**欄。状態機械そのものの欄だけを挙げる。
+#
+# 以前はここが逆向きだった——「退避する欄」をリテラルの一覧で持っていた。
+# 一覧は欄が生えるたびに手で足す必要があり、**足し忘れた欄は reopen で黙って消える**。
+# 実際に 3 度起きている (required_info / required_info_checks → qa_refs → 再び
+# required_info_checks)。列挙する側を裏返して、**知らない欄は既定で退避される**ように
+# した。新しい欄が生えても載せ忘れが起こり得ない (`ah-nuu` の原因 A)。
+CELL_MACHINE_FIELDS = ("state", "reopened_from", "reopen_reason")
 DESIGN_APPLICATION_CONTRACT_VERSION = "1.0"
 CURRENT_STATE_SCHEMA_VERSION = "1.2"
 
@@ -404,6 +414,11 @@ def supersede_qa(state: dict, qa_id: str, by: object) -> None:
 
 SPLIT_BUNDLE_WRITER = "split-qa-bundle"
 
+# 束ねの区切り文字。`### 見出し` を使わずに回答を連ねた束ねが実在する
+# (2026-09-03 の対等提示の再確認は、論点ごとの回答を「／」で連ねて 1 件へ寄せた)。
+# 見出し形式しか読めないと、この形の束ねは**解く道具が無いまま確定に埋もれる**。
+BUNDLE_SEPARATOR = "／"
+
 
 def _answer_sections(answer: str) -> "dict[str, str]":
     """回答本文を `### ` 見出し単位へ割る。見出し行そのものを key にする。
@@ -491,6 +506,65 @@ def _application_key(application: dict) -> tuple:
     )
 
 
+def _slash_segments(answer: str, topics: list, writer: str) -> "list[str]":
+    """`／` で連ねた束ねを論点の数だけの節へ割る。**数が合わないときは割らない。**
+
+    `／` は区切りにも文中の並列にも使われる (「並べて比べる／絞り込む／書き出す」)。
+    どちらであるかを文面から当てにいくと、当てた分だけ意味の通らない問いが増える。
+    だからここは推測しない——**割った数が topics の数と一致するときだけ区切りと見なす**。
+    一致しなければ、どの `／` が区切りでどれが文中用法かを writer が決められないので
+    止める。文中の `／` を含む束ねは解けないが、**誤って割るよりは解けない方が良い**
+    (解けない束ねは束ねのまま見えるが、誤って割った束ねは正しく割れたように見える)。
+    """
+    if BUNDLE_SEPARATOR not in answer:
+        raise TransitionError(
+            f"{writer}: 本文に `### ` 見出しも `{BUNDLE_SEPARATOR}` 区切りも無く、節を特定できない"
+        )
+    segments = [segment.strip() for segment in answer.split(BUNDLE_SEPARATOR)]
+    if len(segments) != len(topics):
+        raise TransitionError(
+            f"{writer}: `{BUNDLE_SEPARATOR}` で割ると {len(segments)} 節になるが topics は "
+            f"{len(topics)} 件で数が合わない (文中の `{BUNDLE_SEPARATOR}` を区切りと"
+            "取り違える恐れがあるため割らない)"
+        )
+    return segments
+
+
+def _absorbed_segment_residue(
+    segment: str, origin_answer: str, span: str, origin_id: str, writer: str
+) -> str:
+    """取り込んだ節を外したあとに、この entry 自身へ残る文字列を返す。
+
+    外して良いのは**取り込み元に byte 単位で在る分だけ**である。束ねるときに付いた
+    前置き (「（対等提示での再確認）」など) は取り込み元に無いので、外すと消える。
+    消さずに entry 自身の文として残す——`／` 束ねは節の境界に前置きが乗るため、
+    節をまるごと捨てると *この entry が何のターンだったか* が失われる。
+    """
+    if not origin_answer:
+        raise TransitionError(
+            f"{writer}: 取り込み元 {origin_id} の answer が空で、外して良い範囲が決まらない"
+        )
+    if segment == origin_answer:
+        return ""
+    if segment.endswith(origin_answer):
+        return segment[: -len(origin_answer)].strip()
+    if segment in origin_answer:
+        # 束ねが取り込み元の一部だけを引いていた。全文は取り込み元に在るので外せる。
+        return ""
+    if span:
+        # 前置きと部分引用が重なった形。**削る範囲は宣言された span から節の末尾まで**と
+        # 定め、それが取り込み元に逐語で在ることを確かめてから削る。範囲を span に錨で
+        # 留めるので、「取り込み元に在る文字列を手掛かりに好きなところで切る」にならない。
+        head, _, absorbed_part = segment.partition(span)
+        absorbed_part = span + absorbed_part
+        if absorbed_part in origin_answer:
+            return head.strip()
+    raise TransitionError(
+        f"{writer}: 節が取り込み元 {origin_id} の回答と一致しない "
+        "(取り込みではなく編集された本文なので、削ると内容が失われる)"
+    )
+
+
 def split_qa_bundle(state: dict, qa_id: str) -> None:
     """束ねた qa entry を論点ごとに解く。**取り込み元が実在し同一のときだけ。**
 
@@ -508,6 +582,14 @@ def split_qa_bundle(state: dict, qa_id: str) -> None:
     **何を削るかは引数で受け取らない。**`scope_notes.topics` と取り込み元 entry を
     writer が自分で引く。渡せると、渡す側がどの節を「取り込みだった」と名乗るか
     選べてしまい、自分の本文を他所のせいにして消せる。
+
+    束ねの形式は 2 つ受ける。`### 見出し` で節を立てたものと、`／` で回答を連ねた
+    ものである。後者は 2026-09-03 の対等提示の再確認が実際に取った形で、見出しが
+    無いため見出し形式の読み方では解けなかった (`answer_span` が本文に無いとして
+    止まる)。**解けない束ねは、束ねのまま確定に埋もれる**——片方の論点だけ答えが
+    揃っていても entry としては 1 件なので、確定にできてしまう。`／` は文中の並列
+    にも使われるので、区切りと見なすのは節の数が topics の数と一致し、かつ各節に
+    その論点の `answer_span` が逐語で 1 箇所在るときだけである (`_slash_segments`)。
     """
     if not isinstance(qa_id, str) or not qa_id.strip():
         raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: qa_id は非空文字列必須")
@@ -531,8 +613,16 @@ def split_qa_bundle(state: dict, qa_id: str) -> None:
     if not isinstance(topics, list) or not topics:
         raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: {qa_id} の scope_notes.topics が非空配列でない")
 
-    sections = _answer_sections(entry.get("answer") or "")
+    answer = entry.get("answer") or ""
+    sections = _answer_sections(answer)
+    # 束ねの形は 2 つ在る: `### 見出し` で節を立てたものと、`／` で連ねたもの。
+    # 見出しが 1 つも無い本文は後者として読む (見出し形式だけを読むと、`／` 束ねは
+    # 「answer_span が本文に見つからない」で止まり、解く手立てが無いままになる)。
+    slash_form = not sections
+    segments = _slash_segments(answer, topics, SPLIT_BUNDLE_WRITER) if slash_form else []
     own_span: str | None = None
+    # `／` 束ねで entry 自身に残る文字列を、本文に現れた順で集める。
+    retained: list[str] = []
     absorbed: list[str] = []
     for index, topic in enumerate(topics):
         if not isinstance(topic, dict):
@@ -541,14 +631,26 @@ def split_qa_bundle(state: dict, qa_id: str) -> None:
         span = (topic.get("answer_span") or "").strip()
         if not isinstance(origin_id, str) or not origin_id:
             raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: topics[{index}].origin_qa_id が非空文字列でない")
-        if span not in sections:
-            raise TransitionError(
-                f"{SPLIT_BUNDLE_WRITER}: topics[{index}].answer_span が本文に見つからない: {span!r}"
-            )
+        if slash_form:
+            segment = segments[index]
+            # 節と論点の対応は順番だけでは決まらない。**span が節の中に逐語で 1 箇所
+            # 在ること**を要求して、i 番目の節が i 番目の論点であることを確かめる。
+            if span and segment.count(span) != 1:
+                raise TransitionError(
+                    f"{SPLIT_BUNDLE_WRITER}: topics[{index}].answer_span が "
+                    f"{index} 番目の節に {segment.count(span)} 箇所在り、対応が決まらない: {span!r}"
+                )
+        else:
+            if span not in sections:
+                raise TransitionError(
+                    f"{SPLIT_BUNDLE_WRITER}: topics[{index}].answer_span が本文に見つからない: {span!r}"
+                )
+            segment = sections[span]
         if origin_id == qa_id:
             if own_span is not None:
                 raise TransitionError(f"{SPLIT_BUNDLE_WRITER}: {qa_id} 自身の節が 2 つ在る")
             own_span = span
+            retained.append(segment)
             continue
         origin = entries.get(origin_id)
         if origin is None:
@@ -556,7 +658,14 @@ def split_qa_bundle(state: dict, qa_id: str) -> None:
                 f"{SPLIT_BUNDLE_WRITER}: 取り込み元 {origin_id} が qa_log に無い "
                 "(本文を削ると内容が失われるため解けない)"
             )
-        if sections[span] != (origin.get("answer") or "").strip():
+        origin_answer = (origin.get("answer") or "").strip()
+        if slash_form:
+            residue = _absorbed_segment_residue(
+                segment, origin_answer, span, origin_id, SPLIT_BUNDLE_WRITER
+            )
+            if residue:
+                retained.append(residue)
+        elif segment != origin_answer:
             raise TransitionError(
                 f"{SPLIT_BUNDLE_WRITER}: 節 {span!r} が取り込み元 {origin_id} の回答と一致しない "
                 "(取り込みではなく編集された本文なので、削ると内容が失われる)"
@@ -589,7 +698,9 @@ def split_qa_bundle(state: dict, qa_id: str) -> None:
             "(自分の設計適用が残らない entry は解けない)"
         )
 
-    entry["answer"] = sections[own_span]
+    entry["answer"] = (
+        BUNDLE_SEPARATOR.join(retained) if slash_form else sections[own_span]
+    )
     entry["design_applications"] = kept
     # 本文を縮めた**直後に**指し先を張り直す。ここを別便へ回すと、その間の
     # spec-state は「セルが引く論点の本文が何処にも無い」状態で出荷される
@@ -597,6 +708,9 @@ def split_qa_bundle(state: dict, qa_id: str) -> None:
     _reanchor_topics(entries, topics, SPLIT_BUNDLE_WRITER)
     notes["bundled"] = False
     notes["split_with"] = SPLIT_BUNDLE_WRITER
+    # どちらの束ね形式として読んだかを残す。読み方が違えば「何を外したか」も違うので、
+    # 後から差分を辿る側が形式を推測せずに済むようにする。
+    notes["split_form"] = "slash" if slash_form else "heading"
     notes["split_on"] = datetime.date.today().isoformat()
     notes["absorbed_origins_released"] = sorted(absorbed)
     notes["bundling_reason"] = (
@@ -1597,6 +1711,69 @@ def _reject_undeclared_revert(
             )
 
 
+def _snapshot_cell_fields(cell: dict) -> dict:
+    """セルの内容欄を、状態機械の欄を除いて丸ごと写し取る。
+
+    深く写すのは、退避値と生きたセルが同じ list/dict を共有しないためである。
+    共有すると `record-required-info-check` の append が退避側まで書き換え、
+    **「退避された当時の姿」を名乗る記録が現在の姿へ黙って追随する**。
+    """
+    return {
+        key: copy.deepcopy(value)
+        for key, value in cell.items()
+        if key not in CELL_MACHINE_FIELDS
+    }
+
+
+def _last_discarded(state: dict, category: str, platform: str) -> "dict | None":
+    """このセルが最後に reopen されたときの退避値。同じセルは何度でも reopen されうる。"""
+    preserved = None
+    for log_entry in state.get("reopen_log") or []:
+        if not isinstance(log_entry, dict):
+            continue
+        if log_entry.get("category") != category or log_entry.get("platform") != platform:
+            continue
+        discarded = log_entry.get("discarded")
+        if isinstance(discarded, dict) and discarded:
+            preserved = discarded
+    return preserved
+
+
+def _validated_reopen_qa_ref(state: dict, category: str, platform: str, op: dict) -> str:
+    """reopen の根拠となる質疑 (`qa_ref`) を要求し、`qa_log` に実在することを確かめる。
+
+    **`reason` だけでは根拠にならない。**`reason` は writer が中身を見ない自由文で、
+    「見直しが要る」と書くだけで確定を巻き戻せる。確定側は `confirm` が `qa_ref` を
+    必須にしていて、どの問答に接地したかが機械で辿れる。**戻す側だけがそれを持たない
+    のは非対称である。**確定を外す操作の方が、確定する操作より軽い門で通ってしまう。
+
+    ここで要求するのは 2 つだけ:
+
+      - 非空の文字列 `qa_ref` を名乗ること
+      - その id が `qa_log` に在ること (`confirm` の qa_refs 検査と同じ規則)
+
+    **現行の `qa_ref` と同じであってはならない、はやらない。**章本文を現行 `qa_ref` へ
+    揃えるためだけの R4-reopen が現に `reopen_log` に何件も在り、そこでは根拠が
+    現行の問答であるのが正しい。禁じると、正しい使い方の方が通れなくなる。
+
+    塞げていないところ: 既存 124 件の `reopen_log` には `qa_ref` が 1 件も無い。
+    **遡って埋めない。**当時名乗られなかった事実の方が記録として正しく、後から
+    埋めれば「その時に根拠が在った」という嘘になる。門は今日以降の書込にだけ効く。
+    """
+    qa_ref = op.get("qa_ref")
+    if not isinstance(qa_ref, str) or not qa_ref:
+        raise TransitionError(
+            f"reopen には qa_ref が必須: {category}/{platform} "
+            "(確定を外す根拠となる qa_log の id を名乗ること)"
+        )
+    known = {entry.get("id") for entry in state.get("qa_log") or [] if isinstance(entry, dict)}
+    if qa_ref not in known:
+        raise TransitionError(
+            f"reopen の qa_ref が qa_log に存在しない: {category}/{platform} ({qa_ref})"
+        )
+    return qa_ref
+
+
 def apply_cell_op(state: dict, op: dict) -> None:
     action, category, platform = op.get("action"), op.get("category"), op.get("platform")
     cell = _cell(state, category, platform)
@@ -1606,34 +1783,22 @@ def apply_cell_op(state: dict, op: dict) -> None:
             raise TransitionError(f"reopen 不可: {category}/{platform} は '{current}' (確定セルのみ reopen できる)")
         if not op.get("reason"):
             raise TransitionError(f"reopen には reason が必須: {category}/{platform}")
-        discarded = {
-            key: list(cell[key]) if isinstance(cell[key], list) else cell[key]
-            # required_info もここへ入れる。入れないと reopen で充足記録だけが
-            # 黙って消え、再確定のときに「元は何が接地していたか」を誰も引けない。
-            # required_info_checks も同様。reopen で「数えた事実」が黙って消えると、
-            # 再確定したセルが「一度も数えていない」姿へ戻る。
-            # qa_refs も同じ理由で入れる。**2026-08-21 に、入っていないことを実測した。**
-            # 確定 8 セルのうち 6 セルが qa_refs を持つのに、reopen の discarded には
-            # 1 件も載らなかった。しかも qa_refs を書ける writer は split-qa-bundle
-            # だけで、それは `scope_notes.bundled=true` を要求する——解除済みの 6 件は
-            # 全部拒否されるので、**一度 reopen したら二度と戻せない。**
-            # 「reopen で黙って消え、再確定のときに元は何が接地していたかを誰も引けない」
-            # という上の理由が、そのまま当てはまる。
-            for key in (
-                "qa_ref",
-                "qa_refs",
-                "serves_goals",
-                "serves_intents",
-                "required_info",
-                "required_info_checks",
-            )
-            if key in cell
-        }
+        qa_ref = _validated_reopen_qa_ref(state, category, platform, op)
+        # **セルが持つ欄を、状態機械の欄を除いて丸ごと退避する。**
+        #
+        # 退避する欄を数え上げないのが要点である。数え上げると、新しい欄が生えた日に
+        # 足し忘れが起き、その欄は reopen で黙って消える。実測 3 回はすべてこの形だった
+        # (`required_info` / `required_info_checks` → `qa_refs` → 再び
+        # `required_info_checks`。3 度目は確定 8 セル全ての `required_info_checks` が
+        # 1 件から 0 件になっていた)。除外する側 (`CELL_MACHINE_FIELDS`) を挙げれば、
+        # **知らない欄は退避される**方へ倒れる。
+        discarded = _snapshot_cell_fields(cell)
         log_entry = {
             "category": category,
             "platform": platform,
             "reason": op["reason"],
             "from": "確定",
+            "qa_ref": qa_ref,
         }
         if discarded:
             log_entry["discarded"] = discarded
@@ -1769,6 +1934,84 @@ def apply_cell_op(state: dict, op: dict) -> None:
                 f"{category}/{platform} ({record['checked_on']} / {record['blocking_item_count']} 件)"
             )
         checks.append(record)
+        return
+    if action == "restore-discarded":
+        # **reopen で退避した欄を、欄の名前を知らないまま戻す単一の窓口。**
+        #
+        # なぜ要るか (`ah-nuu`): 戻す窓口が欄ごとに個別だった。`restore-qa-refs` は
+        # `qa_refs` 専用、`set-serves` は `serves_goals` 専用、という具合である。
+        # だから**欄が増えるたびに同じ穴がもう 1 つ空く**——退避はされるが戻す道が無い欄が
+        # 作れてしまい、その欄は「一度 reopen したら二度と戻せない」。実際 `serves_intents`
+        # は退避リストに載りながら値を書ける op が 1 つも無かった。
+        #
+        # ここは `discarded` の**鍵を数え上げない**。退避された欄が何であれ戻す。
+        # 退避する側 (`_snapshot_cell_fields`) と戻す側の両方が欄を知らないので、
+        # 新しい欄が生えても穴が空かない。
+        #
+        # **引数で受け取らない。**戻す値の出所は `reopen_log[].discarded` だけで、
+        # 呼ぶ側は何を戻すかも、どんな値へ戻すかも選べない (`restore-qa-refs` と同じ理由)。
+        #
+        # **戻せない欄が 1 つでもあれば、何も書かずに止める。**部分的に戻すと、
+        # 戻らなかった欄は元どおり黙って消えたままになる——それは塞ごうとしている穴
+        # そのものである。止まれば、何が戻せなかったかが名前で出る。
+        #
+        # 塞げていないところ: `restore-qa-refs` と同じく、reopen_log を writer の外で
+        # 書き換えれば任意の値を「退避されていた値」として置ける。
+        if current != "確定":
+            raise TransitionError(
+                f"restore-discarded 不可: {category}/{platform} は '{current}' "
+                "(再確定したセルにしか書き戻せない)"
+            )
+        preserved = _last_discarded(state, category, platform)
+        if preserved is None:
+            raise TransitionError(
+                f"restore-discarded: {category}/{platform} の reopen_log に退避された欄が無い"
+                " (書き戻せるのは退避された値だけで、無いものを作ることはしない)"
+            )
+        known = {entry.get("id") for entry in state.get("qa_log") or [] if isinstance(entry, dict)}
+        pending: dict = {}
+        for field in sorted(preserved):
+            value = preserved[field]
+            if field == "qa_ref":
+                # confirm が必ず書く欄なので、退避値で上書きするのは付け替えにあたる。
+                # 再確定が別の entry を引いているなら、それが現在の主張である。
+                continue
+            if field in cell:
+                if cell[field] == value:
+                    continue
+                raise TransitionError(
+                    f"restore-discarded: 再確定後の {field} が退避値と違う: {category}/{platform} "
+                    "(現在の主張を退避値で黙って上書きしないため止める。"
+                    "現在の値が正しいなら、この欄は戻す対象ではない)"
+                )
+            if field == "qa_refs":
+                # `restore-qa-refs` が持っていた不変条件をここでも門にする——
+                # `qa_refs[0]` はそのセルが引いている entry 自身。先頭が変わっていたら、
+                # 戻すのではなく**別の主張へ裏付けを付け替える**ことになる。
+                if not isinstance(value, list) or not value:
+                    raise TransitionError(
+                        f"restore-discarded: 退避された qa_refs が非空 list でない: {category}/{platform}"
+                    )
+                missing = [ref for ref in value if ref not in known]
+                if missing:
+                    raise TransitionError(
+                        f"restore-discarded: 退避された qa_refs に qa_log へ存在しない id が在る: "
+                        f"{category}/{platform} ({', '.join(missing)})"
+                    )
+                if value[0] != cell.get("qa_ref"):
+                    raise TransitionError(
+                        f"restore-discarded: 退避された qa_refs の先頭 {value[0]!r} が、再確定後の "
+                        f"qa_ref {cell.get('qa_ref')!r} と違う: {category}/{platform} "
+                        "(別の主張へ裏付けを付け替えることになるため拒否。"
+                        "元の範囲へ足すなら extend-qa-refs を使うこと)"
+                    )
+            pending[field] = copy.deepcopy(value)
+        if not pending:
+            raise TransitionError(
+                f"restore-discarded: 戻す欄が 1 つも無い: {category}/{platform} "
+                "(退避された欄は全て再確定後のセルに在る)"
+            )
+        cell.update(pending)
         return
     if action == "restore-qa-refs":
         # **reopen で退避した `qa_refs` を、退避された値からだけ書き戻す窓口。**
@@ -2182,6 +2425,16 @@ def run_chunk(state: dict, turns: list[dict], max_loops: int = 5) -> int:
 
 
 CHAPTER_NOTE_WRITER = "set-chapter-note"
+CHAPTER_NOTE_RETIRER = "retire-chapter-note"
+
+# compile が「正本に接続できなかった行」を置く棚の見出し。**この棚自体は注記ではない。**
+# 棚ごと正本へ写すと、未接続の行が「正本に在る」顔をして残り、残余が減ったように見える。
+# 実測 2026-09-08 (ah-lwmf): 実際にこの 2 つが `chapter_notes` へ入り、章に二重に出た。
+# 正本は `lib/spec_docset_foundation.py` の CARRIED_HEADING / RESIDUE_HEADING
+# (`## ` 付き)。ここは import 経路が無いので写しを持ち、突き合わせは検査側で行う。
+RESIDUE_PEN_HEADINGS = frozenset(
+    {"章にしか無い記述 (正本へ未接続)", "compile が保てなかった行 (要判断)"}
+)
 
 
 EXCLUDED_CATEGORY_WRITER = "declare-excluded-category"
@@ -2262,6 +2515,10 @@ def set_chapter_note(state: dict, category: str, heading: str, body: str, reason
         if not isinstance(value, str) or not value.strip():
             raise TransitionError(f"{CHAPTER_NOTE_WRITER}: {name} は非空文字列必須")
     category = category.strip()
+    if heading.strip() in RESIDUE_PEN_HEADINGS:
+        raise TransitionError(
+            f"{CHAPTER_NOTE_WRITER}: 残余節そのものを正本へ入れることはできない: {heading.strip()}"
+        )
     if category not in {c.get("id") for c in (state.get("categories") or []) if isinstance(c, dict)}:
         raise TransitionError(f"{CHAPTER_NOTE_WRITER}: categories に存在しない category: {category}")
 
@@ -2288,3 +2545,46 @@ def set_chapter_note(state: dict, category: str, heading: str, body: str, reason
                 )
             return
     bucket.append(entry)
+
+
+def retire_chapter_note(state: dict, category: str, heading: str, reason: str) -> None:
+    """正本へ入れるべきでなかった注記を、章へ描かれない場所へ移す。
+
+    **なぜ在るか。**`set_chapter_note` は「生成節の内側に在って compile のたび消える
+    散文」のための口である。ところが `##` 単位の節は `--on-handwritten preserve` が
+    引き継ぐので、移す必要が無い。**移す必要の無いものを移すと、同じ本文が章に 2 回出る** —
+    正本から描かれた `### <見出し>` と、preserve が引き継いだ `## <見出し>` である。
+    実測 2026-09-08 (ah-lwmf): 差し戻しの判定を `preserve` 抜きの試作と比べて行ったため、
+    手書きのまま守られていた `状態の意味` / `As-Is` / `To-Be` / `Delta` / `Dependencies` /
+    `Acceptance evidence` などが「消える節」に見え、8 章ぶん重複が入った。
+
+    **なぜ消さないか。**正本から本文を落とす口を作ると、誤りの取り消しと、都合の悪い
+    記録の抹消が同じ操作になる。ここは描画対象から外すだけにして、本文・理由・元の
+    `recorded_with` はそのまま `retired_chapter_notes` へ残す。**戻せるし、辿れる。**
+    compile は `chapter_notes` しか読まないので、章からは消える。
+    """
+    for name, value in (("category", category), ("heading", heading), ("reason", reason)):
+        if not isinstance(value, str) or not value.strip():
+            raise TransitionError(f"{CHAPTER_NOTE_RETIRER}: {name} は非空文字列必須")
+    category, heading, reason = category.strip(), heading.strip(), reason.strip()
+
+    notes = state.get("chapter_notes")
+    bucket = notes.get(category) if isinstance(notes, dict) else None
+    graveyard = state.setdefault("retired_chapter_notes", {}).setdefault(category, [])
+
+    found = None
+    if isinstance(bucket, list):
+        for index, existing in enumerate(bucket):
+            if isinstance(existing, dict) and existing.get("heading") == heading:
+                found = bucket.pop(index)
+                break
+    if found is None:
+        # 既に退けてあるなら通す (冪等)。**綴り違いは通さない。**通すと、直したつもりの
+        # 注記が正本に残ったまま「退けた」と報告されることになる。
+        if any(isinstance(g, dict) and g.get("heading") == heading for g in graveyard):
+            return
+        raise TransitionError(
+            f"{CHAPTER_NOTE_RETIRER}: chapter_notes.{category} に見出しが無い: {heading}"
+        )
+
+    graveyard.append({**found, "retired_reason": reason, "retired_with": CHAPTER_NOTE_RETIRER})

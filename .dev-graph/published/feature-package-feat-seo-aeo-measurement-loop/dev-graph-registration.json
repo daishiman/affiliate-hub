@@ -1,0 +1,1193 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+  "promotion_receipt": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+  "parent_feature": "feat-seo-aeo-measurement-loop",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P01": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P02": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P03": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P04": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P05": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P06": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P07": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P08": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P09": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P10": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P11": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P12": "beads",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "3データ源SEO/AEO計測ループの要件ベースライン (自動反映・可逆性・時間範囲限定の非機能要件を含む)",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/requirements.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p01.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP01 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p01.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "3データ源収集・突合・自動反映アーキテクチャ設計",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P01"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/architecture.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p02.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP02 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p02.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "自動反映アーキテクチャの独立設計レビュー",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P02"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/design-review.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p03.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP03 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p03.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "A1-A8とNFR1-9のテスト設計",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P03"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/test-design.md",
+        "tests/fixtures/feat-seo-aeo-measurement-loop/"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p04.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP04 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p04.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "3データ源収集器・突合・自動反映エンジンの実装",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P04"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "src/domain/seo/aeo-measurement/",
+        "src/application/seo/aeo-measurement/",
+        "src/infrastructure/seo/aeo-measurement/",
+        "src/presentation/admin/seo-aeo/",
+        "drizzle/"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p05.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP05 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p05.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "テスト実行と証跡記録",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P05"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "tests/feat-seo-aeo-measurement-loop/",
+        "docs/spec/feat-seo-aeo-measurement-loop/test-run.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p06.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP06 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p06.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "feature受入 A1-A8 の検証",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P06"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/acceptance.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p07.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP07 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p07.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "永続化スキーマの移行 (所見・反映ログ・系統別最終収集時刻)",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "data",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P05"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/refactoring-migration.md",
+        "drizzle/"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p08.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP08 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p08.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "品質・セキュリティ・運用保証",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "security",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P08"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/quality-assurance.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p09.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP09 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p09.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独立最終レビュー",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P09"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/final-review.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p10.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP10 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p10.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "再現可能な証跡の確定",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P10"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/evidence/"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p11.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP11 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p11.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "運用文書・runbook整備",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P11"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/runbook.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p12.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP12 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p12.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "リリース・デプロイとclose-out",
+      "project_id": "feature-package-feat-seo-aeo-measurement-loop",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-seo-aeo-measurement-loop",
+        "seo-aeo"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T05:19:32Z",
+      "updated_at": "2026-09-04T05:19:32Z",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P12"
+      ],
+      "related_nodes": [
+        "arch-system-spec-overview",
+        "arch-two-layer-platform"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-seo-aeo-measurement-loop/release-deploy.md"
+      ],
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p13.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json",
+        "evaluated_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+        "imported_at": "2026-09-04T05:19:32Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-seo-aeo-measurement-loopのP13 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p13.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    }
+  ]
+}

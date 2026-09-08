@@ -938,6 +938,8 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   "blog_article.changed": "ブログ記事を直した",
   "blog_article.deleted": "ブログ記事を消した",
   "blog_article.restored": "ブログ記事を戻した",
+  "blog_article_thumbnail.set": "記事の表紙の絵を登録した",
+  "blog_article_thumbnail.removed": "記事の表紙の絵を外した",
   "blog_tag.changed": "タグを保存した",
   "blog_tag.deleted": "タグを消した",
   // **「伏せた」と「戻した」を別の言葉にしている。**型でも別の語なので、

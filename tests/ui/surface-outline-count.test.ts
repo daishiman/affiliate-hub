@@ -188,6 +188,13 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "2026-08-21。読者向けの外枠",
     reason: "同じく外枠の地色。区別のためではなく地を敷いている",
   },
+  "src/presentation/ui/templates/site.module.css :: .articleListThumb": {
+    measured: "2026-09-04。記事一覧のサムネイル枠。`.articleListThumb img` が同じ大きさで上に載る",
+    reason:
+      "**画像が届くまでの間だけ見える地色。**届いた画像が `object-fit: cover` で枠を覆い切るので、" +
+      "読者がこの色を見るのは読み込み中と、画像が壊れて出ないときだけ。" +
+      "その一瞬に隣と区別させる相手がおらず、輪郭を足すと画像の縁に線が二重に出る",
+  },
   "src/presentation/ui/patterns/patterns.module.css :: .feedbackDialog": {
     measured: "2026-08-21。走査には 0 回（押して初めて開く client 側の状態）",
     reason:
@@ -354,6 +361,8 @@ describe("面の地色だけで区別している規則は、理由つきで数�
       // 上の `EXEMPT` に理由を書いてある。
       "src/presentation/ui/primitives/ui.module.css :: .skeleton",
       "src/presentation/ui/primitives/ui.module.css :: .skipLink",
+      // 角を丸めるだけの規則がもう 1 つ増えた（2026-09-04・サムネイル枠）。
+      "src/presentation/ui/templates/site.module.css :: .articleListThumb",
       "src/presentation/ui/templates/site.module.css :: .siteSearch button",
       "src/presentation/ui/templates/site.module.css :: .siteSearch input",
       "src/presentation/ui/templates/site.module.css :: .skipLink",

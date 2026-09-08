@@ -10,9 +10,12 @@ export type AdminDisclosureContract =
     };
 
 const FOLDABLE_ROUTES = new Set<AdminRouteId>([
+  "analytics",
+  "seo",
   "evidence",
   "personas/audiences",
   "feedback/[report]",
+  "ui-catalog",
 ]);
 
 const DEDICATED_ROUTES = new Map<AdminRouteId, AdminRouteId>([

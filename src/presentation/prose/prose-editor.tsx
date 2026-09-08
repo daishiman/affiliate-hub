@@ -504,7 +504,14 @@ function NodeEditor({
           <input
             aria-label="画像の場所"
             className={styles.proseEditorText}
-            onChange={(e) => onChange({ ...node, src: e.target.value })}
+            /*
+              場所を書き換えたら寸法を捨てる。**前の絵の寸法を次の絵へ
+              持ち越すと、場所だけ空けて中身が合わない箱ができる。**
+              測り直しは下の下絵の読み込みが引き受ける。
+            */
+            onChange={(e) =>
+              onChange({ ...node, src: e.target.value, width: null, height: null })
+            }
             placeholder="/media/... または https://..."
             type="text"
             value={node.src}
@@ -518,9 +525,28 @@ function NodeEditor({
             value={node.alt}
           />
           {node.src.trim() !== "" && (
+            /*
+              **下絵の読み込みそのものを物差しに使う。**`new Image()` で
+              測り直すと同じ絵を 2 度取りに行くことになる。ここに出ている
+              絵は既に読み込まれているので、届いた寸法をそのまま書き取る。
+
+              読み込みに失敗した絵は `onLoad` が呼ばれず、寸法は `null` の
+              まま残る。**保存は落ちない。**測れないことは、書けないことでは
+              ない。運営者が外部の絵を貼った直後に保存を押しても通る。
+            */
             // 運営者入力の URL は寸法も許可ホストも事前確定できないため、最適化 API を経由しない。
             // eslint-disable-next-line @next/next/no-img-element
-            <img alt={node.alt} className={styles.proseImage} src={node.src} />
+            <img
+              alt={node.alt}
+              className={styles.proseImage}
+              onLoad={(e) => {
+                const { naturalWidth, naturalHeight } = e.currentTarget;
+                if (naturalWidth === 0 || naturalHeight === 0) return;
+                if (node.width === naturalWidth && node.height === naturalHeight) return;
+                onChange({ ...node, width: naturalWidth, height: naturalHeight });
+              }}
+              src={node.src}
+            />
           )}
         </div>
       );

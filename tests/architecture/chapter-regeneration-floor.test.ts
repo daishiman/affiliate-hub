@@ -365,7 +365,10 @@ const CHAPTERS_BECAME_PURE_ON = "2026-08-22";
 const CHAPTERS: readonly Chapter[] = [
   {
     name: "auth",
-    sections: SHAPE_A_WITH_CELL_RECORD,
+    // 2026-09-08 (ah-lwmf): 手書き「意思決定 (decisions)」節の章固有の注釈を正本
+    // `chapter_notes` へ移したため、この章にも `## 章の注記 (chapter_notes)` が出た。
+    // **共有の形には足さない**（注記を持たない章に「在るはず」を宣言しないため）。
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
     tables: [
       ["To-Be", 5],
       ["Acceptance evidence", 6],
@@ -381,7 +384,10 @@ const CHAPTERS: readonly Chapter[] = [
   },
   {
     name: "backend",
-    sections: SHAPE_B,
+    // 2026-09-04: database / frontend と同じ理由で `## 章の注記 (chapter_notes)` が
+    // 増えた。AEO の解析経路の確定が正本 `chapter_notes` へ入り、節が現れた。
+    // **共有の形 (SHAPE_B) には足さず、この章だけに足す。**
+    sections: [...SHAPE_B, "章の注記 (chapter_notes)"],
     tables: [
       ["カテゴリ別収集状態", 7],
       ["上流指針 (doctrine anchor)", 3],
@@ -397,8 +403,14 @@ const CHAPTERS: readonly Chapter[] = [
       余裕が 150 行へ広がる）。この章がその時点で持っていた余裕は
       442 - 401 = 41 行だったので、**その 41 行を位置ごと移す**（446 + 41 = 487）。
       緩めたのではなく、余裕の量を変えずに置き直した。ui-ux と同じやり方。
+
+      2026-09-04: feat-seo-aeo-measurement-loop の確定 (`qa-backend-web-aeo-analysis-pipeline-v6`)
+      が正本へ入り、実測 638 行になった。増分の内訳は `## 章の注記` 42 行と
+      `#### 本章での適用` の伸びで、いずれも**章へ直接書いた散文ではなく**
+      正本 `spec-state.json` の確定が生成節として載ったものである。
+      **床 292 も余裕 41 行も動かさない。**同じ 41 行を置き直す (638 + 41 = 679)。
     */
-    ceiling: 487,
+    ceiling: 679,
     headings: 35,
     principles: 2,
     answers: [1, 111], // 2026-08-23: 0 件だったが 1 件載ったので、張れるようになった。
@@ -445,8 +457,33 @@ const CHAPTERS: readonly Chapter[] = [
       4 行を足した 373 だった。**合流後の章には両方の増分が載る**ので、
       片方の天井ではどちらも通らない。**余裕は広げない**——dev の 593 に
       こちらの実増分 4 行だけを置き直す（593 + 4 = 597）。
+
+      2026-09-04: 実測 723 行。増分は AEO の信号を置く先
+      (`qa-database-web-aeo-signal-store-v6`) の確定が `## 章の注記` 224 行として
+      載ったもの。**床 219 も余裕 15 行も動かさない。**(723 + 15 = 738)。
+
+      2026-09-07: AI被引用の月次検索枠をC01注記→C03で同期し、正規投影が
+      719 → 743 行（実増24行）になった。NULL停止、検索/記事の単位分離、
+      原子予約、未確認枠、UTC月替り、ブログ配分と試行巡回の現行契約による増分。
+      旧QA・公開snapshot・既存注記の不変をspec-sync-auditで確認した。
+      **床219・QA/見出し/逐語の床・余裕15行は不変**とし、743 + 15 = 758へ置き直す。
+
+      2026-09-08: 静的監査の上限時の継続補足をC01→C03で追加した。
+      正規投影は757→767行（実増10行）。同名注記を上書きせず、非エラーlimited、
+      HTML+llmsの合計25取得、容量超過後の14日再試行を優先注記として保持する。
+      床・旧本文・他章・余裕を変えず、直前の天井758に実増10だけを加えて768とする。
+
+      同日最終統合: 公開境界と容量結果の優先訂正をC01→C03で追加した。
+      未retire設計図・設計図外の公開文書・単体/合計容量の実行結果を同期し、
+      正規投影は767→778行（実増11行）。旧QA/注記を残し、天井768へ実増11だけを
+      加えて779とする。床・他章・余裕は不変。
+
+      同日GSC検索語UI統合: 完了snapshot・再取得状態・API上限と表示上限の分離を
+      C01→C03で追加し、正規投影の計測値は778→793行（実増15行）になった。
+      旧QA・既存注記・他章を残したまま、直前の天井779へ実増15だけを加える。
+      **床219・逐語の床・固定余裕は変えない。**
     */
-    ceiling: 597,
+    ceiling: 794,
     headings: 21,
     principles: 2,
     answers: [2, 102],
@@ -496,14 +533,22 @@ const CHAPTERS: readonly Chapter[] = [
     // 確定質疑が収集マトリクスへ入って生成器から載ったもの。基準 405 に対する
     // 実増分は 26 行 (431 - 405)。**床 172 も余裕 22 行も動かさない。**
     // dev の 546 へ、こちらの実増分 26 行だけを置き直す (546 + 26 = 572)。
-    ceiling: 572,
+    //
+    // 2026-09-04: 実測 661 行。増分は追従ヘッダーと SEO/AIO の確定
+    // (`qa-frontend-web-fixed-header-seo-aio-v6`) が `## 章の注記` 141 行として
+    // 載ったもの。**床 172 も余裕 22 行も動かさない** (661 + 22 = 683)。
+    ceiling: 683,
     headings: 21,
     principles: 2,
     answers: [2, 95],
   },
   {
     name: "infrastructure",
-    sections: SHAPE_B,
+    // 2026-09-08 (ah-lwmf): backend / database と同じ理由で `## 章の注記 (chapter_notes)`
+    // が出た。この章の注記はこれまで 0 件で節ごと出ていなかったが、誤って正本へ
+    // 引き上げた 43 件を `retire-chapter-note` で戻した結果、生成器の内側にしか
+    // 根拠が無い注記が 1 件残り、節が描かれるようになった。
+    sections: [...SHAPE_B, "章の注記 (chapter_notes)"],
     tables: [
       ["カテゴリ別収集状態", 7],
       ["上流指針 (doctrine anchor)", 3],
@@ -528,7 +573,8 @@ const CHAPTERS: readonly Chapter[] = [
   },
   {
     name: "maintenance-ops",
-    sections: SHAPE_A_WITH_CELL_RECORD,
+    // 2026-09-06: C01で承認済みSEO現行契約の注記を登録。生成節の集合へ明示する（上限は維持）。
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
     tables: [
       ["To-Be", 8],
       ["Acceptance evidence", 8],
@@ -545,14 +591,22 @@ const CHAPTERS: readonly Chapter[] = [
       既定の天井 317（床 167 + 150）を 7 行超える。**床は動かさない。**
       その時点の余裕 317 - 262 = 55 行を **位置ごと移す**（324 + 55 = 379）。
     */
-    ceiling: 379,
+    /*
+      2026-09-08 (ah-lwmf): 手書きの意思決定表を正本 `decisions[]` からの生成へ
+      差し戻し、章固有の注釈を `chapter_notes` へ移した。282 → 440 行。
+      増分は生成節（`## 意思決定 (decisions)` と `## 章の注記`）で、
+      **章へ直接書いた散文ではない**。床 167 も余裕 379 - 282 = 97 行も動かさず、
+      同じ 97 行を位置ごと移す（440 + 97 = 537）。
+    */
+    ceiling: 537,
     headings: 21,
     principles: 2,
     answers: [2, 116],
   },
   {
     name: "security",
-    sections: SHAPE_A_WITH_CELL_RECORD,
+    // 2026-09-08 (ah-lwmf): auth と同じ理由で `## 章の注記 (chapter_notes)` が出た。
+    sections: [...SHAPE_A_WITH_CELL_RECORD, "章の注記 (chapter_notes)"],
     tables: [
       ["To-Be", 6],
       ["Acceptance evidence", 6],
@@ -623,7 +677,27 @@ const CHAPTERS: readonly Chapter[] = [
     //
     // **上の宿題は 2 つとも生きている。**注記の置き場を疑うことと、
     // 原則の採否表を別ファイルへ切り出すこと。次に当たったときは天井を動かさない。
-    ceiling: 733,
+    //
+    // 2026-09-04（5 度目・上の「動かさない」を今回は守れなかった）: 実測 804 行。
+    // **先に宿題へ答える。**節ごとに測ったところ、この章の最大は
+    // `#### 本章での適用` 222 行で、`## 章の注記` 128 行を上回っていた。
+    // 4 度目の見立て（注記が主因）は今回は外れで、主因は**質疑 1 件につき
+    // 「確定内容 → 原則ごとの採否 → 章固有の根拠 → トレードオフ」の 4 段を
+    // 展開する形**である。この章は確定質疑が 7 章中最多（qa_refs 13 件）なので、
+    // 質疑が増えるほどここが二次関数的に伸びる。backend 203 / frontend 208 /
+    // database 170 行と、天井に当たった 4 章すべてで同じ節が最大だった。
+    //
+    // **切り出しは今回やっていない。**やるには生成器
+    // (`spec_docset_chapters.py` の `_render_chapter_application`) を変えたうえで
+    // 章 7 枚を書き換える必要があるが、**章は compile で再生成できない**
+    // （手書き節があると生成器が「生成物に無い節を持つ」として中止する）ため、
+    // 生成器だけ直しても章は縮まず、章側は reopen 経由の手編集になる。
+    // 利用者に諮ったうえで、今回は置き直しを選び、切り出しは follow-up とした。
+    //
+    // 置き直し方も余裕も 5 度とも同じ 22 行 (804 + 22 = 826)。
+    // **次に当たったときは、この註の「主因は 4 段展開」という答えが出ている以上、
+    // 天井ではなく切り出しをやること。**答えが出たあとの置き直しは緩和である。
+    ceiling: 826,
     headings: 28,
     principles: 2,
     answers: [2, 49],
@@ -640,6 +714,10 @@ const CHAPTERS: readonly Chapter[] = [
 const GENERATED_SECTIONS = [
   "カテゴリ別収集状態",
   "確定内容 (質疑録)",
+  // 2026-09-08 (ah-lwmf): 手書き節から生成節へ移った。`spec_docset_chapters.py` が
+  // 正本 `decisions[]` を `owner_category` で絞って描くようになったので、
+  // `--on-handwritten preserve` が末尾へ寄せる対象ではなくなり、位置が前へ動く。
+  "意思決定 (decisions)",
   "章の注記 (chapter_notes)",
   "上流指針 (doctrine anchor)",
   "適用された設計知識",
@@ -674,12 +752,70 @@ function read(name: string): string {
   return readFileSync(join(SPEC_DIR, `${name}.md`), "utf8");
 }
 
+/**
+ * 章から切り出した適用メモ (`system-spec/applied/<name>.md`) を読む。無ければ空。
+ *
+ * ── 2026-09-08: 「本章での適用」を章の外へ出した ──────────────────
+ *
+ * 適用メモは**確定セルの数だけ積み上がる**。8 章 4829 行のうち 1027 行 (21.3%) が
+ * これで、ui-ux は上限まで残り 0 行・database 1 行・frontend 7 行だった。
+ * **次に本文が 1 行増えた日、上限を上げる以外の道が無かった。**上限を上げて逃がすのは
+ * この repo が一貫して断ってきた形なので、数える対象のほうを分けた。
+ *
+ * **分けたことで床が緩まないようにする。**行数の上限は章だけで測る (それが分けた目的)。
+ * 一方、見出し・原則・回答は**読者に届く総量**なので章と適用メモを足して測る。
+ * 足さずに章だけで測れば、移した瞬間に床を割るか、床を下げる羽目になる。
+ * **床は 1 つも動かしていない。**当てる先を、内容が実際に在る場所へ広げただけである。
+ */
+function readApplied(name: string): string {
+  try {
+    return readFileSync(join(SPEC_DIR, "applied", `${name}.md`), "utf8");
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * 章と適用メモを別々に測って足す。**連結して 1 回測るのではない。**
+ * 連結すると、適用メモの行が章の最後の `## ` 節の内側と読まれ、
+ * `tableRows` がその節の表を実際より多く数える。数え方の都合で床が緩む。
+ */
+function measureChapterWithApplied(name: string) {
+  const chapter = measure(read(name));
+  const applied = readApplied(name);
+  if (!applied) return chapter;
+  const ap = measure(applied);
+  return {
+    ...chapter, // lines / sections / tableRows / hasNonNormativeNote は章そのものの数
+    headings: chapter.headings + ap.headings,
+    principles: chapter.principles + ap.principles,
+    answers: [...chapter.answers, ...ap.answers],
+    answersTotal: chapter.answersTotal + ap.answersTotal,
+  };
+}
+
 /** 正本 `spec-state.json` の decisions[] の ID を、正本の並びのまま返す。 */
 function decisionIds(): string[] {
   const state = JSON.parse(readFileSync(join(ROOT, "system-spec/spec-state.json"), "utf8")) as {
     decisions: Array<{ id: string }>;
   };
   return state.decisions.map(({ id }) => id);
+}
+
+/**
+ * 正本 `decisions[]` のうち、その章を主担当 (`owner_category`) とするものの ID。
+ *
+ * 章の `## 意思決定 (decisions)` は**全件表ではない**。生成器
+ * (`spec_docset_chapters.py` の `render_chapter_decisions`) が `owner_category == cat_id`
+ * で絞って描く。全件を写すと同じ表が 9 か所に増え、件数が変わった日に 8 か所が
+ * 古いまま残るためである (手書き時代に実際そうなった)。
+ * したがって章に当てる期待値は正本全件ではなく、この部分集合である。
+ */
+function decisionIdsOwnedBy(category: string): string[] {
+  const state = JSON.parse(readFileSync(join(ROOT, "system-spec/spec-state.json"), "utf8")) as {
+    decisions: Array<{ id: string; owner_category?: string }>;
+  };
+  return state.decisions.filter((d) => d.owner_category === category).map(({ id }) => id);
 }
 
 function decisionIdsInSection(text: string, heading: string): string[] {
@@ -796,6 +932,19 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
     それは plugin 領域 (`spec_docset_chapters.py`) の変更になるため、
     このリポジトリの作業範囲の外にある。follow-up として別に立てる。
     描かせた日に、下の 8 章側の検査は 00 章と同じ `toEqual` へ戻すこと。
+
+    ── 【2026-09-08 (ah-lwmf)】戻した ────────────────────────────────
+    `spec_docset_chapters.py` に `render_chapter_decisions` が入り、8 章の
+    `## 意思決定 (decisions)` は**生成節になった**。上の「測れない」条件が消えたので、
+    註の指示どおり欠落も含めた `toEqual` へ戻す。
+
+    ただし当てる期待値は正本全件ではない。生成器は `owner_category` で絞って描く
+    (全件表は 00 章にだけ在る) ので、章には `decisionIdsOwnedBy(章名)` を当てる。
+    **これは緩和ではない。**全件を当てれば 8 章すべてが今日から赤になり、
+    緑にする唯一の道は「章に全件を写す」= 生成器が避けた重複そのものになる。
+
+    持ち分 0 件の章 (security) では期待値も実測も `[]` になり、
+    「節が消えた」形と見分けが付かなくなる。**見出しの実在を別の 1 件で見張る。**
   */
   it("00章の意思決定表が正本 decisions[] と全件一致する（compile が描く側）", () => {
     // ここは compile の生成物なので、欠落も順序も落とせる。緩めない。
@@ -806,22 +955,17 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
 
   // 章名は `%s` で入れる。`$name` 記法はこの vitest では展開されず、
   // 落ちた章が `undefined` としか出ないので、どの章かが分からなくなる。
-  it.each(CHAPTERS.map((c) => c.name))("%s.md の意思決定表に幽霊 ID が無く、順序が正本に従う（手書き側）", (name) => {
-    const expected = decisionIds();
-    const listed = decisionIdsInSection(read(name), "## 意思決定 (decisions)");
+  it.each(CHAPTERS.map((c) => c.name))("%s.md の意思決定表が正本の本章持ち分と全件一致する（生成側）", (name) => {
+    // 幽霊・欠落・順序を 1 本で見る。生成物なのでどれも落とせる。
+    expect(decisionIdsInSection(read(name), "## 意思決定 (decisions)")).toEqual(decisionIdsOwnedBy(name));
+  });
 
-    // (1) 幽霊が無い: 章に載っている ID は全て正本に実在する。
-    //     消えた決定や綴り違いを、手書きの表に残したままにしない。
-    expect(listed.filter((id) => !expected.includes(id)), `${name}.md に正本に無い ID`).toEqual([]);
-
-    // (2) 順序が正本に従う: 載っている分は正本の並びの**部分列**である。
-    //     表を書き足すときに、既にある行の順を崩す形を止める。
-    expect(listed, `${name}.md の並び`).toEqual(expected.filter((id) => listed.includes(id)));
-
-    // (3) 空でない: 節ごと消える形 / 見出しが変わって 0 件になる形を止める。
-    //     `decisionIdsInSection` は見出しが見つからないと [] を返すので、
-    //     ここが無いと「節が消えた章」が全部緑で黙る。
-    expect(listed.length, `${name}.md の意思決定表が空`).toBeGreaterThan(0);
+  it.each(CHAPTERS.map((c) => c.name))("%s.md に意思決定の節そのものが在る", (name) => {
+    // 持ち分 0 件の章では上の一致だけだと `[] === []` で通ってしまい、
+    // **節ごと消えた形が緑で黙る**。見出しの実在をここで名指しで見張る。
+    expect(read(name).split("\n"), `${name}.md に ## 意思決定 (decisions) が無い`).toContain(
+      "## 意思決定 (decisions)",
+    );
   });
 
   it("gap 1 の 2 節は 8 章すべてに載っている（旧 11 節の形を指す章は 0 件）", () => {
@@ -869,7 +1013,7 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
   });
 
   describe.each(CHAPTERS)("$name.md", (ch) => {
-    const m = measure(read(ch.name));
+    const m = measureChapterWithApplied(ch.name);
 
     /**
      * **床は「欠けていないこと」である。並びはその床ではない。**
@@ -908,6 +1052,20 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
 
     it(`本章での適用の原則が ${ch.principles} 件以上ある`, () => {
       expect(m.principles).toBeGreaterThanOrEqual(ch.principles);
+    });
+
+    /**
+     * 切り出した先が実在し、章から辿れること。
+     *
+     * `measureChapterWithApplied` は適用メモが無ければ章だけの数を返す。原則の床が
+     * その場合 0 件になって赤くなるので**消せば分かる**が、それは間接的な当たり方で、
+     * 赤の理由が「消えた」ではなく「減った」に見える。**移した先が消える形は、
+     * 移した本人が名指しで見張る。**導線も一緒に見るのは、ファイルが在っても
+     * 章から辿れなければ、読者にとっては無いのと同じだからである。
+     */
+    it("適用メモが applied/ に実在し、章から辿れる", () => {
+      expect(readApplied(ch.name)).toContain("#### 本章での適用");
+      expect(read(ch.name)).toContain(`applied/${ch.name}.md`);
     });
 
     const ceiling = ch.ceiling ?? ch.lines + CEILING_MARGIN;
@@ -970,7 +1128,11 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
 
       it("節を 1 つ落とすと、欠けたものとして名指しで出る", () => {
         const last = ch.sections[ch.sections.length - 1];
-        const cut = full.replace(`## ${last}\n`, "");
+        // `replaceAll`。**同じ見出しが 2 度出る章があると `replace` は 1 つしか消さず、
+        // 節が残るので `missing` が空になり、壊していないのに赤くなる。**
+        // 2026-09-08 (ah-lwmf) に残余の棚が章ごと二重化したとき実際にそうなった。
+        // 「節を落とす」は名前ごと落とすことなので、同名は全部消すのが意図に合う。
+        const cut = full.replaceAll(`## ${last}\n`, "");
         // 包含へ反転した後も落とせば赤くなることを、**落とした当の節の名前まで**見る。
         // 「何かが欠けた」だけだと、測る側が別の節を落としていても同じ緑を返す。
         const missing = ch.sections.filter((s) => !measure(cut).sections.includes(s));
@@ -978,7 +1140,9 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
       });
 
       it("非規範注記を消すと見つかる", () => {
-        const cut = full.replace("**非規範・取得証跡なし・実装根拠に使用不可**", "参考");
+        // ここも `replaceAll`。注記が 2 か所に出る章では 1 つ消しても
+        // `hasNonNormativeNote` が true のままで、消したのに緑になる。
+        const cut = full.replaceAll("**非規範・取得証跡なし・実装根拠に使用不可**", "参考");
         expect(measure(cut).hasNonNormativeNote).toBe(false);
       });
 

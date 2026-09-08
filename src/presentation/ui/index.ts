@@ -23,6 +23,8 @@ export { TERMS, UI_COPY, term, fill, DEFAULT_LOCALE, type Locale, type TermKey }
 /* --- primitives -------------------------------------------------------- */
 export { Button, type ButtonProps, type ButtonTone } from "./primitives/button";
 export { Field, type FieldProps } from "./primitives/field";
+// ファイルを選ぶ欄。`Field` は controlled な文字入力なのでファイルには使えない。
+export { FilePicker } from "./primitives/file-picker";
 export { FormValue, type FormValueProps } from "./primitives/form-value";
 export { Select, type SelectProps, type SelectOption } from "./primitives/select";
 export { CheckboxGroup, type CheckboxGroupProps } from "./primitives/checkbox-group";
@@ -239,14 +241,13 @@ export {
   SitePage,
   SiteSection,
   SiteHomeHero,
+  SiteSearch,
   CategoryDirectory,
-  CategoryArticleGroups,
   PublicShell,
   FocusedTask,
   type SiteChrome,
   type SiteNavItem,
   type CategoryDirectoryItem,
-  type CategoryArticleGroupView,
 } from "./templates/site-shell";
 export {
   ArticleView,

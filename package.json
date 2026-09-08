@@ -36,7 +36,8 @@
     "mutation": "stryker run",
     "mutation:changed": "stryker run --since=origin/dev",
     "preview:blog": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-blog-preview.tsx",
-    "preview:site": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-site-preview.tsx"
+    "preview:site": "tsx --require ./scripts/lib/css-module-hook.cjs scripts/write-site-preview.tsx",
+    "test:e2e:capture-pixel": "PLAYWRIGHT_CAPTURE_PIXEL=1 playwright test"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.2",
@@ -79,7 +80,7 @@
   "pnpm": {
     "overrides": {
       "@esbuild-kit/core-utils>esbuild": "^0.25.0",
-      "qs": "6.15.3"
+    "qs": "6.16.0"
     }
   },
   "packageManager": "pnpm@10.19.0"

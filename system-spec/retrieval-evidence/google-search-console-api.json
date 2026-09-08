@@ -1,0 +1,46 @@
+{
+ "target_id": "google-search-console-api",
+ "source_url": "https://developers.google.com/webmaster-tools/v1/searchanalytics/query",
+ "retrieved_at": "2026-09-03T12:43:18Z",
+ "http_status": 200,
+ "content_bytes": 97793,
+ "content_sha256": "3436ef2c4a45b19d5243874818cbc137b2e9b233e59cb429440601c9831beda9",
+ "page_title": "Search Analytics: query | Search Console API",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-08-11",
+  "found_in": [
+   "Last updated 2026-08-11 UTC."
+  ],
+  "http_last_modified": "Tue, 11 Aug 2026 11:38:41 GMT",
+  "note": "本文末尾の表明と HTTP Last-Modified が同日で一致する。本文の表明を由来として申告する。"
+ },
+ "quoted_for_design": [
+  {
+   "claim": "検索順位データは startDate / endDate を必須とする問い合わせで取得し、query / page / country / device / searchAppearance の各次元で絞り込める",
+   "verbatim": "Required. Start date of the requested date range, in YYYY-MM-DD format in PT (Pacific Time zone). Must be less than or equal to the end date. This value is included in the range.",
+   "used_by": "qa-decision-aeo-data-sources-v5"
+  },
+  {
+   "claim": "1 回の問い合わせで返る行数には上限があり、既定 1,000 行・最大 25,000 行である。分析パイプラインは行数上限を前提にページングを設計しなければならない",
+   "verbatim": "Valid range is 1–25,000; Default is 1,000",
+   "used_by": "qa-backend-web-aeo-analysis-pipeline-v6"
+  },
+  {
+   "claim": "読み取りだけなら webmasters.readonly スコープで足り、書き込み権限を持つ広いスコープを要求しなくてよい",
+   "verbatim": "https://www.googleapis.com/auth/webmasters.readonly",
+   "used_by": "qa-backend-web-aeo-analysis-pipeline-v6"
+  },
+  {
+   "claim": "この API の上限は Search Console 側の内部制約に従うため、提供元は具体的なレート上限を公表していない。運用側は上限が公表されない前提で退避と再試行を持つ必要がある",
+   "verbatim": "The API is bounded by internal limitations of Search Console",
+   "used_by": "qa-ops-web-aeo-auto-apply-v6"
+  }
+ ],
+ "not_found_in_source": [
+  {
+   "looked_for": "1 日あたりのリクエスト数クォータの具体値",
+   "result": "本ページに具体値の記載は無い。仕様側でクォータ値を断定しないこと。"
+  }
+ ]
+}

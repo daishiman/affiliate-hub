@@ -79,6 +79,7 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
   "generation/inputs": "AI に渡す素材の過不足を見る",
   "generation/prompt": "指示文の組み立て方を読む",
   improvement: "試している比較の結果を見て、次の試作を決める",
+  seo: "記事ごとの差分を確認して反映し、同じページの観測値を確かめる",
   "improvement/dimensions": "試してよいもの / 変えないものを調べる (参照専用)",
   inbox: "成果リンクを受け取り、広告主と商品を決める",
   personas: "書き手と読者像を決める",
@@ -450,6 +451,34 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     edge("src/presentation/admin/observe/improvement-forms.tsx", "AdvanceLoopRunForm"),
     edge("src/presentation/admin/observe/improvement-action.ts", "advanceLoopRunAction"),
   ),
+  /*
+    検索と AI からの見え方。いずれも「人が決めること」なので道具にしていない
+    （`seo-aeo-forms.tsx` の註を読むこと）。
+  */
+  screenMutation(
+    "seo.apply-reviewed-revision",
+    "seo",
+    edge("src/presentation/admin/observe/seo-aeo-forms.tsx", "ApplySeoRevisionForm"),
+    edge("src/presentation/admin/observe/seo-aeo-action.ts", "applySeoRevisionAction"),
+  ),
+  screenMutation(
+    "seo.revert-auto-apply",
+    "seo",
+    edge("src/presentation/admin/observe/seo-aeo-forms.tsx", "RevertSeoAutoApplyForm"),
+    edge("src/presentation/admin/observe/seo-aeo-action.ts", "revertSeoAutoApplyAction"),
+  ),
+  screenMutation(
+    "seo.set-paused",
+    "seo",
+    edge("src/presentation/admin/observe/seo-aeo-forms.tsx", "SeoAutoApplyPauseForm"),
+    edge("src/presentation/admin/observe/seo-aeo-action.ts", "setSeoAutoApplyPausedAction"),
+  ),
+  screenMutation(
+    "seo.set-citation-monthly-limit",
+    "seo",
+    edge("src/presentation/admin/observe/seo-aeo-forms.tsx", "SeoCitationMonthlyLimitForm"),
+    edge("src/presentation/admin/observe/seo-aeo-action.ts", "setSeoCitationMonthlyLimitAction"),
+  ),
   screenMutation(
     "llm.register-key",
     "settings/llm",
@@ -703,6 +732,20 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     edge("src/presentation/admin/publish/blog-layout-form.tsx", "BlogLayoutBandForm"),
     edge("src/presentation/admin/publish/blog-layout-action.ts", "manageBlogLayoutAction"),
   ),
+  /*
+    おすすめ記事は帯の表示設定ではなく、公開済み記事の選択と順序を保存する。
+    同じ版面画面にあっても `manageBlogLayoutAction` へ畳まない。畳むと、
+    帯のスイッチと公開トップの記事選択が 1 つの意味 entry になる。
+  */
+  screenMutation(
+    "blog.save-featured-articles",
+    "blog/layout",
+    edge("src/presentation/admin/publish/blog-featured-articles-form.tsx", "BlogFeaturedArticlesForm"),
+    edge(
+      "src/presentation/admin/publish/blog-layout-action.ts",
+      "manageBlogFeaturedArticlesAction",
+    ),
+  ),
   screenMutation(
     "blog.save-delivery-part",
     "blog/delivery",
@@ -731,6 +774,20 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
     "blog/articles/[article]",
     edge("src/presentation/admin/publish/blog-article-form.tsx", "BlogArticleEditForm"),
     edge("src/presentation/admin/publish/blog-article-action.ts", "manageBlogArticleAction"),
+  ),
+  /*
+    表紙の絵は「記事の中身を直し、公開まで進める」の一部である。一覧・トップ・
+    SNS の写しに出るのはこの 1 枚で、本文を直しても差し替わらない。
+    別の画面へ切り出すと、記事を書き終えた人がもう 1 画面開かないと表紙が付かない。
+  */
+  screenMutation(
+    "blog.set-article-thumbnail",
+    "blog/articles/[article]",
+    edge("src/presentation/admin/publish/article-thumbnail-form.tsx", "ArticleThumbnailForm"),
+    edge(
+      "src/presentation/admin/publish/article-thumbnail-action.ts",
+      "manageArticleThumbnailAction",
+    ),
   ),
   screenMutation(
     "blog.append-expression-block",

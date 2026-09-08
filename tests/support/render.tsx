@@ -385,12 +385,25 @@ export function textOf(html: string): string {
  * **確かめにくいほうが壊れる**ので、こちらを機械で見る。
  */
 export function focusableOrder(document: Document): readonly string[] {
+  /*
+    Tab で辿り着ける順路。**`tabindex="-1"` は全部の枝から外す。**
+
+    以前は素の `a[href]` などに `-1` の但し書きが無く、順路から外した要素まで
+    順路に数えていた。記事カードの図版リンク（すぐ下の見出しと同じ行き先なので
+    `aria-hidden` + `-1` で 1 本に畳んである）が「名前の無い辿れる要素」として
+    赤に出たのがそれで、**赤の中身は実装ではなくこの選択子のほうだった。**
+
+    外しても抜け道にはならない。`keyboard-operation.test.tsx` が
+    「見えている操作部品を `-1` で順路から外していないか」を別に見ており、
+    畳んでよいのは同じ入れ物に同じ行き先の辿れるリンクが実在する場合だけである。
+  */
+  const skipRemoved = ":not([tabindex='-1'])";
   const selector = [
-    "a[href]",
-    "button:not([disabled])",
-    "input:not([disabled]):not([type=hidden])",
-    "select:not([disabled])",
-    "textarea:not([disabled])",
+    `a[href]${skipRemoved}`,
+    `button:not([disabled])${skipRemoved}`,
+    `input:not([disabled]):not([type=hidden])${skipRemoved}`,
+    `select:not([disabled])${skipRemoved}`,
+    `textarea:not([disabled])${skipRemoved}`,
     "[tabindex]:not([tabindex='-1'])",
   ].join(",");
   // `<label for="…">` は入力欄の**正式な名前**であり、読み上げもこれを読む。

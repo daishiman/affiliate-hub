@@ -284,6 +284,64 @@ export function buildBlogOpsPosting(input: {
 }
 
 /**
+ * ブログそのものの WebSite と、そこにある検索の口（SearchAction）。
+ *
+ * **トップにだけ出す。** 記事ページにも出すと、同じサイトの宣言が
+ * ページ数だけ重複し、どれが正本か機械から見て決まらなくなる。
+ *
+ * `potentialAction` は「このサイトには検索がある」という宣言で、
+ * `{search_term_string}` は検索語の入る場所を指す予約語である。
+ * 画面の検索フォームは `name="q"` の GET なので、宣言する住所も同じ形にする
+ * ——ここだけ別の書き方にすると、宣言どおりに叩いた機械が空振りする。
+ *
+ * `query-input` の `required name=` は schema.org が決めた書式で、
+ * JSON-LD の一般的なキー命名とは違う。合わせないと解釈されない。
+ */
+export function buildWebSite(site: SiteJsonLdInput): JsonLdObject {
+  const url = `${site.origin}${site.basePath}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: site.siteName,
+    url,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${url}/search?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+/**
+ * トップに並ぶ記事の ItemList。
+ *
+ * 画面に**出ている順そのまま**を渡す。並べ替えた結果を出すのが目的なので、
+ * ここで別の順に組み直すと、読者が見ている一覧と機械が読む一覧が食い違う。
+ * 記事が 1 本も無ければ **null**（空の一覧を出さない）。
+ *
+ * `url` は画面のリンクと同じ絶対 URL にする。相対のままでは、
+ * どのブログの記事かが構造化データだけからは決まらない。
+ */
+export function buildArticleItemList(
+  articles: readonly { readonly title: string; readonly url: string }[],
+): JsonLdObject | null {
+  if (articles.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: articles.map((article, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: article.title,
+      url: article.url,
+    })),
+  };
+}
+
+/**
  * JSON-LD を HTML に埋め込める文字列にする。
  *
  * `<` を `\\u003c` に置き換える。置き換えないと、値の中の

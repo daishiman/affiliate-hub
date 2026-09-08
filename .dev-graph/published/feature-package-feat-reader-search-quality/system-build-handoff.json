@@ -1,0 +1,228 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P09",
+        "SYS-READER-SEARCH-QUALITY-P10"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P10",
+        "SYS-READER-SEARCH-QUALITY-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-READER-SEARCH-QUALITY-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-reader-search-quality",
+    "feature_package_id": "feature-package/feat-reader-search-quality",
+    "parent_feature": "feat-reader-search-quality",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:ca95385ec1d2cfb7e98518e977a71b686433e47dd50c4cc5748488d757a37708"
+  },
+  "kind": "system-build-handoff",
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "3cb9702e117833a9c59e6074cd1e5be216b2a205ea6ed092b63fd5c873e60030"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "fe5f9dda80250ff56f48f45da14ccd6e29d6c09829256e983a8ee256bd1d7ab4"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "f2ca6c7ae79573a468fb3a101b74c7ec157a891b3002241dfca270cf5af6b91a"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "fb9a138d34d06628df084506dd16b16e580bb59cfd2b17c60a6cc63ad45e6dd3"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "f30f226d1751547af6c4ba6a9838f289fc44743b64408bfe958d98de2f0e9edc"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "3389dd8b697dee2abee5a61eac7b58b007930bf5f474fc7ce64f756db3f40872"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "34ca92bc955295d4b95f86366e21aa214d502642236188c14121d391e08f4c90"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "e0cedce93cc4744f59475cb91a55edca9c6ae638abbdaa97a33286b326315a36"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "ee20c6f182b86ed5daea1f8864a0521ff1f253f8f66649894d17efaabdc42730"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "efe98608f7c3611f2e7991aed80b93fb011b589df4ef0f145e77029deca17838"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "57228b5f5d09db7ec16d1f1316a1c5df542a68d32e5a82c1174b4f3a6016eafd"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "8d722cd81f3edc1b65300685fa6943fd3ac7b3a3297fdcc9615c29be8c0f2f87"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "26f3e69ea2da34bcc827cdb7fc822416d94b2d150c4bb558a9120877491a2877"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "93c3aba677b62dfac37758e4dab78a021b33305f6cfac875cea1e7f1a897e7da"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "c061cda7f5eaff18c2c5cf2a0008fc3fa3daa2d5161b484b5e8299c9b9483d1c"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "70693e86d2d8467639e62a836088435ca286eb8422aa301d5d0b4ef6fa370ad6"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:219aeab8c7371be07592f2223e0a74ffb2fe1b875a1ce620fc2bbf02a8bb1cb9",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "fda9d07d27624ccd15bc719785ca29cefe883ff3e842bfaa1bc4984cbbd7b5e9"
+  }
+}

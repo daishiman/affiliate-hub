@@ -43,7 +43,10 @@ describe("本文の断片 — 保存の往復", () => {
     番号付き: [{ kind: "ordered-list", items: ["最初", "次", "最後"] }],
     引用: [{ kind: "quote", text: "引用した文\n続き" }],
     区切り線: [{ kind: "divider" }],
-    画像: [{ kind: "image", src: "/media/a.png", alt: "机の上の様子" }],
+    画像: [{ kind: "image", src: "/media/a.png", alt: "机の上の様子", width: null, height: null }],
+    "画像（実寸つき）": [
+      { kind: "image", src: "/media/a.png", alt: "机の上の様子", width: 1600, height: 900 },
+    ],
     注意書き: [
       { kind: "callout", tone: "tip", title: "はじめての人へ", text: "まずここを読む。" },
     ],
@@ -124,6 +127,35 @@ describe("本文の断片 — 記法とぶつかる文章", () => {
     const parsed = parseProse(":::future-thing id=\"x\"\n中身\n:::");
     expect(parsed.every((n) => n.kind === "paragraph")).toBe(true);
     expect(serializeProse(parsed)).toContain("future-thing");
+  });
+
+  it("寸法を持たない古い画像は、書き出しても寸法が付かない", () => {
+    /*
+      **既に保存されている記事が 1 文字も動かないことを当てている。**
+      ここが崩れると、運営者が触っていない記事まで保存のたびに差分を出す。
+    */
+    const parsed = parseProse("![机](/media/a.png)");
+    expect(parsed).toStrictEqual([
+      { kind: "image", src: "/media/a.png", alt: "机", width: null, height: null },
+    ]);
+    expect(serializeProse(parsed)).toBe("![机](/media/a.png)");
+  });
+
+  it("寸法として読むのは `640x360` の形だけで、ほかの題名は場所ごと残す", () => {
+    /*
+      **知らない書き方を落とさない。**題名を捨てる実装だと、保存を押しただけで
+      運営者の書いたものが消える。読めないものは、読めないまま残すほうが直せる。
+    */
+    const parsed = parseProse('![机](/media/a.png "撮影 2026 年")');
+    expect(parsed).toStrictEqual([
+      {
+        kind: "image",
+        src: '/media/a.png "撮影 2026 年"',
+        alt: "机",
+        width: null,
+        height: null,
+      },
+    ]);
   });
 });
 

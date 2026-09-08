@@ -1,6 +1,8 @@
 import { z } from "zod";
 import type { AppDeps } from "@/application/deps";
 import {
+  MAX_ARTICLE_PAGE_SIZE,
+  MAX_SEARCH_QUERY_LENGTH,
   createGetArticleUseCase,
   createGetPersonUseCase,
   createGetPolicyDocumentUseCase,
@@ -98,7 +100,13 @@ export function siteTools(deps: AppDeps): readonly AnyToolDefinition[] {
     defineTool({
       name: "search_articles",
       description: "そのブログの公開記事を言葉で探します。0 件は失敗ではありません。",
-      schema: z.object({ siteSlug, query: z.string().min(1), limit: z.number().int().min(1).max(50).optional() }),
+      schema: z.object({
+        siteSlug,
+        query: z.string().trim().max(MAX_SEARCH_QUERY_LENGTH),
+        tag: z.string().optional(),
+        limit: z.number().int().min(1).max(MAX_ARTICLE_PAGE_SIZE).optional(),
+        offset: z.number().int().min(0).optional(),
+      }),
       readOnly: true,
       useCase: createSearchArticlesUseCase(site),
     }),

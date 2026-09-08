@@ -342,6 +342,22 @@ beforeEach(() => {
 });
 
 describe("そろっているときの公開", () => {
+  it("元記事の作成日時を公開日とは別の時刻として引き継ぐ", async () => {
+    const createdAt = new Date("2025-02-03T12:34:56.000Z");
+    const withCreation = harness({ variant: aVariant({ createdAt }) });
+    const result = await withCreation.run();
+    expect(result.ok).toBe(true);
+    expect(withCreation.saved[0]?.createdAt).toBe(createdAt.toISOString());
+    expect(withCreation.saved[0]?.publishedAt).not.toBe(createdAt.toISOString());
+  });
+
+  it.each([undefined, null])("作成日時が%sの元記事を公開しても作成日を推測しない", async (createdAt) => {
+    const unknown = harness({ variant: aVariant({ createdAt }) });
+    expect((await unknown.run()).ok).toBe(true);
+    expect(unknown.saved[0]?.createdAt).toBeNull();
+    expect(unknown.saved[0]?.publishedAt).toBeTruthy();
+  });
+
   it("担当外ブランドの記事はIDを知っていても公開準備も公開もできない", async () => {
     const actor = anOwner({
       scopedBrandIds: [taggedString<"BrandId">("brand-outside") as BrandId],
@@ -954,5 +970,67 @@ describe("出す前の点検", () => {
     // 断り方が違うと「点検は通ったのに出せない」が起きる。
     const result = await harness().check({ title: "  " });
     expect(result.ok).toBe(false);
+  });
+});
+
+describe("一覧に出す絵を、公開の瞬間に確定させる", () => {
+  /*
+    一覧のサムネイルは `resolveThumbnail` が
+    `uploaded → eyecatch → 本文先頭 → 代替図版` の順で決める。
+    このうち**本文先頭だけは記事の中身から導く**ので、
+    どこかで一度、本文を読んで確定させる必要がある。
+
+    それを読むたびにやると、一覧 1 画面で 20 本ぶんの本文を読み込むことになる。
+    一覧は本文を積まない形で作ってあるので、公開の側で確定させて運ぶ。
+    ここが見るのは「公開したものに、その確定結果が入っているか」である。
+  */
+
+  /** 指定した節に本文を差し込んだ入力を作る。他の節は既定のまま。 */
+  const withBodies = (bodies: Record<string, string>) => ({
+    sectionBodies: { ...fullInput().sectionBodies, ...bodies },
+  });
+
+  it("本文に画像があれば、その先頭 1 枚を保存する", async () => {
+    await h.run(withBodies({ body: '本文です。<img src="/media/laptop.jpg" alt="ノートPC">' }));
+
+    expect(h.saved[0]?.bodyFirstImageUrl).toBe("/media/laptop.jpg");
+  });
+
+  it("画像が 1 枚も無ければ、欄ごと持たせない", async () => {
+    // `null` を入れると「調べて無かった」と「まだ調べていない」が同じ形になる。
+    await h.run();
+
+    expect(h.saved[0]).not.toHaveProperty("bodyFirstImageUrl");
+  });
+
+  it("節をまたいでも、読者が最初に目にする 1 枚を選ぶ", async () => {
+    /*
+      導入に絵を置かず、本文の途中から絵が始まる書き方がある。
+      節の並び（`authoredSectionsFor`）の順で上から探し、
+      読者が画面を上から読んだときに最初に出会う絵と一致させる。
+    */
+    await h.run(
+      withBodies({
+        // `pros` は `body` より前の節。後ろの節の絵に引きずられないこと。
+        pros: '良い点。<img src="/media/first.png">',
+        body: '本文。<img src="/media/second.png">',
+      }),
+    );
+
+    expect(h.saved[0]?.bodyFirstImageUrl).toBe("/media/first.png");
+  });
+
+  it("画面へそのまま入れられない URL は拾わない", async () => {
+    /*
+      ここで拾った URL は、一覧の `<img src>` へそのまま入る。
+      `javascript:` と `data:` を通すと、記事を書ける人が
+      読者の画面で任意のコードを動かせることになる。
+
+      弾く判断そのものは `firstImageUrlInBody` が持つ。ここで見ているのは、
+      **公開経路がその判断を通っている**ことである。
+    */
+    await h.run(withBodies({ body: '<img src="javascript:alert(1)">' }));
+
+    expect(h.saved[0]).not.toHaveProperty("bodyFirstImageUrl");
   });
 });

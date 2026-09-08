@@ -6,8 +6,8 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 77 件 / 手続き 277 件
-- 呼ばれていない 50 件（上限 79）
+- ポート 91 件 / 手続き 325 件
+- 呼ばれていない 52 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
@@ -46,7 +46,9 @@
 | `MetricsRepositoryPort` | `record` | `src/application/ports/analytics.ts` |
 | `ProductRepositoryPort` | `findByIdentityKey` | `src/application/ports/product.ts` |
 | `PublicationRepositoryPort` | `findByIdempotencyKey` | `src/application/ports/distribution.ts` |
+| `PublishedContentPort` | `search` | `src/application/ports/site.ts` |
 | `SecretResolverPort` | `resolve` | `src/application/ports/common.ts` |
+| `SeoMeasurementSettingPort` | `setCitationCheckLimit` | `src/application/ports/seo-measurement.ts` |
 | `SiteBlueprintRepositoryPort` | `findById` | `src/application/ports/authoring.ts` |
 | `SiteBlueprintRepositoryPort` | `list` | `src/application/ports/authoring.ts` |
 | `SiteBlueprintRepositoryPort` | `save` | `src/application/ports/authoring.ts` |
@@ -94,4 +96,4 @@
 | --- | --- |
 | `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:435` |
 | `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:527` |
-<!-- 生成物の指紋 sha256:b43df0e5ad174ad154531c4fd14e3c5fe58b45029c13db9cb0e2d85b7f1039c1 -->
+<!-- 生成物の指紋 sha256:abab75752bab67875f76e184f7e4d155b30620d362a0c4e20bca0bc896716a46 -->

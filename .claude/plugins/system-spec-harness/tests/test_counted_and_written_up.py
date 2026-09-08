@@ -192,7 +192,7 @@ def test_reopen_does_not_silently_drop_the_count() -> None:
     _check(state, "database")
     stm.apply_cell_op(
         state,
-        {"action": "reopen", "category": "database", "platform": "web", "reason": "やり直し"},
+        {"action": "reopen", "category": "database", "platform": "web", "reason": "やり直し", "qa_ref": "qa-x"},
     )
     discarded = state["reopen_log"][-1]["discarded"]
     assert "required_info_checks" in discarded

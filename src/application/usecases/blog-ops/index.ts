@@ -4,3 +4,5 @@ export * from "./check-blog-delivery";
 export * from "./manage-blog-articles";
 export * from "./manage-blog-pages";
 export * from "./evaluate-blog-articles";
+export * from "./manage-article-thumbnail";
+export * from "./manage-blog-home-featured";

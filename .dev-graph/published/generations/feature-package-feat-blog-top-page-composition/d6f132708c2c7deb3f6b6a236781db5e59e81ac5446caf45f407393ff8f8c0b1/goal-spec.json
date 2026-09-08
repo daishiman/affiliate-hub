@@ -1,0 +1,145 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-20260905-feat-blog-top-dependency-fix",
+  "session_owner": "claude-e091b379-top-page",
+  "generated_at": "2026-09-05T21:16:17Z",
+  "feature_id": "feat-blog-top-page-composition",
+  "graph_node_id": "feat-blog-top-page-composition",
+  "artifact_kind": "feature",
+  "purpose": "読者がトップページに来た瞬間に「何のブログで、何が読めて、次にどこへ行けばよいか」を迷わず掴めるようにし、参照ブログの情報階層だけを抽象化して独自の構成へ翻訳する",
+  "goal": "トップページが おすすめ記事 → 最新/人気の切り替え → カテゴリーから探す → 記事一覧への導線 の順で構成され、各記事がサムネイル・カテゴリー・公開日時付きカードで並び、ヘッダーはスクロール中も追従してヘッダー内から検索を起動でき、フッターに運営者情報・法務ページ・RSS の7導線が揃い、JavaScript が無効でも全導線が機能する状態になっている",
+  "scope_in": [
+    "トップページの区画構成 (おすすめ記事 / 最新記事・人気記事の切り替え / カテゴリーから探す / 記事一覧への導線) と表示順・件数・空状態。観測 fact は system-spec/retrieval-evidence/kajetblog-top-analysis.md §2",
+    "記事カードの構成要素 (サムネイル・カテゴリー・公開日時) と 16:9 (約 1200x675) の寸法規約。画像を持たない記事のカードはfeat-thumbnail-visual-systemが保存時生成したOGP画像URLで埋め、サムネイルの無いカードを生じさせない",
+    "追従ヘッダーのトップページ適用: サイト名 / 検索起動 / カテゴリへの移動 の3機能に限り、狭い画面では下方向スクロール中に畳み上方向で戻す。アンカー移動時はヘッダー高ぶんの余白で見出しの自己遮蔽を防ぐ",
+    "フッターの導線集約: 運営者情報 / 全カテゴリー / サイトポリシー / プライバシーポリシー / 特定商取引法に基づく表記 / お問い合わせ / RSS の7導線",
+    "最新/人気の切り替えを JavaScript 無効でも URL パラメータで到達可能にする段階的強化",
+    "トップページ固有の構造化データ: WebSite + SearchAction + ItemList",
+    "src/配下のruntime code/assetsへ参照元の文章・写真・ロゴ・固有名・色値・テーマ資産を転用しない非模倣ゲート。provenance文書と検査fixtureは出典・規則検証に必要なため走査対象外とする"
+  ],
+  "scope_out": [
+    "sticky ヘッダー / サイドバー / フッターの部品実装そのもの、共有アイコン体系、折りたたみ表現、テンプレート・配色の選択 UI (feat-blog-ui-builder)",
+    "サムネイル画像の登録・生成・保存・配信 (feat-thumbnail-visual-system)",
+    "検索の索引作成・順位付け・結果面 (feat-reader-search-quality)",
+    "記事本文ページの構成と記事タイプ別レイアウト (feat-reader-surface)",
+    "管理画面の画面構成。本 feature は読者向けトップページ 1 画面だけを対象とする。自動反映された変更を運営者が辿る履歴・差分・取り消しの面は feat-seo-aeo-measurement-loop の所有",
+    "参照サイトの解析・URL 台帳化そのもの (feat-reference-blog-admin-ux)",
+    "SNS導線の新規要件化。現時点では公開URL・表示データ・正本acceptanceが無いため必須scopeへ含めず、情報源とroute契約を持つ別feature判断に委ねる"
+  ],
+  "acceptance": [
+    "トップページが おすすめ記事 → 最新/人気 → カテゴリーから探す → 記事一覧導線 の順で描画され、各区画に記事が無いときは空状態の説明が表示される",
+    "最新/人気の切り替えが JavaScript を無効にした状態でも URL 経由で到達でき、選択中の側が視覚的に判別できる",
+    "ヘッダーがスクロール中も追従し、置かれている機能が サイト名 / 検索起動 / カテゴリ移動 の3つに限られ、ヘッダー内の検索起動から検索入力へ到達できる。JavaScript無効時は検索ページへの通常リンクとして機能する。狭い画面で下方向へスクロールすると畳まれ上方向で戻り、アンカー移動した見出しはヘッダーの下へ隠れない",
+    "フッターから運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせ・RSSへ到達できる",
+    "トップページの HTML に WebSite + SearchAction + ItemList の JSON-LD がサーバー側で含まれ、pure 関数の単体テストで検証できる",
+    "src/配下のruntime code/assetsに参照元の文章・画像・ロゴ・固有名・色値・テーマ資産が存在しないことを機械検査で確認できる。provenance文書と検査fixtureは走査対象外として保持される",
+    "トップページが axe-core の重大違反0件で、light/dark双方で本文コントラストが基準を満たす",
+    "記事カードがサムネイル・カテゴリー・公開日時を表示し、全画像が固有のwidth/heightを持ち、トップページのCLSが0.1未満である。画像を持たない記事もfeat-thumbnail-visual-systemが保存時生成したOGP画像URLで埋まり、サムネイルが空のカードが生じない"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "system-spec/index.md",
+    "system-spec/00-requirements-definition.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "system-spec/database.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": ".dev-graph/staging/run-20260905-feat-blog-top-dependency-fix-macro-update/feature-context.next.json",
+      "source_plugin": "dev-graph",
+      "source_digest": "sha256:4dbf5bf7cdf8bd0c2fe93b902042f8a7b8ba12ba4db4d0ab251f351b4b337cd8",
+      "updated_at": "2026-09-05T21:16:17Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-blog-top-page-composition.md",
+      "confirmation_status": "draft",
+      "evaluation_status": "pending",
+      "note": "次世代macro proposalを入力にexact-13を再構成した。canonical feature/graphへのapply・promotionは未実施であり、P01開始前に正規receiptと再生成contextのfreshness確認を必須とする"
+    },
+    "system_spec_sources": [
+      {
+        "source_path": "architecture/system-spec-overview.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "architecture/arch-two-layer-platform.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/index.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/00-requirements-definition.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/ui-ux.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/frontend.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/backend.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/database.md",
+        "verdict": "confirmed"
+      }
+    ],
+    "completeness_evaluation": {
+      "source_path": "system-spec/completeness-findings.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "verdict": "PASS"
+    }
+  },
+  "quality_constraints": [
+    {
+      "id": "semantic-coverage-not-tag-only",
+      "requirements": [
+        "区画構成と表示順",
+        "記事カードのサムネイル・カテゴリー・公開日時と16:9",
+        "追従ヘッダーのトップ適用",
+        "追従ヘッダーの機能を3つに限る",
+        "小画面での畳みと復帰",
+        "見出しの自己遮蔽回避",
+        "画像不在時の保存時生成OGP URLフォールバック",
+        "フッター7導線集約",
+        "JS無効での到達性",
+        "WebSite+SearchAction+ItemListのJSON-LD",
+        "src/runtime code/assetsを対象とする非模倣ゲート"
+      ]
+    },
+    {
+      "id": "sticky-header-occupancy-budget",
+      "rule": "常時追従するヘッダーへ置くのは サイト名 / 検索起動 / カテゴリへの移動 の 3 機能に限る。留まることで隠す面積の対価に見合う働きを持つものだけを残し、参照サイトの観測 fact をそのまま並べない。狭い画面では下方向スクロール中に畳み上方向で戻す。アンカー移動時に見出しがヘッダーの下へ潜らない余白を持たせる (qa-uiux-web-top-composition-v6)"
+    },
+    {
+      "id": "no-empty-thumbnail-slot",
+      "rule": "画像を持たない記事のカードは自動生成の OGP 画像で埋め、サムネイルの空いたカードがトップページに生じないようにする (qa-neutral-ogp-fallback-v6)"
+    },
+    {
+      "id": "thumbnail-coverage-on-every-surface",
+      "rule": "トップページを含む各画面の記事カードにサムネイルを表示し、一覧の見分けを画像で支える。表示の欠けた面を残さない (qa-request-thumbnail-coverage-v6)"
+    },
+    {
+      "id": "non-imitation",
+      "rule": "src/配下のruntime code/assetsへ参照元の文章・写真・ロゴ・固有名・色値・テーマ資産を転用しない。provenance文書と検査fixtureは出典・規則検証に必要なため走査対象外とし、情報階層と操作原則だけを移す"
+    },
+    {
+      "id": "progressive-enhancement",
+      "rule": "最新/人気の切り替えを含め、全導線が JavaScript 無効でも URL で到達できる"
+    },
+    {
+      "id": "scope-boundary",
+      "rule": "stickyヘッダー・フッター部品・共有アイコン体系はfeat-blog-ui-builder、サムネイル生成はfeat-thumbnail-visual-system、検索の索引と結果面はfeat-reader-search-qualityの所有。本featureはトップページ1画面の情報設計と提供部品の配置に限り、SNS導線は情報源とroute契約が確定するまで必須scopeへ含めない"
+    }
+  ]
+}

@@ -178,6 +178,14 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
         "時計が全workspaceのcommit済み・未配送intentを再送する。各行はworkspaceIdを保持し、" +
         "人のtenant文脈で読む処理ではない",
     },
+  "infrastructure/platform/blog-thumbnail-sweeper.ts::blogArticleThumbnails::referencedPrefixes": {
+    count: 1,
+    why:
+      "毎晩の表紙の掃除。呼ぶのは人ではなく時計で、身元が無い。**絞ると壊れる**：" +
+      "置き場は全作業場所の絵を 1 つのバケットに持つので、片方の作業場所だけを" +
+      "台帳から読むと、他所の生きている表紙が「参照されていない」に見えて消える" +
+      "（tests/integration/d1-blog-thumbnail-sweep.test.ts で実際に確かめている）",
+  },
   "infrastructure/persistence/d1/feedback-repository.ts::integrationKeys::authenticate": {
     count: 1,
     why: "鍵の値から作業場所を決める処理。作業場所はここの出力",
@@ -190,15 +198,9 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
     count: 1,
     why: "同上。鍵 id が既に作業場所を含んでいる",
   },
-  "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::storedSummaries":
-    { count: 1, why: "読者向けの公開ページ。読者に作業場所は無く、手がかりは URL の名前だけ" },
   "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::listByCategory":
     { count: 1, why: "同上（読者向け）" },
   "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::findArticle": {
-    count: 1,
-    why: "同上（読者向け）",
-  },
-  "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::search": {
     count: 1,
     why: "同上（読者向け）",
   },
@@ -285,7 +287,21 @@ function readTables(): readonly Table[] {
 
         // 第 3 引数（索引と主キーの宣言）は `(t) => [...]` の形で書かれている。
         const extrasText = init.arguments[2]?.getText().replace(/\s+/g, " ") ?? "";
+        /*
+          作業場所そのものが主キーの表は、第 3 引数を持たない
+          （`workspaceId: text("workspace_id").primaryKey()` と列に書く）。
+          作業場所ごとに 1 行しか無い表——設定など——はこの形になる。
+
+          ここを見ないと、その形の表が「索引が無い」と言われる。**言われた側は
+          索引を足しようがない**（主キーが既にそれである）ので、逃げ道は
+          免除表への追記だけになり、免除表が「本当は満たしているもの」で
+          埋まっていく。免除表が長くなると、本当に危ない行が埋もれる。
+        */
+        const columnsText = columns?.getText().replace(/\s+/g, " ") ?? "";
+        const workspaceIsPrimaryKey =
+          /workspaceId:[^,]*?\.primaryKey\(\)/.test(columnsText);
         const leadsWithWorkspaceId =
+          workspaceIsPrimaryKey ||
           /\.on\(\s*t\.workspaceId\b/.test(extrasText) ||
           /primaryKey\(\{\s*columns:\s*\[\s*t\.workspaceId\b/.test(extrasText);
 
@@ -744,4 +760,25 @@ describe("固定文書を tenant 化する migration は、既存行を捨てな
     expect(schema).toContain("CREATE TABLE `site_retirements`");
     expect(schema).not.toContain("ALTER TABLE `site_blueprints` ADD `retired_at`");
   });
+});
+
+
+it("公開記事の共通browseは生SQLでもサイト・非公開・タグ所属の境界を持つ", () => {
+  const file = join(SRC, "infrastructure/persistence/d1/published-article-repository.ts");
+  const parsed = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
+  const bodies: ts.FunctionDeclaration[] = [];
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionDeclaration(node) && node.name?.text === "browse") bodies.push(node);
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed);
+  expect(bodies).toHaveLength(1);
+  const body = bodies[0]!.getText();
+  // 通常の.from/update/delete走査はSQL templateを解釈しないため、公開browseを明示検査する。
+  expect(body.match(/db\.all</g)).toHaveLength(1);
+  expect(body).toContain("WHERE a.site_slug = ${siteSlug} AND a.archived_at IS NULL");
+  expect(body).toContain("at.article_id = a.source_article_id");
+  expect(body).toContain("at.workspace_id = a.workspace_id");
+  expect(body).toContain("t.workspace_id = at.workspace_id");
+  expect(body).toContain("t.site_slug = a.site_slug AND t.slug = ${request.tag}");
 });

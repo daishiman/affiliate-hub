@@ -6,6 +6,7 @@ import {
   type MetricKey,
   TELEMETRY_EVENT_KEYS,
   type TelemetryEvent,
+  type TelemetryEventKey,
   UNDERIVABLE_REASONS,
   buildTelemetryEvent,
   derivableMetricKeys,
@@ -177,5 +178,35 @@ describe("中央値の出し方", () => {
 
   it("空なら null（0 ではない）", () => {
     expect(median([])).toBeNull();
+  });
+});
+
+describe("読者の探す・読む・次へ進むを実測から返す", () => {
+  function readerEvent(key: TelemetryEventKey, payload: Record<string, unknown>): TelemetryEvent {
+    const built = buildTelemetryEvent({ key, occurredAt: NOW, readerKey: null, payload });
+    if (!built.ok) throw new Error(built.error.message);
+    return built.value as TelemetryEvent;
+  }
+
+  it("成功検索表示を母数にゼロ件率を出し、入力語を必要としない", () => {
+    const events = [0, 3, 0, 1].map((resultCount) => readerEvent("search_performed", { siteSlug: "s", resultCount }));
+    const samples = deriveMetricSamples(events, FROM, NOW);
+    expect(samples.find((s) => s.key === "search_result_count")?.value).toBe(4);
+    expect(samples.find((s) => s.key === "search_no_result_rate")).toMatchObject({ value: 0.5, denominator: 4 });
+    const allFound = deriveMetricSamples([events[1]!], FROM, NOW);
+    expect(allFound.find((s) => s.key === "search_no_result_rate")?.value).toBe(0);
+    expect(deriveMetricSamples([], FROM, NOW).find((s) => s.key === "search_no_result_rate")).toBeUndefined();
+  });
+
+  it("回遊・目次・並べ替えを個別の事実として数える", () => {
+    const samples = deriveMetricSamples([
+      readerEvent("internal_link_click", { siteSlug: "s", path: "/", toPath: "/article", placement: "おすすめ" }),
+      readerEvent("element_click", { siteSlug: "s", path: "/article", elementKind: "toc_item", elementId: "summary" }),
+      readerEvent("filter_changed", { siteSlug: "s", path: "/", axis: "article_sort", value: "popular" }),
+    ], FROM, NOW);
+    for (const key of ["internal_navigation_count", "toc_navigation_count", "article_sort_count"]) {
+      expect(samples.find((s) => s.key === key)?.value).toBe(1);
+      expect(deriveMetricSamples([], FROM, NOW).find((s) => s.key === key)).toBeUndefined();
+    }
   });
 });

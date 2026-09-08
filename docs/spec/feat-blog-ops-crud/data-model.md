@@ -1,10 +1,15 @@
 # データモデル (migration 0023 以降)
 
 canonical acceptance registry: `features/feat-blog-ops-crud.md#frontmatter.acceptance`  
-acceptance source digest: `sha256:7d03855a6d54fdd216e92734e92d4ff5e6baf89dd094c6a4fcd9904c515603e5`
+acceptance source digest: `sha256:7d03855a6d54fdd216e92734e92d4ff5e6baf89dd094c6a4fcd9904c515603e5`  
+更新日: **2026-09-08**（P12。実装と突き合わせて確定内容へ直した）
 
 方針: 記事本体の canonical write model は既存 `articles` に一本化する。
-`blog_article` は過渡表であり、P08 migration がデータを `articles` へ backfill した後に削除する。
+**`blog_article` は既に存在しない。** P08 migration が `articles` へ backfill した後に削除され、
+2026-09-08 時点で `src/db/schema.ts` にも `src/` のどこにも 1 件も残っていない。
+以前この文書は「過渡表であり…後に削除する」と未来形で書いていたが、
+**移行はもう終わっている**。未来形のまま置くと、次に読む人が
+「まだ両方あるのか」と確かめ直す羽目になる。
 `published_articles` は公開時の内容を保持する、唯一の canonical public projection である。
 編集正本ではなく、`articles` と独立して公開可否を決める第二の正本にもしてはならない。
 ブログ運用由来の projection は nullable な `source_article_id` で `articles.id` を追跡し、
@@ -50,7 +55,20 @@ unique(`workspace_id`, `site_slug`, `region`, `slot_key`)
 ## 3. `blog_layout_band` — ハブトップの 4 帯 (§3.2)
 
 `band` は `latest_posts` / `sister_sites` / `category_hub` / `navigator`。
-`item_limit` で 1 帯に出す件数を持つ。unique(`workspace_id`, `site_slug`, `band`)
+`position` で並び、`item_limit` (既定 3・0〜24) で 1 帯に出す件数を持つ。
+unique(`workspace_id`, `site_slug`, `band`)
+
+**受入条文 A2 の語とこの表の語は一致していない。** 条文は
+「`blog_hero_config` の順序どおり」「`max_items` を超えない」と書いているが、
+`blog_hero_config` という表も `max_items` という列も**実装には存在しない**
+(2026-09-08 に `src/` 全体を確認)。実際に順序を決めるのは `position`、
+件数を決めるのは `item_limit` である。
+
+振る舞い自体は検査されている (`tests/ui/blog-top-bands.test.tsx` — 保存順に並ぶ /
+上限に従う / 上限 0 は 1 件も出さない) ので**被覆の穴ではない**。
+ただし条文の固有名で実装を探すと何も見つからないので、ここに対応を書いておく。
+条文側を直すか機構側を直すかは仕様の判断であり、P12 の範囲外
+(`evidence/acceptance-evidence-map.json` の A2 `clause_naming_drift` に記録済み)。
 
 ## 4. `articles` — 記事編集正本 (§4)
 
@@ -67,7 +85,7 @@ unique(`workspace_id`, `site_slug`, `region`, `slot_key`)
 | deleted_at | NULL=有効、値あり=論理削除。復元は NULL へ戻す |
 | published_at / updated_at | 公開時刻と鮮度の判定 |
 
-ブログ adapter は `articles` のみを read/write し、`blog_article` へ dual-write しない。
+ブログ adapter は `articles` のみを read/write する（dual-write の相手だった `blog_article` は既に無い）。
 `blog_article_block` / `blog_article_tag` / `blog_article_rating` は `articles.id` を親とする子データとして維持する。
 
 ## 4-2. `published_articles` — canonical public projection
@@ -98,6 +116,48 @@ reader から一覧・本文・composition へ一貫して現れる。
 既存公開記事は、任意のカテゴリーを推測せず `uncategorized`（表示名「未分類」）へ
 正規化する。旧データの空の書き手も「編集部」と作り話で補わず、
 「著者未設定」として明示する。
+
+### 4-3. `published_article_tombstones` — 取り下げた URL の墓標
+
+この文書は §5 で「墓標」を前提に書いていたが、表そのものの節が無かった。
+2026-09-08 に補った。
+
+| 列 | 内容 |
+|---|---|
+| `site_slug` / `slug` | 取り下げた公開 URL |
+| `workspace_id` | 所有 workspace |
+| `unpublished_at` | 取り下げた時刻 |
+
+**公開行を消すだけでは足りない。** 投影行を削除しても、同じ URL の見本記事
+（seed 由来）が読者へ再び出てしまう。墓標は独立して残り、一覧・検索・1 枚引きの
+**すべての読み取り経路で見本より優先**する。外せるのは同じ workspace が
+再公開するときだけである。
+
+### 4-4. `blog_home_featured_article` — トップに置く記事の指名
+
+| 列 | 内容 |
+|---|---|
+| `workspace_id` / `site_slug` | |
+| `article_slug` | 指名した記事の URL 名 |
+| `position` | 並び |
+
+**`published_articles` への物理 FK を持たない。** 持たせると、非公開化や投影行の
+削除で指名そのものが消える。指名は運営者の意思であって公開状態の写しではないので、
+同じ URL を再公開したときに復帰する必要がある。新規行の整合は migration の
+trigger が守る。
+
+### 4-5. `blog_article_thumbnail` — 記事のサムネイル
+
+| 列 | 内容 |
+|---|---|
+| `article_id` / `workspace_id` | |
+| `object_key` | R2 上の鍵 |
+| `mime_type` / `byte_length` / `derived_widths` | 実体の属性と生成済み幅 |
+| `alt_text` | 読み上げ用の代替文 |
+
+**鍵は組み直さず、ここに置いたものを使う。** 記事の URL 名を変えると、
+組み直した鍵は置いたときと変わる。消しに行っても空振りし、R2 に孤児が残る
+(`src/domain/blogops/thumbnail-asset.ts`)。参照が外れた時点で R2 から消す。
 
 ## 5. `blog_article_block` — 記事本文の部品列 (§3.3)
 
@@ -185,6 +245,18 @@ unique(`article_id`, `reader_key`) — 同じ閲覧者の再送は置き換え (
 付け替えは監査に `blog_rating.hidden` / `blog_rating.shown` として残り、
 **どちらも理由が必須**である (`REASON_REQUIRED`)。戻す側も必須にしているのは、
 理由を言わずに伏せた判断を覆せると、伏せた判断が黙って消えるため。
+
+## 隣にあるが、この feature の表ではないもの
+
+同じ `blog_` 接頭辞を持つが**別の feature が所有する**表がある。
+ここに書いておかないと、次に読む人が「書き漏れ」と読んで足しに来る。
+
+| 表 | 所有 | 内容 |
+|---|---|---|
+| `blog_theme` | feat-blog-ui | 既定の配色。値は `tokens.css` の `light-dark()` を選ぶ data 属性名であって、色そのものではない |
+| `blog_template` | feat-blog-ui | 並び方だけを決める。記事の中身はテンプレートを知らないので、行を書き換えても記事は壊れない |
+| `blog_affiliate_placement` | アフィリエイト側 | どの記事のどの位置に成果リンクが在るか。**読者向け読み取り経路はこの表を読まない**（報酬情報を読者経路に混ぜない） |
+| `site_blueprints` / `site_drafts` / `site_retirements` | feat-site-blueprint | 受入条文 A4 が要求する AT/BP 検証の置き場。**2026-09-08 時点で `src/domain/blueprint*` は存在しない**（`evidence/acceptance-evidence-map.json` の A4 を見ること） |
 
 ## 固定ページ 8 種
 

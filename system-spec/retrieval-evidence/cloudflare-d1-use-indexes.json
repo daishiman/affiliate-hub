@@ -1,0 +1,36 @@
+{
+ "target_id": "cloudflare-d1-use-indexes",
+ "source_url": "https://developers.cloudflare.com/d1/best-practices/use-indexes/",
+ "retrieved_at": "2026-09-03T00:00:00Z",
+ "http_status": 200,
+ "content_bytes": 138404,
+ "content_sha256": "5df2106a3c04e2d12f44ad8a1083b9b5c0b1d1860f519e2cb31e2ce2ebf01528",
+ "page_title": "Use indexes · Cloudflare D1 docs",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-08-10",
+  "found_in": [
+   "JSON-LD \"dateModified\":\"2026-08-10\"",
+   "<time datetime=\"2026-08-10T10:23:07.000Z\">Aug 10, 2026</time>"
+  ],
+  "http_last_modified": null,
+  "note": "値の由来は freshness_source と対応する。取得日を last_updated へ代入しない (C13 validate-source-citation.py の取得日代入検査が拒否する)。"
+ },
+ "quoted_for_design": [
+  {
+   "claim": "任意の部分一致検索には trigram トークナイザの FTS5 を検討でき、連続する3文字以上の非ワイルドカード Unicode 文字を含むパターンを最適化できる",
+   "verbatim": "For arbitrary substring searches, consider FTS5 with the trigram tokenizer, which can optimize patterns containing at least three consecutive non-wildcard Unicode characters.",
+   "used_by": "qa-database-web-fts5-trigram-index-v4b"
+  },
+  {
+   "claim": "FTS5 索引は保存量と書き込み費用を増やすため、自分の負荷で計測すること",
+   "verbatim": "FTS5 indexes increase storage and write costs, so benchmark them for your workload.",
+   "used_by": "qa-database-web-fts5-trigram-index-v4b"
+  },
+  {
+   "claim": "どちらの手も EXPLAIN QUERY PLAN で確かめること",
+   "verbatim": "Verify either approach with EXPLAIN QUERY PLAN.",
+   "used_by": "qa-database-web-fts5-trigram-index-v4b"
+  }
+ ]
+}

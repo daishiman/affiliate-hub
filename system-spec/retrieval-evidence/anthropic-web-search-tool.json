@@ -1,0 +1,56 @@
+{
+ "target_id": "anthropic-web-search-tool",
+ "source_url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+ "retrieved_at": "2026-09-03T20:57:54Z",
+ "http_status": 200,
+ "content_bytes": 750407,
+ "content_sha256": "69183b21f8f15483d5bbf2afba8d96257b21fcd1fd87c36f705edc9c8f536f60",
+ "page_title": "Web search tool - Claude Platform Docs",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "web_search_20260318",
+  "found_in": [
+   "本文が申告する tool version は web_search_20250305 / web_search_20260209 / web_search_20260318 の 3 種で、最新は web_search_20260318 (2026-09-03 取得本文を web_search_2\\d{7} で全件走査して確認)"
+  ],
+  "http_last_modified": null,
+  "note": "配信 HTML に文書としての『Last updated』表示は無い。本文中の \"last updated\" は検索結果の page_age フィールドの説明文 (\"page_age: When the site was last updated\") であって文書の更新日ではないため、鮮度根拠に採らない。埋め込み JSON の UpdatedAt (epoch ms) は取得ごとに現在時刻へ動く描画時刻であり (2026-09-03T20:57 取得で 1788469074356 / 21:02 取得で 1788469379029)、これも文書の更新日ではない。よって鮮度根拠は本文が自ら申告する tool version を採る。"
+ },
+ "content_sha256_stability": {
+  "reproducible": false,
+  "volatile_markers": {
+   "csp-nonce-attr": 116,
+   "csp-nonce-json": 108,
+   "sift-session-id": 1
+  },
+  "note": "このページの content_sha256 は取得ごとに変わる。原因は 2 系統を実測で特定してある — (1) CSP の nonce が毎リクエスト再生成され、HTML 属性形式 (nonce=\"...\") で 116 箇所・JSON エスケープ形式 (\\\"nonce\\\":\\\"...\\\") で 108 箇所の計 224 箇所に埋まる (2) Sift 追跡スクリプトの _setSessionId に入る UUID が 1 箇所。nonce を両形式とも伏せてもなお sha は一致しないため、生バイトの sha を安定化させる正規化は追わないことにした。**この target については content_sha256 の不一致を『本文が変わった』の根拠にしてはならない。**本文の同一性は下の quoted_for_design の逐語が本文に在るかどうかで確かめる。content_bytes も nonce の base64 長により数バイト揺れる。"
+ },
+ "quoted_for_design": [
+  {
+   "claim": "web 検索の引用は常に有効で、引用先の URL と題名が構造化されて返る。よって『AI 検索面が自サイトを引用したか』を機械で判定できる",
+   "verbatim": "Citations are always enabled for web search, and each <code>web_search_result_location</code> includes:</p>\n<ul>\n<li><code>url</code>: The URL of the cited source</li>\n<li><code>title</code>: The title of the cited source</li>",
+   "used_by": "qa-neutral-citation-check-v6"
+  },
+  {
+   "claim": "課金は検索回数の従量と、検索結果が入力トークンとして数えられる分の二階建てである。しかも検索結果は同一ターン内の検索反復でも以後の会話ターンでも入力トークンに数え続けられる",
+   "verbatim": "per 1,000 searches</strong>, plus standard token costs for search-generated content. Web search results retrieved throughout a conversation are counted as input tokens, in search iterations executed during a single turn and in subsequent conversation turns.",
+   "used_by": "qa-neutral-citation-check-v6"
+  },
+  {
+   "claim": "費用を抑える実効的な手段は 1 リクエストあたりの検索回数上限である。モデルを小さくしても下がるのはトークン単価だけで、検索回数の従量分は下がらない",
+   "verbatim": "max_uses</code> to cap the number of searches for each request.",
+   "used_by": "qa-neutral-citation-check-v6"
+  },
+  {
+   "claim": "tool version は日付付きで固定でき、版によって挙動が違う。被引用チェックを再現可能にするには版を明示的に指定する必要がある",
+   "verbatim": "web_search_20260209</code> and later versions, Claude can write and run code that filters the search results before they reach the context window (<strong>dynamic filtering</strong>)",
+   "used_by": "qa-backend-web-aeo-analysis-pipeline-v6"
+  }
+ ],
+ "requirement_note": "系統3 (AI 検索での被引用チェック) の技術的前提を裏づける出典。qa-answer-aeo-feasibility-v6 が『AI 基盤の web 検索機能へ問い合わせ、返る引用 URL に自サイトが含まれるかを記録する形で作れます』と述べた前提は、上記 1 件目の逐語で成立する。加えて仕様側に無かった費用の形が判明した — 利用者が qa-neutral-citation-check-v6 で述べた『コストをできるだけ抑えたい。最小限のllmのモデルでも良い』のうち、**モデルを小さくして下がるのはトークン単価のみで、検索 1,000 件あたりの従量課金は下がらない。**費用の主たる制御点は max_uses による検索回数上限であり、被引用チェックの実行頻度と 1 回あたり検索回数を要件で決め切る必要がある。",
+ "not_found_in_source": [
+  {
+   "looked_for": "文書としての最終更新日 (Last updated 表示)",
+   "result": "配信 HTML に存在しない。本文の \"last updated\" は検索結果 page_age の説明文であり文書の更新日ではない。埋め込み JSON の UpdatedAt は描画時刻で取得ごとに動く。鮮度根拠には tool version を採った。"
+  }
+ ]
+}

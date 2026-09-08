@@ -1,0 +1,146 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-20260904-feat-blog-top-page-composition",
+  "session_owner": "claude-e091b379-top-page",
+  "generated_at": "2026-09-04T03:19:00Z",
+  "feature_id": "feat-blog-top-page-composition",
+  "graph_node_id": "feat-blog-top-page-composition",
+  "artifact_kind": "feature",
+  "purpose": "読者がトップページに来た瞬間に「何のブログで、何が読めて、次にどこへ行けばよいか」を迷わず掴めるようにし、参照ブログの情報階層だけを抽象化して独自の構成へ翻訳する",
+  "goal": "トップページが おすすめ記事 → 最新/人気の切り替え → カテゴリーから探す → 記事一覧への導線 の順で構成され、各記事がサムネイル付きカードで並び、ヘッダーはスクロール中も追従してヘッダー内から検索を起動でき、フッターに運営者情報・法務ページ・SNS・RSS の導線が揃い、JavaScript が無効でも全導線が機能する状態になっている",
+  "scope_in": [
+    "トップページの区画構成 (おすすめ記事 / 最新記事・人気記事の切り替え / カテゴリーから探す / 記事一覧への導線) と表示順・件数・空状態。観測 fact は system-spec/retrieval-evidence/kajetblog-top-analysis.md §2",
+    "記事カードの構成要素 (サムネイル・カテゴリ・公開日時) と 16:9 (約 1200x675) の寸法規約。観測 fact §3。画像を持たない記事のカードは自動生成の OGP 画像で埋め、サムネイルの無いカードがトップページに生じないようにする (qa-neutral-ogp-fallback-v6)",
+    "追従ヘッダーのトップページ適用: 常時追従するヘッダーへ置くのは サイト名 / 検索起動 / カテゴリへの移動 の 3 機能に限る (占有面積の対価に見合う働きを持つものだけを残す。qa-uiux-web-top-composition-v6)。狭い画面では下方向のスクロール中は畳み、上方向へ動かしたときに戻す。アンカー移動時に見出しが追従ヘッダーの下へ潜らないよう、ヘッダーの高さぶんの余白を見出しに与える。キャッチコピー・SNS アイコン列は参照サイトの観測 fact §1 にはあるが追従ヘッダーには置かず、フッターと本文の流れの中へ配置する",
+    "フッターの導線集約: 運営者情報 / 全カテゴリー / サイトポリシー / プライバシーポリシー / 特定商取引法に基づく表記 / お問い合わせ / RSS / SNS",
+    "アイコン体系のトップ面適用: グローバルナビ・SNS・検索・メニューを独自セットで表し、折りたたみ時もアイコンだけで項目を識別できる",
+    "最新/人気の切り替えを JavaScript 無効でも URL パラメータで到達可能にする段階的強化",
+    "トップページ固有の構造化データ: WebSite + SearchAction + ItemList。参照サイトに ItemList と llms.txt が無い欠測 (観測 fact §7) を独自に埋める",
+    "参照元の文章・写真・ロゴ・固有名・色値・テーマ資産を転用せず情報階層と操作原則だけを移す非模倣ゲートと、その機械検査"
+  ],
+  "scope_out": [
+    "sticky ヘッダー / サイドバー / フッターの部品実装そのものとテンプレート・配色の選択 UI (feat-blog-ui-builder)",
+    "サムネイル画像の登録・生成・保存・配信 (feat-thumbnail-visual-system)",
+    "検索の索引作成・順位付け・結果面 (feat-reader-search-quality)",
+    "記事本文ページの構成と記事タイプ別レイアウト (feat-reader-surface)",
+    "管理画面の画面構成。本 feature は読者向けトップページ 1 画面だけを対象とする。自動反映された変更を運営者が辿る履歴・差分・取り消しの面は feat-seo-aeo-measurement-loop の所有",
+    "参照サイトの解析・URL 台帳化そのもの (feat-reference-blog-admin-ux)"
+  ],
+  "acceptance": [
+    "トップページが おすすめ記事 → 最新/人気 → カテゴリーから探す → 記事一覧導線 の順で描画され、各区画に記事が無いときは空状態の説明が表示される",
+    "最新/人気の切り替えが JavaScript を無効にした状態でも URL 経由で到達でき、選択中の側が視覚的に判別できる",
+    "ヘッダーがスクロール中も追従し、置かれている機能が サイト名 / 検索起動 / カテゴリ移動 の 3 つに限られ、ヘッダー内の検索起動から検索入力へ到達できる。JavaScript 無効時は検索ページへの通常リンクとして機能する。狭い画面で下方向へスクロールするとヘッダーが畳まれ上方向で戻る。見出しへのアンカー移動でその見出しがヘッダーの下へ隠れない",
+    "フッターから運営者情報・全カテゴリー・サイトポリシー・プライバシーポリシー・特定商取引法に基づく表記・お問い合わせ・RSS へ到達できる",
+    "トップページの HTML に WebSite + SearchAction + ItemList の JSON-LD がサーバー側で含まれ、pure 関数の単体テストで検証できる",
+    "参照元 (kajetblog.com) の文章・画像・ロゴ・固有名・色値がリポジトリに存在しないことを機械検査で確認できる",
+    "トップページが axe-core の重大違反 0 件で、light/dark 双方で本文コントラストが基準を満たす",
+    "記事カードが全て固有の width/height を持ち、トップページの CLS が 0.1 未満である。画像を持たない記事のカードも自動生成の OGP 画像で埋まり、サムネイルが空のカードが生じない"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "system-spec/index.md",
+    "system-spec/00-requirements-definition.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "system-spec/database.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-blog-top-page-composition.context.json",
+      "source_plugin": "dev-graph",
+      "source_digest": "sha256:95f362cafa9a58a3b9bd82121acde3a940bb79d8e998902952e07989202363ff",
+      "updated_at": "2026-09-04T00:00:00Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-blog-top-page-composition.md",
+      "confirmation_status": "draft",
+      "evaluation_status": "pending",
+      "note": "C14 macro 分解で 2026-09-04 に新規登録した feature。exact-13 の生成をもって implementation_readiness を complete へ進める"
+    },
+    "system_spec_sources": [
+      {
+        "source_path": "architecture/system-spec-overview.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "architecture/arch-two-layer-platform.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/index.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/00-requirements-definition.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/ui-ux.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/frontend.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/backend.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/database.md",
+        "verdict": "confirmed"
+      }
+    ],
+    "completeness_evaluation": {
+      "source_path": "system-spec/completeness-report.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "verdict": "PASS"
+    }
+  },
+  "quality_constraints": [
+    {
+      "id": "semantic-coverage-not-tag-only",
+      "requirements": [
+        "区画構成と表示順",
+        "記事カード 16:9",
+        "追従ヘッダーのトップ適用",
+        "追従ヘッダーの機能を 3 つに限る",
+        "小画面での畳みと復帰",
+        "見出しの自己遮蔽回避",
+        "画像不在時の OGP 自動生成フォールバック",
+        "フッター導線集約",
+        "独自アイコン体系",
+        "JS 無効での到達性",
+        "WebSite+SearchAction+ItemList の JSON-LD",
+        "非模倣ゲートと機械検査"
+      ]
+    },
+    {
+      "id": "sticky-header-occupancy-budget",
+      "rule": "常時追従するヘッダーへ置くのは サイト名 / 検索起動 / カテゴリへの移動 の 3 機能に限る。留まることで隠す面積の対価に見合う働きを持つものだけを残し、参照サイトの観測 fact をそのまま並べない。狭い画面では下方向スクロール中に畳み上方向で戻す。アンカー移動時に見出しがヘッダーの下へ潜らない余白を持たせる (qa-uiux-web-top-composition-v6)"
+    },
+    {
+      "id": "no-empty-thumbnail-slot",
+      "rule": "画像を持たない記事のカードは自動生成の OGP 画像で埋め、サムネイルの空いたカードがトップページに生じないようにする (qa-neutral-ogp-fallback-v6)"
+    },
+    {
+      "id": "thumbnail-coverage-on-every-surface",
+      "rule": "トップページを含む各画面の記事カードにサムネイルを表示し、一覧の見分けを画像で支える。表示の欠けた面を残さない (qa-request-thumbnail-coverage-v6)"
+    },
+    {
+      "id": "non-imitation",
+      "rule": "参照元 (kajetblog.com) の文章・写真・ロゴ・固有名・色値・テーマ資産を転用しない。情報階層と操作原則だけを移す"
+    },
+    {
+      "id": "progressive-enhancement",
+      "rule": "最新/人気の切り替えを含め、全導線が JavaScript 無効でも URL で到達できる"
+    },
+    {
+      "id": "scope-boundary",
+      "rule": "sticky ヘッダー部品と配色の選択 UI は feat-blog-ui-builder、サムネイル生成は feat-thumbnail-visual-system、検索の索引と結果面は feat-reader-search-quality の所有。本 feature はトップページ 1 画面の情報設計に限る"
+    }
+  ]
+}

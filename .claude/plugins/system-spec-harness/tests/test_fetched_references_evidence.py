@@ -228,3 +228,89 @@ class TestCliRoundTrip:
         )
         assert proc.returncode != 0, "自分の出力を入力に取って成功で終わった"
         assert not out.exists(), "断ったのに出力ファイルを残した"
+
+
+class TestEvidenceDigestIsGroundedInBytes:
+    """(c) evidence_sha256 が証跡ファイルの実バイトと一致すること。
+
+    形式検査 (`SHA256_HEX`) は「64 桁の 16 進数であること」しか言わない。
+    **証跡ファイルを後から書き換えても、古い digest はその形を保ったまま通る。**
+    2026-09-08 の回でまさにそれが起き、注記を足した apple-hig の証跡に対して古い digest が
+    残ったまま唯一の正規 writer を素通りした。digest の目的は「記録後に証跡が改変されて
+    いない」ことの担保なので、担保する側が実バイトを一度も開かないなら担保になっていない。
+
+    検査は `--repo-root` を渡したときだけ働く (assembler を repo に縛らないため) ので、
+    「渡さなければ素通りする」ことも同時に固定する——素通りが仕様であって事故ではない、
+    と後から読む人に分かる形にしておく。
+    """
+
+    @staticmethod
+    def _repo_with_evidence(tmp_path: Path, body: str) -> Path:
+        ev = tmp_path / "system-spec" / "retrieval-evidence"
+        ev.mkdir(parents=True)
+        (ev / "react.json").write_text(body, encoding="utf-8")
+        return tmp_path
+
+    def test_matching_digest_passes(self, tmp_path: Path):
+        body = '{"content_sha256": "x"}'
+        repo = self._repo_with_evidence(tmp_path, body)
+        rec = _record(evidence_sha256=_sha256_hex(body))
+        out = builder.assemble([rec], repo)["references"][0]
+        assert out["evidence_sha256"] == _sha256_hex(body)
+
+    def test_stale_digest_is_refused(self, tmp_path: Path):
+        """証跡を書き換えて digest を据え置いた形——今回の事故そのもの。"""
+        repo = self._repo_with_evidence(tmp_path, '{"content_sha256": "x"}')
+        rec = _record(evidence_sha256=_sha256_hex("古い本文"))
+        with pytest.raises(builder.RecordError) as exc:
+            builder.assemble([rec], repo)
+        assert "実バイトと不一致" in str(exc.value)
+
+    def test_missing_evidence_file_is_refused(self, tmp_path: Path):
+        """digest の形が正しくても、指す先が無ければ担保にならない。"""
+        (tmp_path / "system-spec").mkdir()
+        with pytest.raises(builder.RecordError) as exc:
+            builder.assemble([_record()], tmp_path)
+        assert "実在しない" in str(exc.value)
+
+    def test_evidence_ref_escaping_repo_root_is_refused(self, tmp_path: Path):
+        """repo 外のファイルを指して「証跡がある」と名乗れないこと。"""
+        repo = self._repo_with_evidence(tmp_path, "body")
+        outside = tmp_path.parent / "outside-evidence.json"
+        outside.write_text("body", encoding="utf-8")
+        rec = _record(
+            evidence_ref="system-spec/../../outside-evidence.json",
+            evidence_sha256=_sha256_hex("body"),
+        )
+        with pytest.raises(builder.RecordError) as exc:
+            builder.assemble([rec], repo)
+        assert "repo_root の外" in str(exc.value)
+
+    def test_without_repo_root_the_check_does_not_run(self, tmp_path: Path):
+        """repo_root 省略時は純関数のまま。実行しないことを明示的に固定する。"""
+        rec = _record(evidence_sha256=_sha256_hex("どこにも存在しない本文"))
+        assert builder.assemble([rec])["references"][0]["target_id"] == "react"
+
+    def test_cli_repo_root_refuses_stale_digest(self, tmp_path: Path):
+        """CLI 経路でも断り、断ったときに出力を残さないこと。"""
+        import subprocess
+        import sys
+
+        repo = self._repo_with_evidence(tmp_path, '{"content_sha256": "x"}')
+        records = tmp_path / "records.json"
+        records.write_text(
+            json.dumps({"records": [_record(evidence_sha256=_sha256_hex("古い本文"))]}),
+            encoding="utf-8",
+        )
+        out = tmp_path / "out.json"
+        proc = subprocess.run(
+            [
+                sys.executable, str(BUILDER), "assemble",
+                "--records", str(records), "--repo-root", str(repo), "--out", str(out),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert proc.returncode == 1, proc.stdout + proc.stderr
+        assert "実バイトと不一致" in proc.stderr
+        assert not out.exists(), "断ったのに出力ファイルを残した"

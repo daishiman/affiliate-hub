@@ -129,6 +129,12 @@ const ADMIN_ROUTE_DEFINITIONS = {
   "ai-usage": nav("AI の利用と費用", "observe", "analytics.read", "aiUsage"),
   improvement: nav("改善の状況", "observe", "analytics.read", "improvement"),
   "improvement/dimensions": child("improvement", "改善の観点"),
+  /*
+    検索とAIからの見え方。改善の状況とは別の画面に置く。
+    混ぜると、人の判断で回す比較（改善）と、機械が毎晩集める観測（ここ）が
+    同じ一覧に並び、「誰が動かしているのか」が読めなくなる。
+  */
+  seo: nav("検索とAIからの見え方", "observe", "analytics.read", "visibility"),
   // 読者から届く問い合わせ。改善要望（画面の右下から届く社内向け）とは別に置く。
   // 混ぜると、読者へ返事をする必要があるものが、社内の作業一覧に埋もれる。
   contact: nav("読者からの問い合わせ", "maintain", "feedback.read", "opinion"),

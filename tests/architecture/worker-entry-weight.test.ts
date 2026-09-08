@@ -4,8 +4,10 @@
  *
  * --- なぜ要るのか（2026-08-30 に起きたこと） ---
  *
- * Cloudflare Workers の上限は **1 Worker あたり 3 MiB（gzip 後）**。
+ * 当時の Cloudflare Workers の上限は **1 Worker あたり 3 MiB（gzip 後）**。
  * この日の公開はそこを超えて落ちた（gzip 3065 KiB / 上限 3072 KiB＝残り 6.5 KiB）。
+ * 2026-09-04 に公式上限は非圧縮64 MiBへ変わったが、入口の二重取り込みは
+ * 起動時間と保守性を悪化させるため、この構造上限は独立して維持する。
  *
  * 中を割ると、`worker-entry.js` → `distribution-scheduler.ts` → `createDeps()` の
  * 経路が **226 ファイル・1018 KiB** を引いていた。画面と API のコードは
@@ -117,9 +119,33 @@ const PATHS = [...REACHED.keys()].map((p) => relative(ROOT, p).replaceAll("\\", 
  * 上げてよい場合はある（cron の仕事が本当に増えたとき）。そのときは
  * **上げた理由をここへ書く**。理由の無い引き上げが 1 度通ると、この検査は
  * 「赤くなったら上げるもの」になり、何も守らなくなる。
+ *
+ * --- 2026-09-04 の引き上げ（130/1050 → 145/1200）と、その理由 ---
+ *
+ * cron の**仕事が 1 つ増えた**。SEO / AEO の計測（`seo-measurement-scheduler.ts`）で、
+ * これは「口を 1 つ足す」ではなく、3 つの外部データ源・5 つの保存先・
+ * 1 つのユースケースを持つ一式である。実測 +20 ファイル / +244 KiB。
+ *
+ * 上げる前に、引き込みのうち**使っていない分を先に削った**（削った結果が上の数）:
+ *
+ *   - `@/domain/identity` の取りまとめ経由をやめ、`permissions` を直に指した。
+ *     brand / membership / user / workspace は 1 つも使っていない（−5 ファイル / −34 KiB）。
+ *   - 収集ユースケースが要求する公開記事の口を `Pick<…, "list">` に狭めた。
+ *     `replace` や `archive` の実装を引かないため（−2 ファイル / −33 KiB）。
+ *
+ * 残った 133 / 1133 は、この仕事が実際に使うものである。上限はそこから
+ * 「口をあと 1〜2 つ足せる」余地（+12 ファイル / +67 KiB）を見て置いた。
+ * **総目録の復活（+88 ファイル）は、この位置でも必ず超える。**
+ *
+ * --- 2026-09-06 の引き上げ（145/1200 → 145/1300）と、その理由 ---
+ *
+ * 同じSEO cronに、Search Console検索語の別取得・継続snapshot・ページングを追加した。
+ * 実測は 133 / 1133 から 141 / 1237（+8ファイル / +104 KiB）。新しい画面や
+ * 総目録ではなくcronが実際に使う処理で、ファイル数は既存上限内に収まる。
+ * バイト上限だけを必要分と次の小変更1回分まで広げ、総目録の+775 KiBは引き続き塞ぐ。
  */
-const MAX_FILES = 130;
-const MAX_KIB = 1050;
+const MAX_FILES = 145;
+const MAX_KIB = 1300;
 
 describe("Worker の入口が引き込む量", () => {
   it("要件 1: 入口から手が届く範囲が上限を超えていない", () => {
@@ -144,6 +170,25 @@ describe("Worker の入口が引き込む量", () => {
       "入口が src/infrastructure/composition.ts を引いています。\n" +
         "cron に要る口だけを直に組んでください（distribution-scheduler.ts の注記を参照）。",
     ).not.toContain("src/infrastructure/composition.ts");
+  });
+
+  it("要件 2: 収集cronが承認済み記事の編集用repositoryを引いていない", () => {
+    expect(
+      PATHS,
+      "計測用repositoryの工場へ記事の承認・公開writerを戻さないでください。\n" +
+        "画面だけが使う書換え口は presentation の組み立てで別に作ります。",
+    ).not.toEqual(expect.arrayContaining([
+      "src/infrastructure/persistence/d1/seo-article-revision-repository.ts",
+      "src/infrastructure/persistence/d1/published-article-repository.ts",
+      "src/infrastructure/persistence/d1/site-document-repository.ts",
+    ]));
+  });
+
+  it("要件 2: 収集cronが管理画面用の検索語readerを引いていない", () => {
+    expect(
+      PATHS,
+      "収集cronが、管理画面だけで使う検索語の読取repositoryを引いています。",
+    ).not.toContain("src/infrastructure/persistence/d1/seo-search-query-reader-repository.ts");
   });
 
   it("要件 3: 数えられている（たどれずに 0 件で緑になっていない）", () => {

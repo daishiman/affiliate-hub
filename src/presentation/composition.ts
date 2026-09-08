@@ -5,6 +5,7 @@ import {
   createUpdatePublishedArticleUseCase,
 } from "@/application/usecases/site/manage-published-articles";
 import {
+  createBrowseArticlesUseCase,
   createGetArticleUseCase,
   createGetPersonUseCase,
   createGetPolicyDocumentUseCase,
@@ -281,6 +282,17 @@ import {
 import { createD1BlogAppearanceRepository } from "@/infrastructure/persistence/d1/blog-appearance-repository";
 import { createD1BlogAffiliatePlacementRepository } from "@/infrastructure/persistence/d1/blog-affiliate-placement-repository";
 import { tryGetDb } from "@/infrastructure/persistence/d1/connection";
+import { tryGetWorkerEnv } from "@/infrastructure/platform/worker-env";
+import type { WorkspaceId } from "@/domain/shared";
+import { createD1SeoMeasurementRepositories } from "@/infrastructure/persistence/d1/seo-measurement-repository";
+import { createD1SeoSearchQueryReaderRepository } from "@/infrastructure/persistence/d1/seo-search-query-reader-repository";
+import { createD1SeoArticleRevisionRepository } from "@/infrastructure/persistence/d1/seo-article-revision-repository";
+import { createD1SeoStaticAuditRepository } from "@/infrastructure/persistence/d1/seo-static-audit-repository";
+import { createStaticAuditCollector } from "@/infrastructure/seo/aeo-measurement/static-audit-collector";
+import { createSearchConsoleClient } from "@/infrastructure/seo/aeo-measurement/search-console-client";
+import { createAiCitationClient } from "@/infrastructure/seo/aeo-measurement/ai-citation-client";
+import { createManageSeoAutoApply } from "@/application/usecases/seo/manage-seo-auto-apply";
+import { createCollectSeoMeasurements } from "@/application/usecases/seo/collect-seo-measurements";
 import {
   createD1ArticleRatingPort,
 } from "@/infrastructure/persistence/d1/blog-ops-repository";
@@ -298,6 +310,8 @@ import {
   createListSiteNetworkUseCase,
   createListDeletedSiteNetworkUseCase,
   createReadBlogLayoutUseCase,
+  createReadBlogHomeFeaturedArticlesUseCase,
+  createReplaceBlogHomeFeaturedArticlesUseCase,
   createSaveBlogLayoutBandUseCase,
   createSaveBlogLayoutSlotUseCase,
   createSaveBlogTagUseCase,
@@ -305,6 +319,9 @@ import {
   createSaveDeliveryPartUseCase,
   createListArticleRatingsUseCase,
   createSetArticleRatingHiddenUseCase,
+  createGetArticleThumbnailUseCase,
+  createSetArticleThumbnailUseCase,
+  createRemoveArticleThumbnailUseCase,
   createRestoreBlogArticleUseCase,
   createRestoreSiteNetworkNodeUseCase,
   createSubmitArticleRatingUseCase,
@@ -908,6 +925,7 @@ export async function siteUseCases() {
   return auditDenials(deps, {
     getSite: createGetSiteUseCase(site),
     listSites: createListSitesUseCase(site),
+    browse: createBrowseArticlesUseCase(site),
     listRecent: createListRecentArticlesUseCase(site),
     listByCategory: createListByCategoryUseCase(site),
     getArticle: createGetArticleUseCase(site),
@@ -2380,6 +2398,12 @@ export type BlogOpsEntry =
       readonly readLayout: ReturnType<typeof createReadBlogLayoutUseCase>;
       readonly saveLayoutSlot: ReturnType<typeof createSaveBlogLayoutSlotUseCase>;
       readonly saveLayoutBand: ReturnType<typeof createSaveBlogLayoutBandUseCase>;
+      readonly readHomeFeaturedArticles: ReturnType<
+        typeof createReadBlogHomeFeaturedArticlesUseCase
+      >;
+      readonly replaceHomeFeaturedArticles: ReturnType<
+        typeof createReplaceBlogHomeFeaturedArticlesUseCase
+      >;
       readonly saveDeliveryPart: ReturnType<typeof createSaveDeliveryPartUseCase>;
       /** 配信物を実際に組み立ててみて、結果を履歴として積む (受入 A9)。 */
       readonly checkDelivery: ReturnType<typeof createCheckBlogDeliveryUseCase>;
@@ -2403,6 +2427,16 @@ export type BlogOpsEntry =
       readonly listRatings: ReturnType<typeof createListArticleRatingsUseCase>;
       /** 票を伏せる／戻す。**行は消さない。** */
       readonly setRatingHidden: ReturnType<typeof createSetArticleRatingHiddenUseCase>;
+      /**
+       * 記事の表紙（サムネイル）を登録する／外す。
+       *
+       * **置き場（R2）が無いと、この 2 つは断りを返す。**`ready:false` にはしない。
+       * 表紙が付けられないことは記事を書けないことではなく、ここで入口ごと
+       * 閉じると、絵が置けないだけで本文の編集まで止まる。
+       */
+      readonly getThumbnail: ReturnType<typeof createGetArticleThumbnailUseCase>;
+      readonly setThumbnail: ReturnType<typeof createSetArticleThumbnailUseCase>;
+      readonly removeThumbnail: ReturnType<typeof createRemoveArticleThumbnailUseCase>;
     }
   | { readonly ready: false; readonly reason: string };
 
@@ -2415,7 +2449,12 @@ export async function blogOpsEntry(): Promise<BlogOpsEntry> {
         "保存先 (D1) が用意されていません。ブログの版面・記事・固定ページの編集は、保存先がある実行でだけ使えます。",
     };
   }
-  const deps = createDeps({ db });
+  /*
+    置き場（R2）も渡す。渡し忘れると `articleThumbnails` が見本（覚えずに断る側）
+    になり、**保存先はあるのに表紙だけが永久に登録できない**状態になる。
+    そのとき画面に出るのは「未実装」の断りで、原因が環境にあると読めない。
+  */
+  const deps = createDeps({ db, bucket: await tryGetBucket() });
   /*
     **保管庫は組み立て側 (`createDeps`) から受け取る。**
     ここで `createD1BlogOpsRepository(db)` を自前で作っていたころは、
@@ -2442,6 +2481,8 @@ export async function blogOpsEntry(): Promise<BlogOpsEntry> {
     readLayout: createReadBlogLayoutUseCase(base),
     saveLayoutSlot: createSaveBlogLayoutSlotUseCase(base),
     saveLayoutBand: createSaveBlogLayoutBandUseCase(base),
+    readHomeFeaturedArticles: createReadBlogHomeFeaturedArticlesUseCase(base),
+    replaceHomeFeaturedArticles: createReplaceBlogHomeFeaturedArticlesUseCase(base),
     saveDeliveryPart: createSaveDeliveryPartUseCase(base),
     checkDelivery: createCheckBlogDeliveryUseCase(base),
     listArticles: createListBlogArticlesUseCase(base),
@@ -2457,6 +2498,12 @@ export async function blogOpsEntry(): Promise<BlogOpsEntry> {
     evaluate: createEvaluateBlogArticlesUseCase({ repository, now }),
     listRatings: createListArticleRatingsUseCase(base),
     setRatingHidden: createSetArticleRatingHiddenUseCase(base),
+    getThumbnail: createGetArticleThumbnailUseCase({ ...base, storage: deps.articleThumbnails }),
+    setThumbnail: createSetArticleThumbnailUseCase({ ...base, storage: deps.articleThumbnails }),
+    removeThumbnail: createRemoveArticleThumbnailUseCase({
+      ...base,
+      storage: deps.articleThumbnails,
+    }),
   };
 }
 
@@ -2514,4 +2561,82 @@ export async function publicBlogEntry(): Promise<PublicBlogEntry> {
       now: () => new Date(),
     }),
   };
+}
+
+/**
+ * SEO / AEO の計測。**作業場所を先に決めてから組む。**
+ *
+ * 他の口と形が違うのは、5 つの保存先が「同じ作業場所しか見ない」という
+ * 制約を共有しているためである。口ごとに作業場所 ID を渡す形にすると、
+ * 5 回のうち 1 回だけ別の値を渡した組み立てが型の上で成立してしまう。
+ * 計測の保存先は工場へ 1 度だけ渡す。記事を書き換える承認口だけはcronが
+ * 公開writerを引き込まないよう、画面側のこの組み立てで別に作る。
+ *
+ * 保存先がつながっていないときは `null` を返す。見本へ倒さないのは、
+ * **計測は「何が起きているか」を見せる画面**だからである。見本の数字が
+ * 出ると、運営者はそれを自分のブログの状態として読む。
+ */
+export async function seoMeasurementUseCases(workspaceId: WorkspaceId) {
+  const db = await tryGetDb();
+  if (db === null) return null;
+
+  const env = await tryGetWorkerEnv();
+  const repositories = createD1SeoMeasurementRepositories({ db, workspaceId });
+  const revisions = createD1SeoArticleRevisionRepository({ db, workspaceId });
+  const staticAudits = createD1SeoStaticAuditRepository({ db, workspaceId });
+  const searchConsole = createSearchConsoleClient({
+    serviceAccountJson: readEnvSecret(env, "GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT"),
+  });
+  const aiCitation = createAiCitationClient({
+    apiKey: readEnvSecret(env, "AEO_CITATION_API_KEY"),
+  });
+  const now = () => new Date();
+
+  return {
+    manage: createManageSeoAutoApply({
+      workspaceId,
+      revisions,
+      metrics: repositories.metrics,
+      queryMetrics: createD1SeoSearchQueryReaderRepository({ db, workspaceId }),
+      findings: repositories.findings,
+      logs: repositories.logs,
+      settings: repositories.settings,
+      collections: repositories.collections,
+      /*
+        画面には「鍵が登録されているか」だけを渡す。鍵そのものは
+        この関数の外へ出ない。出すと、画面の状態やエラーへ写る道ができる。
+      */
+      searchConsoleConfigured: searchConsole.configured(),
+      aiCitationConfigured: aiCitation.configured(),
+      citationBudgets: repositories.citationBudgets,
+      staticAudits,
+      now,
+    }),
+    collect: createCollectSeoMeasurements({
+      workspaceId,
+      measurementArticles: repositories.measurementArticles,
+      findings: repositories.findings,
+      metrics: repositories.metrics,
+      queryMetrics: repositories.queryMetrics,
+      collections: repositories.collections,
+      settings: repositories.settings,
+      staticAudit: createStaticAuditCollector(),
+      staticAudits,
+      searchConsole,
+      aiCitation,
+      citationBudgets: repositories.citationBudgets,
+      now,
+      budgetNow: now,
+    }),
+  };
+}
+
+/** `env` から秘密を読む。**空文字は「無い」と同じ。** */
+function readEnvSecret(
+  env: Readonly<Record<string, unknown>>,
+  name: string,
+): string | undefined {
+  const value = env[name];
+  if (typeof value !== "string" || value.trim() === "") return undefined;
+  return value;
 }

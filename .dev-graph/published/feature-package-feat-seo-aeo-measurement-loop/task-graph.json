@@ -1,0 +1,208 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+  "parent_feature": "feat-seo-aeo-measurement-loop",
+  "nodes": [
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P01"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P02"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P03"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P04"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P05"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P06"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P05"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P08"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P09"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P10"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P11"
+      ]
+    },
+    {
+      "id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+      "parent_feature": "feat-seo-aeo-measurement-loop",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P12"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P01",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+      "to": "SYS-SEO-AEO-MEASUREMENT-LOOP-P13",
+      "type": "depends_on"
+    }
+  ]
+}

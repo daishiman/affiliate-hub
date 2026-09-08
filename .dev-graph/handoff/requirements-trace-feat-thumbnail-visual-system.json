@@ -1,0 +1,234 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-thumbnail-visual-system",
+  "scope_digest": "sha256:6b23de767cd4ccf3ec082c39c060b08ad737bdb62eccc1fc892c73e287812fdc",
+  "verdict": "PASS",
+  "entry_count": 7,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "サムネイルを登録でき、未登録でも先頭画像かタイトル由来の代替図版が必ず出る",
+      "confirmed_sources": [
+        "feature:A1",
+        "context:A1",
+        "ui_ux:qa-request-thumbnail-coverage-v6",
+        "frontend:qa-request-thumbnail-coverage-v6",
+        "frontend:qa-neutral-ogp-fallback-v6",
+        "task-spec:P01#登録経路優先順位",
+        "task-spec:P02#登録優先順位の状態機械"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P07",
+        "P08",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P02|P04|P05|P07|P08|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "代替図版は外部接続なしで生成され、同じ入力から同じ画像が得られる",
+      "confirmed_sources": [
+        "feature:A2",
+        "context:A2",
+        "frontend:qa-neutral-ogp-fallback-v6",
+        "goal-spec:quality_constraints.no-external-image-service",
+        "task-spec:P03#外部接続0・決定論性ゲート",
+        "task-spec:P04#決定論性テスト(同一入力2回実行のバイト一致)"
+      ],
+      "system_tasks": [
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P02|P03|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "トップ・記事一覧・カテゴリー・検索結果・関連記事・管理画面の全一覧で表示される",
+      "confirmed_sources": [
+        "feature:A3",
+        "context:A3",
+        "ui_ux:qa-request-thumbnail-coverage-v6",
+        "frontend:qa-request-thumbnail-coverage-v6",
+        "database:qa-request-thumbnail-coverage-v6",
+        "task-spec:P01#8画面route台帳",
+        "task-spec:P05#8画面表示component"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P07",
+        "P08",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P02|P04|P05|P07|P08|P09|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "対象imgが固有width/heightとsrcset/sizesを持ち、CLSが0.1未満である",
+      "confirmed_sources": [
+        "feature:A4",
+        "context:A4",
+        "frontend:qa-frontend-web-fixed-header-seo-aio-v6",
+        "frontend:原則-画像は寸法を先に宣言してから中身を流し込む",
+        "retrieval-evidence:kajetblog-top-analysis.md#4",
+        "task-spec:P02#CLS実装規約",
+        "task-spec:P04#CLS計測手順"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "R2の派生画像がキャッシュされ、同一画像の派生が二度生成されない",
+      "confirmed_sources": [
+        "feature:A5",
+        "context:A5",
+        "database:qa-request-thumbnail-coverage-v6",
+        "frontend:qa-neutral-ogp-fallback-v6",
+        "task-spec:P02#R2派生命名規約とcache key",
+        "task-spec:P12#派生再生成runbook"
+      ],
+      "system_tasks": [
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P08",
+        "P09",
+        "P11",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P02|P04|P05|P06|P08|P09|P11|P12]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "OGPとTwitter Card summary_large_image の画像がサムネイルから生成される",
+      "confirmed_sources": [
+        "feature:A6",
+        "context:A6",
+        "frontend:qa-frontend-web-fixed-header-seo-aio-v6",
+        "frontend:qa-neutral-ogp-fallback-v6",
+        "backend:qa-backend-web-site-search-llms-txt-v4b",
+        "task-spec:P02#OGP/Twitter Card summary_large_image契約"
+      ],
+      "system_tasks": [
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P02|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "取得・生成に失敗しても版面が崩れず、代替表示と理由が出る",
+      "confirmed_sources": [
+        "feature:A7",
+        "context:A7",
+        "frontend:qa-frontend-web-affiliate-link-preview-v3#取得不可の理由を同じ位置に出す",
+        "task-spec:P04#取得失敗・R2障害・境界値ケース",
+        "task-spec:P05#失敗時代替表示と理由記録",
+        "task-spec:P12#R2障害時fallback runbook"
+      ],
+      "system_tasks": [
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P02|P04|P05|P06|P07|P11|P12]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    }
+  ],
+  "common_handoff_fields": [
+    "lineage_closure",
+    "promoted_generation",
+    "feature_package_id",
+    "tasks"
+  ],
+  "source_aliases": {
+    "backend": "system-spec/backend.md",
+    "context": "features/feat-thumbnail-visual-system.context.json",
+    "database": "system-spec/database.md",
+    "feature": "features/feat-thumbnail-visual-system.md",
+    "frontend": "system-spec/frontend.md",
+    "goal-spec": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/goal-spec.json",
+    "retrieval-evidence": "system-spec/retrieval-evidence",
+    "task-spec": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs",
+    "ui_ux": "system-spec/ui-ux.md"
+  },
+  "implementation_code_planned": 0,
+  "trace_plan_digest": "sha256:e64e5e286c935444365195ff577aeb53bfa5f012e017d9d21ce341fa734df53e",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)"
+}

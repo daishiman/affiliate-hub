@@ -65,7 +65,26 @@ export type ProseNode =
       readonly headers: readonly string[];
       readonly rows: readonly (readonly string[])[];
     }
-  | { readonly kind: "image"; readonly src: string; readonly alt: string }
+  /**
+   * 画像。`width`/`height` は**絵の実寸**であって、表示する大きさではない。
+   *
+   * **なぜ寸法を持つのか。** 属性が無いと、絵が届いた瞬間に高さが確定し、
+   * 読者が読んでいた行が下へ飛ぶ。ブラウザは `width`/`height` の比だけを
+   * 使って場所を先に空ける (表示幅は CSS が決める) ので、実寸を入れておけば
+   * 読んでいる最中に文章が動かない。
+   *
+   * **`null` を許す。** 本文画像は運営者がその場で貼る URL で、workerd に
+   * 画像デコーダは無い。測れるのはブラウザだけなので、測れなかった絵と
+   * 既存の記事は `null` のまま残る。ここを必須にすると、測れない絵を
+   * 貼った日に保存が落ちる。
+   */
+  | {
+      readonly kind: "image";
+      readonly src: string;
+      readonly alt: string;
+      readonly width: number | null;
+      readonly height: number | null;
+    }
   | { readonly kind: "divider" };
 
 /**
@@ -148,7 +167,7 @@ export function emptyProseNode(kind: ProseNodeKind): ProseNode {
       */
       return { kind: "comparison-table", headers: ["", ""], rows: [["", ""]] };
     case "image":
-      return { kind: "image", src: "", alt: "" };
+      return { kind: "image", src: "", alt: "", width: null, height: null };
     case "divider":
       return { kind: "divider" };
   }

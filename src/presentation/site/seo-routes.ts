@@ -1,6 +1,8 @@
 import { type ArticleSummary, articleHref } from "@/application/read-models/published-article";
 import type { FeedItem } from "@/application/seo/feeds";
+import { type SitemapEntry, sitemapEntriesFor } from "@/application/seo/sitemap";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
+import type { SiteRoute } from "@/domain/authoring";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import type { DomainError } from "@/domain/shared/errors";
 import {
@@ -74,6 +76,14 @@ export type SeoSiteContext = {
    * 2 系統として読むと、同じ記事が 2 行ずつ並ぶ sitemap になる。
    */
   readonly items: readonly FeedItem[];
+  /**
+   * このブログで実際に出す画面（`routesFor` が設定で絞り終えたもの）。
+   *
+   * sitemap が骨格を載せるのに要る。**ここで `routesFor` を呼び直さない。**
+   * 呼び直すと、読者が見る導線（`getSite` が返す `routes`）と機械へ渡す
+   * 入口が別々に決まり、片方だけ設定を反映しない日が来る。
+   */
+  readonly routes: readonly SiteRoute[];
 };
 
 /** 編集済み読み取りモデルを配信物の行へ。道は `articleHref` が正本。 */
@@ -128,6 +138,7 @@ export async function loadSeoSite(
         ブログ運用の記事もこの表に載るので、別の口から読んで足すと二重になる。
       */
       items: articles.value.map(toFeedItem),
+      routes: site.value.routes,
     },
   };
 }
@@ -135,11 +146,16 @@ export async function loadSeoSite(
 /**
  * 50,000 件を超えたら「全件」と偽らない。
  * 分割 sitemap を実装するまでは、一部だけの200より明示的な503が安全。
+ *
+ * **数えるのは配る行数であって、記事数ではない。**sitemap は記事のほかに
+ * ブログの入口（トップ・記事一覧・索引・固定ページ）も載せるので、記事数だけを
+ * 見ていると上限ちょうど付近で入口ぶんだけ静かに溢れる。溢れた sitemap は
+ * 検索側では「載っていない＝消えた」と読める。
  */
-export function completeArticleSetError(items: readonly FeedItem[]): Response | null {
-  if (items.length <= SITEMAP_URL_LIMIT) return null;
+export function completeArticleSetError(count: number): Response | null {
+  if (count <= SITEMAP_URL_LIMIT) return null;
   return seoTextResponse(
-    `公開記事が ${SITEMAP_URL_LIMIT.toLocaleString("en-US")} 件を超えているため、分割 sitemap が必要です。`,
+    `配信する URL が ${SITEMAP_URL_LIMIT.toLocaleString("en-US")} 件を超えているため、分割 sitemap が必要です。`,
     "text/plain; charset=utf-8",
     503,
   );
@@ -148,12 +164,15 @@ export function completeArticleSetError(items: readonly FeedItem[]): Response | 
 /**
  * サイトマップの行。
  *
- * 道は既に `FeedItem.path` として引き終わっている（`toFeedItem` /
- * `blogToFeedItem` が正本）。ここで組み立て直すと、記事の種類が
- * 増えた日にこの関数だけ古い写し方のまま残る。
+ * 記事の道は既に `FeedItem.path` として引き終わっている（`toFeedItem` が正本）。
+ * ここで組み立て直すと、記事の種類が増えた日にこの関数だけ古い写し方のまま残る。
+ *
+ * 入口の選び方（どの画面を載せ、どれを載せないか）は
+ * `@/application/seo/sitemap` が持つ。理由もそちらに書いてある。
  */
 export function sitemapEntries(
+  routes: readonly SiteRoute[],
   items: readonly FeedItem[],
-): readonly { readonly path: string; readonly updatedAt: string }[] {
-  return items.map((item) => ({ path: item.path, updatedAt: item.updatedAt }));
+): readonly SitemapEntry[] {
+  return sitemapEntriesFor(routes, items);
 }

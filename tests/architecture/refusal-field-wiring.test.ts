@@ -111,7 +111,6 @@ const KNOWN_UNWIRED: readonly string[] = [
   "connectionId",
   "draftId",
   "id",
-  "limit",
   // 受信箱の取り込み ID（`register-affiliate-link.ts`）。画面には出さない内部の印で、
   // 断りの理由として人へ見せる欄が無い。**欄名を付けるのをやめるのが筋**だが、
   // 同じ ID を監査記録の側でも突き合わせているので、いまは名前を残して一覧へ載せる。

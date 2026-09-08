@@ -33,17 +33,19 @@ import styles from "./screen-parts.module.css";
  * ここを `h3` にすると階層が飛ぶ。**選べないことがこの部品の仕事**である。
  */
 export function Section({
+  id,
   title,
   lead,
   children,
 }: {
+  readonly id?: string;
   readonly title: string;
   /** この節で何ができるかの 1 文。無い節もある（見出しだけで足りるとき）。 */
   readonly lead?: ReactNode;
   readonly children?: ReactNode;
 }) {
   return (
-    <section className={styles.section}>
+    <section id={id} className={styles.section}>
       <h2 className={styles.sectionTitle}>{title}</h2>
       {lead === undefined ? null : <p className={styles.lead}>{lead}</p>}
       {children}
@@ -301,15 +303,34 @@ export function Figure({
   src,
   alt,
   note,
+  width,
+  height,
 }: {
   readonly src: string;
   readonly alt: string;
   readonly note?: ReactNode;
+  /** 実寸。`height` と対で渡す。片方だけでは場所を確保できない。 */
+  readonly width?: number;
+  readonly height?: number;
 }) {
+  // 寸法が揃ったときだけ遅延させる。
+  //
+  // 場所を確保していない画像を遅らせると、読み込み終わった瞬間に下の本文が
+  // 押し下がる。**「場所を確保した」と「遅らせてよい」を同じ条件に縛る**のは、
+  // 片方だけ書いて画面を飛ばす書き方を残さないため。
+  const sized = width !== undefined && height !== undefined;
   return (
     <figure className={styles.figure}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className={styles.figureImage} />
+      <img
+        src={src}
+        alt={alt}
+        className={styles.figureImage}
+        width={width}
+        height={height}
+        loading={sized ? "lazy" : undefined}
+        decoding={sized ? "async" : undefined}
+      />
       {note === undefined ? null : (
         <figcaption className={styles.note}>{note}</figcaption>
       )}

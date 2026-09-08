@@ -3,17 +3,14 @@
  * @req REQ-BLOG02, REQ-BOPS03
  * @types decision-table, screen-states
  *
- * トップの帯。
+ * トップの補助帯。
  *
- * **並び順と件数を画面に持たせない**のがこの部品の主題である。
- * 正本は管理画面（`/admin/blog/layout`）が保存した設定で、ここは
- * 保存された通りに描くだけ。画面側に既定値を書くと、
- * 管理画面で変えたのに変わらない帯が生まれ、運営者は
- * **自分の操作が効いていない**と受け取る。
+ * canonical な記事とカテゴリーは `SiteHomeContent` が持つ。
+ * 旧設定の `latest_posts` / `category_hub` も重ねると、
+ * 読者に同じ入口が 2 回届くため、この部品からは出さない。
  *
- * 帯は 4 種あり、種ごとに引く先が違う（記事・姉妹サイト・カテゴリー・タグ）。
- * 引く先を 1 つ取り違えても画面はもっともらしく見えるので、
- * 4 種すべてを別々に固定する。
+ * 別の価値を持つ `sister_sites` / `navigator` だけは後方互換で残す。
+ * その並び順と件数は、引き続き管理画面の保存値に従う。
  */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -23,7 +20,7 @@ import type {
   SiteNetworkRecord,
 } from "@/application/ports/blog-ops";
 import type { ArticleSummary } from "@/application/read-models/published-article";
-import { BlogTopBands, type TopBandCategory } from "@/presentation/site/blog-top-bands";
+import { BlogTopBands } from "@/presentation/site/blog-top-bands";
 import type { PublicSiteProjection } from "@/presentation/site/public-site-projection";
 
 function band(over: Partial<BlogLayoutBandRecord> = {}): BlogLayoutBandRecord {
@@ -53,18 +50,41 @@ function article(over: Partial<ArticleSummary> = {}): ArticleSummary {
   };
 }
 
+function networkNode(slug: string, name: string): SiteNetworkRecord {
+  return {
+    id: `snn_${slug}`,
+    siteSlug: slug,
+    role: "sub",
+    parentSlug: "test",
+    name,
+    oneLine: `${name} の説明`,
+    position: 1,
+    status: "active",
+  };
+}
+
+function tag(over: Partial<BlogTagRecord>): BlogTagRecord {
+  return {
+    id: `btg_${over.slug}`,
+    siteSlug: "test",
+    slug: "x",
+    name: "X",
+    description: "",
+    kind: "brand",
+    ...over,
+  };
+}
+
 function render(
   bands: readonly BlogLayoutBandRecord[],
   over: {
     readonly articles?: readonly ArticleSummary[];
     readonly network?: readonly SiteNetworkRecord[];
     readonly tags?: readonly BlogTagRecord[];
-    readonly categories?: readonly TopBandCategory[];
   } = {},
 ): string | null {
   const node = BlogTopBands({
     siteSlug: "test",
-    categories: over.categories ?? [],
     projection: {
       bands,
       articles: over.articles ?? [],
@@ -75,8 +95,8 @@ function render(
   return node === null ? null : renderToStaticMarkup(node);
 }
 
-describe("帯そのものの出し方", () => {
-  it("設定が 1 件も無ければ何も描かない", () => {
+describe("補助帯そのものの出し方", () => {
+  it("補助帯の設定が 1 件も無ければ何も描かない", () => {
     // 「まだ設定していない」は読者に見せる情報ではない。
     expect(render([])).toBeNull();
   });
@@ -84,24 +104,33 @@ describe("帯そのものの出し方", () => {
   it("保存された位置の順に並べる", () => {
     const html = render(
       [
-        band({ id: "second", band: "category_hub", position: 2 }),
-        band({ id: "first", band: "latest_posts", position: 1 }),
+        band({ id: "second", band: "navigator", title: "作り手から探す", position: 2 }),
+        band({ id: "first", band: "sister_sites", title: "姉妹サイト", position: 1 }),
       ],
-      { articles: [article()], categories: [{ slug: "c", name: "椅子", oneLine: "座るもの" }] },
+      {
+        network: [networkNode("sister", "姉妹")],
+        tags: [tag({ slug: "acme", name: "アクメ" })],
+      },
     );
 
-    expect(html?.indexOf("新着記事の帯")).toBeLessThan(html?.indexOf("カテゴリー別のタイル") ?? -1);
+    expect(html?.indexOf("姉妹サイト")).toBeLessThan(html?.indexOf("作り手から探す") ?? -1);
   });
 
   it("見出しを付けていない帯には、種類の名前を当てる", () => {
     // 見出しが空欄のまま無題の箱を並べると、読者は何の一覧か分からない。
-    expect(render([band({ title: "  " })], { articles: [article()] })).toContain("新着記事の帯");
+    expect(
+      render([band({ band: "sister_sites", title: "  " })], {
+        network: [networkNode("sister", "姉妹")],
+      }),
+    ).toContain("姉妹サイトの帯");
   });
 
   it("見出しを付けた帯は、その言葉をそのまま出す", () => {
-    expect(render([band({ title: "編集部の新着" })], { articles: [article()] })).toContain(
-      "編集部の新着",
-    );
+    expect(
+      render([band({ band: "navigator", title: "編集部の作り手案内" })], {
+        tags: [tag({ slug: "acme", name: "アクメ" })],
+      }),
+    ).toContain("編集部の作り手案内");
   });
 
   it("中身がまだ無い帯は、見出しを残して「これから出る」と言う", () => {
@@ -109,58 +138,44 @@ describe("帯そのものの出し方", () => {
       ここで帯ごと消さないのは、**運営者が出すと決めた枠**だからである。
       黙って消えると、設定した側は保存が効いていないと受け取る。
     */
-    const html = render([band({ band: "latest_posts" })], { articles: [] });
+    const html = render([band({ band: "sister_sites" })], { network: [] });
 
-    expect(html).toContain("新着記事の帯");
+    expect(html).toContain("姉妹サイトの帯");
     expect(html).toContain("まだ出せるものがありません");
   });
 });
 
-describe("帯ごとに、引く先が違う", () => {
-  it("新着記事は記事の正規URLへ導き、要約が空なら日付を添える", () => {
-    /*
-      要約が空のときに何も添えないと、題名だけが並んで
-      どれが新しいのか分からない一覧になる。
-    */
+describe("正本と重複する旧帯は補助帯から外す", () => {
+  it("latest_posts は canonical な記事区画が所有するため描かない", () => {
     const html = render([band({ band: "latest_posts" })], {
-      articles: [article({ slug: "a", title: "要約あり" }), article({ slug: "b", title: "要約なし", summary: "" })],
+      articles: [
+        article({ slug: "a", title: "要約あり" }),
+        article({ slug: "b", title: "要約なし", summary: "" }),
+      ],
     });
 
-    expect(html).toContain("/reviews/a");
-    expect(html).toContain("座り心地の話。");
-    expect(html).toContain("2026-09-01");
+    expect(html).toBeNull();
   });
 
+  it("category_hub は canonical なカテゴリー索引が所有するため描かない", () => {
+    const html = render([band({ band: "category_hub" })]);
+
+    expect(html).toBeNull();
+  });
+});
+
+describe("後方互換で残す補助帯", () => {
   it("姉妹サイトの帯に、自分自身を並べない", () => {
     /*
       網の読み取りは「自分と自分の子」を返す。落とさないと、
       自分のトップに自分へのリンクが並ぶ。
     */
-    const node = (slug: string, name: string): SiteNetworkRecord => ({
-      id: `snn_${slug}`,
-      siteSlug: slug,
-      role: "sub",
-      parentSlug: "test",
-      name,
-      oneLine: `${name} の説明`,
-      position: 1,
-      status: "active",
-    });
     const html = render([band({ band: "sister_sites" })], {
-      network: [node("test", "自分"), node("sister", "姉妹")],
+      network: [networkNode("test", "自分"), networkNode("sister", "姉妹")],
     });
 
     expect(html).toContain("姉妹");
     expect(html).not.toContain("自分");
-  });
-
-  it("カテゴリーの帯は、それぞれの一覧へ導く", () => {
-    const html = render([band({ band: "category_hub" })], {
-      categories: [{ slug: "chairs", name: "椅子", oneLine: "座るもの" }],
-    });
-
-    expect(html).toContain("/categories/chairs");
-    expect(html).toContain("座るもの");
   });
 
   it("ナビゲータの帯には、作り手のタグだけを出す", () => {
@@ -168,17 +183,11 @@ describe("帯ごとに、引く先が違う", () => {
       この帯は読者に「これは商品の作り手だ」と言っている。
       話題のタグが混じると枠そのものが嘘になる。
     */
-    const tag = (over: Partial<BlogTagRecord>): BlogTagRecord => ({
-      id: `btg_${over.slug}`,
-      siteSlug: "test",
-      slug: "x",
-      name: "X",
-      description: "",
-      kind: "brand",
-      ...over,
-    });
     const html = render([band({ band: "navigator" })], {
-      tags: [tag({ slug: "acme", name: "アクメ" }), tag({ slug: "saving", name: "節約", kind: "topic" })],
+      tags: [
+        tag({ slug: "acme", name: "アクメ" }),
+        tag({ slug: "saving", name: "節約", kind: "topic" }),
+      ],
     });
 
     expect(html).toContain("アクメ");
@@ -188,20 +197,20 @@ describe("帯ごとに、引く先が違う", () => {
 
   it("件数の上限は保存された設定に従う", () => {
     // 画面に既定件数を書くと、管理画面で変えたのに変わらない帯になる。
-    const html = render([band({ band: "latest_posts", itemLimit: 1 })], {
-      articles: [article({ slug: "a", title: "1本目" }), article({ slug: "b", title: "2本目" })],
+    const html = render([band({ band: "sister_sites", itemLimit: 1 })], {
+      network: [networkNode("first", "1件目"), networkNode("second", "2件目")],
     });
 
-    expect(html).toContain("1本目");
-    expect(html).not.toContain("2本目");
+    expect(html).toContain("1件目");
+    expect(html).not.toContain("2件目");
   });
 
   it("上限 0 は「置くが空」ではなく「1 件も出さない」", () => {
-    const html = render([band({ band: "latest_posts", itemLimit: 0 })], {
-      articles: [article()],
+    const html = render([band({ band: "sister_sites", itemLimit: 0 })], {
+      network: [networkNode("sister", "姉妹")],
     });
 
     expect(html).toContain("まだ出せるものがありません");
-    expect(html).not.toContain("椅子の話");
+    expect(html).not.toContain('href="/s/sister"');
   });
 });

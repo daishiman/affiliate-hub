@@ -18,3 +18,6 @@ export * from "./blog-article";
 export * from "./reader-rating";
 export * from "./prose-node";
 export * from "./prose-format";
+export * from "./thumbnail";
+export * from "./thumbnail-asset";
+export * from "./article-sort";
