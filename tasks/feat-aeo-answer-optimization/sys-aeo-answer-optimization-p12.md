@@ -12,8 +12,8 @@ iteration: null
 title: "AEO の運用手順と回答単位の書き方の説明"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:35:09.187124Z"
-status: "active"
+updated_at: "2026-09-04T11:01:35Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P10","SYS-AEO-ANSWER-OPTIMIZATION-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-aeo-answer-optimization/operations-runbook.md","docs/spec/feat-aeo-answer-optimization/"]

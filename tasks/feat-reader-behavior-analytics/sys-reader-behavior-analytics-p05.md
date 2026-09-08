@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測とヒートマップの実装"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:54:45.527839Z"
-status: "active"
+updated_at: "2026-09-04T10:31:07Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P04"]
 related_nodes: []
 resource_scope: ["src/db/schema.ts","drizzle/","src/domain/analytics/reader-interaction.ts","src/application/analytics/ingest-reader-interactions.ts","src/application/analytics/reader-subject-request.ts","src/app/api/reader-events/","src/components/reader/behavior-probe.tsx","src/app/admin/sites/[site]/articles/[article]/behavior/"]

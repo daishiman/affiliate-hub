@@ -12,8 +12,8 @@ iteration: null
 title: "日次指標テーブルと冪等集計の契約確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:41:59.918003Z"
-status: "active"
+updated_at: "2026-09-04T10:14:13Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-metrics-rollup/data-model.md","docs/spec/feat-blog-metrics-rollup/idempotency-contract.md","docs/spec/feat-blog-metrics-rollup/retention-independence.md","docs/spec/feat-blog-metrics-rollup/input-mapping.md"]

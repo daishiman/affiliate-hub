@@ -12,8 +12,8 @@ iteration: null
 title: "日次ロールアップの受入テスト設計"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:42:49.385583Z"
-status: "active"
+updated_at: "2026-09-04T10:14:18Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P03"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-metrics-rollup/test-plan.md","docs/spec/feat-blog-metrics-rollup/test-cases.md"]

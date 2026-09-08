@@ -12,7 +12,7 @@ iteration: null
 title: "どの性質からも指されていないテスト種別 7 つを性質へ結ぶ（ssrf / decision-table / contract / infra-config / db-migration / audit-log / property）"
 owners: ["daishiman"]
 created_at: "2026-08-18T08:30:00Z"
-updated_at: "2026-08-18T08:30:00Z"
+updated_at: "2026-09-08T07:30:48.521880Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-test-type-trait-for-secrets"]
@@ -39,7 +39,7 @@ classification_reason: "ah-0ip の手順 6「指されない種別が他にも�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-test-type-traits-remaining.md","confidence":0.85}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-wes","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

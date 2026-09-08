@@ -12,8 +12,8 @@ iteration: null
 title: "回答単位と AI クローラ方針の要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:30:26.680606Z"
-status: "active"
+updated_at: "2026-09-04T11:01:12Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-aeo-answer-optimization/requirements-baseline.md","docs/spec/feat-aeo-answer-optimization/answer-unit-catalog.md","docs/spec/feat-aeo-answer-optimization/crawler-policy.md"]

@@ -12,8 +12,8 @@ iteration: null
 title: "日次ロールアップの非機能検査"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:45:06.686284Z"
-status: "active"
+updated_at: "2026-09-04T10:14:29Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P08"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-metrics-rollup/quality-report.md","tests/"]

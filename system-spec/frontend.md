@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-site-scoped-route-ownership。裏付け質疑 (`qa_refs`): `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
@@ -30,7 +30,7 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | frontend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-frontend-web-editor-verbatim` |
+| 確定質疑 (qa_ref) | `qa-frontend-web-site-scoped-route-ownership` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
@@ -54,7 +54,13 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-frontend-web-editor-verbatim (対応セル: web)
+### qa-frontend-web-site-scoped-route-ownership (対応セル: web)
+
+**質問**: frontend×web: ブログ単位へ移す画面の URL 階層をどう決め、いまの横断 URL (/admin/content/*, /admin/blog/*) からの移行をどう扱うか
+
+**回答**: /admin/sites/[site]/ を正本の階層とし、記事・読者像・書き方の決め事もこの配下へ置く。ブログを特定しない画面 (ブログ一覧・ブログ間比較) だけが /admin/sites とその上位に残る。既存の /admin/content/* と /admin/blog/* は消さずに転送で受け、ブログが特定できる場合は対応する /admin/sites/[site]/... へ、特定できない場合はブログ選択へ送る。既存の入口を突然消すと、書き手が覚えている経路と保存済みのリンクが一斉に死ぬためである。site セグメントが解決できないときは notFound とし、他ブログの内容を出さない。画面には『いまどのブログを見ているか』を常に出し、ブログの切替は同じ画面のまま別ブログへ移れる形にする
+
+### qa-frontend-web-editor-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: frontend×web: 記事に置ける表現物として利用者は何を挙げたか。断片カタログを起草する前に、利用者が実際に挙げた対象を逐語で記録する
 
@@ -592,18 +598,23 @@ site_blueprint.theme（設計図の既定）
 
 #### 本章での適用
 
-##### 確定内容 qa-frontend-web-editor-verbatim (対応セル: web)
+##### 確定内容 qa-frontend-web-site-scoped-route-ownership (対応セル: web)
 
-- 確定要件: [追加要望 (2026-09-05)]
-「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
+- 確定要件: /admin/sites/[site]/ を正本の階層とし、記事・読者像・書き方の決め事もこの配下へ置く。ブログを特定しない画面 (ブログ一覧・ブログ間比較) だけが /admin/sites とその上位に残る。既存の /admin/content/* と /admin/blog/* は消さずに転送で受け、ブログが特定できる場合は対応する /admin/sites/[site]/... へ、特定できない場合はブログ選択へ送る。既存の入口を突然消すと、書き手が覚えている経路と保存済みのリンクが一斉に死ぬためである。site セグメントが解決できないときは notFound とし、他ブログの内容を出さない。画面には『いまどのブログを見ているか』を常に出し、ブログの切替は同じ画面のまま別ブログへ移れる形にする
+- 設計解釈の記録経路: `dialogue`
+- 原則: URL の階層は、画面が属する対象物と一致させる (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 画面がブログに属するなら URL もブログの下に置く。そうすると『いまどのブログか』が URL に出るので、画面の中で別途表示しなくても文脈が保たれ、リンクを共有したときも相手が同じ文脈で開く
+  - トレードオフ:
+    - ブログをまたぐ一括操作は URL 上の置き場所が無くなる。横断側に別の入口を作る必要がある
+- 原則: 移行時に既存の入口を消さず転送で受ける (`information-design.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: 書き手は経路を身体で覚えており、保存済みのリンクもある。階層を変えた瞬間に旧経路を消すと、変更と無関係な作業まで止まる。転送で受ければ、覚え直しは自分のペースで進む
+  - トレードオフ:
+    - 転送を残すぶん経路が二重になり、どちらが正本かを検査で固定しないと新しい画面と古い画面が併存したまま放置される
+##### 接地根拠 qa-frontend-web-editor-verbatim (対応セル: web)
 
-[機能要望 (2026-09-05)]
-「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
-
-[AskUserQuestion「編集体験をどうするか」への選択]
-「断片欄を維持し、全断片を見た目へ（推奨）」
-
-※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-editor-verbatim` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 表現物の種類は、利用者が名指しした対象を取りこぼさない集合として定める (`information-design.md`)
   - 採否: `applied`
@@ -795,3 +806,13 @@ site_blueprint.theme（設計図の既定）
 | google-search-central | 2025-12-10 | Google (developers.google.com) | https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | schema-org | 30.0 | Schema.org Community Group (W3C) (schema.org) | https://schema.org/docs/releases.html | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | web-dev-core-web-vitals | 2024-10-31 | Google (web.dev) | https://web.dev/articles/vitals | 2026-09-03T23:21:19Z | 2026-09-03T23:21:19Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 5 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-frontend-web-editor-verbatim` |`
+- `### qa-frontend-web-editor-verbatim (対応セル: web)`
+- `##### 確定内容 qa-frontend-web-editor-verbatim (対応セル: web)`
+- `- 確定要件: [追加要望 (2026-09-05)]`

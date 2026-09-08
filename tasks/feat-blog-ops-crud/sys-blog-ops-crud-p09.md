@@ -12,8 +12,8 @@ iteration: null
 title: "品質保証 (アクセシビリティ・回帰・転用禁止ゲートの独立検査)"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:08:49.496798Z"
-status: "active"
+updated_at: "2026-09-08T00:59:53Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P08"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/qa-report.md"]

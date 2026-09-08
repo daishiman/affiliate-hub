@@ -12,8 +12,8 @@ iteration: null
 title: "ブログ階層管理画面の実装"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:49:16.293250Z"
-status: "active"
+updated_at: "2026-09-04T11:18:52Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04"]
 related_nodes: []
 resource_scope: ["src/app/admin/sites/[site]/","src/app/admin/blog/","src/app/admin/(cross)/","src/components/admin/"]

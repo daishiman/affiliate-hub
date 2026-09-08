@@ -12,8 +12,8 @@ iteration: null
 title: "日次ロールアップの要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:41:35.679905Z"
-status: "active"
+updated_at: "2026-09-04T10:14:10Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-metrics-rollup/requirements-baseline.md","docs/spec/feat-blog-metrics-rollup/metric-definitions.md"]

@@ -12,7 +12,7 @@ iteration: null
 title: "開発環境へのリリースとWorker API決定のsystem-specへの書き戻し"
 owners: ["daishiman"]
 created_at: "2026-09-07T15:31:08Z"
-updated_at: "2026-09-07T15:51:22.044600Z"
+updated_at: "2026-09-08T08:04:18.882021Z"
 status: "active"
 depends_on: ["SYS-ARTICLE-BLOCK-EDITOR-P12"]
 related_nodes: []
@@ -38,7 +38,7 @@ classification_reason: "feat-article-block-editor の P13 lifecycle 責務への
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-article-block-editor/sys-article-block-editor-p13.md","confidence":1.0}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-3pjc","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

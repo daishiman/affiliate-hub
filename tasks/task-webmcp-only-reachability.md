@@ -12,7 +12,7 @@ iteration: null
 title: "「WebMCP でしか到達できない機能を作らない」を見ている検査が無い（写しの一致と、到達できることは別）"
 owners: ["daishiman"]
 created_at: "2026-08-19T06:05:00Z"
-updated_at: "2026-08-19T06:05:00Z"
+updated_at: "2026-09-08T07:37:26.955775Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-judgment-column-audit"]
@@ -39,7 +39,7 @@ classification_reason: "FD 群の判定欄の点検で、要件そのものを�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-webmcp-only-reachability.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-abs","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

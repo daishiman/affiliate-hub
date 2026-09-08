@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 診断と推奨書き戻しの実装"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T03:00:25.116891Z"
-status: "active"
+updated_at: "2026-09-04T10:45:34Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P04"]
 related_nodes: []
 resource_scope: ["src/db/schema.ts","drizzle/","src/domain/seo/","src/application/seo/","src/app/(reader)/","src/app/admin/sites/[site]/articles/[article]/seo/"]

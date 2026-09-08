@@ -12,7 +12,7 @@ iteration: null
 title: "モデルが画面に実際に並ぶところを、preview で 1 度見る"
 owners: ["daishiman"]
 created_at: "2026-08-18T12:00:00Z"
-updated_at: "2026-08-18T12:00:00Z"
+updated_at: "2026-09-08T07:32:09.097511Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "設定の投入とは別に、実物を見る手当て�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-model-catalog-screen-check.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-1j5","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

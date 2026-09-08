@@ -1,0 +1,140 @@
+{
+  "source_digest": "sha256:1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
+  "feature": {
+    "graph_node_id": "feat-site-scoped-authoring-ia",
+    "title": "記事・読者像・書き方の決め事のブログ配下への所属替えと、管理入口の束ね直し",
+    "description": "作業の対象物ごとに画面を束ね、いまどのブログの決め事を見ているかを画面が示す状態にして、管理画面の認知負荷を下げる\n\n読者像と書き方の決め事が /admin/sites/[site]/ 配下に属し、93 本ある管理ルートが作業の対象物 (ブログ・記事・読者・商品・配信) の数まで畳まれ、各入口の名前から何ができるかが分かり、/admin/content/* と /admin/personas/* と /admin/writing/* が転送で受けられている状態になっている\n\nfile: features/feat-site-scoped-authoring-ia.md"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "サイト所属型オーサリングIAの要求ベースライン確定",
+      "description": "受入10件 (A1-A10) を実装着手前に一意で検証可能な要求ベースラインへ確定し、既存 93 本の管理ルートの棚卸し、作業の対象物 (ブログ・記事・読者・商品・配信) への束ね直しマッピング、/admin/content/*・/admin/personas/*・/admin/writing/* の転送要件、site 未解決時の notFound 要件、近道要件、書き方の決め事の雛形複製要件を、既存コード (src/app/admin/ 配下) の実体に接地させた状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p01.md",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "転送契約・所属替え契約・入口束ね直し契約・近道契約・雛形複製契約の設計",
+      "description": "P01の要求ベースラインを、旧URLから新配置への転送契約、読者像・書き方の決め事の /admin/sites/[site]/ 配下スキーマ契約、93ルートを作業の対象物数まで畳む入口束ね直し契約、よく使う画面への近道契約、書き方の決め事の共通雛形からの複製契約として確定した状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p02.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "設計レビューと転送網羅性・越境防止・ラベル整合性の独立検証",
+      "description": "P02の設計契約に対する独立レビューを完了し、旧URL転送の網羅性、他ブログの内容を出さない越境防止設計、動詞ラベルの feat-reference-blog-admin-ux 規則との整合性、危険操作分離の分岐設計の各観点の指摘が設計へ反映されるか残課題として明示された状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p03.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "受入10件に対応するテスト設計",
+      "description": "受入10件 (A1-A10) それぞれに対応するテストを振る舞いベースで設計し、実装前に失敗する状態でtests/ 配下に配置した状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p04.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "所属替え・転送・入口束ね直し・近道・雛形複製の実装",
+      "description": "受入10件 (A1-A10) に対応する実装 (読者像・書き方の決め事の /admin/sites/[site]/ 配下への所属替え、/admin/content・/admin/personas・/admin/writing からの site 特定可否分岐の転送、site 未解決時の notFound、93ルートを作業の対象物数まで畳む入口束ね直し、動詞ラベルの適用、よく使う画面への近道、書き方の決め事の共通雛形からの複製経路) を完了し、P04のテストを緑化した状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p05.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "テスト全量実行と回帰0件の確認",
+      "description": "`pnpm test` と `pnpm run test:coverage` の全量実行を完了し、失敗0件・既存テストの回帰0件・新規実装コードのカバレッジ80%以上を確認した状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p06.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "受入10件の受け入れ判定",
+      "description": "A1-A10すべてについて `pnpm run preview` 上での実物判定を完了し、各受入条件の判定結果 (PASS/FAIL) と根拠が記録された状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p07.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "旧入口の重複実装解消と転送シェルへの一本化",
+      "description": "P05で移設した読者像・書き方の決め事の旧実装 (/admin/personas・/admin/writing 配下の非転送コード) を撤去して転送シェルへ一本化し、/admin/content 配下の重複実装が0件であることを機械検査で確認した状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p08.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "品質保証とアクセシビリティ・危険操作分離の非機能検査",
+      "description": "型検査・lint・axe-core (重大違反0件)・動詞ラベルの正答率調査 (90%以上)・危険操作の確認分岐検査・応答性能検査が基準を満たし、結果が記録された状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p09.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "最終レビューと残課題の確定",
+      "description": "P01からP09の成果を通しでレビューし、受入10件 (A1-A10) の充足判定と、未充足があれば残課題が確定した状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p10.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "description": "P07の受入判定証跡とP09の品質検査証跡をdocs/spec/feat-site-scoped-authoring-ia/evidence/ 配下へ集約し、再現手順を含めて第三者が検証できる状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p11.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+        "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "所属替え・束ね直しの運用規則と運用手順の文書化",
+      "description": "所属替え後の入口束ね直しの保守規則、書き方の決め事の共通雛形からの複製手順、よく使う画面への近道の編集手順、新規ブログ追加時に読者像・書き方の決め事が自動的に所属替え済みの配下へ収まることを確認する手順が文書化された状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p12.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+        "SYS-SITE-SCOPED-AUTHORING-IA-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SITE-SCOPED-AUTHORING-IA-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "title": "開発環境へのリリースとsystem-specへの書き戻し",
+      "description": "本featureの成果をdevブランチ経由で開発環境へ反映し、実装で確定した転送規則・入口束ね直し後のIA構造・雛形複製経路がsystem-spec (ui-ux.md/frontend.md) へ書き戻された状態を成立させる。\n\nfile: tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p13.md",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P12"
+      ]
+    }
+  ]
+}

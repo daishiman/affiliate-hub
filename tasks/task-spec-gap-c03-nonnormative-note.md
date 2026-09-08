@@ -12,7 +12,7 @@ iteration: null
 title: "非規範注記が 8 章中 5 章にしか出ていない"
 owners: ["daishiman"]
 created_at: "2026-08-19T08:40:00Z"
-updated_at: "2026-08-19T08:40:00Z"
+updated_at: "2026-09-08T07:40:56.002684Z"
 status: "draft"
 depends_on: ["task-spec-gap-c01-spec-intake"]
 related_nodes: ["task-spec-completeness-gaps"]
@@ -39,7 +39,7 @@ classification_reason: "完全性評価（assign-system-spec-completeness-evalua
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-spec-gap-c03-nonnormative-note.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-4l5","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

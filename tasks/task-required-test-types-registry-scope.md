@@ -12,7 +12,7 @@ iteration: null
 title: "宣言表の読み取り範囲を §3 に限定する（解説の表が 2 つ目の宣言として拾われる）"
 owners: ["daishiman"]
 created_at: "2026-08-18T10:00:00Z"
-updated_at: "2026-08-18T10:00:00Z"
+updated_at: "2026-09-08T07:31:15.709373Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-required-test-types-acceptance"]
@@ -39,7 +39,7 @@ classification_reason: "ah-zs0 の作業中に実際に踏んだ不具合を切�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-required-test-types-registry-scope.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-c7h","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

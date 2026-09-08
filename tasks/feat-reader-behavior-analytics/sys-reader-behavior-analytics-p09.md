@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測の非機能検査"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:56:27.812263Z"
-status: "active"
+updated_at: "2026-09-04T10:31:15Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P08"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-reader-behavior-analytics/quality-report.md","tests/"]

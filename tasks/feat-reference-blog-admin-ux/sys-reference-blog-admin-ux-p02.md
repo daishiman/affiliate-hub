@@ -2,25 +2,18 @@
 graph_node_id: "SYS-REFERENCE-BLOG-ADMIN-UX-P02"
 artifact_kind: "task"
 artifact_subtypes: []
-title: "低認知負荷UI・URLプレビュー・非模倣公開面の設計"
 project_id: "feature-package-feat-reference-blog-admin-ux"
 domain: "documentation"
-status: "active"
+tags: ["p02","feat-reference-blog-admin-ux"]
 priority: null
 start_date: null
 target_date: null
 iteration: null
+title: "低認知負荷UI・URLプレビュー・非模倣公開面の設計"
 owners: ["daishiman"]
-tags: ["p02","feat-reference-blog-admin-ux"]
-file_path: "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md"
-template_id: "task"
-template_version: "1.1.0"
-confirmation_status: "confirmed"
-evaluation_status: "pass"
-confirmation_evidence: {"evaluated_digest":"a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"}
-source_lineage: {"imported_at":"2026-08-29T14:56:20Z","origin_kind":"system-dev-planner","source_digest":"a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd","source_path":".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-02-architecture.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
 created_at: "2026-08-29T14:56:20Z"
-updated_at: "2026-08-29T14:56:20Z"
+updated_at: "2026-09-08T08:14:08.103414Z"
+status: "active"
 depends_on: ["SYS-REFERENCE-BLOG-ADMIN-UX-P01"]
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview"]
 resource_scope: ["docs/spec/feat-reference-blog-admin-ux/data-model.md","docs/spec/feat-reference-blog-admin-ux/api-contract.md","docs/spec/feat-reference-blog-admin-ux/interaction-state-machine.md","docs/spec/feat-reference-blog-admin-ux/component-contract.md","docs/spec/feat-reference-blog-admin-ux/non-copying-design-system.md","docs/spec/feat-reference-blog-admin-ux/affiliate-preview-contract.md"]
@@ -33,13 +26,20 @@ architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
 parent_feature: "feat-reference-blog-admin-ux"
 feature_package_id: "feature-package/feat-reference-blog-admin-ux"
 phase_ref: "P02"
+file_path: "tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md"
+template_id: "task"
+template_version: "1.1.0"
+confirmation_status: "confirmed"
+evaluation_status: "pass"
+confirmation_evidence: {"evaluated_digest":"a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"}
+source_lineage: {"imported_at":"2026-08-29T14:56:20Z","origin_kind":"system-dev-planner","source_digest":"a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd","source_path":".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/task-specs/phase-02-architecture.md","source_plugin":"system-dev-planner","source_version":"0.1.0"}
 classification_confidence: 1
 classification_reason: "feat-reference-blog-admin-ux の P02 lifecycle責務への確定写像"
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-reference-blog-admin-ux/sys-reference-blog-admin-ux-p02.md","confidence":1}]
-tracker_binding: "beads"
-beads_linkage: null
-github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 issue_linkage: null
+tracker_binding: "beads"
+beads_linkage: {"bd_issue_id":"ah-z8x6.2","github_mirror":null,"linked_at":"2026-09-08T08:14:07Z","sync_state":"linked"}
+github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
@@ -173,4 +173,3 @@ P01の分析から、独自トークンの公開面component contractと、作�
 - source spec: 昇格済み generation の task spec 本文 (byte-for-byte 不変)
 - verification: published task spec の Automated commands
 - rerun: published task spec 内の `validate-system-plan.py --repo-root . --staging .` は repository root から解決できない。再検証は世代非依存の `python3 plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-reference-blog-admin-ux` を使い、current pointer から現行世代を再解決する。
-

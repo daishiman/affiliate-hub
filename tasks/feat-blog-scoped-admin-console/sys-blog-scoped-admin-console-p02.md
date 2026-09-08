@@ -12,8 +12,8 @@ iteration: null
 title: "画面階層とデータ読み取り経路の設計確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:47:51.764238Z"
-status: "active"
+updated_at: "2026-09-04T11:18:46Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-scoped-admin-console/routing-design.md","docs/spec/feat-blog-scoped-admin-console/read-path-design.md","docs/spec/feat-blog-scoped-admin-console/alerting-design.md"]

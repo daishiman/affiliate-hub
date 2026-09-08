@@ -12,8 +12,8 @@ iteration: null
 title: "設計レビューと既存 SEO 実装との重複有無の独立検証"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:24:14.045392Z"
-status: "active"
+updated_at: "2026-09-04T04:41:38Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/design-review.md"]

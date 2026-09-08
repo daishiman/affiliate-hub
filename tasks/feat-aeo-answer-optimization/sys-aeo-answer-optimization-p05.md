@@ -12,8 +12,8 @@ iteration: null
 title: "回答単位と AI 向け配信の実装"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:32:04.800771Z"
-status: "active"
+updated_at: "2026-09-04T11:01:21Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P04"]
 related_nodes: []
 resource_scope: ["src/db/schema.ts","drizzle/","src/domain/aeo/","src/application/aeo/","src/components/reader/","src/app/(reader)/","src/app/admin/sites/[site]/aeo/"]

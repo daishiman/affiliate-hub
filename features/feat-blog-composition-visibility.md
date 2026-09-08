@@ -12,7 +12,7 @@ iteration: null
 title: "ブログ構成要素の可視化・管理画面プレビュー・不足要素の提示"
 owners: ["daishiman"]
 created_at: "2026-08-31T00:00:00Z"
-updated_at: "2026-09-07T15:54:19.533150Z"
+updated_at: "2026-09-08T07:55:35.782497Z"
 status: "active"
 depends_on: ["feat-blog-provisioning-integrity"]
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview","feat-blog-ops-crud","feat-reference-blog-admin-ux"]
@@ -38,7 +38,7 @@ classification_reason: "利用者報告『ブログを構成するための要�
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-composition-visibility.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-sieb","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

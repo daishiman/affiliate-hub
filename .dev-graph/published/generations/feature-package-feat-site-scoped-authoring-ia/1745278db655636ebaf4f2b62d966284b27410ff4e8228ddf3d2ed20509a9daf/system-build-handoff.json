@@ -1,0 +1,234 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+        "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+        "SYS-SITE-SCOPED-AUTHORING-IA-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-SITE-SCOPED-AUTHORING-IA-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-site-scoped-authoring-ia",
+    "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+    "parent_feature": "feat-site-scoped-authoring-ia",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:887d7e9ab4115e01a83bf4e15f6b6e7062a808800c14952eddbe2595283c0f60"
+  },
+  "kind": "system-build-handoff",
+  "p01_entry_gate": {
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ],
+    "selector": "parent_feature.depends_on"
+  },
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "7340345f495aa1633605db5aaa7222e4cecbb97af794f85b3c175750d438f1c3"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "e1ddb5cf4ebc2e65b1f5419d58df4e0cd250c48cc23760cb01b0b4e96ab6f27c"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "8d6e0284bc170269f7866e6f23e78e27ee02d9f5977e8b1185c7a42cb3f30b23"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "5d00d47dc71f9c4e056b62b04abd54c77c68b783e29dcd1ac05395dbe4f75491"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "c4bd1afae3db1575f7605a4b29f24f4b6a8fd8d88c0ce24ec3636e94d31fca01"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "95fae43437a26aac03468655901c23611985ece2d75c7609b3fc01f90ce2d23b"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "d655216bc633af63ccd75300e96ade7f73e1a7f908e6fbd921eb07d2df08f9f2"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "b02aab450ef2f469f6bdf55c8a1fc3de21b388d38b4e8299d2dedf7bea1a207f"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "224313cd51ac148346d4722a1be45b956661a160d2adf46aaad84967d9769f31"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "0ffa63190214c289ae7fd1e053cdf4e27a0d105b78368c95b259cbf485064e3a"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "77a2e180c7355653ef743ae7a44214969ef85447bc0f64e15d7073b9d25547fe"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "5f5ded521ad95975cfb4c51739f7aeb13ca68921db1015957df4671021b1c542"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "f94d8a446f9d7e778db81a8a92bbed5b5da0209ceeb98644644d846c45e4b71f"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "cee52a0f95e4b8c67a6892ef3f4ea244d1007da341fe505aade47e1187514696"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "852a29544debe254cd23f7ded302e871473ac52621ecb3a43cfb97fc543c4d59"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "bbd7a7311899e1001fd33502e7e4fe3ef433787c580115a1f9c26364bd478846"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:04ab21ce37b9c3880661541b20a8e7b3b733e307d3cb273203057ee92c891ebb",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "73b3e06d91cc5d019ead4ab068009e2b5dd4d038c08a8053c37b8451e3e6ec85"
+  }
+}

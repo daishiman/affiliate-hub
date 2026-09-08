@@ -12,7 +12,7 @@ iteration: null
 title: "成果の金額の修正を D1 へ保存し、画面から直せるようにする"
 owners: ["daishiman"]
 created_at: "2026-08-17T09:00:00Z"
-updated_at: "2026-08-17T09:19:14.295618Z"
+updated_at: "2026-09-08T07:15:02.155954Z"
 status: "done"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "docs/product/stub-ledger.md のスタブ解除を作業�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-conversion-adjustment.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-nwh","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

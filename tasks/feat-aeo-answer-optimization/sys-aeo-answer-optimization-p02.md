@@ -12,8 +12,8 @@ iteration: null
 title: "回答単位テーブルと配信契約の確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:30:50.604375Z"
-status: "active"
+updated_at: "2026-09-04T11:01:14Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-aeo-answer-optimization/data-model.md","docs/spec/feat-aeo-answer-optimization/structured-data-design.md","docs/spec/feat-aeo-answer-optimization/delivery-design.md","docs/spec/feat-aeo-answer-optimization/author-profile-design.md","docs/spec/feat-aeo-answer-optimization/citation-ledger-design.md"]

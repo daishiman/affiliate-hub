@@ -12,8 +12,8 @@ iteration: null
 title: "サイト網・記事CRUD・固定ページ・配信部品・評価機能の実装"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:07:10.218381Z"
-status: "active"
+updated_at: "2026-09-08T00:19:20Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P04"]
 related_nodes: []
 resource_scope: ["src/app/admin/site-network/","src/app/admin/site-network/[site]/","src/app/admin/site-network/new/","src/app/admin/blog/articles/","src/app/admin/blog/articles/[article]/","src/app/admin/blog/articles/new/","src/app/admin/blog/pages/","src/app/admin/blog/tags/","src/app/admin/blog/evaluate/","src/app/api/admin/site-network/","src/app/api/admin/blog/","src/app/s/[site]/","src/app/s/[site]/best/","src/app/s/[site]/reviews/","src/app/s/[site]/guides/","src/app/s/[site]/feed.xml","src/app/s/[site]/sitemap.xml","src/app/s/[site]/llms.txt","src/presentation/ui/templates/","src/presentation/ui/patterns/","src/application/usecases/","src/application/read-models/","src/infrastructure/persistence/d1/","src/db/schema.ts","drizzle/","scripts/check-reference-site-reuse.mjs"]

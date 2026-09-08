@@ -12,7 +12,7 @@ iteration: null
 title: "確定分の合計が、通貨の違う成果を足して最後の 1 件の通貨で表示する"
 owners: ["daishiman"]
 created_at: "2026-08-19T13:30:00Z"
-updated_at: "2026-08-19T13:30:00Z"
+updated_at: "2026-09-08T07:47:10.571309Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "合計のループを読んで、上書きが起きる�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-currency-mix-in-approved-total.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-mgg","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

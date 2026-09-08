@@ -12,8 +12,8 @@ iteration: null
 title: "AEO のリリースと仕様書への書き戻し"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:35:34.662828Z"
-status: "active"
+updated_at: "2026-09-04T11:01:37Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P12"]
 related_nodes: []
 resource_scope: ["system-spec/frontend.md","system-spec/database.md","docs/spec/feat-aeo-answer-optimization/release-notes.md"]

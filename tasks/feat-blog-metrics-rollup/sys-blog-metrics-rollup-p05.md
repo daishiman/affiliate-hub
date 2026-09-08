@@ -12,8 +12,8 @@ iteration: null
 title: "日次ロールアップ処理の実装"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:43:13.574822Z"
-status: "active"
+updated_at: "2026-09-04T10:14:20Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P04"]
 related_nodes: []
 resource_scope: ["src/db/schema.ts","drizzle/","src/domain/analytics/daily-metrics.ts","src/application/analytics/rollup-daily-metrics.ts","src/infrastructure/scheduled/rollup.ts","wrangler.jsonc"]

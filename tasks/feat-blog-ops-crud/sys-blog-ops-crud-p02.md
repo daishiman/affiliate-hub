@@ -12,8 +12,8 @@ iteration: null
 title: "サイト網・記事・固定ページ・配信部品のデータモデルとAPI契約の設計"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:05:52.626071Z"
-status: "active"
+updated_at: "2026-09-08T00:13:50Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/data-model.md","docs/spec/feat-blog-ops-crud/api-contract.md","docs/spec/feat-blog-ops-crud/component-contract.md","docs/spec/feat-blog-ops-crud/migration-plan.md"]

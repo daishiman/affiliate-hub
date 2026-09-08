@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン接続機能の実装"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:37:46.384001Z"
-status: "active"
+updated_at: "2026-09-04T08:12:00Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P04"]
 related_nodes: []
 resource_scope: ["src/db/schema.ts","drizzle/","src/domain/domains/","src/application/domains/","src/infrastructure/cloudflare/custom-hostname.ts","src/middleware.ts","src/app/admin/sites/[site]/domain/","src/app/api/admin/"]

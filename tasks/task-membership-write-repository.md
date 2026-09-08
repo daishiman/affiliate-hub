@@ -12,7 +12,7 @@ iteration: null
 title: "担当者の登録を書く側が見本のままで、招待を画面から出せない"
 owners: ["daishiman"]
 created_at: "2026-08-18T05:30:00Z"
-updated_at: "2026-08-22T00:00:00Z"
+updated_at: "2026-09-08T07:28:37.188563Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,12 +39,12 @@ classification_reason: "ログイン導入(ah-361)で読み取り側だけを本
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-membership-write-repository.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-ubh","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-22T00:00:00Z","evidence_refs":["src/infrastructure/persistence/d1/membership-repository.ts","docs/product/setup-tasks.md","docs/product/first-owner-row.md"],"policy":"manual","reconciled_at":"2026-08-22T00:00:00Z","source":"manual","status":"done"}
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 

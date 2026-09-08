@@ -12,8 +12,8 @@ iteration: null
 title: "サイト網ブログ運用 CRUD の要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:05:26.407111Z"
-status: "active"
+updated_at: "2026-09-08T00:13:46Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/requirements-baseline.md","docs/spec/feat-blog-ops-crud/screen-inventory.md","docs/spec/feat-blog-ops-crud/blueprint-coverage-map.json"]

@@ -12,7 +12,7 @@ iteration: null
 title: "生成 AI の提供元を選び、鍵を登録して下書きを 1 本作らせる"
 owners: ["daishiman"]
 created_at: "2026-08-17T23:30:00Z"
-updated_at: "2026-08-17T23:30:00Z"
+updated_at: "2026-09-08T07:23:48.983341Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "仕組みは揃っており、残っているのは提�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-llm-provider-connection.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-ag8","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

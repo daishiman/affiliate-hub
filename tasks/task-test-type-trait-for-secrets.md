@@ -12,7 +12,7 @@ iteration: null
 title: "秘密情報の要件に当てはまる「性質」が語彙に無い（REQ-SEC10 が宣言できない）"
 owners: ["daishiman"]
 created_at: "2026-08-17T23:50:00Z"
-updated_at: "2026-08-17T23:50:00Z"
+updated_at: "2026-09-08T07:24:15.271115Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "ah-99p で 24 件中 23 件は宣言できたが、REQ-S
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-test-type-trait-for-secrets.md","confidence":0.85}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-0ip","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

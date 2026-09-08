@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-uiux-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-uiux-web-site-scoped-authoring-ia。裏付け質疑 (`qa_refs`): `qa-uiux-web-editor-verbatim`, `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
@@ -30,14 +30,14 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | ui-ux × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-uiux-web-editor-verbatim` |
+| 確定質疑 (qa_ref) | `qa-uiux-web-site-scoped-authoring-ia` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | `product-goal` — missing_effect: block / 接地: 済 (`qa-foundation-u1`)<br>`screen-information-priority` — missing_effect: block / 接地: 済 (`qa-uiux-web-blog-scoped-admin`)<br>`target-platforms` — missing_effect: block / 接地: 済 (`qa-platform-scope`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
 | 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
+| 適用された設計知識 (design_applications) | 3 件 — 本章 `## 適用された設計知識` を参照 |
 
 ## 意思決定 (decisions)
 
@@ -54,7 +54,13 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-uiux-web-editor-verbatim (対応セル: web)
+### qa-uiux-web-site-scoped-authoring-ia (対応セル: web)
+
+**質問**: ui-ux×web: 記事・読者像・書き方の決め事を、いまの全体横断の管理からブログ単位の管理へ移すか。移す場合、横断画面には何を残し、いま 93 本ある管理画面で『どこで何をするか』をどう分かるようにするか
+
+**回答**: 移す。いま管理画面は記事ごとに管理する形で、サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理するべきところを、全体で構成する形になっている。そのため UI/UX の認知負荷が高い。認知負荷を下げるために、サイトごとに構成する。記事・読者像・書き方の決め事は、全ブログで共通の資産ではなくブログごとに異なるため、ブログに属するものとして扱う。全体で 1 つだけ持つと、書き手は『いま自分がどのブログの決め事を見ているのか』を画面の外で覚えておく必要があり、これが認知負荷の主因になる。横断画面はブログ間の比較と『どのブログに手を入れるべきか』だけを担い、記事単位の数字は出さない (既に確定済みの qa-uiux-web-blog-scoped-admin の役割分担を踏襲する)。記事ごと・サイトごとの結果一覧やグラフは在るほうが良いので残す。ただし今回作るのは『どの画面のどこに、どの順で出すか』という提示設計に限り、新しい指標や集計は作らない。指標の正本は既存の site_daily_metrics / article_daily_metrics のままとする。現在どこで何をするのか直感的に分からない点については、画面を『作業の対象物』(ブログ・記事・読者・商品・配信) で束ね、各入口には日本語の動詞で『ここで何ができるか』を書く。93 本ある管理ルートをこの束ね方で一段に畳み、入口の数を作業の対象物の数まで減らす。誤操作コストの高い操作 (ブログ設定・ドメイン・公開) は確認を挟み、低い操作 (下書きの編集) は直接編集にする
+
+### qa-uiux-web-editor-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: ui-ux×web: ブロックエディターについて利用者は何を求めたか。受入条件を起草する前に、利用者が実際に発した言葉を逐語で記録する
 
@@ -720,18 +726,28 @@ AskUserQuestion で「2層を維持し、層をUIで見せる（推奨）」「�
 
 #### 本章での適用
 
-##### 確定内容 qa-uiux-web-editor-verbatim (対応セル: web)
+##### 確定内容 qa-uiux-web-site-scoped-authoring-ia (対応セル: web)
 
-- 確定要件: [機能要望 (2026-09-05)]
-「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
+- 確定要件: 移す。いま管理画面は記事ごとに管理する形で、サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理するべきところを、全体で構成する形になっている。そのため UI/UX の認知負荷が高い。認知負荷を下げるために、サイトごとに構成する。記事・読者像・書き方の決め事は、全ブログで共通の資産ではなくブログごとに異なるため、ブログに属するものとして扱う。全体で 1 つだけ持つと、書き手は『いま自分がどのブログの決め事を見ているのか』を画面の外で覚えておく必要があり、これが認知負荷の主因になる。横断画面はブログ間の比較と『どのブログに手を入れるべきか』だけを担い、記事単位の数字は出さない (既に確定済みの qa-uiux-web-blog-scoped-admin の役割分担を踏襲する)。記事ごと・サイトごとの結果一覧やグラフは在るほうが良いので残す。ただし今回作るのは『どの画面のどこに、どの順で出すか』という提示設計に限り、新しい指標や集計は作らない。指標の正本は既存の site_daily_metrics / article_daily_metrics のままとする。現在どこで何をするのか直感的に分からない点については、画面を『作業の対象物』(ブログ・記事・読者・商品・配信) で束ね、各入口には日本語の動詞で『ここで何ができるか』を書く。93 本ある管理ルートをこの束ね方で一段に畳み、入口の数を作業の対象物の数まで減らす。誤操作コストの高い操作 (ブログ設定・ドメイン・公開) は確認を挟み、低い操作 (下書きの編集) は直接編集にする
+- 設計解釈の記録経路: `dialogue`
+- 原則: 情報は、それが属する対象物のところに置く (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 読者像と書き方の決め事はブログごとに違うため、本来はブログに属する。全体で 1 つ持つと、画面上のどこにも『どのブログのものか』が書かれず、書き手が自分の頭で保持することになる。ブログ配下へ置けば、いま見ているブログが URL と画面の見出しに出るので、覚えておく必要が消える
+  - トレードオフ:
+    - ブログをまたいで書き方の決め事を揃えたい場合、今の作りでは 1 か所を直せば済んだものが、ブログの数だけ直す作業になる。共通の雛形から複製する経路が別途要る
+- 原則: 入口の数は、作業の対象物の数まで減らす (`information-design.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: 管理ルートが 93 本あり、入口が作業の単位ではなく機能の単位で並んでいるため、目的の画面に辿り着く前にどれが自分の作業かを判断する手間が挟まる。対象物 (ブログ・記事・読者・商品・配信) で束ねれば、最初の判断は『何を触るか』の 1 回で済む
+  - トレードオフ:
+    - 束ねた入口の下は階層が 1 段深くなるので、毎日同じ画面だけを開く使い方では往復が増える。よく使う画面への近道を別に用意する必要がある
+- 原則: 確認を挟むかどうかは、誤操作の取り返しにくさで決める (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 同じ画面の中でも、下書きの編集は間違えても書き直せるが、ドメイン設定と公開は読者から見える状態を壊す。全部に確認を挟むと日常の編集が重くなり、全部を直接編集にすると壊れたときに戻せない。取り返しにくさで分ける
+  - トレードオフ:
+    - 取り返しにくさの見積もりは運用してみないと分からない部分があり、確認を挟む境界は実際の事故で調整することになる
+##### 接地根拠 qa-uiux-web-editor-verbatim (対応セル: web)
 
-[AskUserQuestion「見出しの層をどう扱うか」への選択]
-「2層を維持し、層をUIで見せる（推奨）」
-
-[AskUserQuestion「編集体験をどうするか」への選択]
-「断片欄を維持し、全断片を見た目へ（推奨）」
-
-※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+- 本文: 「確定内容 (質疑録)」の `qa-uiux-web-editor-verbatim` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 利用者が結果を見ながら操作できるとき、操作と結果の対応づけを学ぶ負荷が消える (`usability-accessibility.md`)
   - 採否: `applied`
@@ -965,3 +981,14 @@ AskUserQuestion で「2層を維持し、層をUIで見せる（推奨）」「�
 |---|---|---|---|---|---|
 | apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json | 2026-09-02T21:40:54Z | 2026-09-02T21:40:54Z |
 | w3c-wai-aria | 1.2 (W3C Recommendation) | W3C (www.w3.org) | https://www.w3.org/TR/wai-aria-1.2/ | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 6 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-uiux-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| 確定質疑 (qa_ref) | `qa-uiux-web-editor-verbatim` |`
+- `| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |`
+- `### qa-uiux-web-editor-verbatim (対応セル: web)`
+- `##### 確定内容 qa-uiux-web-editor-verbatim (対応セル: web)`
+- `- 確定要件: [機能要望 (2026-09-05)]`

@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 診断の証跡集約"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T03:03:06.429609Z"
-status: "active"
+updated_at: "2026-09-04T10:45:46Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P07","SYS-SEO-ASSESSMENT-REFLECTION-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-assessment-reflection/evidence-index.md"]

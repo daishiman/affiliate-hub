@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン機能の証跡集約"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:40:21.736854Z"
-status: "active"
+updated_at: "2026-09-04T08:12:12Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P07","SYS-BLOG-CUSTOM-DOMAIN-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-custom-domain/evidence-index.md"]

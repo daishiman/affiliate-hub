@@ -12,8 +12,8 @@ iteration: null
 title: "日次ロールアップの証跡集約"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:46:02.257590Z"
-status: "active"
+updated_at: "2026-09-04T10:14:33Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P07","SYS-BLOG-METRICS-ROLLUP-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-metrics-rollup/evidence-index.md"]

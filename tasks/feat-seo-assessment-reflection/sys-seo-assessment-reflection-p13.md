@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 診断のリリースと仕様書への書き戻し"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T03:04:00.182009Z"
-status: "active"
+updated_at: "2026-09-04T10:45:49Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P12"]
 related_nodes: []
 resource_scope: ["system-spec/backend.md","system-spec/database.md","docs/spec/feat-seo-assessment-reflection/release-notes.md"]

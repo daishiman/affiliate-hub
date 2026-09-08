@@ -12,8 +12,8 @@ iteration: null
 title: "診断テーブルと構造化データ検証の契約確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T02:59:00.905083Z"
-status: "active"
+updated_at: "2026-09-04T10:45:28Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-assessment-reflection/data-model.md","docs/spec/feat-seo-assessment-reflection/validation-design.md","docs/spec/feat-seo-assessment-reflection/writeback-design.md"]

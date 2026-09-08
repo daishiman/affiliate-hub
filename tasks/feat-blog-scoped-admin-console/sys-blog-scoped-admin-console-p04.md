@@ -12,8 +12,8 @@ iteration: null
 title: "管理画面の受入テスト設計"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:48:47.051923Z"
-status: "active"
+updated_at: "2026-09-04T11:18:50Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-scoped-admin-console/test-plan.md","docs/spec/feat-blog-scoped-admin-console/test-cases.md"]

@@ -12,8 +12,8 @@ iteration: null
 title: "管理画面の証跡集約"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:51:53.019559Z"
-status: "active"
+updated_at: "2026-09-04T11:19:04Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07","SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-scoped-admin-console/evidence-index.md"]

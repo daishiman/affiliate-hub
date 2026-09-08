@@ -12,8 +12,8 @@ iteration: null
 title: "運用手順と文書化"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:27:15.149238Z"
-status: "active"
+updated_at: "2026-09-04T08:38:19Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P10","SYS-SEO-AEO-GAP-CLOSURE-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/operations.md","docs/spec/feat-seo-aeo-gap-closure/documentation.md"]

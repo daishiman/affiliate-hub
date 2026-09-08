@@ -12,8 +12,8 @@ iteration: null
 title: "AEO の受入9件の判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:32:57.156263Z"
-status: "active"
+updated_at: "2026-09-04T11:01:25Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P06"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-aeo-answer-optimization/acceptance-report.md"]

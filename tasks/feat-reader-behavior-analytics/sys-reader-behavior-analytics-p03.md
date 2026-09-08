@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測設計の独立レビューと着手可否判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:53:56.569428Z"
-status: "active"
+updated_at: "2026-09-04T10:31:03Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-reader-behavior-analytics/design-review-findings.md","docs/spec/feat-reader-behavior-analytics/invariant-checklist.md"]

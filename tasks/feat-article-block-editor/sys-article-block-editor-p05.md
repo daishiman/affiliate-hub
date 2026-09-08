@@ -12,7 +12,7 @@ iteration: null
 title: "ブロックエディターWYSIWYG化とWorker API画像アップロード・許可リスト描画の実装"
 owners: ["daishiman"]
 created_at: "2026-09-07T15:31:08Z"
-updated_at: "2026-09-07T15:51:15.836446Z"
+updated_at: "2026-09-08T08:00:35.571015Z"
 status: "active"
 depends_on: ["SYS-ARTICLE-BLOCK-EDITOR-P04"]
 related_nodes: []
@@ -38,7 +38,7 @@ classification_reason: "feat-article-block-editor の P05 lifecycle 責務への
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-article-block-editor/sys-article-block-editor-p05.md","confidence":1.0}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-s0p4","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

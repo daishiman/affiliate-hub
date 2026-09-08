@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン受入10件の判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:38:37.714928Z"
-status: "active"
+updated_at: "2026-09-04T08:12:04Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P06"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-custom-domain/acceptance-report.md"]
