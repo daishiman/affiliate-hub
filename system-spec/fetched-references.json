@@ -210,16 +210,16 @@
     },
     {
       "target_id": "sqlite-fts5",
-      "retrieved_at": "2026-09-03T00:00:00Z",
+      "retrieved_at": "2026-09-08T12:32:03Z",
       "source_url": "https://www.sqlite.org/fts5.html",
       "official_publisher": "SQLite",
       "official_host": "www.sqlite.org",
-      "last_updated": "2026-08-27",
-      "freshness_source": "http-last-modified",
-      "latest_checked_at": "2026-09-03T00:00:00Z",
+      "last_updated": "2026-08-01",
+      "freshness_source": "page-declared",
+      "latest_checked_at": "2026-09-08T12:32:03Z",
       "evidence_ref": "system-spec/retrieval-evidence/sqlite-fts5.json",
-      "evidence_sha256": "107ff2a7ae5fb65fcde8792bf44699816b33bec903b4c5ab50a8a58d6d63db63",
-      "summary": "SQLite FTS5 公式仕様。組込トークナイザは unicode61 / ascii / porter / trigram の4種で bigram は存在しない。trigram は通常のトークン一致ではなく部分一致を可能にする。『bigram 系トークナイザ』という当初の指定が実装不能であったことの一次根拠。"
+      "evidence_sha256": "867cbf5ce39ca90b60dfe09be2b542739c612e3f783c9d95e26a84e006cee051",
+      "summary": "SQLite FTS5 公式仕様。組込トークナイザは unicode61 / ascii / porter / trigram の4種で、trigram は部分一致を可能にする。公式本文末尾の更新表明 2026-08-01 を現行性根拠として再確認した。"
     },
     {
       "target_id": "google-search-console-api",
@@ -249,16 +249,16 @@
     },
     {
       "target_id": "webmcp",
-      "retrieved_at": "2026-09-03T22:38:16Z",
+      "retrieved_at": "2026-09-08T12:32:03Z",
       "source_url": "https://webmachinelearning.github.io/webmcp/",
       "official_publisher": "W3C Web Machine Learning Community Group",
       "official_host": "webmachinelearning.github.io",
-      "last_updated": "2026-09-03",
+      "last_updated": "2026-09-04",
       "freshness_source": "page-declared",
-      "latest_checked_at": "2026-09-03T22:38:16Z",
+      "latest_checked_at": "2026-09-08T12:32:03Z",
       "evidence_ref": "system-spec/retrieval-evidence/webmcp.json",
-      "evidence_sha256": "ed23d510c9187fceedb831b04c0fa47c1da7cc7a8e1bfd253ddf0cf75c4d6925",
-      "summary": "WebMCP の一次仕様 (2026-09-03 版 Draft Community Group Report)。W3C 標準ではなく標準化トラック上にもない。接点は Document の modelContext 属性で SecureContext 限定、道具の登録は registerTool が Promise を返し、登録解除の専用メソッドは無く options の AbortSignal で取り消す。認証済み状態で道具を露出すると追加検証なしに高権限操作が実行されうると自ら警告している。二次記事が述べる unregisterTool と SubmitEvent.agentInvoked は現行版にも存在しない。rolling draft のため版日付は動き続けるが、上記 4 点の設計上の申告は 2026-09-02 版から変わっていない。"
+      "evidence_sha256": "9a73389a391b88042f6ea8fc00feacde105463891b6d21e0112a49e4bb9d80a2",
+      "summary": "WebMCP の一次仕様 (2026-09-04 版 Draft Community Group Report)。W3C 標準ではなく標準化トラック上にもない。SecureContext の Document.modelContext を接点とし、現行版は registerTool に加えて getTools・executeTool と tool annotation を記述する。認証済み状態の高権限操作や意図の誤表現をリスクとして明記しているため、採用時は読み取り限定・明示確認・版追従を前提にする。"
     },
     {
       "target_id": "anthropic-web-search-tool",

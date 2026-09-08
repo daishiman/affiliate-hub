@@ -189,7 +189,7 @@ async function runArticleImageReclaimJob(env: ScheduledMaintenanceEnv, now: Date
 /**
  * Worker の scheduled handler が呼ぶ、定期メンテナンスの配線。
  *
- * 8 つは因果のない仕事なので、独立した Promise として登録する。
+ * どれも互いに因果のない仕事なので、独立した Promise として登録する。
  * それぞれが自分の失敗を記録して完了し、別の仕事とCloudflare retryへ波及させない。
  */
 /**

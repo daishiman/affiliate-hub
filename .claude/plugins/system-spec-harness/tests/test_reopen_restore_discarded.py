@@ -284,3 +284,114 @@ def test_restore_takes_the_latest_preserved_value() -> None:
     _reconfirm(state)
     _restore(state)
     assert _cell(state)["serves_goals"] == ["G2"]
+
+
+# ── 第三の行き先 — 戻さないと決めたことを記録する (`retire-discarded`) ──
+#
+# 退避の行き先が「戻す」「黙って消える」の 2 択では足りない。**戻すべきでない欄**が在る。
+# 2026-09-08 の実例は `approval_ref` で、その承認記録の note 自身が「利用者は『つづけて』と
+# 回答。**親エージェントが**当該変更提案への承認として確定した」と書いていた。戻せば
+# 根拠の無い承認が確定セルの裏付けとして生き返る。かといって黙って消えたままにすると、
+# 上で塞いだ `ah-nuu` の穴 (戻す窓口が無くて消えた) と見分けがつかない。
+#
+# 以下は**拒む条件が実際に拒むこと**を 1 つずつ当てる。全部が同時に緩んでも、
+# どれか 1 本が必ず赤くなる形にしてある。
+
+
+def _retire(state: dict, field: str = "serves_goals", **over) -> None:
+    op = {"action": "retire-discarded", **CELL, "field": field, "reason": "戻すべきでない"}
+    op.update(over)
+    stm.apply_cell_op(state, op)
+
+
+def _retired_state() -> dict:
+    """`serves_goals` を退避させたまま再確定し、取り下げまで済ませた state。"""
+    state = _state()
+    _cell(state)["serves_goals"] = ["G1"]
+    _cell(state)["serves_intents"] = ["I1"]
+    _reopen(state)
+    _reconfirm(state)
+    _retire(state)
+    return state
+
+
+def test_retired_field_is_skipped_and_the_rest_still_restores() -> None:
+    """**これが第三の行き先の当てどころ。**取り下げた欄は戻らず、他は戻ること。
+
+    飛ばさないと、下の「戻せない欄が 1 つでもあれば何も書かずに止まる」に毎回掴まり、
+    そのセルは二度と `restore-discarded` を呼べなくなる。
+    """
+    state = _retired_state()
+    _restore(state)
+    assert "serves_goals" not in _cell(state), "取り下げた欄が戻っている"
+    assert _cell(state)["serves_intents"] == ["I1"], "取り下げ以外まで巻き添えで止まっている"
+
+
+def test_retiring_does_not_erase_the_preserved_value() -> None:
+    """**消す口と取り消す口を分ける。**取り下げが誤りだったと分かったら、
+    記録を外せば `restore-discarded` がまた拾える。退避値ごと消すと、
+    外すべき記録すら残らない。"""
+    state = _retired_state()
+    entry = state["reopen_log"][-1]
+    assert entry["discarded"]["serves_goals"] == ["G1"]
+    del entry["retired_fields"]["serves_goals"]
+    _restore(state)
+    assert _cell(state)["serves_goals"] == ["G1"]
+
+
+def test_retire_requires_a_reason() -> None:
+    """理由の無い取り下げは、黙って消えたのと区別がつかない。"""
+    state = _state()
+    _cell(state)["serves_goals"] = ["G1"]
+    _reopen(state)
+    _reconfirm(state)
+    with pytest.raises(TransitionError, match="reason が必須"):
+        _retire(state, reason="")
+
+
+def test_retire_requires_a_field() -> None:
+    state = _state()
+    _cell(state)["serves_goals"] = ["G1"]
+    _reopen(state)
+    _reconfirm(state)
+    with pytest.raises(TransitionError, match="field が必須"):
+        _retire(state, field="")
+
+
+def test_retire_refuses_a_field_that_was_never_preserved() -> None:
+    """退避されていない欄を取り下げない。通ると、記録だけを増やして
+    「退避されたが戻っていない」の検査を名前で黙らせる道になる。"""
+    state = _state()
+    _cell(state)["serves_goals"] = ["G1"]
+    _reopen(state)
+    _reconfirm(state)
+    with pytest.raises(TransitionError, match="退避に .* が無い"):
+        _retire(state, field="__退避していない欄__")
+
+
+def test_retire_refuses_a_field_that_is_back_in_the_cell() -> None:
+    """戻っている欄を取り下げると、記録と実体が食い違う。"""
+    state = _state()
+    _cell(state)["serves_goals"] = ["G1"]
+    _reopen(state)
+    _reconfirm(state)
+    _restore(state)
+    with pytest.raises(TransitionError, match="既に .*セルに在る"):
+        _retire(state)
+
+
+def test_retire_refuses_twice() -> None:
+    """記録は 1 度の判断に 1 つ。二度目で理由を書き換えられると、
+    「いつ何を根拠に決めたか」が最後の 1 本しか残らない。"""
+    state = _retired_state()
+    with pytest.raises(TransitionError, match="既に取り下げ済み"):
+        _retire(state, reason="言い直し")
+
+
+def test_retire_refuses_on_unconfirmed_cell() -> None:
+    """再確定していないセルは、まだ戻す/戻さないを決める場面に無い。"""
+    state = _state()
+    _cell(state)["serves_goals"] = ["G1"]
+    _reopen(state)
+    with pytest.raises(TransitionError, match="retire-discarded 不可"):
+        _retire(state)

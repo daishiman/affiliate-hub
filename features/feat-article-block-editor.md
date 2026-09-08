@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-07T14:07:47Z","origin_kind":"system-spec-harness","source_digest":"8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6","source_path":"system-spec/ui-ux.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T14:07:47Z","origin_kind":"system-spec-harness","source_digest":"c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670","source_path":"system-spec/ui-ux.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "2026-09-07 の再検証で、画像送信契約を旧ブラウザ直接 PUT から同一生成元 Worker API へ改訂した既存 macro feature。別 feature を重複追加せず、この node と後続 P01〜P13 を再計画して契約を一本化する。"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-article-block-editor.md","confidence":0.95}]

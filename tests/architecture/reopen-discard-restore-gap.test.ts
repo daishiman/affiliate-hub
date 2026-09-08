@@ -69,6 +69,7 @@ type ReopenEntry = {
   readonly category?: string;
   readonly platform?: string;
   readonly discarded?: Record<string, unknown>;
+  readonly retired_fields?: Record<string, { readonly reason?: unknown }>;
 };
 
 const state = JSON.parse(readFileSync(join(ROOT, "system-spec/spec-state.json"), "utf-8"));
@@ -119,8 +120,69 @@ const heldFields: readonly string[] = [
 function fieldsNamedIn(op: string): readonly string[] {
   const machine = new Set(machineFieldList());
   const known = new Set([...heldFields, "serves_intents"].filter((f) => !machine.has(f)));
-  const quoted = [...branchSource(op).matchAll(/"([a-z_]+)"/g)].map((m) => m[1] as string);
+  const quoted = [...withoutDictKeys(branchSource(op)).matchAll(/"([a-z_]+)"/g)].map(
+    (m) => m[1] as string,
+  );
   return [...new Set(quoted.filter((name) => known.has(name)))].sort();
+}
+
+/**
+ * dict リテラルの鍵 (`"qa_ref": qa_ref`) を落とす。
+ *
+ * ── なぜ要るか（2026-09-08）────────────────────────────────
+ *
+ * `reopen` は `reopen_log` へ「**どの問答を根拠に開け直したか**」を記録する。
+ * その記録の鍵がたまたま `qa_ref` という名前で、セルの欄と同じ綴りだった。
+ * 落とさずに数えると「reopen が欄を数え上げ始めた」と**記録の形**を見て言うことになる。
+ * それは原因 A（退避する欄をリテラルで並べる）とは別のものである。
+ *
+ * **塞げていないところ:** セルを dict リテラルで組み立てる実装が現れたら、その鍵は
+ * ここで落ちる。ただしその形は同じ it の `dropped === ["state"]` が実データで見ている
+ * ——確定セルが持つ欄のうち退避されないものが 1 つでも増えれば、そちらが割れる。
+ * この関数は当てどころの一方で、両方が同時に沈黙する形にはなっていない。
+ *
+ * **末尾の `:` だけを見ない。**`if field == "qa_ref":` も同じ形をしていて、そちらは
+ * 落としてはいけない名指しである（`restore-discarded` が実際にこの形で 2 欄を扱う）。
+ * dict の鍵は `{` か `,` に続く、という**位置**で区別する。
+ */
+function withoutDictKeys(source: string): string {
+  return source.replace(/([{,]\s*)"[a-z_]+"\s*:/g, "$1");
+}
+
+/**
+ * 「戻さないと決めた」と**理由つきで記録された**欄（`retire-discarded`）。
+ *
+ * ── なぜ第三の行き先が要るか（2026-09-08）────────────────────
+ *
+ * 退避の行き先は「戻す」「黙って消える」の 2 択では足りない。**戻すべきでない欄**が在る。
+ * 実例が `approval_ref` で、その承認記録の note 自身が「利用者は『つづけて』と回答。
+ * **親エージェントが**当該変更提案への承認として確定した」と書いていた。
+ * 戻せば根拠の無い承認が確定セルの裏付けとして生き返る。かといって黙って消えたままにすると、
+ * `ah-nuu`（戻す窓口が無くて消えた）と見分けがつかない。
+ *
+ * ── これが例外リストにならない理由 ─────────────────────────
+ *
+ * **検査は欄の名前を 1 つも持たない。**読むのは spec-state に実在する記録だけで、
+ * その記録は `retire-discarded` writer を通ったものしか作れない——writer は理由を必須にし、
+ * 退避に無い欄・既にセルに在る欄・二重の取り下げを拒む。理由の無い記録は
+ * ここで数えないので、鍵だけ手で足しても検査は緩まない (fail-closed)。
+ *
+ * 加えて下の「棚卸し」が件数の天井を置く。取り下げが増殖して検査が空洞化する形は、
+ * そちらが先に赤くなる。
+ */
+function retiredFields(entries: readonly ReopenEntry[]): ReadonlySet<string> {
+  return new Set(
+    entries.flatMap((e) =>
+      Object.entries(e.retired_fields ?? {})
+        .filter(([, v]) => typeof v?.reason === "string" && v.reason.trim() !== "")
+        .map(([field]) => field),
+    ),
+  );
+}
+
+/** そのセル向けの reopen 記録だけ。 */
+function entriesFor(category: string, platform: string): readonly ReopenEntry[] {
+  return reopenLog.filter((e) => e.category === category && e.platform === platform);
 }
 
 describe("reopen で退避した欄が戻らない穴 (REQ-TS21 / ah-nuu の 5 度目を止める)", () => {
@@ -157,16 +219,15 @@ describe("reopen で退避した欄が戻らない穴 (REQ-TS21 / ah-nuu の 5 �
     expect(fieldsNamedIn("reopen"), "reopen が欄を名指ししている（一覧の再導入）").toEqual([]);
   });
 
-  it("(症状) 退避されたことのある欄は、いまその章の確定セルに戻っている", () => {
+  it("(症状) 退避されたことのある欄は、戻っているか、理由つきで取り下げられている", () => {
     const missing: string[] = [];
     for (const [category, platform, cell] of confirmedCells) {
-      const everDiscarded = new Set(
-        reopenLog
-          .filter((e) => e.category === category && e.platform === platform)
-          .flatMap((e) => Object.keys(e.discarded ?? {})),
-      );
+      const entries = entriesFor(category, platform);
+      const everDiscarded = new Set(entries.flatMap((e) => Object.keys(e.discarded ?? {})));
+      // 取り下げは**そのセルの記録**だけを見る。別のセルの取り下げでここが緩まない。
+      const retired = retiredFields(entries);
       for (const field of [...everDiscarded].sort()) {
-        if (!cell[field]) missing.push(`${category}/${platform}: ${field}`);
+        if (!cell[field] && !retired.has(field)) missing.push(`${category}/${platform}: ${field}`);
       }
     }
     expect(missing).toEqual([]);
@@ -195,15 +256,48 @@ describe("reopen で退避した欄が戻らない穴 (REQ-TS21 / ah-nuu の 5 �
       reopenLog.flatMap((e) => Object.keys(e.discarded ?? {})),
     );
     expect(everDiscarded.size, "退避された欄を 1 つも数えられていない").toBeGreaterThanOrEqual(4);
-    const unreachable = [...everDiscarded].filter(
-      (f) => !new Set([...heldFields, "qa_ref"]).has(f),
-    );
+    const reachable = new Set([...heldFields, "qa_ref", ...retiredFields(reopenLog)]);
+    const unreachable = [...everDiscarded].filter((f) => !reachable.has(f));
     expect(unreachable, "退避されたが確定セルの欄として存在しない").toEqual([]);
+  });
+
+  /**
+   * **取り下げの棚卸し。**第三の行き先が抜け道にならないよう、件数と形をここで締める。
+   *
+   * 天井 5 は現に取り下げた 5 セル分。**上げる向きには動かさない**——取り下げが増えるのは
+   * 「戻さないと決めた欄が増えた」ときだけで、それは人が判断した回数と一致するはずである。
+   * 増やすなら、増えた 1 件ずつについて判断の記録が在ることを人が確かめてからにする。
+   */
+  it("取り下げは理由つきで、対象の欄がセルに残っていない", () => {
+    const rows = reopenLog.flatMap((e) =>
+      Object.entries(e.retired_fields ?? {}).map(([field, meta]) => ({
+        where: `${e.category}/${e.platform}`,
+        field,
+        reason: meta?.reason,
+        cell: matrix[e.category ?? ""]?.[e.platform ?? ""],
+      })),
+    );
+
+    expect(rows.length, "取り下げが増えている（1 件ずつ判断の記録を確かめること）").toBe(5);
+    // 理由の無い取り下げは「黙って消えた」と区別がつかない。
+    expect(rows.filter((r) => typeof r.reason !== "string" || r.reason.trim() === "")).toEqual([]);
+    // 記録と実体の食い違い（取り下げた欄がセルに在る）を許さない。
+    expect(rows.filter((r) => r.cell && r.field in r.cell).map((r) => `${r.where}: ${r.field}`)).toEqual([]);
   });
 
   it("この検査自身が測れていることの確認 — 欄を 1 つ足せば (A) は割れる", () => {
     const excluded = new Set(machineFieldList());
     expect(excluded.has("__新しく生えた欄__")).toBe(false);
     expect(branchSource("__存在しない op__")).toBe("");
+  });
+
+  /**
+   * 記録の鍵を落とす判定が、**落としすぎても落とさなすぎてもいない**こと。
+   * 実装を読む前に合成した文字列で確かめる（実装が変わってもここは動かない）。
+   */
+  it("記録の鍵と欄の名指しを取り違えない", () => {
+    expect(withoutDictKeys('log = {"qa_ref": qa_ref}')).not.toContain('"qa_ref"');
+    expect(withoutDictKeys('if field == "qa_ref":')).toContain('"qa_ref"');
+    expect(withoutDictKeys('cell["qa_refs"] = value')).toContain('"qa_refs"');
   });
 });

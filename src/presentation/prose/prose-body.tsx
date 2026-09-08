@@ -357,8 +357,8 @@ function ProseImage({
   if (safe === null) return null;
   const sized = width !== null && height !== null;
   // 運営者入力の URL は寸法も許可ホストも事前確定できないため、最適化 API を経由しない。
-  // eslint-disable-next-line @next/next/no-img-element
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       alt={alt}
       className={sized ? className : `${className} ${styles.proseImageUnsized}`}

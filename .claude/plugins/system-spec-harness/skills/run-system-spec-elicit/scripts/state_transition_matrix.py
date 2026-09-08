@@ -2129,6 +2129,30 @@ def _last_discarded(state: dict, category: str, platform: str) -> "dict | None":
     return preserved
 
 
+def _last_reopen_entry(state: dict, category: str, platform: str) -> "dict | None":
+    """このセルの、退避を実際に持つ最後の reopen 記録そのもの。
+
+    `_last_discarded` は退避値だけを返す。取り下げの記録は**その記録の隣**へ置くので、
+    entry ごと要る。値だけ受け取ると、どの reopen に対する取り下げかが書けない。
+    """
+    found = None
+    for log_entry in state.get("reopen_log") or []:
+        if not isinstance(log_entry, dict):
+            continue
+        if log_entry.get("category") != category or log_entry.get("platform") != platform:
+            continue
+        discarded = log_entry.get("discarded")
+        if isinstance(discarded, dict) and discarded:
+            found = log_entry
+    return found
+
+
+def _retired_fields(log_entry: "dict | None") -> dict:
+    """その reopen 記録で「戻さない」と決められた欄。無ければ空。"""
+    retired = (log_entry or {}).get("retired_fields")
+    return retired if isinstance(retired, dict) else {}
+
+
 def _validated_reopen_qa_ref(state: dict, category: str, platform: str, op: dict) -> str:
     """reopen の根拠となる質疑 (`qa_ref`) を要求し、`qa_log` に実在することを確かめる。
 
@@ -2365,10 +2389,16 @@ def apply_cell_op(state: dict, op: dict) -> None:
                 f"restore-discarded: {category}/{platform} の reopen_log に退避された欄が無い"
                 " (書き戻せるのは退避された値だけで、無いものを作ることはしない)"
             )
+        retired = _retired_fields(_last_reopen_entry(state, category, platform))
         known = {entry.get("id") for entry in state.get("qa_log") or [] if isinstance(entry, dict)}
         pending: dict = {}
         for field in sorted(preserved):
             value = preserved[field]
+            if field in retired:
+                # `retire-discarded` で「戻さない」と決めた欄。飛ばさないと、
+                # 下の「戻せない欄が 1 つでもあれば止める」に毎回掴まって、
+                # このセルは二度と restore-discarded を呼べなくなる。
+                continue
             if field == "qa_ref":
                 # confirm が必ず書く欄なので、退避値で上書きするのは付け替えにあたる。
                 # 再確定が別の entry を引いているなら、それが現在の主張である。
@@ -2409,6 +2439,57 @@ def apply_cell_op(state: dict, op: dict) -> None:
                 "(退避された欄は全て再確定後のセルに在る)"
             )
         cell.update(pending)
+        return
+    if action == "retire-discarded":
+        # **退避した欄を「戻さない」と決めたことを、理由つきで記録する窓口。**
+        #
+        # なぜ要るか: `restore-discarded` は退避を全部戻す。だが**戻すべきでない**欄が
+        # 在りうる。2026-09-08 の実例は `approval_ref` で、その承認記録の note 自身が
+        # 「利用者は『つづけて』と回答。**親エージェントが**当該変更提案への承認として
+        # 確定した」と書いていた。利用者が特定の変更提案を承認した記録ではないので、
+        # 戻せば根拠の無い承認が生き返る。かといって黙って消えたままにすると、
+        # 「戻す窓口が無くて消えた」(`ah-nuu` の穴) と見分けがつかない。
+        #
+        # だから第三の行き先を作る。**`discarded` からは消さない。**
+        # `retire-chapter-note` と同じ形で、消す口と取り消す口を分けてある——
+        # 取り下げが誤りだったと分かったら、この記録を外せば `restore-discarded` が
+        # また拾う。消してしまうと、外すべき記録すら残らない。
+        #
+        # 塞げていないところ: 理由は writer が中身を見ない自由文である。
+        # 「戻さないと決めた」という事実と時点は残るが、その判断の妥当性は残らない。
+        if current != "確定":
+            raise TransitionError(
+                f"retire-discarded 不可: {category}/{platform} は '{current}' "
+                "(再確定したセルについてしか、退避を戻さないと決められない)"
+            )
+        field = op.get("field")
+        if not isinstance(field, str) or not field:
+            raise TransitionError(f"retire-discarded には field が必須: {category}/{platform}")
+        if not op.get("reason"):
+            raise TransitionError(
+                f"retire-discarded には reason が必須: {category}/{platform}/{field} "
+                "(理由の無い取り下げは、黙って消えたのと区別がつかない)"
+            )
+        log_entry = _last_reopen_entry(state, category, platform)
+        preserved = (log_entry or {}).get("discarded") or {}
+        if field not in preserved:
+            raise TransitionError(
+                f"retire-discarded: {category}/{platform} の退避に {field} が無い "
+                "(退避されていない欄を取り下げることはしない)"
+            )
+        if field in cell:
+            raise TransitionError(
+                f"retire-discarded: {field} は既に {category}/{platform} のセルに在る "
+                "(戻っている欄を取り下げると、記録と実体が食い違う。"
+                "外すなら、その欄を書いた op を見直すこと)"
+            )
+        retired = log_entry.setdefault("retired_fields", {})
+        if field in retired:
+            raise TransitionError(
+                f"retire-discarded: {category}/{platform} の {field} は既に取り下げ済み "
+                "(理由を書き換えるために二度呼ばない。記録は 1 度の判断に 1 つ)"
+            )
+        retired[field] = {"reason": op["reason"]}
         return
     if action == "restore-qa-refs":
         # **reopen で退避した `qa_refs` を、退避された値からだけ書き戻す窓口。**

@@ -95,16 +95,31 @@ def test_the_current_qa_ref_is_a_valid_ground() -> None:
 
 
 def test_the_existing_log_is_not_back_filled() -> None:
-    """正本の 124 件は `qa_ref` を持たないまま。**埋めたら記録が嘘になる。**
+    """門より前の 124 件は `qa_ref` を持たないまま。**埋めたら記録が嘘になる。**
 
-    ここが緑のまま「全件が qa_ref を持つ」へ変わったら、それは遡って埋めた合図である。
+    ── 当てどころを「全件が持たない」から床へ移した（2026-09-08）────
+
+    旧版は `not any("qa_ref" in entry ...)` だった。だが門は**今日以降の書込に qa_ref を
+    要求する**ので、正しい reopen が 1 件でも増えた日にこの検査は必ず赤くなる。
+    実際そうなった——dev 合流で 5 セルを開け直した 8 件が qa_ref を持つ。
+    **見張りたいのは増えた側ではなく、減った側である。**
+
+    だから床にする。持たない件数が 124 を**下回った**ときだけ赤くなる——それが
+    「その時に根拠が在った」という嘘を後から書き足した合figure である。新しい reopen が
+    いくら増えても、この 124 は動かない。
+
+    塞げていないところ: 124 件のうち 1 件を埋めて別の 1 件を捏造で足す、という
+    差引ゼロの改竄はここを通る。件数ではなく id で押さえるのが本筋だが、
+    そこまでの列挙はこの検査の主題 (遡及埋めの検出) を超える。
     """
     state_path = ROOT.parents[2] / "system-spec/spec-state.json"
     if not state_path.exists():  # plugin 単体で取り出したとき (正本が隣に無い)
         pytest.skip(f"正本が無い: {state_path}")
     log = json.loads(state_path.read_text(encoding="utf-8"))["reopen_log"]
     assert log, "reopen_log が空になっている (この見張りが何も見ていない)"
-    assert not any("qa_ref" in entry for entry in log), (
-        "既存の reopen_log に qa_ref が生えている。門は今日以降の書込にだけ効くはずで、"
-        "遡って埋めるのは「その時に根拠が在った」という嘘を作る"
+    without = [entry for entry in log if "qa_ref" not in entry]
+    assert len(without) >= 124, (
+        f"qa_ref を持たない reopen 記録が {len(without)} 件へ減っている。"
+        "門は今日以降の書込にだけ効くはずで、遡って埋めるのは"
+        "「その時に根拠が在った」という嘘を作る"
     )

@@ -1,5 +1,5 @@
 {
-  "graph_revision": 651,
+  "graph_revision": 674,
   "nodes": [
     {
       "acceptance": [],
@@ -14065,9 +14065,9 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-08T00:00:00Z",
+        "imported_at": "2026-09-09T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "304b260301083dd4e28f8e5c6094a8b0a659d6326ea2a88ed49389bad1e67403",
+        "source_digest": "cd74a7819a92e8491d20c9bc51397459415c07d3d3884c003ee3232c3c35f61c",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -14087,7 +14087,7 @@
       "template_version": "1.0.0",
       "title": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T02:34:59.402147Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15659,7 +15659,7 @@
       "source_lineage": {
         "imported_at": "2026-09-08T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "e1055c93f1a5b15c0e118b6dab8650b535c92c137130d5e6c85685dc9f98cced",
+        "source_digest": "3a64ad1a8ac30e22cabfc2aaa2cc3dd69df4c7d5ac0379465bb439a9a29ff353",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -17276,7 +17276,7 @@
       "source_lineage": {
         "imported_at": "2026-09-08T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "e1055c93f1a5b15c0e118b6dab8650b535c92c137130d5e6c85685dc9f98cced",
+        "source_digest": "3a64ad1a8ac30e22cabfc2aaa2cc3dd69df4c7d5ac0379465bb439a9a29ff353",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -18603,7 +18603,7 @@
       "source_lineage": {
         "imported_at": "2026-09-08T00:00:00Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "e1055c93f1a5b15c0e118b6dab8650b535c92c137130d5e6c85685dc9f98cced",
+        "source_digest": "3a64ad1a8ac30e22cabfc2aaa2cc3dd69df4c7d5ac0379465bb439a9a29ff353",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -21118,7 +21118,7 @@
       "source_lineage": {
         "imported_at": "2026-09-08T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "a60032df41060c1a2dd6de5258d1cdf5dc42883baf0590ea245454f0ee902e69",
+        "source_digest": "c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -21249,7 +21249,7 @@
       "source_lineage": {
         "imported_at": "2026-09-04T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "29aa61a24c6d2c8f117b334d8dc386e163f8a9e1f62a31f8ef3210e6ab8866dc",
+        "source_digest": "952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -21382,7 +21382,7 @@
       "source_lineage": {
         "imported_at": "2026-09-04T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "29aa61a24c6d2c8f117b334d8dc386e163f8a9e1f62a31f8ef3210e6ab8866dc",
+        "source_digest": "952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -21518,7 +21518,7 @@
       "source_lineage": {
         "imported_at": "2026-09-08T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "a60032df41060c1a2dd6de5258d1cdf5dc42883baf0590ea245454f0ee902e69",
+        "source_digest": "c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -30091,7 +30091,7 @@
       "source_lineage": {
         "imported_at": "2026-09-04T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "6c9b17fe84e10e0d2d01603fdd1c45c47bdcd75ecf4f1d34ed8ee00e6075f74a",
+        "source_digest": "3a64ad1a8ac30e22cabfc2aaa2cc3dd69df4c7d5ac0379465bb439a9a29ff353",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -30216,7 +30216,7 @@
       "source_lineage": {
         "imported_at": "2026-09-04T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "29c9e6c7be6c64d71cc39c3575795f6211a47129a089deb10f0a5971c9002f2c",
+        "source_digest": "952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -30372,7 +30372,7 @@
       "source_lineage": {
         "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
+        "source_digest": "c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -30498,7 +30498,7 @@
       "source_lineage": {
         "imported_at": "2026-09-07T15:53:28Z",
         "origin_kind": "generated",
-        "source_digest": "bd4cb7171cd7d1749f92b31c2a42b159b05b339c1d39d05d1daddc064ef6803e",
+        "source_digest": "952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -32071,7 +32071,7 @@
       "source_lineage": {
         "imported_at": "2026-09-07T14:07:47Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
+        "source_digest": "c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"

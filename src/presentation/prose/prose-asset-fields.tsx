@@ -197,7 +197,6 @@ export function ImageField({
       ) : (
         <>
           {/* 運営者入力の URL は寸法も許可ホストも事前確定できないため、最適化 API を経由しない。 */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           {/*
             **下絵の読み込みそのものを物差しに使う。**`new Image()` で測り直すと
             同じ絵を 2 度取りに行くことになる。ここに出ている絵は既に
@@ -206,6 +205,7 @@ export function ImageField({
             読み込みに失敗した絵は `onLoad` が呼ばれず、寸法は `null` のまま
             残る。**保存は落ちない。**測れないことは、書けないことではない。
           */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           {safeImageSrc(src) !== null ? <img alt={alt} className={styles.proseImage} onLoad={(e) => {
             const { naturalWidth, naturalHeight } = e.currentTarget;
             if (naturalWidth === 0 || naturalHeight === 0) return;

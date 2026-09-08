@@ -1,21 +1,21 @@
 {
  "target_id": "webmcp",
  "source_url": "https://webmachinelearning.github.io/webmcp/",
- "retrieved_at": "2026-09-03T22:38:16Z",
- "http_status": 200,
- "content_bytes": 460448,
- "content_sha256": "5e51db68bfec6124b961b1949d3d4139aca72662131441bc25afe7de96d64d39",
+ "retrieved_at": "2026-09-08T12:32:03Z",
+ "retrieval_method": {
+  "tool": "OpenAI web.open",
+  "note": "公式URLの本文は web.open の整形済み応答で確認した。生HTMLやHTTP応答そのものは保持していないため、content_bytes / content_sha256 / http_status は記録しない。"
+ },
+ "observed_line_count": 1552,
  "page_title": "WebMCP",
- "refetch_note": "2026-09-04 の出典鮮度監査 (R8 再走) が 1 日分の世代落ちを検出したため再取得した。前版は retrieved_at 2026-09-03T12:43:18Z / content_sha256 92356bcf9a59ca7a9a5a85778a5bd5a3f6325b3ca0cfdf3af7429459f3e0e0cd / value \"2026-09-02\" で、当時の本文とは逐語一致していた。**転記が誤っていたのではなく、上流が進んだ。**これは Community Group の rolling draft であり、日付は動き続ける。下の quoted_for_design 4 件は再取得後の本文にも逐語で在ることを確かめてから版を上げた (版だけ上げて根拠の生死を見ないと、切れた引用が残る)。",
+ "refetch_note": "2026-09-08 の独立鮮度監査が 2026-09-03 版から 2026-09-04 版への上流更新を検出したため再取得した。これは Community Group の rolling draft であり、転記誤りではなく上流更新である。既存の設計根拠に加え、現行版では getTools・executeTool・tool annotation の記述が増えていることを確認した。",
  "freshness_extraction": {
   "freshness_source": "page-declared",
-  "value": "2026-09-03",
+  "value": "2026-09-04",
   "found_in": [
-   "Draft Community Group Report, 3 September 2026",
-   "機械可読な版表示 (逐語): <time class=\"dt-updated\" datetime=\"2026-09-03\">3 September 2026</time>"
+   "Draft Community Group Report, 4 September 2026"
   ],
-  "http_last_modified": "Thu, 03 Sep 2026 18:23:59 GMT",
-  "note": "本文の版表示・<time datetime> 属性・HTTP Last-Modified の 3 つが同日で一致する。"
+  "note": "公式本文先頭の版表示を採用する。"
  },
  "quoted_for_design": [
   {

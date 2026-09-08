@@ -135,7 +135,10 @@ describe("本文編集の回復とキーボード", () => {
     fireEvent.click(screen.getByRole("button", { name: "画像を 1 つ上へ" }));
     input(screen.getByRole("textbox", { name: "段落" }), "送信中に加筆");
     await act(async () => finish("/api/article-images/new"));
-    expect(saved()).toEqual([{ kind: "image", src: "/api/article-images/new", alt: "" }, { kind: "paragraph", text: "送信中に加筆" }]);
+    // 画像は寸法欄 (width/height) を持つ。送信直後はまだ測っていないので `null`——
+    // **欄ごと無いのと、測っていないのは違う。**前者だと読み手は「寸法は要らない」と
+    // 読むが、後者は「入る場所は在るが、まだ入っていない」を意味する。
+    expect(saved()).toEqual([{ kind: "image", src: "/api/article-images/new", alt: "", width: null, height: null }, { kind: "paragraph", text: "送信中に加筆" }]);
   });
 
   it("複数画像の同時アップロードで先の結果を消さない", async () => {
@@ -145,7 +148,7 @@ describe("本文編集の回復とキーボード", () => {
       fireEvent.change(screen.getByLabelText(label), { target: { files: [new File(["image"], "a.png", { type: "image/png" })] } });
     }
     await act(async () => { finish[0]!("/api/article-images/left"); finish[1]!("/api/article-images/right"); });
-    expect(saved()).toEqual([{ kind: "image-row", images: [{ src: "/api/article-images/left", alt: "左" }, { src: "/api/article-images/right", alt: "右" }] }]);
+    expect(saved()).toEqual([{ kind: "image-row", images: [{ src: "/api/article-images/left", alt: "左", width: null, height: null }, { src: "/api/article-images/right", alt: "右", width: null, height: null }] }]);
   });
 
   it("プレビューへ切り替えても進行中の画像送信を保持する", async () => {

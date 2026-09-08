@@ -763,8 +763,6 @@
         "qa_refs": [
           "qa-seo-approved-diff-20260906",
           "qa-neutral-search-method-v6",
-          "qa-neutral-auto-scope-v6",
-          "qa-request-thumbnail-coverage-v6",
           "qa-answer-aeo-feasibility-v6",
           "qa-decision-aeo-data-sources-v5",
           "qa-database-web-blog-provisioning-integrity",
@@ -871,7 +869,6 @@
           "qa-uiux-web-top-composition-v6",
           "qa-request-thumbnail-coverage-v6",
           "qa-neutral-ogp-fallback-v6",
-          "qa-neutral-auto-scope-v6",
           "qa-ui-ux-web-creation-completion-feedback",
           "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
           "qa-uiux-web-seo-ai-search-v2",
@@ -9149,6 +9146,11 @@
             "unmet_blocking_items": 0
           }
         ]
+      },
+      "retired_fields": {
+        "approval_ref": {
+          "reason": "approval-seo-approved-diff-20260906 は承認記録ではない。その note 自身が「利用者は『つづけて』と回答。親エージェントが当該変更提案への承認として確定し」と書いている。『つづけて』は作業継続の指示であって、seo-change-proposal.md への承認ではない。戻せば根拠の無い承認が確定セルの裏付けとして生き返る。2026-09-08、利用者に3案 (取り下げ / 戻す / 改めて承認を出す) を示して確認し、取り下げが選ばれた。既に入っている SEO 仕様・実装の変更はそのままで、承認の記録だけを正す。"
+        }
       }
     },
     {
@@ -9185,6 +9187,11 @@
             "unmet_blocking_items": 0
           }
         ]
+      },
+      "retired_fields": {
+        "approval_ref": {
+          "reason": "approval-seo-approved-diff-20260906 は承認記録ではない。その note 自身が「利用者は『つづけて』と回答。親エージェントが当該変更提案への承認として確定し」と書いている。『つづけて』は作業継続の指示であって、seo-change-proposal.md への承認ではない。戻せば根拠の無い承認が確定セルの裏付けとして生き返る。2026-09-08、利用者に3案 (取り下げ / 戻す / 改めて承認を出す) を示して確認し、取り下げが選ばれた。既に入っている SEO 仕様・実装の変更はそのままで、承認の記録だけを正す。"
+        }
       }
     },
     {
@@ -9225,6 +9232,11 @@
             "unmet_blocking_items": 0
           }
         ]
+      },
+      "retired_fields": {
+        "approval_ref": {
+          "reason": "approval-seo-approved-diff-20260906 は承認記録ではない。その note 自身が「利用者は『つづけて』と回答。親エージェントが当該変更提案への承認として確定し」と書いている。『つづけて』は作業継続の指示であって、seo-change-proposal.md への承認ではない。戻せば根拠の無い承認が確定セルの裏付けとして生き返る。2026-09-08、利用者に3案 (取り下げ / 戻す / 改めて承認を出す) を示して確認し、取り下げが選ばれた。既に入っている SEO 仕様・実装の変更はそのままで、承認の記録だけを正す。"
+        }
       }
     },
     {
@@ -9288,6 +9300,11 @@
             "unmet_blocking_items": 0
           }
         ]
+      },
+      "retired_fields": {
+        "approval_ref": {
+          "reason": "approval-seo-approved-diff-20260906 は承認記録ではない。その note 自身が「利用者は『つづけて』と回答。親エージェントが当該変更提案への承認として確定し」と書いている。『つづけて』は作業継続の指示であって、seo-change-proposal.md への承認ではない。戻せば根拠の無い承認が確定セルの裏付けとして生き返る。2026-09-08、利用者に3案 (取り下げ / 戻す / 改めて承認を出す) を示して確認し、取り下げが選ばれた。既に入っている SEO 仕様・実装の変更はそのままで、承認の記録だけを正す。"
+        }
       }
     },
     {
@@ -9379,6 +9396,114 @@
         "required_info_checks": [
           {
             "checked_on": "2026-09-06",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      },
+      "retired_fields": {
+        "approval_ref": {
+          "reason": "approval-seo-approved-diff-20260906 は承認記録ではない。その note 自身が「利用者は『つづけて』と回答。親エージェントが当該変更提案への承認として確定し」と書いている。『つづけて』は作業継続の指示であって、seo-change-proposal.md への承認ではない。戻せば根拠の無い承認が確定セルの裏付けとして生き返る。2026-09-08、利用者に3案 (取り下げ / 戻す / 改めて承認を出す) を示して確認し、取り下げが選ばれた。既に入っている SEO 仕様・実装の変更はそのままで、承認の記録だけを正す。"
+        }
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "2026-09-08 独立マトリクス監査で asks_for 射程外の補助参照を検出したため、利用者回答の意味を変えず裏付け集合を再接地する",
+      "from": "確定",
+      "qa_ref": "qa-seo-approved-diff-20260906",
+      "discarded": {
+        "qa_ref": "qa-seo-approved-diff-20260906",
+        "qa_refs": [
+          "qa-seo-approved-diff-20260906",
+          "qa-neutral-search-method-v6",
+          "qa-neutral-auto-scope-v6",
+          "qa-request-thumbnail-coverage-v6",
+          "qa-answer-aeo-feasibility-v6",
+          "qa-decision-aeo-data-sources-v5",
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics",
+          "qa-database-web-article-image-verbatim",
+          "qa-database-web-domain-aeo-behavior",
+          "qa-database-web-audit-history-window-p13-v3",
+          "qa-database-web-aeo-analysis-storage-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-08",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "2026-09-08 独立マトリクス監査で asks_for 射程外の補助参照を検出したため、利用者回答の意味を変えず裏付け集合を再接地する",
+      "from": "確定",
+      "qa_ref": "qa-seo-approved-diff-20260906",
+      "discarded": {
+        "qa_ref": "qa-seo-approved-diff-20260906",
+        "qa_refs": [
+          "qa-seo-approved-diff-20260906",
+          "qa-uiux-web-top-composition-v6",
+          "qa-request-thumbnail-coverage-v6",
+          "qa-neutral-ogp-fallback-v6",
+          "qa-neutral-auto-scope-v6",
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2",
+          "qa-uiux-web-editor-verbatim",
+          "qa-uiux-web-blog-scoped-admin",
+          "qa-uiux-web-reader-experience-aeo-v4",
+          "qa-foundation-u1",
+          "qa-platform-scope"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-top-composition-v6"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-08",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -10072,7 +10197,7 @@
           "field": "constraints[5]",
           "kind": "written-requirements",
           "path": "docs/spec/01-要求仕様書-v1.0.md",
-          "section": "§21 (L1425)",
+          "section": "§17.2 (L1425)",
           "quote": "X APIは投稿作成に対応し、現在は従量課金型で提供されているため、投稿件数だけでなくAPI利用コストもConnector側で監視する。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
           "sealed_on": "2026-09-08",
@@ -12449,6 +12574,12 @@
         "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| OPS-REQ-001 | Queue/Cron の各ジョブに idempotency key、状態、試行回数、次回時刻、最終エラーを持たせ、無限再試行を禁止する |\n| OPS-REQ-002 | MetricRollup を生イベントから再構築でき、成果状態変更時は対象日を再集計して速報/確定を更新する |\n| OPS-REQ-003 | 投稿失敗/リンク切れ/プログラム終了/成果確定を Workspace 設定のチャネルへ通知し、dedupe key で利用者向け重複を抑止する |\n| OPS-REQ-004 | 計測 DB 障害中も既知リンクの転送を優先し、計測失敗は監査可能な再処理経路へ退避する |\n| OPS-REQ-005 | 公開/削除/リンク差し替え/権限変更/成果修正/エクスポートと、ジョブの成功/失敗/再試行を AuditLog へ残す |\n| OPS-REQ-006 | Connector ごとにレートとコスト上限を強制し、接近時は警告、超過時は外部呼び出しを自動停止する |\n| OPS-REQ-007 | Workspace 単位の記事/商品/リンク/成果エクスポートとテナント分離済み横断検索を提供する |\n| OPS-REQ-008 | 記事から外された画像の実体 (R2 オブジェクト) を刈り取る責務は maintenance-ops が持つ。記事の保存操作の中で即座に物理削除せず、参照されなくなった実体を後から掃除する定期ジョブとして回す |\n| OPS-REQ-009 | 孤児画像の猶予は一度も本文参照されていないものを 24 時間、本文から外れたものを保存時の detachment timestamp から 30 日とする。台帳の現在参照と構造化 JSON の復号した画像 ID を検査し、deleting（削除 claim）への遷移前に保護する。deleting（削除 claim）への遷移後は復帰させない。 |\n| OPS-REQ-010 | 掃除ジョブは定期実行で、台帳 500 件の公平な取得と article-images/ prefix 100 件の cursor/version CAS 走査を行う。deleting（削除 claim）→R2 delete→deleted 墓標の失敗は再実行可能にし、削除結果を監査記録へ残す。失敗応答を理由とした即時補償 delete は行わず、遅延 put による再出現も再回収する。 |",
         "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "壊れたときに戻す道と、ずれを直す順 (章にしか居場所が無かった 2 件)",
+        "body": "**以下は利用者の逐語ではない。**章にだけ在った 2 件の記述を、消えようのない場所へ移したものである。\n元は `qa-ops-web-rollback` / `qa-ops-web-drift-repair` という名の小節だったが、\n**この 2 つの ID は `qa_log` に存在しない**。どのセルの `qa_ref` / `qa_refs` /\n`required_info[].grounded_by` からも引かれておらず、`reopen_log[].discarded` にも現れない。\n章の側にだけ残っていた。書面の出典は `docs/spec/11-CI-CD・品質ゲート仕様.md` である。\n内容は変えず、見出しだけ改めた。\n\n## 公開後に壊れていると分かったときの戻し方 (旧 qa-ops-web-rollback)\n\n「デプロイ成功」はファイルが届いたことしか意味しない。\n\n- スモークテストが落ちたらワークフローを失敗させる。\n  **「デプロイは成功したがアプリは壊れている」を緑で通さない。**\n- 戻し方は `wrangler rollback`。手順を運用文書に書く。\n\n原則: デプロイは成功したがアプリは壊れている、を緑で通さない。確認が落ちたら\nワークフロー自体を失敗させる (`docs/spec/11-CI-CD・品質ゲート仕様.md#§4-3`)。\n\n## 実体と正本の形がずれて公開が落ちたときに直す順 (旧 qa-ops-web-drift-repair)\n\n台帳そのものを書き換えて揃えることは許さない。\n\n1. 出力の `missing` (不足) / `extra` (余り) / `changed` (同名異所属・異定義) を読む\n2. 自動公開の再実行で押し切らず、その環境の公開と手動適用を止める\n3. 必ず控えを取り、新しい番号の**前方修復マイグレーション**で実体を正本へ寄せる。\n   適用済みファイルは書き換えない。列削除は §4-1 の 2 段階の規範に従う\n4. ローカル D1 で前方修復と drift 検査を通し、対象環境の `migrate.yml` を\n   `APPLY` 付きで明示実行する。その後に通常の公開を再開する\n5. `d1_migrations` への直接 `INSERT` / `UPDATE` / `DELETE` は通常修復で行わない。\n   台帳破損のため前方移行自体を適用できない場合はこの手順の対象外とし、\n   所有者承認・復旧点・実測記録を持つ別の事故対応に切り替える\n6. `pnpm run db:drift --env dev` / `pnpm run db:drift --env production` で\n   `missing` / `extra` / `changed` がすべて 0 と確認してから公開する\n\n書面入力: `docs/spec/11-CI-CD・品質ゲート仕様.md` §4-1 / §4-1-2。",
+        "reason": "章にだけ在り、qa_log にも reopen_log にも対応 entry が無い 2 件 (rollback / drift-repair)。compile が退避棚へ引き継ぐだけで正本から再生成されず、章がバイト一致の床を永久に割っていた。内容は docs/spec/11-CI-CD・品質ゲート仕様.md §4-1 / §4-1-2 に対応する実質的な運用規範で、捨てられない。確定セルを巻き戻さず消えようのない場所へ移す。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "auth": [
@@ -12562,6 +12693,12 @@
         "heading": "To-Be（規範契約）",
         "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| INF-DB-01 | local / dev / production の各環境に `EDITORIAL_DB` と `COMMERCIAL_DB` を明示し、migration と backup / restore の対象を分離する。legacy `DB` は cutover 完了後に参照しない |\n| INF-REDIRECT-01 | `/go/{tracking_link_id}` の同期 read path は Redirect Resolver Store を正とし、D1 を読まない。初期実装は KV の `tracking_link_id → validated original_url + enabled + version` を Last Known Good（LKG）として保持し、検証済み更新の公開に失敗した場合は旧値を残す。hot entry は Cache API に補助キャッシュしてよいが、D1 fallback は禁止する |\n| INF-EVENT-01 | redirect response の確定と ClickEvent の計測を分離し、event enqueue は `waitUntil` で best-effort に行う。consumer が Commercial D1 へ idempotent append し、失敗は retry / dead-letter へ送る |\n| INF-OBS-01 | redirect、resolver、enqueue、consumer、D1 write を別の signal として計測する。最低限 `redirect_requests_total`、`redirect_302_total`、`resolver_hit/miss/error/stale_total`、`click_enqueue_attempt/accepted/failed_total`、`click_consumer_success/retry/dead_letter_total`、oldest-message age を持つ |\n| INF-IMG-01 | 記事画像は認証済み管理画面から同一生成元の Worker API へ送り、Worker が検証後に R2 binding で格納する。2026-09-06 の dec-article-image-upload-path 改訂に従い、旧署名付き URL によるブラウザ直接 PUT は採用しない。 |\n| INF-IMG-02 | オブジェクト鍵は article-images/workspace_id/article_id/一意なid.拡張子に統一し、サーバーだけが組み立てる。workspace と記事の所有関係は鍵の並びだけに頼らず、認可・台帳・保存時の制約で検証する。 |\n| INF-IMG-03 | 記事本文の画像参照は /api/article-images/{imageId} の不透明な ID を用い、R2 バケット URL や object_key を埋めない。配信口は台帳の ready 状態と公開本文参照または編集権限を検証し、保管場所の変更を本文から切り離す。 |\n| INF-IMG-04 | R2 への書き込みは Worker binding に限定し、ブラウザ向け直接 PUT/CORS 設定や署名発行を前提としない。管理 API は同一生成元の送信とサーバー側認証・認可を要求する。 |\n| INF-IMG-05 | 記事画像は 1 枚 8 MiB 以下の PNG/JPEG/WebP/GIF に限定する。API 入口と use-case で容量・実バイトの画像型を検証し、上限超過や不一致を R2 保存前に拒否する。multipart upload はこの契約に含めない。 |",
         "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "公開と復旧の運用規範 (章にしか居場所が無かった 4 件)",
+        "body": "**以下は利用者の逐語ではない。**章にだけ在った 4 件の記述を、消えようのない場所へ移したものである。\n元は `qa-infra-web-post-deploy-smoke` / `qa-infra-web-deploy-steps` / `qa-infra-web-branch-flow` /\n`qa-infra-web-schema-drift` という名の小節だったが、**この 4 つの ID は `qa_log` に存在しない**。\nどのセルの `qa_ref` / `qa_refs` / `required_info[].grounded_by` からも引かれておらず、\n`reopen_log[].discarded` にも現れない。章の側にだけ残っていた。書面の出典は\n`docs/spec/11-CI-CD・品質ゲート仕様.md` である。内容は変えず、見出しだけ改めた。\n\n## 公開が終わったあとの確認 (旧 qa-infra-web-post-deploy-smoke)\n\n「デプロイ成功」はファイルが届いたことしか意味しない。\n\n- スモークテストを **30 秒待つ → 1 回目 → 90 秒待つ → 2 回目** の二段構えで実行する。\n  Cloudflare Workers は旧版の実行環境を数十秒〜1〜2 分保持するため、\n  1 回だけの確認では反映を判定できない (直っているのに落ちる／壊れているのに通る、が両方起こる)。\n- スモークテストが落ちたらワークフローを失敗させる。\n  **「デプロイは成功したがアプリは壊れている」を緑で通さない。**\n\n原則: 届いたことと動いていることは別である。公開の成功をもって正常とみなさない\n(`docs/spec/11-CI-CD・品質ゲート仕様.md#§4-3`)。\n実行環境が入れ替わる途中で測らない。間隔を空けて 2 回測り、両方で判定する。\n\nトレードオフ: 公開のたびに待ち時間と確認 2 回ぶんが加算され所要時間が最低 2 分ほど延びる。\nスモークテスト自体が不安定だと正常な公開まで赤くなる。確認するのは叩いた経路だけで、\n叩いていない画面の故障は依然として通る。保持時間が想定より長い環境では 2 回目でも旧版を掴む\n可能性が残る。待ち時間を仕様に埋め込んだので、基盤側の挙動が変われば仕様の側も直す必要がある。\n\n## 通常の公開の並びと、その支点 (旧 qa-infra-web-deploy-steps)\n\n`deploy.yml` は dev / 本番のどちらでも、通常の公開を 1 本で完了させる。\n\n1. 控えを取る (`wrangler d1 export`)\n2. **中身が空でないことを確かめる。空ならそこで止まり、適用へ進まない**\n3. 成果物として 30 日保管する (落ちても控えが残るよう、適用より先に保存する)\n4. データの形を適用する\n5. 未適用が 0 件になったことを確かめる (公開の直前・§4-1-1)\n6. 実際の表・列・索引・トリガーが正本と合うことを確かめる (§4-1-2)\n7. アプリを公開する\n\n**2 が支点である。ここが通らなければ 4 は起きない。**\n\n- `deploy.yml` と `migrate.yml` は、同じ dev / production の D1 を同時に変更しない。\n  同一環境の concurrency group を共有し、先に始まったほうが台帳・形の確認まで終わるのを待つ。\n\n原則: 戻せない操作を機械にやらせる条件は 1 つだけである — 戻る先があること。控えを取るだけでなく、\n中身が空でないことを確かめ、適用より先に保管する (`docs/spec/11-CI-CD・品質ゲート仕様.md#§4-1`)。\n同じものを変えうる経路が 2 本あるなら同時に走らせない。片方の途中の状態を、もう片方が正本として読む。\n\nトレードオフ: 形を変えない公開でも控えの取得・検査・保管の 3 手が必ず走るため所要時間が延びる。\n30 日ぶんの成果物を保持するので保管量と費用が積み上がる。空でないことしか見ないので、\n中身が壊れている控えは通る (戻る先が在ることの保証は完全ではない)。同一環境への 2 経路が\n直列化するため移行中の公開は待ち行列に入り、片方が詰まると無関係な変更まで巻き添えで待つ。\ngroup を環境ごとに切る前提なので、環境名を誤ると別環境どうしが不要に直列化する。\n\n## 公開へ至る枝の順番を誰が守るか (旧 qa-infra-web-branch-flow)\n\n| `branch-flow.yml` | main への PR | 比較元の枝を見る | **なし** |\n\n`branch-flow.yml` を `ci.yml` に混ぜなかった理由は、見ているものが違うからである。\n`ci.yml` は**中身が正しいか**を、`branch-flow.yml` は**どこから来たか**を見る。\n混ぜると、枝の順番だけを守らせたい場面で検査一式が動く。\n\n| CI-AC-03 | ワークフローが壊すものの重さで分かれている (検査 / 枝の順番 / 公開 / 構造変更 / 深い門 / AI 評価 / Actions 使用量の 7 本) | — |\n| CI-AC-20 | `main` への PR は比較元が `dev` か `hotfix/*` でないとマージ前に落ちる | — |\n\n## 形を適用したあと、公開する前に確かめること (旧 qa-infra-web-schema-drift)\n\n置き場所は**適用の後・公開の前**でなければならない。適用の前に置くと、\n未適用の分がすべて「足りない」として出て、常に赤になる。\n`deploy.yml` と `migrate.yml` の両方に置く。**片方だけ緩いと、ずれはその片方から入る。**",
+        "reason": "章にだけ在り、qa_log にも reopen_log にも対応 entry が無い 4 件 (post-deploy-smoke / deploy-steps / branch-flow / schema-drift)。compile が退避棚へ引き継ぐだけで正本から再生成されず、章がバイト一致の床を永久に割っていた。内容は docs/spec/11-CI-CD・品質ゲート仕様.md に対応する実質的な運用規範で、捨てられない。確定セルを巻き戻さず消えようのない場所へ移す。",
         "recorded_with": "set-chapter-note"
       }
     ]

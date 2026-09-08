@@ -1,19 +1,21 @@
 {
  "target_id": "sqlite-fts5",
  "source_url": "https://www.sqlite.org/fts5.html",
- "retrieved_at": "2026-09-03T00:00:00Z",
- "http_status": 200,
- "content_bytes": 210915,
- "content_sha256": "aa965064eb7d3f5c2040edfba900e7d96ce88412fdb672176f4b3dcc8d89089c",
+ "retrieved_at": "2026-09-08T12:32:03Z",
+ "retrieval_method": {
+  "tool": "OpenAI web.open",
+  "note": "公式URLの本文は web.open の整形済み応答で確認した。生HTMLやHTTP応答そのものは保持していないため、content_bytes / content_sha256 / http_status は記録しない。"
+ },
+ "observed_line_count": 1974,
  "page_title": "SQLite FTS5 Extension",
+ "refetch_note": "2026-09-08 の独立鮮度監査で HTTP Last-Modified を再確認できなかったため、公式本文自身が表明する更新日時へ freshness 根拠を切り替えて再取得した。設計に使う組込トークナイザと trigram の記述、および末尾の更新日時を同じ取得結果で確認した。",
  "freshness_extraction": {
-  "freshness_source": "http-last-modified",
-  "value": "2026-08-27",
+  "freshness_source": "page-declared",
+  "value": "2026-08-01",
   "found_in": [
-   "HTTP Last-Modified: Thu, 27 Aug 2026 09:51:16 GMT"
+   "This page was last updated on 2026-08-01 20:38:41Z"
   ],
-  "http_last_modified": "Thu, 27 Aug 2026 09:51:16 GMT",
-  "note": "本文に更新日の表明が無いため HTTP ヘッダを由来として申告する。配信側の都合で動くため内容の更新日とは限らない。"
+  "note": "公式本文末尾の自己表明を採用する。HTTP ヘッダー値には依存しない。"
  },
  "quoted_for_design": [
   {
