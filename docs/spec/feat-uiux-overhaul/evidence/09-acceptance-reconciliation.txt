@@ -1,13 +1,13 @@
 # acceptance reconciliation（自動生成）
 
-- generated_at: 2026-09-08T03:40:06.924Z
+- generated_at: 2026-09-08T14:08:46.594Z
 - feature_id: feat-uiux-overhaul
 - implementation_status: pass
 - release_status: unpublished
 - tracking_status: active
 - acceptance_count: 10
 - evidence_file_count: 219
-- evaluated_digest: sha256:4bc992861c8e2e7d572b5a21db5ca76cd4da33dfa1297014a57539ed9dda8a84
+- evaluated_digest: sha256:11dcf6db10b78994c9e188f51db577070f9df7527ff244d2b9830e59bcfe982e
 - verdict: PASS
 
 ## 検査対象パターンと実測（下限 / 実測）
