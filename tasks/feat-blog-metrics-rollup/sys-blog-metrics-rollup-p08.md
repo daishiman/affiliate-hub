@@ -12,8 +12,8 @@ iteration: null
 title: "既存集計経路との重複解消と移行"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:44:38.145967Z"
-status: "active"
+updated_at: "2026-09-04T10:14:26Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P05"]
 related_nodes: []
 resource_scope: ["src/application/analytics/rollup-daily-metrics.ts","src/domain/analytics/daily-metrics.ts","docs/spec/feat-blog-metrics-rollup/migration-notes.md"]

@@ -12,8 +12,8 @@ iteration: null
 title: "非公開にしたら、GitHub Actions の月間使用量を口座単位で見張る"
 owners: ["daishiman"]
 created_at: "2026-08-17T23:30:00Z"
-updated_at: "2026-08-24T12:00:00Z"
-status: "done"
+updated_at: "2026-09-08T07:22:04.709424Z"
+status: "draft"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs","cicd"]
@@ -30,22 +30,22 @@ phase_ref: null
 file_path: "tasks/task-actions-usage-monitor.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "confirmed"
+confirmation_status: "draft"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
 source_lineage: {"imported_at":"2026-08-17T23:30:00Z","origin_kind":"manual","source_digest":null,"source_path":"docs/product/ci-cd-guide.md","source_plugin":null,"source_version":null}
 classification_confidence: 0.9
-classification_reason: "公開中は安全に skip し、非公開化と token 登録後に同じ workflow が口座単位の使用量監視へ切り替わる実装タスク"
+classification_reason: "使用量監視は非公開化を前提条件とする後追い作業で、いまは実施条件が成立していない"
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-actions-usage-monitor.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: {"bd_issue_id":"ah-xp8","github_mirror":null,"linked_at":"2026-08-24T12:00:00Z","sync_state":"linked"}
+beads_linkage: {"bd_issue_id":"ah-xp8","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-24T12:00:00Z","evidence_refs":["beads:ah-xp8",".github/workflows/actions-usage.yml","scripts/actions-usage.mjs","tests/architecture/actions-usage.test.ts","docs/product/ci-cd-guide.md"],"policy":"manual","reconciled_at":"2026-08-24T12:00:00Z","source":"manual","status":"done"}
-implementation_readiness: {"checked_at":"2026-08-24T12:00:00Z","missing_sections":[],"status":"complete"}
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
+implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 
 # 目的

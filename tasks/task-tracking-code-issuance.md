@@ -12,7 +12,7 @@ iteration: null
 title: "公開のときに合言葉を発行して、転送の写しを作る"
 owners: ["daishiman"]
 created_at: "2026-08-18T00:00:00.000000Z"
-updated_at: "2026-08-18T00:00:00.000000Z"
+updated_at: "2026-09-08T07:25:34.063992Z"
 status: "draft"
 depends_on: ["task-click-tracking-go-route"]
 related_nodes: []
@@ -38,7 +38,7 @@ classification_reason: "転送経路（task-click-tracking-go-route）の書き�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-tracking-code-issuance.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-dok","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

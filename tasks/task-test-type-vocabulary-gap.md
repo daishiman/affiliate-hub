@@ -9,17 +9,17 @@ priority: "medium"
 start_date: "2026-08-19"
 target_date: null
 iteration: null
-title: "語彙に無いという理由で未宣言に残った要件が 8 件たまった"
+title: "語彙に無いという理由で未宣言に残った要件が 4 件たまった"
 owners: ["daishiman"]
 created_at: "2026-08-19T05:10:00Z"
-updated_at: "2026-08-19T08:30:00Z"
-status: "done"
+updated_at: "2026-09-08T07:36:08.251521Z"
+status: "draft"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs","tests"]
 purpose: null
 goal: null
-mvp_alignment: {"background":"実装にも検査にも問題は無いのに、付ける名前が語彙に無いという理由で宣言できない要件が 8 件たまった（2026-08-19 の FD 群で 4 件から倍になった）","mvp_fit":"enabling","purpose":"性質の語彙の不足を 1 件として扱い、足すか足さないかを決める","rationale":"1 件ずつなら「仕方ない」で流れるが、8 件たまった時点でこれは個別の残り物ではなく語彙の不足である。うち 4 件は同じ形（実装をどこに置いてよいかの禁止）で揃っている"}
+mvp_alignment: {"background":"実装にも検査にも問題は無いのに、付ける名前が語彙に無いという理由で宣言できない要件が 4 件たまった","mvp_fit":"enabling","purpose":"性質の語彙の不足を 1 件として扱い、足すか足さないかを決める","rationale":"1 件ずつなら「仕方ない」で流れるが、4 件たまった時点でこれは個別の残り物ではなく語彙の不足である"}
 scope_in: []
 scope_out: []
 acceptance: []
@@ -30,16 +30,16 @@ phase_ref: null
 file_path: "tasks/task-test-type-vocabulary-gap.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "done"
+confirmation_status: "draft"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
 source_lineage: {"imported_at":"2026-08-19T05:10:00Z","origin_kind":"manual","source_digest":null,"source_path":"docs/product/required-test-types.md","source_plugin":null,"source_version":null}
 classification_confidence: 0.9
-classification_reason: "TS06 / TS09 / TS10 / TM12 が同じ理由で未宣言に残ったため 4 件を 1 つの不足として立て、2026-08-19 に FD01 / FD04 / FD05 / FD06 を足して 8 件にした"
+classification_reason: "TS06 / TS09 / TS10 / TM12 が同じ理由で未宣言に残ったため、4 件を 1 つの不足として立てた"
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-test-type-vocabulary-gap.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-w9k","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

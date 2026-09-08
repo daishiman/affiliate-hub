@@ -12,7 +12,7 @@ iteration: null
 title: "鍵の登録画面の断りを、利用者本人が画面で 1 周見る"
 owners: ["daishiman"]
 created_at: "2026-08-19T13:00:00Z"
-updated_at: "2026-08-19T13:00:00Z"
+updated_at: "2026-09-08T07:46:42.113099Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-llm-settings-auth-gate"]
@@ -39,7 +39,7 @@ classification_reason: "task-llm-settings-auth-gate から目視の分だけを�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-llm-settings-auth-gate-eyes.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-f7v","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

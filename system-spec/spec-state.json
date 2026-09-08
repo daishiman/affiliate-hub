@@ -869,8 +869,9 @@
     "ui-ux": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-uiux-web-editor-verbatim",
+        "qa_ref": "qa-uiux-web-site-scoped-authoring-ia",
         "qa_refs": [
+          "qa-uiux-web-site-scoped-authoring-ia",
           "qa-uiux-web-editor-verbatim",
           "qa-uiux-web-blog-scoped-admin",
           "qa-ui-ux-web-creation-completion-feedback",
@@ -912,7 +913,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-05",
+            "checked_on": "2026-09-09",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -1125,8 +1126,9 @@
     "frontend": {
       "web": {
         "state": "確定",
-        "qa_ref": "qa-frontend-web-editor-verbatim",
+        "qa_ref": "qa-frontend-web-site-scoped-route-ownership",
         "qa_refs": [
+          "qa-frontend-web-site-scoped-route-ownership",
           "qa-frontend-web-editor-verbatim",
           "qa-frontend-web-blog-scoped-admin",
           "qa-frontend-web-blog-composition-visibility",
@@ -1147,7 +1149,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-05",
+            "checked_on": "2026-09-08",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -4169,6 +4171,96 @@
           ]
         }
       ]
+    },
+    {
+      "id": "qa-uiux-web-site-scoped-authoring-ia",
+      "question": "ui-ux×web: 記事・読者像・書き方の決め事を、いまの全体横断の管理からブログ単位の管理へ移すか。移す場合、横断画面には何を残し、いま 93 本ある管理画面で『どこで何をするか』をどう分かるようにするか",
+      "answer": "移す。いま管理画面は記事ごとに管理する形で、サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理するべきところを、全体で構成する形になっている。そのため UI/UX の認知負荷が高い。認知負荷を下げるために、サイトごとに構成する。記事・読者像・書き方の決め事は、全ブログで共通の資産ではなくブログごとに異なるため、ブログに属するものとして扱う。全体で 1 つだけ持つと、書き手は『いま自分がどのブログの決め事を見ているのか』を画面の外で覚えておく必要があり、これが認知負荷の主因になる。横断画面はブログ間の比較と『どのブログに手を入れるべきか』だけを担い、記事単位の数字は出さない (既に確定済みの qa-uiux-web-blog-scoped-admin の役割分担を踏襲する)。記事ごと・サイトごとの結果一覧やグラフは在るほうが良いので残す。ただし今回作るのは『どの画面のどこに、どの順で出すか』という提示設計に限り、新しい指標や集計は作らない。指標の正本は既存の site_daily_metrics / article_daily_metrics のままとする。現在どこで何をするのか直感的に分からない点については、画面を『作業の対象物』(ブログ・記事・読者・商品・配信) で束ね、各入口には日本語の動詞で『ここで何ができるか』を書く。93 本ある管理ルートをこの束ね方で一段に畳み、入口の数を作業の対象物の数まで減らす。誤操作コストの高い操作 (ブログ設定・ドメイン・公開) は確認を挟み、低い操作 (下書きの編集) は直接編集にする",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "情報は、それが属する対象物のところに置く",
+          "applicability": "applied",
+          "rationale": "読者像と書き方の決め事はブログごとに違うため、本来はブログに属する。全体で 1 つ持つと、画面上のどこにも『どのブログのものか』が書かれず、書き手が自分の頭で保持することになる。ブログ配下へ置けば、いま見ているブログが URL と画面の見出しに出るので、覚えておく必要が消える",
+          "tradeoffs": [
+            "ブログをまたいで書き方の決め事を揃えたい場合、今の作りでは 1 か所を直せば済んだものが、ブログの数だけ直す作業になる。共通の雛形から複製する経路が別途要る"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md#トレードオフ・失敗モード",
+          "principle": "入口の数は、作業の対象物の数まで減らす",
+          "applicability": "applied",
+          "rationale": "管理ルートが 93 本あり、入口が作業の単位ではなく機能の単位で並んでいるため、目的の画面に辿り着く前にどれが自分の作業かを判断する手間が挟まる。対象物 (ブログ・記事・読者・商品・配信) で束ねれば、最初の判断は『何を触るか』の 1 回で済む",
+          "tradeoffs": [
+            "束ねた入口の下は階層が 1 段深くなるので、毎日同じ画面だけを開く使い方では往復が増える。よく使う画面への近道を別に用意する必要がある"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "確認を挟むかどうかは、誤操作の取り返しにくさで決める",
+          "applicability": "applied",
+          "rationale": "同じ画面の中でも、下書きの編集は間違えても書き直せるが、ドメイン設定と公開は読者から見える状態を壊す。全部に確認を挟むと日常の編集が重くなり、全部を直接編集にすると壊れたときに戻せない。取り返しにくさで分ける",
+          "tradeoffs": [
+            "取り返しにくさの見積もりは運用してみないと分からない部分があり、確認を挟む境界は実際の事故で調整することになる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-frontend-web-site-scoped-route-ownership",
+      "question": "frontend×web: ブログ単位へ移す画面の URL 階層をどう決め、いまの横断 URL (/admin/content/*, /admin/blog/*) からの移行をどう扱うか",
+      "answer": "/admin/sites/[site]/ を正本の階層とし、記事・読者像・書き方の決め事もこの配下へ置く。ブログを特定しない画面 (ブログ一覧・ブログ間比較) だけが /admin/sites とその上位に残る。既存の /admin/content/* と /admin/blog/* は消さずに転送で受け、ブログが特定できる場合は対応する /admin/sites/[site]/... へ、特定できない場合はブログ選択へ送る。既存の入口を突然消すと、書き手が覚えている経路と保存済みのリンクが一斉に死ぬためである。site セグメントが解決できないときは notFound とし、他ブログの内容を出さない。画面には『いまどのブログを見ているか』を常に出し、ブログの切替は同じ画面のまま別ブログへ移れる形にする",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "information-design.md#中核概念",
+          "principle": "URL の階層は、画面が属する対象物と一致させる",
+          "applicability": "applied",
+          "rationale": "画面がブログに属するなら URL もブログの下に置く。そうすると『いまどのブログか』が URL に出るので、画面の中で別途表示しなくても文脈が保たれ、リンクを共有したときも相手が同じ文脈で開く",
+          "tradeoffs": [
+            "ブログをまたぐ一括操作は URL 上の置き場所が無くなる。横断側に別の入口を作る必要がある"
+          ]
+        },
+        {
+          "knowledge_ref": "information-design.md#トレードオフ・失敗モード",
+          "principle": "移行時に既存の入口を消さず転送で受ける",
+          "applicability": "applied",
+          "rationale": "書き手は経路を身体で覚えており、保存済みのリンクもある。階層を変えた瞬間に旧経路を消すと、変更と無関係な作業まで止まる。転送で受ければ、覚え直しは自分のペースで進む",
+          "tradeoffs": [
+            "転送を残すぶん経路が二重になり、どちらが正本かを検査で固定しないと新しい画面と古い画面が併存したまま放置される"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qa-foundation-u9-site-scoped-admin",
+      "question": "U9 (具体的にやりたいこと) への追加: 管理画面の構成について、いま何を不便に感じていて、どう変えたいか。また、結果一覧やグラフの扱いと、既存 feature との関係をどうするか",
+      "answer": "現状、記事を作成するための管理画面は、記事ごとに管理する形になっています。サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理するべきところを、全体で構成する形になっています。そのため、UI/UXの認知負荷が高くなっています。認知負荷を下げるために、サイトごとに構成した方が良いと考えます。ただし、記事ごとやサイトごとの結果一覧やグラフなどはある方が良いと思います。現在、どこで何をするのか直感的にわからないため、この辺を整えてください。 / 追加確認 1 (feature 方針): 新規 feature を立てる。 / 追加確認 2 (分析の範囲): 既存指標の見せ方だけ。",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "u": "U9"
+        }
+      ]
     }
   ],
   "approval_log": [
@@ -4195,6 +4287,10 @@
     {
       "id": "approval-article-image-upload-path-worker-20260906",
       "note": "2026-09-06の確認『画像送信を、確定仕様の「R2へ直接送信」から、現実装の「Workerで認可・容量・形式を検査して保存」に統一してよいですか？』に対し、利用者が逐語で『ok』と回答。yesはWorker方式への統一、noは2026-09-05に承認した直接PUTの維持を意味する文脈だった。以前の選択はapproval-article-image-upload-pathに保持し、今回の回答で置換する。"
+    },
+    {
+      "id": "approval-foundation-site-scoped-admin-20260908",
+      "note": "2026-09-08 の利用者要望の逐語: 「現状、記事を作成するための管理画面は、記事ごとに管理する形になっています。サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理するべきところを、全体で構成する形になっています。そのため、UI/UXの認知負荷が高くなっています。認知負荷を下げるために、サイトごとに構成した方が良いと考えます。ただし、記事ごとやサイトごとの結果一覧やグラフなどはある方が良いと思います。現在、どこで何をするのか直感的にわからないため、この辺を整えてください。」加えて AskUserQuestion で 2 点を確認し、利用者が (1)「新規 feature を立てる」(2)「既存指標の見せ方だけ」を選択した。これにより U9 へ I9 を追加する。"
     }
   ],
   "reopen_log": [
@@ -8000,6 +8096,99 @@
           }
         ]
       }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "管理画面を記事単位・全体横断の構成からブログ (サイト) 単位の構成へ組み替える要望を新たに受けた。記事・読者像・書き方の決め事の所属先と、93 本ある管理入口の束ね方は既存の確定回答が扱っていない論点なので、裏付けを足して再確定する",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-editor-verbatim",
+        "qa_refs": [
+          "qa-uiux-web-editor-verbatim",
+          "qa-uiux-web-blog-scoped-admin",
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2",
+          "qa-uiux-web-reader-experience-aeo-v4",
+          "qa-foundation-u1",
+          "qa-platform-scope"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-blog-scoped-admin"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "管理画面をブログ単位へ組み替えるにあたり、記事系画面の URL 階層の所属先と旧 URL からの移行方針が新たな論点になった。既存の確定回答はブログ配下の画面群の存在までで、記事系の所属替えと転送を扱っていない",
+      "from": "確定",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-editor-verbatim",
+        "qa_refs": [
+          "qa-frontend-web-editor-verbatim",
+          "qa-frontend-web-blog-scoped-admin",
+          "qa-frontend-web-blog-composition-visibility",
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2",
+          "qa-frontend-web-aeo-emission-v4"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -8246,10 +8435,19 @@
           "G3",
           "G1"
         ]
+      },
+      {
+        "id": "I9",
+        "text": "記事を作成するための管理画面を、サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理する形へ構成し直し、UI/UXの認知負荷を下げる。記事ごとやサイトごとの結果一覧やグラフなどはある方が良いので残し、扱いは既存指標の見せ方だけとする。どこで何をするのか直感的にわからないため、この辺を整える。新規 feature を立てる",
+        "serves": [
+          "G1",
+          "G2",
+          "G3"
+        ]
       }
     ],
     "confirmed": true,
-    "approval_ref": "approval-foundation-2",
+    "approval_ref": "approval-foundation-site-scoped-admin-20260908",
     "provenance": {
       "scope": {
         "source_qa_id": "qa-foundation-u7",
@@ -8431,7 +8629,7 @@
           "section": "§32 (L2441)",
           "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8442,7 +8640,7 @@
           "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8452,7 +8650,7 @@
           "section": "§27.1",
           "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8462,7 +8660,7 @@
           "section": "§27.1",
           "quote": "単なる生成数や投稿数を中心指標にしない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8472,7 +8670,7 @@
           "section": "§7.1 (L489)",
           "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8482,7 +8680,7 @@
           "section": "L475",
           "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8492,7 +8690,7 @@
           "section": "§30.8",
           "quote": "次の経路を双方向に追跡できる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8502,7 +8700,7 @@
           "section": "§30 (L2278)",
           "quote": "## 30.1 URL登録\n\n* アフィリエイトURLを元の状態で保存できる\n* 商品を識別できる\n* 不確実な場合は確認待ちになる\n* 情報源を確認できる\n* 危険なURLを拒否できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8512,7 +8710,7 @@
           "section": "L683",
           "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8522,7 +8720,7 @@
           "section": "§2.2",
           "quote": "* 自分に合う商品か判断できる\n* 商品の長所だけでなく弱点も確認できる\n* 他の商品との違いが分かる\n* おすすめの根拠を確認できる\n* 広告・アフィリエイトであることを認識できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8532,7 +8730,7 @@
           "section": "§2.3",
           "quote": "* 商品調査を媒体ごとに繰り返さなくてよい\n* 一つの情報から複数媒体向けコンテンツを作れる\n* 自分らしい文章表現を維持できる\n* 読者層ごとに文章を変えられる\n* 複数ブログを一つの管理画面で運営できる\n* アフィリエイトリンクを一元管理できる\n* 公開済みコンテンツの古い情報を検出できる\n* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8542,7 +8740,7 @@
           "section": "§25 (L2006-2019)",
           "quote": "| Researcher         | 商品、比較、根拠        |\n| Writer             | 原稿、生成、修正        |\n| Reviewer           | 事実、表現、広告確認      |\n| Publisher          | 予約、公開、更新        |\n| Analyst            | 分析、レポート         |",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8552,7 +8750,7 @@
           "section": "§2.1 (L85)",
           "quote": "> 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8562,7 +8760,7 @@
           "section": "§3.1 (L121)",
           "quote": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8572,7 +8770,7 @@
           "section": "§3.4 (L184)",
           "quote": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8582,7 +8780,7 @@
           "section": "§3.4 (L186)",
           "quote": "一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8592,7 +8790,7 @@
           "section": "§10.1 (L767)",
           "quote": "`original_url` は、成果計測に必要な情報を保持するため変更しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8602,7 +8800,7 @@
           "section": "§20 (L1614)",
           "quote": "日本では、広告であるにもかかわらず広告であることを判別しにくい表示が、景品表示法上のステルスマーケティング規制の対象となる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8612,7 +8810,7 @@
           "section": "§5.5 (L326)",
           "quote": "外部公開、予約投稿、個人情報送信、アフィリエイトリンク挿入などの重要操作は、原則として人間の確認を経る。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8622,7 +8820,7 @@
           "section": "§1 (L38)",
           "quote": "同一商品・類似商品・比較候補を抽出",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8632,7 +8830,7 @@
           "section": "§1 (L44)",
           "quote": "ブログ・X・Instagram・Threads・note等の媒体別に文章を生成",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8642,7 +8840,7 @@
           "section": "§1 (L50)",
           "quote": "クリック・成果・反応を収集",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8652,7 +8850,7 @@
           "section": "§27.5 (L2174)",
           "quote": "商品の編集評価には自動反映しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8662,7 +8860,7 @@
           "section": "§21 (L1425)",
           "quote": "X APIは投稿作成に対応し、現在は従量課金型で提供されているため、投稿件数だけでなくAPI利用コストもConnector側で監視する。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8673,7 +8871,7 @@
           "quote": "利用者の指示: 「この共有しているブログよりも、UI/UX をさらに良くして」「見えない部分の情報も含めて、どのようにしたら SEO に強いか」「ブログ用のエディターの部分も改善」「SEO や AIO、AI の SEO のようなものに対しても対応できるように」「AEO,SEO 対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしい」。参考は makuring.jp から hitodeblog.com/blog-money-sikumi へ変更。",
           "note": "G3 の四要素 (UI/UX を良くする・SEO に強い構成・AEO 対応・解析して反映する仕組み) は、この一文で利用者自身が述べている",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8684,7 +8882,7 @@
           "quote": "公開済み記事1本ごとに、上記のうち検証可能な項目の充足を判定する純粋関数を置く。判定は記事の保存実体だけを入力とし、外部の順位データや推測を混ぜない。判定結果は項目名・該当箇所・不足理由を持ち、管理画面のエディターへそのまま差し戻せる形で返す。アーキテクチャテストで、この判定関数が読者向け描画と同じ投影を読んでいることを機械が確認する。",
           "note": "O3 前半『機械可読要素の充足を判定する』の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8695,7 +8893,7 @@
           "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
           "note": "O3 後半『欠落を公開前に検出する』の出所 (編集中に同じ画面へ出す、と述べている)",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8706,7 +8904,7 @@
           "quote": "公開済み記事の保存実体を入力に、検証可能な項目の充足を判定する純粋関数をドメイン層に置く。判定項目は index 可否 (noindex/robots)・canonical の有無・JSON-LD の型と必須プロパティ・見出し階層の妥当性 (本文外見出しの混入なし)・画像の alt 被覆と width/height・広告リンクの rel・最終更新日の表示・結論/FAQ/手順/出典ブロックの有無・最終更新からの経過日数。各項目は充足/不足/対象外の3値と、不足時の該当箇所を返す。順位・流入・引用率のような外部由来の推定値は判定に含めない。含めると、確かめられない数字を根拠に記事を書き換えることになる。",
           "note": "測る対象の列挙。O3.measure の項目はこの一文の判定項目と一対一で対応する",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8717,7 +8915,7 @@
           "quote": "(a) 画像 alt の被覆率を100%にする。alt が空の画像は公開前に欠落として名指しで提示し、装飾画像は明示的に装飾と宣言したときだけ空 alt を許す。参考サイトは83枚中8枚しか無く、読み上げでも画像検索でも情報が落ちている。\n(b) 目次は1記事につき1つの見出しリストだけを支援技術へ露出する。追従表示 (サイドバー) と本文内表示を両方出す場合でも、同じ見出しを2度読み上げさせない。参考サイトはここが二重になっている。\n(c) 本文外の導線 (関連記事・SNS・広告) に h2 を使わず、本文の見出し階層を汚さない。参考サイトは本文外 h2 が13個あり主題がぼやけている。\n(d) 構造化データは Article/BlogPosting・Person (著者)・Organization・BreadcrumbList に加え、FAQ ブロックから FAQPage、手順ブロックから HowTo、結論ブロックから Speakable を出す。参考サイトはこの3種が無く、設問に答える形の引用元になりにくい。",
           "note": "参考サイト実測に対して上回る 4 点 (alt 被覆・目次の重複・本文外見出し・構造化データ種別) の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8728,7 +8926,7 @@
           "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
           "note": "公開前にエディター上で名指しし、その場で直せる、という形の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8739,7 +8937,7 @@
           "quote": "左サイドバーに、検索窓・カテゴリー・タグ・ブランドから探す導線を置き、分類ごとにアイコンを添える。アイコンは既存の共通アイコン層 (lucide 由来の役割名) の語彙で表し、分類ごとに独自 SVG を増やさない。目次はスクロール追従し、現在読んでいる節を示す。広告と本文は視覚的に区別し、広告リンクは rel を機械にも読者にも明示する。狭い画面では追従目次を折りたたみ、本文の可読幅を優先する。",
           "note": "I5 の読者向け画面 (検索窓・分類導線・アイコン・追従目次・広告の区別) の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8750,7 +8948,7 @@
           "quote": "(a) 画像 alt の被覆率を100%にする。alt が空の画像は公開前に欠落として名指しで提示し、装飾画像は明示的に装飾と宣言したときだけ空 alt を許す。参考サイトは83枚中8枚しか無く、読み上げでも画像検索でも情報が落ちている。\n(b) 目次は1記事につき1つの見出しリストだけを支援技術へ露出する。追従表示 (サイドバー) と本文内表示を両方出す場合でも、同じ見出しを2度読み上げさせない。参考サイトはここが二重になっている。\n(c) 本文外の導線 (関連記事・SNS・広告) に h2 を使わず、本文の見出し階層を汚さない。参考サイトは本文外 h2 が13個あり主題がぼやけている。",
           "note": "I5 の『参考サイトの弱点を繰り返さない』が指す 3 点の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8761,7 +8959,7 @@
           "quote": "機械可読要素は記事の保存実体から導出する。人手で別途書き足す前提の欄を作らない。書き足しが要るのは『元データが無い情報』(著者の経歴・出典 URL・FAQ の設問文) だけで、それ以外 (見出し階層・パンくず・公開日・更新日・画像寸法) は保存実体から計算する。読者面と管理画面プレビューは同じ public-site-projection を通し、描画経路を二重に持たない。",
           "note": "I6 の『人手で書き足す前提にしない』の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8772,7 +8970,7 @@
           "quote": "(1) JSON-LD: Article/BlogPosting・Person (著者)・Organization・BreadcrumbList を常時、FAQ ブロックがあれば FAQPage、手順ブロックがあれば HowTo、結論ブロックがあれば Speakable を出す。schema.org の型と必須プロパティを検証する純粋関数を置き、テストで妥当性を確認する。ブロックが無い記事に空の構造化データを出さない。\n(2) head: canonical、og:type/title/url/description/image/site_name、twitter:card=summary_large_image、robots に max-image-preview:large を出す。\n(3) 画像: width/height を必ず出して読み込み中の版面ずれを防ぎ、本文外の画像は遅延読み込み、ヒーロー画像は先読みする。alt は保存実体の値をそのまま出し、空を許すのは装飾宣言済みのときだけ。\n(4) 見出し: 本文の見出しだけを h2/h3 として出し、関連記事・SNS・広告の見出しは本文階層に混ぜない。\n(5) 目次: 追従表示と本文内表示のどちらを出しても、支援技術へ露出する見出しリストは1つに保つ。\n(6) リンク: 広告・アフィリエイトリンクには rel に sponsored (必要に応じ nofollow) を機械的に付ける。付け忘れを手作業に委ねない。",
           "note": "I6 が列挙する機械可読要素の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8783,7 +8981,7 @@
           "quote": "解析結果は2つの経路で反映する。(a) 管理画面の記事エディターへ、不足項目を名指しで差し戻す。書き手はその場で直せる。(b) 記事一覧に充足度を出し、どの記事から直すべきかを判断できるようにする。自動で本文を書き換えない。自動書き換えは、書き手が読んでいない文章が公開される状態を作る。",
           "note": "I7 の『不足を名指しで管理画面へ差し戻す』の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -8794,8 +8992,14 @@
           "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
           "note": "I8 のエディター改善 (ブロック既定配置・alt 入力の促し・見出し階層・充足度表示) の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-04",
+          "sealed_on": "2026-09-08",
           "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "concrete_intents[8]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-foundation-u9-site-scoped-admin",
+          "note": "I9 の出所。U9 への追加を 1 論点として索引した対話 entry で、I9 の各句 (管理画面をサイトごとに構成/読者像や書き方の決め事/認知負荷/結果一覧やグラフ/既存指標の見せ方だけ/直感的にわからない/新規 feature を立てる) はいずれもその answer 本文に逐語で在る"
         }
       ]
     },
@@ -10632,7 +10836,7 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 2,
+    "loop_count": 1,
     "next_question": null,
     "complete": true,
     "max_loops": 5,
@@ -10722,6 +10926,12 @@
         "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| UIUX-REQ-001 | 記事ごとの成績比較を第1位、判断・回復すべき業務状態を第2位とし、1画面の主要アクションを1つにする (2026-08-22 の利用者本人の決定で先頭を差し替え。旧本文と経緯は「## 履歴」を見ること) |\n| UIUX-REQ-002 | 全画面に理想/空/ローディング/部分/エラー/低速の6状態を定義し、エラーは事象・データ安全性・次の行動を伝える |\n| UIUX-REQ-003 | 速報/確定と n不足は色だけに依存せず、ラベル・数値・補足で同じ意味を伝える |\n| UIUX-REQ-004 | 外部公開はプレビューと明示承認を経由し、失敗時は入力を保持して有限回の再試行へ進める |\n| UIUX-REQ-005 | 記事編集画面は、書いた断片を記法のまま見せず、公開時と同じ見た目で描く。19 種の断片すべてが対象で、「編集中は生の記法・確認は別画面」という分割を持たない |\n| UIUX-REQ-006 | 節 (外側・見出し2 固定) と本文の断片 (内側・見出し3/4) の 2 層を UI 上で明示し、節の見出しレベルを編集操作で変更できないことを画面上で伝える。階層が編集操作の副作用で動かない (`decisions[].dec-editor-editing-model`) |\n| UIUX-REQ-007 | 断片の挿入口は `/` だけに依存しない。挿入ボタンと `/` の双方から同じ 19 種へ到達でき、一覧は 文章 / 一覧 / 見せ方 / データ / 差し込み の 5 群に分けて提示する |",
         "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "実装で確定した入口の畳み方と近道の選定基準 (feat-site-scoped-authoring-ia)",
+        "body": "**以下は利用者の回答ではない。** `feat-site-scoped-authoring-ia` の実装 (2026-09-08) で\n確定した内容を、章にしか居場所が無いまま消えないよう正本へ移したものである。\n上の質疑録と混ぜて読まないために区切ってある。\n\n`qa-uiux-web-site-scoped-authoring-ia` で利用者は「記事・読者像・書き方の決め事を\nブログ単位の管理へ移す」「横断画面には何を残すか」を決めた。**何をどう畳んだかの\n具体形は、実装しなければ決まらなかった。**その決まった形をここに残す。\n\n### 一段目は「作業の対象物」5 つに畳んだ\n\n畳んだ結果は ブログ / 記事 / 読者 / 商品 / 配信 の 5 つである。正本は\n`src/presentation/ui/admin-route-metadata.ts` の `ADMIN_NAV_GROUP_LABELS` 1 箇所で、\nサイドバーもホームのボードもパンくずもここからの射影であり、第 2 の表を持たない。\n\n**動詞 (素材/書く/出す/稼ぐ/見る/整える) で切る案を捨てた理由**を残す。動詞で切ると\n1 つの対象物についての作業が複数の見出しに散った。「商品」は *素材* (登録する) と\n*稼ぐ* (提携と成果) の両方にあり、運営者はどちらを開くか決められず両方開いていた。\n対象物で切ると「これについて作業する」と言えるものが 1 か所に集まる。\n\n設定・AI の利用と費用・道具・画面部品の見本は 5 つに入れず `nav.group = null` で\n分類の外へ置いた。対象物と言えないものを無理に混ぜると、ラベルから中身が\n言い当てられなくなる。\n\n### 近道の選定基準 — 旧入口をそのまま近道にする\n\n所属替えで 5 画面が `/admin/sites/[site]/...` へ移った。移った先は「ブログ群 →\n1 本のブログ → その画面」なので、そのままでは 1 クリックが 2 クリックになる。\n\n**サイドバーに新しい近道帯を足さなかった。**既にある一段目の入口を消さずに残し、\n行き先を転送の殻にしてある。押すとそのときのブログの配下へ着く。\n\nサイドバーに出るのは `route.nav !== null && route.label !== null` を満たすものだけで、\n子 (`child()`) は `nav: null` が固定である。したがって近道になるのは\n`/admin/personas` (書き手)、`/admin/writing` (書き方の決めごと)、`/admin/content` (記事)\nの 3 本で、`/admin/personas/audiences` (読者像) は畳む前からサイドバーに出ていない。\n\n**別の解決規則を書かないための形である。**近道用にブログ解決をもう一度呼ぶ設計にすると、\nサイドバーを描いた時刻と押した時刻の間に選択ブログが変わったとき、ラベルの下の URL と\n実際に開くブログが食い違う。href を旧 URL のままにすれば、解決は押した瞬間に 1 回だけ起きる。\n\n### ラベルは 2 つの対象物を束ねない\n\n「書き手と読者像」というラベルを「書き手」に分けた。書き手は読者ではないので\n`reader` には置けず、記事を書く人なので `article` に置いた。2 つの対象物を 1 つの\nラベルに束ねたままだと、開くまで何の画面か分からない。\n\n### 保守規則と手順の正本\n\n規則: `docs/spec/feat-site-scoped-authoring-ia/ia-rules.md`\n手順: `docs/spec/feat-site-scoped-authoring-ia/operations.md`\n\n各規則は対応する検査を 1 つずつ持つ。検査を書けない規則は規則ではなく心構えとして\n扱い、この章にも規則としては載せない。",
+        "reason": "P13 書き戻し: 一段目5分類・動詞分類を捨てた理由・近道を旧入口で実現した理由・ラベル分割は実装しなければ決まらなかった内容で、章にしか居場所が無く compile で消える。利用者の逐語には足さない。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "frontend": [
@@ -10765,6 +10975,12 @@
         "heading": "To-Be（規範契約）",
         "body": "> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。\n\n| 要件ID | 目標状態 |\n|---|---|\n| FRONT-REQ-001 | `docs/spec/03` §8 の8ビューを、共通の Workspace / 期間 / ディメンション条件で表示する |\n| FRONT-REQ-002 | 発生見込・承認報酬・支払報酬をラベル・定義・数値のいずれでも混同させず、合算値を単一の「確定収益」として表示しない |\n| FRONT-REQ-003 | 比較セルにnと期間を常時付与し、設定閾値未満は結論・率・勝者操作を抑止する |\n| FRONT-REQ-004 | データ取得とドメイン判断を分離し、UI は同じ KPI 定義の表示モデルのみを消費する |\n| FRONT-REQ-005 | 断片カタログを 19 種で実装する。既存 10 種 (paragraph / heading / bullet-list / ordered-list / quote / callout / product-card / comparison-table / image / divider) に加え、code (言語指定つき) / table (自由な行列) / image-row (2〜4 枚を横並び) / toggle / checklist / embed / cta-button / link-card / columns (2 段組) を持つ |\n| FRONT-REQ-006 | 編集面の描画と公開ページの描画は同一の描画部品を通る。断片ごとに 2 系統の実装を持たない |\n| FRONT-REQ-007 | 文字の装飾 (太字・斜体・打ち消し・行内コード・リンク・文字色/背景色) は断片ではなく、文字を持つ断片の内側の装飾として実装する。色は名前付きトークンの集合に限り、任意の 16 進値を受け取らない |\n| FRONT-REQ-008 | 節の見出しレベルは編集器の状態ではなく骨格から導出する。利用者操作で節の見出しレベルを変更する経路を実装しない |",
         "reason": "現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "実装で確定した URL 階層・転送規則・雛形複製経路 (feat-site-scoped-authoring-ia)",
+        "body": "**以下は利用者の回答ではない。** `feat-site-scoped-authoring-ia` の実装 (2026-09-08) で\n確定した URL 階層と転送規則を、章にしか居場所が無いまま消えないよう正本へ移したものである。\n上の質疑録と混ぜて読まないために区切ってある。\n\n`qa-frontend-web-site-scoped-route-ownership` で利用者は「ブログ単位へ移す画面の URL 階層」と\n「横断 URL を転送で受ける」方針を決めた。**どの住所をどこへ送るか、送らない住所はどれかは、\n受け皿の有無で決まる。**実装で確定した対応を残す。\n\n### 所属替えした 6 route\n\n| 新しい住所 | 何の画面か |\n|---|---|\n| `/admin/sites/[site]/authors` | 書き手 |\n| `/admin/sites/[site]/authors/new` | 書き手を作る |\n| `/admin/sites/[site]/audience/personas` | 読者像 |\n| `/admin/sites/[site]/audience/personas/new` | 読者像を作る |\n| `/admin/sites/[site]/writing` | 書き方の決めごと (ブログの型で重み付けした複製) |\n| `/admin/writing/template` | 共通の雛形そのもの (横断に残す 1 枚) |\n\n管理 route は 93 本から 99 本になった。**畳んだのは入口の段であって route の本数ではない。**\n\n### データ層は動かしていない\n\n**site 配下へ移ったのは画面 (住所) だけで、データはワークスペース単位のままである。**\n書き手も読者像も `workspaceId` で引く。\n\nこの境界は意図的である。データを site 単位へ割ると既存ブログ全部に移行が要り、\n新規ブログを足すたびに初期データの作成が要る。住所だけを移せば、新しいブログを\n足した瞬間から書き手も読者像も配下に見える。ブログ固有の書き手が要るという要望が\n出たときに初めてデータ層を割る。\n\nその代わり **site 配下の画面は中身を読む前に必ず `resolveSiteOrNotFound(site)` を通す。**\n順番が逆だと、存在しないブログの住所でも一覧が出る。`getSite` が失敗したときは\n理由を言い分けずに `notFound()` を返す。「権限がありません」と「ありません」を\n出し分けると、住所を打つだけで他ワークスペースのブログの存否が読み取れる。\n受け先の `not-found.tsx` は `AppShell` を import も描画もしないので、\nサイドバーにブログ名が並ぶこともない。\n\n### 転送規則\n\n転送する 5 本 (`legacyAdminRedirect` だけを呼ぶ殻。DOM を持たず `redirectOnly: true`):\n`/admin/personas`, `/admin/personas/new`, `/admin/personas/audiences`,\n`/admin/personas/audiences/new`, `/admin/writing`。\n\nブログを特定できないとき (cookie 無し / 一覧が引けない / `?site=` が配列 /\n対応表に無い住所) は、どの不調でも `/admin/sites` (ブログ選択) へ出す。\n外の世界が期待どおり返らなかったことを利用者の画面に例外として見せない。\n\n**`/admin/content/*` は転送していない。**転送先の `/admin/sites/[site]/articles` が\n存在しない (正本は `feat-blog-scoped-admin-console`) ためで、存在しない住所へ\n転送する殻を先に置くと旧 URL が今より確実に壊れる。**移設は、受け皿が立ってから\nでなければ移設ではなく破壊である。**受け皿が入れば対応表 `LEGACY_SITE_SCOPED_ROUTES` に\n1 行足すだけで他の 5 本と同じ形になる。未転送の理由は\n`docs/spec/feat-site-scoped-authoring-ia/redirect-map-draft.json` の `not_redirected` に\n理由付きで載っており、黙って落としてはいない。\n\n### 雛形の複製経路 — 複製するのは重みだけ\n\n`/admin/sites/[site]/writing` は `cloneWritingMethodForSite(共通雛形, そのブログの型)` を呼ぶ。\n**節も文体の決まりも共通のままで、変わるのは「このブログの型で特に外せない節に印が付く」\nことだけである。**\n\n決めごとを丸ごと複製すると 10 本のブログで 10 通りの決まりができ、公開前の検査が\nどれを見るか決まらなくなる。この画面と公開前の検査は、コードの中の同じ 1 つの定義を読む。\n手引きを別文書として書けば、どちらかが必ず古くなり「手引きどおりに書いたのに検査で落ちる」が起きる。\n\n### route を 1 本足すと同時に整合が要求される表\n\n`admin-route-metadata.ts` (route の正本) / `ADMIN_NAV_GROUPS` / `screen-information-ledger.json` /\n`admin-disclosure-contract.ts` / `tests/ui/route-cases.ts`。\n\n**後ろの 4 つは手書きの一覧ではなく正本からの射影である。**\n`tests/ui/route-cases.ts` の管理画面ケースが `ADMIN_ROUTE_METADATA.map(...)` である結果、\nroute を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + best-practice、違反 0 が条件) の\n対象になる。「画面は足したが検査の一覧に足し忘れた」という抜け方ができない。",
+        "reason": "P13 書き戻し: 所属替えした6route・データ層を動かさない境界・転送5本と未転送/admin/content/*の理由・複製するのは重みだけ、は実装で確定した内容で章にしか居場所が無い。利用者の逐語には足さない。",
         "recorded_with": "set-chapter-note"
       }
     ],

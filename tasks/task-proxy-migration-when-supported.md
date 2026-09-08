@@ -12,7 +12,7 @@ iteration: null
 title: "入口の門を proxy.ts へ移す(OpenNext が Node middleware を受け取れたら)"
 owners: ["daishiman"]
 created_at: "2026-08-18T06:35:00Z"
-updated_at: "2026-08-18T06:35:00Z"
+updated_at: "2026-09-08T07:29:30.050184Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "Next.js 16 の改名先(proxy.ts)を Cloudflare 側が�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-proxy-migration-when-supported.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-pd0","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

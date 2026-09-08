@@ -12,8 +12,8 @@ iteration: null
 title: "既存ホスト解決経路との重複解消と移行"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:39:03.285468Z"
-status: "active"
+updated_at: "2026-09-04T08:12:06Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P05"]
 related_nodes: []
 resource_scope: ["src/middleware.ts","src/domain/domains/","docs/spec/feat-blog-custom-domain/migration-notes.md"]

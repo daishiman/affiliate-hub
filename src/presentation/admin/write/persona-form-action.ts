@@ -25,6 +25,7 @@ import { failureFromDomainError, notSignedInFailure } from "../use-case-result";
  * 誰が決めた立場なのか分からない署名で記事が出る。
  */
 export async function createAuthorPersonaAction(
+  siteSlug: string | null,
   _prev: PersonaFormState,
   formData: FormData,
 ): Promise<PersonaFormState> {
@@ -60,12 +61,13 @@ export async function createAuthorPersonaAction(
 
   if (!result.ok) return failureFromDomainError(result.error);
 
-  revalidatePath("/admin/personas");
+  const listPath = personaListPath("author", siteSlug);
+  revalidatePath(listPath);
 
   return {
     status: "done",
     message: `${result.value.displayName} を書き手として登録しました。`,
-    personaListPath: "/admin/personas",
+    personaListPath: listPath,
   };
 }
 
@@ -76,6 +78,7 @@ export async function createAuthorPersonaAction(
  * 1 つのフォームに混ぜると、どちらか片方だけ埋めた状態を保存できてしまう。
  */
 export async function createAudiencePersonaAction(
+  siteSlug: string | null,
   _prev: PersonaFormState,
   formData: FormData,
 ): Promise<PersonaFormState> {
@@ -105,13 +108,28 @@ export async function createAudiencePersonaAction(
 
   if (!result.ok) return failureFromDomainError(result.error);
 
-  revalidatePath("/admin/personas/audiences");
+  const listPath = personaListPath("audience", siteSlug);
+  revalidatePath(listPath);
 
   return {
     status: "done",
     message: `${result.value.name} を読者像として登録しました。`,
-    personaListPath: "/admin/personas/audiences",
+    personaListPath: listPath,
   };
+}
+
+/**
+ * 登録後に戻る一覧を 1 か所で組み立てる。
+ *
+ * FormData の URL は信用せず、site を解決済みの Page から bind された slug と、
+ * 固定の suffix だけを使う。旧 route から呼ぶ場合は従来の一覧を保つ。
+ */
+function personaListPath(kind: "author" | "audience", siteSlug: string | null): string {
+  if (siteSlug === null) {
+    return kind === "author" ? "/admin/personas" : "/admin/personas/audiences";
+  }
+  const sitePath = `/admin/sites/${encodeURIComponent(siteSlug)}`;
+  return kind === "author" ? `${sitePath}/authors` : `${sitePath}/audience/personas`;
 }
 
 /**

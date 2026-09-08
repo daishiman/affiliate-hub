@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン機能のテスト実行と緑化"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:38:12.503102Z"
-status: "active"
+updated_at: "2026-09-04T08:12:02Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P05"]
 related_nodes: []
 resource_scope: ["tests/","docs/spec/feat-blog-custom-domain/test-run-report.md"]

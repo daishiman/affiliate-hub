@@ -12,8 +12,8 @@ iteration: null
 title: "受入・QA証跡の集約"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:09:14.658815Z"
-status: "active"
+updated_at: "2026-09-08T01:20:00Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P07","SYS-BLOG-OPS-CRUD-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/evidence/"]

@@ -11,8 +11,8 @@ target_date: null
 iteration: null
 title: "system-spec compiled specification"
 owners: ["system-spec-harness"]
-created_at: "2026-09-07T17:03:03Z"
-updated_at: "2026-09-07T17:03:03Z"
+created_at: "2026-09-08T03:17:22Z"
+updated_at: "2026-09-08T03:17:22Z"
 status: "active"
 depends_on: []
 related_nodes: []
@@ -31,8 +31,8 @@ template_id: "specification"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
-confirmation_evidence: {"evaluated_digest":"dc69e4f245e9093bc9d0855dd3757a613a2283a7e2475d2f18ba50253728fa91","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-07T17:03:03Z","origin_kind":"system-spec-harness","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+confirmation_evidence: {"evaluated_digest":"059da125465a760315ed45e96f6f233e2c608b7c76c56d7cb0e16cfb673f5a26","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
+source_lineage: {"imported_at":"2026-09-08T03:17:22Z","origin_kind":"system-spec-harness","source_digest":"fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976","source_path":"system-spec/index.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 1.0
 classification_reason: "system-spec-harness が compile した specification index の import。"
 classification_candidates: [{"artifact_kind":"specification","candidate_path":"specs/system-spec-index.md","confidence":1.0}]
@@ -43,8 +43,8 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-09-07T17:03:03Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-09-07T17:03:03Z","source":"manual","status":"done"}
-implementation_readiness: {"checked_at":"2026-09-07T17:03:03Z","missing_sections":[],"status":"complete"}
+completion_evidence: {"completed_at":"2026-09-08T03:17:22Z","evidence_refs":["system-spec/completeness-report.json"],"policy":"manual","reconciled_at":"2026-09-08T03:17:22Z","source":"manual","status":"done"}
+implementation_readiness: {"checked_at":"2026-09-08T03:17:22Z","missing_sections":[],"status":"complete"}
 ---
 
 # システム構築仕様書 index

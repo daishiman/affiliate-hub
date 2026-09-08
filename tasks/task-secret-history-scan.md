@@ -12,7 +12,7 @@ iteration: null
 title: "秘密の値が過去の履歴に入っていないかを、1 度走査する"
 owners: ["daishiman"]
 created_at: "2026-08-18T09:00:00Z"
-updated_at: "2026-08-18T09:00:00Z"
+updated_at: "2026-09-08T07:31:42.336471Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "既存の検査が見ていない範囲を、別の手�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-secret-history-scan.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-vkq","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

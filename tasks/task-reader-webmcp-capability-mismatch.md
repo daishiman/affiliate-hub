@@ -12,8 +12,8 @@ iteration: null
 title: "読者ページの AI 向けの道具が、読者の権限では動かない"
 owners: ["daishiman"]
 created_at: "2026-08-18T00:10:00Z"
-updated_at: "2026-08-18T02:00:00Z"
-status: "done"
+updated_at: "2026-09-08T07:24:41.636944Z"
+status: "draft"
 depends_on: []
 related_nodes: []
 resource_scope: ["presentation","application","tests"]
@@ -30,7 +30,7 @@ phase_ref: null
 file_path: "tasks/task-reader-webmcp-capability-mismatch.md"
 template_id: "task"
 template_version: "1.0.0"
-confirmation_status: "confirmed"
+confirmation_status: "draft"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":null,"evaluator":null,"evidence_ref":null}
 source_lineage: {"imported_at":"2026-08-18T00:10:00Z","origin_kind":"manual","source_digest":null,"source_path":"src/presentation/tools/webmcp-policy.ts","source_plugin":null,"source_version":null}
@@ -39,12 +39,12 @@ classification_reason: "ah-2ro で同一サイトの身元を読者へ直した�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-reader-webmcp-capability-mismatch.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-83f","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-18T02:00:00Z","evidence_refs":["src/application/usecases/site/read-article-facets.ts","src/presentation/tools/reader-tools.ts","tests/presentation/reader-tools.test.ts","tests/ui/disclosure-text.test.ts"],"policy":"manual","reconciled_at":null,"source":"manual","status":"done"}
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"in_progress"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 

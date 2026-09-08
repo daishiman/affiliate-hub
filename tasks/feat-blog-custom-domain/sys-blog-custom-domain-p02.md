@@ -12,8 +12,8 @@ iteration: null
 title: "site_custom_domains のデータモデルと provider 連携契約の確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:36:27.642615Z"
-status: "active"
+updated_at: "2026-09-04T08:11:53Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-custom-domain/data-model.md","docs/spec/feat-blog-custom-domain/admin-api-contract.md","docs/spec/feat-blog-custom-domain/host-resolution-design.md"]

@@ -12,7 +12,7 @@ iteration: null
 title: "読者が成果リンクを押したことを、どのリンクか分かる形で記録する"
 owners: ["daishiman"]
 created_at: "2026-08-18T00:03:17.325065Z"
-updated_at: "2026-08-18T00:03:17.325065Z"
+updated_at: "2026-09-08T07:25:07.519203Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -38,7 +38,7 @@ classification_reason: "計測とマネタイズにまたがる実装課題。�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-click-tracking-go-route.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-wq7","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

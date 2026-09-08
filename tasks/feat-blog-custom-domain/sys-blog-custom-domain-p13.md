@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン機能のリリースと仕様書への書き戻し"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:41:11.638178Z"
-status: "active"
+updated_at: "2026-09-04T08:12:16Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P12"]
 related_nodes: []
 resource_scope: ["system-spec/infrastructure.md","system-spec/database.md","docs/spec/feat-blog-custom-domain/release-notes.md"]

@@ -1,0 +1,13 @@
+ FAIL  |normal| tests/architecture/blog-ui-spec-governance.test.ts > feat-blog-ui-builder specification governance > pins the feature node lineage to the bytes of its source chapter
+ FAIL  |normal| tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 行数は旧実測の床 172 以上で、上乗せは正本由来の生成本文だけ
+ FAIL  |normal| tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 行数は旧実測の床 223 以上で、上乗せは正本由来の生成本文だけ
+ FAIL  |normal| tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > compile の申し送りが増えていない（正本へ接続できていない章の数）
+ FAIL  |normal| tests/architecture/reopen-discard-restore-gap.test.ts > reopen で退避した欄が戻らない穴 (REQ-TS21 / ah-nuu の 4 度目を止める) > (症状) 退避されたことのある欄は、いまその章の確定セルに戻っている
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed | 527 passed (530)
+      Tests  5 failed | 11874 passed (11879)
+   Start at  22:25:17
+   Duration  875.12s (transform 58.91s, setup 52.42s, import 534.84s, tests 1024.59s, environment 55.28s)

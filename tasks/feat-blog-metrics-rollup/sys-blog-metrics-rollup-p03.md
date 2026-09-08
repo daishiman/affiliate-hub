@@ -12,8 +12,8 @@ iteration: null
 title: "集計設計の独立レビューと着手可否判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:42:24.442633Z"
-status: "active"
+updated_at: "2026-09-04T10:14:15Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-metrics-rollup/design-review-findings.md","docs/spec/feat-blog-metrics-rollup/missing-data-policy.md"]

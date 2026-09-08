@@ -1,0 +1,140 @@
+{
+  "source_digest": "sha256:bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+  "feature": {
+    "graph_node_id": "feat-article-block-editor",
+    "title": "記事を出来上がりの見た目のまま編集できるブロックエディター",
+    "description": "管理画面の記事編集を、記法の生テキストが見える入力欄の集まりから、出来上がりの見た目のまま編集できるブロックエディターへ変え、記事を構成する全ての情報を編集面から扱えるようにする\n\n編集面と公開ページが同一の描画部品を通り、節 (見出し2 固定) と本文断片 (見出し3/4) の 2 層が UI 上で見分けられ、どの編集操作でも見出しレベルが動かず、19 種の断片 (コードブロック・商品カード・並列画像・表・色付き文字を含む) が `/` から挿入・編集・公開できる。商品は検索選択、画像は URL や object key の手入力・ブラウザ直接 PUT ではなく同一生成元の Worker API への添付で入り、Worker が認可・8 MiB 上限・実バイト形式を検査し、サーバー生成鍵で pending 予約→R2 put→ready 確定する状態になっている\n\nfile: features/feat-article-block-editor.md"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-article-block-editor",
+      "title": "19種断片カタログと保存形式・Worker API画像契約の要求ベースライン確定",
+      "description": "feat-article-block-editor の受入7件 (A1-A7) を実装着手前に一意で検証可能な要求ベースラインへ確定する。19種の断片カタログ (現行10種 + code/table/image-row/toggle/checklist/embed/cta-button/link-card/columns の追加9種) の名称・属性・保存形式表現、拡張Markdown文字列 (prose-format.ts) と ProseNode 木の相互変換規約、画像参照の正本 (Editorial 側 D1 の article_image テーブル) と同一生成元 Worker API (`POST /api/article-images`) によるアップロード契約、公開ページ描画の許可リストの範囲を、実装済みの `src/domain/blogops/prose-node.ts` (19種・373行) と `src/app/api/article-images/route.ts` (138行) の実測に接地させて決める。\n\nfeat-article-block-editor の受入7件 (A1-A7) を実装着手前に一意で検証可能な要求ベースラインへ確定し、19種の断片カタログ・拡張 Markdown ⇄ ProseNode 木の相互変換規約・Worker API 画像アップロード契約 (pending 予約→R2 put→ready 確定、8 MiB 上限・マジックバイト検査・presigned PUT 不使用) ・公開ページ描画の許可リストの範囲を、実装済みの `prose-node.ts` と `article-images/route.ts` の実測に接地させて決める。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p01.md",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-article-block-editor",
+      "title": "ブロックエディター描画・保存契約とWorker API画像アップロード経路の設計",
+      "description": "P01 の要求に沿って、節 (外側・ArticleBlockKind・見出し2固定) / 断片 (内側・ProseNode・見出し3/4) 2層の UI 表現契約、`/` 挿入メニューの19種構成と5群分類 (文章/一覧/見せ方/データ/差し込み)、19種それぞれの編集面コンポーネント構成と公開ページ描画部品の共有方式、拡張 Markdown ⇄ ProseNode 木の変換規則の追加分、商品検索結果選択 UI の契約、同一生成元 Worker API (`POST /api/article-images`) による画像アップロード経路の設計と Editorial D1 の画像参照テーブル (DB-IMAGE-01〜03) の設計、公開ページ許可リストレンダラの設計を確定する。presigned PUT 発行 API は設計対象に含めない。\n\nP01 の要求に沿って、節/断片2層の UI 表現契約、`/` 挿入メニューの19種構成、19種それぞれの編集面コンポーネント構成と公開ページ描画部品の共有方式、拡張 Markdown ⇄ ProseNode 木の変換規則の追加分、商品検索結果選択 UI の契約、Worker API `POST /api/article-images` と Editorial D1 の画像参照テーブル (DB-IMAGE-01〜03) の設計、公開ページ許可リストレンダラの設計を確定する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p02.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-article-block-editor",
+      "title": "設計レビュー — Worker API契約とpresigned PUT残滓の不在確認",
+      "description": "P02 の設計成果物 (architecture.md / data-model.md / api-contract.md) を独立した目線でレビューし、(1) presigned PUT・ブラウザ直接 PUT・R2 write CORS・signed URL への言及が設計文書に残っていないこと、(2) Worker API の認可・8 MiB 上限・マジックバイト検査・状態機械・same-origin 検証が設計文書で一貫していること、(3) 節/断片 2層モデルと19種カタログが要求 (P01 成果物) と整合していること、(4) セキュリティ要件 (SEC-REQ-006〜009) が設計の各層に割り当てられていること、の4点を確認し、findings を記録した design-review.md を生成する。\n\nP02 の設計成果物に presigned PUT 残滓が無いこと・Worker API 契約が4層で一貫していること・19種カタログが要求と整合していること・SEC-REQ-006〜009 が各層に割り当てられていることを独立に確認し、findings を design-review.md に記録する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p03.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-article-block-editor",
+      "title": "受入7件に対応するテスト設計 (Worker API境界値含む)",
+      "description": "A1-A7 の各項目に対して最低1件の落とせるテストケースを対応づけ、19種の断片それぞれの挿入・編集・公開描画、見出しレベル固定の挿入・移動・削除・貼り付け全操作、商品検索 0件/複数件、Worker API 画像アップロードの境界値 (8 MiB 以下成功・8 MiB 超過拒否・許可外 MIME 拒否・MIME 申告と実バイト不一致拒否・未認証拒否・same-origin 違反拒否・記事所属不正拒否・pending→R2 put 失敗時の挙動・R2 put→ready 確定失敗時の挙動)、許可リスト外タグ混入時の無害化、既存 10種の断片で書かれた記事の読み込みと再保存の不変性を境界値として列挙し、既存回帰スイートを名前で指定する。\n\nA1-A7 の各項目に対して最低1件の落とせるテストケースを対応づけ、Worker API の画像アップロード境界値 (8 MiB 上限・マジックバイト検査・認可・same-origin・状態機械) を含む境界値ケースを列挙し、既存回帰スイートを名前で指定する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p04.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-article-block-editor",
+      "title": "ブロックエディターWYSIWYG化とWorker API画像アップロード・許可リスト描画の実装",
+      "description": "P02 の設計と P04 のテスト設計に沿って、ProseNode を19種へ拡張し (既に `prose-node.ts` で実装済みの場合は確認・補完)、`prose-editor.tsx` を入力欄集約から WYSIWYG へ置き換え、商品カードを検索結果選択のみで挿入できるようにし、画像を同一生成元 Worker API (`POST /api/article-images`) への multipart/form-data 送信でアップロードできるようにし (presigned PUT・ブラウザ直接 PUT・R2 write CORS は実装しない)、公開ページの描画を許可リストで絞り込む。P04 が指定したテストケースを緑化することを完了条件とする。\n\nP02 の設計と P04 のテスト設計に沿って、ProseNode を19種へ拡張・確認し、prose-editor.tsx を WYSIWYG へ置き換え、商品カードを検索結果選択のみで挿入できるようにし、画像を同一生成元 Worker API への送信でアップロードできるようにし (presigned PUT・ブラウザ直接 PUT・R2 write CORS は実装しない)、公開ページの描画を許可リストで絞り込む。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p05.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-article-block-editor",
+      "title": "テスト実行 — 実装全量の回帰・境界値・Worker APIシナリオ",
+      "description": "P05 の実装に対して P04 が設計したテストスイート全量を実行し、回帰・境界値・Worker API シナリオの全ケースが緑であることを確認する。失敗ケースを P05 差し戻しとして記録し、全件緑になるまで P05 との往復を行う。P06 の完了条件は `pnpm vitest run --reporter=dot` が 0件失敗で終了することである。\n\nP05 の実装に対して P04 が設計したテストスイート全量を実行し、回帰・境界値・Worker API シナリオの全ケースが緑であることを確認する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p06.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-article-block-editor",
+      "title": "受入確認 — A1-A7 全件のPASS証跡取得",
+      "description": "feat-article-block-editor の受入7件 (A1-A7) すべてに対して PASS の証跡を取得し、acceptance.md へ記録する。A1 (編集面に記法の生テキストが現れない) から A7 (既存 10種記事の不変性) までを、スクリーンショット・E2E ログ・自動テスト結果のいずれか1種以上で裏付ける。画像アップロードの受入項目 (A5) は Worker API 経由の添付であり、presigned URL・ブラウザ直接 PUT・R2 write CORS の経路が存在しないことも証跡に含める。\n\nfeat-article-block-editor の受入7件 (A1-A7) すべてに対して PASS の証跡を取得し、acceptance.md へ記録する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p07.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-article-block-editor",
+      "title": "リファクタリング・既存記事移行互換確認",
+      "description": "P05 の実装で発生した技術的負債を整理し、既存 10種の断片で書かれた記事が新しい `parseProse` で壊れずに読み込め、保存し直しても内容が変わらないこと (BE-PROSE-01/03、受入 A7) を、既存記事 fixture 全件を使った退行テストで確認する。保存形式 (拡張 Markdown 文字列) を変えていないため移行スクリプトが不要であることを記録する。\n\nP05 の実装の技術的負債を整理し、既存 10種記事が新しい parseProse で壊れずに読み込め、保存し直しても内容が変わらないことを確認する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p08.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-article-block-editor",
+      "title": "品質保証 — Worker API認可境界・セキュリティ・パフォーマンス検証",
+      "description": "P08 のリファクタリング済み実装に対して、Worker API 認可境界の検証 (SEC-REQ-006〜008)、許可リスト描画の無害化検証 (SEC-REQ-009)、パフォーマンス計測を行い、qa-report.md に findings を記録する。特に、presigned PUT 発行エンドポイント・ブラウザ向け R2 write CORS 設定・signed URL 生成コードが実装に含まれていないことを静的検査とコードレビューで確認する。SEC-ACC-006 (presigned URL の再利用シナリオ) は本実装で採用していないため検証対象外とし、代わりに Worker API の same-origin 検証・認可拒否・マジックバイト拒否の3シナリオを検証する。\n\nP08 のリファクタリング済み実装に対して Worker API 認可境界の検証・SEC-REQ-006〜009 の PASS 確認・presigned PUT 不在の静的確認・パフォーマンス計測を行い、qa-report.md に findings を記録する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p09.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-article-block-editor",
+      "title": "最終レビューと残課題の確定",
+      "description": "P09 の qa-report.md に記録された findings を解決し、final-review.md に解決確認を記録する。解決の内容が実装変更を伴う場合は write_scope 内で修正し、`pnpm vitest run` が 0件失敗で通ることを確認する。findings が 0件の場合は P09 の PASS を確認して final-review.md に記録し、本 phase を完了とする。\n\nP09 の qa-report.md に記録された findings を解決し、final-review.md に解決確認を記録する。全テストが 0件失敗で通ることを確認する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p10.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-article-block-editor",
+      "title": "受入・品質証跡の集約と検証可能性の確保",
+      "description": "P07 の acceptance.md と P09 の qa-report.md を統合し、evidence.md として本 feature の最終エビデンスパッケージを生成する。エビデンスには A1-A7 の PASS 証跡 (スクリーンショット参照・テスト実行結果)、Worker API 画像ライフサイクル記録 (pending 予約→R2 put→ready 確定の D1 遷移ログ、DB-IMAGE-01〜03 の受入証跡、OPS-REQ-008〜010 の掃除ジョブ設計の根拠記録)、SEC-REQ-006〜009 の PASS 記録を含める。\n\nP07 の acceptance.md と P09 の qa-report.md を統合し、A1-A7 PASS 証跡・Worker API 画像ライフサイクル記録・SEC-REQ-006〜009 PASS 記録・DB-IMAGE-01〜03 受入証跡・OPS-REQ-008〜010 掃除ジョブ設計根拠を含む evidence.md を生成する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p11.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P07",
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-article-block-editor",
+      "title": "運用手順と文書化 — 孤児画像回収と管理者向け説明",
+      "description": "孤児画像の回収運用手順 (OPS-REQ-008〜010 に対応するランブック) と管理者向けの説明文書を operations.md として生成する。画像ライフサイクル (pending 予約→R2 put→ready 確定→記事から外す→deleting→R2 delete→deleted 墓標) の各段階の説明、24時間猶予 (未参照)/30日猶予 (参照後外した) の設定根拠、掃除ジョブの実行形式 (Cron Trigger)・idempotency key・AuditLog への削除記録・失敗時の再実行手順を記載する。Worker API 経由でのアップロードに特有の途中失敗 (pending のまま残ったオブジェクト) の回収方法を明記する。\n\n孤児画像の回収運用手順 (OPS-REQ-008〜010 対応ランブック) と管理者向け説明・移行スクリプト不要の記録を operations.md として生成する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p12.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P10",
+        "SYS-ARTICLE-BLOCK-EDITOR-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-article-block-editor",
+      "title": "開発環境へのリリースとWorker API決定のsystem-specへの書き戻し",
+      "description": "変更を dev ブランチへのマージを経て開発環境へ出し、実装で確定した19種断片カタログ・保存形式 (`decisions[].dec-article-body-storage-format` = 拡張 Markdown 文字列維持)・Worker API 画像アップロード契約 (同一生成元 Worker API・8 MiB 上限・マジックバイト検査・pending 予約→R2 put→ready 確定・presigned URL 不採用) を system-spec の各章 (frontend.md / backend.md / database.md / infrastructure.md / security.md) へ書き戻し、切り戻し手順を記載した release.md を生成する。\n\n変更を dev ブランチへのマージを経て開発環境へ出し、実装で確定した19種断片カタログ・保存形式 (拡張 Markdown 文字列維持)・Worker API 画像アップロード契約 (presigned URL 不採用・8 MiB 上限・マジックバイト検査・pending→ready 状態機械) を system-spec の各章へ書き戻し、切り戻し手順を記載した release.md を生成する。\n\nfile: tasks/feat-article-block-editor/sys-article-block-editor-p13.md",
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P12"
+      ]
+    }
+  ]
+}

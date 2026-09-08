@@ -12,7 +12,7 @@ iteration: null
 title: "生成物かどうかを語の出現で決めているので、その語を書かない生成物は見落とす"
 owners: ["daishiman"]
 created_at: "2026-08-19T01:20:00Z"
-updated_at: "2026-08-19T01:20:00Z"
+updated_at: "2026-09-08T07:34:50.622212Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "2026-08-19 に説明文へ語を書いただけで赤く
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-generated-doc-word-detection.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-rq9","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

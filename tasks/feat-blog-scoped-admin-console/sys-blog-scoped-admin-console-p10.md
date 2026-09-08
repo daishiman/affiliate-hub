@@ -12,8 +12,8 @@ iteration: null
 title: "管理画面の最終レビュー"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:51:28.080813Z"
-status: "active"
+updated_at: "2026-09-04T11:19:02Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-scoped-admin-console/final-review.md"]

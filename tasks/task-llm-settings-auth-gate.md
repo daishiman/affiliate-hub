@@ -12,7 +12,7 @@ iteration: null
 title: "鍵の登録画面が未ログインでも使える（本番へ出す前に塞ぐ）"
 owners: ["daishiman"]
 created_at: "2026-08-18T04:00:00Z"
-updated_at: "2026-08-18T04:00:00Z"
+updated_at: "2026-09-08T07:26:53.081003Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-llm-credential-wiring"]
@@ -39,7 +39,7 @@ classification_reason: "権限の経路を actor の作り方まで辿って実�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-llm-settings-auth-gate.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-5lo","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

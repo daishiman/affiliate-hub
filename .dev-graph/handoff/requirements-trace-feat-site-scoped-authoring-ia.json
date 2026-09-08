@@ -1,0 +1,298 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-site-scoped-authoring-ia",
+  "scope_digest": "sha256:ac2764f6cbb9e12df582572f67eef516bb370a5ded522bf551e8df27e6751f81",
+  "trace_plan_digest": "sha256:07f1c4259876369cbd43cf3053817b28d871fca4d69115482b77d811ad3d8962",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)",
+  "derivation_rule": "base=[P01,P04,P05,P06,P07,P11]。受入条件本文の語で加算する: 転送/所属替え/配下/束ね/畳/近道/雛形/複製/契約/規則→P02、旧/重複/既存/移行→P08、確認/危険/権限/notFound/出ない/クリック数/アクセシビリティ→P09、名前/ラベル/手順/説明/文言→P12、配信/公開面/リリース→P13。加算後に昇順で一意化する。 (語彙は本 feature の受入条件と exact-13 の phase title から取る。P03/P10 は全受入を横断するレビュー phase なので個別加算しない。)",
+  "verdict": "PASS",
+  "entry_count": 10,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9",
+    "A10"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "読者像・書き方の決め事の各画面が /admin/sites/[site]/ 配下に存在する (記事画面の存在は feat-blog-scoped-admin-console の受入で判定する)",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[0]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "/admin/content/*・/admin/personas/*・/admin/writing/* へのアクセスが、ブログを特定できる場合は対応する /admin/sites/[site]/... へ転送される",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[1]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "ブログを特定できない旧 URL へのアクセスがブログ選択へ送られる",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[2]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P08|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "site セグメントが解決できないとき notFound になり、他ブログの内容が出ない",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[3]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "管理画面の一段目の入口が、作業の対象物の数まで畳まれている",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[4]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "一段目の各入口の名前が feat-reference-blog-admin-ux の動詞ラベル規則に従い、初見の運営者がラベル一覧だけを見て各入口でできることを言い当てる正答率が、同 feature の受入と同じ 90% 以上である",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[5]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11|P12]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "書き方の決め事を共通の雛形から複製する経路が存在する",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[6]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "よく使う画面への近道が存在し、その近道を使った到達クリック数が、束ね直す前の構成での同じ画面への到達クリック数以下である",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[7]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A8",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A9",
+      "requirement": "ブログ設定・ドメイン・公開の各操作に確認が挟まり、下書きの編集には挟まらない (分岐の規則は feat-reference-blog-admin-ux に従う)",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[8]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A9",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A10",
+      "requirement": "所属替えした画面と束ね直した入口に出る結果一覧とグラフが、既存の site_daily_metrics / article_daily_metrics だけを読み、新しい集計表を追加していない (提示順序そのものの妥当性は feat-blog-scoped-admin-console の受入で判定する)",
+      "confirmed_sources": [
+        "feature:feat-site-scoped-authoring-ia#acceptance[9]",
+        "context:feat-site-scoped-authoring-ia",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A10",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P08|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    }
+  ]
+}

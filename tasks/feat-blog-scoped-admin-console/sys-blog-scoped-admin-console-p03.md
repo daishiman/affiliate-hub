@@ -12,8 +12,8 @@ iteration: null
 title: "管理画面設計の独立レビューと着手可否判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:48:19.341046Z"
-status: "active"
+updated_at: "2026-09-04T11:18:48Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-scoped-admin-console/design-review-findings.md","docs/spec/feat-blog-scoped-admin-console/dependency-direction-check.md"]

@@ -1,0 +1,15 @@
+# preview (http://localhost:8787) 上の応答。2026-09-08 採取。
+# 列: path / HTTP status / Location / time_starttransfer 中央値(3回)
+/admin                                             307 http://localhost:8787/signin 0.004167s
+/admin/personas                                    307 http://localhost:8787/signin 0.003484s
+/admin/personas/audiences                          307 http://localhost:8787/signin 0.002997s
+/admin/personas/new                                307 http://localhost:8787/signin 0.003054s
+/admin/personas/audiences/new                      307 http://localhost:8787/signin 0.003129s
+/admin/writing                                     307 http://localhost:8787/signin 0.003220s
+/admin/writing/template                            307 http://localhost:8787/signin 0.003310s
+/admin/sites/first-camera/authors                  307 http://localhost:8787/signin 0.003610s
+/admin/sites/first-camera/authors/new              307 http://localhost:8787/signin 0.003332s
+/admin/sites/first-camera/audience/personas        307 http://localhost:8787/signin 0.003474s
+/admin/sites/first-camera/audience/personas/new    307 http://localhost:8787/signin 0.003564s
+/admin/sites/first-camera/writing                  307 http://localhost:8787/signin 0.003212s
+/admin/sites/no-such-blog/authors                  307 http://localhost:8787/signin 0.003427s

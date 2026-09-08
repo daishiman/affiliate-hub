@@ -12,8 +12,8 @@ iteration: null
 title: "描く操作がポインタのみで、キーボードから行えない"
 owners: ["daishiman"]
 created_at: "2026-08-19T02:00:00Z"
-updated_at: "2026-08-19T07:30:00Z"
-status: "done"
+updated_at: "2026-09-08T07:35:16.315623Z"
+status: "draft"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs","tests"]
@@ -39,12 +39,12 @@ classification_reason: "2026-08-19 の FB 群の宣言作業で、判定欄を�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-capture-keyboard-drawing.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-ehl","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":"2026-08-19T07:30:00Z","evidence_refs":["tests/ui/capture-canvas.test.tsx"],"policy":"manual","reconciled_at":null,"source":"manual","status":"closed"}
+completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":"manual","status":"open"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 

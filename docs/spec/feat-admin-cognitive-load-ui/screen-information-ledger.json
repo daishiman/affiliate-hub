@@ -2,7 +2,7 @@
   "featureId": "feat-admin-cognitive-load-ui",
   "generatedFrom": "ADMIN_ROUTE_METADATA",
   "generatedAt": "2026-08-31",
-  "routeCount": 93,
+  "routeCount": 99,
   "undecidedCount": 0,
   "allowedRepresentations": [
     "summary",
@@ -49,7 +49,7 @@
     "foldableRouteIds": [
       "blog/articles/[article]",
       "feedback/[report]",
-      "personas/audiences"
+      "sites/[site]/audience/personas"
     ],
     "foldableComponent": "Foldable",
     "initialOpen": false,
@@ -4076,6 +4076,265 @@
         "accessibleName": "この内容で直す",
         "occurrence": 1,
         "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/authors",
+      "path": "/admin/sites/[site]/authors",
+      "file": "src/app/admin/sites/[site]/authors/page.tsx",
+      "screenName": "このブログの書き手",
+      "purpose": "このブログで誰の立場で書くかを決める",
+      "primaryAction": "このブログの書き手を 1 人選び、書いてよい範囲を確かめる",
+      "permission": "authenticated",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "list",
+          "card"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "書き手を作る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/authors/new",
+      "path": "/admin/sites/[site]/authors/new",
+      "file": "src/app/admin/sites/[site]/authors/new/page.tsx",
+      "screenName": "このブログの書き手を作る",
+      "purpose": "このブログの書き手を 1 人作る",
+      "primaryAction": "書き手の 1 件分を入力して登録する",
+      "permission": "authenticated",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "list"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この書き手を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/audience/personas",
+      "path": "/admin/sites/[site]/audience/personas",
+      "file": "src/app/admin/sites/[site]/audience/personas/page.tsx",
+      "screenName": "このブログの読者像",
+      "purpose": "このブログで誰に向けて書くかを決める",
+      "primaryAction": "このブログの読者像を 1 件開き、書き方の手がかりを読む",
+      "permission": "authenticated",
+      "representation": {
+        "primary": "list",
+        "secondary": [
+          "card"
+        ],
+        "plannedPrimary": "list"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "読者像を作る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/audience/personas/new",
+      "path": "/admin/sites/[site]/audience/personas/new",
+      "file": "src/app/admin/sites/[site]/audience/personas/new/page.tsx",
+      "screenName": "このブログの読者像を作る",
+      "purpose": "このブログの読者像を 1 つ作る",
+      "primaryAction": "読者像の 1 件分を入力して登録する",
+      "permission": "authenticated",
+      "representation": {
+        "primary": "card",
+        "secondary": [
+          "list"
+        ],
+        "plannedPrimary": "card"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "button",
+        "accessibleName": "この読者像を登録する",
+        "occurrence": 1,
+        "completion": "form-submit",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "sites/[site]/writing",
+      "path": "/admin/sites/[site]/writing",
+      "file": "src/app/admin/sites/[site]/writing/page.tsx",
+      "screenName": "このブログの書き方の決めごと",
+      "purpose": "このブログの記事の型と、公開前の検査が見る決まりを揃える",
+      "primaryAction": "記事の型を選び、その型で外せない節を確かめる",
+      "permission": "authenticated",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "list"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "共通の雛形を見る",
+        "occurrence": 1,
+        "completion": "internal-navigation",
+        "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
+      }
+    },
+    {
+      "routeId": "writing/template",
+      "path": "/admin/writing/template",
+      "file": "src/app/admin/writing/template/page.tsx",
+      "screenName": "書き方の共通の雛形",
+      "purpose": "全ブログが参照している書き方の雛形を調べる",
+      "primaryAction": "雛形の節と決まりを読み、どのブログで重みが変わるかを確かめる",
+      "permission": "authenticated",
+      "representation": {
+        "primary": "table",
+        "secondary": [
+          "list"
+        ],
+        "plannedPrimary": "table"
+      },
+      "keep": [
+        "対象を識別する名前",
+        "判断に必要な現在状態",
+        "次の操作"
+      ],
+      "removeOrFold": [
+        "内部ID・API・endpoint・ツール名",
+        "同じ意味の重複説明",
+        "通常判断に不要な詳細"
+      ],
+      "removalRationale": "現在の判断と次の操作に直接使わず、常時表示すると主情報を押し下げるため",
+      "states": [
+        "ideal",
+        "empty",
+        "loading",
+        "partial",
+        "error",
+        "slow"
+      ],
+      "decision": "decided",
+      "keyboardAction": {
+        "role": "link",
+        "accessibleName": "ブログを選ぶ",
+        "occurrence": 1,
+        "completion": "internal-navigation",
         "viewportCondition": "384px CSS viewport (768px at 200% zoom equivalent)"
       }
     }

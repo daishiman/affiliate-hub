@@ -12,8 +12,8 @@ iteration: null
 title: "AEO 設計の独立レビューと着手可否判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:31:14.965108Z"
-status: "active"
+updated_at: "2026-09-04T11:01:16Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-aeo-answer-optimization/design-review-findings.md","docs/spec/feat-aeo-answer-optimization/delivery-path-diagram.md"]

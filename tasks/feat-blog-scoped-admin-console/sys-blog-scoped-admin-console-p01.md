@@ -12,8 +12,8 @@ iteration: null
 title: "ブログ単位管理画面の要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:47:25.992919Z"
-status: "active"
+updated_at: "2026-09-04T11:18:43Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-scoped-admin-console/requirements-baseline.md","docs/spec/feat-blog-scoped-admin-console/screen-responsibility-map.md","docs/spec/feat-blog-scoped-admin-console/navigation-inventory.md"]

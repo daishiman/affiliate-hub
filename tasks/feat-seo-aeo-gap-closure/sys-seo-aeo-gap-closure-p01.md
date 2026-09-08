@@ -12,8 +12,8 @@ iteration: null
 title: "SEO/AEO 未実装差分の要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:23:30.849598Z"
-status: "active"
+updated_at: "2026-09-04T04:28:55Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/requirements-baseline.md","docs/spec/feat-seo-aeo-gap-closure/derivation-rules.md","docs/spec/feat-seo-aeo-gap-closure/retention-policy.md"]

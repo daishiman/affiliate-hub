@@ -12,8 +12,8 @@ iteration: null
 title: "管理画面のリリースと仕様書への書き戻し"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:52:41.927544Z"
-status: "active"
+updated_at: "2026-09-04T11:19:08Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12"]
 related_nodes: []
 resource_scope: ["system-spec/ui-ux.md","system-spec/frontend.md","docs/spec/feat-blog-scoped-admin-console/release-notes.md"]

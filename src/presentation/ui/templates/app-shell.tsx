@@ -115,15 +115,10 @@ export const UNGROUPED_NAV_HREFS: readonly string[] = ADMIN_ROUTE_METADATA.filte
  * `ADMIN_NAV` と別書きにせず、同じroute metadataの `nav.group` から作る。
  * 項目を足す場所が1箇所なので、ナビだけ増えて分類だけ古い状態を作れない。
  *
- * 分類は、機能名からではなく「誰がどの場面で開くか」から導いている。
- * 各画面の `lead`（この画面で何ができるかの 1 文）が根拠。
- *
- *   素材 … 記事のもとになるものを集めて確かめる
- *   書く … 何を・誰に向けて・どう書くかを決めて書く
- *   出す … どのブログへ、どの経路で出すか
- *   稼ぐ … 提携と、そこから返ってくるお金
- *   見る … 出したあとに何が起きたか
- *   整える … 作業場所そのものの手入れ
+ * 分類は**作業の対象物**である（2026-09-08、A5）。以前は動詞
+ * （素材/書く/出す/稼ぐ/見る/整える）で切っていたが、1 つの対象物についての作業が
+ * 複数の見出しに散り、運営者はどちらを開くか決められなかった。
+ * ラベルと中身の対応は `ADMIN_NAV_GROUP_LABELS` の doc が持つ。
  */
 export const ADMIN_NAV_GROUPS: readonly NavGroup[] = (
   Object.entries(ADMIN_NAV_GROUP_LABELS) as readonly [AdminNavGroupId, string][]

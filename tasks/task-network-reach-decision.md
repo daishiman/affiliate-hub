@@ -12,7 +12,7 @@ iteration: null
 title: "設計図を持つ 5 本のうち 2 本しか公開していないのは、決めた結果ではない"
 owners: ["daishiman"]
 created_at: "2026-08-31T06:30:00Z"
-updated_at: "2026-08-31T09:10:00Z"
+updated_at: "2026-09-08T07:54:16.932269Z"
 status: "done"
 depends_on: ["task-seed-satisfies-public-entry"]
 related_nodes: ["task-seed-satisfies-public-entry"]
@@ -39,7 +39,7 @@ classification_reason: "公開範囲の決め方そのものを問う仕様判�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-network-reach-decision.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-vctm","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

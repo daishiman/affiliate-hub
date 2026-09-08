@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-site-scoped-route-ownership。裏付け質疑 (`qa_refs`): `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
@@ -30,7 +30,7 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | frontend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-frontend-web-editor-verbatim` |
+| 確定質疑 (qa_ref) | `qa-frontend-web-site-scoped-route-ownership` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
@@ -54,7 +54,13 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-frontend-web-editor-verbatim (対応セル: web)
+### qa-frontend-web-site-scoped-route-ownership (対応セル: web)
+
+**質問**: frontend×web: ブログ単位へ移す画面の URL 階層をどう決め、いまの横断 URL (/admin/content/*, /admin/blog/*) からの移行をどう扱うか
+
+**回答**: /admin/sites/[site]/ を正本の階層とし、記事・読者像・書き方の決め事もこの配下へ置く。ブログを特定しない画面 (ブログ一覧・ブログ間比較) だけが /admin/sites とその上位に残る。既存の /admin/content/* と /admin/blog/* は消さずに転送で受け、ブログが特定できる場合は対応する /admin/sites/[site]/... へ、特定できない場合はブログ選択へ送る。既存の入口を突然消すと、書き手が覚えている経路と保存済みのリンクが一斉に死ぬためである。site セグメントが解決できないときは notFound とし、他ブログの内容を出さない。画面には『いまどのブログを見ているか』を常に出し、ブログの切替は同じ画面のまま別ブログへ移れる形にする
+
+### qa-frontend-web-editor-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: frontend×web: 記事に置ける表現物として利用者は何を挙げたか。断片カタログを起草する前に、利用者が実際に挙げた対象を逐語で記録する
 
@@ -526,6 +532,88 @@ site_blueprint.theme（設計図の既定）
 
 - 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
+### 実装で確定した URL 階層・転送規則・雛形複製経路 (feat-site-scoped-authoring-ia)
+
+**以下は利用者の回答ではない。** `feat-site-scoped-authoring-ia` の実装 (2026-09-08) で
+確定した URL 階層と転送規則を、章にしか居場所が無いまま消えないよう正本へ移したものである。
+上の質疑録と混ぜて読まないために区切ってある。
+
+`qa-frontend-web-site-scoped-route-ownership` で利用者は「ブログ単位へ移す画面の URL 階層」と
+「横断 URL を転送で受ける」方針を決めた。**どの住所をどこへ送るか、送らない住所はどれかは、
+受け皿の有無で決まる。**実装で確定した対応を残す。
+
+#### 所属替えした 6 route
+
+| 新しい住所 | 何の画面か |
+|---|---|
+| `/admin/sites/[site]/authors` | 書き手 |
+| `/admin/sites/[site]/authors/new` | 書き手を作る |
+| `/admin/sites/[site]/audience/personas` | 読者像 |
+| `/admin/sites/[site]/audience/personas/new` | 読者像を作る |
+| `/admin/sites/[site]/writing` | 書き方の決めごと (ブログの型で重み付けした複製) |
+| `/admin/writing/template` | 共通の雛形そのもの (横断に残す 1 枚) |
+
+管理 route は 93 本から 99 本になった。**畳んだのは入口の段であって route の本数ではない。**
+
+#### データ層は動かしていない
+
+**site 配下へ移ったのは画面 (住所) だけで、データはワークスペース単位のままである。**
+書き手も読者像も `workspaceId` で引く。
+
+この境界は意図的である。データを site 単位へ割ると既存ブログ全部に移行が要り、
+新規ブログを足すたびに初期データの作成が要る。住所だけを移せば、新しいブログを
+足した瞬間から書き手も読者像も配下に見える。ブログ固有の書き手が要るという要望が
+出たときに初めてデータ層を割る。
+
+その代わり **site 配下の画面は中身を読む前に必ず `resolveSiteOrNotFound(site)` を通す。**
+順番が逆だと、存在しないブログの住所でも一覧が出る。`getSite` が失敗したときは
+理由を言い分けずに `notFound()` を返す。「権限がありません」と「ありません」を
+出し分けると、住所を打つだけで他ワークスペースのブログの存否が読み取れる。
+受け先の `not-found.tsx` は `AppShell` を import も描画もしないので、
+サイドバーにブログ名が並ぶこともない。
+
+#### 転送規則
+
+転送する 5 本 (`legacyAdminRedirect` だけを呼ぶ殻。DOM を持たず `redirectOnly: true`):
+`/admin/personas`, `/admin/personas/new`, `/admin/personas/audiences`,
+`/admin/personas/audiences/new`, `/admin/writing`。
+
+ブログを特定できないとき (cookie 無し / 一覧が引けない / `?site=` が配列 /
+対応表に無い住所) は、どの不調でも `/admin/sites` (ブログ選択) へ出す。
+外の世界が期待どおり返らなかったことを利用者の画面に例外として見せない。
+
+**`/admin/content/*` は転送していない。**転送先の `/admin/sites/[site]/articles` が
+存在しない (正本は `feat-blog-scoped-admin-console`) ためで、存在しない住所へ
+転送する殻を先に置くと旧 URL が今より確実に壊れる。**移設は、受け皿が立ってから
+でなければ移設ではなく破壊である。**受け皿が入れば対応表 `LEGACY_SITE_SCOPED_ROUTES` に
+1 行足すだけで他の 5 本と同じ形になる。未転送の理由は
+`docs/spec/feat-site-scoped-authoring-ia/redirect-map-draft.json` の `not_redirected` に
+理由付きで載っており、黙って落としてはいない。
+
+#### 雛形の複製経路 — 複製するのは重みだけ
+
+`/admin/sites/[site]/writing` は `cloneWritingMethodForSite(共通雛形, そのブログの型)` を呼ぶ。
+**節も文体の決まりも共通のままで、変わるのは「このブログの型で特に外せない節に印が付く」
+ことだけである。**
+
+決めごとを丸ごと複製すると 10 本のブログで 10 通りの決まりができ、公開前の検査が
+どれを見るか決まらなくなる。この画面と公開前の検査は、コードの中の同じ 1 つの定義を読む。
+手引きを別文書として書けば、どちらかが必ず古くなり「手引きどおりに書いたのに検査で落ちる」が起きる。
+
+#### route を 1 本足すと同時に整合が要求される表
+
+`admin-route-metadata.ts` (route の正本) / `ADMIN_NAV_GROUPS` / `screen-information-ledger.json` /
+`admin-disclosure-contract.ts` / `tests/ui/route-cases.ts`。
+
+**後ろの 4 つは手書きの一覧ではなく正本からの射影である。**
+`tests/ui/route-cases.ts` の管理画面ケースが `ADMIN_ROUTE_METADATA.map(...)` である結果、
+route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + best-practice、違反 0 が条件) の
+対象になる。「画面は足したが検査の一覧に足し忘れた」という抜け方ができない。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: P13 書き戻し: 所属替えした6route・データ層を動かさない境界・転送5本と未転送/admin/content/*の理由・複製するのは重みだけ、は実装で確定した内容で章にしか居場所が無い。利用者の逐語には足さない。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -592,18 +680,23 @@ site_blueprint.theme（設計図の既定）
 
 #### 本章での適用
 
-##### 確定内容 qa-frontend-web-editor-verbatim (対応セル: web)
+##### 確定内容 qa-frontend-web-site-scoped-route-ownership (対応セル: web)
 
-- 確定要件: [追加要望 (2026-09-05)]
-「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
+- 確定要件: /admin/sites/[site]/ を正本の階層とし、記事・読者像・書き方の決め事もこの配下へ置く。ブログを特定しない画面 (ブログ一覧・ブログ間比較) だけが /admin/sites とその上位に残る。既存の /admin/content/* と /admin/blog/* は消さずに転送で受け、ブログが特定できる場合は対応する /admin/sites/[site]/... へ、特定できない場合はブログ選択へ送る。既存の入口を突然消すと、書き手が覚えている経路と保存済みのリンクが一斉に死ぬためである。site セグメントが解決できないときは notFound とし、他ブログの内容を出さない。画面には『いまどのブログを見ているか』を常に出し、ブログの切替は同じ画面のまま別ブログへ移れる形にする
+- 設計解釈の記録経路: `dialogue`
+- 原則: URL の階層は、画面が属する対象物と一致させる (`information-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 画面がブログに属するなら URL もブログの下に置く。そうすると『いまどのブログか』が URL に出るので、画面の中で別途表示しなくても文脈が保たれ、リンクを共有したときも相手が同じ文脈で開く
+  - トレードオフ:
+    - ブログをまたぐ一括操作は URL 上の置き場所が無くなる。横断側に別の入口を作る必要がある
+- 原則: 移行時に既存の入口を消さず転送で受ける (`information-design.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: 書き手は経路を身体で覚えており、保存済みのリンクもある。階層を変えた瞬間に旧経路を消すと、変更と無関係な作業まで止まる。転送で受ければ、覚え直しは自分のペースで進む
+  - トレードオフ:
+    - 転送を残すぶん経路が二重になり、どちらが正本かを検査で固定しないと新しい画面と古い画面が併存したまま放置される
+##### 接地根拠 qa-frontend-web-editor-verbatim (対応セル: web)
 
-[機能要望 (2026-09-05)]
-「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
-
-[AskUserQuestion「編集体験をどうするか」への選択]
-「断片欄を維持し、全断片を見た目へ（推奨）」
-
-※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-editor-verbatim` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 表現物の種類は、利用者が名指しした対象を取りこぼさない集合として定める (`information-design.md`)
   - 採否: `applied`

@@ -12,8 +12,8 @@ iteration: null
 title: "受入7件の受入判定"
 owners: ["daishiman"]
 created_at: "2026-08-30T12:31:04Z"
-updated_at: "2026-08-30T13:32:33.979235Z"
-status: "active"
+updated_at: "2026-09-05T04:01:31Z"
+status: "closed"
 closed_at: null
 depends_on: ["SYS-FB-CAPTURE-EXCLUSION-P06"]
 related_nodes: []

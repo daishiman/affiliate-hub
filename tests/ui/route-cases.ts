@@ -31,6 +31,7 @@ import { siteHref } from "@/presentation/site/view-model";
 import { BLOG_OPS_SAMPLE_ROUTE_IDS } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import { SAMPLE_ARTICLES } from "@/infrastructure/persistence/sample/content-sample-data";
 import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sample-repository";
+import { LEGACY_SITE_SCOPED_ROUTES } from "@/presentation/admin/site-scoped-redirect";
 import { ADMIN_ROUTE_METADATA } from "@/presentation/ui/admin-route-metadata";
 
 /** 開ける画面 1 枚分。`file` は `src/app` からの相対パス。 */
@@ -95,7 +96,16 @@ const ADMIN: readonly RouteCase[] = ADMIN_ROUTE_METADATA.map((route) => {
     ...(route.redirectOnly
       ? {
           searchParams: { site: SITE },
-          redirectTo: `/admin/sites/${encodeURIComponent(SITE)}/documents`,
+          /*
+            行き先を手で書かない。**対応表 `LEGACY_SITE_SCOPED_ROUTES` から引く。**
+            2026-09-08 まで全ての殻が `/documents` へ行く前提で固定していたが、
+            書き手・読者像・書き方の 5 枚を殻にした時点で、その前提は崩れた。
+            表から引けば、行き先を変えた日に検査も一緒に動く。
+            表に無い殻（`blog/pages`）だけが `/documents` へ行く。
+          */
+          redirectTo: (
+            LEGACY_SITE_SCOPED_ROUTES[route.pattern] ?? "/admin/sites/[site]/documents"
+          ).replace("[site]", encodeURIComponent(SITE)),
         }
       : {}),
     ...(names.length === 0

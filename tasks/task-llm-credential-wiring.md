@@ -12,7 +12,7 @@ iteration: null
 title: "生成 AI の鍵を画面から登録できるようにする（設定画面と組み立ての配線）"
 owners: ["daishiman"]
 created_at: "2026-08-18T03:00:00Z"
-updated_at: "2026-08-18T03:00:00Z"
+updated_at: "2026-09-08T07:26:27.007530Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-llm-provider-connection"]
@@ -39,7 +39,7 @@ classification_reason: "実装済のユースケースが組み立てからも�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-llm-credential-wiring.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-nuy","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

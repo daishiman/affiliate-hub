@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-09-08
-- テストファイル: 523 件
-- 由来の要件が分かる: 523 件
+- テストファイル: 530 件
+- 由来の要件が分かる: 530 件
 - **由来不明: 0 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -34,6 +34,7 @@
 | `tests/acceptance/feat-blog-ui-builder/public-appearance.test.ts` | REQ-BLOG02 | 印 |
 | `tests/acceptance/feat-blog-ui-builder/sticky-layout.test.ts` | REQ-UX08 | 印 |
 | `tests/acceptance/feat-blog-ui-builder/template-and-theme.test.ts` | REQ-BLOG01, REQ-BLOG02 | 印 |
+| `tests/acceptance/site-scoped-redirect-map.test.ts` | REQ-S09 | 印 |
 | `tests/application/access-denial-recording.test.ts` | REQ-SEC01, REQ-SEC09 | 印 |
 | `tests/application/affiliate.test.ts` | REQ-A07, REQ-P09 | 印と表 |
 | `tests/application/ai-usage-report.test.ts` | REQ-TM03 | 印と表 |
@@ -46,6 +47,7 @@
 | `tests/application/blog-placement-journey.test.tsx` | REQ-A07 | 印 |
 | `tests/application/build-site.test.ts` | REQ-A05, REQ-P07, REQ-S06 | 印と表 |
 | `tests/application/capacity.test.ts` | REQ-P01 | 印 |
+| `tests/application/clone-writing-method-for-site.test.ts` | REQ-S09 | 印 |
 | `tests/application/concept-drafts.test.ts` | REQ-UX02 | 印 |
 | `tests/application/dashboard.test.ts` | REQ-S01 | 表 |
 | `tests/application/draft-content-variant.test.ts` | REQ-G11 | 印と表 |
@@ -410,6 +412,8 @@
 | `tests/presentation/site-contact-action.test.ts` | REQ-B18, REQ-SEC02 | 印 |
 | `tests/presentation/site-document-action.test.ts` | REQ-P07 | 印 |
 | `tests/presentation/site-metadata.test.ts` | REQ-SEO01 | 印 |
+| `tests/presentation/site-scoped-entry.test.ts` | REQ-S09 | 印 |
+| `tests/presentation/site-scoped-redirect.test.ts` | REQ-S09 | 印 |
 | `tests/presentation/spec-contract.test.ts` | REQ-M01, REQ-M02, REQ-WA01, REQ-WA02 | 印と表 |
 | `tests/presentation/storage-notice.test.ts` | REQ-BOPS12, REQ-TS09 | 印と表 |
 | `tests/presentation/tool-catalog-adapters.test.ts` | REQ-M03, REQ-TS04, REQ-WC01 | 印と表 |
@@ -417,6 +421,7 @@
 | `tests/presentation/tool-declaration-truth.test.ts` | REQ-M03 | 印 |
 | `tests/presentation/webmcp-policy.test.ts` | REQ-WC03, REQ-WC04 | 印と表 |
 | `tests/presentation/webmcp-registration.test.ts` | REQ-WC01, REQ-WC02 | 印と表 |
+| `tests/presentation/work-object-board.test.ts` | REQ-S09 | 印 |
 | `tests/property/generator-floor.property.test.ts` | REQ-API02, REQ-B12, REQ-E14, REQ-IM05, REQ-P01, REQ-P02, REQ-P03, REQ-P04, REQ-QC09, REQ-QC12, REQ-R11, REQ-R12, REQ-SEC04, REQ-SEC06, REQ-TH01, REQ-TH03 | 印 |
 | `tests/property/normalization.property.test.ts` | REQ-P02, REQ-P03, REQ-TH01, REQ-TH02, REQ-TH03 | 印と表 |
 | `tests/property/publish-gate.property.test.ts` | REQ-QC09, REQ-QC12, REQ-SEC06 | 印と表 |
@@ -518,8 +523,10 @@
 | `tests/ui/route-branch-reached.test.ts` | REQ-S09 | 印 |
 | `tests/ui/schedule-publication-form.test.tsx` | REQ-P08 | 印と表 |
 | `tests/ui/screen-hit-and-current.test.tsx` | REQ-P02, REQ-S01, REQ-S08, REQ-S09, REQ-S10 | 印と表 |
+| `tests/ui/shared-persona-scope-notice.test.tsx` | REQ-S09 | 印 |
 | `tests/ui/site-aside.test.tsx` | REQ-TM06 | 印 |
 | `tests/ui/site-not-found.test.tsx` | REQ-B01 | 表 |
+| `tests/ui/site-scoped-authoring-ia.test.tsx` | REQ-S09 | 印 |
 | `tests/ui/site-wizard-form.test.tsx` | REQ-P07, REQ-S06 | 印 |
 | `tests/ui/site-wizard-template.test.tsx` | REQ-A01 | 印 |
 | `tests/ui/surface-outline-count.test.ts` | REQ-S09 | 印 |
@@ -544,4 +551,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:c09cdeb74371488b24cfa41a56cf81a929ada5cc3c0454ad0b9617f62e198c60 -->
+<!-- 生成物の指紋 sha256:a835cae0111e7acaa730ed676a9afb4c28d666f6ccfb66cf1e34e887f34aee82 -->

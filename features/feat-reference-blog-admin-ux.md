@@ -12,7 +12,7 @@ iteration: null
 title: "参照ブログ解析と低認知負荷の運用 UX"
 owners: ["daishiman"]
 created_at: "2026-08-29T14:36:00Z"
-updated_at: "2026-09-07T15:54:28.391966Z"
+updated_at: "2026-09-08T07:47:38.475745Z"
 status: "active"
 depends_on: ["feat-blog-ops-crud","feat-blog-ui-builder","feat-affiliate-inbox"]
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview","feat-affiliate-hub","feat-reader-surface"]
@@ -38,7 +38,7 @@ classification_reason: "今回の新規要望を、参照サイトの全URL台�
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-reference-blog-admin-ux.md","confidence":0.98}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-z8x6","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

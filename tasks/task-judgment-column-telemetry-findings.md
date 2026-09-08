@@ -12,7 +12,7 @@ iteration: null
 title: "判定欄が指す検査が実在しない・別のものを見ている（計測 5 件の実測と、残り 22 件への引き継ぎ）"
 owners: ["daishiman"]
 created_at: "2026-08-19T05:20:00Z"
-updated_at: "2026-08-21T05:20:00Z"
+updated_at: "2026-09-08T07:36:34.106227Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-judgment-column-audit"]
@@ -39,7 +39,7 @@ classification_reason: "ah-9id (task-judgment-column-audit) の TM 群の実測�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-judgment-column-telemetry-findings.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-2jm","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測の要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:53:06.582563Z"
-status: "active"
+updated_at: "2026-09-04T10:30:59Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-reader-behavior-analytics/requirements-baseline.md","docs/spec/feat-reader-behavior-analytics/privacy-constraints.md","docs/spec/feat-reader-behavior-analytics/measurement-inventory.md"]

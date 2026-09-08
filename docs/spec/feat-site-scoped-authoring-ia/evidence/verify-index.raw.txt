@@ -1,0 +1,25 @@
+$ python3 scripts/reference-site-analysis/verify_evidence_index.py --index docs/spec/feat-site-scoped-authoring-ia/evidence/index.json --repo-root .
+{
+  "ok": false,
+  "entry_count": 9,
+  "missing": [
+    "phase:P01",
+    "requirement:A11",
+    "requirement:A12"
+  ],
+  "duplicates": [],
+  "stale": [],
+  "invalid": []
+}
+
+# 読み方: stale / duplicates / invalid が空 = 全 entry の sha256 が現物と一致。
+# missing の 3 件は script が feat-reference-blog-admin-ux 専用の期待値
+# (A1..A12 / P01,P06,P07,P09,P10) を定数で持つことによる。本 feature の受入は
+# A1..A10、phase は P06..P10 なので、A11/A12/P01 は最初から存在しない。
+#
+# 2026-09-08 再実行: P03 独立レビューを受けて redirect-map-draft.json を更新したため
+# p05-redirect-map-draft の digest を取り直した。stale が空へ戻ったことを確認済み。
+#
+# 2026-09-09 再実行: CI (PR #56) の指摘で文書ガバナンス 3 ファイルの失敗が
+# 「既存分ではなく本 PR 由来」と判明し、final-review.md §6 を訂正した。
+# p10-final-review の digest を取り直した。stale が空へ戻ったことを確認済み。

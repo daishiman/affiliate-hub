@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "feature": "feat-site-scoped-authoring-ia",
+  "generated_at": "2026-09-08T22:45:03+09:00",
+  "tool_versions": {
+    "verifier": "verify-evidence-index/1",
+    "vitest": "4.1.10",
+    "node_runtime": "pnpm workspace lockfile",
+    "next": "16.3.1"
+  },
+  "entries": [
+    {
+      "id": "p06-test-run-report",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/test-run-report.md",
+      "sha256": "1b2522fd51e842fddaad126ed82d77edc7f69ceee3391d76824d63b4eebe04f4",
+      "captured_at": "2026-09-08T22:45:03+09:00",
+      "requirements": [
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A7",
+        "A8",
+        "A9",
+        "A10"
+      ],
+      "phases": [
+        "P06"
+      ]
+    },
+    {
+      "id": "p07-acceptance-report",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/acceptance-report.md",
+      "sha256": "c31d877ee3308d95ff28d1038ce7b72a983da36b8db467532505775edaaf4008",
+      "captured_at": "2026-09-08T22:45:03+09:00",
+      "requirements": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10"
+      ],
+      "phases": [
+        "P07"
+      ]
+    },
+    {
+      "id": "p08-migration-report",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/migration-report.md",
+      "sha256": "25aa9c0d2df01c585f8eb850d8d03dfbc71acd091bac12e76044dd1e343aa347",
+      "captured_at": "2026-09-08T20:31:05+09:00",
+      "requirements": [
+        "A1",
+        "A2",
+        "A8"
+      ],
+      "phases": [
+        "P08"
+      ]
+    },
+    {
+      "id": "p09-quality-report",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/quality-report.md",
+      "sha256": "1c5c59e4e300ab9e7733b02289cc824f37653587866eb40690ce28339cacdbc5",
+      "captured_at": "2026-09-08T22:45:03+09:00",
+      "requirements": [
+        "A6",
+        "A9"
+      ],
+      "phases": [
+        "P09"
+      ]
+    },
+    {
+      "id": "p10-final-review",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/final-review.md",
+      "sha256": "65070d872e34caca13b7a64e938009e056bf96eaefd96efcac6a0ba2116a6c36",
+      "captured_at": "2026-09-09T06:30:00+09:00",
+      "requirements": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10"
+      ],
+      "phases": [
+        "P10"
+      ]
+    },
+    {
+      "id": "p07-build-route-table-raw",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/evidence/build-route-table.raw.txt",
+      "sha256": "7ead42458ce78d6bf4d6eba16f7f2b4b7d65001f47d9df27e7451d122aa6b428",
+      "captured_at": "2026-09-08T20:38:42+09:00",
+      "requirements": [
+        "A1"
+      ],
+      "phases": [
+        "P07"
+      ]
+    },
+    {
+      "id": "p07-preview-route-responses-raw",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/evidence/preview-route-responses.raw.txt",
+      "sha256": "55736fe2cd34c68850af36a0833255c093c16db176b5b4cda8f8c7ea997f5add",
+      "captured_at": "2026-09-08T20:38:51+09:00",
+      "requirements": [
+        "A1",
+        "A2",
+        "A3",
+        "A4"
+      ],
+      "phases": [
+        "P07",
+        "P09"
+      ]
+    },
+    {
+      "id": "p06-vitest-full-raw",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/evidence/vitest-full.raw.txt",
+      "sha256": "a78340cfcfea971d5a9293f9f88bff5b03410aebee33918fc0b5fb1f489eb6ac",
+      "captured_at": "2026-09-08T22:45:03+09:00",
+      "requirements": [
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A7",
+        "A8",
+        "A9",
+        "A10"
+      ],
+      "phases": [
+        "P06"
+      ]
+    },
+    {
+      "id": "p05-redirect-map-draft",
+      "path": "docs/spec/feat-site-scoped-authoring-ia/redirect-map-draft.json",
+      "sha256": "917b9c0227d92d4a8c8fe5d67fae1da53a0e3a06459cc5a68cc0f7d02ccf93fa",
+      "captured_at": "2026-09-08T21:07:56+09:00",
+      "requirements": [
+        "A2",
+        "A3"
+      ],
+      "phases": [
+        "P07"
+      ]
+    }
+  ]
+}

@@ -12,8 +12,8 @@ iteration: null
 title: "既存公開面生成経路との重複解消と移行"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T03:01:41.472986Z"
-status: "active"
+updated_at: "2026-09-04T10:45:40Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P05"]
 related_nodes: []
 resource_scope: ["src/app/(reader)/","src/application/seo/","docs/spec/feat-seo-assessment-reflection/migration-notes.md"]

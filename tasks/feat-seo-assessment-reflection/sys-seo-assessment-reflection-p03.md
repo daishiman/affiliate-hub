@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 診断設計の独立レビューと着手可否判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T02:59:27.479418Z"
-status: "active"
+updated_at: "2026-09-04T10:45:30Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-assessment-reflection/design-review-findings.md","docs/spec/feat-seo-assessment-reflection/approval-path-diagram.md"]

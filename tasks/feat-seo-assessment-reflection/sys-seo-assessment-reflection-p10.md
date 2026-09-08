@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 診断の最終レビュー"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T03:02:40.301963Z"
-status: "active"
+updated_at: "2026-09-04T10:45:44Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-assessment-reflection/final-review.md"]

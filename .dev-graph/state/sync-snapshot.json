@@ -1,0 +1,6818 @@
+{
+  "nodes": {
+    "SYS-AEO-ANSWER-OPTIMIZATION-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "回答単位と AI クローラ方針の要求ベースライン確定",
+          "remote": "回答単位と AI クローラ方針の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P01"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "回答単位テーブルと配信契約の確定",
+          "remote": "回答単位テーブルと配信契約の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P02"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO 設計の独立レビューと着手可否判定",
+          "remote": "AEO 設計の独立レビューと着手可否判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P03"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO の受入テスト設計",
+          "remote": "AEO の受入テスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P04"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "回答単位と AI 向け配信の実装",
+          "remote": "回答単位と AI 向け配信の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P05"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO のテスト実行と緑化",
+          "remote": "AEO のテスト実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P06"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO の受入9件の判定",
+          "remote": "AEO の受入9件の判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P05"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 側構造化データ経路との重複解消と移行",
+          "remote": "SEO 側構造化データ経路との重複解消と移行"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P08"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO の非機能検査",
+          "remote": "AEO の非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P09"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO の最終レビュー",
+          "remote": "AEO の最終レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+            "SYS-AEO-ANSWER-OPTIMIZATION-P09"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+            "SYS-AEO-ANSWER-OPTIMIZATION-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO の証跡集約",
+          "remote": "AEO の証跡集約"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+            "SYS-AEO-ANSWER-OPTIMIZATION-P11"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+            "SYS-AEO-ANSWER-OPTIMIZATION-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO の運用手順と回答単位の書き方の説明",
+          "remote": "AEO の運用手順と回答単位の書き方の説明"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AEO-ANSWER-OPTIMIZATION-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P12"
+          ],
+          "remote": [
+            "SYS-AEO-ANSWER-OPTIMIZATION-P12"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "AEO のリリースと仕様書への書き戻し",
+          "remote": "AEO のリリースと仕様書への書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "19種断片カタログと保存形式・Worker API画像契約の要求ベースライン確定",
+          "remote": "19種断片カタログと保存形式・Worker API画像契約の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P01"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P01"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブロックエディター描画・保存契約とWorker API画像アップロード経路の設計",
+          "remote": "ブロックエディター描画・保存契約とWorker API画像アップロード経路の設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P02"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P02"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "設計レビュー — Worker API契約とpresigned PUT残滓の不在確認",
+          "remote": "設計レビュー — Worker API契約とpresigned PUT残滓の不在確認"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P03"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P03"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "受入7件に対応するテスト設計 (Worker API境界値含む)",
+          "remote": "受入7件に対応するテスト設計 (Worker API境界値含む)"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P04"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P04"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブロックエディターWYSIWYG化とWorker API画像アップロード・許可リスト描画の実装",
+          "remote": "ブロックエディターWYSIWYG化とWorker API画像アップロード・許可リスト描画の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P05"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P05"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "テスト実行 — 実装全量の回帰・境界値・Worker APIシナリオ",
+          "remote": "テスト実行 — 実装全量の回帰・境界値・Worker APIシナリオ"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P06"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P06"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "受入確認 — A1-A7 全件のPASS証跡取得",
+          "remote": "受入確認 — A1-A7 全件のPASS証跡取得"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P05"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P05"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "リファクタリング・既存記事移行互換確認",
+          "remote": "リファクタリング・既存記事移行互換確認"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P08"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P08"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "品質保証 — Worker API認可境界・セキュリティ・パフォーマンス検証",
+          "remote": "品質保証 — Worker API認可境界・セキュリティ・パフォーマンス検証"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P09"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P09"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "最終レビューと残課題の確定",
+          "remote": "最終レビューと残課題の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P07",
+            "SYS-ARTICLE-BLOCK-EDITOR-P09"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P07",
+            "SYS-ARTICLE-BLOCK-EDITOR-P09"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "受入・品質証跡の集約と検証可能性の確保",
+          "remote": "受入・品質証跡の集約と検証可能性の確保"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P10",
+            "SYS-ARTICLE-BLOCK-EDITOR-P11"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P10",
+            "SYS-ARTICLE-BLOCK-EDITOR-P11"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "運用手順と文書化 — 孤児画像回収と管理者向け説明",
+          "remote": "運用手順と文書化 — 孤児画像回収と管理者向け説明"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-ARTICLE-BLOCK-EDITOR-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P12"
+          ],
+          "remote": [
+            "SYS-ARTICLE-BLOCK-EDITOR-P12"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "開発環境へのリリースとWorker API決定のsystem-specへの書き戻し",
+          "remote": "開発環境へのリリースとWorker API決定のsystem-specへの書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "認証/Workspace 基盤の要求ベースライン確定",
+          "remote": "認証/Workspace 基盤の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P01"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "認証/Workspace/Brand/RBAC アーキテクチャ設計",
+          "remote": "認証/Workspace/Brand/RBAC アーキテクチャ設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P02"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "アーキテクチャ独立設計レビュー",
+          "remote": "アーキテクチャ独立設計レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P03"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受け入れ条件に基づくテストファースト設計",
+          "remote": "受け入れ条件に基づくテストファースト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P04"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "Better Auth・Workspace・RBAC 実装",
+          "remote": "Better Auth・Workspace・RBAC 実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P05"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "認証/Workspace/RBAC テスト実行",
+          "remote": "認証/Workspace/RBAC テスト実行"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P06"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "feat-auth-workspace 受け入れ判定",
+          "remote": "feat-auth-workspace 受け入れ判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P05"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "workspace_id 移行とスキーマ整備",
+          "remote": "workspace_id 移行とスキーマ整備"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P08"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "品質・セキュリティ・運用保証",
+          "remote": "品質・セキュリティ・運用保証"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P09"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独立最終レビュー",
+          "remote": "独立最終レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P07",
+            "SYS-AUTH-WORKSPACE-P09"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P07",
+            "SYS-AUTH-WORKSPACE-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "再現可能な証跡取得",
+          "remote": "再現可能な証跡取得"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P10",
+            "SYS-AUTH-WORKSPACE-P11"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P10",
+            "SYS-AUTH-WORKSPACE-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "ドキュメント・ランブック・引き継ぎ",
+          "remote": "ドキュメント・ランブック・引き継ぎ"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-AUTH-WORKSPACE-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-AUTH-WORKSPACE-P12"
+          ],
+          "remote": [
+            "SYS-AUTH-WORKSPACE-P12"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "リリース/デプロイとクローズアウト",
+          "remote": "リリース/デプロイとクローズアウト"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン接続の要求ベースライン確定",
+          "remote": "独自ドメイン接続の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P01"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "site_custom_domains のデータモデルと provider 連携契約の確定",
+          "remote": "site_custom_domains のデータモデルと provider 連携契約の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P02"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン設計の独立レビューと着手可否判定",
+          "remote": "独自ドメイン設計の独立レビューと着手可否判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P03"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン受入のテスト設計",
+          "remote": "独自ドメイン受入のテスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P04"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン接続機能の実装",
+          "remote": "独自ドメイン接続機能の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン機能のテスト実行と緑化",
+          "remote": "独自ドメイン機能のテスト実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P06"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン受入10件の判定",
+          "remote": "独自ドメイン受入10件の判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "既存ホスト解決経路との重複解消と移行",
+          "remote": "既存ホスト解決経路との重複解消と移行"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P08"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン機能の非機能検査",
+          "remote": "独自ドメイン機能の非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン機能の最終レビュー",
+          "remote": "独自ドメイン機能の最終レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P07",
+            "SYS-BLOG-CUSTOM-DOMAIN-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P07",
+            "SYS-BLOG-CUSTOM-DOMAIN-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン機能の証跡集約",
+          "remote": "独自ドメイン機能の証跡集約"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P10",
+            "SYS-BLOG-CUSTOM-DOMAIN-P11"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P10",
+            "SYS-BLOG-CUSTOM-DOMAIN-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン接続の運用手順と利用者向け説明",
+          "remote": "独自ドメイン接続の運用手順と利用者向け説明"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-CUSTOM-DOMAIN-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P12"
+          ],
+          "remote": [
+            "SYS-BLOG-CUSTOM-DOMAIN-P12"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "独自ドメイン機能のリリースと仕様書への書き戻し",
+          "remote": "独自ドメイン機能のリリースと仕様書への書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップの要求ベースライン確定",
+          "remote": "日次ロールアップの要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P01"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次指標テーブルと冪等集計の契約確定",
+          "remote": "日次指標テーブルと冪等集計の契約確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P02"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "集計設計の独立レビューと着手可否判定",
+          "remote": "集計設計の独立レビューと着手可否判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P03"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップの受入テスト設計",
+          "remote": "日次ロールアップの受入テスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P04"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップ処理の実装",
+          "remote": "日次ロールアップ処理の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップのテスト実行と緑化",
+          "remote": "日次ロールアップのテスト実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P06"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップの受入9件の判定",
+          "remote": "日次ロールアップの受入9件の判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "既存集計経路との重複解消と移行",
+          "remote": "既存集計経路との重複解消と移行"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P08"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップの非機能検査",
+          "remote": "日次ロールアップの非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップの最終レビュー",
+          "remote": "日次ロールアップの最終レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P07",
+            "SYS-BLOG-METRICS-ROLLUP-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P07",
+            "SYS-BLOG-METRICS-ROLLUP-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップの証跡集約",
+          "remote": "日次ロールアップの証跡集約"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P10",
+            "SYS-BLOG-METRICS-ROLLUP-P11"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P10",
+            "SYS-BLOG-METRICS-ROLLUP-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップの運用手順と数値定義の説明",
+          "remote": "日次ロールアップの運用手順と数値定義の説明"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-METRICS-ROLLUP-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-METRICS-ROLLUP-P12"
+          ],
+          "remote": [
+            "SYS-BLOG-METRICS-ROLLUP-P12"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "日次ロールアップのリリースと仕様書への書き戻し",
+          "remote": "日次ロールアップのリリースと仕様書への書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "サイト網ブログ運用 CRUD の要求ベースライン確定",
+          "remote": "サイト網ブログ運用 CRUD の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P01"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "サイト網・記事・固定ページ・配信部品のデータモデルとAPI契約の設計",
+          "remote": "サイト網・記事・固定ページ・配信部品のデータモデルとAPI契約の設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P02"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "設計レビューとブループリント検証規則 (BP/AT) 整合確認",
+          "remote": "設計レビューとブループリント検証規則 (BP/AT) 整合確認"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P03"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "サイト網 CRUD・記事CRUD・固定ページ・配信部品のテスト設計",
+          "remote": "サイト網 CRUD・記事CRUD・固定ページ・配信部品のテスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P04"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "サイト網・記事CRUD・固定ページ・配信部品・評価機能の実装",
+          "remote": "サイト網・記事CRUD・固定ページ・配信部品・評価機能の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "実装のテスト実行と緑化",
+          "remote": "実装のテスト実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P06"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入14件 (A1-A14) の受入検証",
+          "remote": "受入14件 (A1-A14) の受入検証"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "既存 articles スキーマ・admin/content 系画面との重複解消と移行",
+          "remote": "既存 articles スキーマ・admin/content 系画面との重複解消と移行"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P08"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "品質保証 (アクセシビリティ・回帰・転用禁止ゲートの独立検査)",
+          "remote": "品質保証 (アクセシビリティ・回帰・転用禁止ゲートの独立検査)"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P07",
+            "SYS-BLOG-OPS-CRUD-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P07",
+            "SYS-BLOG-OPS-CRUD-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "最終レビューと promotion 可否判定",
+          "remote": "最終レビューと promotion 可否判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P07",
+            "SYS-BLOG-OPS-CRUD-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P07",
+            "SYS-BLOG-OPS-CRUD-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入・QA証跡の集約",
+          "remote": "受入・QA証跡の集約"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P10",
+            "SYS-BLOG-OPS-CRUD-P11"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P10",
+            "SYS-BLOG-OPS-CRUD-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "運用文書・API/コンポーネント文書の確定",
+          "remote": "運用文書・API/コンポーネント文書の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-OPS-CRUD-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-OPS-CRUD-P12"
+          ],
+          "remote": [
+            "SYS-BLOG-OPS-CRUD-P12"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "開発環境へのリリースとsystem-specへの書き戻し",
+          "remote": "開発環境へのリリースとsystem-specへの書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "ブログ単位管理画面の要求ベースライン確定",
+          "remote": "ブログ単位管理画面の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "画面階層とデータ読み取り経路の設計確定",
+          "remote": "画面階層とデータ読み取り経路の設計確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面設計の独立レビューと着手可否判定",
+          "remote": "管理画面設計の独立レビューと着手可否判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面の受入テスト設計",
+          "remote": "管理画面の受入テスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "ブログ階層管理画面の実装",
+          "remote": "ブログ階層管理画面の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面のテスト実行と緑化",
+          "remote": "管理画面のテスト実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面の受入10件の判定",
+          "remote": "管理画面の受入10件の判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "既存 admin 画面との重複解消と移行",
+          "remote": "既存 admin 画面との重複解消と移行"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面の非機能検査",
+          "remote": "管理画面の非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面の最終レビュー",
+          "remote": "管理画面の最終レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07",
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面の証跡集約",
+          "remote": "管理画面の証跡集約"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10",
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面の運用手順と読み方の説明",
+          "remote": "管理画面の運用手順と読み方の説明"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12"
+          ],
+          "remote": [
+            "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P12"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "管理画面のリリースと仕様書への書き戻し",
+          "remote": "管理画面のリリースと仕様書への書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "ブログ UI ビルダーの要求ベースライン確定",
+          "remote": "ブログ UI ビルダーの要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P01"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "データモデル・テーマ契約・コンポーネント契約・管理API契約・SEO/AI検索契約の設計",
+          "remote": "データモデル・テーマ契約・コンポーネント契約・管理API契約・SEO/AI検索契約の設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P02"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "設計レビューと参照妥当性・テーマ一貫性・SEO/AI検索設計の独立検証",
+          "remote": "設計レビューと参照妥当性・テーマ一貫性・SEO/AI検索設計の独立検証"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P03"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入14件に対応するテスト設計",
+          "remote": "受入14件に対応するテスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P04"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装",
+          "remote": "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "テスト全量実行と回帰0件の確認",
+          "remote": "テスト全量実行と回帰0件の確認"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P06"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入14件の受け入れ判定",
+          "remote": "受入14件の受け入れ判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P05"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "既存サイト管理画面の新エンティティへの移行と重複実装の解消",
+          "remote": "既存サイト管理画面の新エンティティへの移行と重複実装の解消"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P08"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "品質保証とアクセシビリティ・非機能検査",
+          "remote": "品質保証とアクセシビリティ・非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "最終レビューと残課題の確定",
+          "remote": "最終レビューと残課題の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P07",
+            "SYS-BLOG-UI-BUILDER-P09"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P07",
+            "SYS-BLOG-UI-BUILDER-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入・品質証跡の集約と検証可能性の確保",
+          "remote": "受入・品質証跡の集約と検証可能性の確保"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P10",
+            "SYS-BLOG-UI-BUILDER-P11"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P10",
+            "SYS-BLOG-UI-BUILDER-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "UI規則・SEO/AI検索運用規則と運用手順の文書化",
+          "remote": "UI規則・SEO/AI検索運用規則と運用手順の文書化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-BLOG-UI-BUILDER-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-BLOG-UI-BUILDER-P12"
+          ],
+          "remote": [
+            "SYS-BLOG-UI-BUILDER-P12"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "開発環境へのリリースとsystem-specへの書き戻し",
+          "remote": "開発環境へのリリースとsystem-specへの書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "改善要望の写しに送信 UI が写り込む条件の要求ベースライン確定",
+          "remote": "改善要望の写しに送信 UI が写り込む条件の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P01"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "撮影と送信 UI 可視化を別の時点へ分ける設計の確定",
+          "remote": "撮影と送信 UI 可視化を別の時点へ分ける設計の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P02"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "設計の独立レビューと退避経路の妥当性判定",
+          "remote": "設計の独立レビューと退避経路の妥当性判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P03"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "写り込み検査と退避経路のテスト設計",
+          "remote": "写り込み検査と退避経路のテスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P04"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "撮影中だけ送信 UI を写しの対象から外す実装",
+          "remote": "撮影中だけ送信 UI を写しの対象から外す実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P05"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "写り込み検査と回帰テストの実行と緑化",
+          "remote": "写り込み検査と回帰テストの実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P06"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入7件の受入判定",
+          "remote": "受入7件の受入判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P07"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P07"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "浮遊要素の属性統一と重なり監査との共通化",
+          "remote": "浮遊要素の属性統一と重なり監査との共通化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P08"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "品質保証と非機能の確認",
+          "remote": "品質保証と非機能の確認"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P09"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "最終レビューと反映漏れの判定",
+          "remote": "最終レビューと反映漏れの判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P10"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P10"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "証跡の収集と保全",
+          "remote": "証跡の収集と保全"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P11"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "仕様書と運用手順の追補",
+          "remote": "仕様書と運用手順の追補"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-FB-CAPTURE-EXCLUSION-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-FB-CAPTURE-EXCLUSION-P12"
+          ],
+          "remote": [
+            "SYS-FB-CAPTURE-EXCLUSION-P12"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "dev への反映と公開",
+          "remote": "dev への反映と公開"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測の要求ベースライン確定",
+          "remote": "読者行動計測の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P01"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "reader_interaction_events のデータモデルと計測契約の確定",
+          "remote": "reader_interaction_events のデータモデルと計測契約の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P02"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測設計の独立レビューと着手可否判定",
+          "remote": "読者行動計測設計の独立レビューと着手可否判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P03"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測の受入テスト設計",
+          "remote": "読者行動計測の受入テスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P04"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測とヒートマップの実装",
+          "remote": "読者行動計測とヒートマップの実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測のテスト実行と緑化",
+          "remote": "読者行動計測のテスト実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P06"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測の受入10件の判定",
+          "remote": "読者行動計測の受入10件の判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "既存イベント基盤との重複解消と移行",
+          "remote": "既存イベント基盤との重複解消と移行"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P08"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測の非機能検査",
+          "remote": "読者行動計測の非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測の最終レビュー",
+          "remote": "読者行動計測の最終レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+            "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+            "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測の証跡集約",
+          "remote": "読者行動計測の証跡集約"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+            "SYS-READER-BEHAVIOR-ANALYTICS-P11"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+            "SYS-READER-BEHAVIOR-ANALYTICS-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測の運用手順と説明",
+          "remote": "読者行動計測の運用手順と説明"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-READER-BEHAVIOR-ANALYTICS-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P12"
+          ],
+          "remote": [
+            "SYS-READER-BEHAVIOR-ANALYTICS-P12"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "読者行動計測のリリースと仕様書への書き戻し",
+          "remote": "読者行動計測のリリースと仕様書への書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "全公開URL・画面型・現行画面の要求ベースライン確定",
+          "remote": "全公開URL・画面型・現行画面の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P01"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P01"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "低認知負荷UI・URLプレビュー・非模倣公開面の設計",
+          "remote": "低認知負荷UI・URLプレビュー・非模倣公開面の設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P02"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P02"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "設計の独立レビューと非模倣・安全性ゲート",
+          "remote": "設計の独立レビューと非模倣・安全性ゲート"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P03"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P03"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "受入・回帰・アクセシビリティ・ユーザビリティのテスト設計",
+          "remote": "受入・回帰・アクセシビリティ・ユーザビリティのテスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P04"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P04"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "分析基盤・公開面・直感的管理CRUD・affiliate可視化の実装",
+          "remote": "分析基盤・公開面・直感的管理CRUD・affiliate可視化の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "単体・結合・E2E・securityテストの実行と緑化",
+          "remote": "単体・結合・E2E・securityテストの実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P06"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P06"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "A1–A12と初見操作性のfeature受入",
+          "remote": "A1–A12と初見操作性のfeature受入"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P05"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "既存blog-ops・affiliate・保存モデルとの移行と重複解消",
+          "remote": "既存blog-ops・affiliate・保存モデルとの移行と重複解消"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P08"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P08"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "アクセシビリティ・性能・安全性・非模倣の独立QA",
+          "remote": "アクセシビリティ・性能・安全性・非模倣の独立QA"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P09"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P09"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "目的・受入・品質証跡の独立最終レビュー",
+          "remote": "目的・受入・品質証跡の独立最終レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P10"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P07",
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P09",
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P10"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "全URL分析・受入・QA証跡の再現可能な集約",
+          "remote": "全URL分析・受入・QA証跡の再現可能な集約"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P11"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P10",
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P11"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "管理者ガイド・分析更新runbook・障害対応の確定",
+          "remote": "管理者ガイド・分析更新runbook・障害対応の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-REFERENCE-BLOG-ADMIN-UX-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P12"
+          ],
+          "remote": [
+            "SYS-REFERENCE-BLOG-ADMIN-UX-P12"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "development段階展開・rollback確認・仕様書への書き戻し",
+          "remote": "development段階展開・rollback確認・仕様書への書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO/AEO 未実装差分の要求ベースライン確定",
+          "remote": "SEO/AEO 未実装差分の要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P01"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "点検履歴の保持と定期再点検経路とJSON-LD導出の設計",
+          "remote": "点検履歴の保持と定期再点検経路とJSON-LD導出の設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P02"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "設計レビューと既存 SEO 実装との重複有無の独立検証",
+          "remote": "設計レビューと既存 SEO 実装との重複有無の独立検証"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P03"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入6件に対応するテスト設計",
+          "remote": "受入6件に対応するテスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P04"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "HowTo・Speakable 導出と点検履歴と定期再点検と管理画面一覧の実装",
+          "remote": "HowTo・Speakable 導出と点検履歴と定期再点検と管理画面一覧の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P05"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "テスト全量実行と回帰0件の確認",
+          "remote": "テスト全量実行と回帰0件の確認"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P06"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入6件の受け入れ判定",
+          "remote": "受入6件の受け入れ判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P05"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "既存 SEO 実装との統合整理とマイグレーションの前方互換確認",
+          "remote": "既存 SEO 実装との統合整理とマイグレーションの前方互換確認"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P08"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "品質保証と非機能検査",
+          "remote": "品質保証と非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P09"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "最終レビューと残課題の確定",
+          "remote": "最終レビューと残課題の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P07",
+            "SYS-SEO-AEO-GAP-CLOSURE-P09"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P07",
+            "SYS-SEO-AEO-GAP-CLOSURE-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "受入・品質証跡の集約と検証可能性の確保",
+          "remote": "受入・品質証跡の集約と検証可能性の確保"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P10",
+            "SYS-SEO-AEO-GAP-CLOSURE-P11"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P10",
+            "SYS-SEO-AEO-GAP-CLOSURE-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "運用手順と文書化",
+          "remote": "運用手順と文書化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-AEO-GAP-CLOSURE-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P12"
+          ],
+          "remote": [
+            "SYS-SEO-AEO-GAP-CLOSURE-P12"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "開発環境へのリリースと system-spec への書き戻し",
+          "remote": "開発環境へのリリースと system-spec への書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断と書き戻しの要求ベースライン確定",
+          "remote": "SEO 診断と書き戻しの要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P01"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P01"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "診断テーブルと構造化データ検証の契約確定",
+          "remote": "診断テーブルと構造化データ検証の契約確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P02"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P02"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断設計の独立レビューと着手可否判定",
+          "remote": "SEO 診断設計の独立レビューと着手可否判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P03"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P03"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断の受入テスト設計",
+          "remote": "SEO 診断の受入テスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P04"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P04"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断と推奨書き戻しの実装",
+          "remote": "SEO 診断と推奨書き戻しの実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断のテスト実行と緑化",
+          "remote": "SEO 診断のテスト実行と緑化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P06"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P06"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断の受入10件の判定",
+          "remote": "SEO 診断の受入10件の判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P05"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "既存公開面生成経路との重複解消と移行",
+          "remote": "既存公開面生成経路との重複解消と移行"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P08"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P08"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断の非機能検査",
+          "remote": "SEO 診断の非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断の最終レビュー",
+          "remote": "SEO 診断の最終レビュー"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+            "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P07",
+            "SYS-SEO-ASSESSMENT-REFLECTION-P09"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断の証跡集約",
+          "remote": "SEO 診断の証跡集約"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+            "SYS-SEO-ASSESSMENT-REFLECTION-P11"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P10",
+            "SYS-SEO-ASSESSMENT-REFLECTION-P11"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断の運用手順と指針出典の説明",
+          "remote": "SEO 診断の運用手順と指針出典の説明"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SEO-ASSESSMENT-REFLECTION-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P12"
+          ],
+          "remote": [
+            "SYS-SEO-ASSESSMENT-REFLECTION-P12"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO 診断のリリースと仕様書への書き戻し",
+          "remote": "SEO 診断のリリースと仕様書への書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P01": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "サイト所属型オーサリングIAの要求ベースライン確定",
+          "remote": "サイト所属型オーサリングIAの要求ベースライン確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P02": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P01"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P01"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "転送契約・所属替え契約・入口束ね直し契約・近道契約・雛形複製契約の設計",
+          "remote": "転送契約・所属替え契約・入口束ね直し契約・近道契約・雛形複製契約の設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P03": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P02"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P02"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "設計レビューと転送網羅性・越境防止・ラベル整合性の独立検証",
+          "remote": "設計レビューと転送網羅性・越境防止・ラベル整合性の独立検証"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P04": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P03"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P03"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "受入10件に対応するテスト設計",
+          "remote": "受入10件に対応するテスト設計"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P05": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P04"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P04"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "所属替え・転送・入口束ね直し・近道・雛形複製の実装",
+          "remote": "所属替え・転送・入口束ね直し・近道・雛形複製の実装"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P06": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "テスト全量実行と回帰0件の確認",
+          "remote": "テスト全量実行と回帰0件の確認"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P07": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P06"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P06"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "受入10件の受け入れ判定",
+          "remote": "受入10件の受け入れ判定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P08": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "旧入口の重複実装解消と転送シェルへの一本化",
+          "remote": "旧入口の重複実装解消と転送シェルへの一本化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P09": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P08"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P08"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "品質保証とアクセシビリティ・危険操作分離の非機能検査",
+          "remote": "品質保証とアクセシビリティ・危険操作分離の非機能検査"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P10": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "最終レビューと残課題の確定",
+          "remote": "最終レビューと残課題の確定"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P11": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+            "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+            "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "受入・品質証跡の集約と検証可能性の確保",
+          "remote": "受入・品質証跡の集約と検証可能性の確保"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P12": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+            "SYS-SITE-SCOPED-AUTHORING-IA-P11"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+            "SYS-SITE-SCOPED-AUTHORING-IA-P11"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "所属替え・束ね直しの運用規則と運用手順の文書化",
+          "remote": "所属替え・束ね直しの運用規則と運用手順の文書化"
+        }
+      },
+      "projects": {}
+    },
+    "SYS-SITE-SCOPED-AUTHORING-IA-P13": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P12"
+          ],
+          "remote": [
+            "SYS-SITE-SCOPED-AUTHORING-IA-P12"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "開発環境へのリリースとsystem-specへの書き戻し",
+          "remote": "開発環境へのリリースとsystem-specへの書き戻し"
+        }
+      },
+      "projects": {}
+    },
+    "feat-aeo-answer-optimization": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-ui-builder",
+            "feat-reader-surface",
+            "feat-seo-assessment-reflection"
+          ],
+          "remote": [
+            "feat-blog-ui-builder",
+            "feat-reader-surface",
+            "feat-seo-assessment-reflection"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "回答エンジン向けの回答単位整備と引用可能化",
+          "remote": "回答エンジン向けの回答単位整備と引用可能化"
+        }
+      },
+      "projects": {}
+    },
+    "feat-affiliate-hub": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-affiliate-inbox",
+            "feat-auth-workspace",
+            "feat-data-model"
+          ],
+          "remote": [
+            "feat-affiliate-inbox",
+            "feat-auth-workspace",
+            "feat-data-model"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "Affiliate Hub (アフィリエイト一元管理)",
+          "remote": "Affiliate Hub (アフィリエイト一元管理)"
+        }
+      },
+      "projects": {}
+    },
+    "feat-affiliate-inbox": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-auth-workspace",
+            "feat-data-model"
+          ],
+          "remote": [
+            "feat-auth-workspace",
+            "feat-data-model"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "アフィリエイトURL受信箱",
+          "remote": "アフィリエイトURL受信箱"
+        }
+      },
+      "projects": {}
+    },
+    "feat-ai-assistant": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-reader-surface",
+            "feat-ui-foundation"
+          ],
+          "remote": [
+            "feat-reader-surface",
+            "feat-ui-foundation"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "読者向けAIアシスタント",
+          "remote": "読者向けAIアシスタント"
+        }
+      },
+      "projects": {}
+    },
+    "feat-ai-content-studio": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-comparison-engine",
+            "feat-generation-foundation",
+            "feat-persona-studio",
+            "feat-writing-method"
+          ],
+          "remote": [
+            "feat-comparison-engine",
+            "feat-generation-foundation",
+            "feat-persona-studio",
+            "feat-writing-method"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "AI Content Studio",
+          "remote": "AI Content Studio"
+        }
+      },
+      "projects": {}
+    },
+    "feat-analytics-insight": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-affiliate-hub",
+            "feat-data-model",
+            "feat-distribution-hub",
+            "feat-reader-surface"
+          ],
+          "remote": [
+            "feat-affiliate-hub",
+            "feat-data-model",
+            "feat-distribution-hub",
+            "feat-reader-surface"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "Analytics & Insight Engine",
+          "remote": "Analytics & Insight Engine"
+        }
+      },
+      "projects": {}
+    },
+    "feat-article-block-editor": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-composition-visibility"
+          ],
+          "remote": [
+            "feat-blog-composition-visibility"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "記事を出来上がりの見た目のまま編集できるブロックエディター",
+          "remote": "記事を出来上がりの見た目のまま編集できるブロックエディター"
+        }
+      },
+      "projects": {}
+    },
+    "feat-auth-workspace": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "認証とWorkspace/Brand基盤",
+          "remote": "認証とWorkspace/Brand基盤"
+        }
+      },
+      "projects": {}
+    },
+    "feat-backend-mcp": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-analytics-insight",
+            "feat-data-model"
+          ],
+          "remote": [
+            "feat-analytics-insight",
+            "feat-data-model"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "バックエンドMCP (運営者向け)",
+          "remote": "バックエンドMCP (運営者向け)"
+        }
+      },
+      "projects": {}
+    },
+    "feat-blog-composition-visibility": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-provisioning-integrity"
+          ],
+          "remote": [
+            "feat-blog-provisioning-integrity"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブログ構成要素の可視化・管理画面プレビュー・不足要素の提示",
+          "remote": "ブログ構成要素の可視化・管理画面プレビュー・不足要素の提示"
+        }
+      },
+      "projects": {}
+    },
+    "feat-blog-custom-domain": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-auth-workspace",
+            "feat-blog-ops-crud",
+            "feat-blog-subdomain-routing"
+          ],
+          "remote": [
+            "feat-auth-workspace",
+            "feat-blog-ops-crud",
+            "feat-blog-subdomain-routing"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブログごとの独自ドメイン接続と一式管理",
+          "remote": "ブログごとの独自ドメイン接続と一式管理"
+        }
+      },
+      "projects": {}
+    },
+    "feat-blog-metrics-rollup": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-affiliate-hub",
+            "feat-analytics-insight",
+            "feat-reader-behavior-analytics"
+          ],
+          "remote": [
+            "feat-affiliate-hub",
+            "feat-analytics-insight",
+            "feat-reader-behavior-analytics"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブログ・記事の日次指標ロールアップ",
+          "remote": "ブログ・記事の日次指標ロールアップ"
+        }
+      },
+      "projects": {}
+    },
+    "feat-blog-ops-crud": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-ui-builder",
+            "feat-site-blueprint",
+            "feat-site-builder"
+          ],
+          "remote": [
+            "feat-blog-ui-builder",
+            "feat-site-blueprint",
+            "feat-site-builder"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブログ運用 CRUD とサイト網ブループリント再現 (作成者面・閲覧者面)",
+          "remote": "ブログ運用 CRUD とサイト網ブループリント再現 (作成者面・閲覧者面)"
+        }
+      },
+      "projects": {}
+    },
+    "feat-blog-provisioning-integrity": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-ops-crud",
+            "feat-site-builder"
+          ],
+          "remote": [
+            "feat-blog-ops-crud",
+            "feat-site-builder"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブログ作成の原子性と公開必須要素の充足 (作成済み表示と読者到達の一致)",
+          "remote": "ブログ作成の原子性と公開必須要素の充足 (作成済み表示と読者到達の一致)"
+        }
+      },
+      "projects": {}
+    },
+    "feat-blog-scoped-admin-console": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-aeo-answer-optimization",
+            "feat-blog-custom-domain",
+            "feat-blog-metrics-rollup",
+            "feat-blog-ops-crud",
+            "feat-reader-behavior-analytics",
+            "feat-seo-assessment-reflection"
+          ],
+          "remote": [
+            "feat-aeo-answer-optimization",
+            "feat-blog-custom-domain",
+            "feat-blog-metrics-rollup",
+            "feat-blog-ops-crud",
+            "feat-reader-behavior-analytics",
+            "feat-seo-assessment-reflection"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブログ単位の管理コンソールへの再編",
+          "remote": "ブログ単位の管理コンソールへの再編"
+        }
+      },
+      "projects": {}
+    },
+    "feat-blog-subdomain-routing": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-provisioning-integrity"
+          ],
+          "remote": [
+            "feat-blog-provisioning-integrity"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "サブドメイン方式のブログ住所付与とホスト解決",
+          "remote": "サブドメイン方式のブログ住所付与とホスト解決"
+        }
+      },
+      "projects": {}
+    },
+    "feat-blog-ui-builder": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-affiliate-hub",
+            "feat-site-builder",
+            "feat-ui-foundation"
+          ],
+          "remote": [
+            "feat-affiliate-hub",
+            "feat-site-builder",
+            "feat-ui-foundation"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
+          "remote": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)"
+        }
+      },
+      "projects": {}
+    },
+    "feat-comparison-engine": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-data-model",
+            "feat-product-intelligence"
+          ],
+          "remote": [
+            "feat-data-model",
+            "feat-product-intelligence"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "比較エンジン",
+          "remote": "比較エンジン"
+        }
+      },
+      "projects": {}
+    },
+    "feat-compliance-disclosure": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-affiliate-hub",
+            "feat-data-model"
+          ],
+          "remote": [
+            "feat-affiliate-hub",
+            "feat-data-model"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "広告表示・コンプライアンス",
+          "remote": "広告表示・コンプライアンス"
+        }
+      },
+      "projects": {}
+    },
+    "feat-data-model": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-auth-workspace"
+          ],
+          "remote": [
+            "feat-auth-workspace"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "データモデル基盤 (32エンティティ)",
+          "remote": "データモデル基盤 (32エンティティ)"
+        }
+      },
+      "projects": {}
+    },
+    "feat-distribution-hub": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-data-model",
+            "feat-site-builder"
+          ],
+          "remote": [
+            "feat-data-model",
+            "feat-site-builder"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "Distribution Hub",
+          "remote": "Distribution Hub"
+        }
+      },
+      "projects": {}
+    },
+    "feat-editorial-workflow": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-ai-content-studio",
+            "feat-writing-method"
+          ],
+          "remote": [
+            "feat-ai-content-studio",
+            "feat-writing-method"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "編集ワークフローと公開ゲート",
+          "remote": "編集ワークフローと公開ゲート"
+        }
+      },
+      "projects": {}
+    },
+    "feat-feedback-capture-self-exclusion": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-improvement-feedback"
+          ],
+          "remote": [
+            "feat-improvement-feedback"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）",
+          "remote": "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）"
+        }
+      },
+      "projects": {}
+    },
+    "feat-generation-foundation": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-persona-studio",
+            "feat-product-intelligence"
+          ],
+          "remote": [
+            "feat-persona-studio",
+            "feat-product-intelligence"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "生成基盤 (プロンプト・スキル・サブエージェント・評価セット)",
+          "remote": "生成基盤 (プロンプト・スキル・サブエージェント・評価セット)"
+        }
+      },
+      "projects": {}
+    },
+    "feat-improvement-feedback": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "改善要望フィードバック（受け取り → 一覧 → 払い出し）",
+          "remote": "改善要望フィードバック（受け取り → 一覧 → 払い出し）"
+        }
+      },
+      "projects": {}
+    },
+    "feat-persona-studio": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-auth-workspace",
+            "feat-data-model"
+          ],
+          "remote": [
+            "feat-auth-workspace",
+            "feat-data-model"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "Persona Studio",
+          "remote": "Persona Studio"
+        }
+      },
+      "projects": {}
+    },
+    "feat-product-intelligence": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-affiliate-inbox",
+            "feat-data-model"
+          ],
+          "remote": [
+            "feat-affiliate-inbox",
+            "feat-data-model"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "商品インテリジェンス",
+          "remote": "商品インテリジェンス"
+        }
+      },
+      "projects": {}
+    },
+    "feat-reader-behavior-analytics": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-analytics-insight",
+            "feat-data-model",
+            "feat-reader-surface"
+          ],
+          "remote": [
+            "feat-analytics-insight",
+            "feat-data-model",
+            "feat-reader-surface"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "読者行動の計測とヒートマップ可視化",
+          "remote": "読者行動の計測とヒートマップ可視化"
+        }
+      },
+      "projects": {}
+    },
+    "feat-reader-surface": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-compliance-disclosure",
+            "feat-editorial-workflow",
+            "feat-site-builder",
+            "feat-ui-foundation"
+          ],
+          "remote": [
+            "feat-compliance-disclosure",
+            "feat-editorial-workflow",
+            "feat-site-builder",
+            "feat-ui-foundation"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "読者向け記事・比較メディア公開面",
+          "remote": "読者向け記事・比較メディア公開面"
+        }
+      },
+      "projects": {}
+    },
+    "feat-reference-blog-admin-ux": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-affiliate-inbox",
+            "feat-blog-ops-crud",
+            "feat-blog-ui-builder"
+          ],
+          "remote": [
+            "feat-affiliate-inbox",
+            "feat-blog-ops-crud",
+            "feat-blog-ui-builder"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "参照ブログ解析と低認知負荷の運用 UX",
+          "remote": "参照ブログ解析と低認知負荷の運用 UX"
+        }
+      },
+      "projects": {}
+    },
+    "feat-seo-aeo-analysis-feedback": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "SEO/AEO 充足度の解析とエディター差し戻し",
+          "remote": "SEO/AEO 充足度の解析とエディター差し戻し"
+        }
+      },
+      "projects": {}
+    },
+    "feat-seo-aeo-gap-closure": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-ui-builder"
+          ],
+          "remote": [
+            "feat-blog-ui-builder"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "SEO/AEO の未実装差分を埋める",
+          "remote": "SEO/AEO の未実装差分を埋める"
+        }
+      },
+      "projects": {}
+    },
+    "feat-seo-aeo-machine-readable": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "記事データからの機械可読要素生成",
+          "remote": "記事データからの機械可読要素生成"
+        }
+      },
+      "projects": {}
+    },
+    "feat-seo-assessment-reflection": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-ui-builder",
+            "feat-editorial-workflow",
+            "feat-reader-surface"
+          ],
+          "remote": [
+            "feat-blog-ui-builder",
+            "feat-editorial-workflow",
+            "feat-reader-surface"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "記事の SEO 診断と下書きへの反映",
+          "remote": "記事の SEO 診断と下書きへの反映"
+        }
+      },
+      "projects": {}
+    },
+    "feat-site-blueprint": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-data-model"
+          ],
+          "remote": [
+            "feat-data-model"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "Site Blueprint と記事構成テンプレート",
+          "remote": "Site Blueprint と記事構成テンプレート"
+        }
+      },
+      "projects": {}
+    },
+    "feat-site-builder": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-ai-content-studio",
+            "feat-site-blueprint",
+            "feat-ui-foundation"
+          ],
+          "remote": [
+            "feat-ai-content-studio",
+            "feat-site-blueprint",
+            "feat-ui-foundation"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "Site Builder",
+          "remote": "Site Builder"
+        }
+      },
+      "projects": {}
+    },
+    "feat-site-scoped-authoring-ia": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-blog-metrics-rollup",
+            "feat-blog-ops-crud",
+            "feat-blog-scoped-admin-console",
+            "feat-reference-blog-admin-ux"
+          ],
+          "remote": [
+            "feat-blog-metrics-rollup",
+            "feat-blog-ops-crud",
+            "feat-blog-scoped-admin-console",
+            "feat-reference-blog-admin-ux"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "記事・読者像・書き方の決め事のブログ配下への所属替えと、管理入口の束ね直し",
+          "remote": "記事・読者像・書き方の決め事のブログ配下への所属替えと、管理入口の束ね直し"
+        }
+      },
+      "projects": {}
+    },
+    "feat-spec-canonicalization": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "仕様正本の整理と投影",
+          "remote": "仕様正本の整理と投影"
+        }
+      },
+      "projects": {}
+    },
+    "feat-ui-foundation": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-auth-workspace"
+          ],
+          "remote": [
+            "feat-auth-workspace"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "UI/UX 共通基盤",
+          "remote": "UI/UX 共通基盤"
+        }
+      },
+      "projects": {}
+    },
+    "feat-uiux-overhaul": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-distribution-hub",
+            "feat-ui-foundation"
+          ],
+          "remote": [
+            "feat-distribution-hub",
+            "feat-ui-foundation"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "管理画面 UI/UX 全面改善",
+          "remote": "管理画面 UI/UX 全面改善"
+        }
+      },
+      "projects": {}
+    },
+    "feat-webmcp-surface": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-ai-assistant",
+            "feat-comparison-engine",
+            "feat-ui-foundation"
+          ],
+          "remote": [
+            "feat-ai-assistant",
+            "feat-comparison-engine",
+            "feat-ui-foundation"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "WebMCP 読み取り面と限定状態変更",
+          "remote": "WebMCP 読み取り面と限定状態変更"
+        }
+      },
+      "projects": {}
+    },
+    "feat-writing-method": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "feat-generation-foundation"
+          ],
+          "remote": [
+            "feat-generation-foundation"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "文章作成メソッドと品質検査",
+          "remote": "文章作成メソッドと品質検査"
+        }
+      },
+      "projects": {}
+    },
+    "task-actions-usage-monitor": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "非公開にしたら、GitHub Actions の月間使用量を口座単位で見張る",
+          "remote": "非公開にしたら、GitHub Actions の月間使用量を口座単位で見張る"
+        }
+      },
+      "projects": {}
+    },
+    "task-admin-card-density": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "管理画面の間延びを実測してから詰める",
+          "remote": "管理画面の間延びを実測してから詰める"
+        }
+      },
+      "projects": {}
+    },
+    "task-admin-nav-grouping": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "管理画面の横並び 19 項目を分類にまとめる",
+          "remote": "管理画面の横並び 19 項目を分類にまとめる"
+        }
+      },
+      "projects": {}
+    },
+    "task-api-unit-tests": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-foundation"
+          ],
+          "remote": [
+            "task-test-foundation"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "API の単体テストを道具の一覧から生成する",
+          "remote": "API の単体テストを道具の一覧から生成する"
+        }
+      },
+      "projects": {}
+    },
+    "task-audit-actions-without-emitters": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "記録の語 9 つが出す場所を持っていない（AuditAction 28 語のうち実処理は 19 語）",
+          "remote": "記録の語 9 つが出す場所を持っていない（AuditAction 28 語のうち実処理は 19 語）"
+        }
+      },
+      "projects": {}
+    },
+    "task-audit-log-write-path-coverage": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "書き込みの入口 20 件が操作の記録へ届いていない",
+          "remote": "書き込みの入口 20 件が操作の記録へ届いていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-axe-coverage-audit": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "axe が見ていない領域を一度洗う（個別に塞ぐやり方が 3 回続いた）",
+          "remote": "axe が見ていない領域を一度洗う（個別に塞ぐやり方が 3 回続いた）"
+        }
+      },
+      "projects": {}
+    },
+    "task-boundary-tests": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-foundation"
+          ],
+          "remote": [
+            "task-test-foundation"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "境界値と異常系のテスト",
+          "remote": "境界値と異常系のテスト"
+        }
+      },
+      "projects": {}
+    },
+    "task-capture-element-selection": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "台紙の黒塗りを、座標ではなく要素の一覧から選べるようにする",
+          "remote": "台紙の黒塗りを、座標ではなく要素の一覧から選べるようにする"
+        }
+      },
+      "projects": {}
+    },
+    "task-capture-keyboard-drawing": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "描く操作がポインタのみで、キーボードから行えない",
+          "remote": "描く操作がポインタのみで、キーボードから行えない"
+        }
+      },
+      "projects": {}
+    },
+    "task-chapter-decisions-generated-by-compile": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "確定 8 章の意思決定表を、人の手ではなく compile に描かせる",
+          "remote": "確定 8 章の意思決定表を、人の手ではなく compile に描かせる"
+        }
+      },
+      "projects": {}
+    },
+    "task-click-tracking-go-route": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "読者が成果リンクを押したことを、どのリンクか分かる形で記録する",
+          "remote": "読者が成果リンクを押したことを、どのリンクか分かる形で記録する"
+        }
+      },
+      "projects": {}
+    },
+    "task-content-persistence": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "記事の進行と承認を D1 へ保存する",
+          "remote": "記事の進行と承認を D1 へ保存する"
+        }
+      },
+      "projects": {}
+    },
+    "task-contract-checks": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "契約検査の追加（1 概念 1 定義・閾値の一元化・秘密情報の混入）",
+          "remote": "契約検査の追加（1 概念 1 定義・閾値の一元化・秘密情報の混入）"
+        }
+      },
+      "projects": {}
+    },
+    "task-conversion-adjustment": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "成果の金額の修正を D1 へ保存し、画面から直せるようにする",
+          "remote": "成果の金額の修正を D1 へ保存し、画面から直せるようにする"
+        }
+      },
+      "projects": {}
+    },
+    "task-coverage-gates": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "カバレッジの計測・閾値・層別の記録",
+          "remote": "カバレッジの計測・閾値・層別の記録"
+        }
+      },
+      "projects": {}
+    },
+    "task-currency-mix-in-approved-total": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "確定分の合計が、通貨の違う成果を足して最後の 1 件の通貨で表示する",
+          "remote": "確定分の合計が、通貨の違う成果を足して最後の 1 件の通貨で表示する"
+        }
+      },
+      "projects": {}
+    },
+    "task-decision-id-prefix-alignment": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "正本 decisions[] の ID 接頭辞が 1 件だけ揃っていない",
+          "remote": "正本 decisions[] の ID 接頭辞が 1 件だけ揃っていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-deploy-credentials-registration": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "公開の合言葉（Cloudflare の口座番号と鍵）を利用者本人が登録する",
+          "remote": "公開の合言葉（Cloudflare の口座番号と鍵）を利用者本人が登録する"
+        }
+      },
+      "projects": {}
+    },
+    "task-design-tokens-blind-spot": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "design-tokens の色の検査に死角がある（定数表へ括り出すと見えなくなる）",
+          "remote": "design-tokens の色の検査に死角がある（定数表へ括り出すと見えなくなる）"
+        }
+      },
+      "projects": {}
+    },
+    "task-distribution-persistence": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "配信の予約を D1 へ保存する",
+          "remote": "配信の予約を D1 へ保存する"
+        }
+      },
+      "projects": {}
+    },
+    "task-duplicate-link-race": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "同時に同じリンクを貼ったときの重複の取りこぼし",
+          "remote": "同時に同じリンクを貼ったときの重複の取りこぼし"
+        }
+      },
+      "projects": {}
+    },
+    "task-eval-set-runner": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "評価セットを実際に走らせる仕組み",
+          "remote": "評価セットを実際に走らせる仕組み"
+        }
+      },
+      "projects": {}
+    },
+    "task-generated-doc-handwrite": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "「手で書き換えない」と書いてある文書に手で書いても、内容が合っていれば緑になる",
+          "remote": "「手で書き換えない」と書いてある文書に手で書いても、内容が合っていれば緑になる"
+        }
+      },
+      "projects": {}
+    },
+    "task-generated-doc-word-detection": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "生成物かどうかを語の出現で決めているので、その語を書かない生成物は見落とす",
+          "remote": "生成物かどうかを語の出現で決めているので、その語を書かない生成物は見落とす"
+        }
+      },
+      "projects": {}
+    },
+    "task-guard-inline-python-hole": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "見張りが書き手を見ていないことを検査として固定する",
+          "remote": "見張りが書き手を見ていないことを検査として固定する"
+        }
+      },
+      "projects": {}
+    },
+    "task-integration-key-action-gate": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "秘密情報の入口は 2 つあり、閉めたのは片方だけ（外部連携の鍵が未ログインで作れる）",
+          "remote": "秘密情報の入口は 2 つあり、閉めたのは片方だけ（外部連携の鍵が未ログインで作れる）"
+        }
+      },
+      "projects": {}
+    },
+    "task-integration-tests": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-foundation"
+          ],
+          "remote": [
+            "task-test-foundation"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "結合テスト（実際の D1 / 1 周の通し）",
+          "remote": "結合テスト（実際の D1 / 1 周の通し）"
+        }
+      },
+      "projects": {}
+    },
+    "task-judgment-column-audit": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "守っていないものを、守ったと書いてある — 要件表の判定欄を全件点検する",
+          "remote": "守っていないものを、守ったと書いてある — 要件表の判定欄を全件点検する"
+        }
+      },
+      "projects": {}
+    },
+    "task-judgment-column-telemetry-findings": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "判定欄が指す検査が実在しない・別のものを見ている（計測 5 件の実測と、残り 22 件への引き継ぎ）",
+          "remote": "判定欄が指す検査が実在しない・別のものを見ている（計測 5 件の実測と、残り 22 件への引き継ぎ）"
+        }
+      },
+      "projects": {}
+    },
+    "task-layer-coverage-one-way": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "層別カバレッジの一覧が、src に層が増えた側を見ていない",
+          "remote": "層別カバレッジの一覧が、src に層が増えた側を見ていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-llm-credential-wiring": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "生成 AI の鍵を画面から登録できるようにする（設定画面と組み立ての配線）",
+          "remote": "生成 AI の鍵を画面から登録できるようにする（設定画面と組み立ての配線）"
+        }
+      },
+      "projects": {}
+    },
+    "task-llm-provider-catalog-not-configured": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "モデルの目録(LLM_PROVIDER_CATALOG)が未設定で、鍵を入れてもモデルが並ばない",
+          "remote": "モデルの目録(LLM_PROVIDER_CATALOG)が未設定で、鍵を入れてもモデルが並ばない"
+        }
+      },
+      "projects": {}
+    },
+    "task-llm-provider-connection": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "生成 AI の提供元を選び、鍵を登録して下書きを 1 本作らせる",
+          "remote": "生成 AI の提供元を選び、鍵を登録して下書きを 1 本作らせる"
+        }
+      },
+      "projects": {}
+    },
+    "task-llm-provider-invocation": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "4 社の呼び出しを実装し、記事ごとにモデルを選べるようにする",
+          "remote": "4 社の呼び出しを実装し、記事ごとにモデルを選べるようにする"
+        }
+      },
+      "projects": {}
+    },
+    "task-llm-settings-auth-gate": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "鍵の登録画面が未ログインでも使える（本番へ出す前に塞ぐ）",
+          "remote": "鍵の登録画面が未ログインでも使える（本番へ出す前に塞ぐ）"
+        }
+      },
+      "projects": {}
+    },
+    "task-llm-settings-auth-gate-eyes": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "鍵の登録画面の断りを、利用者本人が画面で 1 周見る",
+          "remote": "鍵の登録画面の断りを、利用者本人が画面で 1 周見る"
+        }
+      },
+      "projects": {}
+    },
+    "task-mcp-bearer-identity": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "MCP の Bearer 経由の管理用読み取りが、どの身元で通るか決まっていない",
+          "remote": "MCP の Bearer 経由の管理用読み取りが、どの身元で通るか決まっていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-membership-write-repository": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "担当者の登録を書く側が見本のままで、招待を画面から出せない",
+          "remote": "担当者の登録を書く側が見本のままで、招待を画面から出せない"
+        }
+      },
+      "projects": {}
+    },
+    "task-model-catalog-screen-check": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "モデルが画面に実際に並ぶところを、preview で 1 度見る",
+          "remote": "モデルが画面に実際に並ぶところを、preview で 1 度見る"
+        }
+      },
+      "projects": {}
+    },
+    "task-mutation-gap-remediation": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-mutation-property-testing"
+          ],
+          "remote": [
+            "task-mutation-property-testing"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "ミューテーションで見えた穴を埋める（テストが無い 10 モジュール・確かめが浅い 7 モジュール）",
+          "remote": "ミューテーションで見えた穴を埋める（テストが無い 10 モジュール・確かめが浅い 7 モジュール）"
+        }
+      },
+      "projects": {}
+    },
+    "task-mutation-property-testing": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-tier-design"
+          ],
+          "remote": [
+            "task-test-tier-design"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "テストを騙せない仕組み（ミューテーション・プロパティベース）",
+          "remote": "テストを騙せない仕組み（ミューテーション・プロパティベース）"
+        }
+      },
+      "projects": {}
+    },
+    "task-network-reach-decision": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-seed-satisfies-public-entry"
+          ],
+          "remote": [
+            "task-seed-satisfies-public-entry"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "設計図を持つ 5 本のうち 2 本しか公開していないのは、決めた結果ではない",
+          "remote": "設計図を持つ 5 本のうち 2 本しか公開していないのは、決めた結果ではない"
+        }
+      },
+      "projects": {}
+    },
+    "task-own-site-publish": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "自社サイトへの公開を本物にする（published_articles と own_site コネクタ）",
+          "remote": "自社サイトへの公開を本物にする（published_articles と own_site コネクタ）"
+        }
+      },
+      "projects": {}
+    },
+    "task-policy-check-wiring": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "表現ポリシーの検査を、記事の確認画面から実際に呼ぶ",
+          "remote": "表現ポリシーの検査を、記事の確認画面から実際に呼ぶ"
+        }
+      },
+      "projects": {}
+    },
+    "task-proxy-migration-when-supported": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "入口の門を proxy.ts へ移す(OpenNext が Node middleware を受け取れたら)",
+          "remote": "入口の門を proxy.ts へ移す(OpenNext が Node middleware を受け取れたら)"
+        }
+      },
+      "projects": {}
+    },
+    "task-publication-usecase": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "配信を作る入口（ユースケース）が無い",
+          "remote": "配信を作る入口（ユースケース）が無い"
+        }
+      },
+      "projects": {}
+    },
+    "task-publish-article-affiliate-links": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "公開された記事に、成果リンクを載せる経路が無い",
+          "remote": "公開された記事に、成果リンクを載せる経路が無い"
+        }
+      },
+      "projects": {}
+    },
+    "task-qa-source-sha256-scope": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "qa_log の sha256 が何の指紋かを検査として固定する",
+          "remote": "qa_log の sha256 が何の指紋かを検査として固定する"
+        }
+      },
+      "projects": {}
+    },
+    "task-ranking-unmarked-port": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "順位づけへ「印の無いもの」を渡すと実行時は素通りする（2 つの入口が逆向きの守りをしている）",
+          "remote": "順位づけへ「印の無いもの」を渡すと実行時は素通りする（2 つの入口が逆向きの守りをしている）"
+        }
+      },
+      "projects": {}
+    },
+    "task-reader-webmcp-capability-mismatch": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "読者ページの AI 向けの道具が、読者の権限では動かない",
+          "remote": "読者ページの AI 向けの道具が、読者の権限では動かない"
+        }
+      },
+      "projects": {}
+    },
+    "task-readonly-flag-three-meanings": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "readOnly という 1 つの旗が 3 つの決定を兼ねている（申告 / 測定対象 / WebMCP 掲載）",
+          "remote": "readOnly という 1 つの旗が 3 つの決定を兼ねている（申告 / 測定対象 / WebMCP 掲載）"
+        }
+      },
+      "projects": {}
+    },
+    "task-real-machine-verification-ledger": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "自動検査では固定したが、本物のランタイムで一度も動かしていないものを一覧にする",
+          "remote": "自動検査では固定したが、本物のランタイムで一度も動かしていないものを一覧にする"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-acceptance": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（受け入れ条件 8 件）",
+          "remote": "必須テスト種別を宣言する（受け入れ条件 8 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-analytics": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（計測・改善ループ・改善要望 37 件）",
+          "remote": "必須テスト種別を宣言する（計測・改善ループ・改善要望 37 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-cicd": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（禁止依存・テストの網羅・自動チェック 29 件）",
+          "remote": "必須テスト種別を宣言する（禁止依存・テストの網羅・自動チェック 29 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-content": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（記事構成・文章と品質検査 23 件）",
+          "remote": "必須テスト種別を宣言する（記事構成・文章と品質検査 23 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-datamodel": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（データモデル 32 件）",
+          "remote": "必須テスト種別を宣言する（データモデル 32 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-generation": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（生成基盤と API・イベント 28 件）",
+          "remote": "必須テスト種別を宣言する（生成基盤と API・イベント 28 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-mcp": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（WebMCP・バックエンドMCP 15 件）",
+          "remote": "必須テスト種別を宣言する（WebMCP・バックエンドMCP 15 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-permission": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（権限・テナント・セキュリティ 24 件）",
+          "remote": "必須テスト種別を宣言する（権限・テナント・セキュリティ 24 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-registry-scope": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "宣言表の読み取り範囲を §3 に限定する（解説の表が 2 つ目の宣言として拾われる）",
+          "remote": "宣言表の読み取り範囲を §3 に限定する（解説の表が 2 つ目の宣言として拾われる）"
+        }
+      },
+      "projects": {}
+    },
+    "task-required-test-types-screens": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-type-coverage"
+          ],
+          "remote": [
+            "task-test-type-coverage"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須テスト種別を宣言する（画面（ブログ層IA・主要画面・見た目） 32 件）",
+          "remote": "必須テスト種別を宣言する（画面（ブログ層IA・主要画面・見た目） 32 件）"
+        }
+      },
+      "projects": {}
+    },
+    "task-same-origin-actor-scope": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "同一サイトからの読み取りが、見本の身元の権限で通っている",
+          "remote": "同一サイトからの読み取りが、見本の身元の権限で通っている"
+        }
+      },
+      "projects": {}
+    },
+    "task-schema-required-lies": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "必須でないと宣言した項目が実際には必須なので、スキーマどおりに呼ぶ AI は必ず失敗し、同じ呼び方を繰り返す",
+          "remote": "必須でないと宣言した項目が実際には必須なので、スキーマどおりに呼ぶ AI は必ず失敗し、同じ呼び方を繰り返す"
+        }
+      },
+      "projects": {}
+    },
+    "task-secret-history-scan": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "秘密の値が過去の履歴に入っていないかを、1 度走査する",
+          "remote": "秘密の値が過去の履歴に入っていないかを、1 度走査する"
+        }
+      },
+      "projects": {}
+    },
+    "task-seed-satisfies-public-entry": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "見本データが読者側の入口を満たしていない（設計図・作業場所・URL 名の 3 点）",
+          "remote": "見本データが読者側の入口を満たしていない（設計図・作業場所・URL 名の 3 点）"
+        }
+      },
+      "projects": {}
+    },
+    "task-signed-in-actor-for-mutations": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "変更を起こす操作 17 個が、身元を確かめずに見本へ落ちる",
+          "remote": "変更を起こす操作 17 個が、身元を確かめずに見本へ落ちる"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-completeness-gaps": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "仕様の完全性評価が FAIL。gaps 9 件を C01 → C03 → C02 の順で片付ける",
+          "remote": "仕様の完全性評価が FAIL。gaps 9 件を C01 → C03 → C02 の順で片付ける"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-c01-decisions": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "decisions[] が 1 件しかなく、利用者本人の確定が要る 5 件が記録されていない",
+          "remote": "decisions[] が 1 件しかなく、利用者本人の確定が要る 5 件が記録されていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-c01-qa-ref-scope": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "qa_ref の差し替えで、確定の裏付け範囲が狭まったままになっている",
+          "remote": "qa_ref の差し替えで、確定の裏付け範囲が狭まったままになっている"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-c01-spec-intake": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "docs/spec 04〜12 の 9 枚（2,705 行）が書面入力に取り込まれていない",
+          "remote": "docs/spec 04〜12 の 9 枚（2,705 行）が書面入力に取り込まれていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-c02-doc-refetch": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "取得済みドキュメントの version と last_updated が、公式表明値になっていない",
+          "remote": "取得済みドキュメントの version と last_updated が、公式表明値になっていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-c03-doctrine-citation": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-spec-gap-c01-spec-intake"
+          ],
+          "remote": [
+            "task-spec-gap-c01-spec-intake"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "doctrine anchor が定型 1 文だけで、要件文へ条項が引かれていない",
+          "remote": "doctrine anchor が定型 1 文だけで、要件文へ条項が引かれていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-c03-fence-repair": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-spec-gap-c01-spec-intake"
+          ],
+          "remote": [
+            "task-spec-gap-c01-spec-intake"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "backend.md のコードフェンス対が壊れ、本文が重複している",
+          "remote": "backend.md のコードフェンス対が壊れ、本文が重複している"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-c03-nonnormative-note": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-spec-gap-c01-spec-intake"
+          ],
+          "remote": [
+            "task-spec-gap-c01-spec-intake"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "非規範注記が 8 章中 5 章にしか出ていない",
+          "remote": "非規範注記が 8 章中 5 章にしか出ていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-harness-input-inventory": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "完全性評価の出力に入力インベントリが無く、入力が変わった PASS が古いまま有効に見える",
+          "remote": "完全性評価の出力に入力インベントリが無く、入力が変わった PASS が古いまま有効に見える"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-gap-resume-receipt-invalid": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "resume-receipt.json が無効な PASS に束縛されたまま残っている",
+          "remote": "resume-receipt.json が無効な PASS に束縛されたまま残っている"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-state-writer-gap": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "正本を保守できる writer が無いことを検査として固定する",
+          "remote": "正本を保守できる writer が無いことを検査として固定する"
+        }
+      },
+      "projects": {}
+    },
+    "task-spec-writeback": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "仕様整理の最終レビューと draft PR",
+          "remote": "仕様整理の最終レビューと draft PR"
+        }
+      },
+      "projects": {}
+    },
+    "task-stub-coverage-gap": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "スタブと実質カバレッジの差が上限を超えている",
+          "remote": "スタブと実質カバレッジの差が上限を超えている"
+        }
+      },
+      "projects": {}
+    },
+    "task-telemetry-to-metrics": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "測ったものが分析の数字に届いていない",
+          "remote": "測ったものが分析の数字に届いていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-test-foundation": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "テストの土台（ファクトリ・テストダブル・時刻固定・描画補助）",
+          "remote": "テストの土台（ファクトリ・テストダブル・時刻固定・描画補助）"
+        }
+      },
+      "projects": {}
+    },
+    "task-test-requirement-tracing": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-mutation-property-testing"
+          ],
+          "remote": [
+            "task-mutation-property-testing"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "由来不明のテスト 39 件を、要件から辿れる形にする",
+          "remote": "由来不明のテスト 39 件を、要件から辿れる形にする"
+        }
+      },
+      "projects": {}
+    },
+    "task-test-tier-design": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "品質ゲートを 3 段（push / PR / 夜間）に分ける",
+          "remote": "品質ゲートを 3 段（push / PR / 夜間）に分ける"
+        }
+      },
+      "projects": {}
+    },
+    "task-test-type-coverage": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-mutation-property-testing",
+            "task-test-tier-design"
+          ],
+          "remote": [
+            "task-mutation-property-testing",
+            "task-test-tier-design"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "テスト種別の網羅と、要件ごとの必須種別ゲート",
+          "remote": "テスト種別の網羅と、要件ごとの必須種別ゲート"
+        }
+      },
+      "projects": {}
+    },
+    "task-test-type-trait-for-secrets": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "秘密情報の要件に当てはまる「性質」が語彙に無い（REQ-SEC10 が宣言できない）",
+          "remote": "秘密情報の要件に当てはまる「性質」が語彙に無い（REQ-SEC10 が宣言できない）"
+        }
+      },
+      "projects": {}
+    },
+    "task-test-type-traits-remaining": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "どの性質からも指されていないテスト種別 7 つを性質へ結ぶ（ssrf / decision-table / contract / infra-config / db-migration / audit-log / property）",
+          "remote": "どの性質からも指されていないテスト種別 7 つを性質へ結ぶ（ssrf / decision-table / contract / infra-config / db-migration / audit-log / property）"
+        }
+      },
+      "projects": {}
+    },
+    "task-test-type-vocabulary-gap": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "語彙に無いという理由で未宣言に残った要件が 4 件たまった",
+          "remote": "語彙に無いという理由で未宣言に残った要件が 4 件たまった"
+        }
+      },
+      "projects": {}
+    },
+    "task-tracking-code-issuance": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-click-tracking-go-route"
+          ],
+          "remote": [
+            "task-click-tracking-go-route"
+          ]
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "公開のときに合言葉を発行して、転送の写しを作る",
+          "remote": "公開のときに合言葉を発行して、転送の写しを作る"
+        }
+      },
+      "projects": {}
+    },
+    "task-u6-parenthetical-to-truth": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "00 章 U6 の括弧書きが正本に接続されていない",
+          "remote": "00 章 U6 の括弧書きが正本に接続されていない"
+        }
+      },
+      "projects": {}
+    },
+    "task-ui-unit-a11y-tests": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [
+            "task-test-foundation"
+          ],
+          "remote": [
+            "task-test-foundation"
+          ]
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "画面の単体テストと読み上げの自動検査",
+          "remote": "画面の単体テストと読み上げの自動検査"
+        }
+      },
+      "projects": {}
+    },
+    "task-verify-and-workflows": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "closed",
+          "remote": "closed"
+        },
+        "title": {
+          "local": "pnpm verify と自動チェック 3 本の設置",
+          "remote": "pnpm verify と自動チェック 3 本の設置"
+        }
+      },
+      "projects": {}
+    },
+    "task-visual-regression-gap": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "見た目の崩れを自動で見つける手段が無いことを検査として固定する",
+          "remote": "見た目の崩れを自動で見つける手段が無いことを検査として固定する"
+        }
+      },
+      "projects": {}
+    },
+    "task-webmcp-only-reachability": {
+      "binding": "beads",
+      "issue": {
+        "depends_on": {
+          "local": [],
+          "remote": []
+        },
+        "status": {
+          "local": "open",
+          "remote": "open"
+        },
+        "title": {
+          "local": "「WebMCP でしか到達できない機能を作らない」を見ている検査が無い（写しの一致と、到達できることは別）",
+          "remote": "「WebMCP でしか到達できない機能を作らない」を見ている検査が無い（写しの一致と、到達できることは別）"
+        }
+      },
+      "projects": {}
+    }
+  },
+  "schema_version": "1.0",
+  "updated_at": "2026-09-08T08:36:06.117094Z"
+}

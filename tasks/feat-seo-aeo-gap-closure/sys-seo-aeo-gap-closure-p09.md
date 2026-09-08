@@ -12,8 +12,8 @@ iteration: null
 title: "品質保証と非機能検査"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:26:17.291928Z"
-status: "active"
+updated_at: "2026-09-04T08:14:18Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P08"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/quality-assurance.md","tests"]

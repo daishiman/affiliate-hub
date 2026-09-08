@@ -12,8 +12,8 @@ iteration: null
 title: "日次ロールアップの運用手順と数値定義の説明"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:46:30.705600Z"
-status: "active"
+updated_at: "2026-09-04T10:14:35Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P10","SYS-BLOG-METRICS-ROLLUP-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-metrics-rollup/operations-runbook.md","docs/spec/feat-blog-metrics-rollup/"]

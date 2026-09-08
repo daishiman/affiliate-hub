@@ -12,8 +12,8 @@ iteration: null
 title: "証跡の収集と保全"
 owners: ["daishiman"]
 created_at: "2026-08-30T12:31:04Z"
-updated_at: "2026-08-30T13:33:45.505889Z"
-status: "active"
+updated_at: "2026-09-05T14:28:07Z"
+status: "closed"
 closed_at: null
 depends_on: ["SYS-FB-CAPTURE-EXCLUSION-P10"]
 related_nodes: []

@@ -12,7 +12,7 @@ iteration: null
 title: "設計レビュー — Worker API契約とpresigned PUT残滓の不在確認"
 owners: ["daishiman"]
 created_at: "2026-09-07T15:31:08Z"
-updated_at: "2026-09-07T15:51:14.311373Z"
+updated_at: "2026-09-08T07:59:36.757367Z"
 status: "active"
 depends_on: ["SYS-ARTICLE-BLOCK-EDITOR-P02"]
 related_nodes: []
@@ -38,7 +38,7 @@ classification_reason: "feat-article-block-editor の P03 lifecycle 責務への
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/feat-article-block-editor/sys-article-block-editor-p03.md","confidence":1.0}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-dp4w","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

@@ -12,8 +12,8 @@ iteration: null
 title: "最終レビューと反映漏れの判定"
 owners: ["daishiman"]
 created_at: "2026-08-30T12:31:04Z"
-updated_at: "2026-08-30T13:33:29.116089Z"
-status: "active"
+updated_at: "2026-09-05T14:27:57Z"
+status: "closed"
 closed_at: null
 depends_on: ["SYS-FB-CAPTURE-EXCLUSION-P09"]
 related_nodes: []

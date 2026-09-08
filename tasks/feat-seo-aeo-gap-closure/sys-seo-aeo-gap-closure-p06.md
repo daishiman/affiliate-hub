@@ -12,8 +12,8 @@ iteration: null
 title: "テスト全量実行と回帰0件の確認"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:25:15.838667Z"
-status: "active"
+updated_at: "2026-09-04T07:45:08Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P05"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/test-run.md"]

@@ -12,8 +12,8 @@ iteration: null
 title: "既存 admin 画面との重複解消と移行"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:50:37.562928Z"
-status: "active"
+updated_at: "2026-09-04T11:18:58Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"]
 related_nodes: []
 resource_scope: ["src/app/admin/sites/[site]/","src/app/admin/blog/","src/app/admin/(cross)/","src/components/admin/","docs/spec/feat-blog-scoped-admin-console/migration-notes.md"]

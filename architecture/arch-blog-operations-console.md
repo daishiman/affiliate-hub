@@ -12,7 +12,7 @@ iteration: null
 title: "ブログ単位運営コンソールのアーキテクチャ"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-07T15:54:20.326826Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "active"
 depends_on: []
 related_nodes: ["arch-two-layer-platform","arch-system-spec-overview","spec-system-spec-index"]
@@ -121,12 +121,35 @@ SEO/AEO の指摘は誰かの頭の中にしか残らない。
 - **提示層**: 頻度 × 失敗コストで順位を決め、根拠件数が足りないものは出さない。
   集計や診断をこの層で再実装しない。
 
+### 提示層の住所と、データの所有単位は別である (feat-site-scoped-authoring-ia)
+
+「全層が `site_slug` を結合キーにする」は**層をまたぐ結合の話**であって、
+「`/admin/sites/[site]/` の下にある画面が出す物は全部そのブログ専用」という意味ではない。
+
+書き手 (`author_personas`) と読者像 (`audience_personas`) は `workspace_id` で持たれており、
+ブログ単位の列を持たない。それでも画面は `/admin/sites/[site]/authors` の下にある。
+**住所をブログ単位にしたのは、運営者が「いまどのブログの作業をしているか」を
+見失わないためであって、データを分けたからではない。**
+
+この差を放置すると、`/admin/sites/quiet-rental/audience/personas` を見た人は
+そこに出ている読者像を quiet-rental 専用と読み、別のブログで 1 つ消したときに
+こちらからも消えて初めて気付くことになる。よって:
+
+- 住所がブログ単位でも、その画面が読むデータの**所有単位を画面上に明示する**
+  (実装は共通部品 `SharedPersonaScopeNotice`)。
+- 住所がブログ単位である画面は、中身を読む前に `site_slug` の実在を確かめる。
+  確かめる前に workspace のデータを引くと、存在しない slug で中身が出る
+  (「404 が出ない」ではなく「中身が見える」形の壊れ方になる)。
+- `site_slug` の解決に失敗したときは理由を言い分けず、他ブログの名前を
+  応答本文に載せない (404 画面が `AppShell` を描かない)。
+
 ### 禁止依存
 
 - 観測層 → 改善層の直接呼び出し (改善層が集計結果を読む向きだけ)
 - 改善層 → 公開面の直接書き込み (下書き経由のみ)
 - 提示層 → 生イベントの直接集計 (ロールアップ結果を読む)
 - 各層が `site_slug` 以外のブログ識別子を独自に定義すること
+- 住所がブログ単位の画面が、`site_slug` の実在確認より先に workspace のデータを読むこと
 
 ## Subtype architecture
 

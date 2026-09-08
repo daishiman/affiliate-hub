@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン接続の運用手順と利用者向け説明"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:40:46.688279Z"
-status: "active"
+updated_at: "2026-09-04T08:12:14Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P10","SYS-BLOG-CUSTOM-DOMAIN-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-custom-domain/operations-runbook.md","docs/spec/feat-blog-custom-domain/"]

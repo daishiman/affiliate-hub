@@ -12,8 +12,8 @@ iteration: null
 title: "浮遊要素の属性統一と重なり監査との共通化"
 owners: ["daishiman"]
 created_at: "2026-08-30T12:31:04Z"
-updated_at: "2026-08-30T13:41:46.440805Z"
-status: "active"
+updated_at: "2026-09-05T14:25:06Z"
+status: "closed"
 closed_at: null
 depends_on: ["SYS-FB-CAPTURE-EXCLUSION-P07"]
 related_nodes: []
