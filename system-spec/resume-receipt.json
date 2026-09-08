@@ -13,20 +13,20 @@
   },
   "artifacts": {
     "system-spec/00-requirements-definition.md": "df609c5a16feae29650a989573e419875b29371a4d5249d952d13162e0b9cf4b",
-    "system-spec/completeness-report.json": "059da125465a760315ed45e96f6f233e2c608b7c76c56d7cb0e16cfb673f5a26",
+    "system-spec/completeness-report.json": "737c32a3eac163fdef1f55a134b2a4b83bd46eca827892e394d381314e4dc78a",
     "system-spec/fetched-references.json": "607f57a986c24e029ba346d31920d6a77fa4c267adf3e585b598ab750d792baf",
     "system-spec/index.md": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
-    "system-spec/spec-state.json": "05ae81aabd2c63c9a9de7234936bc3acd9da5fb0eeb3dfd9007d73f195b6eae0"
+    "system-spec/spec-state.json": "8561c0b993cb42c5598e55ef6dbcbcea2843209849acd9b9504f47e04f78362e"
   },
   "inputs": {
-    "file_count": 306,
-    "sha256": "c774ea6051ff4e956b3bf3025510e5a288d32472ca7e92cc65149ac24bd8af82"
+    "file_count": 324,
+    "sha256": "bfa9c51aa4173cb89227f3390a2650c4b6f318a32687e9c29f25df57a74735a3"
   },
   "evaluator": {
     "report_path": "system-spec/completeness-report.json",
-    "report_sha256": "059da125465a760315ed45e96f6f233e2c608b7c76c56d7cb0e16cfb673f5a26",
+    "report_sha256": "737c32a3eac163fdef1f55a134b2a4b83bd46eca827892e394d381314e4dc78a",
     "fork_ledger_path": "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
     "session_id": "aa46c608-dc04-4825-8144-a087dd2c6ddd"
   },
-  "created_at": "2026-09-08T03:16:59Z"
+  "created_at": "2026-09-08T22:21:21Z"
 }

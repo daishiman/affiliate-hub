@@ -16,15 +16,18 @@
         "tool": "Agent",
         "subagent_type": "system-spec-matrix-auditor",
         "session_id": "aa46c608-dc04-4825-8144-a087dd2c6ddd",
-        "tool_use_id": "toolu_01F71dniGTdJUjWGCpWspMAo",
-        "response_sha256": "f94b15ea1a49a17983002e1d3b89a7836eacd46863ae60e43343481552ce3d63"
+        "tool_use_id": "toolu_019xzbcbMUteiBGGfXgK8ioU",
+        "response_sha256": "3c9676347773a863bdf27036100e0e85dcbf54a90539e4da2bf7a4e64c0938b9"
       },
       "verdict": "PASS",
       "evidence": [
-        "validate-coverage-matrix --require-complete exit 0",
-        "48 cells terminal (8 confirmed web, 40 excluded with per-category reasons)",
-        "category_aggregate derivable from truth table for all 8 categories",
-        "all 8 confirmed cells carry qa_ref and serves_goals with no dangling refs"
+        "validate-coverage-matrix loop mode exit 0",
+        "validate-coverage-matrix --require-complete with all opt-in flags (counted-required-info / catalog-domain-coverage / foundation / grounded-design-applications / declared-qa-supersession) exit 0",
+        "48 cells terminal (8 confirmed web, 40 excluded), 0 uncollected",
+        "40 exclusion reasons all non-empty and specific; 0 placeholders",
+        "8 confirmed cells: all qa_refs resolve in qa_log, 0 dangling, asks_for matches the owning category x web for all 8",
+        "category_aggregate recomputed from the truth table matches all 8 declared values",
+        "all 6 canonical platform rows present in all 8 categories"
       ]
     },
     {
@@ -36,16 +39,17 @@
         "tool": "Agent",
         "subagent_type": "system-spec-hearing-auditor",
         "session_id": "aa46c608-dc04-4825-8144-a087dd2c6ddd",
-        "tool_use_id": "toolu_017FGL52gmMDL9MsGtjP7WcL",
-        "response_sha256": "fce9c207b4b880166ff8b18eafc5e1ce1190ea03b8ec33112ded241008aaf57b"
+        "tool_use_id": "toolu_01BBZtyFsZXsGrfLbS4o3LFk",
+        "response_sha256": "cbf707a0fe41cf254a21fd6e32c1d4165a057efa7276f65879320ea64251616c"
       },
       "verdict": "PASS",
       "evidence": [
-        "no missed collection (0 uncollected cells)",
-        "no leading questions across 73 question texts in the confirming qa_refs population",
-        "no premature stop (loop_count 1 of max 5, complete=true)",
-        "all qa_refs of the 8 confirmed cells resolve in qa_log",
-        "foundation U1-U9 traceable to user primary input; 37 field_sources sealed and quote/digest verified"
+        "0 uncollected cells; hearing_progress complete=true consistent with cell states",
+        "74 confirming question texts reviewed; 0 leading questions detected",
+        "loop_count 1 of max 5, no premature stop",
+        "62 qa_refs of the 8 confirmed cells all resolve; 0 id overlap between qa_log (79) and retracted_qa_log (21)",
+        "foundation U1-U9 traceable to user primary input; 36 sealed field_sources verbatim- and digest-verified",
+        "decisions[] deliberately out of scope (C05 decision_guidance owns it)"
       ]
     },
     {
@@ -57,15 +61,17 @@
         "tool": "Agent",
         "subagent_type": "system-spec-doc-freshness-auditor",
         "session_id": "aa46c608-dc04-4825-8144-a087dd2c6ddd",
-        "tool_use_id": "toolu_012AaLasW4MqdEseT7EFErS8",
-        "response_sha256": "747d2e468caa91e9d02b2eb82f96d30826f2918f9e3952118eb4a4e966141e16"
+        "tool_use_id": "toolu_01XbwoX1ZZn8CNAtKJTNJgFK",
+        "response_sha256": "87d606cec75a69a5c05601f792fb0b5eb98a4193fa28dc5e6851730e9461c642"
       },
       "verdict": "PASS",
       "evidence": [
-        "validate-source-citation exit 0",
-        "validate-evidence-transcription exit 0 (22/22 records match retrieval evidence digests)",
-        "22 targets re-checked against their official sites; no version or last-updated drift",
-        "no unofficial hosts, no missing checked-at or source_url"
+        "validate-evidence-transcription --show-evidence-identity exit 0 (22/22 records match retrieval evidence digests)",
+        "validate-source-citation exit 0 (targets/references/repo-root)",
+        "22 targets vs 22 references: 0 missing, 0 extra",
+        "22/22 official hosts re-verified against the publishers' live documentation",
+        "version- and last_updated-bearing targets re-checked against upstream; 0 stale records (stryker 10.0.0 cross-checked at the registry after a stale search snapshot)",
+        "0 missing latest_checked_at / source_url"
       ]
     }
   ],
@@ -195,8 +201,8 @@
   ],
   "gaps": [],
   "inputs": {
-    "file_count": 306,
-    "sha256": "c774ea6051ff4e956b3bf3025510e5a288d32472ca7e92cc65149ac24bd8af82",
+    "file_count": 324,
+    "sha256": "bfa9c51aa4173cb89227f3390a2650c4b6f318a32687e9c29f25df57a74735a3",
     "files": [
       {
         "path": "docs/spec/00-README.md",
@@ -1579,9 +1585,99 @@
         "mtime": 1788834618
       },
       {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/acceptance-report.md",
+        "sha256": "c31d877ee3308d95ff28d1038ce7b72a983da36b8db467532505775edaaf4008",
+        "mtime": 1788875084
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/design-review.md",
+        "sha256": "828b23e53a55655f24de6df6a93be99c04cd15432e9def1adcae7c6de961270d",
+        "mtime": 1788869400
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/entry-consolidation-contract.md",
+        "sha256": "423a19cdfa540f705e1c6421abea79162ffe6020f9344695fd43074566cbf293",
+        "mtime": 1788860074
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/evidence/index.md",
+        "sha256": "aa1e949bb0ccb89535ef8ffc67d80e6f4525af286b27328378f73fed3dd34ec3",
+        "mtime": 1788875084
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/final-review.md",
+        "sha256": "65070d872e34caca13b7a64e938009e056bf96eaefd96efcac6a0ba2116a6c36",
+        "mtime": 1788902841
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/ia-rules.md",
+        "sha256": "3604c52f393a1ae63d7531053ea5ad3f0aa31852c6810e0594141bbdc4c34aaa",
+        "mtime": 1788868472
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/migration-report.md",
+        "sha256": "25aa9c0d2df01c585f8eb850d8d03dfbc71acd091bac12e76044dd1e343aa347",
+        "mtime": 1788867065
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/operations.md",
+        "sha256": "a21718a6b90efc2a4147ff3fa0b638d47f4e22fe9980a3882daf3b67e2bdc3ca",
+        "mtime": 1788868544
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/quality-report.md",
+        "sha256": "1c5c59e4e300ab9e7733b02289cc824f37653587866eb40690ce28339cacdbc5",
+        "mtime": 1788875084
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/redirect-contract.md",
+        "sha256": "92d4f135d1e594c772f416a4979c1118261ad6a227b8dc16aed06b40f999913b",
+        "mtime": 1788869257
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/release-report.md",
+        "sha256": "e1e886a2f8000c6545b0cd85cad2f092aeedb5093bf7d37044f3c6dacb135747",
+        "mtime": 1788902826
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/requirements-baseline.md",
+        "sha256": "364d88d4f8b831d5b0f0e9e02219a7940fdf817d5e48a8594a696e755db4330c",
+        "mtime": 1788860079
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/shortcut-contract.md",
+        "sha256": "3ae067a1696eabc9a9487ef1d9100374f368e3cea8a7008917d34d7409844927",
+        "mtime": 1788859981
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/site-scoped-route-contract.md",
+        "sha256": "d8ea8e2b9126607d570ca6c7c0d691d5fd2c4e3d8824bef29b651aad60b4e423",
+        "mtime": 1788872372
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/spec-reflection-receipt.md",
+        "sha256": "9db0054f2142a89d5deea3deebaa0e9385b6a110d66f20be1484e234d5d1acd0",
+        "mtime": 1788896857
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/template-clone-contract.md",
+        "sha256": "c4d7c2ec418e02af7ef0e3d7326e94ebc8a94f5b6ccdab8088d3edf5b0ec336b",
+        "mtime": 1788858510
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/test-design.md",
+        "sha256": "1cd5707d72a32a623d9ff426d1ab7238409ed4be78769a11864b33f84d3920fd",
+        "mtime": 1788860216
+      },
+      {
+        "path": "docs/spec/feat-site-scoped-authoring-ia/test-run-report.md",
+        "sha256": "1b2522fd51e842fddaad126ed82d77edc7f69ceee3391d76824d63b4eebe04f4",
+        "mtime": 1788875084
+      },
+      {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
-        "sha256": "a5bed45f9b8369ff1f7f8ea858cb3a4c7c809bc54206b3536e5516a9e2e8290a",
-        "mtime": 1788834618
+        "sha256": "52906dc595bbfd82858d568533800d316c87b762148ca1c63aac44c76e3ed49e",
+        "mtime": 1788873882
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
@@ -1610,8 +1706,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
-        "sha256": "ae1f90660e196282ebacb1fdb1af3c0659a0a5edbb98003dae3c2064e9545842",
-        "mtime": 1788834618
+        "sha256": "4a726129d1e2a7898f35bd38aa237c7a218507ca285dde5853219f409e01476e",
+        "mtime": 1788873882
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
@@ -1630,8 +1726,8 @@
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
-        "sha256": "5dc79edc059a790e96a485592af05ca468a1c112e97d134e62d65ed20202ea26",
-        "mtime": 1788834618
+        "sha256": "75e3c497bfe29d952875dba6d9285a6391b43071022ddd28e3e1382c6e6e713e",
+        "mtime": 1788873882
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
@@ -1695,8 +1791,8 @@
       },
       {
         "path": "system-spec/frontend.md",
-        "sha256": "aaea56cf53f47c1e925447fe2b784536cc6665e118e33b85a6cca0dfc1e0ebec",
-        "mtime": 1788837063
+        "sha256": "1ad2e45c4b33a79a91cfee1458251b52db49c25915fcd2769d480183eae0432d",
+        "mtime": 1788902408
       },
       {
         "path": "system-spec/index.md",
@@ -1720,14 +1816,15 @@
       },
       {
         "path": "system-spec/spec-state.json",
-        "sha256": "05ae81aabd2c63c9a9de7234936bc3acd9da5fb0eeb3dfd9007d73f195b6eae0",
-        "mtime": 1788837035
+        "sha256": "8561c0b993cb42c5598e55ef6dbcbcea2843209849acd9b9504f47e04f78362e",
+        "mtime": 1788902475
       },
       {
         "path": "system-spec/ui-ux.md",
-        "sha256": "9d68852fb07f969cb82f5902cfd8c54b325d7bd40a4a4e7bdf6c05e0868f7e31",
-        "mtime": 1788837063
+        "sha256": "bef023dc0ff29a657d06abb23ac11a6475c9be637ba2fc7f4d5eab4ecbe87d05",
+        "mtime": 1788902475
       }
-    ]
+    ],
+    "pinned_at": "2026-09-08T22:21:04Z"
   }
 }
