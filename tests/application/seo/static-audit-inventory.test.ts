@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-SEO06, REQ-SEO09 @types equivalence, boundary */
+/** @tier 1 @req REQ-SEO08, REQ-SEO11 @types equivalence, boundary */
 import { publicPageInventory } from "@/application/seo/static-audit-inventory";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import { describe, expect, it } from "vitest";

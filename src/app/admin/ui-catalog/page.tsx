@@ -18,6 +18,7 @@ import {
   CriteriaDisclosure,
   DisclosureNotice,
   BarChart,
+  DescriptionTime,
   DecisionStatus,
   DiagramFallback,
   EmptyView,
@@ -338,6 +339,11 @@ export default function UiCatalogPage() {
           <Prose>
             いつ確かめた値かの添え書き: <ProvenanceNote checkedAt="2026-03-01" />
           </Prose>
+          <dl>
+            <DescriptionTime label="確認日時" dateTime="2026-03-01T09:30:00+09:00">
+              2026年3月1日 9:30
+            </DescriptionTime>
+          </dl>
         </Stack>
       </Section>
 

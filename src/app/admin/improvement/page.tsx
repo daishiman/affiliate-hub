@@ -1,4 +1,5 @@
-import { DEFAULT_MINIMUM_SAMPLES, METRIC_DEFINITIONS } from "@/domain/analytics";
+import { DEFAULT_MINIMUM_SAMPLES } from "@/domain/analytics/improvement";
+import { METRIC_DEFINITIONS } from "@/domain/analytics/metrics";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   AdvanceLoopRunForm,

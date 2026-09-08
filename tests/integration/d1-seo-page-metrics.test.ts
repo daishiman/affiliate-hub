@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-SEO10 REQ-SEO11 @types equivalence, boundary, tenant-isolation, idempotency */
+/** @tier 2 @req REQ-SEO12 REQ-SEO13 @types equivalence, boundary, tenant-isolation, idempotency */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";

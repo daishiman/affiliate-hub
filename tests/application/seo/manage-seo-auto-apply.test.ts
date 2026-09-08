@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-SEO12, REQ-SEO13, REQ-SEC01 @types equivalence, permission-matrix, state-transition, boundary */
+/** @tier 1 @req REQ-SEO14, REQ-SEO15, REQ-SEC01 @types equivalence, permission-matrix, state-transition, boundary */
 import type { AutoApplyLogEntry, SeoArticleState, PageMetric, SearchQueryMetric } from "@/application/ports/seo-measurement";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import { createManageSeoAutoApply, type ManageSeoAutoApplyDeps, type ManageSeoAutoApplyInput, type SeoRevisionPreviewOutput } from "@/application/usecases/seo/manage-seo-auto-apply";

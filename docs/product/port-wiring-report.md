@@ -6,13 +6,15 @@
 **製品コード（`src/application` `src/presentation` `src/app`）から**
 呼ばれていないポートの手続きの一覧。テストからの呼び出しは数えない。
 
-- ポート 91 件 / 手続き 325 件
-- 呼ばれていない 52 件（上限 79）
+- ポート 102 件 / 手続き 362 件
+- 呼ばれていない 56 件（上限 79）
 - 理由つきの除外 0 件（上限 0）
 
 | ポート | 手続き | 宣言 |
 | --- | --- | --- |
 | `AffiliateLinkRepositoryPort` | `save` | `src/application/ports/monetization.ts` |
+| `AiSearchReauditRunPort` | `save` | `src/application/ports/seo.ts` |
+| `AiSearchReauditRunPort` | `listKnownWorkspaceIds` | `src/application/ports/seo.ts` |
 | `AspAdapterPort` | `searchProducts` | `src/application/ports/monetization.ts` |
 | `AspAdapterPort` | `fetchConversions` | `src/application/ports/monetization.ts` |
 | `AspAdapterPort` | `createLink` | `src/application/ports/monetization.ts` |
@@ -32,6 +34,7 @@
 | `ConsentStorePort` | `read` | `src/application/ports/telemetry.ts` |
 | `ConsentStorePort` | `write` | `src/application/ports/telemetry.ts` |
 | `ConversionRepositoryPort` | `findByExternalId` | `src/application/ports/monetization.ts` |
+| `CustomDomainRepositoryPort` | `findActiveByHostname` | `src/application/ports/blog-domains.ts` |
 | `FeedbackCaptureStoragePort` | `deleteExpired` | `src/application/ports/feedback.ts` |
 | `FeedbackRepositoryPort` | `findByCaptureId` | `src/application/ports/feedback.ts` |
 | `FeedbackRepositoryPort` | `purgeExpiredDiagnostics` | `src/application/ports/feedback.ts` |
@@ -44,6 +47,7 @@
 | `MerchantOfferRepositoryPort` | `save` | `src/application/ports/product.ts` |
 | `MerchantOfferRepositoryPort` | `listStale` | `src/application/ports/product.ts` |
 | `MetricsRepositoryPort` | `record` | `src/application/ports/analytics.ts` |
+| `MetricsRollupPort` | `purgeExpiredEvents` | `src/application/ports/blog-observability.ts` |
 | `ProductRepositoryPort` | `findByIdentityKey` | `src/application/ports/product.ts` |
 | `PublicationRepositoryPort` | `findByIdempotencyKey` | `src/application/ports/distribution.ts` |
 | `PublishedContentPort` | `search` | `src/application/ports/site.ts` |
@@ -71,7 +75,7 @@
 呼ばれていない**状態を拾えない。ここはその形を見る。
 
 - 届いていない 0 件（上限 0）
-- 理由つきの除外 5 件（上限 5）
+- 理由つきの除外 6 件（上限 6）
 
 - 読み書きを判定できない手続き 0 件（上限 0）
 
@@ -94,6 +98,6 @@
 
 | 入口 | 場所 |
 | --- | --- |
-| `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:435` |
-| `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:527` |
-<!-- 生成物の指紋 sha256:abab75752bab67875f76e184f7e4d155b30620d362a0c4e20bca0bc896716a46 -->
+| `createStartSiteDraftUseCase` | `src/application/usecases/site/build-site.ts:415` |
+| `createSaveSiteDraftStepUseCase` | `src/application/usecases/site/build-site.ts:507` |
+<!-- 生成物の指紋 sha256:a989045ba6f988d4b18abc49738e7612d2c517785a3c536b12bcfc71cc2406d2 -->

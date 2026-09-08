@@ -28,7 +28,7 @@
   },
   "qa_log": [{"id": "qa-001", "question": "...", "answer": "...", "source": {"kind": "user-dialogue"}, "design_applications": [{"knowledge_ref": "ddd.md#Bounded Context", "principle": "Bounded Context", "applicability": "applied", "rationale": "...", "tradeoffs": ["..."]}]}],
   "approval_log": [{"id": "appr-001", "note": "..."}],
-  "reopen_log": [{"category": "database", "platform": "web", "reason": "...", "qa_ref": "qa-002", "from": "確定", "discarded": {"qa_ref": "qa-001", "serves_goals": ["G1"]}}],
+  "reopen_log": [{"category": "database", "platform": "web", "reason": "...", "qa_ref": "qa-002", "from": "確定", "discarded": {"qa_ref": "qa-001", "approval_ref": "approval-001", "serves_goals": ["G1"]}}],
   "category_aggregate": {"<category_id>": "確定|収集中|未着手|対象外"},
   "targets": [{"target_id": "react"}],
   "requirements_foundation": {
@@ -271,6 +271,42 @@ python3 scripts/apply-spec-transition.py set-knowledge-candidate \
 - `tradeoffs`: 採用費用、非採用時の損失、再評価条件などを最低1件持つ非空文字列配列。
 
 writer は上記形状を検証して qa entry に保存する。新規 state は `schema_version: "1.1"` と `design_application_contract_version: "1.0"` を持ち、`validate-coverage-matrix.py --require-complete` が確定セルから参照される全 qa entry の非空・形状と provenance の完全一致を fail-closed に再検査する。marker の無い旧 `schema_version: "1.0"` state は読み取りだけ可能で、writer の更新操作は fail-closed に拒否する。再開時は R1 の `init --state` を明示実行し、matrix を未収集へ戻して 1.1 へ移行する。この schema 境界が legacy 免除の終了条件であり、1.1 以降で marker 欠落を許さない。移行済み state に一時的な `legacy_exempt: true` と非空 `legacy_exempt_reason` が残った場合に限り、`set-qa-design-applications` が既存の question / answer / source を維持したまま検証済み `design_applications` を追記し、`design_application_provenance={"mode":"legacy_backfill","writer":"set-qa-design-applications"}` を残して旧免除 metadata を除去する。provenance の無い既存解釈は対話経路として保護し、legacy 表示の後付けを拒否する。完了済み legacy backfill の同一 payload 再適用のみ冪等に受け入れ、異なる既存解釈または provenance の上書きは拒否する。C03 は `unrecorded` (解釈欠落) / `dialogue` (対話時解釈) / `legacy_backfill` (事後補完) の3経路を描画し、C05 は unrecorded を未記録 finding とし、backfill は対話時解釈と区別して回答との適合を再照合する。存在確認だけで `design_knowledge_reflection` を緑化させない。
+
+### 出典契約違反 QA の版付き退避 (`retract-invalid-qa`)
+
+`retract-qa` はセル・後継・書き起こしから参照されない記録の取り下げに使う。
+同 ID が過去に取り下げられた後で再利用され、さらに `superseded_by` の参照先に
+なっている既存の不正な書面 QA は、`retract-invalid-qa` で原文と後継履歴を保存して扱う。
+
+- 対象は `written-requirements` の path / section / sha256 契約を満たさない記録に限定する。
+  `question / answer / source` を修正したり、設計解釈を利用者の発言と呼び替えたりしない。
+- request は `retraction_id`（操作ごとに一意）、`qa_id`、`expected_entry_sha256`、
+  `replacement_qa_id`、`expected_replacement_sha256`、`predecessors`、`reason` を持つ。
+  `predecessors` は旧 QA を `superseded_by` に持つ**全件**の
+  `{qa_id, expected_entry_sha256}` 配列。対象集合と各版の不一致を拒否する。
+- 版指紋は完全 entry の `json.dumps(ensure_ascii=False, sort_keys=True, separators=(",", ":"))`
+  の UTF-8 SHA-256。**出典の正当性を示す digest ではなく、操作者が見た版を固定するためだけ**に使う。
+- replacement は実在する有効な現行 QA に限る。既に後継を持つ QA は拒否し、循環を作らない。
+  対象・predecessor にセル、required_info、foundation、decision、他 QA の構造化参照が残れば
+  拒否する。先に通常の reopen → confirm (`drops_backing`) で現行根拠を移す。
+  対象の `written_up` も拒否する。過去の `reopen_log / approval_log` は変更しない。
+- 成功時だけ、対象全文を `retracted_qa_log` へ `retraction_id / request` とともに追記する。
+  predecessor の旧全文は `supersession_history` へ保存し、その `superseded_by` **だけ**を
+  replacement に変更する。他の QA や旧 archive を変更しない。
+- 現行 `qa_log` は全件 `source` 必須のままにする。`retracted_qa_log[].entry` だけは、
+  source 契約導入前または契約違反だった原文を修復せず保存するため `source` 欠落を許容する。
+  これは現行 QA への legacy 免除ではなく、退避した不完全さを改変しないための履歴境界である。
+- 同じ retraction id と同一 request の再適用だけ冪等。異なる request、退避記録の不整合、
+  active ID の再出現を拒否する。事前条件の失敗では state を変更しない。
+  `chunk` は今後、取り下げ済み ID の新規再利用を拒否する。新しい記録には新しい ID を使う。
+
+```bash
+python3 scripts/apply-spec-transition.py retract-invalid-qa \
+  --state spec-state.json --request retraction-request.json --out candidate.json
+```
+
+候補と原本を比較して対象 QA・明示した後継参照・退避ログ以外が不変と確認し、同じ request を
+正本へ通常の単一 writer で適用する。`--out` を省略したときだけ入力 state を書き戻す。
 
 ## 単一 transition writer 契約
 

@@ -1,14 +1,6 @@
 import type { PortResult } from "@/application/ports/common";
-import {
-  SITE_COMPOSITION_ELEMENTS,
-  SITE_COMPOSITION_LABEL,
-  SITE_COMPOSITION_SEVERITY,
-  type CompositionCounts,
-  type CompositionReport,
-  type SiteCompositionElement,
-  type SiteCompositionGap,
-  siteHostname,
-} from "@/domain/authoring";
+import { SITE_COMPOSITION_ELEMENTS, SITE_COMPOSITION_LABEL, SITE_COMPOSITION_SEVERITY, type CompositionCounts, type CompositionReport, type SiteCompositionElement, type SiteCompositionGap } from "@/domain/authoring/site-publication";
+import { siteHostname } from "@/domain/authoring/site-hostname";
 import {
   type ActorContext,
   type DomainError,

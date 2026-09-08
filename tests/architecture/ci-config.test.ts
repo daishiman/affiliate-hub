@@ -465,37 +465,84 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       */
       "0043_canonical_public_articles",
       /*
+        AI 検索適合の点検履歴（記事ごと直近 30 件）。既存の表には触らず、
+        表 1 つと索引 2 本を足すだけ。外部キーは張らない——記事を消したときに
+        履歴の削除が失敗して公開の取り下げごと止まる形にしないため。
+      */
+      "0044_ai_search_audit_history",
+      /*
+        workspace ごとの直近 1 回の定期再点検状態。
+        記事 0 件の正常完了と対象取得失敗を、固定 code で区別する。
+      */
+      "0045_ai_search_reaudit_runs",
+      /*
+        2026-09-05: ブログ運営コンソールの 4 層（`arch-blog-operations-console`）の
+        8 表。住所（`site_custom_domain`）・観測（`reader_interaction_event` と
+        日次の `site_daily_metric` / `article_daily_metric`）・改善
+        （`article_seo_assessment` / `site_aeo_profile` / `article_answer_unit`）と、
+        月次 SEO 診断の進捗（`site_seo_assessment_progress`）。
+
+        **既存の表は 1 つも触らない。** 生成された SQL は `CREATE TABLE` 8 本だけで
+        `ALTER` も `DROP` も無い。足すだけなので、流す前後で
+        いま動いている読み書きの意味は変わらない。観測の生の行は
+        90 日で消える側（AD-4）なので、増え続ける表は入っていない。
+      */
+      "0046_blog_operations_console",
+      "0047_article_image",
+      /*
+        記事の挿絵の台帳を足したあと、掃除が拾う索引を
+        (referenced, created_at) から (created_at) へ変えた。
+        0047 はもう journal に載っているので、作り直さず 1 本足している。
+      */
+      "0048_article_image_sweep_index",
+      // 未点検・最終点検時刻の古い順に循環させ、先頭500枚への固定を防ぐ。
+      "0049_article_image_check_rotation",
+      // 画像の不可逆回収claim・保存trigger・R2孤児の永続巡回位置。
+      "0050_article_image_lifecycle",
+      /*
+        **2026-09-08: ここから下は 0044〜0054 だったものを 0051〜0061 へ振り直した。**
+
+        ブログトップ画面の枝と dev が、同じ 0044〜0050 の 7 つの番号を
+        別々の中身で使っていた。番号は「流す順番」そのものなので、
+        同じ番号が 2 通りの中身を指すと、どちらを流したかで DB の形が変わる。
+        dev は既に共有の枝に載っていたので、まだ載っていないこちら側を後ろへ
+        送った（dev が 0046 で同じ衝突を解いたときと同じ向き）。
+
+        両者が触る表は 1 つも重ならない（作る表・索引・trigger の名前に交差なし、
+        `ALTER` の対象も別）。だから後ろへ回しても、流し終わった形は変わらない。
+      */
+      /*
         公開記事の全文検索。trigram の仮想表と、それを本体へ追従させる trigger。
         本文は `search_text` 列に置き、既存記事は節の本文だけを埋め戻す。
       */
-      "0044_published_article_search",
+      "0051_published_article_search",
       /*
         SEO / AEO の計測ループ。所見は (ページ, 規則) を鍵に上書き、
         反映ログは取り消しても消さずに積む。変更前を必ず携える。
       */
-      "0045_seo_aeo_measurement_loop",
+      "0052_seo_aeo_measurement_loop",
       /*
         記事ごとに 1 枚だけ持つサムネイル（運営者が上げた原本）の在り処。
         R2 の鍵をそのまま保存する。材料から組み直さないのは、記事の URL 名を
         変えたあとに組み直すと置いたときと違う鍵になり、古い世代を消しに
         行っても空振りするため（`domain/blogops/thumbnail-asset.ts`）。
       */
-      "0046_blog_article_thumbnail",
+      "0053_blog_article_thumbnail",
       /*
         トップのおすすめ記事。公開記事の複製ではなく、
         URL 名と並び順の選定意図を tenant/site ごとに保存する。
         非公開中も意図を残し、同じ URL 名の再公開で復帰させる。
       */
-      "0047_blog_home_featured",
-      "0048_seo_approved_article_revisions",
-      "0049_seo_page_observations",
-      "0050_persistent_publication_revisions",
-      "0051_search_console_query_metrics",
-      "0052_ai_citation_monthly_budget",
+      "0054_blog_home_featured",
+      "0055_seo_approved_article_revisions",
+      "0056_seo_page_observations",
+      "0057_persistent_publication_revisions",
+      "0058_search_console_query_metrics",
+      "0059_ai_citation_monthly_budget",
       // 公開ページ監査の世代と対象別観測。既存の履歴を改名せず末尾へ追加する。
-      "0053_seo_static_audit_scans",
+      "0060_seo_static_audit_scans",
       // 表示中の完了検索語と、その完了時刻・API上限状態を同じsnapshotへ固定する。
-      "0054_seo_query_snapshot_state",
+      "0061_seo_query_snapshot_state",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
       entries: Array<{ tag: string; idx: number; when: number }>;

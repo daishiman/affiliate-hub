@@ -29,6 +29,7 @@ export const A11Y_TEST_FILES = [
   "tests/ui/article-thumbnail-form.test.tsx",
   "tests/ui/axe-blind-spots.test.ts",
   "tests/ui/axe-rule-coverage.test.ts",
+  "tests/ui/blog-metrics-pages.test.tsx",
   "tests/ui/blog-ops-a11y-floor.test.tsx",
   "tests/ui/blog-rating-hide-form.test.tsx",
   "tests/ui/capture-canvas.test.tsx",
@@ -39,6 +40,7 @@ export const A11Y_TEST_FILES = [
   "tests/ui/page-empty.test.tsx",
   "tests/ui/page-render.test.tsx",
   "tests/ui/prose-editor.test.tsx",
+  "tests/ui/published-articles-failing-audits.test.tsx",
 ];
 
 /**

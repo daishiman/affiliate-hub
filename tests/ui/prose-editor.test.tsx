@@ -4,12 +4,21 @@
  * @types screen-states, a11y
  */
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
-import { afterEach, describe, expect, it } from "vitest";
-import { type ProseNode, parseProse, serializeProse } from "@/domain/blogops";
-import { ProseEditor } from "@/presentation/prose/prose-editor";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  type ProseNode,
+  type ProseNodeKind,
+  PROSE_MENU_ORDER,
+  PROSE_NODE_KINDS,
+  PROSE_NODE_METADATA,
+  parseProse,
+  serializeProse,
+} from "@/domain/blogops";
+import { ProseEditor, type ProductPick } from "@/presentation/prose/prose-editor";
 import { asPartOfPage, describeViolations, findA11yViolations } from "../support/a11y";
+import { PROSE_NODE_FIXTURE_BY_KIND } from "../domain/blogops/prose-node-fixture";
 
 /**
  * 本文を出来上がりの形のまま書く欄。
@@ -44,18 +53,21 @@ afterEach(cleanup);
  */
 function Harness({
   initial = "",
-  productOptions,
+  onSearchProducts,
+  onUploadImage,
 }: {
   readonly initial?: string;
-  readonly productOptions?: readonly { readonly value: string; readonly label: string }[];
+  readonly onSearchProducts?: (query: string) => Promise<readonly ProductPick[]>;
+  readonly onUploadImage?: (file: File) => Promise<string>;
 }) {
   const [value, setValue] = useState(initial);
   return (
     <ProseEditor
       label="本文"
       name="body"
+      onSearchProducts={onSearchProducts}
+      onUploadImage={onUploadImage}
       onValueChange={setValue}
-      productOptions={productOptions}
       value={value}
     />
   );
@@ -72,9 +84,60 @@ function savedNodes(): readonly ProseNode[] {
   return parseProse(savedValue());
 }
 
-function typeInParagraph(text: string): void {
-  fireEvent.change(screen.getByLabelText("段落"), { target: { value: text } });
+/**
+ * 装飾つきの欄へ文字を打つ。
+ *
+ * `<textarea>` ではなく `contenteditable` なので `change` は飛ばない。
+ * 中身を差し替えて `input` を起こすのが、ブラウザで打ったときと同じ道筋になる
+ * （欄は `onInput` で DOM を読み直して保存の文字列を組み立てる）。
+ */
+function typeInto(label: string, text: string): void {
+  const field = screen.getByRole("textbox", { name: label });
+  field.textContent = text;
+  fireEvent.input(field);
 }
+
+function typeInParagraph(text: string): void {
+  typeInto("段落", text);
+}
+
+const PROSE_EDITOR_PROBE: Readonly<Record<ProseNodeKind, () => boolean>> = {
+  paragraph: () => screen.queryByLabelText("段落") !== null,
+  heading: () => screen.queryByLabelText("小見出しの深さ") !== null,
+  "bullet-list": () => screen.queryAllByText("・").length === 2,
+  "ordered-list": () => screen.queryByText("1.") !== null,
+  quote: () => screen.queryByLabelText("引用") !== null,
+  callout: () => screen.queryByLabelText("注意書きの調子") !== null,
+  "product-card": () => screen.queryByText("選択済みの商品") !== null,
+  "comparison-table": () => screen.queryByRole("table") !== null,
+  image: () => screen.queryByRole("img", { name: "机の全体" }) !== null,
+  divider: () => screen.queryByRole("separator") !== null,
+  code: () => screen.queryByLabelText("プログラムの中身") !== null,
+  table: () => screen.queryByRole("table") !== null,
+  "image-row": () => screen.queryAllByRole("img").length === 2,
+  toggle: () => screen.queryByLabelText("折りたたみの見出し") !== null,
+  checklist: () => screen.queryByRole("checkbox", { name: "1 番目に印を付ける" }) !== null,
+  embed: () => screen.queryByLabelText("埋め込みの宛先") !== null,
+  "cta-button": () => screen.queryByLabelText("ボタンの行き先") !== null,
+  "link-card": () => screen.queryByLabelText("リンクカードの行き先") !== null,
+  columns: () => screen.queryByLabelText("左の段") !== null,
+};
+
+describe("全種類の編集 consumer", () => {
+  for (const kind of PROSE_NODE_KINDS) {
+    it(`${kind} の専用編集面を出す`, () => {
+      render(
+        <Harness
+          initial={serializeProse([PROSE_NODE_FIXTURE_BY_KIND[kind]])}
+          onSearchProducts={async () => []}
+          onUploadImage={async () => "/api/article-images/uploaded"}
+        />,
+      );
+
+      expect(PROSE_EDITOR_PROBE[kind]()).toBe(true);
+    });
+  }
+});
 
 describe("`/` で部品を足す", () => {
   it("空の段落で `/` を打つと、部品の一覧が出る", () => {
@@ -87,10 +150,26 @@ describe("`/` で部品を足す", () => {
     expect(screen.getByRole("button", { name: "比較表" })).not.toBeNull();
   });
 
+  it("一覧は群に分かれ、段落を含む全 19 種が出る", () => {
+    render(<Harness />);
+    typeInParagraph("/");
+
+    // 群の見出しが無いと、19 個が 1 列に並び、下端で切れたものが「無い」ことになる。
+    for (const group of ["文章", "一覧", "見せ方", "データ", "差し込み"]) {
+      expect(screen.getByText(group)).not.toBeNull();
+    }
+    // 要件上の全種類を、正本の同じ入口から挿せる。
+    expect(PROSE_MENU_ORDER).toHaveLength(PROSE_NODE_KINDS.length);
+    expect(screen.getByRole("button", { name: "段落" })).not.toBeNull();
+    for (const kind of PROSE_MENU_ORDER) {
+      expect(screen.getByRole("button", { name: PROSE_NODE_METADATA[kind].label })).not.toBeNull();
+    }
+  });
+
   it("続けて打った文字で絞る。名前でも読みでも当たる", () => {
     render(<Harness />);
 
-    // 読み（`PROSE_NODE_KEYWORDS`）で当てる。`list` は前方一致では拾えない。
+    // metadata の読みで当てる。`list` は前方一致では拾えない。
     typeInParagraph("/list");
     expect(screen.getByRole("button", { name: "箇条書き" })).not.toBeNull();
     expect(screen.queryByRole("button", { name: "小見出し" })).toBeNull();
@@ -136,7 +215,7 @@ describe("`/` で部品を足す", () => {
     fireEvent.click(screen.getByRole("button", { name: "段落の下に部品を足す" }));
     fireEvent.click(screen.getByRole("button", { name: "引用" }));
 
-    fireEvent.change(screen.getByLabelText("引用"), { target: { value: "引いた文" } });
+    typeInto("引用", "引いた文");
 
     expect(savedNodes()).toEqual([
       { kind: "paragraph", text: "消えては困る本文" },
@@ -199,6 +278,50 @@ describe("並べ替えと削除", () => {
   });
 });
 
+/**
+ * 段の深さは断片が自分で持ち、並びの位置からは導かない (FRONT-REQ-008・受け入れ A2)。
+ *
+ * ここが位置から導かれていると、上下に動かした瞬間に見出し 3 が 4 になり、
+ * 記事の骨格が編集操作で崩れる。読者の目次も一緒に崩れる。
+ */
+describe("小見出しの深さは、動かしても消しても変わらない", () => {
+  const MIXED = serializeProse([
+    { kind: "heading", level: 4, text: "深いほう" },
+    { kind: "paragraph", text: "あいだ" },
+    { kind: "heading", level: 3, text: "浅いほう" },
+  ]);
+
+  it("上下に動かしても深さは持ち回る", () => {
+    render(<Harness initial={MIXED} />);
+    // 同じ名前のボタンが小見出しの数だけ並ぶ。2 つ目＝下の「浅いほう」を動かす。
+    const ups = screen.getAllByRole("button", { name: "小見出しを 1 つ上へ" });
+    fireEvent.click(ups[1] as HTMLButtonElement);
+
+    expect(savedNodes()).toEqual([
+      { kind: "heading", level: 4, text: "深いほう" },
+      { kind: "heading", level: 3, text: "浅いほう" },
+      { kind: "paragraph", text: "あいだ" },
+    ]);
+  });
+
+  it("あいだの断片を消しても深さは変わらない", () => {
+    render(<Harness initial={MIXED} />);
+    fireEvent.click(screen.getByRole("button", { name: "段落を消す" }));
+
+    expect(savedNodes()).toEqual([
+      { kind: "heading", level: 4, text: "深いほう" },
+      { kind: "heading", level: 3, text: "浅いほう" },
+    ]);
+  });
+
+  it("選べるのは 3 と 4 だけで、節の見出し (2) は出てこない", () => {
+    render(<Harness initial={serializeProse([{ kind: "heading", level: 3, text: "章" }])} />);
+    const select = screen.getByLabelText("小見出しの深さ") as unknown as HTMLSelectElement;
+
+    expect([...select.options].map((option) => option.value)).toEqual(["3", "4"]);
+  });
+});
+
 describe("空の断片は保存しない", () => {
   it("開いて選んでやめた跡は、本文へ残らない", () => {
     render(<Harness />);
@@ -232,7 +355,7 @@ describe("断片ごとの欄", () => {
 
   it("小見出しの文言を書き換えられる", () => {
     render(<Harness initial={serializeProse([{ kind: "heading", level: 3, text: "旧" }])} />);
-    fireEvent.change(screen.getByLabelText("小見出しの文言"), { target: { value: "新" } });
+    typeInto("小見出しの文言", "新");
 
     expect(savedNodes()).toEqual([{ kind: "heading", level: 3, text: "新" }]);
   });
@@ -246,7 +369,7 @@ describe("断片ごとの欄", () => {
     expect(remove.disabled).toBe(true);
 
     fireEvent.click(screen.getByRole("button", { name: "項目を足す" }));
-    fireEvent.change(screen.getByLabelText("2 番目の項目"), { target: { value: "ふたつ" } });
+    typeInto("2 番目の項目", "ふたつ");
     expect(savedNodes()).toEqual([{ kind: "bullet-list", items: ["ひとつ", "ふたつ"] }]);
 
     fireEvent.click(screen.getByRole("button", { name: "1 番目の項目を消す" }));
@@ -272,107 +395,87 @@ describe("断片ごとの欄", () => {
     );
 
     fireEvent.change(screen.getByLabelText("注意書きの調子"), { target: { value: "warn" } });
-    fireEvent.change(screen.getByLabelText("注意書きの題名"), { target: { value: "注意" } });
-    fireEvent.change(screen.getByLabelText("注意書きの本文"), { target: { value: "危ない" } });
+    typeInto("注意書きの題名", "注意");
+    typeInto("注意書きの本文", "危ない");
 
     expect(savedNodes()).toEqual([
       { kind: "callout", tone: "warn", title: "注意", text: "危ない" },
     ]);
   });
 
-  it("商品カードは、選べる商品を渡さないと id を直に打つ欄になる", () => {
-    render(<Harness initial={serializeProse([{ kind: "product-card", productId: "" }])} />);
-
-    fireEvent.change(screen.getByLabelText("商品の id"), { target: { value: "pc_x" } });
-    expect(savedNodes()).toEqual([{ kind: "product-card", productId: "pc_x" }]);
-  });
-
-  it("選べる商品を渡すと、id を覚えなくてよくなる", () => {
-    render(
-      <Harness
-        initial={serializeProse([{ kind: "product-card", productId: "" }])}
-        productOptions={[{ value: "pc_x", label: "商品 X" }]}
-      />,
-    );
-
-    fireEvent.change(screen.getByLabelText("差し込む商品"), { target: { value: "pc_x" } });
-    expect(savedNodes()).toEqual([{ kind: "product-card", productId: "pc_x" }]);
-  });
-
-  it("画像は、場所を入れたときだけ実物を見せる", () => {
+  it("やることリストは、印を押して切り替えられる", () => {
     render(
       <Harness
         initial={serializeProse([
-          { kind: "image", src: "", alt: "", width: null, height: null },
+          { kind: "checklist", items: [{ text: "買う", checked: false }] },
         ])}
       />,
     );
 
-    // 空のまま `img` を出すと、壊れた絵の記号が並ぶ。
-    expect(document.querySelector("img")).toBeNull();
+    fireEvent.click(screen.getByLabelText("1 番目に印を付ける"));
+    expect(savedNodes()).toEqual([
+      { kind: "checklist", items: [{ text: "買う", checked: true }] },
+    ]);
+  });
 
-    fireEvent.change(screen.getByLabelText("画像の場所"), { target: { value: "/media/a.png" } });
-    fireEvent.change(screen.getByLabelText("画像の説明（見えない人へ伝わる言葉）"), {
-      target: { value: "棚の写真" },
+  it("プログラムの欄は装飾を通さない。記号がそのまま残る", () => {
+    render(<Harness initial={serializeProse([{ kind: "code", language: "", text: "" }])} />);
+
+    fireEvent.change(screen.getByLabelText("プログラムの言語（決めなくても構いません）"), {
+      target: { value: "ts" },
+    });
+    // `**` を太字として食べてしまうと、貼り付けたプログラムが書き換わる。
+    fireEvent.change(screen.getByLabelText("プログラムの中身"), {
+      target: { value: "const a = b ** 2;" },
     });
 
-    expect(document.querySelector("img")?.getAttribute("alt")).toBe("棚の写真");
     expect(savedNodes()).toEqual([
-      { kind: "image", src: "/media/a.png", alt: "棚の写真", width: null, height: null },
+      { kind: "code", language: "ts", text: "const a = b ** 2;" },
     ]);
   });
 
-  it("下絵が読めたら実寸を書き取り、場所を変えたら捨てる", () => {
-    /*
-      **測り直しに 2 度目の取得を使わない。**下絵は既に読み込まれているので、
-      届いた寸法をそのまま書き取る。`new Image()` で測ると、同じ絵を
-      運営者の回線でもう一度取りに行くことになる。
-    */
+  it("画像の横並びは 2〜4 枚のあいだでしか増減しない", () => {
     render(
       <Harness
         initial={serializeProse([
-          { kind: "image", src: "/media/a.png", alt: "棚", width: null, height: null },
+          {
+            kind: "image-row",
+            images: [
+              { src: "/media/a.png", alt: "あ", width: null, height: null },
+              { src: "/media/b.png", alt: "い", width: null, height: null },
+            ],
+          },
         ])}
+        onUploadImage={async () => "/media/c.png"}
       />,
     );
 
-    const img = document.querySelector("img") as HTMLImageElement;
-    Object.defineProperty(img, "naturalWidth", { value: 1200, configurable: true });
-    Object.defineProperty(img, "naturalHeight", { value: 800, configurable: true });
-    fireEvent.load(img);
+    const remove = screen.getByRole("button", {
+      name: "いちばん右の絵を外す",
+    }) as HTMLButtonElement;
+    // 2 枚を下回ると「横並び」ではなくなるので、そこで止める。
+    expect(remove.disabled).toBe(true);
 
-    expect(savedNodes()).toEqual([
-      { kind: "image", src: "/media/a.png", alt: "棚", width: 1200, height: 800 },
-    ]);
-
-    // 前の絵の寸法を次の絵へ持ち越すと、場所だけ空けて中身が合わない箱ができる。
-    fireEvent.change(screen.getByLabelText("画像の場所"), { target: { value: "/media/b.png" } });
-    expect(savedNodes()).toEqual([
-      { kind: "image", src: "/media/b.png", alt: "棚", width: null, height: null },
-    ]);
+    const add = screen.getByRole("button", { name: "並べる絵を 1 枚足す" });
+    fireEvent.click(add);
+    fireEvent.click(add);
+    expect((add as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it("測れない絵でも保存は落ちない（寸法は無いまま残る）", () => {
-    /*
-      外部ホストの絵は読み込みに失敗しうる。**測れないことは書けないことでは
-      ない。**貼った直後に保存を押しても通ること自体を当てている。
-    */
+  it("行き先が通らないとき、保存を待たずにその場で言う", () => {
     render(
       <Harness
         initial={serializeProse([
-          { kind: "image", src: "https://example.test/x.png", alt: "外", width: null, height: null },
+          { kind: "cta-button", href: "/s/a", label: "見る", tone: "action" },
         ])}
       />,
     );
+    const href = screen.getByLabelText("ボタンの行き先");
 
-    const img = document.querySelector("img") as HTMLImageElement;
-    Object.defineProperty(img, "naturalWidth", { value: 0, configurable: true });
-    Object.defineProperty(img, "naturalHeight", { value: 0, configurable: true });
-    fireEvent.load(img);
+    fireEvent.change(href, { target: { value: "javascript:alert(1)" } });
 
-    expect(savedNodes()).toEqual([
-      { kind: "image", src: "https://example.test/x.png", alt: "外", width: null, height: null },
-    ]);
+    expect(href.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.getByText("この行き先は使えません。")).not.toBeNull();
   });
 
   it("比較表は列と行を足せ、いちばん下の行だけは残る", () => {
@@ -390,8 +493,8 @@ describe("断片ごとの欄", () => {
     expect(screen.getByLabelText("3 列目の見出し")).not.toBeNull();
     expect(screen.getByLabelText("2 行 3 列")).not.toBeNull();
 
-    fireEvent.change(screen.getByLabelText("1 列目の見出し"), { target: { value: "型" } });
-    fireEvent.change(screen.getByLabelText("1 行 1 列"), { target: { value: "A" } });
+    typeInto("1 列目の見出し", "型");
+    typeInto("1 行 1 列", "A");
     expect(savedNodes()).toEqual([
       { kind: "comparison-table", headers: ["型", "", ""], rows: [["A", "", ""], ["", "", ""]] },
     ]);
@@ -400,6 +503,212 @@ describe("断片ごとの欄", () => {
     expect(savedNodes()).toEqual([
       { kind: "comparison-table", headers: ["型", "", ""], rows: [["A", "", ""]] },
     ]);
+  });
+});
+
+/**
+ * 商品カードに id の手入力欄を作らない (受け入れ A4)。
+ *
+ * 打てるようにすると、存在しない id や他の作業場の id が本文へ入り、
+ * 公開されるまで誰も気づかない。**探して選ぶ以外の入り口を作らない**のが要点で、
+ * 「探せないときだけ手打ち」という逃げ道も作らない。
+ */
+describe("商品カードは選んで挿す", () => {
+  it("探せない画面では、id を打つ欄を出さずに挿せないと言う", () => {
+    render(<Harness initial={serializeProse([{ kind: "product-card", productId: "" }])} />);
+
+    expect(screen.queryByLabelText("商品の id")).toBeNull();
+    expect(
+      screen.getByText("この画面では商品を探せないため、商品カードは挿せません。"),
+    ).not.toBeNull();
+  });
+
+  it("探して選ぶと、本文には id だけが乗る", async () => {
+    const search = vi.fn(async () => [{ id: "pc_x", name: "商品 X" }]);
+    render(
+      <Harness
+        initial={serializeProse([{ kind: "product-card", productId: "" }])}
+        onSearchProducts={search}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("商品を探す"), { target: { value: "商品" } });
+
+    const hit = await screen.findByRole("button", { name: /商品 X/ });
+    fireEvent.click(hit);
+
+    // 名前も値段も本文へは焼き付けない。値段が変わった日に記事が嘘をつく。
+    expect(savedNodes()).toEqual([{ kind: "product-card", productId: "pc_x" }]);
+    // 選んだあとは名前で確かめられる。id だけ出ても運営者には読めない。
+    expect(screen.getByText("商品 X")).not.toBeNull();
+  });
+
+  it("検索の失敗を、該当商品が 0 件だったことにしない", async () => {
+    render(
+      <Harness
+        initial={serializeProse([{ kind: "product-card", productId: "" }])}
+        onSearchProducts={async () => {
+          throw new Error("商品を探せませんでした。");
+        }}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("商品を探す"), { target: { value: "商品" } });
+
+    expect(await screen.findByText("商品を探せませんでした。")).not.toBeNull();
+    expect(screen.queryByText("見つかりませんでした。")).toBeNull();
+  });
+
+  it("正常に 0 件だったときだけ、見つからなかったと伝える", async () => {
+    render(
+      <Harness
+        initial={serializeProse([{ kind: "product-card", productId: "" }])}
+        onSearchProducts={async () => []}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("商品を探す"), { target: { value: "該当なし" } });
+
+    expect(await screen.findByText("見つかりませんでした。")).not.toBeNull();
+    expect(screen.queryByText("商品を探せませんでした。")).toBeNull();
+  });
+});
+
+/**
+ * 画像に URL の手入力欄を作らない (受け入れ A5)。
+ *
+ * よそのサイトの絵を指せると、相手が消した日に記事から絵が消える。
+ * 送り先は置き場だけにする。
+ */
+describe("画像は送って挿す", () => {
+  it("送れない画面では、URL を打つ欄を出さずに挿せないと言う", () => {
+    render(<Harness initial={serializeProse([{ kind: "image", src: "", alt: "", width: null, height: null }])} />);
+
+    expect(screen.queryByLabelText("画像の場所")).toBeNull();
+    expect(
+      screen.getByText("この画面では画像を送れないため、画像は挿せません。"),
+    ).not.toBeNull();
+  });
+
+  it("ファイルを選ぶと、返ってきた場所が本文に乗る", async () => {
+    render(
+      <Harness
+        initial={serializeProse([{ kind: "image", src: "", alt: "", width: null, height: null }])}
+        onUploadImage={async () => "/media/a.png"}
+      />,
+    );
+
+    // 空のまま `img` を出すと、壊れた絵の記号が並ぶ。
+    expect(document.querySelector("img")).toBeNull();
+
+    fireEvent.change(screen.getByLabelText("画像に使うファイル"), {
+      target: { files: [new File(["x"], "a.png", { type: "image/png" })] },
+    });
+    await waitFor(() => expect(document.querySelector("img")).not.toBeNull());
+
+    fireEvent.change(screen.getByLabelText("画像の説明（見えない人へ伝わる言葉）"), {
+      target: { value: "棚の写真" },
+    });
+
+    expect(document.querySelector("img")?.getAttribute("alt")).toBe("棚の写真");
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/a.png", alt: "棚の写真", width: null, height: null },
+    ]);
+  });
+
+  it("下絵が読めたら実寸を書き取る", () => {
+    /*
+      **測り直しに 2 度目の取得を使わない。**下絵は既に読み込まれているので、
+      届いた寸法をそのまま書き取る。`new Image()` で測ると、同じ絵を
+      運営者の回線でもう一度取りに行くことになる。
+    */
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "/media/a.png", alt: "棚", width: null, height: null },
+        ])}
+        onUploadImage={async () => "/media/a.png"}
+      />,
+    );
+
+    const img = document.querySelector("img") as HTMLImageElement;
+    Object.defineProperty(img, "naturalWidth", { value: 1200, configurable: true });
+    Object.defineProperty(img, "naturalHeight", { value: 800, configurable: true });
+    fireEvent.load(img);
+
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/a.png", alt: "棚", width: 1200, height: 800 },
+    ]);
+  });
+
+  it("絵を外すと、寸法も一緒に外れる", () => {
+    /*
+      **前の絵の寸法を次の絵へ持ち越さない。**持ち越すと、場所だけ空けて
+      中身が合わない箱ができる。外した時点で測り直しの前へ戻す。
+    */
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "/media/a.png", alt: "棚", width: 1200, height: 800 },
+        ])}
+        onUploadImage={async () => "/media/a.png"}
+      />,
+    );
+
+    expect(savedValue()).toContain("1200x800");
+
+    fireEvent.click(screen.getByLabelText("画像を外す"));
+
+    /*
+      場所が空になった画像は断片として保存されない（`parseProse` が拾わない）ので、
+      **残った寸法が無いこと**と、ファイルを選び直す欄へ戻っていることを当てる。
+      寸法だけが文字列に残ると、次に選んだ絵へ前の箱の形が持ち越される。
+    */
+    expect(savedValue()).not.toContain("1200x800");
+    expect(document.querySelector("img")).toBeNull();
+    expect(screen.getByLabelText("画像に使うファイル")).not.toBeNull();
+  });
+
+  it("測れない絵でも保存は落ちない（寸法は無いまま残る）", () => {
+    /*
+      読み込みに失敗した絵は `naturalWidth` が 0 のまま来る。**測れないことは
+      書けないことではない。**貼った直後に保存を押しても通ること自体を当てている。
+    */
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "/media/x.png", alt: "外", width: null, height: null },
+        ])}
+        onUploadImage={async () => "/media/x.png"}
+      />,
+    );
+
+    const img = document.querySelector("img") as HTMLImageElement;
+    Object.defineProperty(img, "naturalWidth", { value: 0, configurable: true });
+    Object.defineProperty(img, "naturalHeight", { value: 0, configurable: true });
+    fireEvent.load(img);
+
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/x.png", alt: "外", width: null, height: null },
+    ]);
+  });
+
+  it("送れなかった理由を一般文へ潰さず、そのまま画面に出す", async () => {
+    render(
+      <Harness
+        initial={serializeProse([{ kind: "image", src: "", alt: "", width: null, height: null }])}
+        onUploadImage={async () => {
+          throw new Error("画像は 8 MiB 以下にしてください。");
+        }}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("画像に使うファイル"), {
+      target: { files: [new File(["x"], "large.png", { type: "image/png" })] },
+    });
+
+    expect(await screen.findByText("画像は 8 MiB 以下にしてください。")).not.toBeNull();
+    expect(screen.queryByText("送れませんでした。もう一度試してください。")).toBeNull();
   });
 });
 
@@ -414,8 +723,11 @@ describe("読み上げと操作", () => {
           { kind: "callout", tone: "tip", title: "こつ", text: "中身" },
           { kind: "comparison-table", headers: ["型", "値"], rows: [["A", "1"]] },
           { kind: "image", src: "/media/a.png", alt: "棚の写真", width: null, height: null },
+          { kind: "checklist", items: [{ text: "買う", checked: false }] },
+          { kind: "toggle", title: "ひらく", text: "なかみ" },
           { kind: "divider" },
         ])}
+        onUploadImage={async () => "/media/a.png"}
       />,
     );
 

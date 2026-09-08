@@ -1,12 +1,13 @@
 /**
  * @tier 2
  * @req REQ-TM06
- * @types equivalence
+ * @types equivalence, boundary, keyboard
  */
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ArticleView, type ArticleViewModel } from "@/presentation/ui/templates/article-view";
 import { TELEMETRY_ATTR, TELEMETRY_SECTION_KINDS } from "@/presentation/ui/telemetry-attrs";
+import { renderDom } from "../support/render";
 
 /**
  * 記事の器が必ず出すもの（目次・更新履歴）。
@@ -75,6 +76,55 @@ describe("記事を読み終えたあとの導線", () => {
   });
 });
 
+describe("書き手の署名と紹介の役割を分ける", () => {
+  it.each([
+    { label: "名前だけ", bio: undefined, credentials: undefined, hasProfile: false },
+    { label: "紹介と資格が空", bio: "", credentials: [], hasProfile: false },
+    { label: "空白だけ", bio: " \n　", credentials: [" ", "\t", "　"], hasProfile: false },
+    { label: "紹介文だけ", bio: "  実際に家電を使って比べます。  ", credentials: [], hasProfile: true },
+    { label: "資格だけ", bio: " \n", credentials: ["", " 家電販売の実務 5 年 ", "　"], hasProfile: true },
+    { label: "紹介文と資格", bio: " 実際に家電を使って比べます。 ", credentials: [" 家電販売の実務 5 年 "], hasProfile: true },
+  ])("$label: 冒頭の署名を残し、実情報のある紹介だけを末尾に1回出す", async ({ bio, credentials, hasProfile }) => {
+    const view = article({ authorBio: bio, authorCredentials: credentials });
+    const { document, cleanup } = await renderDom(<ArticleView article={view} />);
+    try {
+      expect(document.querySelector('[aria-label="冒頭の書き手紹介"]') !== null).toBe(false);
+      const profiles = document.querySelectorAll('[aria-label="詳細な著者プロフィール"]');
+      expect(profiles.length).toBe(hasProfile ? 1 : 0);
+
+      // href を持つ名前付きリンクを残す。Tab の実押下は実ブラウザE2Eで確認する。
+      const authorLinks = [...document.querySelectorAll("a")].filter(
+        (link) => link.textContent?.trim() === view.authorName,
+      );
+      expect(authorLinks.length).toBe(hasProfile ? 2 : 1);
+      for (const link of authorLinks) {
+        expect(link.getAttribute("href")).toBe(view.authorHref);
+        expect(link.getAttribute("tabindex")).toBeNull();
+        expect(link.getAttribute("aria-hidden")).not.toBe("true");
+      }
+      expect(authorLinks[0]?.parentElement?.textContent).toBe(`書き手: ${view.authorName}`);
+
+      const expectedBio = bio?.trim() ?? "";
+      if (expectedBio !== "") {
+        expect([...document.querySelectorAll("p")].filter(
+          (paragraph) => paragraph.textContent?.trim() === expectedBio,
+        ).length).toBe(1);
+      }
+      if (hasProfile) {
+        const profile = profiles[0]!;
+        expect([...profile.querySelectorAll("p")].map((paragraph) => paragraph.textContent)).toEqual(
+          ["この記事を書いた人", ...(expectedBio === "" ? [] : [expectedBio])],
+        );
+        expect([...profile.querySelectorAll("li")].map((item) => item.textContent)).toEqual(
+          (credentials ?? []).map((credential) => credential.trim()).filter((credential) => credential !== ""),
+        );
+      }
+    } finally {
+      cleanup();
+    }
+  });
+});
+
 describe("記事を読み始める順序", () => {
   it("結論と書誌情報のあとに注意書きと導入を読み、目次から本文へ進める", () => {
     const html = renderToStaticMarkup(
@@ -92,7 +142,6 @@ describe("記事を読み始める順序", () => {
       "書き手:",
       "見本",
       "広告を含みます",
-      "この記事の書き手",
       "よくある行き違い",
       "目次",
       'id="how_to_choose"',

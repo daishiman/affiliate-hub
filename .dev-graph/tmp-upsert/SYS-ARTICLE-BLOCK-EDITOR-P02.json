@@ -1,0 +1,86 @@
+{
+  "artifact_kind": "task",
+  "artifact_subtypes": [],
+  "beads_linkage": null,
+  "classification_candidates": [
+    {
+      "artifact_kind": "task",
+      "candidate_path": "tasks/feat-article-block-editor/sys-article-block-editor-p02.md",
+      "confidence": 1.0
+    }
+  ],
+  "classification_confidence": 1.0,
+  "classification_reason": "feat-article-block-editor の P02 lifecycle 責務への確定写像",
+  "completion_evidence": {
+    "completed_at": null,
+    "evidence_refs": [],
+    "policy": "manual",
+    "reconciled_at": null,
+    "source": null,
+    "status": "in_progress"
+  },
+  "confirmation_evidence": {
+    "evaluated_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+    "evaluator": "system-dev-plan-evaluator",
+    "evidence_ref": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/plan-findings.json"
+  },
+  "confirmation_status": "confirmed",
+  "created_at": "2026-09-05T12:56:06Z",
+  "depends_on": [
+    "SYS-ARTICLE-BLOCK-EDITOR-P01"
+  ],
+  "domain": "documentation",
+  "evaluation_status": "pass",
+  "execution_contexts": [],
+  "feature_package_id": "feature-package/feat-article-block-editor",
+  "file_path": "tasks/feat-article-block-editor/sys-article-block-editor-p02.md",
+  "github_project_linkages": [],
+  "github_publication": {
+    "labels": [],
+    "milestone": null,
+    "mode": "local_only",
+    "project_aliases": []
+  },
+  "graph_node_id": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+  "implementation_readiness": {
+    "checked_at": "2026-09-05T04:00:00Z",
+    "missing_sections": [],
+    "status": "complete"
+  },
+  "issue_linkage": null,
+  "iteration": null,
+  "owners": [
+    "daishiman"
+  ],
+  "parent_feature": "feat-article-block-editor",
+  "phase_ref": "P02",
+  "priority": null,
+  "project_id": "feature-package-feat-article-block-editor",
+  "pull_request_linkages": [],
+  "related_nodes": [],
+  "resource_scope": [
+    "docs/spec/feat-article-block-editor/architecture.md",
+    "docs/spec/feat-article-block-editor/data-model.md",
+    "docs/spec/feat-article-block-editor/api-contract.md"
+  ],
+  "source_lineage": {
+    "imported_at": "2026-09-05T12:56:06Z",
+    "origin_kind": "system-dev-planner",
+    "source_digest": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+    "source_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/task-specs/phase-02-architecture.md",
+    "source_plugin": "system-dev-planner",
+    "source_version": "0.1.0"
+  },
+  "start_date": null,
+  "status": "active",
+  "tags": [
+    "p02",
+    "feat-article-block-editor"
+  ],
+  "target_date": null,
+  "template_id": "task",
+  "template_version": "1.1.0",
+  "title": "ブロックエディター描画・保存契約とR2アップロード経路の設計",
+  "tracker_binding": "beads",
+  "updated_at": "2026-09-05T12:56:06Z"
+}

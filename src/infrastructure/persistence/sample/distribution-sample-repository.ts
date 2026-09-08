@@ -3,14 +3,8 @@ import type {
   PublicationRepositoryPort,
 } from "@/application/ports/distribution";
 import type { BrandScopeFilter } from "@/application/ports/common";
-import {
-  type ChannelConnection,
-  type Publication,
-  createChannelConnection,
-  createPublication,
-  samePublicationVersion,
-  supportsExternalDirectPublish,
-} from "@/domain/distribution";
+import { createChannelConnection, supportsExternalDirectPublish, type ChannelConnection } from "@/domain/distribution/channel";
+import { createPublication, samePublicationVersion, type Publication } from "@/domain/distribution/publication";
 import {
   type ChannelConnectionId,
   type ContentVariantId,

@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-SEO10 @types boundary, equivalence, secrets */
+/** @tier 1 @req REQ-SEO12 @types boundary, equivalence, secrets */
 import { describe, expect, it } from "vitest";
 import { jsonArrayChunks } from "@/infrastructure/persistence/d1/json-array-chunks";
 

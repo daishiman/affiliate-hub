@@ -1,0 +1,1152 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+  "promotion_receipt": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-blog-custom-domain",
+  "parent_feature": "feat-blog-custom-domain",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-BLOG-CUSTOM-DOMAIN-P01": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P02": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P03": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P04": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P05": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P06": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P07": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P08": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P09": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P10": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P11": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P12": "beads",
+    "SYS-BLOG-CUSTOM-DOMAIN-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン接続の要求ベースライン確定",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/requirements-baseline.md",
+        "docs/spec/feat-blog-custom-domain/domain-state-machine.md",
+        "docs/spec/feat-blog-custom-domain/screen-inventory.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p01.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p01.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "site_custom_domains のデータモデルと provider 連携契約の確定",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/data-model.md",
+        "docs/spec/feat-blog-custom-domain/admin-api-contract.md",
+        "docs/spec/feat-blog-custom-domain/host-resolution-design.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p02.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p02.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン設計の独立レビューと着手可否判定",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/design-review-findings.md",
+        "docs/spec/feat-blog-custom-domain/invariant-checklist.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p03.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p03.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン受入のテスト設計",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/test-plan.md",
+        "docs/spec/feat-blog-custom-domain/test-cases.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p04.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p04.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン接続機能の実装",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/domain/domains/",
+        "src/application/domains/",
+        "src/infrastructure/cloudflare/custom-hostname.ts",
+        "src/middleware.ts",
+        "src/app/admin/sites/[site]/domain/",
+        "src/app/api/admin/"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p05.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p05.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン機能のテスト実行と緑化",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "tests/",
+        "docs/spec/feat-blog-custom-domain/test-run-report.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p06.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p06.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン受入10件の判定",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/acceptance-report.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p07.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p07.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存ホスト解決経路との重複解消と移行",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/middleware.ts",
+        "src/domain/domains/",
+        "docs/spec/feat-blog-custom-domain/migration-notes.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p08.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p08.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン機能の非機能検査",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/quality-report.md",
+        "tests/"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p09.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p09.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン機能の最終レビュー",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/final-review.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p10.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p10.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン機能の証跡集約",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P07",
+        "SYS-BLOG-CUSTOM-DOMAIN-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/evidence-index.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p11.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p11.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン接続の運用手順と利用者向け説明",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P10",
+        "SYS-BLOG-CUSTOM-DOMAIN-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-blog-custom-domain/operations-runbook.md",
+        "docs/spec/feat-blog-custom-domain/"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p12.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p12.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    },
+    {
+      "graph_node_id": "SYS-BLOG-CUSTOM-DOMAIN-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "独自ドメイン機能のリリースと仕様書への書き戻し",
+      "project_id": "feature-package-feat-blog-custom-domain",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-blog-custom-domain"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-03T23:50:30Z",
+      "updated_at": "2026-09-03T23:50:30Z",
+      "depends_on": [
+        "SYS-BLOG-CUSTOM-DOMAIN-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec/infrastructure.md",
+        "system-spec/database.md",
+        "docs/spec/feat-blog-custom-domain/release-notes.md"
+      ],
+      "parent_feature": "feat-blog-custom-domain",
+      "feature_package_id": "feature-package/feat-blog-custom-domain",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p13.md",
+      "template_id": "task",
+      "template_version": "1.1.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/plan-findings.json",
+        "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+        "imported_at": "2026-09-03T23:50:30Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-blog-custom-domain の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/feat-blog-custom-domain/sys-blog-custom-domain-p13.md",
+          "confidence": 1.0
+        }
+      ],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "checked_at": "2026-09-04T00:00:00Z",
+        "missing_sections": [],
+        "status": "complete"
+      }
+    }
+  ]
+}

@@ -38,6 +38,15 @@ site / admin / app  ──▶  presentation/prose  ──▶  presentation/ui
 | --- | --- |
 | `prose-body.tsx` | 断片を**読む形**で描く（公開面と編集中のプレビューが同じ結果になる） |
 | `prose-editor.tsx` | 断片を**書く形**で描く。`/` のメニューはここ |
+| `use-prose-draft.ts` | 外部値復元・編集専用ID・Undo/Redo。保存形式へIDや履歴は入れない |
+| `prose-menu.tsx` | 19種の検索・分類・キーボード選択 |
+| `prose-node-editor.tsx` | 種類ごとの編集部品の組み立て |
+| `prose-asset-fields.tsx` | 商品検索・画像送信。非同期結果を対象の最新状態へ反映 |
+| `prose-collection-editors.tsx` | 箇条書き・チェック・表・コードの入力 |
+| `prose-fields.tsx` | 入力欄・URL判定・ブロック操作ボタン |
+| `prose-presentation.ts` | 編集/公開で共通の注意書きとCTAの見た目、表の列数補完 |
+| `prose-node-icons.ts` | 種類とアイコンの対応 |
+| `prose-conversion.ts` | 内容を保持できる文字ブロック間の変換 |
 | `prose-section.tsx` | 節（見出し + 本文）1 つぶん |
 | `prose-table-frame.tsx` | 比較表の枠。中身の描き方だけを読む側／書く側から渡す |
 | `prose-outline.tsx` | 目次と、節に打つ錨の名前 (`blockAnchor`) |
@@ -47,3 +56,5 @@ site / admin / app  ──▶  presentation/prose  ──▶  presentation/ui
 比較表の骨組みを読む側と書く側の両方に書くと、横に流す包みを片方だけ直した日に
 「記事によって挙動が違う」ことになる。目次のリンク先と節の `id` も同じで、
 片方だけ書き方を変えるとリンクは無い場所を指し、気づくのは読者だけになる。
+
+本文プレビューは公開と同じ `ProseBody` を通る。編集入力は `RichText` や種類別の欄で受け、表枠・注意書き/CTAの対応・画像/二列のスタイルを共有する。入力欄と公開DOMがすべて同一という意味ではない。

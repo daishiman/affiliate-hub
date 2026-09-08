@@ -2,13 +2,12 @@ import { and, asc, eq, getTableColumns, sql } from "drizzle-orm";
 import type { SeoStaticAuditPort, StaticAuditInventory, StaticAuditScan, StaticAuditTarget } from "@/application/ports/seo-static-audit";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import { publicPageInventory, STATIC_AUDIT_INVENTORY_LIMIT } from "@/application/seo/static-audit-inventory";
-import {
-  SITE_DOCUMENT_KIND_BY_KEY,
-  type SiteBlueprint,
-  type SiteDocumentKey,
-} from "@/domain/authoring";
-import { pageKeyOf, type PageObservation } from "@/domain/seo/aeo-measurement";
-import { domainError, err, notFound, ok, validationError } from "@/domain/shared";
+import type { SiteBlueprint } from "@/domain/authoring/site-blueprint";
+import { SITE_DOCUMENT_KIND_BY_KEY, type SiteDocumentKey } from "@/domain/authoring/site-routes";
+import { pageKeyOf } from "@/domain/seo/aeo-measurement/page-key";
+import type { PageObservation } from "@/domain/seo/aeo-measurement/page-observation";
+import { domainError, notFound, validationError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
 import { seoStaticAuditScans, seoStaticAuditTargets, type SeoStaticAuditScanRow, type SeoStaticAuditTargetRow } from "@/db/schema";
 import { jsonArrayChunks } from "./json-array-chunks";
 import type { DrizzleD1 } from "./link-inbox-repository";

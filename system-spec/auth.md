@@ -3,7 +3,7 @@ status: confirmed
 category: auth
 aggregate: 確定
 spec_cells: [auth.web, auth.mobile, auth.tablet, auth.desktop-windows, auth.desktop-linux, auth.desktop-macos]
-serves_goals: [G1]
+serves_goals: [G1, G2]
 ---
 
 # 認証(ログイン) (auth)
@@ -15,28 +15,53 @@ serves_goals: [G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-auth-web |
+| Web (web) | 確定 | 確定質疑: qa-auth-web-domain-analytics-authority。裏付け質疑 (`qa_refs`): `qa-auth-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 
-## 確定内容 (質疑録)
+## 確定セルの記録 (正本 spec-state.json)
 
-### qa-auth-web (対応セル: web)
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
 
-**質問**: 認証 (auth) × web の方式は何か (2026-08-16 対話ヒアリング)
-
-**回答**: A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Drizzle アダプタにより現行の Next.js + Cloudflare Workers + D1 スタックと同居できる。Google ログインを初期提供し、メール/パスワード・パスキーは後続拡張とする。セッションは D1 に保存し、Workspace 単位のマルチテナント分離と §25 のロール (Owner/Admin/Researcher/Writer/Reviewer/Publisher/Analyst) 権限をアプリ層で紐付ける。外部公開・予約投稿等の重要操作は認証済みユーザーの明示承認を必須とする。
+| 項目 | 値 |
+|---|---|
+| セル | auth × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-auth-web-domain-analytics-authority` |
+| 資するゴール (serves_goals) | G1, G2 |
+| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web`) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
 
 ## 意思決定 (decisions)
 
-> **本章を主担当とする論点だけ**を載せる。全 8 件の一覧・候補比較・推奨根拠は [`00-requirements-definition.md`](./00-requirements-definition.md) にある。
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`auth`) を主担当とする **1 件**。全 15 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
 
 | ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
 |---|---|---|---|---|
 | `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 |
+
+- **`decision-auth-method` の caveat**: ライブラリ更新の追従を保守運用 (maintenance-ops) に組み込むこと / 組織 (Workspace) 管理UIは自作となる
+
+## 確定内容 (質疑録)
+
+### qa-auth-web-domain-analytics-authority (対応セル: web)
+
+**質問**: auth×web: ドメインの接続・切断、読者行動データの閲覧と削除は、誰ができることにするか
+
+**回答**: ドメインの接続と切断は、ブログの公開停止と同じ重さの操作として扱う。既存の役割のうち Publisher 相当以上に限り、Writer・Reviewer からは実行できない。切断はブログ全体が新しい住所から見えなくなる操作なので、実行前に対象ブログ名の確認入力を求める。読者行動データは、集計後の分布 (ヒートマップ・滞在・到達深度) を Analyst 以上が閲覧できる。個々の reader_key に紐づく行の抽出と削除は、読者からの削除依頼に応じるための操作であり、Owner 相当に限る。ドメインの状態変更と読者データの削除は、既存の audit_logs に誰がいつ何をしたかを残す。ブログ単位のスコープを持つ既存の workspace/membership の枠内で判断し、ブログごとに別の権限体系を新設しない
+
+### qa-auth-web (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 認証 (auth) × web の方式は何か (2026-08-16 対話ヒアリング)
+
+**回答**: A. Better Auth (Better Auth + Google OAuth) を選択。無料・OSS で、D1/Drizzle アダプタにより現行の Next.js + Cloudflare Workers + D1 スタックと同居できる。Google ログインを初期提供し、メール/パスワード・パスキーは後続拡張とする。セッションは D1 に保存し、Workspace 単位のマルチテナント分離と §25 のロール (Owner/Admin/Researcher/Writer/Reviewer/Publisher/Analyst) 権限をアプリ層で紐付ける。外部公開・予約投稿等の重要操作は認証済みユーザーの明示承認を必須とする。
 
 ## 章の注記 (chapter_notes)
 
@@ -47,6 +72,102 @@ serves_goals: [G1]
 - **`decision-auth-method` の caveat**: ライブラリ更新の追従を maintenance-ops に組み込むこと。採用は「費用ゼロ・ロックインなし」で得たので、追従を止めた時点でその前提が消える。
 
 - 正本へ入れた理由: 手書きの「意思決定 (decisions)」節に在った章固有の注釈。表と件数は正本から生成するようにしたため節ごと置き換わるが、注釈は正本から導けないので移した(2026-09-08 / ah-lwmf)。
+
+### 章の規範本文を正本から再生成しない理由
+
+`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。
+一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は
+正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /
+正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が
+8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。
+**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+- 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
+
+### 歴史的スナップショット（現行規範ではない、2026-09-06 移送）
+
+> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。
+
+#### 状態の意味 (State semantics)
+
+- `confirmed` / 「確定」は、認証方式の**要求判断を収集済み**であることを表す。実装済み・統合済み・受入試験合格を表さない。
+- 後段の `採否: applied` も「設計判断に採用」の意味であり、コードへの適用済みを意味しない。
+- 本章の実装状態は `partial`。ローカルの受入・結合試験は `pass` だが、Google OAuth の実往復、Workers 上の実 HTTP、dev / production D1 migration は `unverified`。要求判断の確定とリリース検証を混同しない。
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**とする。規範根拠は `docs/spec/01` §25〜§26、`00-requirements-definition.md` の U8、本章の「最新ドキュメント出典」に記録した公式出典とする。
+
+
+#### As-Is
+
+- Better Auth + Google OAuth の adapter、D1 の認証・セッション表、許可メールと membership の二段ゲートが実装されている。`/admin` の入口は `src/middleware.ts`、操作権限は application 層の `requireCapability` が担う。
+- Workspace / membership / role、tenant-scoped port、他 Workspace の存在を隠す応答、request ID 付きの拒否監査が実装され、ローカルの受入・D1 結合試験で検証されている。
+- ブランドの標準 CTA・標準免責は、Workspace にブランドが 1 件だけなら管理画面と MCP の生成経路へ既定値として届く。複数ブランド時の選択 UI と `brands` の本番永続化は未完了。
+- `src/lib/mcp/auth.ts` の `MCP_TOKEN` と `same-origin` 読み取り WebMCP は PoC 経路として残る。`same-origin` は利用者の身元を証明せず、Workspace 認可の代替ではない。
+- Google OAuth の実往復、本番 Secrets、本番 D1 への migration 適用は未検証である。コードとローカル試験があることを、本番利用可能の証拠にはしない。
+
+
+#### To-Be
+
+| 要件ID | 目標状態 |
+|---|---|
+| AUTH-REQ-001 | Better Auth + Google OAuth で人の身元を確認し、セッションを D1 で管理する |
+| AUTH-REQ-002 | 全ユースケースで `session -> workspace_membership -> role` をサーバー側で検証する |
+| AUTH-REQ-003 | `MCP_TOKEN` は PoC 限定とし、本番の機械間 MCP は許可 Workspace と最小権限に紐付く service identity を使う。`same-origin` は公開読み取りのみ、保護 WebMCP は Better Auth セッション + Workspace 認可を要求する |
+| AUTH-REQ-004 | 公開・削除・権限変更等はロール認可と明示承認の両方を満たし、監査イベントを残す |
+
+
+#### Delta
+
+1. dev 環境で Google OAuth の実往復を行い、認証 callback、cookie 属性、D1 セッション作成、ログアウト後の無効化を実測する。
+2. `brands` の永続化と複数ブランド時の明示選択を実装し、誤った CTA・免責を自動選択しない状態を保つ。
+3. PoC の `MCP_TOKEN` を Workspace と最小権限に結びつく service identity へ置き換え、`same-origin` は公開読み取りだけに限定し続ける。
+4. migration `0022` / `0023` を dev D1 へ適用する前に既存 `disclosures` 行数を確認し、適用後に tenant 分離と request ID 索引を実測する。
+
+##### Implementation evidence (2026-08-24 final review)
+
+| 観点 | 状態 | 証跡 |
+|---|---|---|
+| 未認証の `/admin` 遮断 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/admin-entry-middleware.test.ts` |
+| tenant / capability 境界 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/access-boundary.test.ts`、`tests/architecture/tenant-scoped-schema.test.ts` |
+| 拒否の request ID 付き監査 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/denial-audit.test.ts`、`drizzle/0024_aromatic_flatman.sql` |
+| ブランド既定値の配線 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/brand-defaults-wiring.test.ts` |
+| Google OAuth / Workers / dev・production D1 | 未検証 | `docs/spec/feat-auth-workspace/release-notes.md` §7 |
+
+書き戻しは `system-spec/spec-state.json` の `auth.web` を R4 `reopen` し、要求判断 `qa-auth-web` を変えずに本文を更新して再確定した。受領記録は `docs/spec-writeback-receipt.md` にある。正本 state の `implementation_snapshot` は現行 writer に更新 action が無いため古いままであり、writer 拡張は Beads `ah-u5l` で追跡する。
+
+
+#### Dependencies
+
+`Better Auth / Google OAuth シークレット` → `D1 認証スキーマ` → `Workspace membership / role` → `共通認可ゲート` → `AuditLog`
+
+- 本章は security の tenant 分離と frontend の Workspace 選択の前提。認証のみでテナント分離済みとみなさない。
+
+
+#### Acceptance evidence
+
+| 受入ID | シナリオ | PASS の証跡 |
+|---|---|---|
+| AUTH-ACC-001 | 未認証で保護ルート/APIへアクセス | リダイレクトまたは `401`、応答に保護データなし。統合テストログを保存 |
+| AUTH-ACC-002 | Workspace A のセッションで Workspace B の既知IDを参照 | 未存在IDと同一の `404` 応答・本文で、B の値を一切返さない。拒否は request ID 付きで監査記録 |
+| AUTH-ACC-003 | Analyst が分析閲覧と公開操作を実行 | 分析閲覧は成功し、公開は `403`。actor / workspace / action / result を含む監査記録と認可テストを保存 |
+| AUTH-ACC-004 | ログアウト後に旧セッションを再利用 | `401`、セッション無効化レコードと自動テスト結果を保存 |
+| AUTH-ACC-005 | 未認証 `same-origin` と Workspace A 限定の service identity で保護ツールを呼ぶ | `same-origin` に保護ツールを公開せず、service identity は A のみ成功、B は拒否。`tools/list` / `tools/call` の契約テストと監査記録を保存 |
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: 既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。
+
+### To-Be（規範契約）
+
+> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。
+
+| 要件ID | 目標状態 |
+|---|---|
+| AUTH-REQ-001 | Better Auth + Google OAuth で人の身元を確認し、セッションを D1 で管理する |
+| AUTH-REQ-002 | 全ユースケースで `session -> workspace_membership -> role` をサーバー側で検証する |
+| AUTH-REQ-003 | `MCP_TOKEN` は PoC 限定とし、本番の機械間 MCP は許可 Workspace と最小権限に紐付く service identity を使う。`same-origin` は公開読み取りのみ、保護 WebMCP は Better Auth セッション + Workspace 認可を要求する |
+| AUTH-REQ-004 | 公開・削除・権限変更等はロール認可と明示承認の両方を満たし、監査イベントを残す |
+
+- 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
 ## 上流指針 (doctrine anchor)
 
@@ -123,86 +244,4 @@ serves_goals: [G1]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| better-auth | 1.7.2 | Better Auth (better-auth.com) | https://better-auth.com/docs/introduction | 2026-08-29T23:02:28Z | 2026-08-29T23:02:28Z |
-
-## 状態の意味 (State semantics)
-
-- `confirmed` / 「確定」は、認証方式の**要求判断を収集済み**であることを表す。実装済み・統合済み・受入試験合格を表さない。
-- 後段の `採否: applied` も「設計判断に採用」の意味であり、コードへの適用済みを意味しない。
-- 本章の実装状態は `partial`。ローカルの受入・結合試験は `pass` だが、Google OAuth の実往復、Workers 上の実 HTTP、dev / production D1 migration は `unverified`。要求判断の確定とリリース検証を混同しない。
-- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**とする。規範根拠は `docs/spec/01` §25〜§26、`00-requirements-definition.md` の U8、本章の「最新ドキュメント出典」に記録した公式出典とする。
-
-## As-Is
-
-- Better Auth + Google OAuth の adapter、D1 の認証・セッション表、許可メールと membership の二段ゲートが実装されている。`/admin` の入口は `src/middleware.ts`、操作権限は application 層の `requireCapability` が担う。
-- Workspace / membership / role、tenant-scoped port、他 Workspace の存在を隠す応答、request ID 付きの拒否監査が実装され、ローカルの受入・D1 結合試験で検証されている。
-- ブランドの標準 CTA・標準免責は、Workspace にブランドが 1 件だけなら管理画面と MCP の生成経路へ既定値として届く。複数ブランド時の選択 UI と `brands` の本番永続化は未完了。
-- `src/lib/mcp/auth.ts` の `MCP_TOKEN` と `same-origin` 読み取り WebMCP は PoC 経路として残る。`same-origin` は利用者の身元を証明せず、Workspace 認可の代替ではない。
-- Google OAuth の実往復、本番 Secrets、本番 D1 への migration 適用は未検証である。コードとローカル試験があることを、本番利用可能の証拠にはしない。
-
-## To-Be
-
-| 要件ID | 目標状態 |
-|---|---|
-| AUTH-REQ-001 | Better Auth + Google OAuth で人の身元を確認し、セッションを D1 で管理する |
-| AUTH-REQ-002 | 全ユースケースで `session -> workspace_membership -> role` をサーバー側で検証する |
-| AUTH-REQ-003 | `MCP_TOKEN` は PoC 限定とし、本番の機械間 MCP は許可 Workspace と最小権限に紐付く service identity を使う。`same-origin` は公開読み取りのみ、保護 WebMCP は Better Auth セッション + Workspace 認可を要求する |
-| AUTH-REQ-004 | 公開・削除・権限変更等はロール認可と明示承認の両方を満たし、監査イベントを残す |
-
-## Delta
-
-1. dev 環境で Google OAuth の実往復を行い、認証 callback、cookie 属性、D1 セッション作成、ログアウト後の無効化を実測する。
-2. `brands` の永続化と複数ブランド時の明示選択を実装し、誤った CTA・免責を自動選択しない状態を保つ。
-3. PoC の `MCP_TOKEN` を Workspace と最小権限に結びつく service identity へ置き換え、`same-origin` は公開読み取りだけに限定し続ける。
-4. migration `0022` / `0023` を dev D1 へ適用する前に既存 `disclosures` 行数を確認し、適用後に tenant 分離と request ID 索引を実測する。
-
-### Implementation evidence (2026-08-24 final review)
-
-| 観点 | 状態 | 証跡 |
-|---|---|---|
-| 未認証の `/admin` 遮断 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/admin-entry-middleware.test.ts` |
-| tenant / capability 境界 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/access-boundary.test.ts`、`tests/architecture/tenant-scoped-schema.test.ts` |
-| 拒否の request ID 付き監査 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/denial-audit.test.ts`、`drizzle/0024_aromatic_flatman.sql` |
-| ブランド既定値の配線 | ローカル受入 PASS | `tests/acceptance/feat-auth-workspace/brand-defaults-wiring.test.ts` |
-| Google OAuth / Workers / dev・production D1 | 未検証 | `docs/spec/feat-auth-workspace/release-notes.md` §7 |
-
-書き戻しは `system-spec/spec-state.json` の `auth.web` を R4 `reopen` し、要求判断 `qa-auth-web` を変えずに本文を更新して再確定した。受領記録は `docs/spec-writeback-receipt.md` にある。正本 state の `implementation_snapshot` は現行 writer に更新 action が無いため古いままであり、writer 拡張は Beads `ah-u5l` で追跡する。
-
-## Dependencies
-
-`Better Auth / Google OAuth シークレット` → `D1 認証スキーマ` → `Workspace membership / role` → `共通認可ゲート` → `AuditLog`
-
-- 本章は security の tenant 分離と frontend の Workspace 選択の前提。認証のみでテナント分離済みとみなさない。
-
-## Acceptance evidence
-
-| 受入ID | シナリオ | PASS の証跡 |
-|---|---|---|
-| AUTH-ACC-001 | 未認証で保護ルート/APIへアクセス | リダイレクトまたは `401`、応答に保護データなし。統合テストログを保存 |
-| AUTH-ACC-002 | Workspace A のセッションで Workspace B の既知IDを参照 | 未存在IDと同一の `404` 応答・本文で、B の値を一切返さない。拒否は request ID 付きで監査記録 |
-| AUTH-ACC-003 | Analyst が分析閲覧と公開操作を実行 | 分析閲覧は成功し、公開は `403`。actor / workspace / action / result を含む監査記録と認可テストを保存 |
-| AUTH-ACC-004 | ログアウト後に旧セッションを再利用 | `401`、セッション無効化レコードと自動テスト結果を保存 |
-| AUTH-ACC-005 | 未認証 `same-origin` と Workspace A 限定の service identity で保護ツールを呼ぶ | `same-origin` に保護ツールを公開せず、service identity は A のみ成功、B は拒否。`tools/list` / `tools/call` の契約テストと監査記録を保存 |
-
-## 確定セルの記録 (正本 spec-state.json)
-
-> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.auth.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | auth × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-auth-web` |
-| 資するゴール (serves_goals) | G1 |
-| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web`) |
-| 出典 kind | user-dialogue |
-| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
-| 出典 節 | — |
-| 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
-
-- **出典が `user-dialogue` なのは本章だけ**である (分母 = `coverage_matrix` の web セル 8 件。残り 7 件は `written-requirements`)。したがって本章の確定は `docs/spec/*.md` の sha256 に束縛されておらず、**元文書が書き換わっても検知できない**。これは穴だが、対話由来の確定に後から path を与えると出典を偽ることになるため塞がない。塞がる条件は、この確定内容が `docs/spec` のいずれかの節として書き起こされたとき。
-
-### 本節を「転記」に留めた理由
-
-C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+| better-auth | 1.7.3 | Better Auth (better-auth.com) | https://better-auth.com/docs/introduction | 2026-09-07T13:48:07Z | 2026-09-07T13:48:07Z |

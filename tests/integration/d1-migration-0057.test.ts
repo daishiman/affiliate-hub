@@ -1,12 +1,12 @@
-/** @tier 2 @req REQ-SEO08 @types db-migration, db-constraint, tenant-isolation */
+/** @tier 2 @req REQ-SEO10 @types db-migration, db-constraint, tenant-isolation */
 import { basename } from "node:path";
 import { describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
 import { migrationFiles, statementsOf } from "../support/migrations";
 
-const migration = "0050_persistent_publication_revisions.sql";
+const migration = "0057_persistent_publication_revisions.sql";
 
-describe("0050 公開版の永続化", () => {
+describe("0057 公開版の永続化", () => {
   it("既存の本文と版をそのまま引き継ぎ、更新・再公開・非表示でも版を戻さない", async () => {
     const proxy = await getPlatformProxy<{ DB: D1Database }>({ configPath: "wrangler.jsonc", environment: "dev", persist: false });
     const db = proxy.env.DB;

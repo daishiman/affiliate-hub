@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "status": "promoted",
+  "promoted_at": "2026-09-04T02:37:00Z",
+  "repo_identity": "github:daishiman/affiliate-hub",
+  "staging_digest": "sha256:204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646",
+  "evaluated_digest": "sha256:204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646",
+  "published_digest": "sha256:204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646",
+  "implementation_readiness": "complete",
+  "quality_conditions": {
+    "no_contradiction": "PASS",
+    "no_missing": "PASS",
+    "consistent": "PASS",
+    "dependency_integrity": "PASS"
+  },
+  "promotion_method": "same-filesystem-atomic-rename",
+  "registration_manifest": ".dev-graph/published/feature-package-feat-seo-aeo-gap-closure/dev-graph-registration.json"
+}

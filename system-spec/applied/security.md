@@ -3,7 +3,7 @@ status: confirmed
 category: security
 aggregate: 確定
 spec_cells: [security.web, security.mobile, security.tablet, security.desktop-windows, security.desktop-linux, security.desktop-macos]
-serves_goals: [G1]
+serves_goals: [G1, G2, G3]
 ---
 
 # 本章での適用 — セキュリティ (security)
@@ -12,12 +12,33 @@ serves_goals: [G1]
 
 #### 本章での適用
 
-##### 確定内容 qa-security-web-spec-intake (対応セル: web)
+##### 確定内容 qa-security-web-worker-image-upload-confirmed-20260906 (対応セル: web)
 
-- 確定要件: - API キー・トークンは **GitHub Secrets と Cloudflare の環境変数**で管理する。
-- **リポジトリのファイル、コマンドライン、AI が読める場所に置かない。**
-  登録は利用者本人が、ブラウザまたは本人のターミナルで行う。代行しない。
-- ログに秘密情報を出さない（`echo ${{ secrets.X }}` を書かない）。
+- 確定要件: ok
+- 設計解釈の記録経路: `dialogue`
+- 原則: Least privilege / deny by default と Defense in depth — 信頼境界で認可・入力検証を行い、判断不能時は保存しない (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 利用者がWorker経由への統一を承認したため、画像本体がR2へ到達する前に、認証、content.write、workspaceと記事の所属、同一Origin、総バイト上限、許可MIMEと先頭バイトを一つの信頼境界で検査する。台帳のpending予約とready確定も分け、検査・保存・公開可否を単一の成功に見せない
+  - トレードオフ:
+    - Workerが画像送信の可用性境界になり、8MiBを超える画像は圧縮または選び直しが必要になる
+    - 検査と状態遷移が増える一方、署名URL・CORS・受領後の隔離検査という別経路を管理せずに済む
+##### 接地根拠 qa-security-web-domain-behavior-privacy (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-security-web-domain-behavior-privacy` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 名乗りを信用せず、所有していることの証明を求める (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: ドメイン名は入力欄に打てば誰でも名乗れる。検証なしで配信へ結びつけると、他人のドメイン宛の通信を自分の内容で受けられてしまう。DNS へレコードを置けるのは実際にそのドメインを管理している者だけなので、これを証明の手段にする
+  - トレードオフ:
+    - 利用者は DNS の操作という手間を負い、接続が即座に完了しない。手間を省く方式は、そのまま乗っ取りの経路になる
+- 原則: 集めない情報は漏れない。目的に対して過剰な粒度を最初から採らない (`secure-by-design.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 『どこに時間をかけて見ているか』を知るのに、連続的なポインタ軌跡は要らない。到達深度・滞在・クリック位置で足りる。連続軌跡は個人性が高く、いったん保存すれば漏洩時の被害が大きい。標本化とクリックに絞れば、目的を満たしたまま持つ情報を減らせる
+  - トレードオフ:
+    - マウスの迷いや戻りといった細かい挙動は見えなくなる。詳細な軌跡が要る調査は別途、同意を明示的に取る設計が必要になる
+##### 接地根拠 qa-security-web-spec-intake (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-security-web-spec-intake` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 秘密情報はリポジトリのファイル・コマンドライン・AI が読める場所に置かない。登録は利用者本人がブラウザまたは本人のターミナルで行い、代行しない (`docs/spec/11-CI-CD・品質ゲート仕様.md#§5`)
   - 採否: `applied`
@@ -43,4 +64,4 @@ serves_goals: [G1]
   - 章固有の根拠: 外部アカウント秘密はテナント別に暗号化分離し、取得ページ本文をAI命令として実行しない(情報源と命令の分離)
   - トレードオフ:
     - 命令分離により柔軟な自動抽出は制限されるが、乗っ取り型攻撃を構造的に遮断できる
-- 資するゴール: G1
+- 資するゴール: G1, G2, G3

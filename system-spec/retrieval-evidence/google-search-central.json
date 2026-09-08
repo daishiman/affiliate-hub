@@ -1,0 +1,28 @@
+{
+  "target_id": "google-search-central",
+  "source_url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+  "requested_url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data",
+  "retrieved_at": "2026-09-04T05:01:57Z",
+  "http_status": 200,
+  "content_bytes": 184463,
+  "content_sha256": "737c4ee4bbfdb25d9e6c69770b6caf1b7f6678c0994299450892e02857818204",
+  "page_title": "Intro to How Structured Data Markup Works | Google Search Central | Documentation | Google for Developers",
+  "retrieval_method": "curl --compressed",
+  "retrieval_method_note": "2026-09-03 の初回記録は WebFetch 経由で content_bytes / content_sha256 を持たなかった。2026-09-04 に直接取得で本文を byte 単位で取り直し、他の証跡と同じ強さへ揃えた。content_sha256 は Content-Encoding を復号した本文の SHA-256 である。page_title は原文が区切りに &nbsp; を使うため、復号した文字列を記録している。",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "2025-12-10",
+    "found_in": [
+      "Last updated 2025-12-10 UTC."
+    ],
+    "note": "ページ末尾の Last updated 表記。版番号の表明は無い。2026-09-04 の再取得時に、この値の文字列が取得した本文の中に実在することを機械で確認した。"
+  },
+  "extracted_claims": [
+    "対応形式は JSON-LD / Microdata / RDFa の3種で、一般に JSON-LD を推奨する。",
+    "JSON-LD の利点として、マークアップが利用者に見えるテキストへ混在しないことを挙げる。",
+    "リッチリザルトには型ごとの必須プロパティを全て含める必要がある。",
+    "『不完全で不正確な全プロパティより、完全で正確な少数の推奨プロパティ』を優先する。",
+    "一般ガイドラインおよび型別ガイドラインへの違反はリッチリザルト対象外となりうる。",
+    "語彙は schema.org を使うが、Google Search の挙動については Search Central の記述を決定的な参照とする。"
+  ]
+}

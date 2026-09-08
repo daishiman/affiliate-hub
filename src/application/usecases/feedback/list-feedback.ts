@@ -1,14 +1,8 @@
 import type { FeedbackFilter, FeedbackRepositoryPort } from "@/application/ports/feedback";
-import {
-  type FeedbackKind,
-  type FeedbackReport,
-  type FeedbackStatus,
-  FEEDBACK_KIND_LABELS,
-  FEEDBACK_STATUSES,
-  FEEDBACK_STATUS_LABELS,
-  FEEDBACK_DISPOSITION_LABELS,
-  hasBeenHandedOff,
-} from "@/domain/feedback";
+import { FEEDBACK_KIND_LABELS, type FeedbackKind, type FeedbackReport } from "@/domain/feedback/report";
+import { FEEDBACK_STATUSES, FEEDBACK_STATUS_LABELS, type FeedbackStatus } from "@/domain/feedback/status";
+import { FEEDBACK_DISPOSITION_LABELS } from "@/domain/feedback/disposition";
+import { hasBeenHandedOff } from "@/domain/feedback/handoff";
 import { requireCapability } from "@/domain/identity";
 import { type ActorContext, type DomainError, type Result, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";

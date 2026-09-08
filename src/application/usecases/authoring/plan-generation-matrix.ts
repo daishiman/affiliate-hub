@@ -3,18 +3,9 @@ import type {
   EditorialContentVariantRepositoryPort,
   EditorialPersonaRepositoryPort,
 } from "@/application/ports/authoring";
-import {
-  CONTENT_ANGLES,
-  type ContentAngle,
-  type ContentPackage,
-  type ContentVariant,
-  FUNNEL_STAGES,
-  type FunnelStage,
-  type MatrixCell,
-  canStartGeneration,
-  selectRepresentativeCells,
-} from "@/domain/authoring";
-import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution";
+import { CONTENT_ANGLES, FUNNEL_STAGES, canStartGeneration, selectRepresentativeCells, type ContentAngle, type ContentPackage, type FunnelStage, type MatrixCell } from "@/domain/authoring/content-package";
+import type { ContentVariant } from "@/domain/authoring/content-variant";
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution/channel";
 import { requireCapability } from "@/domain/identity";
 import {
   type ContentPackageId,

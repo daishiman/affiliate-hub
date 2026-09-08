@@ -6,6 +6,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  declaredSourceTargets,
+  EMPTY_INVENTORY_DELTA,
+  inventoryDelta,
+  SOURCE_TARGET_FLOOR,
+} from "./spec-source-inventory";
 
 /**
  * 「最新ドキュメント出典」の欄が、欄の名前どおりの値を持っているか。
@@ -47,6 +53,20 @@ import { describe, expect, it } from "vitest";
  * そこで順序ではなく「取得ページ本文を鮮度根拠にしている行だけ、確認は取得以降」
  * という条件へ狭めた。
  *
+ * ── 【2026-09-04・4 度目の反転】母数 15 → 19、例外 1 件 → 0 件 ────────
+ *
+ * 増えた 4 件は実在する取得証跡である——`google-search-central` / `schema-org` /
+ * `w3c-wai-aria` / `web-dev-core-web-vitals`。G3 の AEO/SEO 決定を裏取りするために
+ * 取り、frontend 章が 2 → 5 本、ui-ux 章が 1 → 2 本になった。
+ * **この母数を減らす向きに触らないこと。**減らせば「食い違い 0 件」「版が取得日の行
+ * 0 件」が、見る対象を失っただけで緑になる。上の 1. がまさにその形で 2 日間死んでいた。
+ *
+ * 例外 `vitest=publisher-registry` が消えたのは、違反が直ったからではない。
+ * C08 鮮度監査が記録の 4.1.11 と公式の 5.0.0 の乖離を指摘し、2026-09-03 に
+ * registry 照会とページ取得を同一時刻で取り直した結果、**確認が取得より前になる行が
+ * 1 つも無くなった**。3. で狭めた条件そのものは今も生きている（`page-declared` 以外
+ * なら先行してよい）。期待値は消さず空配列で残し、抜け道が再び開く日に名指しさせる。
+ *
  * ── 解除条件（次に赤くなる日） ──────────────────────────
  *
  *   - 「版が取得日である行は 0 件」が赤 → 版を確かめずに取得日で埋めた行が戻った
@@ -62,42 +82,11 @@ const ROOT = process.cwd();
 const SPEC_DIR = "system" + "-spec";
 
 /**
- * 章 → その章が宣言する出典対象。**1 本とは限らない。**
- *
- * 旧版はここを 1 章 1 本と決め打ちしていた。`maintenance-ops` が 4 本になった日、
- * 決め打ちのほうが折れた——**固定していたのは事実ではなく、当時の形だった。**
- * 章は宣言した対象以外も持ってよい。**足りないことだけを赤にする。**
+ * 2026-09-06: 固定 21 行では、正しく追加された R2 overview まで不具合になる。
+ * 全 22 対象の名前を床として保持し、実際に検査する集合は targets[] と照合する。
+ * 追加は自動的に全件検査へ入り、欠落・同数での置換・重複は赤になる。
  */
-const CHAPTER_TARGETS = {
-  auth: ["better-auth"],
-  backend: ["drizzle-orm"],
-  database: ["cloudflare-d1"],
-  frontend: ["nextjs"],
-  infrastructure: ["cloudflare-workers"],
-  "maintenance-ops": ["google-sre", "vitest", "github-actions", "stryker-mutator"],
-  security: ["owasp-asvs"],
-  "ui-ux": ["apple-hig"],
-} as const;
-
-/**
- * 章別の出典本数の実測 (2026-08-25)。
- *
- * **前提ではなく測定値として置く。**旧版はこれを 1 と決め打ちし、増えた日に
- * 試験ファイルごと沈黙した。増減はここが赤くなって知らせる。
- */
-const EXPECTED_ROW_COUNTS: Record<string, number> = {
-  auth: 1,
-  // 2026-09-04: 検索と AI からの見え方のために出典が増えた。
-  // backend 4→7 (search-console-api / web-search-tool / search-grounding)、
-  // database 1→3 (d1-use-indexes / fts5)、frontend 2→4 (llms-txt / webmcp)。
-  backend: 7,
-  database: 3,
-  frontend: 4,
-  infrastructure: 1,
-  "maintenance-ops": 4,
-  security: 1,
-  "ui-ux": 1,
-};
+const CHAPTERS = Object.keys(SOURCE_TARGET_FLOOR);
 
 /** 版番号ではなく日付が書かれている、という判定。`1.6.29` を日付と読まないこと。 */
 function looksLikeDate(version: string): boolean {
@@ -153,10 +142,10 @@ type Reference = {
   freshness_source: string | null;
 };
 
-function references(): Map<string, Reference> {
+function references(): Reference[] {
   const raw = readFileSync(join(ROOT, `${SPEC_DIR}/fetched-references.json`), "utf8");
   const parsed = JSON.parse(raw) as { references: Reference[] };
-  return new Map(parsed.references.map((r) => [r.target_id, r]));
+  return parsed.references;
 }
 
 /**
@@ -175,44 +164,8 @@ function references(): Map<string, Reference> {
  *
  * **判定の中身は 1 つも変えていない。**渡す先を実ファイル固定から引数へ移しただけである。
  */
-function retrievalDated(rows: readonly Row[], refs: Map<string, Reference>): string[] {
-  return rows
-    .filter(isRetrievalDate)
-    .filter((r) => !declaredOnPage(r, refs))
-    .map((r) => `${r.target}=${r.version}`);
-}
-
-/**
- * 版の欄の日付が、**取得した日ではなく相手の本文が名乗っている日**であること。
- *
- * 2026-09-04、`webmcp` がこの検査に当たった。仕様が rolling draft で、
- * その日の版表示がちょうど取得日と同じ 2026-09-03 だったためである。
- * これは「確かめた値が無いので取得日で埋めた」——この検査が止めたいこと——の
- * 逆であり、**本文・`<time datetime>`・HTTP Last-Modified の 3 つが同日で
- * 一致することを確かめた**結果として同じ日になっている。
- *
- * 正しい記録を違反と呼ぶ検査は、記録を歪ませる圧力になる（この試験は
- * 2026-08-25 に `vitest` で同じ判断をしている）。そこで除外する。
- *
- * ただし `freshness_source` の自己申告だけでは除外しない。それだと
- * 「取得日を書いて page-declared と名乗る」で素通りできてしまう。
- * **証跡に「本文のどこにその日付があったか」(`found_in`) が書かれており、
- * かつ抜き出した値が章の版欄と一致すること**まで求める。
- * 逃げ道を塞ぐのは申告ではなく、逐語の引用である。
- */
-function declaredOnPage(row: Row, refs: Map<string, Reference>): boolean {
-  const ref = refs.get(row.target);
-  if (ref?.freshness_source !== "page-declared") return false;
-  const evidence = JSON.parse(
-    readFileSync(join(ROOT, `${SPEC_DIR}/retrieval-evidence/${row.target}.json`), "utf8"),
-  ) as { freshness_extraction?: { value?: string; found_in?: unknown } };
-  const extraction = evidence.freshness_extraction;
-  if (extraction === undefined) return false;
-  return (
-    extraction.value === row.version.trim() &&
-    Array.isArray(extraction.found_in) &&
-    extraction.found_in.length > 0
-  );
+function retrievalDated(rows: readonly Row[]): string[] {
+  return rows.filter(isRetrievalDate).map((r) => `${r.target}=${r.version}`);
 }
 
 /** 章 md と `fetched-references.json` の食い違い。名指しで返す。 */
@@ -234,42 +187,57 @@ function driftBetween(rows: readonly Row[], refs: Map<string, Reference>): strin
   return drifted;
 }
 
-const CHAPTERS = Object.keys(CHAPTER_TARGETS);
-
 describe("最新ドキュメント出典の欄が欄名どおりの値を持っているか", () => {
   const rowsByChapter = new Map(CHAPTERS.map((c) => [c, sourceRows(c)]));
   const rows = CHAPTERS.flatMap((c) => rowsByChapter.get(c) ?? []);
-  const refs = references();
+  const referenceRows = references();
+  const refs = new Map(referenceRows.map((r) => [r.target_id, r]));
+  const targets = declaredSourceTargets(ROOT);
+  const targetIds = targets.map((target) => target.target_id);
+
+  function expectCompletePopulation() {
+    const floor = Object.values(SOURCE_TARGET_FLOOR).flat();
+    expect(targetIds).toEqual(expect.arrayContaining(floor));
+    expect(new Set(targetIds).size).toBe(targetIds.length);
+    expect(inventoryDelta(rows.map((r) => r.target), targetIds)).toEqual(EMPTY_INVENTORY_DELTA);
+    expect(inventoryDelta(referenceRows.map((r) => r.target_id), targetIds)).toEqual(EMPTY_INVENTORY_DELTA);
+  }
 
   it("確定 8 章が宣言した出典を 1 本も落としていない（数える対象が消えていない）", () => {
     // **欠けたものを名指しで出す。**真偽値の一覧だと、8 章が全部 false になった日に
     // 「何が消えたのか」がこの試験からは読めない（2026-08-25 に実際そうなった）。
     const missing = CHAPTERS.flatMap((c) => {
       const present = new Set((rowsByChapter.get(c) ?? []).map((r) => r.target));
-      return CHAPTER_TARGETS[c as keyof typeof CHAPTER_TARGETS]
+      return SOURCE_TARGET_FLOOR[c as keyof typeof SOURCE_TARGET_FLOOR]
         .filter((target) => !present.has(target))
         .map((target) => `${c}: ${target}`);
     });
     expect(missing).toEqual([]);
+    expectCompletePopulation();
   });
 
-  it("章別の出典本数が実測どおり——増えても減っても赤くなる", () => {
-    const counts = Object.fromEntries(CHAPTERS.map((c) => [c, (rowsByChapter.get(c) ?? []).length]));
-    expect(counts).toEqual(EXPECTED_ROW_COUNTS);
+  it("章別の出典対象が targets[] の全宣言と一致する（同数の置換も検出する）", () => {
+    expect([...new Set(targets.map((target) => target.category))].sort()).toEqual([...CHAPTERS].sort());
+    for (const chapter of CHAPTERS) {
+      const expected = targets.filter((target) => target.category === chapter).map((target) => target.target_id);
+      const actual = (rowsByChapter.get(chapter) ?? []).map((row) => row.target);
+      expect(inventoryDelta(actual, expected), chapter).toEqual(EMPTY_INVENTORY_DELTA);
+    }
+    expectCompletePopulation();
   });
 
   it("版の欄が取得日そのものになっている行は 0 件——戻れば赤くなる", () => {
-    expect(retrievalDated(rows, refs)).toEqual([]);
+    expect(retrievalDated(rows)).toEqual([]);
     // **0 件の主張が母数 0 由来でないことを、同じ it で示す。**
     // 上の等号は rows が空でも通る。読み取りが黙って全滅した日に、
     // この検査が「違反なし」と報せるのを止めている。
-    expect(rows.length).toBe(22);
+    expectCompletePopulation();
   });
 
-  it("全 22 出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
+  it("宣言した全出典が freshness_source を持つ（版・更新日の出所が空欄へ戻らない）", () => {
     const missing = [...refs.values()].filter((r) => !r.freshness_source);
     expect(missing.map((r) => r.target_id)).toEqual([]);
-    expect(refs.size).toBe(22);
+    expectCompletePopulation();
   });
 
   /**
@@ -277,9 +245,9 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
    * 章が純関数になった今も、写しである以上ずれる道は残っている。
    * **食い違いが減っても増えても赤くする**のがこの検査の役目である。
    */
-  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく全 22 行）", () => {
+  it("章 md と fetched-references の食い違いは 0 件（主対象だけでなく宣言した全出典）", () => {
     expect(driftBetween(rows, refs)).toEqual([]);
-    expect(rows.length).toBe(22); // 母数。突合する相手が消えたら赤くする。
+    expectCompletePopulation();
   });
 
   /**
@@ -297,19 +265,18 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
       .filter((r) => Date.parse(r.confirmedAt) < Date.parse(r.retrievedAt))
       .map((r) => `${r.target}: 取得=${r.retrievedAt} / 最新確認=${r.confirmedAt}`);
     expect(offenders).toEqual([]);
+    expectCompletePopulation();
   });
 
-  /*
-    2026-09-04: 期待が 1 件から 0 件になった。`vitest` を 2026-09-03 に取り直し、
-    registry 照会と本文取得を同じ時刻で記録したためである。**列挙を消さない**のは、
-    確認が取得に先行する行が再び現れたとき、それが registry のような別行為なのか、
-    順序を取り違えた記録なのかを、この場で名指しさせるためである。
-    0 件のままだと「判定が何も当たらない」と区別がつかないので、
-    下の「見つける側が効いていること」に合成行の陽性対照を置いてある。
-  */
   it("確認が取得より前になっている行は、いずれも本文以外を鮮度根拠にしている", () => {
     const early = rows.filter((r) => Date.parse(r.confirmedAt) < Date.parse(r.retrievedAt));
+    // 2026-09-04 に `['vitest=publisher-registry']` → `[]` へ。**違反が直ったのではなく、
+    // 例外そのものが消えた。**C08 鮮度監査が vitest 4.1.11 の陳腐化を指摘し、2026-09-03 に
+    // registry 照会とページ取得を同一時刻 (23:21:10Z) で取り直したため、確認が取得より前に
+    // なる行が 1 つも無くなった。**期待値を消さず空配列として残す**のは、`page-declared` 以外を
+    // 逃がす抜け道がここに再び開いたとき、名指しで赤くするためである。
     expect(early.map((r) => `${r.target}=${refs.get(r.target)?.freshness_source}`)).toEqual([]);
+    expectCompletePopulation();
   });
 
   /**
@@ -318,6 +285,19 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
    * 区別できない。2026-08-25 に起きたのはまさにその区別がつかない状態だった。
    */
   describe("見つける側が効いていること", () => {
+    it.each([
+      ["同数での置換", ["a", "ghost"], { missing: ["b"], unexpected: ["ghost"], duplicate: [] }],
+      ["同数での重複", ["a", "a"], { missing: ["b"], unexpected: [], duplicate: ["a"] }],
+      ["全件消失", [], { missing: ["a", "b"], unexpected: [], duplicate: [] }],
+      ["宣言漏れ", ["a", "b", "c"], { missing: [], unexpected: ["c"], duplicate: [] }],
+    ])("出典集合の %s を名指しする", (_label, actual, expected) => {
+      expect(inventoryDelta(actual, ["a", "b"])).toEqual(expected);
+    });
+
+    it("宣言へ追加した出典は既存の母数を保ったまま検査される", () => {
+      expect(inventoryDelta(["c", "a", "b"], ["a", "b", "c"])).toEqual(EMPTY_INVENTORY_DELTA);
+    });
+
     it.each(["2026-08-16", "2020-01-01"])("%s は日付として数えられる", (v) => {
       expect(looksLikeDate(v)).toBe(true);
     });
@@ -361,45 +341,11 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
         "anthropic-claude",
         "openai-platform",
         "google-gemini",
-        "google-search-console-api",
-        "anthropic-web-search-tool",
-        "gemini-google-search-grounding",
       ]);
     });
 
     it("出典表を持たない名前でも throw せず空を返す（収集時に試験ごと沈黙させない）", () => {
       expect(sourceRows("index")).toEqual([]);
-    });
-
-    /*
-      **除外が「効いている」ことと「効きすぎていない」ことを、同じ場で示す。**
-
-      `retrievalDated` は page-declared かつ証跡に逐語がある行を通す。除外が
-      1 件も働いていなければ、除外そのものを消しても誰も気づかない。逆に
-      除外が広すぎれば、取得日で埋めた行まで通る。そこで
-      「素の判定では当たる行が実在する」ことと「除外後は 0 件」を並べて置く。
-    */
-    it("版が取得日と同じ行は実在し、除外はそれを本文由来としてだけ通している", () => {
-      const raw = rows.filter(isRetrievalDate).map((r) => r.target);
-      expect(raw, "素の判定に 1 件も当たらないなら、除外は消しても同じになる").not.toEqual([]);
-      expect(raw.every((target) => declaredOnPage(rows.find((r) => r.target === target)!, refs))).toBe(
-        true,
-      );
-    });
-
-    /*
-      確認が取得より前、の判定が動いていること。実物が 0 件になったので、
-      **合成した行で赤くなる側を見せる。**章は 1 バイトも触らない。
-    */
-    it("確認が取得より前の行は、合成すれば見つけられる", () => {
-      const synthetic: Row = {
-        chapter: "x",
-        target: "x",
-        version: "1.0.0",
-        retrievedAt: "2026-09-03T13:09:07Z",
-        confirmedAt: "2026-09-03T13:09:06Z",
-      };
-      expect(Date.parse(synthetic.confirmedAt) < Date.parse(synthetic.retrievedAt)).toBe(true);
     });
 
     /**
@@ -427,7 +373,7 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
         row({ target: "ok", version: "1.6.29" }),
         row({ target: "bad", version: "2026-08-19" }),
       ];
-      expect(retrievalDated(dirty, refs)).toEqual(["bad=2026-08-19"]);
+      expect(retrievalDated(dirty)).toEqual(["bad=2026-08-19"]);
     });
 
     it("章と参照の値がずれた行を混ぜると、両方の値つきで挙がる", () => {
@@ -464,7 +410,7 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
       const refs = new Map<string, Reference>([
         ["t", { target_id: "t", version: "1.0.0", last_updated: null, freshness_source: "x" }],
       ]);
-      expect(retrievalDated([row()], refs)).toEqual([]);
+      expect(retrievalDated([row()])).toEqual([]);
       expect(driftBetween([row()], refs)).toEqual([]);
     });
   });

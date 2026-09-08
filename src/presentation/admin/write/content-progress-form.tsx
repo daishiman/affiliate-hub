@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { type ContentState, isUnpublishing } from "@/domain/authoring";
+import { isUnpublishing, type ContentState } from "@/domain/authoring/content-state";
 import { Button, Callout, FormValue, Select, TextArea, ToolForm } from "@/presentation/ui";
 import { advanceContentStateAction, approveContentAction } from "./content-progress-action";
 import { INITIAL_CONTENT_PROGRESS_STATE } from "./content-progress-state";

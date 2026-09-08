@@ -3,12 +3,9 @@ import type {
   EditorialSiteDraftRepositoryPort,
   SiteProvisionRequest,
 } from "@/application/ports/authoring";
-import {
-  SITE_PROVISIONING_REQUIRED_COUNTS,
-  evaluateSiteComposition,
-  type SiteBlueprint,
-  type SiteDraft,
-} from "@/domain/authoring";
+import { SITE_PROVISIONING_REQUIRED_COUNTS, evaluateSiteComposition } from "@/domain/authoring/site-publication";
+import type { SiteBlueprint } from "@/domain/authoring/site-blueprint";
+import type { SiteDraft } from "@/domain/authoring/site-draft";
 import {
   defaultLayoutBandSeeds,
   defaultLayoutSlotSeeds,

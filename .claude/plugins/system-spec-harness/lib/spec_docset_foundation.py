@@ -7,6 +7,7 @@ from pathlib import Path
 from spec_docset_catalog import *
 from spec_docset_catalog import _category_ids
 from spec_docset_chapters import *
+from spec_docset_legacy import legacy_qa_copy_is_connected, legacy_summary_is_connected
 
 def _text_or_placeholder(s) -> str:
     if isinstance(s, dict) and s.get("status") == "not_applicable":
@@ -384,27 +385,50 @@ def _section_map(text: str) -> "dict[str, str]":
     """Markdown 本文を `## 見出し` 単位へ割る。{見出し行: 節本文 (見出し含む)}。
 
     frontmatter と最初の `## ` より前の導入部は節に属さないので含めない。
-    生成器の保全報告が複数ある場合だけ本文を合わせる。その他の同名節の扱いは従来どおり。
+    同名節は出現順にまとめ、どちらの本文も失わない。コード例の見出しは境界ではない
+    (`markdown_heading_levels` が fence の中を見出しと数えない)。
+
+    2 回目以降は**見出し行を落として**繋ぐ。繋いだ本文の中へ同じ見出しが二度現れると、
+    その節をもう一度割り直したときに境界が増え、節の数が回ごとにずれる。
     """
     sections: dict[str, str] = {}
     current: str | None = None
     buf: list[str] = []
+
     def keep() -> None:
-        if current == CARRIED_HEADING and current in sections:
-            sections[current] = sections[current].rstrip() + "\n\n" + "\n".join(buf[1:]).strip() + "\n"
-        elif current is not None:
+        if current is None:
+            return
+        if current in sections:
+            sections[current] = (
+                sections[current].rstrip() + "\n\n" + "\n".join(buf[1:]).strip() + "\n"
+            )
+        else:
             sections[current] = "\n".join(buf).rstrip() + "\n"
-    for line in text.splitlines():
-        if line.startswith("## "):
-            if current is not None:
-                keep()
+
+    for line, level in zip(text.splitlines(), markdown_heading_levels(text)):
+        if level == 2:
+            keep()
             current = line.strip()
             buf = [line]
         elif current is not None:
             buf.append(line)
-    if current is not None:
-        keep()
+    keep()
     return sections
+
+
+def _projection_text(text: str) -> str:
+    """Compare verbatim content while allowing only heading-depth relocation."""
+    return "\n".join(
+        (line[level:].strip() if level else line.rstrip())
+        for line, level in zip(text.splitlines(), markdown_heading_levels(text))
+        if line.strip()
+    )
+
+
+def _connected_block(block: str, generated: str) -> bool:
+    normalized = _projection_text(block)
+    # A heading alone is not proof: the complete non-empty body must be rendered.
+    return "\n" in normalized and normalized in _projection_text(generated)
 
 
 def handwritten_sections(existing: str, generated: str) -> "list[str]":
@@ -414,7 +438,10 @@ def handwritten_sections(existing: str, generated: str) -> "list[str]":
     よって**生成物に無い節は、人が後から書いた節**である。上書きすれば黙って消える。
     """
     gen = _section_map(generated)
-    return [h for h in _section_map(existing) if h not in gen]
+    return [
+        h for h, body in _section_map(existing).items()
+        if h not in gen and not _connected_block(body, generated)
+    ]
 
 
 _SUBSECTION = re.compile(r"^(#{3,6}) (.+)$")
@@ -497,6 +524,41 @@ def handwritten_subsections(existing: str, generated: str) -> "list[tuple[str, s
 
 CARRIED_HEADING = "## 章にしか無い記述 (正本へ未接続)"
 RESIDUE_HEADING = "## compile が保てなかった行 (要判断)"
+
+
+def drop_connected_subblocks(
+    section_text: str, connected: "frozenset[str]"
+) -> "tuple[str, list[str]]":
+    """`##` 節の中から、正本へ接続・取り下げ済みと宣言された小節を落とす。
+
+    **なぜ節の中まで見るのか (2026-09-04 実測)。**`--connected-subsection` は
+    *生成される* `##` 節の内側に住む手書き小節を落とすための口である。ところが
+    小節はいちど `## 章にしか無い記述 (正本へ未接続)` へ退避されると、以後は
+    `handwritten_sections` が**節ごと**引き継ぐ経路へ移り、小節単位の口が届かなくなる。
+    **退避した瞬間に出口が閉じる**のでは、退避は保全ではなく固定である。確定章への
+    Edit は C11 hook が塞ぐので、章から落とせるのは単一 writer である compile だけであり、
+    ここを開けないと退避された写しは永久に章へ残る。
+
+    落とすのは**宣言された見出しの小節だけ**で、宣言していない小節と節の前書きは残す。
+    入れ子の子見出し (`####` 以下) は自動では巻き込まない。子まで落とすなら子の見出しも
+    宣言すること。**「親を消したから子も消えたはず」を機械が推測しない**ようにしてある。
+    """
+    lines = section_text.splitlines()
+    kept: list[str] = []
+    dropped: list[str] = []
+    i = 0
+    while i < len(lines):
+        m = _SUBSECTION.match(lines[i])
+        if m and m.group(2).strip() in connected:
+            j = i + 1
+            while j < len(lines) and not _SUBSECTION.match(lines[j]) and not lines[j].startswith("## "):
+                j += 1
+            dropped.extend(l for l in lines[i:j] if l.strip())
+            i = j
+            continue
+        kept.append(lines[i])
+        i += 1
+    return "\n".join(kept).rstrip() + "\n", dropped
 
 
 _RESIDUE_ITEM = re.compile(r"^- `(.*)`$")
@@ -690,6 +752,8 @@ def write_docset(
     loss_report: "list[tuple[str, list[str]]] | None" = None,
     acknowledge_prior_residue: bool = False,
     canonical_state: dict | None = None,
+    connected_subsections: "frozenset[str] | None" = None,
+    source_spec: dict | None = None,
 ) -> list[Path]:
     """組み立てた docset を out_dir へ書き出す。書き出したパス一覧を返す。
 
@@ -713,6 +777,17 @@ def write_docset(
       - False (既定): 前回までの residue を今回の報告へ持ち越す
       - True: レビュー済みの前回 residue は持ち越さない。ただし今回の既存本文から
         新たに消える行は通常どおり residue と loss_report へ残す
+
+    connected_subsections:
+      手書き小節の見出し集合。**「正本へ接続し終えたので、もう引き継がなくてよい」**
+      と呼び手が宣言したものだけを入れる。CARRIED_HEADING 節へ写さず、消える行としても
+      報告しない (正本側に同じ内容が在るのだから、報告は二重化にしかならない)。
+
+      **なぜ扉が要るか (2026-09-04)**: refuse の文言は「消してよいと確かめたなら該当節を
+      先に削ってから compile すること」と案内するが、確定章 (`status: confirmed`) への
+      Edit は C11 hook が遮断する。つまり案内された手は確定章では踏めない。手書きを正本へ
+      移したあと、章から古い写しを落とす正規の出口が無かった。ここがその出口である。
+      **消すのは単一 writer である compile 自身**なので、迂回にはならない。
     """
     if on_handwritten not in ("refuse", "preserve"):
         raise CompileError(f"on_handwritten は refuse|preserve のいずれか (受領: {on_handwritten!r})")
@@ -723,7 +798,10 @@ def write_docset(
     # 設計適用の `#####`) は `##` 単位の検出をすり抜ける。**refuse も preserve も、
     # ここを同じ根拠で扱う。**片方だけ見張ると「refuse なら安全」が嘘になる。
     carried_sub: dict[str, list[tuple[str, str]]] = {}
+    # 正本へ接続済みと宣言され、章から落とす小節の本文行 (residue へも出さない)。
+    connected_by_name: dict[str, set[str]] = {}
     for name, content in docset.items():
+        connected_lines = connected_by_name.setdefault(name, set())
         p = out_dir / name
         if not p.is_file():
             continue
@@ -735,11 +813,52 @@ def write_docset(
         # 移動先を足してから比べる (`relocation_companion` 参照)。
         generated = content + "\n" + relocation_companion(docset, name)
         lost = handwritten_sections(existing_text, generated)
+        # 正本へ接続し終えたと読める節は「消える節」から外す。**比べる先は `content` では
+        # なく `generated`** — 移動先の章へ移った本文も、接続済みであることに変わりはない。
+        for heading, body in _section_map(existing_text).items():
+            candidate, _ = drop_connected_subblocks(body, connected_subsections or frozenset())
+            connected = _connected_block(candidate, generated) or (
+                source_spec is not None
+                and (
+                    legacy_summary_is_connected(heading, candidate, source_spec, p.stem)
+                    or legacy_qa_copy_is_connected(candidate, source_spec, p.stem, generated)
+                )
+            )
+            if heading not in _section_map(generated) and connected:
+                connected_lines.update(line.strip() for line in body.splitlines() if line.strip())
+                lost = [item for item in lost if item != heading]
         if lost:
             carried[name] = lost
         lost_sub = _merge_carried_subsections(
             prior_carried_sub, handwritten_subsections(existing_text, generated), generated
         )
+        # **篩うのは合わせたあと。**前回の棚の中身を同じ篩にかけないと、正本へ接続し
+        # 終えた小節が棚の側にだけ残り、`split_carried` が塞いだはずの「減らない箱」へ
+        # 戻る。合わせてから篩えば、新旧どちらの出所の小節も同じ根拠で落ちる。
+        remaining_sub = []
+        for head, body in lost_sub:
+            if _connected_block(body, generated) or (
+                source_spec is not None
+                and legacy_qa_copy_is_connected(body, source_spec, p.stem, generated)
+            ):
+                connected_lines.update(line.strip() for line in body.splitlines() if line.strip())
+            else:
+                remaining_sub.append((head, body))
+        lost_sub = remaining_sub
+        if connected_subsections:
+            # 見出しは `### 見出し` の形で来る。宣言された見出しだけを落とす。
+            kept, dropped = [], []
+            for head, body in lost_sub:
+                (dropped if head.lstrip("#").strip() in connected_subsections else kept).append(
+                    (head, body)
+                )
+            lost_sub = kept
+            # 落とした本文の行は「消える行」としても報告しない。正本に同じ内容が在るので、
+            # 報告は二重化にしかならず、本当に接続の要る行を埋もれさせる。
+            for _, body in dropped:
+                connected_lines.update(
+                    line.strip() for line in body.splitlines() if line.strip()
+                )
         if lost_sub:
             carried_sub[name] = lost_sub
 
@@ -761,6 +880,7 @@ def write_docset(
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     for name, content in docset.items():
+        connected_lines = connected_by_name[name]
         p = out_dir / name
         # 前回の写しは既存本文として数えず、今回の報告へ持ち越す (`split_residue` 参照)。
         before, prior_residue = (
@@ -778,7 +898,25 @@ def write_docset(
         text = content if content.endswith("\n") else content + "\n"
         if name in carried:
             existing = _section_map(before or "")
-            text = text.rstrip("\n") + "\n\n" + "\n".join(existing[h] for h in carried[name])
+            blocks: list[str] = []
+            for h in carried[name]:
+                body = existing[h]
+                if connected_subsections:
+                    body, dropped_lines = drop_connected_subblocks(body, connected_subsections)
+                    connected_lines.update(l.strip() for l in dropped_lines)
+                    if h == CARRIED_HEADING and not any(
+                        _SUBSECTION.match(l) for l in body.splitlines()
+                    ):
+                        # 退避の器だけが残った。中身が全部正本へ移ったのなら、
+                        # 「章にしか無い記述」を名乗る空の節を残す理由が無い。
+                        # 前書き (何件が未接続かを述べる一文) も一緒に落とす。
+                        connected_lines.update(
+                            l.strip() for l in body.splitlines() if l.strip()
+                        )
+                        continue
+                blocks.append(body)
+            if blocks:
+                text = text.rstrip("\n") + "\n\n" + "\n".join(blocks)
         if name in carried_sub:
             # 元の生成節の内側へ差し戻さない。**正本から導けない記述であることを、章の上で
             # 読めるようにする。**生成節へ混ぜると、正本の投影と手書きの区別が消え、次に
@@ -798,6 +936,8 @@ def write_docset(
             if before is not None
             else []
         )
+        if connected_lines:
+            residue = [line for line in residue if line.strip() not in connected_lines]
         if not acknowledge_prior_residue:
             # 持ち越し分を先に置く。順序を回ごとに入れ替えると、差分が中身の変化に見える。
             present_lines = {line.strip() for line in text.splitlines()}

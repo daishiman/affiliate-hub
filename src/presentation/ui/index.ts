@@ -26,6 +26,7 @@ export { Field, type FieldProps } from "./primitives/field";
 // ファイルを選ぶ欄。`Field` は controlled な文字入力なのでファイルには使えない。
 export { FilePicker } from "./primitives/file-picker";
 export { FormValue, type FormValueProps } from "./primitives/form-value";
+export { DescriptionTime, type DescriptionTimeProps } from "./primitives/description-time";
 export { Select, type SelectProps, type SelectOption } from "./primitives/select";
 export { CheckboxGroup, type CheckboxGroupProps } from "./primitives/checkbox-group";
 export { Checkbox, type CheckboxProps } from "./primitives/checkbox";
@@ -222,6 +223,7 @@ export {
   StepList,
   DataTable,
   FactList,
+  RowSummary,
   Foldable,
   Figure,
   RowSelector,
@@ -253,6 +255,7 @@ export {
   ArticleView,
   ArticleTableOfContents,
   ArticleList,
+  ARTICLE_SPEAKABLE_SELECTORS,
   PersonView,
   PolicyView,
   CorrectionList,

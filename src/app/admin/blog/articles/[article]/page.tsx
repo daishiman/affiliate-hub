@@ -5,7 +5,9 @@ import { blogSiteOptions } from "@/presentation/admin/publish/blog-site-options"
 import { ExpressionBlockAppendForm } from "@/presentation/admin/publish/expression-block-form";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
 import { blogThumbnailHref } from "@/infrastructure/platform/blog-thumbnail-r2";
-import { Callout, ErrorView, FactList, Note, Section, TextLink } from "@/presentation/ui";
+import { Callout, ErrorView, FactList, Foldable, Note, Section, TextLink } from "@/presentation/ui";
+import { requireWorkspaceWideCapability } from "@/domain/identity";
+import { toExpressionArticleBlock } from "@/application/adapters/expression-article-block";
 
 export const dynamic = "force-dynamic";
 
@@ -84,7 +86,7 @@ export default async function BlogArticleEditPage({
       lead="記事の中身を直し、公開まで進めます。"
       actions={<TextLink href="/admin/blog/articles">記事の一覧へ</TextLink>}
     >
-      <Section title="この記事">
+      <Foldable summary="記事の住所と版面を確認する">
         <FactList
           rows={[
             { key: "site", label: "置き場所", value: view.siteSlug },
@@ -93,7 +95,7 @@ export default async function BlogArticleEditPage({
           ]}
         />
         <Note>{view.titleRule}</Note>
-      </Section>
+      </Foldable>
 
       {/*
         表紙は本文より先に置く。一覧・トップ・SNS の写しに出るのはこの 1 枚で、
@@ -139,7 +141,12 @@ export default async function BlogArticleEditPage({
           authorName={view.authorName}
           categorySlug={view.categorySlug ?? categoryOptions[0]?.value ?? ""}
           categoryOptions={categoryOptions}
-          blocks={view.blocks.map((block) => ({
+          blocks={[
+            ...view.blocks,
+            ...(view.structuredBlocks ?? []).map((block) => ({
+              ...toExpressionArticleBlock(block.expression, block.id, block.position), heading: block.heading,
+            })),
+          ].sort((left, right) => left.position - right.position).map((block) => ({
             id: block.id,
             kind: block.kind,
             heading: block.heading,
@@ -151,6 +158,7 @@ export default async function BlogArticleEditPage({
               : []
           }
           selectedTagIds={view.tagIds}
+          canPublish={requireWorkspaceWideCapability(actor, "content.publish", "記事の公開").ok}
         />
       </Section>
       <Section title="図解・比較・CTA・要約・スペック表を足す">

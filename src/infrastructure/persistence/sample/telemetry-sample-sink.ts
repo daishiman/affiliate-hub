@@ -1,10 +1,7 @@
 import type { TelemetrySinkPort } from "@/application/ports/telemetry";
-import {
-  type TelemetryEvent,
-  type TelemetryEventKey,
-  isRetentionExpired,
-  rollupAiUsage,
-} from "@/domain/analytics";
+import type { TelemetryEvent, TelemetryEventKey } from "@/domain/analytics/telemetry-events";
+import { isRetentionExpired } from "@/domain/analytics/consent";
+import { rollupAiUsage } from "@/domain/analytics/ai-usage";
 import { ok } from "@/domain/shared";
 import { registerStub, stubCall, stubReason } from "../../stub-registry";
 

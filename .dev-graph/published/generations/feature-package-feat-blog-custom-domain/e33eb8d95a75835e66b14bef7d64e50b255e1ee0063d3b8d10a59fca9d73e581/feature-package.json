@@ -1,0 +1,52 @@
+{
+  "feature_package_id": "feature-package/feat-blog-custom-domain",
+  "parent_feature": "feat-blog-custom-domain",
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "schema_version": "1.0.0",
+  "source_feature_digest": "sha256:713847bcb5f68ba0f6a174be66d77941ec2fff7f4c0a45b532b45cfb16f22cfe",
+  "task_count": 13,
+  "task_node_ids": [
+    "SYS-BLOG-CUSTOM-DOMAIN-P01",
+    "SYS-BLOG-CUSTOM-DOMAIN-P02",
+    "SYS-BLOG-CUSTOM-DOMAIN-P03",
+    "SYS-BLOG-CUSTOM-DOMAIN-P04",
+    "SYS-BLOG-CUSTOM-DOMAIN-P05",
+    "SYS-BLOG-CUSTOM-DOMAIN-P06",
+    "SYS-BLOG-CUSTOM-DOMAIN-P07",
+    "SYS-BLOG-CUSTOM-DOMAIN-P08",
+    "SYS-BLOG-CUSTOM-DOMAIN-P09",
+    "SYS-BLOG-CUSTOM-DOMAIN-P10",
+    "SYS-BLOG-CUSTOM-DOMAIN-P11",
+    "SYS-BLOG-CUSTOM-DOMAIN-P12",
+    "SYS-BLOG-CUSTOM-DOMAIN-P13"
+  ],
+  "task_spec_paths": [
+    "task-specs/phase-01-requirements.md",
+    "task-specs/phase-02-architecture.md",
+    "task-specs/phase-03-design-review.md",
+    "task-specs/phase-04-test-design.md",
+    "task-specs/phase-05-implementation.md",
+    "task-specs/phase-06-test-run.md",
+    "task-specs/phase-07-acceptance.md",
+    "task-specs/phase-08-refactoring-migration.md",
+    "task-specs/phase-09-quality-assurance.md",
+    "task-specs/phase-10-final-review.md",
+    "task-specs/phase-11-evidence.md",
+    "task-specs/phase-12-documentation-operations.md",
+    "task-specs/phase-13-release-deploy.md"
+  ]
+}

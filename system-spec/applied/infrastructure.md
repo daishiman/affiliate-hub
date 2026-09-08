@@ -3,7 +3,7 @@ status: confirmed
 category: infrastructure
 aggregate: 確定
 spec_cells: [infrastructure.web, infrastructure.mobile, infrastructure.tablet, infrastructure.desktop-windows, infrastructure.desktop-linux, infrastructure.desktop-macos]
-serves_goals: [G2, G1]
+serves_goals: [G2, G1, G3]
 ---
 
 # 本章での適用 — インフラ (infrastructure)
@@ -12,9 +12,33 @@ serves_goals: [G2, G1]
 
 #### 本章での適用
 
-##### 確定内容 qa-infrastructure-web-wildcard-subdomain (対応セル: web)
+##### 確定内容 qa-infrastructure-web-worker-image-upload-confirmed-20260906 (対応セル: web)
 
-- 確定要件: ワイルドカード DNS (*.<基底ドメイン>) を Worker へ向け、wrangler の routes に *.<基底ドメイン>/* を1本だけ置く。ブログを増やしても DNS も routes も触らない。証明書は Cloudflare のワイルドカード証明書で賄い、ブログごとの発行・検証フローを持たない。開発環境の workers.dev はサブドメインを任意に生やせないため、パス方式 /s/<slug> を後方互換として残し、ホスト解決が効かない実行では従来どおり動く。既存の公開URLを壊さず、SITE_BASE_DOMAIN 未設定のブログもパス方式で到達できる。
+- 確定要件: ok
+- 設計解釈の記録経路: `dialogue`
+- 原則: キャパシティと需要・観測可能性 — 上限と状態遷移を利用者に見える失敗および運用指標として扱う (`site-reliability-engineering.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 利用者がWorker経由への統一を承認したため、製品上限8MiBをAPI境界に明示し、pending予約、R2 put、ready確定を観測可能な段階として扱う。応答不明時は即時削除せず台帳と回収処理で収束させ、アップロード結果と回収結果を運用ログで区別する
+  - トレードオフ:
+    - 画像本体がWorkerを通るためリクエスト数と処理負荷が増え、Worker障害時は送信できない
+    - 直接PUTのCORSと短命署名を不要にできる代わりに、Worker側のstream上限・失敗分類・再試行の保守が必要になる
+##### 接地根拠 qa-infra-web-custom-hostname (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-infra-web-custom-hostname` を参照
+- 設計解釈の記録経路: `dialogue`
+- 原則: 自分で持たなくてよい運用責務は、それを本業にしている側へ預ける (`site-reliability-engineering.md#中核概念`)
+  - 採否: `applied`
+  - 章固有の根拠: 証明書の自動更新は、失敗すると全読者にブラウザの警告が出る種類の運用である。ACME を自前で回せば更新の失敗も自分の当番になる。Cloudflare for SaaS に預ければ、こちらの責務は『状態を読んで管理画面に出す』だけに縮む
+  - トレードオフ:
+    - Cloudflare への依存が深まり、他の配信基盤へ移す際にこの部分を作り直すことになる。自前 ACME なら移設は容易だが、更新失敗の当番を負う
+- 原則: 新しい経路の失敗が、既存の経路まで巻き込まないようにする (`site-reliability-engineering.md#トレードオフ・失敗モード`)
+  - 採否: `applied`
+  - 章固有の根拠: カスタムドメインの検証は利用者の DNS 操作待ちで、いつ終わるか分からない。接続の途中でブログが読者から消えると、ドメインを足した結果として悪化する。既定の住所を常に生かしておけば、カスタムドメイン側の失敗は『まだ新しい住所で見られない』だけに留まる
+  - トレードオフ:
+    - 同じ内容が 2 つの住所で見られる期間が生じる。canonical を向けて検索エンジンには 1 つに見せるが、直接アクセスは両方で通る
+##### 接地根拠 qa-infrastructure-web-wildcard-subdomain (対応セル: web)
+
+- 本文: 「確定内容 (質疑録)」の `qa-infrastructure-web-wildcard-subdomain` を参照
 - 設計解釈の記録経路: `dialogue`
 - 原則: 環境の再現性 (Infrastructure as Code) — 環境と binding を宣言として持ち、差分を人手手順ではなく差分適用で解消する (`site-reliability-engineering.md#中核概念`)
   - 採否: `applied`
@@ -118,4 +142,4 @@ serves_goals: [G2, G1]
   - 章固有の根拠: ASP のリンク改変禁止 (U8) をインフラ層で保証する。sub_id 付与は対応 ASP のリンク生成時のみに限定する
   - トレードオフ:
     - 経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる
-- 資するゴール: G2, G1
+- 資するゴール: G2, G1, G3

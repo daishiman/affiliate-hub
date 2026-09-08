@@ -38,7 +38,8 @@
  * 差し替えは「同じ鍵へ上書き」ではなく「新しい鍵を作って参照を移す」。
  * 古い鍵は参照されなくなってから消す（消す担当はこの層ではない）。
  */
-import { domainError, err, ok, type DomainError, type Result } from "@/domain/shared";
+import { domainError, type DomainError } from "@/domain/shared/errors";
+import { err, ok, type Result } from "@/domain/shared/result";
 import { THUMBNAIL_WIDTHS, type ThumbnailWidth } from "./thumbnail";
 
 /**

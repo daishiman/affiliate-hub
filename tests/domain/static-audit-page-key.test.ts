@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-SEO06 @types equivalence, boundary */
+/** @tier 1 @req REQ-SEO08 @types equivalence, boundary */
 import { pageKeyOf } from "@/domain/seo/aeo-measurement";
 import { describe, expect, it } from "vitest";
 

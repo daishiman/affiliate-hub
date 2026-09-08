@@ -39,8 +39,11 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = process.cwd();
 
+/** 定期実行の中身の入口。ここから手が届く範囲を数える。 */
+const CRON_ROUTE = "src/app/internal-cron/route.ts";
+
 /**
- * 入口が読む TypeScript。`worker-entry.js` の import から機械で拾う。
+ * 入口（`worker-entry.js`）が直に読む TypeScript。**0 件が正しい。**
  *
  * 手で書き写さないのは、入口が読む先を増やしたときに**ここだけ古いまま**に
  * なるのを避けるため。増えた先も自動で数に入る。
@@ -70,10 +73,10 @@ function resolveSpecifier(from: string, spec: string): string | null {
   return null;
 }
 
-/** 入口から手が届く `src/` の全ファイルを、実際にたどって集める。 */
+/** 定期実行の入口から手が届く `src/` の全ファイルを、実際にたどって集める。 */
 function reachableFromEntry(): Map<string, number> {
   const seen = new Map<string, number>();
-  const queue = entryImports();
+  const queue = [join(ROOT, CRON_ROUTE)];
   while (queue.length > 0) {
     const file = queue.pop() as string;
     if (seen.has(file)) continue;
@@ -120,32 +123,74 @@ const PATHS = [...REACHED.keys()].map((p) => relative(ROOT, p).replaceAll("\\", 
  * **上げた理由をここへ書く**。理由の無い引き上げが 1 度通ると、この検査は
  * 「赤くなったら上げるもの」になり、何も守らなくなる。
  *
- * --- 2026-09-04 の引き上げ（130/1050 → 145/1200）と、その理由 ---
+ * ── 【2026-09-05】155 → 105 ファイル / 1250 → 1000 KiB へ**下げた**。
  *
- * cron の**仕事が 1 つ増えた**。SEO / AEO の計測（`seo-measurement-scheduler.ts`）で、
- * これは「口を 1 つ足す」ではなく、3 つの外部データ源・5 つの保存先・
- * 1 つのユースケースを持つ一式である。実測 +20 ファイル / +244 KiB。
+ * 同じ日に 2 つのことが起きた。順に書く。
  *
- * 上げる前に、引き込みのうち**使っていない分を先に削った**（削った結果が上の数）:
+ * 1 つめ。cron の仕事が 2 つ増え（読者行動の日次ロールアップと SEO/AEO の
+ * 定期評価）、107 → 133 ファイル / 889 → 1089 KiB になって、一度 155 / 1250 へ
+ * 上げた。増えた 26 が cron の 2 job から実際に引かれていることは一件ずつ見た。
  *
- *   - `@/domain/identity` の取りまとめ経由をやめ、`permissions` を直に指した。
- *     brand / membership / user / workspace は 1 つも使っていない（−5 ファイル / −34 KiB）。
- *   - 収集ユースケースが要求する公開記事の口を `Pick<…, "list">` に狭めた。
- *     `replace` や `archive` の実装を引かないため（−2 ファイル / −33 KiB）。
+ * 2 つめ。それでも公開が gzip 3104 KiB / 上限 3072 KiB で落ちた。中を割ると、
+ * 引き込みの形が 2 か所で緩んでいた。
  *
- * 残った 133 / 1133 は、この仕事が実際に使うものである。上限はそこから
- * 「口をあと 1〜2 つ足せる」余地（+12 ファイル / +67 KiB）を見て置いた。
- * **総目録の復活（+88 ファイル）は、この位置でも必ず超える。**
+ *   - `src/db/schema.ts` が列の CHECK 制約のために領域のバレル
+ *     (`@/domain/<領域>`) から定数を引いていた。バレルは束ねる側から見て
+ *     「副作用があるかもしれない module の束」なので、定数 1 つでも領域一式が入る。
+ *     定義元の module を直に指す形へ直して 133 → 118 ファイル。
+ *   - 同じ緩みが `src/` 全体に 146 ファイルぶんあった。直して 118 → 82 ファイル。
  *
- * --- 2026-09-06 の引き上げ（145/1200 → 145/1300）と、その理由 ---
+ * さらに、この検査が測る**起点そのもの**を変えた。`worker-entry.js` が `src/` を
+ * 直に読むと、同じ TypeScript が画面側の束とは別にもう一度束ねられ、
+ * **1 つの Worker に 2 部**入る（実測でこの 2 部目が 82 ファイル 791 KiB）。
+ * そこで cron の中身を画面側の束（`src/app/internal-cron/route.ts`）へ移し、
+ * 入口はそれを叩くだけにした。この検査の起点もそこへ移した。
  *
- * 同じSEO cronに、Search Console検索語の別取得・継続snapshot・ページングを追加した。
- * 実測は 133 / 1133 から 141 / 1237（+8ファイル / +104 KiB）。新しい画面や
- * 総目録ではなくcronが実際に使う処理で、ファイル数は既存上限内に収まる。
- * バイト上限だけを必要分と次の小変更1回分まで広げ、総目録の+775 KiBは引き続き塞ぐ。
+ * 新しい上限を 105 / 1000 にしたのは、実測 83 ファイル / 792 KiB を基点にしても、
+ * この検査が分けたい 2 つの出来事が依然として量の桁で分かれるからである。
+ *
+ *   ふつうの追加   … cron に口を 1 つ。5〜10 ファイル / 50〜80 KiB。
+ *                    2 回ぶん足しても 103 ファイル / 952 KiB で、どちらも届かない。
+ *   総目録の復活   … `createDeps()` が戻ると +88 ファイル / +775 KiB。
+ *                    83 + 88 = 171、792 + 775 = 1567 で、どちらも必ず超える。
+ *
+ * **上限を下げたのは、緩みを直した実測がそこにあるからである。**上げたままに
+ * しておくと、同じ緩みが戻っても 155 に届くまで鳴らない。守りたいのは
+ * 「量が上限内であること」ではなく「引き込みの形が変わったら鳴ること」なので、
+ * 実測が下がったら上限も下げる。次に赤くなったときは、数字を動かす前に
+ * バレル経由の import が戻っていないかを先に見ること。
+ *
+ * ── 【2026-09-08】105 → 145 ファイル / 1000 → 1450 KiB へ上げた。
+ *
+ * 上の指示どおり、**数字を動かす前にバレル経由の import を先に見た。**
+ * 実際に 16 か所で戻っていて、直して 157 → 124 ファイル / 1460 → 1280 KiB。
+ * 戻っていたのは全部この枝で足した SEO/AEO 側のファイルで、
+ * `@/domain/shared` `@/domain/authoring` `@/domain/blogops`
+ * `@/domain/monetization` `@/domain/seo/aeo-measurement` を取りまとめ経由で
+ * 引いていた。定義元の module を直に指す形へ直した。
+ *
+ * **それでも 124 で、dev の実測 88 より 36 多い。**内訳は数えてある。
+ *
+ *   25 ファイル / 290 KiB … この枝で新しく足した、cron が回す仕事そのもの。
+ *                            運営者が自作すると決めた 3 系統（①公開 HTML の静的
+ *                            点検 ②Search Console の実績取り込み ③AI 検索の
+ *                            引用確認）と、表紙画像の掃除。いずれも定時実行が
+ *                            入口なので、cron から手が届かないという形が無い。
+ *   11 ファイル / 155 KiB … その 25 が引く、元からある module（記事の読み取り
+ *                            モデル、D1 の共通部品など）。新規ではないが、
+ *                            cron から届くのはこの 3 系統が入ってからである。
+ *
+ * つまり「cron の仕事が本当に増えた」場合であり、上の注記が上げてよいと
+ * 書いている場合にあたる。上限は実測 124 / 1280 を基点に、
+ * 2026-09-05 と**同じ余裕の取り方**（ふつうの追加 2 回ぶん＝ +21 ファイル /
+ * +170 KiB）で 145 / 1450 に置いた。総目録の復活（+88 ファイル / +775 KiB）は
+ * 124 からでも 212 / 2055 になるので、依然として必ず超える。
+ *
+ * **上げてよい理由が「赤いから」になっていないことを、上の 2 行の内訳で
+ * 確かめられるようにしてある。**次に赤くなったときも、まずバレルを見ること。
  */
 const MAX_FILES = 145;
-const MAX_KIB = 1300;
+const MAX_KIB = 1450;
 
 describe("Worker の入口が引き込む量", () => {
   it("要件 1: 入口から手が届く範囲が上限を超えていない", () => {
@@ -170,6 +215,10 @@ describe("Worker の入口が引き込む量", () => {
       "入口が src/infrastructure/composition.ts を引いています。\n" +
         "cron に要る口だけを直に組んでください（distribution-scheduler.ts の注記を参照）。",
     ).not.toContain("src/infrastructure/composition.ts");
+    expect(
+      PATHS,
+      "SEO scheduler が画面用の composition を引いています。cron に要る依存だけを直に組んでください。",
+    ).not.toContain("src/presentation/composition.ts");
   });
 
   it("要件 2: 収集cronが承認済み記事の編集用repositoryを引いていない", () => {
@@ -195,6 +244,33 @@ describe("Worker の入口が引き込む量", () => {
     // 解決に失敗して空になれば、上限は必ず満たされる。**測っていないのに緑**を塞ぐ。
     expect(PATHS.length, "入口からたどれたファイルが少なすぎます").toBeGreaterThan(50);
     expect(PATHS).toContain("src/infrastructure/platform/distribution-scheduler.ts");
+    expect(PATHS).toContain("src/infrastructure/platform/seo-assessment-scheduler.ts");
     expect(PATHS).toContain("src/db/schema.ts");
+  });
+
+  it("要件 4: Worker の入口が src/ を直に読んでいない（二重取り込みが戻っていない）", () => {
+    // 入口が読んだ src/ は、画面側の束とは別にもう一度束ねられ、
+    // 同じ TypeScript が 1 つの Worker に 2 部入る。2026-09-05 の実測で
+    // その 2 部目は 82 ファイル 791 KiB あり、gzip 上限 3072 KiB を割っていた。
+    // 上の 3 つの要件は「引き込む量」を見るが、2 部になったことは**量に出ない**。
+    expect(
+      entryImports(),
+      "worker-entry.js が src/ を直に読んでいます。\n" +
+        "定期実行の中身は画面側の束（src/app/internal-cron/route.ts）へ置き、\n" +
+        "入口はそれを叩くだけにしてください。ここで読むと Worker に 2 部入ります。",
+    ).toEqual([]);
+  });
+
+  it("要件 5: 定期実行の内部の道筋が、外から届かないように塞がれている", () => {
+    // route が生えている以上、外から叩けてしまうと掃除・配信・診断を
+    // 誰でも起動できる。塞いでいるのは入口の fetch なので、そこを見る。
+    const entry = readFileSync(join(ROOT, "worker-entry.js"), "utf8");
+    expect(entry, "内部の道筋の名前が入口と route で食い違っています").toContain("/internal-cron");
+    expect(
+      entry,
+      "入口が内部の道筋を 404 で塞いでいません。外から定期実行を起動できます。",
+    ).toMatch(/pathname === INTERNAL_CRON_PATH[\s\S]{0,200}status: 404/);
+    const route = readFileSync(join(ROOT, CRON_ROUTE), "utf8");
+    expect(route, "route が入口の印を確かめていません").toContain("x-internal-cron");
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import {
   ARTICLE_BLOCK_KINDS,
   ARTICLE_BLOCK_LABEL,
@@ -11,8 +11,6 @@ import {
   BLOG_ARTICLE_STATUS_LABEL,
   BLOG_ARTICLE_STATUSES,
   REQUIRED_BLOCKS,
-  TEMPLATE_BLOCK_ORDER,
-  blocksOutOfTemplateOrder,
   type ArticleTemplate,
 } from "@/domain/blogops";
 import {
@@ -20,6 +18,7 @@ import {
   Callout,
   CheckboxGroup,
   Field,
+  Foldable,
   FormResult,
   FormValue,
   Note,
@@ -28,8 +27,10 @@ import {
   ToolForm,
   useDraft,
 } from "@/presentation/ui";
-import { ProseEditor } from "@/presentation/prose";
-import type { ArticleBlockDraft } from "./article-block-draft";
+import { articleBlockDraftKey, keyedArticleBlockDrafts, newArticleBlockDraft, type ArticleBlockDraft } from "./article-block-draft";
+import { ArticleEditorSection } from "./article-editor-section";
+import { ProseOutline } from "@/presentation/prose";
+import styles from "./article-editor.module.css";
 import { ArticleLayoutSuggestionPanel } from "./article-layout-suggestion-panel";
 import { ArticleSaveStatus } from "./article-save-status";
 import { manageBlogArticleAction } from "./blog-article-action";
@@ -194,6 +195,7 @@ export function BlogArticleEditForm({
   blocks,
   tagOptions,
   selectedTagIds,
+  canPublish = false,
 }: {
   readonly articleId: string;
   readonly revision: number;
@@ -207,6 +209,7 @@ export function BlogArticleEditForm({
   readonly blocks: readonly ArticleBlockDraft[];
   readonly tagOptions: readonly { readonly value: string; readonly label: string }[];
   readonly selectedTagIds: readonly string[];
+  readonly canPublish?: boolean;
 }) {
   const [state, action, pending] = useActionState(
     manageBlogArticleAction,
@@ -227,6 +230,7 @@ export function BlogArticleEditForm({
     [authorName, blocks, categorySlug, lead, revision, selectedTagIds, status, template, title],
   );
   const draft = useDraft(initialDraft, { key: `blog-article-draft:${articleId}` });
+  const submitted = useRef<BlogArticleDraftValues | undefined>(undefined);
   const forgetDraft = draft.forget;
   const {
     title: titleValue,
@@ -241,12 +245,13 @@ export function BlogArticleEditForm({
 
   useEffect(() => {
     if (state.status === "done" && state.revision !== undefined) {
-      forgetDraft({ revision: state.revision });
+      forgetDraft({ revision: state.revision }, submitted.current);
     }
   }, [forgetDraft, state.revision, state.status]);
 
-  const setRow = (index: number, patch: Partial<ArticleBlockDraft>) => {
-    draft.update({ rows: rows.map((row, i) => (i === index ? { ...row, ...patch } : row)) });
+  const setRow = (key: string, patch: Partial<ArticleBlockDraft>) => {
+    draft.update((previous) => ({ rows: keyedArticleBlockDrafts(previous.rows).map((row, i) =>
+      articleBlockDraftKey(row, i) === key ? { ...row, ...patch } : row) }));
   };
 
   /**
@@ -255,12 +260,15 @@ export function BlogArticleEditForm({
    * **並び順は配列の順そのもの。**保存時に `position` は配列の添字から振り直される
    * (`createUpdateBlogArticleUseCase`)。だから「動かす」は配列の入れ替えで足りる。
    */
-  const moveRow = (index: number, step: -1 | 1) => {
-    const to = index + step;
-    if (to < 0 || to >= rows.length) return;
-    const next = [...rows];
-    [next[index], next[to]] = [next[to]!, next[index]!];
-    draft.update({ rows: next });
+  const moveRow = (key: string, step: -1 | 1) => {
+    draft.update((previous) => {
+      const next = keyedArticleBlockDrafts(previous.rows);
+      const index = next.findIndex((row, i) => articleBlockDraftKey(row, i) === key);
+      const to = index + step;
+      if (index < 0 || to < 0 || to >= next.length) return {};
+      [next[index], next[to]] = [next[to]!, next[index]!];
+      return { rows: next };
+    });
   };
 
   /*
@@ -271,44 +279,9 @@ export function BlogArticleEditForm({
    * `outOfOrder`) も同じ `blocksOutOfTemplateOrder()` を呼ぶので、**規則は 1 か所**。
    */
   const picked = ARTICLE_TEMPLATES.find((t) => t === templateValue) ?? template;
-  const misordered = blocksOutOfTemplateOrder(picked, rows);
-  const present = new Set(rows.map((row) => row.kind));
-  const liveMissing = REQUIRED_BLOCKS[picked].filter((kind) => !present.has(kind));
-  const orderGuide = TEMPLATE_BLOCK_ORDER[picked]
-    .filter((kind) => present.has(kind))
-    .map((kind) => ARTICLE_BLOCK_LABEL[kind])
-    .join(" → ");
 
   return (
     <>
-      {liveMissing.length > 0 ? (
-        <Callout
-          tone="warn"
-          title="公開に必要な部品が足りません"
-          reason={`${liveMissing.map((k) => ARTICLE_BLOCK_LABEL[k]).join("・")} がまだありません。`}
-        />
-      ) : null}
-
-      <ArticleLayoutSuggestionPanel
-        template={picked}
-        rows={rows}
-        onRowsChange={(nextRows) => draft.update({ rows: nextRows })}
-      />
-
-      {misordered.length > 0 ? (
-        // **「足りない」とは別の枠で、別の言葉で出す。**直し方が違う
-        // (足す / 動かす)。同じ枠にまとめると、運営者は在る部品を探しに行って空振りする。
-        // 公開は止めない (`tone="info"`)。並びは読みやすさの問題で、欠落とは重さが違う。
-        <Callout
-          tone="info"
-          title="部品の並びが版面と違います"
-          reason={
-            `${misordered.map((k) => ARTICLE_BLOCK_LABEL[k]).join("・")} を動かすと揃います。` +
-            `この版面の並びは ${orderGuide} です。`
-          }
-        />
-      ) : null}
-
       {draft.restored ? (
         <Callout
           tone="info"
@@ -324,6 +297,10 @@ export function BlogArticleEditForm({
 
       <ToolForm
         action={action}
+        onSubmit={() => { submitted.current = draft.values; }}
+        onKeyDownCapture={(event) => {
+          if (event.nativeEvent.isComposing || event.keyCode === 229) event.stopPropagation();
+        }}
         toolName="update_blog_article"
         toolDescription="記事の見出し・書き出し・部品・タグ・公開状態を直す"
       >
@@ -334,6 +311,8 @@ export function BlogArticleEditForm({
           value={String(state.revision ?? draft.values.revision)}
         />
 
+        <div inert={pending} className={styles.workspace}>
+        <div className={styles.document}>
         <Field
           label="見出し"
           name="title"
@@ -341,16 +320,6 @@ export function BlogArticleEditForm({
           onValueChange={(value) => draft.update({ title: value })}
           error={state.field === "title" ? state.message : null}
           toolParamDescription="記事の見出し"
-        />
-        <Select
-          label="公開カテゴリ"
-          name="categorySlug"
-          value={categoryValue}
-          onValueChange={(value) => draft.update({ categorySlug: value })}
-          options={categoryOptions}
-          error={state.field === "categorySlug" ? state.message : null}
-          hint="このブログの設計図にある分類だけを選べます。"
-          toolParamDescription="サイト設計図にある記事カテゴリ"
         />
         <TextArea
           label="書き出し"
@@ -360,6 +329,48 @@ export function BlogArticleEditForm({
           rows={3}
           optional
           toolParamDescription="記事の書き出し"
+        />
+        {rows.map((row, index) => (
+          <ArticleEditorSection key={articleBlockDraftKey(row, index)}
+            row={row} index={index} total={rows.length} articleId={articleId}
+            anchor={`block-edit-${articleBlockDraftKey(row, index)}`}
+            onChange={(patch) => setRow(articleBlockDraftKey(row, index), patch)} onMove={(step) => moveRow(articleBlockDraftKey(row, index), step)} />
+        ))}
+        <Select
+          label="章を 1 つ足す"
+          name="__addBlockKind"
+          value=""
+          onValueChange={(kind) => {
+            const selected = ARTICLE_BLOCK_KINDS.find((candidate) => candidate === kind);
+            if (selected === undefined) return;
+            const added = newArticleBlockDraft(selected as ArticleBlockKind);
+            draft.update((previous) => ({ rows: [...keyedArticleBlockDrafts(previous.rows), added] }));
+          }}
+          options={ARTICLE_BLOCK_KINDS.map((value) => ({ value, label: ARTICLE_BLOCK_LABEL[value] }))}
+          placeholder="（選ぶと下に章を追加します）" optional
+          hint="章の中には、＋から文章・画像・比較表などを追加できます。"
+          toolParamDescription="足したい章の種類"
+        />
+        </div>
+        <aside aria-label="記事の構成と設定">
+        <Foldable summary={`章立て（${rows.length}件）`}>
+          <ProseOutline nodes={rows.map((row, index) => ({
+            block: { ...row, id: `edit-${articleBlockDraftKey(row, index)}`, position: index,
+              heading: row.heading.trim() || ARTICLE_BLOCK_LABEL[row.kind] },
+            label: String(index + 1), children: [],
+          }))} />
+        </Foldable>
+        <div className={styles.check}>
+          <ArticleLayoutSuggestionPanel template={picked} rows={rows}
+            onRowsChange={(nextRows) => draft.update({ rows: nextRows })} />
+        </div>
+        <Foldable summary="記事の設定（公開状態・カテゴリ・タグ）">
+        <Select
+          label="公開カテゴリ" name="categorySlug" value={categoryValue}
+          onValueChange={(value) => draft.update({ categorySlug: value })}
+          options={categoryOptions} error={state.field === "categorySlug" ? state.message : null}
+          hint="このブログの設計図にある分類だけを選べます。"
+          toolParamDescription="サイト設計図にある記事カテゴリ"
         />
         <Select
           label="版面"
@@ -378,12 +389,12 @@ export function BlogArticleEditForm({
           name="status"
           value={statusValue}
           onValueChange={(value) => draft.update({ status: value })}
-          options={BLOG_ARTICLE_STATUSES.map((value) => ({
+          options={BLOG_ARTICLE_STATUSES.filter((value) => canPublish || value !== "published" || status === "published").map((value) => ({
             value,
             label: BLOG_ARTICLE_STATUS_LABEL[value],
           }))}
           error={state.field === "blocks" ? state.message : null}
-          hint="部品が足りないまま「公開」にはできません。"
+          hint={canPublish ? "部品が足りないまま「公開」にはできません。" : "公開・公開中の記事の変更には公開権限が必要です。"}
           toolParamDescription="記事の公開状態"
         />
         <Field
@@ -405,93 +416,21 @@ export function BlogArticleEditForm({
           toolParamDescription="この記事に付けるタグ"
         />
 
-        {rows.map((row, index) => (
-          <fieldset key={row.id === "" ? `new-${index}` : row.id}>
-            <legend>
-              {index + 1}. {ARTICLE_BLOCK_LABEL[row.kind]}
-            </legend>
-            {/*
-              動かす道が無いまま「並びが違う」とだけ言うと、運営者は部品を消して
-              入れ直すしかなくなり、そのたびに本文を書き写すことになる。
-              `type="button"` を明示する (form の中の button は既定で送信になる)。
-            */}
-            <Button
-              type="button"
-              tone="quiet"
-              disabled={index === 0}
-              // 同じ文言のボタンが部品の数だけ並ぶ。読み上げでは順に読まれるので、
-              // どの部品のボタンかを名前に入れる。
-              aria-label={`${ARTICLE_BLOCK_LABEL[row.kind]}を 1 つ上へ`}
-              onClick={() => moveRow(index, -1)}
-            >
-              1 つ上へ
-            </Button>
-            <Button
-              type="button"
-              tone="quiet"
-              disabled={index === rows.length - 1}
-              aria-label={`${ARTICLE_BLOCK_LABEL[row.kind]}を 1 つ下へ`}
-              onClick={() => moveRow(index, 1)}
-            >
-              1 つ下へ
-            </Button>
-            <FormValue name={`blocks[${index}].kind`} value={row.kind} />
-            {row.id === "" ? null : (
-              <FormValue name={`blocks[${index}].id`} value={row.id} />
-            )}
-            <Field
-              label="小見出し"
-              name={`blocks[${index}].heading`}
-              value={row.heading}
-              onValueChange={(value) => setRow(index, { heading: value })}
-              optional
-              toolParamDescription={`${ARTICLE_BLOCK_LABEL[row.kind]}の小見出し`}
-            />
-            {/*
-              本文は素の入力欄ではなく `ProseEditor` で書く。
-              記法を知らない人が行頭の記号を消して箇条書きを崩す事故が、
-              断片ごとに欄が分かれていると起こらない。
-              送る値は今までどおり 1 本の文字列なので、保存側は何も変わらない。
-            */}
-            <ProseEditor
-              label="本文"
-              name={`blocks[${index}].body`}
-              value={row.body}
-              onValueChange={(value) => setRow(index, { body: value })}
-              toolParamDescription={`${ARTICLE_BLOCK_LABEL[row.kind]}の本文（拡張 Markdown）`}
-            />
-          </fieldset>
-        ))}
-
-        <Select
-          label="部品を 1 つ足す"
-          name="__addBlockKind"
-          value=""
-          onValueChange={(kind) => {
-            const picked = ARTICLE_BLOCK_KINDS.find((candidate) => candidate === kind);
-            if (picked === undefined) return;
-            draft.update({ rows: [
-              ...rows,
-              { id: "", kind: picked as ArticleBlockKind, heading: "", body: "" },
-            ] });
-          }}
-          options={ARTICLE_BLOCK_KINDS.map((value) => ({
-            value,
-            label: ARTICLE_BLOCK_LABEL[value],
-          }))}
-          placeholder="（選ぶと下に追加されます）"
-          optional
-          toolParamDescription="足したい部品の種類"
-        />
-
-        <ArticleSaveStatus state={state} pending={pending} dirty={draft.dirty} />
-        <Button type="submit" disabled={pending} busy={pending} busyLabel="保存しています…">
-          記事を保存
-        </Button>
+        </Foldable>
+        </aside>
+        </div>
+        <div className={styles.saveBar}>
+          <span>{BLOG_ARTICLE_STATUS_LABEL[BLOG_ARTICLE_STATUSES.find((value) => value === statusValue) ?? "draft"]}</span>
+          <ArticleSaveStatus state={state} pending={pending} dirty={draft.dirty} />
+          <Button type="submit" tone="primary" disabled={pending || (!canPublish && status === "published")} busy={pending} busyLabel="保存しています…">
+            記事を保存
+          </Button>
+        </div>
+        {draft.draftStorageError ? <Note>{draft.draftStorageError}</Note> : null}
         <FormResult state={state} />
       </ToolForm>
 
-      <DeleteConfirm
+      {canPublish || status !== "published" ? <DeleteConfirm
         action={manageBlogArticleAction}
         toolName="delete_blog_article"
         toolDescription="記事を消す（理由が要ります）"
@@ -502,7 +441,7 @@ export function BlogArticleEditForm({
         verb="削除する"
         consequence="通常一覧と読者側から外れます。本文の部品・タグ・評価は残り、削除済み一覧から同じ URL へ戻せます。"
         acknowledgement="削除済み一覧から同じ URL へ戻せることを確かめました"
-      />
+      /> : null}
     </>
   );
 }

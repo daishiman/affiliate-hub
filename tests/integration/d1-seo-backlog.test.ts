@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-SEO13 @types tenant-isolation, boundary */
+/** @tier 2 @req REQ-SEO15 @types tenant-isolation, boundary */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";

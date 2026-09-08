@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { CONTENT_ANGLES, CONTENT_LENGTHS, CTA_TYPES } from "@/domain/authoring";
-import { CHANNEL_CAPABILITIES } from "@/domain/distribution";
+import { CONTENT_ANGLES, CONTENT_LENGTHS, CTA_TYPES } from "@/domain/authoring/content-package";
+import { CHANNEL_CAPABILITIES } from "@/domain/distribution/channel";
 import {
   Button,
   Callout,

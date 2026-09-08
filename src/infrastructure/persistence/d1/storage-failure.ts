@@ -12,6 +12,15 @@ import { domainError, err } from "@/domain/shared";
  * 代わりに例外の**種類の名前だけ**を残し、原因追跡の手がかりにする。
  */
 export function storageFailure(what: string, cause: unknown) {
+  if (isUnavailableArticleImage(cause)) {
+    return err(
+      domainError("VALIDATION_FAILED", "この画像はアップロード未完了か回収済みです。画像を選び直して保存してください。", {
+        field: "blocks",
+        retryable: false,
+        suggestedAction: "本文の画像を選び直してから、もう一度保存してください。",
+      }),
+    );
+  }
   return err(
     domainError("UPSTREAM_UNAVAILABLE", `${what}に失敗しました。時間をおいてもう一度お試しください。`, {
       retryable: true,
@@ -19,6 +28,19 @@ export function storageFailure(what: string, cause: unknown) {
       details: { reason: cause instanceof Error ? cause.name : "unknown" },
     }),
   );
+}
+
+/** ORM のラップ越しに、DB トリガーの定型エラーだけを識別する。本文・SQL の部分一致はしない。 */
+function isUnavailableArticleImage(cause: unknown): boolean {
+  const seen = new Set<Error>();
+  while (cause instanceof Error && !seen.has(cause) && seen.size < 16) {
+    seen.add(cause);
+    if (/^(?:D1_ERROR:\s*)?article_image_unavailable(?::\s*SQLITE_(?:CONSTRAINT(?: \(extended: SQLITE_CONSTRAINT_TRIGGER\))?|ERROR))?$/.test(cause.message.trim())) {
+      return true;
+    }
+    cause = cause.cause;
+  }
+  return false;
 }
 
 /**

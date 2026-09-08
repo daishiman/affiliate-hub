@@ -1,6 +1,6 @@
 /**
  * @tier 2
- * @req REQ-SEO06
+ * @req REQ-SEO08
  * @types equivalence, boundary, fault-injection
  *
  * 系統①（自分のサイトの HTML を読む）を、**本物の workerd の中で**確かめる。

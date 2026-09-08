@@ -14,6 +14,7 @@ export * from "./site-blueprint";
 export * from "./site-draft";
 export * from "./site-host-routing";
 export * from "./site-hostname";
+export * from "./site-public-url";
 export * from "./site-publication";
 export * from "./site-routes";
 export * from "./writing-style";

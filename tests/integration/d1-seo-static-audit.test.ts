@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-SEO10 @types db-concurrency, boundary, tenant-isolation, state-transition */
+/** @tier 2 @req REQ-SEO12 @types db-concurrency, boundary, tenant-isolation, state-transition */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";

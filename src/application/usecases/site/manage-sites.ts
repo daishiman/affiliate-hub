@@ -1,13 +1,6 @@
 import type { EditorialSiteRepositoryPort } from "@/application/ports/site";
-import {
-  REVENUE_MODEL_LABEL,
-  SITE_PATTERN_LABEL,
-  type SiteBlueprint,
-  type SitePattern,
-  type SiteRoute,
-  differentiationGap,
-  routesFor,
-} from "@/domain/authoring";
+import { REVENUE_MODEL_LABEL, SITE_PATTERN_LABEL, differentiationGap, type SiteBlueprint, type SitePattern } from "@/domain/authoring/site-blueprint";
+import { routesFor, type SiteRoute } from "@/domain/authoring/site-routes";
 import {
   type ActorContext,
   type DomainError,

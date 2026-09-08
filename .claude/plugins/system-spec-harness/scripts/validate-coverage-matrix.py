@@ -112,6 +112,20 @@ LEGACY_BACKFILL_PROVENANCE = {
     "mode": "legacy_backfill",
     "writer": "set-qa-design-applications",
 }
+# `qa_refs` から裏付けとして引かれている entry へ後から結線した扉
+# (`attach-qa-design-applications`)。2026-09-04 に足した。
+#
+# **扉ごとに mode を分けてある理由がここに効く。**両方を同じ mode で通していたら、
+# 後で「どちらの扉が広すぎたのか」を正本から読み分けられない。許容一覧を
+# 集合で持ち、writer 名まで含めた完全一致で見るのは元の検査と同じ流儀である。
+SECONDARY_REF_ATTACHMENT_PROVENANCE = {
+    "mode": "secondary_ref_attachment",
+    "writer": "attach-qa-design-applications",
+}
+ALLOWED_DESIGN_APPLICATION_PROVENANCE = (
+    LEGACY_BACKFILL_PROVENANCE,
+    SECONDARY_REF_ATTACHMENT_PROVENANCE,
+)
 
 
 def _current_version_required_sections() -> list[str]:
@@ -171,11 +185,15 @@ def _validate_design_application_provenance(entry: dict) -> list[str]:
     if "design_application_provenance" not in entry:
         return []
     provenance = entry["design_application_provenance"]
-    if provenance == LEGACY_BACKFILL_PROVENANCE:
+    if provenance in ALLOWED_DESIGN_APPLICATION_PROVENANCE:
         return []
+    permitted = " / ".join(
+        f"{allowed['mode']}/{allowed['writer']}"
+        for allowed in ALLOWED_DESIGN_APPLICATION_PROVENANCE
+    )
     return [
         f"qa_log[{qa_id}].design_application_provenance: "
-        "legacy_backfill/set-qa-design-applications の完全一致が必須"
+        f"次のいずれかの完全一致が必須: {permitted}"
     ]
 
 

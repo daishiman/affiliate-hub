@@ -1,0 +1,262 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-blog-metrics-rollup",
+  "scope_digest": "sha256:af2550468a0b74b5be0ec4d9431bb92087b05f4254fb8a5d9e8e2d76a4e34bae",
+  "trace_plan_digest": "sha256:0a5b2fdf7823ec144eacd0718ea14b147927284b5c1c2c96dd0024a2093ab44e",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)",
+  "derivation_rule": "base=[P01,P04,P05,P06,P07,P11]。受入条件本文の語で加算する: テーブル/列/制約/契約/モデル→P02、移行/重複解消/既存→P08、冪等/失敗/性能/権限/audit/削除/期限→P09、手順/説明/文言/画面に出る→P12、配信/公開面/リリース→P13。加算後に昇順で一意化する。",
+  "verdict": "PASS",
+  "entry_count": 9,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "同じ日を二度ロールアップしても行数と値が変わらない",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[0]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "日付 × site_slug (× article_slug) に一意制約があり、同日重複行が作れない",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[1]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "記事の売上合計がブログの売上合計と一致する",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[2]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "記事の PV 合計がブログの PV 合計と一致する",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[3]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "生イベントが 90 日で消えた後もロールアップ済みの日は残る",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[4]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "対象日を指定した再実行で、その日だけが置き換わり他の日が変わらない",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[5]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "集計元の件数が閾値未満の日に、示唆に足りないことを示す列が立つ",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[6]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "ロールアップが失敗しても部分的に書かれた日が残らない",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[7]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A8",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A9",
+      "requirement": "日次実行が定時に起動し、失敗が運用側から見える",
+      "confirmed_sources": [
+        "feature:feat-blog-metrics-rollup#acceptance[8]",
+        "context:feat-blog-metrics-rollup",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A9",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    }
+  ]
+}

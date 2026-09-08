@@ -51,6 +51,14 @@ export type PublishArticleFormState = {
    */
   readonly aiSearch?: readonly AiSearchCheck[];
   /**
+   * 公開時の AI 検索点検を履歴へ残せたか。
+   * 保存失敗でも公開は完了しているため、`status: "failed"` へ潰さず併記する。
+   */
+  readonly aiSearchAuditRecord?: {
+    readonly status: "recorded" | "failed";
+    readonly detail: string;
+  };
+  /**
    * 公開後の IndexNow 通知と、その結末を永続監査へ残せたか。
    *
    * 記事公開の成功とは分ける。通知先または監査の保存先が落ちても記事は

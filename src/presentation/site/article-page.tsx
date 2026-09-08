@@ -1,12 +1,6 @@
 import type { ReactNode } from "react";
-import { articleHref } from "@/application/read-models/published-article";
-import {
-  buildBlogPosting,
-  buildBreadcrumbList,
-  buildFaqPage,
-  buildItemList,
-} from "@/application/seo/structured-data";
-import { articleIndexRoute, type ArticleType } from "@/domain/authoring";
+import type { ArticleType } from "@/domain/authoring/article-structure";
+import { articleIndexRoute } from "@/domain/authoring/site-routes";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import {
   publicArticleBlockOrder,
@@ -16,9 +10,15 @@ import {
 } from "@/presentation/composition";
 import { requestOriginFromNextHeaders } from "@/presentation/http/request-origin";
 import type { PageKind } from "@/presentation/tools/webmcp-policy";
-import { ArticleTableOfContents, ArticleView, Section } from "@/presentation/ui";
+import {
+  ARTICLE_SPEAKABLE_SELECTORS,
+  ArticleTableOfContents,
+  ArticleView,
+  Section,
+} from "@/presentation/ui";
+import { ArticleStructuredData } from "./article-structured-data";
+import { renderCanonicalSectionBody } from "./canonical-section-body";
 import { ShortlistSaveButton } from "./shortlist-buttons";
-import { JsonLdScript } from "./json-ld-script";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
 import { ReaderRatingForm } from "./reader-rating-form";
 import { siteHref, thumbnailContextOf, toArticleCards, toArticleView } from "./view-model";
@@ -49,6 +49,9 @@ const PAGE_KIND_BY_TYPE = {
   guide: "article",
   tool: "article",
 } as const satisfies Readonly<Record<ArticleType, PageKind>>;
+
+// 既存のimport元を保ちつつ、実体は副作用のないleaf moduleに一つだけ置く。
+export { renderCanonicalSectionBody } from "./canonical-section-body";
 
 export async function ArticlePage({
   siteSlug,
@@ -146,6 +149,7 @@ export async function ArticlePage({
     <SiteFrame
       siteSlug={siteSlug}
       currentPath={siteHref(siteSlug, path)}
+      articleSlug={slug}
       trail={[
         /*
           真ん中の一段には**行き先を付ける**（残課題 ah-milz）。
@@ -178,52 +182,14 @@ export async function ArticlePage({
               純関数で作る。値は serializeJsonLd が < を逃がしてから埋める。
             */}
             {origin === null ? null : (
-              <>
-                <JsonLdScript
-                  value={buildBlogPosting(result.value, {
-                    siteName: blueprint.name,
-                    origin,
-                    basePath,
-                  })}
-                />
-                <JsonLdScript
-                  value={buildBreadcrumbList([
-                    { name: blueprint.name, url: `${origin}${basePath}` },
-                    /*
-                      画面のパンくずと**同じ三段**を機械にも渡す。
-                      画面には出ている親を構造化データから落とすと、検索結果と
-                      AI 検索には「トップの直下に記事がある」構造で伝わり、
-                      読者が見ている階層と食い違う。
-                    */
-                    { name: indexRoute.label, url: `${origin}${basePath}${pathPrefix}` },
-                    {
-                      name: result.value.title,
-                      url: `${origin}${basePath}${articleHref(result.value)}`,
-                    },
-                  ])}
-                />
-                {/*
-                  順位記事だけ ItemList を追加で出す。buildItemList は順位が無い記事で
-                  null を返し、null は「出さない」に写す（嘘の順位表を出さない）。
-                */}
-                {(() => {
-                  const itemList = buildItemList(result.value, {
-                    siteName: blueprint.name,
-                    origin,
-                    basePath,
-                  });
-                  return itemList === null ? null : <JsonLdScript value={itemList} />;
-                })()}
-                {/*
-                  よくある質問がある記事だけ FAQPage を出す。読者に見えている
-                  問いと答えを**そのまま**渡す。ここで文言を整えると、画面に無い
-                  答えが検索結果に出る（構造化データの誤用そのもの）。
-                */}
-                {(() => {
-                  const faq = buildFaqPage(result.value);
-                  return faq === null ? null : <JsonLdScript value={faq} />;
-                })()}
-              </>
+              <ArticleStructuredData
+                article={result.value}
+                siteName={blueprint.name}
+                origin={origin}
+                basePath={basePath}
+                parent={{ name: indexRoute.label, url: `${origin}${basePath}${pathPrefix}` }}
+                speakableSelectors={ARTICLE_SPEAKABLE_SELECTORS}
+              />
             )}
             {/*
               操作できる部分（道具の入力欄と結果）。**本文より先に出す。**
@@ -259,8 +225,9 @@ export async function ArticlePage({
                             />
                           ),
                         },
-                  ),
+                    ),
                 }}
+                renderSectionBody={renderCanonicalSectionBody}
               />
             )}
             {sourceArticleId?.ok === true && sourceArticleId.value !== null ? (

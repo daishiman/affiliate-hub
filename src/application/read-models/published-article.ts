@@ -1,6 +1,13 @@
-import { articleIndexRoute, type ArticleType } from "@/domain/authoring";
+import type { ArticleType } from "@/domain/authoring/article-structure";
+import { articleIndexRoute } from "@/domain/authoring/site-routes";
 import { UNKNOWN_ARTICLE_AUTHOR } from "@/domain/blogops/blog-article";
-import { trackingPathForCode } from "@/domain/monetization";
+import { parseProse } from "@/domain/blogops/prose-format";
+import { trackingPathForCode } from "@/domain/monetization/tracking-link";
+import {
+  expressionBlockOfArticleBody,
+  isExpressionArticleBody,
+} from "@/application/adapters/expression-article-block";
+import { proseBodyOfExpression } from "@/application/adapters/expression-prose";
 
 /**
  * 読者に見せる記事の形（読み取り専用）。
@@ -44,11 +51,29 @@ export type PublishedFaqItem = {
   readonly answer: string;
 };
 
+/**
+ * 保存された本文を解釈するための、公開 projection 側の明示的な印。
+ *
+ * `paragraphs` だけの既存 JSON にはこの欄が無い。その場合は記法らしい文字も
+ * 推測で解釈せず、今までどおり文字通りの段落として表示する。
+ */
+export type PublishedFormattedBody = {
+  readonly format: "prose-v1";
+  readonly version: 1;
+  readonly source: string;
+};
+
+function proseV1Body(source: string): PublishedFormattedBody {
+  return { format: "prose-v1", version: 1, source };
+}
+
 /** 記事の 1 節。見出しと本文。 */
 export type PublishedSection = {
   readonly id: string;
   readonly heading: string;
   readonly paragraphs: readonly string[];
+  /** BlogOps が形式付き本文として公開した節だけに付く。 */
+  readonly formattedBody?: PublishedFormattedBody;
   /** この節で述べている主張。無い節（導入など）もある。 */
   readonly claims?: readonly PublishedClaim[];
 };
@@ -191,6 +216,8 @@ export type PublishedArticle = {
   readonly faq?: readonly PublishedFaqItem[];
   /** 商品カード。順位・レビュー・比較のどの型でも使う。 */
   readonly productCards?: readonly PublishedProductCard[];
+  /** 本文中の参照を公開時のworkspaceで解決した商品。本文末尾へ重複掲出しない。 */
+  readonly inlineProductCards?: readonly PublishedProductCard[];
   /** 順位記事のときだけ入る。 */
   readonly ranking?: {
     readonly caption: string;
@@ -303,15 +330,92 @@ export function projectBlogArticle(input: {
     input.authorName.trim() === ""
       ? UNKNOWN_ARTICLE_AUTHOR
       : { slug: `source-${input.id}`, name: input.authorName.trim() };
-  const summary = input.lead.trim() === "" ? input.title : input.lead.trim();
-  const sections =
-    input.blocks.length === 0
-      ? [{ id: `${input.id}-body`, heading: "本文", paragraphs: [summary] }]
-      : input.blocks.map((block) => ({
-          id: block.id,
-          heading: block.heading.trim() === "" ? "本文" : block.heading.trim(),
-          paragraphs: [block.body],
-        }));
+  const leadSummary = input.lead.trim() === "" ? input.title : input.lead.trim();
+  let answerSummary: string | undefined;
+  const keyPoints: string[] = [];
+  const faq: PublishedFaqItem[] = [];
+  const sections: PublishedSection[] = [];
+
+  for (const block of input.blocks) {
+    const expression = expressionBlockOfArticleBody(block.body);
+    if (expression !== null) {
+      switch (expression.kind) {
+        case "answer": {
+          const text = expression.text.trim();
+          if (text !== "" && answerSummary === undefined) answerSummary = text;
+          break;
+        }
+        case "key_points":
+          keyPoints.push(
+            ...expression.items.map((item) => item.trim()).filter((item) => item !== ""),
+          );
+          break;
+        case "faq":
+          faq.push(
+            ...expression.items
+              .map((item) => ({
+                question: item.question.trim(),
+                answer: item.answer.trim(),
+              }))
+              .filter((item) => item.question !== "" && item.answer !== ""),
+          );
+          break;
+        case "summary": {
+          const text = expression.text.trim();
+          if (text !== "") {
+            sections.push({
+              id: block.id,
+              heading: block.heading.trim() === "" ? "本文" : block.heading.trim(),
+              paragraphs: [text],
+              formattedBody: proseV1Body(text),
+            });
+          }
+          break;
+        }
+        default: {
+          const source = proseBodyOfExpression(expression);
+          if (source !== null) sections.push({
+            id: block.id,
+            heading: block.heading.trim() || "本文",
+            paragraphs: [],
+            formattedBody: proseV1Body(source),
+          });
+          break;
+        }
+      }
+      continue;
+    }
+
+    // prefix が在るのに解釈できない carrier は、通常本文へ戻さない。
+    if (isExpressionArticleBody(block.body)) continue;
+
+    // 公開画面が共通部品または導出結果として描く足場は、本文の節と二重にしない。
+    if (
+      block.kind === "disclosure-notice" ||
+      block.kind === "hierarchical-toc" ||
+      (block.kind === "product-card" &&
+        !parseProse(block.body).some((node) => node.kind === "product-card"))
+    ) {
+      continue;
+    }
+
+    sections.push({
+      id: block.id,
+      heading: block.heading.trim() === "" ? "本文" : block.heading.trim(),
+      paragraphs: [block.body],
+      formattedBody: proseV1Body(block.body),
+    });
+  }
+
+  const summary = answerSummary ?? leadSummary;
+  if (input.blocks.length === 0) {
+    sections.push({
+      id: `${input.id}-body`,
+      heading: "本文",
+      paragraphs: [summary],
+      formattedBody: proseV1Body(summary),
+    });
+  }
   return {
     slug: input.slug,
     siteSlug: input.siteSlug,
@@ -327,7 +431,9 @@ export function projectBlogArticle(input: {
       credentials: [],
     },
     disclosureRequired: input.blocks.some((block) => block.kind === "disclosure-notice"),
+    ...(keyPoints.length === 0 ? {} : { keyPoints }),
     sections,
+    ...(faq.length === 0 ? {} : { faq }),
   };
 }
 
@@ -385,4 +491,39 @@ function thumbnailCandidatesOf(
       : { bodyFirstImageUrl: article.bodyFirstImageUrl }),
   };
   return Object.keys(thumbnail).length === 0 ? {} : { thumbnail };
+}
+
+/**
+ * 記事の束から、ブランドと本数を数える。
+ *
+ * **保存先の実装ごとに数え方を書かない。** D1 と見本の両方が同じ関数を通る。
+ * 別々に書くと、開発中の画面と公開後の画面でブランドの並びが変わり、
+ * どちらが正しいのかを人が判断できなくなる。
+ *
+ * --- 数え方の決まり ---
+ * 1 本の記事が同じブランドを何枚出していても 1 本と数える。
+ * 読者が知りたいのは「読める記事が何本あるか」であり、
+ * 商品カードの枚数ではない。
+ *
+ * 並びは「本数の多い順 → 同数なら名前順」。名前順を後ろに置くのは、
+ * 同数のときに並びが実行ごとに変わると、読者が前回見た位置を頼りにできないため。
+ */
+export function tallyBrands(
+  articles: readonly PublishedArticle[],
+): readonly { readonly name: string; readonly articleCount: number }[] {
+  const counts = new Map<string, number>();
+  for (const article of articles) {
+    // 同じ記事の中の重複をここで潰す。潰さないと商品カードの枚数を数えることになる。
+    const brandsInArticle = new Set(
+      (article.productCards ?? [])
+        .map((card) => card.brand.trim())
+        .filter((brand) => brand !== ""),
+    );
+    for (const brand of brandsInArticle) {
+      counts.set(brand, (counts.get(brand) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .map(([name, articleCount]) => ({ name, articleCount }))
+    .sort((a, b) => b.articleCount - a.articleCount || a.name.localeCompare(b.name));
 }

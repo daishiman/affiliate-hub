@@ -1,0 +1,24 @@
+{
+  "current_pointer": ".dev-graph/state/current/feature-package-feat-seo-aeo-gap-closure.json",
+  "feature_package_id": "feature-package/feat-seo-aeo-gap-closure",
+  "notice": "この directory は supersede 済みの旧世代であり、正本ではない。実装要件の正本は superseded_by.published_path 配下の content-addressed generation を読むこと。旧世代は byte-for-byte 不変で保持されるため、この directory の中身を編集して現行世代へ追随させてはならない。さらに世代が進んだ場合は current_pointer から再解決すること。",
+  "published_digest": "sha256:204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646",
+  "schema_version": "1.0.0",
+  "status": "superseded",
+  "superseded_by": {
+    "generation_id": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+    "published_digest": "sha256:2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+    "published_path": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
+    "receipt": ".dev-graph/published/generations/feature-package-feat-seo-aeo-gap-closure/2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298/atomic-promotion-receipt.json"
+  },
+  "superseded_receipts": {
+    "promotion": {
+      "path": ".dev-graph/published/feature-package-feat-seo-aeo-gap-closure/atomic-promotion-receipt.json",
+      "sha256": "sha256:a1016c2133327dca58e10da78267223fec8b5876d5217296b352692d20ed0ed1"
+    },
+    "registration": {
+      "path": ".dev-graph/published/feature-package-feat-seo-aeo-gap-closure/dev-graph-registration-receipt.json",
+      "sha256": "sha256:dc3e9ec40cc19ae19507ff42830f3fc262c71e14bc140ccc94d8e1bcb1b3c345"
+    }
+  }
+}

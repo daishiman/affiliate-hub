@@ -15,12 +15,42 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web`, `qa-maintenance-ops-web-orphan-image-verbatim`, `qa-ops-web-domain-retention-seo-freshness` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
+
+| 項目 | 値 |
+|---|---|
+| セル | maintenance-ops × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-seo-approved-diff-20260906` |
+| 資するゴール (serves_goals) | G1, G2 |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
+
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`maintenance-ops`) を主担当とする **2 件**。全 15 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
+|---|---|---|---|---|
+| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 |
+| `dec-guideline-registry-recheck` | AEO/SEO の判定根拠となるガイドライン参照レジストリ (Google 検索セントラル・schema.org・WAI-ARIA の各仕様ページ) を、どの契機でどれくらいの間隔で再確認するか。 | `opt-fixed-interval-with-staleness-flag` | confirmed | G3 |
+
+- **`decision-test-ci-tooling` の caveat**: これは「不要と判断した」ではなく「走る段が決まるまで保留した」である。次に読む人が前者と読み違えないよう、この一文を消さない —— 【2026-08-20 追記。上の一文は原文のまま残してある】2026-08-20、利用者本人が opt-keep-current を直接選び、状態は保留から確定へ変わった。したがって現在の事実は「現行の 7 種で足りていると確定した」である。上の一文は保留を確定と読み違えさせないために置かれた。いまは逆向き (確定を保留と読み違える) を防ぐ必要が生じたので、同じ目的のために追記した。消去ではなく更新である。 / 保留のあいだ、見た目の回帰は測れない。穴は ah-h57 の検査として固定してあり、本文ではなく検査が現状を知らせる / 見直しの引き金は 2 つ: 3 段を打つ場面が決まったとき / 配色を 1 つ増やす作業が決まったとき。どちらか先に来たほうで再評価する。確定は「もう二度と見直さない」という意味ではない / 足すと決めたときは、同じ回に「いつ打つか」を文書へ書く。場面を書かずに足すと、名前だけの検査になる
+
+- **`dec-guideline-registry-recheck` の caveat**: 間隔の値そのものは本セッションで根拠を持たない。参照先の更新頻度 (schema.org のリリース間隔、検索セントラルの更新履歴) を実際に見てから決めること。根拠なく数値を確定しないこと / 鮮度切れが常態化すると警告が読まれなくなる。表示するのは期限超過の参照だけに絞り、件数が増え続ける場合は間隔ではなく参照の絞り込みを疑うこと / 取得した内容は最終確認時刻と要約の記録に留め、判定ロジックへ直接流し込まないこと。外部コンテンツが判定を動かせる経路を作らない / 取得の失敗を『変更なし』として扱わないこと。失敗と未変更を区別せずに最終確認時刻を更新すると、確認していないものを確認済みとして記録することになる
 
 ## 確定内容 (質疑録)
 
@@ -80,13 +110,23 @@ serves_goals: [G1, G2]
 | 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |
 | 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |
 
-## 意思決定 (decisions)
+### qa-maintenance-ops-web-orphan-image-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
-> **本章を主担当とする論点だけ**を載せる。全 8 件の一覧・候補比較・推奨根拠は [`00-requirements-definition.md`](./00-requirements-definition.md) にある。
+**質問**: maintenance-ops×web: 画像の格納経路について利用者が選んだのはどれか。掃除の運用設計は利用者の発言ではなくこの選択の帰結として導くため、選択を逐語で記録する
 
-| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
-|---|---|---|---|---|
-| `decision-test-ci-tooling` | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 |
+**回答**: [AskUserQuestion「画像添付の経路」への選択]
+「Cloudflare R2 へ直接アップロード（推奨）」
+
+[機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
+
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-ops-web-domain-retention-seo-freshness (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: maintenance-ops×web: 接続したドメインが切れかけていることに、どうやって気づくか。座標データはいつまで持つか。SEO/AEO の評価はいつ作り直すか
+
+**回答**: ドメインは日次で状態を問い直す。Cloudflare のカスタムホスト名の状態と証明書の有効期限を引き、active でなくなった行、または期限が 21 日を切った行を管理画面のブログ一覧とダッシュボードの先頭へ出す。失効してから気づくと読者から見えない時間が生まれるため、検知は失効前に置く。通知は既存の改善要望と同じ画面内の掲示で行い、新しい通知経路を作らない。座標を含む reader_interaction_events は 90 日で削除する。日次ロールアップ (site_daily_metrics / article_daily_metrics) は残すので、90 日より前の傾向は集計値で追える。生データを長く持つほど削除依頼への対応と漏洩時の被害が重くなるため、細かい方を先に捨てる。読者からの削除依頼は reader_key 索引で即時に消し、ロールアップ側は個人に紐づかないので作り直さない。SEO/AEO の評価は、記事の公開・更新の時点と、月次の定期実行の 2 つで作り直す。評価に使う指針の出典は既存の 90 日見直しの仕組み (domain/seo/guideline-reference.ts) に載せ、古い基準で採点し続けない
 
 ## 章の注記 (chapter_notes)
 
@@ -103,6 +143,138 @@ serves_goals: [G1, G2]
 - **注意**: `system-spec/completeness-report.json` の gaps[3] は本項を `recommended_pending_confirmation` として未確定扱いしているが、これは **2026-08-16 時点の評価**である。正本ではすでに `confirmed`。C05 を再評価すれば消える。
 
 - 正本へ入れた理由: 手書きの「意思決定 (decisions)」節に在った章固有の注釈。表と件数は正本から生成するようにしたため節ごと置き換わるが、注釈は正本から導けないので移した(2026-09-08 / ah-lwmf)。
+
+### 章の規範本文を正本から再生成しない理由
+
+同じ現行契約の全文と記録理由は [章の規範本文を正本から再生成しない理由](auth.md) を参照。本章にも同じ契約を適用する。
+
+### この章の要件 ID を書いたのは誰か
+
+この章の OPS-REQ-008〜010 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。
+
+**利用者の逐語（`qa-maintenance-ops-web-orphan-image-verbatim` の answer に原文がある）**
+
+> （該当する逐語は無い）
+
+**そこから AI が導いた受入条件**
+
+- 参照されない R2 実体を検出し、猶予期間を置いてから掃除する経路を持つこと
+- 掃除の対象を、参照状態の正本（D1）との突き合わせだけで決めること
+- 掃除の実行結果を、誤削除が起きたときに追跡できる形で残すこと
+
+**利用者の確認を受けている範囲**
+
+**利用者はこの掃除について一言も述べていない。** 「R2 へ直接アップロード」という選択の帰結として、参照されない実体が残りうるため、運用側の責務として AI が追加した。この運用を持たない（実体を残し続ける）という選択もありうる。
+
+この区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。
+
+- 正本へ入れた理由: C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。掃除の運用は利用者が一言も述べていない AI 追加であり、その事実を章側で名乗らせる。
+
+### Worker経由での画像回収責務（2026-09-06）
+
+画像アップロードを Worker 経由へ統一しても、失敗途中の実体、応答不明の保存、本文から外された画像により孤立オブジェクトは生じうる。したがって `OPS-REQ-008〜010` の検出・猶予・回収・監査は維持する。
+
+この章に先に残る「R2 へ直接アップロードの帰結」という説明は旧決定時の導出履歴であり、現行方式の根拠ではない。現在は `pending` 予約、R2 保存、`ready` 確定の途中失敗を含めて台帳から回収対象を導く。現行承認は `approval-article-image-upload-path-worker-20260906` に記録する。
+
+- 正本へ入れた理由: 直接PUT固有に見えた回収責務を、Worker経由でも生じる状態遷移上の運用責務として再接地する
+
+### 歴史的スナップショット（現行規範ではない、2026-09-06 移送）
+
+> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。
+
+#### 状態の意味 (State semantics)
+
+- `confirmed` / 「確定」は保守運用の**要求判断を収集済み**であることを表し、ジョブ稼働、通知到達、リストア成功または SLO 達成を表さない。
+- 後段の `採否: applied` は運用設計への採用を表し、ジョブ/通知/監査の実装または稼働検証済みを表さない。
+- Analytics 運用の実装状態は `not_started`、検証状態は `unverified`。Queue、Cron、運用通知、MetricRollup、再試行/DLQ は未実装。
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/01` §18.3、`docs/spec/02` §7、`docs/spec/03` §5/§11、および本章の Google SRE 公式出典とする。
+
+
+#### As-Is
+
+- アプリは案件一覧と3つの MCP ツールを同期的に D1 へ接続する PoC。案件一覧は DB 失敗を画面表示できる。
+- Queue consumer / producer、Cron trigger、rollup 再構築、有限再試行、DLQ、Workspace 通知チャネル、AuditLog は存在しない。
+- 計測 DB 障害中の既知リンク転送、ジョブ重複実行、pending→approved 後の過去再集計は未検証。
+- 記事から外された画像の実体を刈り取る仕組みは無く、責務の持ち主も決まっていない。実体は保管領域に残り続ける。
+
+
+#### To-Be
+
+| 要件ID | 目標状態 |
+|---|---|
+| OPS-REQ-001 | Queue/Cron の各ジョブに idempotency key、状態、試行回数、次回時刻、最終エラーを持たせ、無限再試行を禁止する |
+| OPS-REQ-002 | MetricRollup を生イベントから再構築でき、成果状態変更時は対象日を再集計して速報/確定を更新する |
+| OPS-REQ-003 | 投稿失敗/リンク切れ/プログラム終了/成果確定を Workspace 設定のチャネルへ通知し、dedupe key で利用者向け重複を抑止する |
+| OPS-REQ-004 | 計測 DB 障害中も既知リンクの転送を優先し、計測失敗は監査可能な再処理経路へ退避する |
+| OPS-REQ-005 | 公開/削除/リンク差し替え/権限変更/成果修正/エクスポートと、ジョブの成功/失敗/再試行を AuditLog へ残す |
+| OPS-REQ-006 | Connector ごとにレートとコスト上限を強制し、接近時は警告、超過時は外部呼び出しを自動停止する |
+| OPS-REQ-007 | Workspace 単位の記事/商品/リンク/成果エクスポートとテナント分離済み横断検索を提供する |
+| OPS-REQ-008 | 記事から外された画像の実体 (R2 オブジェクト) を刈り取る責務は maintenance-ops が持つ。記事の保存操作の中で即座に物理削除せず、参照されなくなった実体を後から掃除する定期ジョブとして回す |
+| OPS-REQ-009 | 孤児画像の掃除は猶予期間を置く。参照が切れてから猶予を過ぎた実体だけを削除対象にし、下書きの往復や誤操作の取り消しで復帰した画像を消さない |
+| OPS-REQ-010 | 掃除ジョブは他のジョブと同じ job contract に載せる。idempotency key・試行回数・最終エラーを持ち、削除した鍵を AuditLog へ残して、消えた画像を後から追跡できるようにする |
+
+
+#### Delta
+
+1. まず job contract、idempotency key、AuditLog を共通化し、その上に Queue/Cron を置く。
+2. リンク転送と計測書き込みを分離し、通知はジョブ状態から派生させて各コネクタの個別判定を減らす。
+3. rollup は加算だけでなく再構築可能にし、重複実行で値が増えないことを保証する。
+4. 記事画像の刈り取りを、記事保存の同期処理ではなく Cron ジョブとして置く。判定に要る参照状態は database が持ち、maintenance-ops はその判定結果を読んで掃除を回す側に立つ。責務の分け方を明示するのは、以前この掃除の持ち主が居らず、実体が R2 に残り続ける状態だったためである。
+
+
+#### Dependencies
+
+`Analytics event contract` → `job / idempotency / AuditLog contract` → `Queue / Cron` → `rollup / retry / DLQ` → `notification adapters` → `Runbook / alert`
+
+- tenant 分離と同意実装の完了前に本番イベントを集計しない。通知は Queue 処理と結合させず、通知事業者の障害が本体ジョブを失敗させない。
+
+記事画像の刈り取りの従属:
+
+`database の画像参照状態 (どの記事がどの鍵を参照しているか)` → `孤児判定と猶予期間` → `掃除 Cron ジョブ` → `R2 の削除` → `AuditLog`
+
+- 孤児かどうかの判定根拠 (参照状態の保持) は database の正本に従属する。maintenance-ops は参照状態を自前で数え直さない。
+- 鍵の並びと保管先は infrastructure の正本に従属する。
+
+
+#### Acceptance evidence
+
+| 受入ID | シナリオ | PASS の証跡 |
+|---|---|---|
+| OPS-ACC-001 | 計測 D1 を強制失敗させて既知 `/go/{id}` へアクセス | リンク先への `3xx` を維持し、計測失敗を request ID / tracking link ID 付きで再処理経路へ記録。HTTP トレースとキュー証跡を保存 |
+| OPS-ACC-002 | テスト設定 `max_attempts=3` で同じ job を3回失敗 | attempt 1〜3 のみ実行し、4回目を実行せず DLQ/要手動対応へ移行。各試行の job ID / attempt / error / next_at と監査レコードを保存 |
+| OPS-ACC-003 | 同一 Cron 区間を2回実行し、同一成果を再取込後に `approval_status: pending→approved`、`payment_status: unpaid→paid` へ更新 | イベント・rollup・通知が重複せず、対象日の発生見込・承認報酬・支払報酬だけが再計算される。DB 差分と job 履歴を保存 |
+| OPS-ACC-004 | 通知事業者を障害化した状態で投稿ジョブを実行 | 本体ジョブの結果は保持し、通知だけを再試行。復旧後は dedupe key 単位で1件のみ配信し、ジョブ/通知/監査の相関を示す |
+| OPS-ACC-005 | 監査必須の6操作とジョブ失敗/再試行を実行 | actorまたは service、workspace、action、target、result、request/job ID、timestamp が全件にあり、通常の業務ロールから改変不可。監査クエリ結果を保存 |
+| OPS-ACC-006 | コスト上限前後で Connector を呼び出す | 接近時に1回の警告、超過後は外部通信なしで自動停止。カウンタ、通信トレース、監査記録を保存 |
+| OPS-ACC-007 | Workspace A の検索とエクスポートに B と同名データを混在 | A のレコードだけが含まれ、マニフェストの件数/チェックサムと元データが一致。tenant 越境テストと出力証跡を保存 |
+| OPS-ACC-008 | 記事から画像を外して保存し、掃除ジョブを猶予期間の前後で実行する | 猶予前の実行では R2 の実体が残り、猶予後の実行で削除される。記事保存の応答時間に削除処理が含まれないことを併せて記録し、両時点の R2 オブジェクト一覧を保存 |
+| OPS-ACC-009 | 画像を外した記事を、猶予期間内に元へ戻して保存し、その後に掃除ジョブを実行する | 実体が削除されておらず、記事が画像を表示できる。取り消し操作を含む E2E と R2 オブジェクト一覧を保存 |
+| OPS-ACC-010 | 同一の掃除ジョブを同じ区間で 2 回実行する | 2 回目で追加の削除が発生せず、AuditLog に削除の重複記録がない。削除した鍵と workspace が AuditLog から引けることを、監査クエリの結果として保存 |
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: 既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。
+
+### To-Be（規範契約）
+
+> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。
+
+画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。
+
+| 要件ID | 目標状態 |
+|---|---|
+| OPS-REQ-001 | Queue/Cron の各ジョブに idempotency key、状態、試行回数、次回時刻、最終エラーを持たせ、無限再試行を禁止する |
+| OPS-REQ-002 | MetricRollup を生イベントから再構築でき、成果状態変更時は対象日を再集計して速報/確定を更新する |
+| OPS-REQ-003 | 投稿失敗/リンク切れ/プログラム終了/成果確定を Workspace 設定のチャネルへ通知し、dedupe key で利用者向け重複を抑止する |
+| OPS-REQ-004 | 計測 DB 障害中も既知リンクの転送を優先し、計測失敗は監査可能な再処理経路へ退避する |
+| OPS-REQ-005 | 公開/削除/リンク差し替え/権限変更/成果修正/エクスポートと、ジョブの成功/失敗/再試行を AuditLog へ残す |
+| OPS-REQ-006 | Connector ごとにレートとコスト上限を強制し、接近時は警告、超過時は外部呼び出しを自動停止する |
+| OPS-REQ-007 | Workspace 単位の記事/商品/リンク/成果エクスポートとテナント分離済み横断検索を提供する |
+| OPS-REQ-008 | 記事から外された画像の実体 (R2 オブジェクト) を刈り取る責務は maintenance-ops が持つ。記事の保存操作の中で即座に物理削除せず、参照されなくなった実体を後から掃除する定期ジョブとして回す |
+| OPS-REQ-009 | 孤児画像の猶予は一度も本文参照されていないものを 24 時間、本文から外れたものを保存時の detachment timestamp から 30 日とする。台帳の現在参照と構造化 JSON の復号した画像 ID を検査し、deleting（削除 claim）への遷移前に保護する。deleting（削除 claim）への遷移後は復帰させない。 |
+| OPS-REQ-010 | 掃除ジョブは定期実行で、台帳 500 件の公平な取得と article-images/ prefix 100 件の cursor/version CAS 走査を行う。deleting（削除 claim）→R2 delete→deleted 墓標の失敗は再実行可能にし、削除結果を監査記録へ残す。失敗応答を理由とした即時補償 delete は行わず、遅延 put による再出現も再回収する。 |
+
+- 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
 ## 上流指針 (doctrine anchor)
 
@@ -177,79 +349,9 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
 | google-sre | 2017 | Google (sre.google) | https://sre.google/sre-book/table-of-contents/ | 2026-08-19T15:30:40Z | 2026-08-19T15:30:40Z |
-| vitest | 5.0.0 | Vitest (vitest.dev) | https://vitest.dev/guide/ | 2026-09-03T13:09:07Z | 2026-09-03T13:09:07Z |
+| vitest | 5.0.0 | Vitest (vitest.dev) | https://vitest.dev/guide/ | 2026-09-03T23:21:10Z | 2026-09-03T23:21:10Z |
 | github-actions | free-pro-team@latest | GitHub (docs.github.com) | https://docs.github.com/en/actions | 2026-08-22T15:05:16Z | 2026-08-22T15:05:16Z |
 | stryker-mutator | 10.0.0 | Stryker Mutator (stryker-mutator.io) | https://stryker-mutator.io/docs/stryker-js/introduction/ | 2026-08-22T21:18:38Z | 2026-08-22T21:19:48Z |
-
-## 状態の意味 (State semantics)
-
-- `confirmed` / 「確定」は保守運用の**要求判断を収集済み**であることを表し、ジョブ稼働、通知到達、リストア成功または SLO 達成を表さない。
-- 後段の `採否: applied` は運用設計への採用を表し、ジョブ/通知/監査の実装または稼働検証済みを表さない。
-- Analytics 運用の実装状態は `not_started`、検証状態は `unverified`。Queue、Cron、運用通知、MetricRollup、再試行/DLQ は未実装。
-- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/01` §18.3、`docs/spec/02` §7、`docs/spec/03` §5/§11、および本章の Google SRE 公式出典とする。
-
-## As-Is
-
-- アプリは案件一覧と3つの MCP ツールを同期的に D1 へ接続する PoC。案件一覧は DB 失敗を画面表示できる。
-- Queue consumer / producer、Cron trigger、rollup 再構築、有限再試行、DLQ、Workspace 通知チャネル、AuditLog は存在しない。
-- 計測 DB 障害中の既知リンク転送、ジョブ重複実行、pending→approved 後の過去再集計は未検証。
-
-## To-Be
-
-| 要件ID | 目標状態 |
-|---|---|
-| OPS-REQ-001 | Queue/Cron の各ジョブに idempotency key、状態、試行回数、次回時刻、最終エラーを持たせ、無限再試行を禁止する |
-| OPS-REQ-002 | MetricRollup を生イベントから再構築でき、成果状態変更時は対象日を再集計して速報/確定を更新する |
-| OPS-REQ-003 | 投稿失敗/リンク切れ/プログラム終了/成果確定を Workspace 設定のチャネルへ通知し、dedupe key で利用者向け重複を抑止する |
-| OPS-REQ-004 | 計測 DB 障害中も既知リンクの転送を優先し、計測失敗は監査可能な再処理経路へ退避する |
-| OPS-REQ-005 | 公開/削除/リンク差し替え/権限変更/成果修正/エクスポートと、ジョブの成功/失敗/再試行を AuditLog へ残す |
-| OPS-REQ-006 | Connector ごとにレートとコスト上限を強制し、接近時は警告、超過時は外部呼び出しを自動停止する |
-| OPS-REQ-007 | Workspace 単位の記事/商品/リンク/成果エクスポートとテナント分離済み横断検索を提供する |
-
-## Delta
-
-1. まず job contract、idempotency key、AuditLog を共通化し、その上に Queue/Cron を置く。
-2. リンク転送と計測書き込みを分離し、通知はジョブ状態から派生させて各コネクタの個別判定を減らす。
-3. rollup は加算だけでなく再構築可能にし、重複実行で値が増えないことを保証する。
-
-## Dependencies
-
-`Analytics event contract` → `job / idempotency / AuditLog contract` → `Queue / Cron` → `rollup / retry / DLQ` → `notification adapters` → `Runbook / alert`
-
-- tenant 分離と同意実装の完了前に本番イベントを集計しない。通知は Queue 処理と結合させず、通知事業者の障害が本体ジョブを失敗させない。
-
-## Acceptance evidence
-
-| 受入ID | シナリオ | PASS の証跡 |
-|---|---|---|
-| OPS-ACC-001 | 計測 D1 を強制失敗させて既知 `/go/{id}` へアクセス | リンク先への `3xx` を維持し、計測失敗を request ID / tracking link ID 付きで再処理経路へ記録。HTTP トレースとキュー証跡を保存 |
-| OPS-ACC-002 | テスト設定 `max_attempts=3` で同じ job を3回失敗 | attempt 1〜3 のみ実行し、4回目を実行せず DLQ/要手動対応へ移行。各試行の job ID / attempt / error / next_at と監査レコードを保存 |
-| OPS-ACC-003 | 同一 Cron 区間を2回実行し、同一成果を再取込後に `approval_status: pending→approved`、`payment_status: unpaid→paid` へ更新 | イベント・rollup・通知が重複せず、対象日の発生見込・承認報酬・支払報酬だけが再計算される。DB 差分と job 履歴を保存 |
-| OPS-ACC-004 | 通知事業者を障害化した状態で投稿ジョブを実行 | 本体ジョブの結果は保持し、通知だけを再試行。復旧後は dedupe key 単位で1件のみ配信し、ジョブ/通知/監査の相関を示す |
-| OPS-ACC-005 | 監査必須の6操作とジョブ失敗/再試行を実行 | actorまたは service、workspace、action、target、result、request/job ID、timestamp が全件にあり、通常の業務ロールから改変不可。監査クエリ結果を保存 |
-| OPS-ACC-006 | コスト上限前後で Connector を呼び出す | 接近時に1回の警告、超過後は外部通信なしで自動停止。カウンタ、通信トレース、監査記録を保存 |
-| OPS-ACC-007 | Workspace A の検索とエクスポートに B と同名データを混在 | A のレコードだけが含まれ、マニフェストの件数/チェックサムと元データが一致。tenant 越境テストと出力証跡を保存 |
-
-## 確定セルの記録 (正本 spec-state.json)
-
-> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.maintenance-ops.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | maintenance-ops × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-seo-approved-diff-20260906` |
-| 資するゴール (serves_goals) | G1, G2 |
-| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | user-dialogue |
-| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
-| 出典 節 | — |
-| 出典 sha256 | — |
-| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |
-
-### 本節を「転記」に留めた理由
-
-C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。本章の出典 §2「数字を偽らないための規律」は、まさにこの種の取り違え (対象を確かめずに数を揃える) を禁じている側である。
 
 ## 章にしか無い記述 (正本へ未接続)
 
@@ -493,19 +595,3 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 - `| Web (web) | 確定 | 確定質疑: qa-ops-web-aeo-auto-apply-v6。裏付け質疑 (`qa_refs`): `qa-neutral-application-mode-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
 
 - 正本へ入れた理由: 章の生成節の内側へ手で書かれており、compile のたび消えていた散文。内容は正本から導けないため、消えようのない場所へ移した (2026-09-08 / ah-lwmf)。
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 11 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `| Web (web) | 確定 | 確定質疑: qa-ops-web-aeo-auto-apply-v6。裏付け質疑 (`qa_refs`): `qa-neutral-application-mode-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `| Web (web) | 確定 | 確定質疑: qa-ops-web-aeo-auto-apply-v6。裏付け質疑 (`qa_refs`): `qa-neutral-application-mode-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `> 正本 `decisions[]` の全 7 件。**7 件とも `status: confirmed`** で、いずれも利用者本人の `user_decision` を伴う。本章を主担当とする論点を太字で示す。`
-- `| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール | 主担当章 |`
-- `| `decision-auth-method` | マルチテナントSaaSの利用者認証 (auth) をどの方式で実装するか | `opt-better-auth` | confirmed | G1 | auth |`
-- `| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 | database |`
-- `| `decision-redirect-measurement-async` | リダイレクトの計測（ClickEvent の記録）を、転送を止めずにどう書くか | `opt-waituntil-fallback-cron` | confirmed | G2, G1 | infrastructure |`
-- `| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 | backend |`
-- `| `decision-ui-theme-implementation` | 配色と明暗の 2 軸を、どの技術で実装するか | `opt-css-light-dark` | confirmed | G1 | frontend |`
-- `| **`decision-test-ci-tooling`** | テストと CI の道具立てを、いまの構成のまま進めるか変えるか | `opt-keep-current` | confirmed | G1, G2 | **maintenance-ops** |`
-- `| `decision-screen-priority` | ui-ux×web の画面で、記事の成績比較と回復すべき業務状態のどちらを先頭に置くか | `opt-performance-first` | confirmed | G1, G2 | ui-ux |`

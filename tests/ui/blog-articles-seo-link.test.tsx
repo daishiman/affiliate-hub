@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-SEO13 @types scenario, boundary */
+/** @tier 2 @req REQ-SEO15 @types scenario, boundary */
 // @vitest-environment jsdom
 import type { ReactNode } from "react";
 import { cleanup, render, screen, within } from "@testing-library/react";

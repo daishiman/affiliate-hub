@@ -12,7 +12,7 @@ iteration: null
 title: "管理画面 UI/UX 全面改善"
 owners: ["daishiman"]
 created_at: "2026-08-21T12:00:00Z"
-updated_at: "2026-08-23T12:00:00Z"
+updated_at: "2026-09-07T16:12:05.419068Z"
 status: "active"
 depends_on: ["feat-ui-foundation","feat-distribution-hub"]
 related_nodes: []
@@ -31,21 +31,21 @@ template_id: "feature"
 template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
-confirmation_evidence: {"evaluated_digest":"5cab94d5f73d9d3b77cac74a61874e1be9377ab15e3ac08849cc84b1f75ab61d","evaluator":"system-spec-harness/audits-C07-C06-C08-double-pass","evidence_ref":"eval-log/system-spec-harness/completeness-exception-20260821.md"}
-source_lineage: {"imported_at":"2026-08-21T12:00:00Z","origin_kind":"generated","source_digest":"5cab94d5f73d9d3b77cac74a61874e1be9377ab15e3ac08849cc84b1f75ab61d","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+confirmation_evidence: {"evaluated_digest":"c3b797019d4e6a44859a1e502255b51ee723bdc471d184e6f5b3a625728c7089","evaluator":"system-spec-harness/aggregate-completeness (C05, forks C06/C07/C08 resolved)","evidence_ref":"system-spec/completeness-report.json"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "ユーザー要望の macro want を C14 分解で feature 化 (単一用途画面分割/基本管理/密度最適化/サイドバー/投稿反映/マルチSNS/複数ブログ/共通コンポーネント)"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-uiux-overhaul.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: "ah-6hc"
+beads_linkage: {"bd_issue_id":"ah-6hc","github_mirror":null,"linked_at":"2026-08-21T12:00:00Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
-pull_request_linkages: [{"number":23,"url":"https://github.com/daishiman/affiliate-hub/pull/23","base":"dev","head":"devgraph/feat-uiux-overhaul","draft":true}]
+pull_request_linkages: [{"base_branch":"dev","closing_reference_verified":false,"head_branch":"devgraph/feat-uiux-overhaul","linked_at":"2026-08-23T11:34:01Z","merge_commit_sha":"eccadc2c44c598119c3dfa18bb65e202ddef4296","merged_at":"2026-08-23T19:41:21Z","pr_number":23,"repo":"daishiman/affiliate-hub","state":"merged","url":"https://github.com/daishiman/affiliate-hub/pull/23"}]
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"],"policy":"reconciliation-gate","reconciled_at":null,"source":"acceptance-reconciliation","status":"open"}
-acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:dea400700dc55039866025d716cbb59d8670c9b3e17783ade63158a86f824737","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
 implementation_readiness: {"checked_at":"2026-08-21T12:00:00Z","missing_sections":[],"status":"complete"}
+acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:4bc992861c8e2e7d572b5a21db5ca76cd4da33dfa1297014a57539ed9dda8a84","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
 ---
 
 # 目的

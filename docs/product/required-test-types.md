@@ -264,13 +264,15 @@
 | REQ-SEO04 | has-input | — |
 | REQ-SEO05 | has-input | — |
 | REQ-SEO06 | has-input | — |
-| REQ-SEO07 | has-input, has-secret | — |
-| REQ-SEO08 | has-input, has-secret | — |
-| REQ-SEO09 | has-input | — |
-| REQ-SEO10 | has-input, has-permission | — |
+| REQ-SEO07 | has-input, has-tenant, has-screen | — |
+| REQ-SEO08 | has-input | — |
+| REQ-SEO09 | has-input, has-secret | — |
+| REQ-SEO10 | has-input, has-secret | — |
 | REQ-SEO11 | has-input | — |
-| REQ-SEO12 | has-input, has-state, has-permission | — |
-| REQ-SEO13 | has-state, has-permission | — |
+| REQ-SEO12 | has-input, has-permission | — |
+| REQ-SEO13 | has-input | — |
+| REQ-SEO14 | has-input, has-state, has-permission | — |
+| REQ-SEO15 | has-state, has-permission | — |
 | REQ-BLOG01 | has-input | — |
 | REQ-BLOG02 | has-input | — |
 | REQ-BLOG03 | has-input | — |
@@ -291,6 +293,10 @@
 | REQ-BOPS12 | has-enumerated-input, has-screen | — |
 | REQ-BOPS13 | has-code-placement-rule | — |
 | REQ-BOPS14 | has-tenant, has-screen, has-code-placement-rule | — |
+| REQ-BOPC01 | has-input, has-state, has-permission, has-tenant, has-external, has-screen, has-db-table, has-recorded-operation | — |
+| REQ-BOPC02 | has-input, has-enumerated-input, has-tenant | — |
+| REQ-BOPC03 | has-input, has-enumerated-input, has-permission, has-tenant, has-screen, has-db-table | — |
+| REQ-BOPC04 | has-input, has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation | — |
 | REQ-WA01 | has-input | — |
 | REQ-WA02 | has-input, has-permission | — |
 | REQ-WB01 | has-input, has-permission | — |

@@ -7,6 +7,8 @@ import { describe, expect, it } from "vitest";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import { auditArticleForAiSearch } from "@/application/seo/ai-search-audit";
 
+const AUDIT_NOW = new Date("2026-08-20T12:00:00.000Z");
+
 /** 全項目が通る記事。ここから 1 か所ずつ崩して、落ち方を確かめる。 */
 const goodArticle: PublishedArticle = {
   slug: "laptops",
@@ -45,14 +47,14 @@ const goodArticle: PublishedArticle = {
 };
 
 function checkOf(article: PublishedArticle, name: string): boolean {
-  const found = auditArticleForAiSearch(article).find((c) => c.check.includes(name));
+  const found = auditArticleForAiSearch(article, AUDIT_NOW).find((c) => c.check.includes(name));
   if (found === undefined) throw new Error(`点検項目「${name}」がありません`);
   return found.ok;
 }
 
 describe("AI 検索への備えの点検", () => {
   it("構造の揃った記事は全項目が ok", () => {
-    for (const check of auditArticleForAiSearch(goodArticle)) {
+    for (const check of auditArticleForAiSearch(goodArticle, AUDIT_NOW)) {
       expect(check.ok, check.check).toBe(true);
     }
   });
@@ -102,6 +104,11 @@ describe("AI 検索への備えの点検", () => {
     expect(checkOf({ ...goodArticle, updatedAt: "" }, "更新日")).toBe(false);
   });
 
+  it("更新から 180 日は通り、181 日では鮮度不足として落ちる", () => {
+    expect(checkOf({ ...goodArticle, updatedAt: "2026-02-21" }, "更新日")).toBe(true);
+    expect(checkOf({ ...goodArticle, updatedAt: "2026-02-20" }, "更新日")).toBe(false);
+  });
+
   it("著者の bio が空なら落ちる", () => {
     const broken = { ...goodArticle, author: { ...goodArticle.author, bio: "  " } };
     expect(checkOf(broken, "著者")).toBe(false);
@@ -137,7 +144,7 @@ describe("AI 検索への備えの点検", () => {
   });
 
   it("全項目に hint がある（落ちた理由を人に調べさせない）", () => {
-    for (const check of auditArticleForAiSearch(goodArticle)) {
+    for (const check of auditArticleForAiSearch(goodArticle, AUDIT_NOW)) {
       expect(check.hint.length).toBeGreaterThan(0);
     }
   });

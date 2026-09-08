@@ -111,6 +111,33 @@ function depsWith(seed: Partial<Store> = {}, publicArticles?: readonly ArticleSu
   };
 }
 
+describe("記事編集と公開の権限分離", () => {
+  it.each(["draft", "published"] as const)("書き手だけでは%s記事を公開できない", async (status) => {
+    const target = article({ id: "permission-article", status });
+    const { deps } = depsWith({ articles: [{ article: target, blocks: [], tagIds: [] }] });
+    const result = await createUpdateBlogArticleUseCase(deps).execute(aWriter(), { articleId: target.id, status: "published" });
+    expect(!result.ok && result.error.code).toBe("FORBIDDEN");
+  });
+  it("書き手だけでは公開済み記事を下書きへ戻せない", async () => {
+    const target = article({ id: "permission-article", status: "published" });
+    const { deps } = depsWith({ articles: [{ article: target, blocks: [], tagIds: [] }] });
+    const result = await createUpdateBlogArticleUseCase(deps).execute(aWriter(), { articleId: target.id, status: "draft" });
+    expect(!result.ok && result.error.code).toBe("FORBIDDEN");
+  });
+  it("書き手だけでは公開記事を削除できない", async () => {
+    const target = article({ id: "permission-article", status: "published" });
+    const { deps } = depsWith({ articles: [{ article: target, blocks: [], tagIds: [] }] });
+    const result = await createDeleteBlogArticleUseCase(deps).execute(aWriter(), { articleId: target.id, reason: "整理" });
+    expect(!result.ok && result.error.code).toBe("FORBIDDEN");
+  });
+  it("書き手だけでは公開状態の削除済み記事を復元できない", async () => {
+    const target = article({ id: "permission-article", status: "published" });
+    const { deps } = depsWith({ deletedArticles: [{ article: target, blocks: [], tagIds: [], deletedAt: NOW }] });
+    const result = await createRestoreBlogArticleUseCase(deps).execute(aWriter(), { articleId: target.id });
+    expect(!result.ok && result.error.code).toBe("FORBIDDEN");
+  });
+});
+
 
 describe("サイト網の一覧", () => {
   it("権限の無い人には出さない", async () => {
@@ -749,7 +776,7 @@ describe("記事の作成・変更・削除", () => {
         },
       ],
     });
-    const r = await createUpdateBlogArticleUseCase(deps).execute(aWriter(), {
+    const r = await createUpdateBlogArticleUseCase(deps).execute(anOwner(), {
       articleId: "a1",
       status: "published",
     });
@@ -764,7 +791,7 @@ describe("記事の作成・変更・削除", () => {
     const { deps, repo } = depsWith({
       articles: [{ article: article({ id: "a1", template: "T3" }), blocks: [], tagIds: [] }],
     });
-    const r = await createUpdateBlogArticleUseCase(deps).execute(aWriter(), {
+    const r = await createUpdateBlogArticleUseCase(deps).execute(anOwner(), {
       articleId: "a1",
       status: "published",
       categorySlug: "chairs",
@@ -792,7 +819,7 @@ describe("記事の作成・変更・削除", () => {
         },
       ],
     });
-    const r = await createUpdateBlogArticleUseCase(deps).execute(aWriter(), {
+    const r = await createUpdateBlogArticleUseCase(deps).execute(anOwner(), {
       articleId: "a1",
       title: "題名を直した",
     });

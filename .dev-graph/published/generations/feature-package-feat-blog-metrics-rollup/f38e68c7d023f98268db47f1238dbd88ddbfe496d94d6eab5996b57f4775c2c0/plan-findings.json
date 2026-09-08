@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-blog-metrics-rollup",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "全13 phaseの purpose/background/produced は feature context の purpose・goal・scope_in・scope_out・depends_on と矛盾せず、スコープ外記述もP01〜P13で一貫している。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#Inner goal-seek execution loop",
+        "task-specs/phase-02-architecture.md#目的",
+        "task-specs/phase-05-implementation.md#目的",
+        "task-specs/phase-08-refactoring-migration.md#スコープ外"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "前回FAILの2点(受入8の原子性、受入5の90日保持独立性)は今回の修正で解消し、受入9件すべてがP01/P02/P04/P05/P07/P09へ具体的に写像されている。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-02-architecture.md#背景",
+        "task-specs/phase-04-test-design.md#テスト戦略",
+        "task-specs/phase-04-test-design.md#背景",
+        "task-specs/phase-05-implementation.md#目的",
+        "task-specs/phase-05-implementation.md#背景",
+        "task-specs/phase-09-quality-assurance.md#成果物",
+        "task-specs/phase-09-quality-assurance.md#テスト戦略",
+        "task-specs/phase-07-acceptance.md#成果物",
+        "workstream-inventory.json#acceptance"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "全phaseのWrite scope/touchesはfeature contextのresource_scope配下(docs/spec/feat-blog-metrics-rollup/, src/domain/analytics, src/application/analytics, src/infrastructure/scheduled, src/db/schema.ts, drizzle/, wrangler.jsonc, tests/, system-spec/)に包含され、逸脱や過大なwrite scopeは無い。",
+      "evidence": [
+        "workstream-inventory.json#write_scope",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-08-refactoring-migration.md#成果物",
+        "task-specs/phase-13-release-deploy.md#成果物"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.jsonの13ノードは単一始点(P01)・単一終点(P13)を持つ非循環な依存関係を構成し、分岐(P08/P11/P12)も合流先で回収され実行順として成立する。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "task-graph.json#edges"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-blog-metrics-rollup"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0\",\n  \"feature_package_id\": \"feature-package/feat-blog-metrics-rollup\",\n  \"parent_feature\": \"feat-blog-metrics-rollup\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}\n",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "51d4892e07a79a7532e35f2537c7ace60aa5f0cf0e26bd95d1cabf8f41f9296f"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "f157cd7f9b86936dce4df270828f6a796f245029ed016da30d30b0d5ef94d596"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "372f986e4d60a60be4dee68e28e81047c3a931ee1d79805e1bc87b66d2036e96"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "4df523482be5d375a19fc5a80aa548d2dcd69b1f0e2d351d88f6678570b73053"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "942e172d64cc76a2c34e5e80ff676f905640ef09b858844d27c82a0d60bbed95"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "cbc12305ad1bb83077d525a92e4f224e751b496744f48257bebd8183f5f09170"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "6ce5b7ff446aa2b43f3a589b8223304842e236563475a2ed6708ff7957a0a020"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "c24579ead7de91e3b50e561db15c454a85b260c9b6bba44f09fce759d5faf7e2"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "5079d8826e44a2074bd9a3fee7b6f5ac3028f4aa830e26f69f2b603997016c1f"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "ce8db6d6f71b37620dad6818ac87cf51719b8069a74bbca95e2bbf7c11a7e868"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "421cba3ea7d14a59770aa2567fa70dc552bcd3ae3fcdf66a2d1a7483663e21f1"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "98c9c9b4d9803e11a619c1a81a51d2f36e41e58c4d09063292fb764776036a40"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "2aabb2e5ecfffd2229128ba0d95612417fa958f6a3d3658daea813e312af7988"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "92869f42c928cc15e29f08472ae9652cfb88403be2d89a2e965295d1ff987315"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "169a6b5cb7096df00a45ec6ed3c834ac2309f1773d9c03c1cc9adbf372751f14"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "f538fbdc2c0c51e2c81d0c34a4e371d43df31f90dcd1139ba934cd631ebaec60"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "7b3948bf730a647cca45dc7211e2c722782d4adbc48bdb30ac8f472b9d8d841b"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "cd91a285023f59ab6e182eb5fa8d0dde7637f686d0ca9a24fd4199dafa480ac8"
+    }
+  ],
+  "staleness_rule": "evaluated_inputs の path 集合と各 sha256 が promotion 時点の staging bytes と完全一致しない場合、本 findings は失効とみなし再評価する。",
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "C2",
+      "observation": "受入8(原子性)がP02の原子性契約・P04の例外注入結合テスト・P05の単一transaction実装・P09の失敗注入検査に写像された。 — 前回のhigh finding「受入8がどのphaseにも写像されていない」は、P02 idempotency-contract.mdへの「削除と挿入を同一transactionに閉じ、失敗時は対象日が実行前の状態へ戻る」という原子性契約の明文化、P04テスト戦略への「書き込み途中で例外を注入した際の対象日rollback」という結合テストケースの追加、P05目的/背景/成果物への単一transaction実装記述、P09成果物/テスト戦略への「失敗注入時の部分書き込み有無」検査項目の追加により解消した。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "C2",
+      "observation": "受入5(90日削除後もロールアップ済みの日は残る)がP02の新設retention-independence.md・P04の90日境界結合/境界値テスト・P09の90日削除後不変性検査へ具体的に写像された。 — 前回のmedium finding「文書名レベルの言及に留まる」は、P02にretention-independence.md(集計済み行が生イベントの90日削除の対象外であることとその根拠となる参照関係)を新設し、P04テスト戦略に結合テスト「生イベント削除後の集計済み行の不変性」および境界値「90日境界」を明記し、P09成果物/テスト戦略に「生イベント削除後の集計済み行の不変性」の検査項目を追加したことで解消した。",
+      "evidence": [
+        "task-specs/phase-04-test-design.md"
+      ]
+    }
+  ]
+}

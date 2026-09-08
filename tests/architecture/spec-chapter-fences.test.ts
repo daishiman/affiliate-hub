@@ -9,11 +9,9 @@
  * **169 行を丸ごとコード塊として飲み込んでいた**。数を数えるだけの検査は、この形を緑にする。
  * だから「開いてから閉じるまでの行数」を見る。
  *
- * **直したのは章であって、元の回答本文ではない。**`spec-state.json` の qa_log に入っている
- * 回答は、いまも閉じフェンスだけを持っている（開きフェンスが無い）。それを直すのは C01 の担当で、
- * この作業場所からは触らない。つまり **compile を走らせ直すと、この壊れ方はそのまま戻ってくる**。
- * この検査は、戻ってきたことを知らせるために置いてある。赤くなったら、章を手で直すのではなく
- * qa_log 側を直す番だという合図である。
+ * 2026-09-06: 正規 renderer が回答・注記の未閉鎖フェンスを境界内で閉じ、
+ * 旧 QA の重複コピーを正本接続後に除去する。章への手直しは不要である。
+ * マーカーの種類・長さも確認し、短い内側フェンスや別マーカーを閉じと誤認しない。
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -37,11 +35,15 @@ function fenceBlocks(text: string): readonly Block[] {
   const lines = text.split("\n");
   const blocks: Block[] = [];
   let open = -1;
+  let marker = "";
   lines.forEach((line, i) => {
-    if (!line.startsWith("```")) return;
+    const delimiter = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (!delimiter) return;
     if (open < 0) {
+      if (delimiter[1][0] === "`" && delimiter[2].includes("`")) return;
       open = i + 1;
-    } else {
+      marker = delimiter[1];
+    } else if (delimiter[1][0] === marker[0] && delimiter[1].length >= marker.length && !delimiter[2].trim()) {
       blocks.push({ open, close: i + 1 });
       open = -1;
     }
@@ -51,39 +53,62 @@ function fenceBlocks(text: string): readonly Block[] {
 }
 
 describe("仕様章のコードフェンス", () => {
+  it.each(["````", "~~~~"])("%s の内側の短いフェンスは閉じとして数えない", (marker) => {
+    expect(fenceBlocks(`${marker}\n${marker.slice(1)}\n本文\n${marker}\n`)).toEqual([{ open: 1, close: 4 }]);
+    expect(fenceBlocks(`${marker}\n${marker.slice(1)}\n`)).toEqual([{ open: 1, close: -1 }]);
+  });
+
+  it("別マーカー・info 付き行では閉じず、同じマーカーの長い閉じを受ける", () => {
+    expect(fenceBlocks("   ~~~js\n```\n~~~text\n~~~~\n")).toEqual([{ open: 1, close: 4 }]);
+    expect(fenceBlocks("    ```\n本文\n")).toEqual([]);
+  });
   it("開いたまま終わっている章が無い", () => {
-    for (const name of chapters()) {
-      const unclosed = fenceBlocks(readFileSync(join(SPEC_DIR, name), "utf8")).filter(
+    const names = chapters();
+    expect(names.length, "8 章と要求定義・索引が走査対象にある").toBeGreaterThanOrEqual(10);
+    let blockCount = 0;
+    for (const name of names) {
+      const blocks = fenceBlocks(readFileSync(join(SPEC_DIR, name), "utf8"));
+      blockCount += blocks.length;
+      const unclosed = blocks.filter(
         (b) => b.close < 0,
       );
       expect(unclosed.map((b) => b.open), `${name}: 閉じていないコード塊がある`).toEqual([]);
     }
+    expect(blockCount, "開閉を検査したコード塊の母集団").toBeGreaterThan(0);
   });
 
   it("1 つのコード塊が章の本文を飲み込んでいない", () => {
-    for (const name of chapters()) {
-      const wide = fenceBlocks(readFileSync(join(SPEC_DIR, name), "utf8"))
+    const names = chapters();
+    expect(names.length, "8 章と要求定義・索引が走査対象にある").toBeGreaterThanOrEqual(10);
+    let blockCount = 0;
+    for (const name of names) {
+      const blocks = fenceBlocks(readFileSync(join(SPEC_DIR, name), "utf8"));
+      blockCount += blocks.length;
+      const wide = blocks
         .filter((b) => b.close > 0 && b.close - b.open > MAX_FENCE_SPAN)
         .map((b) => `${b.open}〜${b.close} 行 (${b.close - b.open} 行)`);
       expect(wide, `${name}: コード塊が広すぎる。開きフェンスの脱落を疑う`).toEqual([]);
     }
+    expect(blockCount, "広さを検査したコード塊の母集団").toBeGreaterThan(0);
   });
 
   it("見出しがコード塊の中に入り込んでいない", () => {
     // 飲み込みが起きると、章の見出しがコードとして表示される。行数の上限をすり抜けた
     // 飲み込みも、この形なら捕まる。
-    for (const name of chapters()) {
+    const names = chapters();
+    expect(names.length, "8 章と要求定義・索引が走査対象にある").toBeGreaterThanOrEqual(10);
+    let blockCount = 0;
+    for (const name of names) {
       const lines = readFileSync(join(SPEC_DIR, name), "utf8").split("\n");
       const swallowed: string[] = [];
-      let inside = false;
+      const blocks = fenceBlocks(lines.join("\n"));
+      blockCount += blocks.length;
       lines.forEach((line, i) => {
-        if (line.startsWith("```")) {
-          inside = !inside;
-          return;
-        }
+        const inside = blocks.some((b) => i + 1 > b.open && (b.close < 0 || i + 1 < b.close));
         if (inside && /^#{2,3} /.test(line)) swallowed.push(`${i + 1}: ${line.slice(0, 40)}`);
       });
       expect(swallowed, `${name}: 見出しがコード塊の中にある`).toEqual([]);
     }
+    expect(blockCount, "見出し混入を検査したコード塊の母集団").toBeGreaterThan(0);
   });
 });

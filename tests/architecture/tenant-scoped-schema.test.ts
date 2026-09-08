@@ -119,6 +119,10 @@ const TABLE_EXEMPT: Readonly<
       "provider DID単位の全workspace共通短期mutex。workspaceを鍵に含めると" +
       "同じ外部アカウントへ別workspaceから並行送信できる",
   },
+  article_image_sweep_state: {
+    kind: "not_tenant_data",
+    why: "全workspace共通R2 prefixの保守cursorとCAS版番号。人の本文や認証情報を持たず、tenant単位に分けると同じprefixを重複走査する",
+  },
 
   /*
    * --- まだ配線していない ---
@@ -167,6 +171,35 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
     count: 1,
     why: "合言葉から作業場所を決める処理。作業場所はここの出力であって入力ではない",
   },
+  "infrastructure/persistence/d1/custom-domain-repository.ts::siteCustomDomains::findActiveByHostname":
+    {
+      count: 1,
+      why: "宛先の名前から作業場所を決める処理。作業場所はここの出力であって入力ではない",
+    },
+  "infrastructure/persistence/d1/custom-domain-repository.ts::siteCustomDomains::resolveSiteSlugByHost":
+    {
+      count: 1,
+      why: "読者の要求の Host からブログを決める。読者に作業場所は無い",
+    },
+  "infrastructure/persistence/d1/custom-domain-repository.ts::siteCustomDomains::resolveCanonicalHostBySiteSlug":
+    {
+      count: 1,
+      why: "公開ページが自分の正本の住所を引く。読者に作業場所は無く、URL 名が結合キー",
+    },
+  "infrastructure/persistence/d1/reader-metrics-repository.ts::readerInteractionEvents::purgeExpiredEvents":
+    {
+      count: 1,
+      why: "保持期限の掃除。全作業場所の期限切れを時計が消す処理で、人の tenant 文脈が無い",
+    },
+  "infrastructure/persistence/d1/article-image-repository.ts::articleImages::findArticleImage": {
+    count: 1,
+    why: "公開ページが URL の 1 語から挿絵を引く。読者に作業場所は無く、作業場所はここの出力",
+  },
+  "infrastructure/persistence/d1/article-image-repository.ts::articleImages::listArticleImagesForSweep":
+    {
+      count: 1,
+      why: "使われなくなった挿絵の回収。全作業場所の古いものを時計が見る処理で、人の tenant 文脈が無い",
+    },
   "infrastructure/persistence/d1/distribution-repository.ts::publications::listDue": {
     count: 1,
     why: "予定時刻の来た配信を全作業場所から集める。呼ぶのは人ではなく時計で、身元が無い",
@@ -200,9 +233,9 @@ const QUERY_EXEMPT: Readonly<Record<string, { readonly count: number; readonly w
   },
   "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::listByCategory":
     { count: 1, why: "同上（読者向け）" },
-  "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::findArticle": {
+  "infrastructure/persistence/d1/published-article-repository.ts::publishedArticles::listBrands": {
     count: 1,
-    why: "同上（読者向け）",
+    why: "同上（読者向け）。サイドバーの「ブランドから探す」で、そのブログの記事だけを数える",
   },
   "infrastructure/persistence/d1/reader-tool-repository.ts::readerTools::findRow": {
     count: 1,

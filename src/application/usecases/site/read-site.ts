@@ -1,5 +1,6 @@
 import type { ArticleBrowsePage, ArticleBrowseRequest, ArticleSearchHit } from "@/application/read-models/article-discovery";
 import type {
+  BrandTally,
   EditorialPublishedContentPort,
   EditorialSiteRepositoryPort,
 } from "@/application/ports/site";
@@ -8,7 +9,8 @@ import type {
   PublishedArticle,
   PublishedPerson,
 } from "@/application/read-models/published-article";
-import { type SiteBlueprint, routesFor } from "@/domain/authoring";
+import type { SiteBlueprint } from "@/domain/authoring/site-blueprint";
+import { routesFor } from "@/domain/authoring/site-routes";
 import { UNCATEGORIZED_ARTICLE_CATEGORY, validateShortSlug } from "@/domain/blogops";
 import {
   type ActorContext,
@@ -157,6 +159,25 @@ export function createListRecentArticlesUseCase(
   return {
     async execute(_actor, input) {
       return deps.content.listRecent(input.siteSlug, input.limit ?? DEFAULT_LIST_LIMIT);
+    },
+  };
+}
+
+/**
+ * サイドバーの「ブランドから探す」。
+ *
+ * 0 件は失敗ではない。商品を扱っていないブログ（読み物だけのブログ）では
+ * 0 件が正しい答えで、そのとき画面はこの欄ごと出さない。
+ * ここで空を失敗として返すと、読み物のブログを開くたびに
+ * 「読み込めませんでした」が出る。
+ */
+export function createListArticleBrandsUseCase(
+  deps: ReadSiteDeps,
+): UseCase<{ readonly siteSlug: string }, readonly BrandTally[]> {
+  guardEditorial(deps);
+  return {
+    async execute(_actor, input) {
+      return deps.content.listBrands(input.siteSlug);
     },
   };
 }

@@ -1,4 +1,4 @@
-/** @tier 2 @req REQ-SEO10 REQ-SEO11 @types db-concurrency, boundary, tenant-isolation, idempotency */
+/** @tier 2 @req REQ-SEO12 REQ-SEO13 @types db-concurrency, boundary, tenant-isolation, idempotency */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
@@ -433,7 +433,7 @@ describe("検索語内訳の表示範囲と取得状態", () => {
         (workspace_id,site_slug,metric_date,active_run_id,run_id,status,may_be_limited,started_at,updated_at)
         VALUES (?,?,?,?,?,?,?,?,?)`).bind("query-owner", site, DATE, activeRun, run, status, limited, at, at).run();
     }
-    for (const statement of statementsOf("0054_seo_query_snapshot_state.sql")) {
+    for (const statement of statementsOf("0061_seo_query_snapshot_state.sql")) {
       await proxy.env.DB.prepare(statement).run();
     }
     for (const [siteSlug, active, refreshing, limited, completedAt] of [

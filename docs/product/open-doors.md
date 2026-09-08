@@ -11,9 +11,9 @@
 
 適用範囲: `/admin` 以下（読者のページとログインの往復は通す）
 
-開いている扉: **0 件** / 全 211 件
+開いている扉: **0 件** / 全 225 件
 
-「誰でも」と宣言してある行: **46 件**
+匿名閲覧を含むと宣言してある行（「誰でも」・条件付き公開）: **49 件**
 （宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）
 
 - `src/app/page.tsx` — 入口の案内
@@ -48,12 +48,15 @@
 - `src/app/s/[site]/tools/[tool]/page.tsx` — 読者向けの公開ページ
 - `src/app/s/[site]/tools/page.tsx` — 読者向けの公開ページ
 - `src/app/signin/page.tsx` — サインイン画面
+- `src/app/api/article-images/[image]/route.ts` — 公開記事が参照する挿絵、または同じ作業場所で閲覧権限のある記事の下書きプレビュー
 - `src/app/api/auth/[...all]/route.ts` — ログインの入口（Google との往復）
 - `src/app/api/blog-thumbnails/[...key]/route.ts` — 記事サムネイルの配信（読者の画面に出る絵。鍵の形だけを門にする）
 - `src/app/api/dev-signin/route.ts` — 手元で画面を確かめるための入口（積んだ環境には存在しない）
+- `src/app/api/reader-events/route.ts` — 公開ブログの読者行動の記録（未ログインの読者が送るので、門は置けない）
 - `src/app/api/telemetry/route.ts` — 読者の画面から届く計測（未ログインの読者が送るので、門は置けない）
 - `src/app/go/[code]/route.ts` — 成果リンクの転送（読者がクリックする先）
 - `src/app/indexnow.txt/route.ts` — IndexNow 鍵ファイル（公開配信が所有権証明の仕組みそのもの。鍵未設定なら 404）
+- `src/app/internal-cron/route.ts` — 定期実行の中身（入口の fetch が 404 で塞ぐので、外からは届かない）
 - `src/app/s/[site]/feed.xml/route.ts` — RSS（新着記事の配信）
 - `src/app/s/[site]/llms.txt/route.ts` — llms.txt（AI 向けサイト要約。設計図の任意項目で出し分け）
 - `src/app/s/[site]/robots.txt/route.ts` — クローラー方針（AI クローラーを明示許可し sitemap の場所を知らせる）
@@ -199,11 +202,16 @@
 | `src/app/admin/site-network/deleted/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/site-network/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/site-network/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/aeo/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/appearance/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/audience/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/documents/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/domains/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/edit/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/[site]/placements/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/revenue/page.tsx` | 管理画面 | ログイン | ログイン | — |
+| `src/app/admin/sites/[site]/seo/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/new/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/sites/page.tsx` | 管理画面 | ログイン | ログイン | — |
 | `src/app/admin/tools/page.tsx` | 管理画面 | ログイン | ログイン | — |
@@ -244,18 +252,28 @@
 
 ## REST・転送
 
+「公開参照／同一作業場所」は条件付き公開。画像は公開中の記事が現在参照する場合のみ匿名取得できる。
+それ以外はログイン・同一 workspace・content.read・記事所有の全確認が必要で、認可変更を反映するため no-store で返す。
+分岐の接続はこの検査、応答の実動作は `tests/presentation/article-images-route.test.ts`、公開参照判定は `tests/integration/d1-article-image-lifecycle.test.ts` が検証する。
+条件付き公開も上記の公開宣言数に含める。守りを削って匿名公開へ戻すと意図と実測の差になる。
+
 | 入口・操作 | 何ができるか | 本来 | いま | 差 |
 |---|---|---|---|---|
+| `src/app/api/article-images/[image]/route.ts` | 公開記事が参照する挿絵、または同じ作業場所で閲覧権限のある記事の下書きプレビュー | 公開参照／同一作業場所 | 公開参照／同一作業場所 | — |
+| `src/app/api/article-images/route.ts` | 記事に貼る画像を送る口（置き場に物を置ける口なので、門は必須） | ログイン | ログイン | — |
+| `src/app/api/article-products/route.ts` | 商品カードを挿すときの検索（作業場所は呼び出し元の身元から決める） | ログイン | ログイン | — |
 | `src/app/api/auth/[...all]/route.ts` | ログインの入口（Google との往復） | 誰でも | 誰でも | — |
 | `src/app/api/blog-thumbnails/[...key]/route.ts` | 記事サムネイルの配信（読者の画面に出る絵。鍵の形だけを門にする） | 誰でも | 誰でも | — |
 | `src/app/api/dev-signin/route.ts` | 手元で画面を確かめるための入口（積んだ環境には存在しない） | 誰でも | 誰でも | — |
 | `src/app/api/feedback-captures/[capture]/route.ts` | 指摘に添えた画面の写しの取り出し | ログイン | ログイン | — |
 | `src/app/api/feedback/pending/route.ts` | 未処理の指摘の取り出し | 鍵 | 鍵 | — |
 | `src/app/api/mcp/route.ts` | 操作の実行（MCP） | 鍵 | 鍵 | — |
+| `src/app/api/reader-events/route.ts` | 公開ブログの読者行動の記録（未ログインの読者が送るので、門は置けない） | 誰でも | 誰でも | — |
 | `src/app/api/telemetry/route.ts` | 読者の画面から届く計測（未ログインの読者が送るので、門は置けない） | 誰でも | 誰でも | — |
 | `src/app/api/tools/[tool]/route.ts` | 操作の実行（REST） | 鍵 | 鍵 | — |
 | `src/app/api/tools/route.ts` | 使える操作の一覧（REST） | 鍵 | 鍵 | — |
 | `src/app/indexnow.txt/route.ts` | IndexNow 鍵ファイル（公開配信が所有権証明の仕組みそのもの。鍵未設定なら 404） | 誰でも | 誰でも | — |
+| `src/app/internal-cron/route.ts` | 定期実行の中身（入口の fetch が 404 で塞ぐので、外からは届かない） | 誰でも | 誰でも | — |
 | `src/app/s/[site]/feed.xml/route.ts` | RSS（新着記事の配信） | 誰でも | 誰でも | — |
 | `src/app/s/[site]/llms.txt/route.ts` | llms.txt（AI 向けサイト要約。設計図の任意項目で出し分け） | 誰でも | 誰でも | — |
 | `src/app/s/[site]/robots.txt/route.ts` | クローラー方針（AI クローラーを明示許可し sitemap の場所を知らせる） | 誰でも | 誰でも | — |
@@ -289,6 +307,7 @@
 | `deleteProductAction()` | 商品を消す（順位表と比較表の入力が消える）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
 | `disableAffiliateLinkAction()` | 登録済みの成果リンクを止める（記事に貼ったままでも読者へ出なくなる。戻すには新しいリンクとして登録し直す）（src/presentation/admin/delete-form-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageArticleThumbnailAction()` | 記事の表紙の絵を登録する・外す（外すと絵の実体まで消える）（src/presentation/admin/publish/article-thumbnail-action.ts） | ログイン | ログイン | — | **つかない** |
+| `manageBlogDomainAction()` | ブログの住所を登録・確認・切り替え・取り下げする（提供元に実物が作られ、読者の入口が変わる）（src/presentation/admin/publish/blog-domain-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageBlogTagAction()` | タグを作る・直す・消す（消したタグの説明は残らない）（src/presentation/admin/publish/blog-tag-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageIntegrationAccessAction()` | 外部連携の鍵を作る・失効させる（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | **つかない** |
 | `manageLlmCredentialAction()` | 生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）（src/presentation/admin/maintain/llm-credential-action.ts） | ログイン | ログイン | — | **つかない** |
@@ -323,6 +342,7 @@
 | `editDisclosureAction()` | 広告であることの断り書きを登録・変更する（読者に出る文が変わる）（src/presentation/admin/maintain/compliance-action.ts） | ログイン | ログイン | — | つく |
 | `editPolicyRuleAction()` | 表記のきまりを足す・止める・効かせ直す（止めている間は記事の表現が確認されない）（src/presentation/admin/maintain/compliance-action.ts） | ログイン | ログイン | — | つく |
 | `handOffFeedbackAction()` | 指摘を引き継ぐ（src/presentation/admin/feedback-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogAeoAction()` | AEO の構えの保存と、引用できる答えの取り直し（読者側は変わらない）（src/presentation/admin/publish/blog-improvement-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogAppearanceAction()` | ブログの見せ方と配色を決める（ページ単位の例外を含む）（src/presentation/admin/publish/blog-appearance-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogArticleAction()` | 記事を作る・直す・論理削除し、本文・タグ・評価ごと同じURLへ復元する（src/presentation/admin/publish/blog-article-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogDeliveryAction()` | 配信部品を出し入れする（src/presentation/admin/publish/blog-layout-action.ts） | ログイン | ログイン | — | つく |
@@ -330,10 +350,12 @@
 | `manageBlogLayoutAction()` | 版面の枠と帯を並べ替える・出し入れする（src/presentation/admin/publish/blog-layout-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogPlacementAction()` | 記事のどこに成果リンクを出しているかを台帳へ記録する・外す（src/presentation/admin/publish/blog-placement-action.ts） | ログイン | ログイン | — | つく |
 | `manageBlogRatingAction()` | 読者が付けた評価を伏せる・戻す（票は消えず、平均と件数から外れるだけ）（src/presentation/admin/publish/blog-rating-action.ts） | ログイン | ログイン | — | つく |
+| `manageBlogSeoAction()` | SEO の診断・直しの下書き・指摘の見送り（読者側は変わらない）（src/presentation/admin/publish/blog-improvement-action.ts） | ログイン | ログイン | — | つく |
 | `manageGuidelineReferenceAction()` | SEO/AI 指針の出典を登録する・確認日を更新する（一覧に残り、後から直せる）（src/presentation/admin/maintain/guideline-reference-action.ts） | ログイン | ログイン | — | つく |
 | `manageSiteNetworkAction()` | サイト網の枝を足す・直す・論理削除し、削除済み一覧から同じURLへ復元する（src/presentation/admin/publish/site-network-action.ts） | ログイン | ログイン | — | つく |
 | `markContactHandledAction()` | 読者からの問い合わせに対応済みの印を付ける・外す（src/presentation/admin/maintain/contact-action.ts） | ログイン | ログイン | — | つく |
 | `previewAffiliateUrlAction()` | 成果リンクを保存する前に、安全な接続先から取得できる情報だけを確認する（保存はしない）（src/presentation/admin/earn/inbox-action.ts） | ログイン | ログイン | — | つく |
+| `rebuildDailyMetricsAction()` | 日ごとの集計を、日付を指定して作り直す（読者側は変わらない）（src/presentation/admin/observe/metrics-rebuild-action.ts） | ログイン | ログイン | — | つく |
 | `removeFromShortlistAction()` | 読者が自分の「気になる商品」から 1 件外す（src/presentation/site/shortlist-action.ts） | 誰でも | 誰でも | — | つく |
 | `revertSeoAutoApplyAction()` | 機械が書き換えた記事を、書き換える前の本文へ戻す（src/presentation/admin/observe/seo-aeo-action.ts） | ログイン | ログイン | — | つく |
 | `sampleAction()` | 見本帳のボタンの見本（何もしない）（src/app/admin/ui-catalog/sample-action.ts） | ログイン | ログイン | — | つく |
@@ -355,4 +377,4 @@
 | `updateProductAction()` | 商品の内容を直す（src/presentation/admin/material/product-form-action.ts） | ログイン | ログイン | — | つく |
 | `updatePublishedArticleAction()` | 公開済み記事を訂正する（src/presentation/admin/publish/published-article-action.ts） | ログイン | ログイン | — | つく |
 | `updateWorkspaceAction()` | 作業場所の名前・契約の区分・時間帯・通貨を直す（src/presentation/admin/maintain/settings-form-action.ts） | ログイン | ログイン | — | つく |
-<!-- 生成物の指紋 sha256:88f6c2326314f2bb17306255fa7fa64e107d04d5492a07c5cae06785f5ea6555 -->
+<!-- 生成物の指紋 sha256:a6fd7db4cb2688ecc18148133a5ec4436dbe61315a2bef49be9d45da012a81db -->

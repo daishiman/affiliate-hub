@@ -1,0 +1,234 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P05"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P07",
+        "SYS-AEO-ANSWER-OPTIMIZATION-P09"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P10",
+        "SYS-AEO-ANSWER-OPTIMIZATION-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-AEO-ANSWER-OPTIMIZATION-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-AEO-ANSWER-OPTIMIZATION-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-aeo-answer-optimization",
+    "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+    "parent_feature": "feat-aeo-answer-optimization",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:f15324137a34698f1670b6c7f0ab24dff3fcea6890d96ddca0eb235ac64a9e23"
+  },
+  "kind": "system-build-handoff",
+  "p01_entry_gate": {
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ],
+    "selector": "parent_feature.depends_on"
+  },
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "9601c1045afe5300e9e7d03da2a0073ad1f15c4564d01443ad89ad4c3465a6db"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "f83a827e321d942c7ec79e5cc3932bfa75d90d02d46d3faeeaa6a4678b0eb83f"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "9ecf38955b78445038204bce3d7be31c846a511894d89d6c0e82e5f2e8408d9f"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "cfdcfc8ceb5dbe659ad88b51e23e62801c05747a6dd22225ddb9ce0582fdcea0"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "d8894773f8ad89543b10cb776cd8158b114bfda38e1ea544dcb58d2c11a81e3b"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "eac9aafcb7115dd39cd4e8d82093da3ec47ebb97f3b5902c9d3a34e009c333b2"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "94fbea11550199002ff5c05cb441fa591d2ed85a025228dfc9d5225077c96e7b"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "1aeb25b19cbd7dbdca909ded1d9d45253148fdc5908acb06696dfdcdfe0e4b59"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "7d71e8726224b63fe1a6b9705e4ff43f4154cc8fdc1ad5b26e81b72eaeafd945"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "7b65735d9604ed71b20018981f9ae4fc78d846fdf16dbc3ffaf820479e3e42bd"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "7c3252c5390b1fc5fc19613fec5d7c8dce7b7dcff0c3d0db16d7502bd66aecd5"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "9c6cf941c531578b1677942f6d0d50fb5a70dcd82c4244aa304902bffa8c75a4"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "e9718fa32b0fc04c10388ff0c8a2f82816ca85a9c908d7d83e5191d696c7b54b"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "5b282aaae72cb191c022b369b9995976303b90a34e9f3c2862af4f5e5a46471e"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "f61cbb5bb74fd11857415aa6d943e5dca9f2a58fdbc5e9c95144b490e578d67f"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "5c1d179ded096c255181c62a068341e9456bcbd9282e51b14b4cd61e5e3abdb6"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:648341c54968d348dbfdd2f2ff5a3cd43e7bd5e509917981d56a61663c32bc9e",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "d2c6251b9914b4201c8365d5f32c8f9735348f623dedc7ed23bff74c508786de"
+  }
+}

@@ -15,6 +15,12 @@
  */
 
 export { ProseBody, type ProductCardRenderer } from "./prose-body";
+export { ProseText } from "./prose-text";
 export { blockAnchor, ProseOutline } from "./prose-outline";
-export { ProseEditor, PROSE_NODE_ICON, type ProseEditorProps } from "./prose-editor";
+export {
+  ProseEditor,
+  PROSE_NODE_ICON,
+  type ProductPick,
+  type ProseEditorProps,
+} from "./prose-editor";
 export { ProseSection } from "./prose-section";

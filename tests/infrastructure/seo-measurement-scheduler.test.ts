@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-SEO10 @types boundary, equivalence */
+/** @tier 1 @req REQ-SEO12 @types boundary, equivalence */
 import { describe, expect, it } from "vitest";
 import {
   rotateTargets,

@@ -6,12 +6,7 @@ import type {
   EditorialSiteRepositoryPort,
   SiteDocument,
 } from "@/application/ports/site";
-import {
-  SITE_DOCUMENT_KEYS,
-  SITE_DOCUMENT_LABEL,
-  findRoute,
-  type SiteDocumentKey,
-} from "@/domain/authoring";
+import { SITE_DOCUMENT_KEYS, SITE_DOCUMENT_LABEL, findRoute, type SiteDocumentKey } from "@/domain/authoring/site-routes";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

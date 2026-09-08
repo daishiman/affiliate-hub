@@ -1,6 +1,6 @@
 /**
  * @tier 2
- * @req REQ-SEO13
+ * @req REQ-SEO15
  * @types screen-states, state-transition, boundary, scenario
  */
 // @vitest-environment jsdom

@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-SEO07
+ * @req REQ-SEO09
  * @types equivalence, boundary, secrets
  *
  * 系統②（Google Search Console）の外側の口を確かめる。

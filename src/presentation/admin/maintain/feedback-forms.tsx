@@ -1,12 +1,8 @@
 "use client";
 
 import { type ReactNode, useActionState, useState } from "react";
-import {
-  FEEDBACK_DISPOSITIONS,
-  FEEDBACK_DISPOSITION_LABELS,
-  FEEDBACK_STATUSES,
-  FEEDBACK_STATUS_LABELS,
-} from "@/domain/feedback";
+import { FEEDBACK_DISPOSITIONS, FEEDBACK_DISPOSITION_LABELS } from "@/domain/feedback/disposition";
+import { FEEDBACK_STATUSES, FEEDBACK_STATUS_LABELS } from "@/domain/feedback/status";
 import {
   Button,
   Callout,

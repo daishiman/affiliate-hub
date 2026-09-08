@@ -9,7 +9,21 @@ import type { ArticleBlockKind } from "@/domain/blogops";
  */
 export type ArticleBlockDraft = {
   readonly id: string;
+  /** 保存前の並べ替えでも編集状態を別の節へ移さない、端末内だけの識別子。 */
+  readonly clientKey?: string;
   readonly kind: ArticleBlockKind;
   readonly heading: string;
   readonly body: string;
 };
+
+export function articleBlockDraftKey(row: ArticleBlockDraft, index: number): string {
+  return row.clientKey ?? (row.id === "" ? `new-${index}` : row.id);
+}
+
+export function keyedArticleBlockDrafts(rows: readonly ArticleBlockDraft[]): ArticleBlockDraft[] {
+  return rows.map((row, index) => ({ ...row, clientKey: articleBlockDraftKey(row, index) }));
+}
+
+export function newArticleBlockDraft(kind: ArticleBlockKind): ArticleBlockDraft {
+  return { id: "", clientKey: `draft-${crypto.randomUUID()}`, kind, heading: "", body: "" };
+}

@@ -7,7 +7,8 @@ import {
   seoSearchQuerySyncs,
   type SeoSearchQuerySyncRow,
 } from "@/db/schema";
-import { domainError, err, ok, validationError } from "@/domain/shared";
+import { domainError, validationError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { jsonArrayChunks } from "./json-array-chunks";
 import { storageFailure } from "./storage-failure";

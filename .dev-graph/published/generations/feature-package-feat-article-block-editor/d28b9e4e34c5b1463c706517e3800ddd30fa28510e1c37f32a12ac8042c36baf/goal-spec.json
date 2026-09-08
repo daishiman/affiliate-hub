@@ -1,0 +1,169 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "f0776f7c-3258-4af6-880b-07cd81b6f0fe",
+  "session_owner": "daishimanju@gmail.com",
+  "generated_at": "2026-09-05T00:00:00Z",
+  "feature_id": "feat-article-block-editor",
+  "graph_node_id": "feat-article-block-editor",
+  "artifact_kind": "feature",
+  "purpose": "管理画面の記事編集を、記法の生テキストが見える入力欄の集まりから、出来上がりの見た目のまま編集できるブロックエディターへ変え、記事を構成する全ての情報を編集面から扱えるようにする",
+  "goal": "編集面と公開ページが同一の描画部品を通り、節 (見出し2 固定) と本文断片 (見出し3/4) の 2 層が UI 上で見分けられ、どの編集操作でも見出しレベルが動かず、19 種の断片 (コードブロック・商品カード・並列画像・表・色付き文字を含む) が `/` から挿入・編集・公開でき、商品と画像が手入力ではなく検索選択と直接アップロードで入る状態になっている",
+  "scope_in": [
+    "編集面の WYSIWYG 化 — 記法の生テキストを編集面へ出さず、編集面と公開ページが同一の描画部品を通る (UIUX-REQ-005〜007, FRONT-REQ-005)",
+    "節 (外側・見出し2 固定) と本文断片 (内側・見出し3/4) の 2 層を UI で見せ、編集操作で見出しレベルが動かないようにする (FRONT-REQ-006〜008, UIUX-ACC-005〜007)",
+    "本文断片カタログを現行 10 種から 19 種へ拡張する (コードブロック・商品カード・並列画像・表・色付き文字を含む) (BE-PROSE-01〜03)",
+    "商品カードを商品検索結果からの選択で挿入し、商品 id の手入力欄を無くす (BE-PRODUCT-01, UIUX-ACC-008)",
+    "画像を Cloudflare R2 へブラウザから直接アップロードし、URL の手入力欄を無くす。参照状態の正本は Editorial 側の D1 が持つ (BE-IMAGE-01, DB-IMAGE-01〜03, INF-IMG-01)",
+    "保存形式の往復保全 — 拡張 Markdown 文字列と断片木の相互変換が情報を落とさない (BE-PROSE-02〜03)",
+    "描画時の許可リスト絞り込みと投稿内容の無害化 (SEC-REQ-006〜009, SEC-ACC-006)",
+    "参照されなくなった画像の回収と、現行記事の移行手順 (OPS-REQ-008〜010)"
+  ],
+  "scope_out": [
+    "記事本文の AI 生成 (feat-ai-content-studio)",
+    "SEO/AEO の構造化データ導出と公開時点検 (feat-seo-aeo-gap-closure)",
+    "公開ページ側の読者導線・目次・サイドバー配置 (feat-reference-blog-admin-ux)",
+    "管理画面全体の単一用途画面再編 (feat-uiux-overhaul)",
+    "複数媒体向け原稿の生成ハーネス (feat-editorial-workflow)",
+    "複数人の同時編集と競合解決 (単独編集を前提とする)",
+    "記事のバージョン履歴 UI と差分表示",
+    "商品データそのものの取込・更新 (feat-blog-ui-builder が持つ)"
+  ],
+  "acceptance": [
+    "編集面に記法の生テキスト (``` や ** や表のパイプ) が現れず、全ての断片が出来上がりの見た目で表示・編集できる",
+    "節の見出しは常に見出し2、断片の見出しは見出し3/4 に固定され、挿入・移動・削除・貼り付けのいずれでもレベルが動かない",
+    "19 種の断片すべてを `/` から挿入でき、編集でき、公開ページで編集面と同じ見た目で表示される",
+    "商品カードは検索結果からの選択でのみ挿入でき、商品 id の手入力欄が存在しない",
+    "画像はブラウザから R2 へ直接アップロードでき、URL の手入力欄が存在しない",
+    "公開ページの描画が許可リストで絞られ、許可外の断片・属性・スタイルが出力されない",
+    "現行 10 種の断片で書かれた既存記事が壊れずに読み込め、保存し直しても内容が変わらない"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "system-spec/database.md",
+    "system-spec/infrastructure.md",
+    "system-spec/security.md",
+    "system-spec/maintenance-ops.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-article-block-editor.context.json",
+      "source_plugin": "dev-graph",
+      "source_version": "0.1.0",
+      "source_digest": "sha256:398f44a4d8b94fa488312a96bde5f28975d90abfc62a6c702f8fef6cc998ac6a",
+      "digest_note": "呼び出し元 (run-system-dev-plan / SUPPLIED_INPUTS.feature_digest) が新世代として提示した digest をそのまま pin した。前世代 staging の digest (sha256:5eddccd5e8687ad317c51005cf442b9d8d537e889af01b7440ff3b8cf247d2e0) とは不一致であり、これが今回 goal-spec を再接地する理由である。9 フィールド schema (graph_node_id/artifact_kind/purpose/goal/scope_in/scope_out/acceptance/architecture_refs/updated_at) は本 run のツールセット (Read/Write/Glob/Grep) では sha256 を独立再計算できないため、C09 が確定させた値を引き継ぐ",
+      "updated_at": "2026-09-05T03:37:29.087868Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-article-block-editor.md",
+      "confirmation_status": "draft",
+      "evaluation_status": "pending",
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "note": "feature 自体は draft/pending のままである。goal-spec が接地する対象は feature の確定ではなく、feature が引用する confirmed system-spec 章 (下記 spec_confirmation) である。features/feat-article-block-editor.md の frontmatter purpose/goal/scope_in/scope_out/acceptance/architecture_refs は features/feat-article-block-editor.context.json (feature_digest 対象) と文字列一致することを目視で確認した"
+    },
+    "spec_confirmation": {
+      "checker": "system-spec/completeness-report.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "evaluator_version": "0.1.0",
+      "verdict": "PASS",
+      "pinned_at": "2026-09-05T12:23:26.964Z",
+      "gate_results": {
+        "G-matrix": "PASS",
+        "G-source-citation": "PASS",
+        "G-supply-neutrality": "PASS",
+        "G-compile": "PASS"
+      },
+      "chapter_status": {
+        "system-spec/ui-ux.md": "confirmed",
+        "system-spec/frontend.md": "confirmed",
+        "system-spec/backend.md": "confirmed",
+        "system-spec/database.md": "confirmed",
+        "system-spec/infrastructure.md": "confirmed",
+        "system-spec/security.md": "confirmed",
+        "system-spec/maintenance-ops.md": "confirmed"
+      },
+      "chapter_digests_sha256": {
+        "system-spec/00-requirements-definition.md": "5ec66abed2c0d11425c0cf434c317f1c65c80fe5c6112e4ac0df21026bd44df6",
+        "system-spec/ui-ux.md": "541b1e39f8139d282366f45920ea64fad98f14e264064768eb868357caa70428",
+        "system-spec/frontend.md": "8e029550d4e493aa2ce443fed363de91f2c67d4c020a2bcb540411d707794502",
+        "system-spec/backend.md": "937da921874be1fc199c278f35df90fffd439281762c2c65d7b165e94cf80a2c",
+        "system-spec/database.md": "829b9237e54ec4d6650203cc72d16c78dd87e8a1834b866a95c11b6bcb00b67c",
+        "system-spec/infrastructure.md": "4fbd1e620e09394b41f027633dfe27194c890196ce796a7fd404d4ab7cae6e0a",
+        "system-spec/security.md": "0e9c1caf64d2a363d41e6f41831dfb753352af165aa999f36272168a0077e4ac",
+        "system-spec/maintenance-ops.md": "82973d8c3677ee4fa95fd429982d5cb3328606381de6241d1a08617b6be5c625"
+      },
+      "note": "system-spec/index.md の集約状態サマリと各章 frontmatter (status: confirmed) を実測して確定を確認。digest は system-spec/completeness-report.json.inputs.files[].sha256 (verdict=PASS, 直近 pinned_at 2026-09-05T12:23:26.964Z) の申告値をそのまま転記した。本 run のツールセットでは system-spec 側 (read-only) の再計算もできないため、system-spec-harness が確定させた値をそのまま引用する"
+    },
+    "architecture_refs_resolution": [
+      { "path": "architecture/system-spec-overview.md", "graph_node_id": "arch-system-spec-overview", "confirmation_status": "confirmed", "evaluation_status": "pass", "resolved": true },
+      { "path": "architecture/arch-two-layer-platform.md", "graph_node_id": "arch-two-layer-platform", "confirmation_status": "confirmed", "evaluation_status": "pass", "resolved": true },
+      { "path": "system-spec/ui-ux.md", "confirmation_status": "confirmed", "resolved": true },
+      { "path": "system-spec/frontend.md", "confirmation_status": "confirmed", "resolved": true },
+      { "path": "system-spec/backend.md", "confirmation_status": "confirmed", "resolved": true },
+      { "path": "system-spec/database.md", "confirmation_status": "confirmed", "resolved": true },
+      { "path": "system-spec/infrastructure.md", "confirmation_status": "confirmed", "resolved": true },
+      { "path": "system-spec/security.md", "confirmation_status": "confirmed", "resolved": true },
+      { "path": "system-spec/maintenance-ops.md", "confirmation_status": "confirmed", "resolved": true }
+    ],
+    "requirement_ids_verified": {
+      "system-spec/ui-ux.md": ["UIUX-REQ-005", "UIUX-REQ-006", "UIUX-REQ-007", "UIUX-ACC-005", "UIUX-ACC-006", "UIUX-ACC-007", "UIUX-ACC-008"],
+      "system-spec/frontend.md": ["FRONT-REQ-005", "FRONT-REQ-006", "FRONT-REQ-007", "FRONT-REQ-008"],
+      "system-spec/backend.md": ["BE-PROSE-01", "BE-PROSE-02", "BE-PROSE-03", "BE-PRODUCT-01", "BE-IMAGE-01"],
+      "system-spec/database.md": ["DB-IMAGE-01", "DB-IMAGE-02", "DB-IMAGE-03"],
+      "system-spec/infrastructure.md": ["INF-IMG-01"],
+      "system-spec/security.md": ["SEC-REQ-006", "SEC-REQ-007", "SEC-REQ-008", "SEC-REQ-009", "SEC-ACC-006"],
+      "system-spec/maintenance-ops.md": ["OPS-REQ-008", "OPS-REQ-009", "OPS-REQ-010"]
+    },
+    "supersedes": {
+      "previous_feature_context_digest": "sha256:5eddccd5e8687ad317c51005cf442b9d8d537e889af01b7440ff3b8cf247d2e0",
+      "reason": "feature-context を system-dev-planner feature-context.schema.json の exact-set 9 field へ正規化し、architecture_refs を repo-relative path (arch-system-spec-overview / arch-two-layer-platform の graph_node_id 表記から architecture/*.md への path 表記) へ直した結果、digest が変わった"
+    }
+  },
+  "spec_chapters": [
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "system-spec/database.md",
+    "system-spec/infrastructure.md",
+    "system-spec/security.md",
+    "system-spec/maintenance-ops.md"
+  ],
+  "requirement_ids": [
+    "UIUX-REQ-005",
+    "UIUX-REQ-006",
+    "UIUX-REQ-007",
+    "UIUX-ACC-005",
+    "UIUX-ACC-006",
+    "UIUX-ACC-007",
+    "UIUX-ACC-008",
+    "FRONT-REQ-005",
+    "FRONT-REQ-006",
+    "FRONT-REQ-007",
+    "FRONT-REQ-008",
+    "BE-PROSE-01",
+    "BE-PROSE-02",
+    "BE-PROSE-03",
+    "BE-PRODUCT-01",
+    "BE-IMAGE-01",
+    "DB-IMAGE-01",
+    "DB-IMAGE-02",
+    "DB-IMAGE-03",
+    "INF-IMG-01",
+    "SEC-REQ-006",
+    "SEC-REQ-007",
+    "SEC-REQ-008",
+    "SEC-REQ-009",
+    "SEC-ACC-006",
+    "OPS-REQ-008",
+    "OPS-REQ-009",
+    "OPS-REQ-010"
+  ]
+}

@@ -10,6 +10,7 @@ import {
   type ArticleSummary,
   type PublishedArticle,
   type PublishedPerson,
+  tallyBrands,
   toSummary,
 } from "@/application/read-models/published-article";
 import {
@@ -21,6 +22,7 @@ import { domainError, err, markEditorial, ok, type WorkspaceId } from "@/domain/
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { findSiteDocument } from "./site-document-repository";
 import { storageFailure } from "./storage-failure";
+import { resolvePublishedProseProducts } from "./published-prose-products";
 
 /**
  * 読者ページへ出した記事の保存先（D1）。
@@ -426,6 +428,28 @@ export function createD1ContentRepository(
       return page.ok ? ok(page.value.articles) : page;
     },
 
+    /*
+      ブランドは記事の中身から数えるので、要約ではなく本体を読む。
+      要約には商品カードが入らないため（`toSummary` が落とす）、
+      ここだけ `storedSummaries` を使えない。
+    */
+    async listBrands(siteSlug: string) {
+      try {
+        const rows = await db
+          .select({
+            archivedAt: publishedArticles.archivedAt,
+            articleJson: publishedArticles.articleJson,
+          })
+          .from(publishedArticles)
+          .where(eq(publishedArticles.siteSlug, siteSlug));
+        return ok(
+          tallyBrands(rows.filter((row) => row.archivedAt === null).map((row) => parse(row.articleJson))),
+        );
+      } catch (cause) {
+        return storageFailure("ブランド一覧の読み込み", cause);
+      }
+    },
+
     async listByCategory(siteSlug: string, categorySlug: string) {
       try {
         const rows = await db
@@ -455,6 +479,7 @@ export function createD1ContentRepository(
       try {
         const rows = await db
           .select({
+            workspaceId: publishedArticles.workspaceId,
             archivedAt: publishedArticles.archivedAt,
             articleJson: publishedArticles.articleJson,
           })
@@ -462,7 +487,9 @@ export function createD1ContentRepository(
           .where(and(eq(publishedArticles.siteSlug, siteSlug), eq(publishedArticles.slug, slug)))
           .limit(1);
         const row = rows[0];
-        return ok(row !== undefined && row.archivedAt === null ? parse(row.articleJson) : null);
+        return ok(row !== undefined && row.archivedAt === null
+          ? await resolvePublishedProseProducts(db, row.workspaceId, parse(row.articleJson))
+          : null);
       } catch (cause) {
         return storageFailure("記事の読み込み", cause);
       }

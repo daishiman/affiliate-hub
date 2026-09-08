@@ -53,6 +53,8 @@ import {
 import { SAMPLE_ARTICLES } from "@/infrastructure/persistence/sample/content-sample-data";
 import { searchableTextOf } from "@/application/read-models/searchable-text";
 import { projectBlogArticle } from "@/application/read-models/published-article";
+import { buildBlogOperationsSeedSql } from "./blog-operations-seed";
+import { q, seconds } from "./sql";
 import {
   SAMPLE_SITE_SLUG,
   SECOND_SITE_SLUG,
@@ -204,14 +206,6 @@ export const SEED_AFFILIATE_PLACEMENTS = [
   },
 ] as const;
 
-/** SQLite の文字列。`'` を 2 つ重ねる以外の細工をしない。 */
-function q(value: string): string {
-  return `'${value.replace(/'/g, "''")}'`;
-}
-
-function seconds(daysAgo: number, base: number): number {
-  return base - daysAgo * 24 * 60 * 60;
-}
 
 export type SeedArticle = {
   readonly id: string;
@@ -1248,6 +1242,25 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
          VALUES (${q(link.id)}, ${ws}, ${q(link.programId)}, NULL, ${q(link.productName)}, ${q(link.brand)}, ${q(link.oneLine)}, ${q(link.originalUrl)}, ${q(link.canonicalUrl)}, ${q(link.merchantName)}, NULL, ${link.priceMinor}, ${q(link.currency)}, ${seconds(2, nowSeconds)}, ${q(link.sourceMethod)}, 1, ${q(`seed-${link.id}`)}, ${seconds(90, nowSeconds)}, ${checkedAt}, ${expiresAt}, ${disabledAt});`,
     );
   }
+
+  /*
+   * 運営管理層（住所・観測・改善）。**公開済みの記事だけを対象にする。**
+   *
+   * 下書きの記事にも観測を付けると、まだ誰も開けないページに読者が
+   * 居ることになり、画面の数字が現実に対応しなくなる。
+   */
+  out.push(
+    ...buildBlogOperationsSeedSql({
+      workspaceId: SEED_WORKSPACE_ID,
+      nowSeconds,
+      sites: SEED_SITE_KEYS.map((siteKey) => ({
+        siteSlug: seedSiteSlug(siteKey),
+        articleSlugs: SEED_ARTICLES.filter(
+          (article) => (article.site ?? "hub") === siteKey && article.status === "published",
+        ).map((article) => article.slug),
+      })),
+    }),
+  );
 
   for (const placement of SEED_AFFILIATE_PLACEMENTS) {
     const renderedAt =

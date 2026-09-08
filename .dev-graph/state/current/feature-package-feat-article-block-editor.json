@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-article-block-editor",
+  "generation_id": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+  "published_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+  "published_digest": "sha256:bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+  "receipt": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/atomic-promotion-receipt.json",
+  "supersedes": {
+    "published_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+    "published_digest": "sha256:d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+    "receipt": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/atomic-promotion-receipt.json"
+  }
+}

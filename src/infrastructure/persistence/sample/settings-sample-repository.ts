@@ -5,7 +5,7 @@ import type {
   WorkspaceRepositoryPort,
 } from "@/application/ports/identity";
 import type { Disclosure } from "@/domain/compliance";
-import { buildVisibleMessage } from "@/domain/compliance";
+import { buildVisibleMessage } from "@/domain/compliance/disclosure";
 import type { Brand, Membership, Workspace } from "@/domain/identity";
 import {
   DEFAULT_BRAND_VOICE,

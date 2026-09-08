@@ -10,7 +10,7 @@ import {
   type ArticleTemplate,
 } from "@/domain/blogops";
 import { Button, Callout, Foldable, Note, SectionHeading } from "@/presentation/ui";
-import type { ArticleBlockDraft } from "./article-block-draft";
+import { keyedArticleBlockDrafts, newArticleBlockDraft, type ArticleBlockDraft } from "./article-block-draft";
 
 /**
  * 既存の版面規則からだけ直し候補を作る。永続化した点数や別の評価器は持たない。
@@ -33,6 +33,7 @@ export function ArticleLayoutSuggestionPanel({
 }) {
   const [undo, setUndo] = useState<{
     readonly rows: readonly ArticleBlockDraft[];
+    readonly applied: readonly ArticleBlockDraft[];
     readonly message: string;
   } | null>(null);
   const present = new Set(rows.map((row) => row.kind));
@@ -40,13 +41,14 @@ export function ArticleLayoutSuggestionPanel({
   const misordered = blocksOutOfTemplateOrder(template, rows);
 
   const applyMissing = (kind: ArticleBlockKind) => {
-    setUndo({ rows, message: `${ARTICLE_BLOCK_LABEL[kind]}の追加を取り消せます。` });
-    onRowsChange([...rows, { id: "", kind, heading: "", body: "" }]);
+    const applied = [...keyedArticleBlockDrafts(rows), newArticleBlockDraft(kind)];
+    setUndo({ rows, applied, message: `${ARTICLE_BLOCK_LABEL[kind]}の追加を取り消せます。` });
+    onRowsChange(applied);
   };
 
   const applyOrder = () => {
     const order = TEMPLATE_BLOCK_ORDER[template];
-    const reordered = rows
+    const reordered = keyedArticleBlockDrafts(rows)
       .map((row, index) => ({ row, index }))
       .sort((left, right) => {
         const leftOrder = order.indexOf(left.row.kind);
@@ -56,17 +58,26 @@ export function ArticleLayoutSuggestionPanel({
         return normalizedLeft - normalizedRight || left.index - right.index;
       })
       .map(({ row }) => row);
-    setUndo({ rows, message: "部品の並べ替えを取り消せます。" });
+    setUndo({ rows, applied: reordered, message: "部品の並べ替えを取り消せます。" });
     onRowsChange(reordered);
   };
 
   return (
     <section aria-labelledby="article-layout-check-title">
       <SectionHeading level={3} id="article-layout-check-title">版面チェック</SectionHeading>
+      {missing.length > 0 ? (
+        <Callout tone="warn" title="公開に必要な部品が足りません"
+          reason={`${missing.map((kind) => ARTICLE_BLOCK_LABEL[kind]).join("・")} がまだありません。`} />
+      ) : null}
+      {misordered.length > 0 ? (
+        <Callout tone="info" title="部品の並びが版面と違います"
+          reason={`${misordered.map((kind) => ARTICLE_BLOCK_LABEL[kind]).join("・")} を動かすと揃います。`} />
+      ) : null}
       {missing.length === 0 && misordered.length === 0 ? (
         <Note>版面ルールから見つかる直しどころはありません。</Note>
       ) : null}
 
+      <Foldable summary="直し候補を確認する">
       {missing.map((kind) => (
         <article key={`missing-${kind}`}>
           <strong>優先度 高</strong>
@@ -97,8 +108,9 @@ export function ArticleLayoutSuggestionPanel({
           </Button>
         </article>
       ) : null}
+      </Foldable>
 
-      {undo !== null ? (
+      {undo !== null && (rows === undo.applied || rows === undo.rows) ? (
         <Callout
           tone="success"
           title="版面の直しを反映しました"

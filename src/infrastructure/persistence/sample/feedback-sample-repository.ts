@@ -4,18 +4,11 @@ import type {
   FeedbackRepositoryPort,
   IntegrationKeyPort,
 } from "@/application/ports/feedback";
-import {
-  type FeedbackReport,
-  type IntegrationKey,
-  assertCaptureIsStorable,
-  createFeedbackReport,
-  hasBeenHandedOff,
-  isCaptureExpired,
-  isDiagnosticsExpired,
-  isDiagnosticsPurged,
-  markUsed,
-  purgeDiagnostics,
-} from "@/domain/feedback";
+import { createFeedbackReport, type FeedbackReport } from "@/domain/feedback/report";
+import { markUsed, type IntegrationKey } from "@/domain/feedback/integration-access";
+import { assertCaptureIsStorable, isCaptureExpired } from "@/domain/feedback/capture-policy";
+import { hasBeenHandedOff } from "@/domain/feedback/handoff";
+import { isDiagnosticsExpired, isDiagnosticsPurged, purgeDiagnostics } from "@/domain/feedback/diagnostics-retention";
 import {
   asFeedbackReportId,
   asUserId,

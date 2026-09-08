@@ -41,32 +41,30 @@ const PAGE = readFileSync(
   new URL("../../../src/presentation/site/article-page.tsx", import.meta.url),
   "utf8",
 );
+const STRUCTURED_DATA = readFileSync(
+  new URL("../../../src/presentation/site/article-structured-data.tsx", import.meta.url),
+  "utf8",
+);
 
 /**
- * `<JsonLdScript value={...}>` の値をすべて集める。
+ * `<JsonLdScripts values={[...]}>` の値をすべて集める。
  *
- * 組み立て関数は 2 通りの置かれ方をしている。
- *   - script タグの中で直に呼ぶ（`buildBlogPosting`）
- *   - 先に変数へ束ねてから埋める（`buildItemList` → `itemList`）
- * 後者は「null なら出さない」の判断が要るためで、正当な書き方である。
- * だから「タグの中に関数名がある」では見られない。
+ * nullable builder の条件分岐は `JsonLdScripts` が一括して担う。
+ * 呼び出し側へ IIFE が戻ると経路が再び分かれるため、配列境界を直接見る。
  */
-const JSON_LD_USAGES: readonly string[] = PAGE.split("<JsonLdScript")
+const JSON_LD_USAGES: readonly string[] = STRUCTURED_DATA.split("<JsonLdScripts")
   .slice(1)
   .map((tag) => tag.slice(0, tag.indexOf("/>") === -1 ? tag.length : tag.indexOf("/>")))
-  .filter((body) => body.includes("value="));
+  .filter((body) => body.includes("values="));
 
 /**
  * その組み立て関数の結果が JSON-LD として出ているか。
  *
- * 直呼びなら関数名がタグ内にある。変数経由なら、その代入先の名前が
- * `serializeJsonLd(<名前>)` としてタグ内にある。両方を見る。
+ * builder は nullable を含む配列へ直に置く。そこで名前が見えれば、
+ * `JsonLdScripts` が native script へ写すことは component test が保証する。
  */
 function emittedAsJsonLd(builder: string): boolean {
-  if (JSON_LD_USAGES.some((body) => body.includes(builder))) return true;
-  const bound = PAGE.match(new RegExp(`const\\s+(\\w+)\\s*=\\s*${builder}\\(`));
-  if (bound === null) return false;
-  return JSON_LD_USAGES.some((body) => body.includes(`value={${bound[1]}}`));
+  return JSON_LD_USAGES.some((body) => body.includes(`${builder}(`));
 }
 
 describe("A10 記事 HTML の構造化データ", () => {
@@ -98,8 +96,8 @@ describe("A10 記事 HTML の構造化データ", () => {
    * ここが崩れると、読者に見える出典と検索エンジンへ渡す出典が食い違う。
    */
   it("T-A10-5 構造化データは読み取りモデルから直接作る", () => {
-    expect(PAGE).toContain("buildBlogPosting(result.value");
-    expect(PAGE).not.toMatch(/buildBlogPosting\(\s*article\b/);
+    expect(PAGE).toMatch(/<ArticleStructuredData\s+article=\{result\.value\}/);
+    expect(STRUCTURED_DATA).toContain("buildBlogPosting(article, site)");
   });
 
   /**

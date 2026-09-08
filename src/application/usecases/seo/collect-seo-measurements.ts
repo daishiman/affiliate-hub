@@ -29,25 +29,19 @@ import { canonicalSiteUrl } from "@/application/seo/feeds";
   見張りは `tests/architecture/worker-entry-weight.test.ts`。
 */
 import { requireCapability } from "@/domain/identity/permissions";
-import {
-  type Finding,
-  type MeasurementSource,
-  auditCompleteSite,
-  auditLlmsTxt,
-  auditPageObservation,
-  pageKeyOf,
-} from "@/domain/seo/aeo-measurement";
+import type { Finding } from "@/domain/seo/aeo-measurement/finding";
+import type { MeasurementSource } from "@/domain/seo/aeo-measurement/measurement-source";
+import { pageKeyOf } from "@/domain/seo/aeo-measurement/page-key";
+import { auditPageObservation } from "@/domain/seo/aeo-measurement/page-observation";
+import { auditCompleteSite, auditLlmsTxt } from "@/domain/seo/aeo-measurement/site-audit";
+import { type DomainError, validationError } from "@/domain/shared/errors";
+import type { WorkspaceId } from "@/domain/shared/ids";
+import { type Result, err, ok } from "@/domain/shared/result";
 import {
   type ActorContext,
-  type DomainError,
-  type Result,
-  type WorkspaceId,
   assertSameTenant,
   assertWorkspaceWideAccess,
-  err,
-  ok,
-  validationError,
-} from "@/domain/shared";
+} from "@/domain/shared/tenancy";
 import type { UseCase } from "../usecase";
 
 /**

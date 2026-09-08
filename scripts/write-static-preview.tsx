@@ -57,6 +57,7 @@ import {
   sampleSites,
 } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
+import { renderCanonicalSectionBody } from "@/presentation/site/canonical-section-body";
 import { siteHref, toArticleView, toChrome } from "@/presentation/site/view-model";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import {
@@ -358,7 +359,10 @@ function renderSheets(sites: readonly PreviewSiteData[]): readonly Sheet[] {
               { label: view.title },
             ]}
           >
-            <ArticleView article={view} />
+            <ArticleView
+              article={view}
+              renderSectionBody={renderCanonicalSectionBody}
+            />
           </SiteShell>,
         ),
         appHref,

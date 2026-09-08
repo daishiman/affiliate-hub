@@ -2,7 +2,8 @@ import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import type { SeoMeasurementArticlePort } from "@/application/ports/seo-measurement";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 import { publishedArticles, seoAiCitationAttempts, seoPageObservations } from "@/db/schema";
-import { err, ok, validationError } from "@/domain/shared";
+import { validationError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";
 

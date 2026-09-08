@@ -9,7 +9,8 @@ import type {
   EditorialSiteDocumentRepositoryPort,
 } from "@/application/ports/site";
 import { countTrackingCoverage } from "@/application/read-models/article-tracking";
-import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
+import { tallyBrands } from "@/application/read-models/published-article";
+import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring/site-routes";
 import { markEditorial, ok, type WorkspaceId } from "@/domain/shared";
 import { stubCall } from "../../stub-registry";
 import {
@@ -155,6 +156,10 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
       if (query.trim() === "") return ok([]);
       const page = await browse(siteSlug, { query, limit, offset: 0 });
       return ok(page.value.articles);
+    },
+    async listBrands(siteSlug: string) {
+      // 数え方は D1 と同じ関数を通す。片方だけ直して並びがずれるのを防ぐ。
+      return ok(tallyBrands(sampleArticlesBySite(siteSlug)));
     },
     async findPerson(siteSlug: string, kind: "author" | "expert", slug: string) {
       return ok(

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { ContentAngle, CtaType } from "@/domain/authoring";
-import { READER_DISCLOSURE_TEXT } from "@/domain/compliance";
+import { READER_DISCLOSURE_TEXT } from "@/domain/compliance/disclosure";
 import { contentEditingUseCases, signedInActor } from "@/presentation/composition";
 import type { ContentFormState } from "./content-form-state";
 import { failureFromDomainError, notSignedInFailure } from "../use-case-result";

@@ -1,0 +1,291 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-blog-custom-domain",
+  "scope_digest": "sha256:32201ef63bbd04e586be9983b6765d83305d310be3ed94024a39e4884371eded",
+  "trace_plan_digest": "sha256:5cccdf1f29f8629a2a387c05aafe4324be9067c2755f66d84c0592a8077b93e9",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)",
+  "derivation_rule": "base=[P01,P04,P05,P06,P07,P11]。受入条件本文の語で加算する: テーブル/列/制約/契約/モデル→P02、移行/重複解消/既存→P08、冪等/失敗/性能/権限/audit/削除/期限→P09、手順/説明/文言/画面に出る→P12、配信/公開面/リリース→P13。加算後に昇順で一意化する。",
+  "verdict": "PASS",
+  "entry_count": 10,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9",
+    "A10"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "所有権が検証されるまで status が active にならず、未検証ホストへのアクセスで当該ブログが配信されない",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[0]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "hostname に UNIQUE 制約があり、同じホスト名を 2 つのブログへ同時に繋げない",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[1]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "active な独自ドメインへのアクセスが当該ブログの内容を 200 で返す",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[2]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "独自ドメインが active の間も既定住所 <slug>.<基底ドメイン> が 200 を返し、ブログが消えない",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[3]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "active の間 canonical が独自ドメインを指し、非 active へ戻ると既定住所へ戻る",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[4]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "切断しても行が削除されず status=revoked として残り、hostname の履歴が追える",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[5]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "接続・切断が Publisher 未満の役割から実行できず、切断はブログ名の一致入力なしに完了しない",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[6]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "接続・検証・切断の各操作が audit_logs に残る",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[7]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A8",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A9",
+      "requirement": "provider 側の検証失敗・証明書失敗が failure_reason として管理画面に文言で出る",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[8]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A9",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11|P12]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A10",
+      "requirement": "同じ hostname で接続を二度実行しても custom hostname が重複登録されない (冪等)",
+      "confirmed_sources": [
+        "feature:feat-blog-custom-domain#acceptance[9]",
+        "context:feat-blog-custom-domain",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A10",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    }
+  ]
+}

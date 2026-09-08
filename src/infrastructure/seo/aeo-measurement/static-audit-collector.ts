@@ -3,11 +3,11 @@ import type {
   JsonLdNodeObservation,
   ObservedImage,
   OpenGraphObservation,
-  PageKey,
   PageObservation,
-} from "@/domain/seo/aeo-measurement";
-import { pageKeyOf } from "@/domain/seo/aeo-measurement";
-import { domainError, err, ok } from "@/domain/shared";
+} from "@/domain/seo/aeo-measurement/page-observation";
+import { pageKeyOf, type PageKey } from "@/domain/seo/aeo-measurement/page-key";
+import { domainError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
 
 /**
  * 系統①: 自分のサイトの公開 HTML を読んで、観測した事実だけを返す。

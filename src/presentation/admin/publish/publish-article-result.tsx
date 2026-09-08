@@ -66,6 +66,15 @@ export function PublishArticleResult({ state }: { state: PublishArticleFormState
           }
         />
       ) : null}
+      {state.status === "done" &&
+      state.phase === "published" &&
+      state.aiSearchAuditRecord?.status === "failed" ? (
+        <Callout
+          tone="warn"
+          title="AI 検索点検の履歴"
+          reason={state.aiSearchAuditRecord.detail}
+        />
+      ) : null}
       {state.status === "done" && state.phase === "published" && state.indexNow !== undefined ? (
         <Callout
           tone={

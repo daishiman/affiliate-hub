@@ -1,0 +1,159 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging",
+  "evaluated_digest": "sha256:bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "1.0.0",
+    "context": "fork"
+  },
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "矛盾なし。feature_package_id=feature-package/feat-article-block-editor が feature-package.json・task-graph.json・workstream-inventory.json・system-build-handoff.json の全件で一致。source_feature_digest=sha256:9a9bfacc9dd444dfcaaf27d9ac1d83a0a3596dce3afffc094f1ace4d430eac02 が feature-package.json/task-graph.json/system-build-handoff.json identity で一致。repo_identity=github:daishiman/affiliate-hub が workstream-inventory.json#repo_context と system-build-handoff.json#identity の両方で一致。presigned PUT / browser direct R2 PUT / R2 write CORS への言及はすべて否定文として現れ採用を示す記述は存在しない。validate-system-plan.py (exit_code=0, violations=[]) が機械的に確認した。",
+      "evidence": [
+        "feature-package.json#identity",
+        "task-graph.json#identity",
+        "workstream-inventory.json#repo_context",
+        "system-build-handoff.json#identity",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "漏れなし。staging-manifest.json が列挙する17ファイルが全件実在し各SHA256が一致 (manifest-exact-set=pass, file-digest=pass)。全13 task spec に必須セクション (acceptance / write_scope / verification / rollback) が非空で存在し、TODO/TBD/__PLACEHOLDER__の文字列が検出されず、implementation_readiness.status=complete。A1-A7とマクロ要件7項目 (マクロ構造・外側ループ・内側ループ・スコープ分離・情報配置・書き戻し・既存保全) がP01-P13全件に意味として反映されている。A2/A5/A7は全13フェーズ、A1はP05/P06/P07/P13、A3は8フェーズ、A4は6フェーズ、A6は8フェーズをカバー。P01設計→P05実装→P13書き戻しのマクロ構造、節/ArticleBlock/見出し2固定の外側ループ、断片/ProseNodeの内側ループ、presigned PUT排除のスコープ分離がP01-P13全件でカバーされている。",
+      "evidence": [
+        "staging-manifest.json#files",
+        "feature-package.json#phase_refs",
+        "system-build-handoff.json#execution_tasks",
+        "task-specs/phase-01-requirements.md#acceptance",
+        "task-specs/phase-13-release-deploy.md#acceptance",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "整合性あり。repo_context.repo_identity=github:daishiman/affiliate-hub が handoff.identity.repository_id と一致。contract_version=1.3.0 (latest, contract_baseline_exemption=false)。test_strategy_contract.mode=enforced (enforced_from=1.2.0)、rerun_command_contract.mode=enforced (enforced_from=1.3.0)。p01_entry_gate={selector: parent_feature.depends_on, operator: all, required_statuses: [done, closed]} が workstream-inventory.json・system-build-handoff.json・task-specs/phase-01-requirements.md の三箇所で同一定義。validate-system-plan.py: repo-identity=pass, p01-entry-gate=pass, violations=[]。",
+      "evidence": [
+        "workstream-inventory.json#repo_context",
+        "system-build-handoff.json#identity",
+        "feature-package.json#contract",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "依存関係整合。task-graph.json の edges 14件が nodes[].depends_on の逆写像と完全一致し前方エッジのみ。Kahnアルゴリズムでサイクルなし (13/13ノードが順序付け済み)。トポロジカル順: P01→P02→P03→P04→P05→P06→P08→P07→P09→P10→P11→P12→P13。並列分岐P05→P06/P05→P08と合流点P11(P07+P09)/P12(P10+P11)がnodes[]とedges[]の両方で対称に記録されている。workstream-inventory.json・task-graph.json・system-build-handoff.json execution_tasks の3ファイルで全13ノードのdepends_onが完全一致。全13 taskのwrite_scopeパスに絶対パス・'..'・path traversalが0件。scope_out 8項目 (feat-ai-content-studio / feat-seo-aeo-gap-closure / feat-reference-blog-admin-ux / feat-uiux-overhaul / feat-editorial-workflow / 同時編集 / バージョン履歴UI / 商品データ取込) とwrite_scopeの重複が0件。validate-system-plan.py: graph-edge-parity=pass, non-forward-edge=pass, violations=[]。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "task-graph.json#edges",
+        "workstream-inventory.json#tasks",
+        "system-build-handoff.json#execution_tasks",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\"schema_version\": \"1.0.0\", \"status\": \"pass\", \"validated_digest\": \"sha256:bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627\", \"feature_package_id\": \"feature-package/feat-article-block-editor\", \"parent_feature\": \"feat-article-block-editor\", \"phase_refs\": [\"P01\", \"P02\", \"P03\", \"P04\", \"P05\", \"P06\", \"P07\", \"P08\", \"P09\", \"P10\", \"P11\", \"P12\", \"P13\"], \"contract_version\": \"1.3.0\", \"contract_baseline_exemption\": false, \"test_strategy_contract\": {\"mode\": \"enforced\", \"contract_version\": \"1.3.0\", \"enforced_from\": \"1.2.0\"}, \"rerun_command_contract\": {\"mode\": \"enforced\", \"contract_version\": \"1.3.0\", \"enforced_from\": \"1.3.0\"}, \"violations\": []}"
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "staging-manifest.json",
+      "sha256": "b52f37b6e2d16d9ac3a823200d628f683d3f47240ec14f03bb3a33be4549f76d"
+    },
+    {
+      "path": "feature-package.json",
+      "sha256": "4ab5f2752a369619bd48466fc35f341f1d5af506db39071d77af2f5ee7e10396"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "26dcf5da192564687bc617b8cae74fb00a592a285d396e6b82249776b43c57b0"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "9333aed56f711ef6e2bac3cc79521dcb3dc7a8d9c00955e357964eb05b631898"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "52bfda42dcbf8f8fbb59396cfe9158db30ea2caa88e0d5427e2f8fd7e804833c"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "a72e611f30473bb584a6864c4c01810aae1da1376d461435341de9a91942d6a4"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "d9af3c68b68f7ae2380b5b6d0e27694c6fa244554dd314477dfd8d12023f41f3"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "e7ed14ec7ba5d15131e22f52c81dda633a5fa101fa51a009778f183a28955d10"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "1046f78e9a5642892d937c83fa288f12e434c3285ed627d9591b704c27649f7e"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "52458f4cb0595dbfc4275d33a6d996cf4be7dbac88b2c6d04513f91bd75a2ef1"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "b928793d6f8e9566a79af27ece3942454c57205674dfcf7570f622bc862cbff0"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "c9b411527f759446b7627c7cccbb40d28ec46399ce53d4754c421d6111f3141f"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "863a341940a5d8158367668d4d881f24065e11c5ec0f1d5c8caaf10539a19fb2"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "e00ac5018ba725e1d2de10db5b81f68ab307b211ce730a9f95ca097d3091f462"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "2216677ec88a50db33da64ce7d1e3fbfd33ef510afa4c0b1d0b3a24fc70adc31"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "7f02387d0d24326d8b7f8dbbf1fb1b62c57dc63c9130826f14f00d4d257a04bf"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "34f8b322948af55c3ac003194a66bbae014a781bf64526c834e1b6b642f405ae"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "d4787455bfd09e748ee3738fdb65e862e9cabba29a8735059bf174232922d4e2"
+    }
+  ],
+  "staleness_rule": "evaluated_digestがstaging-manifest.jsonのcanonical_digestと一致しない場合、またはstaging内のいずれかのファイルが変更された場合、この findings は無効とみなし再評価を要求する。",
+  "findings": []
+}

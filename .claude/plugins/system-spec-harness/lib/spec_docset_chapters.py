@@ -15,7 +15,31 @@ from spec_docset_citation import render_clause_citation
 
 # レンダリング (章 / index) — 純関数                                            #
 # --------------------------------------------------------------------------- #
-_FENCE_RE = re.compile(r"^```", re.M)
+_FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+
+
+def _next_fence(line: str, opened: str | None) -> str | None:
+    match = _FENCE_RE.match(line)
+    if not match:
+        return opened
+    marker, tail = match.groups()
+    if opened is None:
+        return None if marker[0] == "`" and "`" in tail else marker
+    if marker[0] == opened[0] and len(marker) >= len(opened) and not tail.strip():
+        return None
+    return opened
+
+
+def markdown_heading_levels(text: str) -> list[int]:
+    """Return each line's heading depth, excluding literal fenced-code content."""
+    opened: str | None = None
+    levels: list[int] = []
+    for line in text.split("\n"):
+        before = opened
+        opened = _next_fence(line, opened)
+        match = _HEADING_RE.match(line) if before is None and opened is None else None
+        levels.append(len(match.group(1)) if match else 0)
+    return levels
 
 
 def seal_code_fences(text: str) -> tuple[str, bool]:
@@ -32,9 +56,12 @@ def seal_code_fences(text: str) -> tuple[str, bool]:
     足したことは呼び出し側が注記として可視化する (fail-visible)。
     正本 (qa_log[].answer) 側の修正が本筋であり、これはその修正までの防波堤である。
     """
-    if len(_FENCE_RE.findall(text)) % 2 == 0:
+    opened: str | None = None
+    for line in text.split("\n"):
+        opened = _next_fence(line, opened)
+    if opened is None:
         return text, False
-    return text + "\n```", True
+    return text + "\n" + opened, True
 
 
 _HEADING_RE = re.compile(r"^(#{1,6})(\s|$)")
@@ -65,17 +92,8 @@ def demote_headings(text: str, floor: int) -> tuple[str, bool, bool]:
     戻り値: (押し下げ後の本文, 押し下げたか, 上限で潰れたか)
     """
     lines = text.split("\n")
-    in_fence = False
-    levels: list[int] = []
-    for line in lines:
-        if line.startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        m = _HEADING_RE.match(line)
-        if m:
-            levels.append(len(m.group(1)))
+    line_levels = markdown_heading_levels(text)
+    levels = [level for level in line_levels if level]
     if not levels:
         return text, False, False
     shift = floor - min(levels)
@@ -83,20 +101,14 @@ def demote_headings(text: str, floor: int) -> tuple[str, bool, bool]:
         # すでに埋め込み先より深い。触らないのが正しい。
         return text, False, False
     out: list[str] = []
-    in_fence = False
     flattened = False
-    for line in lines:
-        if line.startswith("```"):
-            in_fence = not in_fence
-            out.append(line)
-            continue
-        m = None if in_fence else _HEADING_RE.match(line)
-        if m:
-            wanted = len(m.group(1)) + shift
+    for line, current_level in zip(lines, line_levels):
+        if current_level:
+            wanted = current_level + shift
             level = min(6, wanted)
             if wanted > 6:
                 flattened = True
-            out.append("#" * level + line[len(m.group(1)):])
+            out.append("#" * level + line[current_level:])
         else:
             out.append(line)
     return "\n".join(out), True, flattened
@@ -157,6 +169,96 @@ def render_state_table(spec: dict, cat_id: str) -> str:
             basis = "収集中 (未確定)"
         lines.append(f"| {plabel} ({pf}) | {state} | {basis} |")
     return "\n".join(lines)
+
+
+def render_decisions(spec: dict, cat_id: str) -> str:
+    """正本 `decisions[]` のうち**本章を主担当とする分だけ**を章へ描く。
+
+    **なぜ compile が描くのか (2026-09-04 に足した)**: この表は 2026-09-04 まで
+    8 章それぞれに**手で**書かれていた。章は `status: confirmed` なので C11 hook が
+    Edit を遮断し、決定が 1 件増えても人が 8 ファイルを直す正規経路は無い。しかも
+    手書き節は再生成のたびに `--on-handwritten preserve` の引き継ぎに命を預けており、
+    実際に 2026-09-04 の再生成で 8 章すべてから節ごと消えた
+    (`tests/architecture/chapter-regeneration-floor.test.ts` が 33 件で捕まえた)。
+
+    守るのではなく、消えようのない場所を用意する — `render_chapter_notes` と同じ手である。
+    主担当章は正本 `decisions[].owner_category` が持ち、C01 writer が実在カテゴリを検める。
+    章側に判断は残らないので、この関数は正本の純関数になる。
+
+    **なぜ全件ではなく主担当だけなのか (同日中に絞った)**: 初版は全 12 件を 8 章すべてへ
+    描いた。「他の章で何が決まったか」を章から見えるようにするためだったが、
+    `00-requirements-definition.md` が既に正本の全件表を持っている。つまり同じ表が
+    9 か所に出る。実測でその重複は 4 章を行数の天井へ押し上げ、とくに ui-ux は
+    「次に当たったら天井を動かさず**置き場そのものを疑え**」という宿題を持っていた
+    (`chapter-regeneration-floor.test.ts`)。宿題への答えがこれである — 章が持つべきは
+    **その章が主担当の決定**であって、全体の一覧ではない。全体は 00 章へ送る。
+
+    絞っても純関数のままなので、欠落も順序も測れる (テストは owner_category で
+    絞った期待列と `toEqual` で突き合わせ、8 章の和が正本全件になることも見る)。
+    """
+    decisions = spec.get("decisions")
+    lines = ["## 意思決定 (decisions)", ""]
+    if not isinstance(decisions, list) or not decisions:
+        return "\n".join(lines + ["- (正本 `decisions[]` に記録なし)"])
+
+    own = [d for d in decisions if isinstance(d, dict) and d.get("owner_category") == cat_id]
+    # 主担当章の宣言が無い decision は、どの章の表にも出ない = 章から見えなくなる。
+    # 黙って落とすと「無い」と「割り当てていない」が同じ姿になるので、全章に名前だけ挙げる。
+    # (2026-09-08 の dev 合流で、同じ節を描く二重実装のうち片方だけが持っていた性質を
+    #  こちらへ移した。落とすと「割り当て漏れ」を報せる場所が章から消える。)
+    unowned = [
+        d for d in decisions if isinstance(d, dict) and not str(d.get("owner_category") or "").strip()
+    ]
+    unowned_note = (
+        [
+            "",
+            f"- **主担当章が未宣言の decision が {len(unowned)} 件ある** "
+            f"({', '.join('`' + str(d.get('id')) + '`' for d in unowned)})。"
+            "宣言が無いものはどの章の表にも出ないため、ここで名前だけ挙げてある。",
+        ]
+        if unowned
+        else []
+    )
+    lead = (
+        f"> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`{cat_id}`) を主担当とする"
+        f" **{len(own)} 件**。全 {len(decisions)} 件の一覧は"
+        " [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く"
+        " (章へ写さない)。"
+    )
+    if not own:
+        return "\n".join(lines + [lead, "", "- 本章を主担当とする決定は無い。"] + unowned_note)
+
+    lines += [
+        lead,
+        "",
+        "| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |",
+        "|---|---|---|---|---|",
+    ]
+    for decision in own:
+        did = decision.get("id", "-")
+        user = decision.get("user_decision") or {}
+        chosen = user.get("option_id") if isinstance(user, dict) else None
+        if not chosen:
+            rec = decision.get("recommendation") or {}
+            chosen = (
+                f"{rec.get('option_id')} (AI推奨・確認待ち)"
+                if isinstance(rec, dict) and rec.get("option_id")
+                else "未定"
+            )
+        lines.append(
+            f"| `{did}` | {decision.get('question', '-')} | `{chosen}` | "
+            f"{decision.get('status', '-')} | "
+            f"{', '.join(decision.get('serves_goals') or []) or '-'} |"
+        )
+    for decision in own:
+        caveats = (decision.get("recommendation") or {}).get("caveats") or []
+        if caveats:
+            lines += [
+                "",
+                f"- **`{decision.get('id', '-')}` の caveat**: "
+                + " / ".join(str(c) for c in caveats),
+            ]
+    return "\n".join(lines + unowned_note)
 
 
 def _qa_by_id(spec: dict) -> dict[str, dict]:
@@ -298,7 +400,8 @@ def _render_qa_body(
     lines.append("")
     answer, sealed = seal_code_fences(str(qa.get("answer", "(未記入)")))
     answer, demoted, flattened = demote_headings(answer, 4)
-    lines.append(f"**回答**: {answer}")
+    separator = "\n\n" if _FENCE_RE.match(answer.split("\n", 1)[0]) or re.match(r"^#{1,6}\s", answer) else " "
+    lines.append(f"**回答**:{separator}{answer}")
     lines.append("")
     for note in _demotion_notes(ref, demoted, flattened):
         lines.append(note)
@@ -356,7 +459,15 @@ def render_chapter_notes(spec: dict, cat_id: str) -> str:
         if not isinstance(note, dict):
             continue
         lines += ["", f"### {note.get('heading', '(見出しなし)')}", ""]
-        lines += [str(note.get("body", "")).rstrip("\n")]
+        body, sealed = seal_code_fences(str(note.get("body", "")).rstrip("\n"))
+        body, demoted, flattened = demote_headings(body, 4)
+        lines += [body]
+        if demoted:
+            lines += ["", "- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)"]
+        if flattened:
+            lines += ["", "- (注記: chapter_notes 本文の見出しの深さが Markdown の上限 h6 に達した)"]
+        if sealed:
+            lines += ["", "- (注記: chapter_notes 本文の未閉鎖フェンスをコンパイラが閉じ、後続の注記を保護した)"]
         reason = str(note.get("reason") or "").strip()
         if reason:
             lines += ["", f"- 正本へ入れた理由: {reason}"]
@@ -364,6 +475,115 @@ def render_chapter_notes(spec: dict, cat_id: str) -> str:
     for full, reference in shared_chapter_note_copies(spec, cat_id).items():
         rendered = rendered.replace(full, reference)
     return rendered
+
+
+def render_confirmed_cell(spec: dict, cat_id: str) -> str:
+    """確定セルの内容を正本 `matrix` / `qa_log` から章へ描く。
+
+    **なぜ compile が描くのか (2026-09-04 に足した)**: この節は 2026-08-20 に
+    「再生成ではなく手編集で」8 章へ入れられ、以来ずっと手写しだった。節の冒頭は
+    自分で「本節は正本の**転記**である。値が食い違ったら正本を正とする」と断って
+    いたが、**その断り書きに追従の機械は無かった。**結果は既定どおり腐った —
+    2026-08-30 に 8 章中 5 章が古く (`chapter-confirmed-cell-transcript.test.ts` の
+    冒頭に実測表が残っている)、手で直した 5 日後の 2026-09-04 に再び 4 章がずれた
+    (`serves_goals`)。しかも章は `status: confirmed` なので C11 hook が Edit を
+    遮断する。**腐るのに直せない節**だった。
+
+    `render_decisions` / `render_chapter_notes` と同じ手を採る —
+    守るのではなく、消えようのない場所を用意する。
+
+    **正本に無い欄は 1 つも無かった**のが、この節を生成へ移せる根拠である。
+    セル / 状態 / `qa_ref` / `serves_goals` / `required_info` は
+    `matrix[cat][platform]` が、出典 kind / path / 節 / sha256 と
+    `design_applications` の件数は `qa_log[qa_ref]` が持つ。「出典は正本に無いから
+    移せない」は調べる前の思い込みで、実測で消えた。
+
+    実際その思い込みの間に**出典行だけが誰にも見られず腐っていた** — 2026-09-04 時点で
+    backend / database / frontend / maintenance-ops の 4 章が `written-requirements` と
+    `docs/spec/*.md` の path・sha256 を書いていたが、正本の当該 `qa_ref` の source は
+    `user-dialogue` (path を持たない) だった。検査は出典行を見ていないので赤くならない。
+    **章が実在しない sha256 で裏取り済みを騙る**形であり、生成化はこれも同時に消す。
+
+    手写し時代の散文 (「本節を『転記』に留めた理由」) は捨てず、正本
+    `chapter_notes` へ移してある (`## 章の注記` として同じ compile が描く)。
+    """
+    row = _row(spec, cat_id)
+    qa_by_id = _qa_by_id(spec)
+    confirmed = [
+        (pf, row[pf])
+        for pf in CANONICAL_PLATFORMS
+        if isinstance(row.get(pf), dict) and row[pf].get("state") == "確定"
+    ]
+    if not confirmed:
+        return ""
+
+    lines = [
+        "## 確定セルの記録 (正本 spec-state.json)",
+        "",
+        "> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から"
+        " **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る"
+        " (2026-09-04 まで手写しで、その間ずっと腐っていた)。",
+    ]
+    for platform, cell in confirmed:
+        qa_ref = cell.get("qa_ref")
+        qa = qa_by_id.get(qa_ref) or {}
+        source = qa.get("source") if isinstance(qa.get("source"), dict) else {}
+        # 空欄記号は章の中で 1 種類に揃える (`-` と `—` が混ざると grep が二度要る)。
+        kind = source.get("kind") or "—"
+        # path/節/sha256 を持たない出典 (user-dialogue) は「持たない」と書く。
+        # 空欄にすると「調べていない」と区別が付かない。
+        dash = "— (対話に基づくため path/節/sha256 を持たない)" if kind == "user-dialogue" else "—"
+        applications = qa.get("design_applications")
+        n_apps = len(applications) if isinstance(applications, list) else 0
+        path = source.get("path")
+        sha = source.get("sha256")
+        path_cell = "`" + path + "`" if path else dash
+        sha_cell = "`" + sha + "`" if sha else "—"
+        # qa_ref 欠落は起こらないはずだが、起きたときに空のコード片 (`` ` ` ``) で
+        # 「何か在る」ように見せない。他の欄と同じ `—` で「無い」と書く。
+        qa_cell = "`" + qa_ref + "`" if qa_ref else "—"
+        lines += [
+            "",
+            "| 項目 | 値 |",
+            "|---|---|",
+            f"| セル | {cat_id} × {platform} |",
+            "| 状態 | 確定 |",
+            f"| 確定質疑 (qa_ref) | {qa_cell} |",
+            f"| 資するゴール (serves_goals) | {', '.join(cell.get('serves_goals') or []) or '—'} |",
+            f"| required-info | {_required_info_cell(cell)} |",
+            f"| 出典 kind | {kind} |",
+            f"| 出典 path | {path_cell} |",
+            f"| 出典 節 | {source.get('section') or '—'} |",
+            f"| 出典 sha256 | {sha_cell} |",
+            f"| 適用された設計知識 (design_applications) | {n_apps} 件 —"
+            " 本章 `## 適用された設計知識` を参照 |",
+        ]
+    return "\n".join(lines)
+
+
+def _required_info_cell(cell: dict) -> str:
+    """required_info を章の 1 セルへ写す。
+
+    0 件は空欄でも `—` でもなく文言で書く。「block 指定が無い」と
+    「登録を見ていない」は読む人にとって別物で、空欄はどちらとも読める。
+    """
+    items = cell.get("required_info")
+    if not isinstance(items, list) or not items:
+        return "なし (この確定に block 指定の必須情報は登録されていない)"
+    parts = []
+    for info in items:
+        if not isinstance(info, dict):
+            continue
+        status = info.get("status")
+        grounded = (
+            f"接地: 済 (`{info.get('grounded_by')}`)"
+            if status == "grounded"
+            else f"接地: {'未' if status == 'missing' else status}"
+        )
+        parts.append(
+            f"`{info.get('item_id')}` — missing_effect: {info.get('missing_effect')} / {grounded}"
+        )
+    return "<br>".join(parts)
 
 
 def render_doctrine_anchor(cat_id: str) -> str:
@@ -570,7 +790,8 @@ def _render_application_entry(
         # 片方だけ塞ぐと、同じ壊れがこちらから章へ漏れる。
         answer, sealed = seal_code_fences(str(qa.get("answer", "(qa_log 本文欠落)")))
         answer, demoted, flattened = demote_headings(answer, 6)
-        lines.append(f"- 確定要件: {answer}")
+        separator = "\n\n" if _FENCE_RE.match(answer.split("\n", 1)[0]) or re.match(r"^#{1,6}\s", answer) else " "
+        lines.append(f"- 確定要件:{separator}{answer}")
         if sealed:
             lines.append(
                 f"- (注記: 正本 qa_log[{ref}].answer のコードフェンスが閉じていないため、"
@@ -707,71 +928,6 @@ def render_chapter_application_doc(spec: dict, cat_id: str) -> str:
     return "\n".join(parts)
 
 
-def render_chapter_decisions(spec: dict, cat_id: str) -> str:
-    """章 cat_id を主担当とする decision だけの表を組み立てる。
-
-    **全件表ではない。**全 N 件と各候補の比較は `00-requirements-definition.md` が
-    `render_decisions(spec)` で既に生成している。章にも全件を写すと同じ表が 9 か所に増え、
-    件数が変わった日に 8 か所が古いまま残る (実際に手書き時代はそうなり、正本が 8 件に
-    なっても章は「全 7 件」と言い続けていた)。章が持つ意味は「どれが本章の持ち物か」
-    だけなので、そこだけを描いて残りは導線にする。
-
-    関数名を foundation 側の `render_decisions` と分けてあるのは、compile が両 module を
-    `import *` で取り込むためである。同名にすると後勝ちでどちらかが黙って消える。
-    """
-    decisions = spec.get("decisions")
-    if not isinstance(decisions, list):
-        decisions = []
-    total = len(decisions)
-    owned = [d for d in decisions if isinstance(d, dict) and d.get("owner_category") == cat_id]
-    unowned = [
-        d for d in decisions if isinstance(d, dict) and not str(d.get("owner_category") or "").strip()
-    ]
-
-    lines = ["## 意思決定 (decisions)", ""]
-    lines.append(
-        "> **本章を主担当とする論点だけ**を載せる。全 "
-        f"{total} 件の一覧・候補比較・推奨根拠は "
-        "[`00-requirements-definition.md`](./00-requirements-definition.md) にある。"
-    )
-    lines.append("")
-
-    if owned:
-        lines.append("| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |")
-        lines.append("|---|---|---|---|---|")
-        for decision in owned:
-            user = decision.get("user_decision") or {}
-            chosen = user.get("option_id") or (decision.get("recommendation") or {}).get("option_id")
-            lines.append(
-                "| `{did}` | {q} | {opt} | {status} | {goals} |".format(
-                    did=decision.get("id", "-"),
-                    q=str(decision.get("question", "-")).replace("|", "\\|"),
-                    opt=f"`{chosen}`" if chosen else "-",
-                    status=decision.get("status", "-"),
-                    goals=", ".join(decision.get("serves_goals") or []) or "-",
-                )
-            )
-    else:
-        lines.append(
-            f"- **本章を主担当とする decision は 0 件**である (分母 = 正本 `decisions[]` 全 {total} 件)。"
-            "これは本章の論点が漏れているという意味ではなく、いずれも第一の適用先を本章としない"
-            "という意味である。"
-        )
-
-    if unowned:
-        # 主担当章の宣言が無い decision は、どの章にも出ない = 章から見えなくなる。
-        # 黙って落とすと「無い」と「割り当てていない」が同じ姿になるので、全章に出す。
-        lines.extend(
-            [
-                "",
-                f"- **主担当章が未宣言の decision が {len(unowned)} 件ある** "
-                f"({', '.join('`' + str(d.get('id')) + '`' for d in unowned)})。"
-                "宣言が無いものはどの章の表にも出ないため、ここで名前だけ挙げてある。",
-            ]
-        )
-    return "\n".join(lines)
-
-
 def render_citations(refs: list[dict], *, empty_note: str) -> str:
     """最新ドキュメント出典表を組み立てる (R2-render の最新ドキュメント出典反映)。"""
     lines = ["## 最新ドキュメント出典", ""]
@@ -801,6 +957,7 @@ def render_chapter(spec: dict, cat_id: str, refs_by_cat: dict[str, list[dict]]) 
     agg = category_aggregate(spec, cat_id)
     refs = refs_by_cat.get(cat_id, [])
     notes = render_chapter_notes(spec, cat_id)
+    cell_record = render_confirmed_cell(spec, cat_id)
     parts = [
         render_frontmatter(spec, cat_id),
         "",
@@ -811,9 +968,12 @@ def render_chapter(spec: dict, cat_id: str, refs_by_cat: dict[str, list[dict]]) 
         "",
         render_state_table(spec, cat_id),
         "",
-        render_confirmed_qa(spec, cat_id),
+        # 確定セルを持たない章に空節を作らない (手写し時代は 8 章すべてが持っていた)。
+        *([cell_record, ""] if cell_record else []),
+        # 質疑録の手前に置く。「何が決まったか」を読んでから「どう決まったか」を読む。
+        render_decisions(spec, cat_id),
         "",
-        render_chapter_decisions(spec, cat_id),
+        render_confirmed_qa(spec, cat_id),
         "",
         # 注記の無い章に空節を作らない。空文字を差し込むと空行だけが増える。
         *([notes, ""] if notes else []),

@@ -1,9 +1,5 @@
-import {
-  FEEDBACK_KINDS,
-  FEEDBACK_KIND_LABELS,
-  FEEDBACK_STATUSES,
-  FEEDBACK_STATUS_LABELS,
-} from "@/domain/feedback";
+import { FEEDBACK_KINDS, FEEDBACK_KIND_LABELS } from "@/domain/feedback/report";
+import { FEEDBACK_STATUSES, FEEDBACK_STATUS_LABELS } from "@/domain/feedback/status";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import { FeedbackHandoffForm } from "@/presentation/admin/maintain/feedback-forms";
 import { currentActor, feedbackNotice, feedbackUseCases } from "@/presentation/composition";

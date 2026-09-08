@@ -1,54 +1,29 @@
 {
  "target_id": "vitest",
  "source_url": "https://vitest.dev/guide/",
- "retrieved_at": "2026-09-03T13:09:07Z",
+ "retrieved_at": "2026-09-03T23:21:10Z",
  "http_status": 200,
  "content_bytes": 75174,
- "content_sha256": "b0213f1ceef0a1424bfd28339cb8b32de27bef82bd5fd2c4b9b17f51da231795",
+ "content_sha256": "19f1d0227772376bca5ffbd65db848d062295ea5a5cdbfde687dad6c8299fc0b",
  "page_title": "Getting Started | Guide | Vitest",
  "freshness_extraction": {
   "freshness_source": "publisher-registry",
   "value": "5.0.0",
   "found_in": [
-   "\"Last updated: \" に続く <time datetime=\"2026-06-18T12:04:27.000Z\" data-v-1206e81d></time>",
-   "版切替 UI の現行版表示 \"v5.0.0\""
+   "\"Last updated: \" に続く <time datetime=\"2026-06-18T12:04:27.000Z\"> (配信 HTML が申告する本文更新日)"
   ],
   "http_last_modified": null,
   "publisher_registry": {
-   "checked_at": "2026-09-03T13:09:07Z",
-   "source_url": "https://registry.npmjs.org/vitest",
-   "dist_tags": {
-    "V3": "3.2.7",
-    "beta": "5.0.0-beta.7",
-    "latest": "5.0.0",
-    "rc": "5.0.0-rc.4"
-   },
+   "checked_at": "2026-09-03T23:21:10Z",
+   "command": "curl https://registry.npmjs.org/vitest (dist-tags / time)",
    "version": "5.0.0",
    "dist_tags_latest": "5.0.0",
-   "time_modified": "2026-09-03T12:24:30.595Z"
+   "time_modified": "2026-09-03T12:24:30.595Z",
+   "version_published_at": "2026-09-03T12:24:30.312Z"
   },
-  "official_repository_history": {
-   "checked_at": "2026-09-03T13:09:07Z",
-   "source_url": "https://api.github.com/repos/vitest-dev/vitest/commits?path=docs/guide/index.md&per_page=3",
-   "latest_commit": "4cbf6b4a09268c30354f647acb0552de8b8a775a",
-   "latest_commit_at": "2026-06-18T12:04:27Z",
-   "message": "docs: add Deno to install instructions (#10614)",
-   "preceding": [
-    {
-     "sha": "3876283e817014bab3909c740740ec4a8ae8d1b9",
-     "date": "2026-05-07T15:47:03Z",
-     "message": "feat!: require Node.js 22 and Vite 6.4 (#10178)"
-    },
-    {
-     "sha": "72a6dc25794cd8400dc10054db5a76df6da0bdaa",
-     "date": "2026-04-22T04:50:28Z",
-     "message": "feat: add `createReport` and `.vitest` report directory convention (#9993)"
-    }
-   ]
-  },
-  "note": "2026-08-24 の取得では配信 HTML の \"Last updated\" が 2026-04-08 で止まり、公式 repository 履歴 (2026-06-18) と食い違っていたため page-declared date を採らなかった。2026-09-03 の再取得では配信 HTML の \"Last updated\" が 2026-06-18T12:04:27Z へ追いつき、repository 履歴の最新コミットと一致している。それでも鮮度根拠は publisher registry を採る — この target が支える決定 (decision-test-ci-tooling) が要るのは文書の更新日ではなく現行版だからである。"
+  "note": "配信 HTML の本文更新日は 2026-06-18 のままだが、publisher registry の dist-tags.latest は 5.0.0 で、公開時刻は 2026-09-03T12:24:30.312Z。前回記録 4.1.11 から 1 メジャー進んでおり、鮮度根拠は registry を採る。"
  },
- "requirement_note": "本文逐語: \"Vitest requires Vite &gt;=v6.4.0 and Node &gt;=v22.12.0\" (HTML 実体参照を解いて \"Vitest requires Vite >=v6.4.0 and Node >=v22.12.0\") — 前提環境を出典自身が申告している。2026-08-24 取得時の申告は \"Vite >=v6.0.0 and Node >=v20.0.0\" であり、5.0.0 系で前提が引き上げられた。repository 履歴の 3876283e (2026-05-07, \"feat!: require Node.js 22 and Vite 6.4\") がこの変更に対応する。",
+ "requirement_note": "本文逐語: \"Vitest requires Vite >=v6.0.0 and Node >=v20.0.0\" — 前提環境を出典自身が申告している。",
  "reverification": [
   {
    "checked_at": "2026-08-24T11:38:56Z",
@@ -59,12 +34,12 @@
    "note": "08-22 の本文と byte 数・sha256 は一致。公式 repository 履歴が本文表示より新しいため、page-declared date ではなく publisher registry の現行版 4.1.11 を鮮度根拠にした。"
   },
   {
-   "checked_at": "2026-09-03T13:09:07Z",
+   "checked_at": "2026-09-03T23:21:10Z",
    "http_status": 200,
    "content_bytes": 75174,
-   "content_sha256": "b0213f1ceef0a1424bfd28339cb8b32de27bef82bd5fd2c4b9b17f51da231795",
-   "verdict": "本文差替・現行版 4.1.11 -> 5.0.0",
-   "note": "2026-09-03 の C08 監査が INDETERMINATE とした 1 件の再取得。記録が誤っていたのではなく、証跡が上流に追い越されていた。dist-tags.latest が 4.1.11 から 5.0.0 へ進み、前提環境の申告も Vite >=v6.0.0 / Node >=v20.0.0 から Vite >=v6.4.0 / Node >=v22.12.0 へ引き上がった。page_title はこの取得で再抽出していない (取得スクリプトの probe 対象に含めなかった) ため、2026-08-24 に抽出した値をそのまま残している。"
+   "content_sha256": "19f1d0227772376bca5ffbd65db848d062295ea5a5cdbfde687dad6c8299fc0b",
+   "verdict": "本文が入れ替わり・現行版 5.0.0 へ更新",
+   "note": "08-24 の本文 (sha256 51e046ff2928 / 92586 bytes) とは一致しない。今回は 75174 bytes。C08 鮮度監査が 4.1.11 の世代落ちを検出したのを受けた再取得で、記録の書き換えではなく取り直しである。"
   }
  ]
 }

@@ -116,6 +116,27 @@ def test_gate_accepts_an_orphan_once_the_successor_is_declared():
     assert VCM._validate_declared_qa_supersession(state) == []
 
 
+def test_grounding_gate_accepts_design_applications_on_a_superseded_entry():
+    """後継を名乗った旧QAは、現行セルの設計根拠ではない。
+
+    履歴の `design_applications` を消すか、後継と旧QAの両方を
+    現行セルへ接地し直さないと緑にならない形は、後継申告と矛盾する。
+    """
+    state = _state(ui={"web": {"state": "確定", "qa_ref": "qa-new"}})
+    state["qa_log"][0]["design_applications"] = [
+        {
+            "knowledge_ref": "knowledge.md#principle",
+            "principle": "後継関係の明示",
+            "applicability": "applied",
+            "rationale": "旧回答で後継申告の形を検討した",
+            "tradeoffs": ["現行セルの根拠には使わない"],
+        }
+    ]
+    stm.supersede_qa(state, "qa-old", "qa-new")
+
+    assert VCM._validate_grounded_design_applications(state) == []
+
+
 def test_gate_refuses_an_escape_to_a_nonexistent_successor():
     state = _state(ui={"web": {"state": "確定", "qa_ref": "qa-new"}})
     state["qa_log"][0]["superseded_by"] = "qa-ghost"

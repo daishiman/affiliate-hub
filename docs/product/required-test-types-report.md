@@ -5,8 +5,8 @@
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
 - 最終更新: 2026-09-08
-- 要件表の要件: 302 件
-- 性質を宣言済: 297 件
+- 要件表の要件: 308 件
+- 性質を宣言済: 303 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 5 件（上限 7 件）
 
@@ -240,13 +240,15 @@
 | REQ-SEO04 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO05 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO06 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
-| REQ-SEO07 | has-input, has-secret | `boundary` `equivalence` `secrets` | `boundary` `equivalence` `secrets` | — |
-| REQ-SEO08 | has-input, has-secret | `boundary` `equivalence` `secrets` | `boundary` `equivalence` `secrets` | — |
-| REQ-SEO09 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
-| REQ-SEO10 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
+| REQ-SEO07 | has-input, has-tenant, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `tenant-isolation` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `tenant-isolation` | — |
+| REQ-SEO08 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO09 | has-input, has-secret | `boundary` `equivalence` `secrets` | `boundary` `equivalence` `secrets` | — |
+| REQ-SEO10 | has-input, has-secret | `boundary` `equivalence` `secrets` | `boundary` `equivalence` `secrets` | — |
 | REQ-SEO11 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
-| REQ-SEO12 | has-input, has-state, has-permission | `boundary` `equivalence` `permission-matrix` `state-transition` | `boundary` `equivalence` `permission-matrix` `state-transition` | — |
-| REQ-SEO13 | has-state, has-permission | `permission-matrix` `state-transition` | `permission-matrix` `state-transition` | — |
+| REQ-SEO12 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
+| REQ-SEO13 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO14 | has-input, has-state, has-permission | `boundary` `equivalence` `permission-matrix` `state-transition` | `boundary` `equivalence` `permission-matrix` `state-transition` | — |
+| REQ-SEO15 | has-state, has-permission | `permission-matrix` `state-transition` | `permission-matrix` `state-transition` | — |
 | REQ-BLOG01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-BLOG02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-BLOG03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
@@ -267,6 +269,10 @@
 | REQ-BOPS12 | has-enumerated-input, has-screen | `a11y` `decision-table` `equivalence` `keyboard` `screen-states` | `a11y` `decision-table` `equivalence` `keyboard` `screen-states` | — |
 | REQ-BOPS13 | has-code-placement-rule | `code-boundary` | `code-boundary` | — |
 | REQ-BOPS14 | has-tenant, has-screen, has-code-placement-rule | `a11y` `code-boundary` `keyboard` `screen-states` `tenant-isolation` | `a11y` `code-boundary` `keyboard` `screen-states` `tenant-isolation` | — |
+| REQ-BOPC01 | has-input, has-state, has-permission, has-tenant, has-external, has-screen, has-db-table, has-recorded-operation | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `fault-injection` `idempotency` `keyboard` `permission-matrix` `screen-states` `state-transition` `tenant-isolation` | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `fault-injection` `idempotency` `keyboard` `permission-matrix` `screen-states` `state-transition` `tenant-isolation` | — |
+| REQ-BOPC02 | has-input, has-enumerated-input, has-tenant | `boundary` `decision-table` `equivalence` `tenant-isolation` | `boundary` `decision-table` `equivalence` `tenant-isolation` | — |
+| REQ-BOPC03 | has-input, has-enumerated-input, has-permission, has-tenant, has-screen, has-db-table | `a11y` `boundary` `db-migration` `decision-table` `equivalence` `keyboard` `permission-matrix` `screen-states` `tenant-isolation` | `a11y` `boundary` `db-migration` `decision-table` `equivalence` `keyboard` `permission-matrix` `screen-states` `tenant-isolation` | — |
+| REQ-BOPC04 | has-input, has-state, has-permission, has-tenant, has-screen, has-db-table, has-recorded-operation | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `keyboard` `permission-matrix` `screen-states` `state-transition` `tenant-isolation` | `a11y` `audit-log` `boundary` `db-migration` `equivalence` `keyboard` `permission-matrix` `screen-states` `state-transition` `tenant-isolation` | — |
 | REQ-WA01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-WA02 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
 | REQ-WB01 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
@@ -331,4 +337,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:859cafb385e1ab420c8af229dce3defdaef9a9aae2e1c2d01a33f430b1210d1e -->
+<!-- 生成物の指紋 sha256:785b02bd9eabadf903cf970d167a3d348c12c4604445ca9aca7f9e966697ed63 -->

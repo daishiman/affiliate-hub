@@ -6,7 +6,8 @@ import {
   createListUsableMetricsUseCase,
 } from "@/application/usecases/analytics/read-metrics";
 import { createFilterMetricsUseCase } from "@/application/usecases/analytics/filter-metrics";
-import { ANALYTICS_AXES, METRIC_DEFINITIONS } from "@/domain/analytics";
+import { ANALYTICS_AXES } from "@/domain/analytics/dimensions";
+import { METRIC_DEFINITIONS } from "@/domain/analytics/metrics";
 import { defineTool } from "./define-tool";
 import type { AnyToolDefinition } from "./tool-definition";
 

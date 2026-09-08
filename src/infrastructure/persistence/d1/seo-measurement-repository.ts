@@ -27,14 +27,16 @@ import {
   publishedArticles,
   seoPageObservations,
 } from "@/db/schema";
-import type {
-  Finding,
-  FindingCode,
-  MeasurementSource,
-  PageKey,
-} from "@/domain/seo/aeo-measurement";
-import { FINDING_CODES, isArticleAutoFixable } from "@/domain/seo/aeo-measurement";
-import { domainError, err, ok, validationError } from "@/domain/shared";
+import type { MeasurementSource } from "@/domain/seo/aeo-measurement/measurement-source";
+import type { PageKey } from "@/domain/seo/aeo-measurement/page-key";
+import {
+  FINDING_CODES,
+  isArticleAutoFixable,
+  type Finding,
+  type FindingCode,
+} from "@/domain/seo/aeo-measurement/finding";
+import { domainError, validationError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { toLogEntry } from "./seo-auto-apply-log";
 import { createD1SeoCitationBudgetRepository } from "./seo-citation-budget-repository";

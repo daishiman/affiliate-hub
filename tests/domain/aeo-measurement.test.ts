@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-SEO09 @types equivalence, boundary, decision-table */
+/** @tier 1 @req REQ-SEO11 @types equivalence, boundary, decision-table */
 import { describe, expect, it } from "vitest";
 import {
   AUTO_APPLY_COOLDOWN_MS,

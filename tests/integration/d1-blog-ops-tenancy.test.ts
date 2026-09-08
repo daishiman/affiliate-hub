@@ -14,6 +14,7 @@ import { drizzle } from "drizzle-orm/d1";
 import { getPlatformProxy } from "wrangler";
 import * as schema from "@/db/schema";
 import type { PublishedArticle } from "@/application/read-models/published-article";
+import { serializeProse } from "@/domain/blogops";
 import type { WorkspaceId } from "@/domain/shared";
 import {
   createD1BlogOpsRepository,
@@ -688,7 +689,24 @@ describe("親リソースと子リソースの workspace 境界", () => {
   });
 
   it("BlogOps公開は編集aggregate・本文・canonical projectionを1つのbatchで確定する", async () => {
-    const saved = await repository().saveArticle(OWNER, publishedArticleInput());
+    const formattedSource = serializeProse([
+      { kind: "heading", level: 3, text: "保存後も残る見出し" },
+      { kind: "bullet-list", items: ["改行を保つ", "記法を保つ"] },
+    ]);
+    const saved = await repository().saveArticle(
+      OWNER,
+      publishedArticleInput({
+        blocks: [
+          {
+            id: "bab_public_projection",
+            kind: "summary-section",
+            heading: "公開本文",
+            body: formattedSource,
+            position: 0,
+          },
+        ],
+      }),
+    );
     expect(saved.ok, !saved.ok ? JSON.stringify(saved.error) : "").toBe(true);
 
     const opened = await publicRepository().openSite(SITE);
@@ -700,9 +718,14 @@ describe("親リソースと子リソースの workspace 境界", () => {
       readPublicSiteComposition(SITE, { source: "live", port: publicRepository() }),
     ]);
 
-    expect(detail.ok && detail.value?.sections[0]?.paragraphs).toEqual([
-      "編集aggregateから決定的に写した本文",
-    ]);
+    expect(detail.ok && detail.value?.sections[0]).toMatchObject({
+      paragraphs: [formattedSource],
+      formattedBody: {
+        format: "prose-v1",
+        version: 1,
+        source: formattedSource,
+      },
+    });
     expect(list.ok && list.value.map((row) => row.slug)).toEqual(["owned-article"]);
     expect(source).toEqual({ ok: true, value: ARTICLE_ID });
     expect(composition.ok && composition.value?.counts.articles).toBe(1);

@@ -1,0 +1,41 @@
+{
+  "graph_node_id": "feat-blog-custom-domain",
+  "artifact_kind": "feature",
+  "purpose": "利用者が自分で取得したドメインをブログ 1 本ごとに繋ぎ、繋がっているか・証明書が生きているかを管理画面の一箇所で見て操作できるようにする",
+  "goal": "所有権が検証されたドメインだけが active になり、Host ヘッダから site_slug が解決されて当該ブログが配信され、active の間は canonical が独自ドメインを指し、切断しても行は revoked として残り、既定住所は常に生きている状態になっている",
+  "scope_in": [
+    "site_custom_domains テーブル (workspace_id / site_slug / hostname UNIQUE / status pending→verifying→active→failed→revoked / verification_token / provider_hostname_id / cert_status / verified_at / last_checked_at / failure_reason)",
+    "connect-custom-domain ユースケース: hostname を受け取り Cloudflare for SaaS の custom hostname として登録し、利用者へ提示する CNAME と所有権確認用 TXT を返す",
+    "verify-custom-domain ユースケース: provider 側の検証・証明書発行状態を取り込み status と cert_status を進める",
+    "disconnect-custom-domain ユースケース: 行を物理削除せず revoked にし、hostname の再接続経路を残す",
+    "middleware での Host ヘッダ→ site_custom_domains active 行 → site_slug 解決 (該当なしは既定住所の解決へ委譲)",
+    "active の間 canonical / og:url / sitemap の絶対 URL を独自ドメインへ切り替える",
+    "接続・切断の権限を Publisher 以上に限り、切断はブログ名の入力を要求し、いずれも audit_logs へ残す",
+    "管理画面 /admin/sites/[site]/domain での接続手順・現在状態・失敗理由の提示"
+  ],
+  "scope_out": [
+    "ドメインの購入・レジストラ契約そのもの (利用者が外部で取得する)",
+    "自前 ACME による証明書発行 (Cloudflare for SaaS が発行する)",
+    "既定住所 <slug>.<基底ドメイン> の導出とワイルドカード経路 (feat-blog-subdomain-routing)",
+    "ドメイン状態の定期監視と期限警告の掲出順序 (feat-blog-scoped-admin-console)"
+  ],
+  "acceptance": [
+    "所有権が検証されるまで status が active にならず、未検証ホストへのアクセスで当該ブログが配信されない",
+    "hostname に UNIQUE 制約があり、同じホスト名を 2 つのブログへ同時に繋げない",
+    "active な独自ドメインへのアクセスが当該ブログの内容を 200 で返す",
+    "独自ドメインが active の間も既定住所 <slug>.<基底ドメイン> が 200 を返し、ブログが消えない",
+    "active の間 canonical が独自ドメインを指し、非 active へ戻ると既定住所へ戻る",
+    "切断しても行が削除されず status=revoked として残り、hostname の履歴が追える",
+    "接続・切断が Publisher 未満の役割から実行できず、切断はブログ名の一致入力なしに完了しない",
+    "接続・検証・切断の各操作が audit_logs に残る",
+    "provider 側の検証失敗・証明書失敗が failure_reason として管理画面に文言で出る",
+    "同じ hostname で接続を二度実行しても custom hostname が重複登録されない (冪等)"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "architecture/arch-blog-operations-console.md",
+    "system-spec/index.md"
+  ],
+  "updated_at": "2026-09-04T00:00:00Z"
+}

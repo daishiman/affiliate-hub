@@ -71,6 +71,12 @@ const EXEMPT: Readonly<Record<string, string>> = {
   "SiteRepositoryPort.findBySlug": "公開サイトを URL の名前から引く。読者に作業場所は無い",
   "SiteRepositoryPort.list": "公開されているサイトの一覧。読者に作業場所は無い",
 
+  // 読者の要求の宛先 (Host ヘッダ) から、どのブログかを決める処理。
+  // 作業場所はここの**出力**であって入力ではない。独自ドメインは全体で
+  // 一意なので、渡すべき作業場所がまだ分かっていない段階で引く。
+  "CustomDomainRepositoryPort.findActiveByHostname":
+    "宛先の名前から作業場所を決める。読者に作業場所は無い",
+
   // 時刻で起動する処理。全作業場所をまたいで「今出すもの」を集める。
   "PublicationRepositoryPort.listDue":
     "予定時刻の到来した配信を全作業場所から集める。呼ぶのは人ではなく時計",

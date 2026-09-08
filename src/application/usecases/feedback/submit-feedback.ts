@@ -3,14 +3,8 @@ import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { BrandRepositoryPort } from "@/application/ports/identity";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import {
-  type CaptureSubmission,
-  type FeedbackKind,
-  type FeedbackOrigin,
-  type TechnicalContextInput,
-  assertCaptureIsStorable,
-  createFeedbackReport,
-} from "@/domain/feedback";
+import { assertCaptureIsStorable, type CaptureSubmission } from "@/domain/feedback/capture-policy";
+import { createFeedbackReport, type FeedbackKind, type FeedbackOrigin, type TechnicalContextInput } from "@/domain/feedback/report";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

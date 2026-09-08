@@ -3,7 +3,8 @@ import type {
   SeoCitationBudgetPort,
 } from "@/application/ports/seo-measurement";
 import { MAX_CITATION_MONTHLY_SEARCH_LIMIT } from "@/application/ports/seo-measurement";
-import { domainError, err, ok, validationError } from "@/domain/shared";
+import { domainError, validationError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { jsonArrayChunks } from "./json-array-chunks";
 import { storageFailure } from "./storage-failure";

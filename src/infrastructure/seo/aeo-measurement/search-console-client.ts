@@ -3,7 +3,8 @@ import type {
   SearchConsoleQueryRow,
   SearchConsoleRow,
 } from "@/application/ports/seo-measurement";
-import { domainError, err, ok } from "@/domain/shared";
+import { domainError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
 
 /**
  * 系統②: Google Search Console から実績を取る。

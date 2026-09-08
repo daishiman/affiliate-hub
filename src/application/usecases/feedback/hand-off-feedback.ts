@@ -5,16 +5,9 @@ import type {
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import {
-  type FeedbackReport,
-  type HandoffRoute,
-  HANDOFF_IDEMPOTENCY_TEXT,
-  WISH_ABSENT_TEXT,
-  appendHistory,
-  assertEnvelopeIsClean,
-  composeHandoffPrompt,
-  recordHandoff,
-} from "@/domain/feedback";
+import { WISH_ABSENT_TEXT, appendHistory, type FeedbackReport } from "@/domain/feedback/report";
+import { HANDOFF_IDEMPOTENCY_TEXT, recordHandoff, type HandoffRoute } from "@/domain/feedback/handoff";
+import { assertEnvelopeIsClean, composeHandoffPrompt } from "@/domain/feedback/handoff-prompt";
 import { requireCapability } from "@/domain/identity";
 import { type ActorContext, type DomainError, type Result, err, notFound, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";

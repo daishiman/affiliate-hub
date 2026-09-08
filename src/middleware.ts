@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME } from "@/infrastructure/identity/session-actor";
 import { decideEntry, isGuardedPath } from "@/infrastructure/identity/entry-gate";
-import { decideHostRouting } from "@/domain/authoring/site-host-routing";
+import {
+  decideHostRouting,
+  isAlwaysPassPath,
+  routeResolvedSite,
+} from "@/domain/authoring/site-host-routing";
 import { buildSecurityHeaders } from "@/infrastructure/http/security-headers";
 import { readSiteBaseDomain } from "@/infrastructure/platform/site-base-domain";
 
@@ -52,11 +56,23 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // 1. 住所（ホスト名）でブログを決める。**認証より先**に行う。
   //    後にすると、ブログの住所で開いた読者向けページが
   //    管理画面の門の判定を通ることになる。
-  const routing = decideHostRouting({
-    host: request.headers.get("host"),
-    pathname: request.nextUrl.pathname,
+  const host = request.headers.get("host");
+  const pathname = request.nextUrl.pathname;
+  let routing = decideHostRouting({
+    host,
+    pathname,
     baseDomain: await readSiteBaseDomain(),
   });
+
+  //    基底ドメインの下に無いホストは `pass` で返ってくる。**そこには
+  //    本体の画面（管理画面）と独自ドメインの両方が混ざっている**ので、
+  //    住所表を引いて分ける。引けるのはここだけ（純関数は文字列しか触れない）。
+  //    画面の部品は要求のたびに何十件も届くため、その前に落とす。
+  if (routing.kind === "pass" && !isAlwaysPassPath(pathname)) {
+    const slug = await tryResolveCustomHostSlug(host);
+    if (slug !== null) routing = routeResolvedSite(slug, pathname);
+  }
+
   if (routing.kind === "not-found") {
     // ブログの住所からは管理画面を開かせない。**転送しない**のは、
     // 転送先の存在（＝管理画面がどこにあるか）を教えてしまうため。
@@ -91,6 +107,27 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     response.headers.set(key, value);
   }
   return response;
+}
+
+/**
+ * 独自ドメインの住所表を引く。引けなければ `null`（＝本体の画面として扱う）。
+ *
+ * ここだけ `try` で包んでいるのは、住所が引けないことを
+ * **通行証が確かめられないこと（[[entry-gate]]）とは逆向きに倒す**ためである。
+ * 通行証は「確かめられない＝通さない」でよいが、住所は「引けない＝いつもの
+ * 画面」にしないと、D1 が一瞬落ちただけで管理画面まで 404 になる。
+ *
+ * 取り込みを呼ばれた時にしているのは `tryGetSessionReader` と同じ理由。
+ */
+async function tryResolveCustomHostSlug(host: string | null): Promise<string | null> {
+  try {
+    const { resolveCustomHostSlug, lookupCustomHostInD1 } = await import(
+      "@/infrastructure/domains/resolve-custom-host"
+    );
+    return await resolveCustomHostSlug(host, lookupCustomHostInD1);
+  } catch {
+    return null;
+  }
 }
 
 /**

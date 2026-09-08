@@ -313,78 +313,127 @@
     {
       "idx": 44,
       "version": "6",
-      "when": 1788500000000,
-      "tag": "0044_published_article_search",
+      "when": 1788527194978,
+      "tag": "0044_ai_search_audit_history",
       "breakpoints": true
     },
     {
       "idx": 45,
       "version": "6",
-      "when": 1788600000000,
-      "tag": "0045_seo_aeo_measurement_loop",
+      "when": 1788527203417,
+      "tag": "0045_ai_search_reaudit_runs",
       "breakpoints": true
     },
     {
       "idx": 46,
       "version": "6",
-      "when": 1788700000000,
-      "tag": "0046_blog_article_thumbnail",
+      "when": 1788565476753,
+      "tag": "0046_blog_operations_console",
       "breakpoints": true
     },
     {
       "idx": 47,
       "version": "6",
-      "when": 1788800000000,
-      "tag": "0047_blog_home_featured",
+      "when": 1788641207763,
+      "tag": "0047_article_image",
       "breakpoints": true
     },
     {
       "idx": 48,
       "version": "6",
-      "when": 1788900000000,
-      "tag": "0048_seo_approved_article_revisions",
+      "when": 1788641418129,
+      "tag": "0048_article_image_sweep_index",
       "breakpoints": true
     },
     {
       "idx": 49,
       "version": "6",
-      "when": 1789000000000,
-      "tag": "0049_seo_page_observations",
+      "when": 1788686362594,
+      "tag": "0049_article_image_check_rotation",
       "breakpoints": true
     },
     {
       "idx": 50,
       "version": "6",
-      "when": 1789100000000,
-      "tag": "0050_persistent_publication_revisions",
+      "when": 1788689271690,
+      "tag": "0050_article_image_lifecycle",
       "breakpoints": true
     },
     {
       "idx": 51,
       "version": "6",
-      "when": 1789200000000,
-      "tag": "0051_search_console_query_metrics",
+      "when": 1788689271691,
+      "tag": "0051_published_article_search",
       "breakpoints": true
     },
     {
       "idx": 52,
       "version": "6",
-      "when": 1789300000000,
-      "tag": "0052_ai_citation_monthly_budget",
+      "when": 1788789271691,
+      "tag": "0052_seo_aeo_measurement_loop",
       "breakpoints": true
     },
     {
       "idx": 53,
       "version": "6",
-      "when": 1789400000000,
-      "tag": "0053_seo_static_audit_scans",
+      "when": 1788889271691,
+      "tag": "0053_blog_article_thumbnail",
       "breakpoints": true
     },
     {
       "idx": 54,
       "version": "6",
-      "when": 1789500000000,
-      "tag": "0054_seo_query_snapshot_state",
+      "when": 1788989271691,
+      "tag": "0054_blog_home_featured",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "6",
+      "when": 1789089271691,
+      "tag": "0055_seo_approved_article_revisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "6",
+      "when": 1789189271691,
+      "tag": "0056_seo_page_observations",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "6",
+      "when": 1789289271691,
+      "tag": "0057_persistent_publication_revisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "6",
+      "when": 1789389271691,
+      "tag": "0058_search_console_query_metrics",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "6",
+      "when": 1789489271691,
+      "tag": "0059_ai_citation_monthly_budget",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "6",
+      "when": 1789589271691,
+      "tag": "0060_seo_static_audit_scans",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "6",
+      "when": 1789689271691,
+      "tag": "0061_seo_query_snapshot_state",
       "breakpoints": true
     }
   ]

@@ -9,6 +9,6 @@
 ## Route binding
 
 - 全86 routeは `admin-disclosure-contract.ts` で `none` / `foldable` / `dedicated-route` のいずれか1つに分類する。補助情報が無い画面を無理に畳まない。
-- 実 `Foldable` は `evidence`、`personas/audiences`、`feedback/[report]`。実pageから抽出した集合と台帳を機械突合する。
+- 実page上の `Foldable` は `blog/articles/[article]`、`personas/audiences`、`feedback/[report]`。実pageから抽出した集合と台帳を機械突合する。記事編集では「記事の住所と版面を確認する」を既定で閉じ、本文編集と保存を先に提示する。
 - 専用routeは `products`、`content`、`blog/articles`、`sites`、`distribution`、`affiliate`、`feedback` の7画面だけ。送り先は自分自身を禁止し、実際の行リンクとroute metadataの親子関係を機械突合する。
 - `personas/audiences` は判断基準・困りごと・信頼条件の総数、`feedback/[report]` は環境・エラー記録の総数をsummaryに含める。`details[open]` の初期値は0。

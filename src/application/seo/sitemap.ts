@@ -1,4 +1,4 @@
-import { type SiteRoute, isCrawlableRoute, listedArticleScope } from "@/domain/authoring";
+import { type SiteRoute, isCrawlableRoute, listedArticleScope } from "@/domain/authoring/site-routes";
 import type { FeedItem } from "./feeds";
 
 /**

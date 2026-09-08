@@ -5,12 +5,7 @@ import type {
   SiteDocument,
 } from "@/application/ports/site";
 import { type LegalPageRow, legalPages } from "@/db/schema";
-import {
-  SITE_DOCUMENT_KEYS,
-  SITE_DOCUMENT_KIND_BY_KEY,
-  type SiteDocumentKey,
-  type SiteDocumentStorageKind,
-} from "@/domain/authoring";
+import { SITE_DOCUMENT_KEYS, SITE_DOCUMENT_KIND_BY_KEY, type SiteDocumentKey, type SiteDocumentStorageKind } from "@/domain/authoring/site-routes";
 import { err, markEditorial, ok } from "@/domain/shared";
 import type { DrizzleD1 } from "./link-inbox-repository";
 import { storageFailure } from "./storage-failure";

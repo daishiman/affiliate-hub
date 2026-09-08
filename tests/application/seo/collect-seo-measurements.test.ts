@@ -1,4 +1,4 @@
-/** @tier 1 @req REQ-SEO10, REQ-SEO11 @types equivalence, boundary, permission-matrix */
+/** @tier 1 @req REQ-SEO12, REQ-SEO13 @types equivalence, boundary, permission-matrix */
 import type {
   AiCitationClientPort,
   CitationMonthlyBudgetStatus,

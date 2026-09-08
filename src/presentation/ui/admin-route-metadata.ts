@@ -107,6 +107,18 @@ const ADMIN_ROUTE_DEFINITIONS = {
   "sites/[site]/documents": child("sites/[site]", "固定ページ"),
   "sites/[site]/appearance": child("sites/[site]", "見せ方と配色"),
   "sites/[site]/placements": child("sites/[site]", "成果リンクの掲載"),
+  /*
+    ブログ運営コンソール (arch-blog-operations-console) の 4 層を、
+    ブログ 1 本の下にぶら下げる。**`analytics` の下に置かない。**
+    横断の分析画面と同じ場所に置くと、「どのブログの数字か」を
+    画面の中の選択欄で切り替えることになり、選び忘れたまま
+    別のブログの数字を読む形が作れる。住所の下なら取り違えようがない。
+  */
+  "sites/[site]/domains": child("sites/[site]", "住所（独自ドメイン）"),
+  "sites/[site]/audience": child("sites/[site]", "読者の行動"),
+  "sites/[site]/revenue": child("sites/[site]", "記事ごとの成果"),
+  "sites/[site]/seo": child("sites/[site]", "SEO 診断"),
+  "sites/[site]/aeo": child("sites/[site]", "AEO（回答エンジン）"),
   "sites/new": child("sites", "サイトを作る"),
   distribution: nav("配信", "publish", "content.read", "distribution"),
   "distribution/[publication]": child("distribution", null),

@@ -1,22 +1,19 @@
 import {
   type ArticleSummary,
   type PublishedArticle,
+  type PublishedFormattedBody,
+  type PublishedProductCard,
   articleHref,
   outboundHref,
 } from "@/application/read-models/published-article";
 import { fallbackCoverDataUri } from "@/application/seo/fallback-cover";
 import { expressionBlocksOf } from "@/application/seo/expression-blocks";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
-import { DEFAULT_THEME } from "@/domain/authoring";
-import { resolveThumbnail, thumbnailAltText } from "@/domain/blogops";
-import {
-  type ArticleType,
-  type SiteRoute,
-  buildPath,
-  footerRoutes,
-  routesFor,
-  siteBasePathBySlug,
-} from "@/domain/authoring";
+import type { ArticleType } from "@/domain/authoring/article-structure";
+import { DEFAULT_THEME } from "@/domain/authoring/site-blueprint";
+import { buildPath, footerRoutes, routesFor, type SiteRoute } from "@/domain/authoring/site-routes";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
+import { resolveThumbnail, thumbnailAltText } from "@/domain/blogops/thumbnail";
 import type {
   ArticleCardView,
   ArticleViewModel,
@@ -24,6 +21,21 @@ import type {
   SiteChrome,
 } from "@/presentation/ui";
 import type { PublicSiteProjection } from "./public-site-projection";
+import type { ProductCardView } from "@/presentation/ui/templates/article-view";
+
+/** 本文内と再掲欄の商品は同じ表示契約へ写す。 */
+export function toProductCardView(siteSlug: string, card: PublishedProductCard): ProductCardView {
+  return {
+    productId: card.productId, name: card.name, brand: card.brand, oneLine: card.oneLine,
+    specs: card.specs.map((spec) => ({ label: spec.label, value: spec.value, basis: spec.kind })),
+    priceNote: card.priceNote,
+    affiliateHref: outboundHref(card.trackingCode, card.affiliateUrl),
+    blockedReason: card.affiliateUrl === undefined && card.trackingCode === undefined
+      ? (card.blockedReason ?? "この商品は、いま提携している販売先がありません。")
+      : undefined,
+    detailHref: card.reviewSlug === undefined ? undefined : siteHref(siteSlug, `/reviews/${card.reviewSlug}`),
+  };
+}
 
 /**
  * 保存されている形 → 画面に出す形 の変換。
@@ -196,6 +208,26 @@ export function toArticleCards(
   return summaries.map((s) => toArticleCard(siteSlug, s, context));
 }
 
+/** 保存データ由来の値を、表示側が安全に運べる形へ正規化する。 */
+function normalizeFormattedBody(value: unknown): PublishedFormattedBody | undefined {
+  if (typeof value !== "object" || value === null) return undefined;
+
+  const candidate = value as Readonly<Record<string, unknown>>;
+  if (
+    candidate.format !== "prose-v1" ||
+    candidate.version !== 1 ||
+    typeof candidate.source !== "string"
+  ) {
+    return undefined;
+  }
+
+  return {
+    format: candidate.format,
+    version: candidate.version,
+    source: candidate.source,
+  };
+}
+
 /** 記事 1 本。順位表の商品名は、レビューがある商品だけリンクにする。 */
 export function toArticleView(
   siteSlug: string,
@@ -231,6 +263,7 @@ export function toArticleView(
       id: s.id,
       heading: s.heading,
       paragraphs: s.paragraphs,
+      formattedBody: normalizeFormattedBody(s.formattedBody),
       claims: s.claims?.map((c) => ({
         id: c.id,
         statement: c.statement,
@@ -250,28 +283,8 @@ export function toArticleView(
     // 公開前監査・JSON-LD と同じ射影に、空白の扱いまで揃える。
     keyPoints: keyPoints?.items,
     faq: faq?.items,
-    productCards: article.productCards?.map((card) => ({
-      // どの商品かを画面まで運ぶ。「気になる」の保存先を決めるのに要る。
-      productId: card.productId,
-      name: card.name,
-      brand: card.brand,
-      oneLine: card.oneLine,
-      specs: card.specs.map((spec) => ({
-        label: spec.label,
-        value: spec.value,
-        basis: spec.kind,
-      })),
-      priceNote: card.priceNote,
-      affiliateHref: outboundHref(card.trackingCode, card.affiliateUrl),
-      // 買う導線が無いときは、理由を必ず添える。
-      // 理由が無いと、読者には「リンクの貼り忘れ」と区別が付かない。
-      blockedReason:
-        card.affiliateUrl === undefined && card.trackingCode === undefined
-          ? (card.blockedReason ?? "この商品は、いま提携している販売先がありません。")
-          : undefined,
-      detailHref:
-        card.reviewSlug === undefined ? undefined : siteHref(siteSlug, `/reviews/${card.reviewSlug}`),
-    })),
+    productCards: article.productCards?.map((card) => toProductCardView(siteSlug, card)),
+    inlineProductCards: article.inlineProductCards?.map((card) => toProductCardView(siteSlug, card)),
     ranking:
       article.ranking === undefined
         ? undefined

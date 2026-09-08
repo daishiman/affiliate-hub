@@ -1,9 +1,10 @@
 import type {
   AffiliatePlacement,
+  AffiliatePlacementArticleUpdate,
   ArticlePlacements,
   BlogAffiliatePlacementPort,
 } from "@/application/ports/blog-affiliate-placement";
-import type { BlogOpsRepositoryPort } from "@/application/ports/blog-ops";
+import type { BlogArticleDetail, BlogOpsRepositoryPort } from "@/application/ports/blog-ops";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
@@ -13,6 +14,7 @@ import {
   type DomainError,
   type Result,
   err,
+  domainError,
   ok,
   validationError,
 } from "@/domain/shared";
@@ -30,14 +32,16 @@ import type { BlogArticleStatus } from "@/domain/blogops";
  * 台帳（`blog_affiliate_placement`）は「載っているもの」しか知らない。
  * 「載っていない記事」を数えるには**記事の全体集合**が要り、それを持つのは
  * `BlogOpsRepositoryPort` である。2 つの口を突き合わせる場所が要るので、
- * この層が引き受ける。台帳側に記事表を読ませると、台帳が記事の生死に
- * 依存し始め、記事を消した日に幽霊の行が残る。
+ * この層が引き受ける。台帳の保存先は親記事の存在と原子性を検査するが、
+ * 一覧の分母を選ぶ責務までは持たせない。
  *
  * --- 記事を「読める人」なら見てよい ---
  * 掲載漏れは編集の判断材料であって、報酬の数字ではない（不変条件 I4 のとおり
  * この台帳に金額は 1 つも無い）。読み取りを `monetization` 側の権限に
  * すると、記事を直す人が自分の記事の抜けを確認できなくなる。
  * 一方、台帳を**書き換える**のはサイトの見せ方を決める操作なので `site.manage`。
+ * 公開記事の CTA も変更する場合は `content.publish` が別途必要。
+ * 役に `owner` を持つ AI でも、公開操作の人による承認は省略しない。
  *
  * --- 足し引きは必ず記録へ残す ---
  * 台帳の行は**外すと物理削除される**（所在の記録であって履歴ではない、
@@ -56,7 +60,7 @@ export type ReviewBlogPlacementsDeps = {
   readonly ids: IdGeneratorPort;
   readonly now: () => Date;
   /** 記事の全体集合を知っている唯一の口。掲載漏れの分母になる。 */
-  readonly blogOps: Pick<BlogOpsRepositoryPort, "listArticles">;
+  readonly blogOps: Pick<BlogOpsRepositoryPort, "listArticles" | "findArticle">;
 };
 
 export type ReviewBlogPlacementsInput =
@@ -201,6 +205,52 @@ export function createReviewBlogPlacementsUseCase(
       if (!slot.ok) return slot;
       const trackingCode = normalizeCode(input.trackingCode);
 
+      // 保存も削除も記事側の CTA を変更する。状態不明のまま書き込まない。
+      const articles = await blogOps.listArticles(actor.workspaceId, input.siteSlug);
+      if (!articles.ok) return articles;
+      const listedArticle = articles.value.find((candidate) => candidate.slug === input.articleSlug);
+      let detail: BlogArticleDetail | null = null;
+      if (listedArticle !== undefined) {
+        const found = await blogOps.findArticle(actor.workspaceId, listedArticle.id);
+        if (!found.ok) return found;
+        if (found.value === null) {
+          return err(domainError("CONFLICT", "記事の状態が変わりました。最新版を開いてください。"));
+        }
+        detail = found.value;
+      }
+      const article = detail?.article;
+      if (article?.status === "published") {
+        const publish = requireCapability(actor, "content.publish", "公開記事の成果リンク変更");
+        if (!publish.ok) return publish;
+      }
+
+      const identity = {
+        workspaceId: actor.workspaceId,
+        siteSlug: input.siteSlug,
+        articleSlug: input.articleSlug,
+        placement: slot.value,
+        ...(trackingCode === undefined ? {} : { trackingCode }),
+      };
+      const blockId = affiliatePlacementArticleBlockId(identity);
+      const remainingBlocks = detail?.blocks.filter((block) => block.id !== blockId) ?? [];
+      const blocks = (
+        input.action === "save"
+          ? [
+              ...remainingBlocks,
+              toAffiliatePlacementArticleBlock({ ...identity, position: input.position ?? 0 }),
+            ]
+          : remainingBlocks
+      ).sort((left, right) => left.position - right.position);
+      const articleUpdate: AffiliatePlacementArticleUpdate | undefined = detail === null
+        ? undefined
+        : {
+          ...detail.article,
+          updatedAt: deps.now(),
+          expectedRevision: detail.article.revision ?? 1,
+          tagIds: detail.tagIds,
+          blocks,
+        };
+
       if (input.action === "save") {
         /*
           記事が実在することを、保存の前に確かめる。
@@ -208,9 +258,6 @@ export function createReviewBlogPlacementsUseCase(
           slug は書き換わりうる）。ここで見ないと、打ち間違えた slug の
           掲載が台帳に残り、どの記事の一覧にも出ないまま数だけ増える。
         */
-        const articles = await blogOps.listArticles(actor.workspaceId, input.siteSlug);
-        if (!articles.ok) return articles;
-        const article = articles.value.find((candidate) => candidate.slug === input.articleSlug);
         if (article === undefined) {
           return err(
             validationError("その記事はこのブログに見つかりません。", "articleSlug"),
@@ -226,17 +273,7 @@ export function createReviewBlogPlacementsUseCase(
             position: input.position ?? 0,
             ...(trackingCode === undefined ? {} : { trackingCode }),
           },
-          publicArticleBlock: {
-            articleId: article.id,
-            block: toAffiliatePlacementArticleBlock({
-              workspaceId: actor.workspaceId,
-              siteSlug: input.siteSlug,
-              articleSlug: input.articleSlug,
-              placement: slot.value,
-              ...(trackingCode === undefined ? {} : { trackingCode }),
-              position: input.position ?? 0,
-            }),
-          },
+          articleUpdate,
         });
         if (!saved.ok) return saved;
 
@@ -270,13 +307,7 @@ export function createReviewBlogPlacementsUseCase(
         articleSlug: input.articleSlug,
         placement: slot.value,
         ...(trackingCode === undefined ? {} : { trackingCode }),
-        publicArticleBlockId: affiliatePlacementArticleBlockId({
-          workspaceId: actor.workspaceId,
-          siteSlug: input.siteSlug,
-          articleSlug: input.articleSlug,
-          placement: slot.value,
-          ...(trackingCode === undefined ? {} : { trackingCode }),
-        }),
+        articleUpdate,
       });
       if (!removed.ok) return removed;
 

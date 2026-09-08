@@ -12,21 +12,21 @@
     "evaluator": "PASS"
   },
   "artifacts": {
-    "system-spec/00-requirements-definition.md": "545a0e1b1c71f115ed98418ca5e525f1abf2b21f0141ab733df8e4ffdc955962",
-    "system-spec/completeness-report.json": "ca6b3ab5fa333232596f4875ae13a300464c03a75540152dee7c366f3e13d734",
-    "system-spec/fetched-references.json": "c403d555eee35a54dc9c1c0ceaa60108a771c1f40493d2fa5f78e8dfe44be27c",
-    "system-spec/index.md": "d3be7225ce351be5424414a85e715da82fb0e398f6bae1eb7de14a9d08498726",
-    "system-spec/spec-state.json": "90280bef8552d140b934ade69ffabf1a8d0a700c11a41ef5a109f5b5a08824bd"
+    "system-spec/00-requirements-definition.md": "cf8c44862e1a45d8b2a5fc7b72555e2bf5c5dd04f8514f11e1ce0dfc1d4310b4",
+    "system-spec/completeness-report.json": "dc69e4f245e9093bc9d0855dd3757a613a2283a7e2475d2f18ba50253728fa91",
+    "system-spec/fetched-references.json": "607f57a986c24e029ba346d31920d6a77fa4c267adf3e585b598ab750d792baf",
+    "system-spec/index.md": "fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976",
+    "system-spec/spec-state.json": "eebd9b084ff53e2447e41b221875df8eb8597fa7003da68a56b1aeb412399fec"
   },
   "inputs": {
-    "file_count": 163,
-    "sha256": "b1f7bacabc722ebf25641f786f7d3de7c3e69bcdbc1cb6b5f390cf6aac3e617f"
+    "file_count": 306,
+    "sha256": "580dc16860037e5784faef1b2be41f87930275d4f3f8650d589247f487b42918"
   },
   "evaluator": {
     "report_path": "system-spec/completeness-report.json",
-    "report_sha256": "ca6b3ab5fa333232596f4875ae13a300464c03a75540152dee7c366f3e13d734",
+    "report_sha256": "dc69e4f245e9093bc9d0855dd3757a613a2283a7e2475d2f18ba50253728fa91",
     "fork_ledger_path": "eval-log/system-spec-harness/audit-fork-ledger.jsonl",
-    "session_id": "e091b379-93c8-449c-af3c-89d9199aef54"
+    "session_id": "83b6e6d3-3955-448e-b151-cce45e56d408"
   },
-  "created_at": "2026-09-06T01:27:22Z"
+  "created_at": "2026-09-07T17:01:32Z"
 }

@@ -3,9 +3,11 @@
  * @req REQ-TS15
  * @types equivalence, boundary
  */
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 
 /**
  * 章を再生成する前に、**下回ってはならない床**を数で置く。
@@ -147,20 +149,45 @@ function measure(source: string) {
   const text = withoutResidue(source);
   const lines = text.split("\n");
   const headings = lines.filter((l) => /^#{2,6} /.test(l));
-  /** 見出し `name` の直下から、次の `## ` までにある表の本文行を数える。 */
+  /**
+   * 見出し `name` の直下から、**それと同じか浅い見出しが来るまで**にある表の本文行を数える。
+   *
+   * 2026-09-06 の移送で、章の規範本文 (状態の意味 / As-Is / To-Be / …) は
+   * 正本 `chapter_notes` へ移り、章の上では `## 章の注記 (chapter_notes)` の内側の
+   * `#### ` として描かれるようになった。**節は消えていない。深さが変わっただけである。**
+   * `## ${name}` の完全一致で探していた頃の測り方は、この日から
+   * 「表が 0 行になった」という嘘を返していた。深さを固定して数えるのをやめ、
+   * 見出しの階層関係だけで範囲を決める。
+   *
+   * `To-Be（規範契約）` を `To-Be` として受けるのは、移送時に見出しへ
+   * 括弧書きが付いたためで、床が指している表そのものは同じである。
+   */
   const tableRows = (name: string): number => {
-    const i = lines.findIndex((l) => l === `## ${name}`);
-    if (i < 0) return 0;
-    let n = 0;
-    for (let j = i + 1; j < lines.length && !/^## /.test(lines[j]); j++) {
-      if (lines[j].startsWith("|") && !/^\|\s*-+/.test(lines[j])) n += 1;
-    }
-    return n;
+    const candidates = lines.flatMap((line, i) => {
+      const heading = line.match(/^(#{2,6}) (.+)$/);
+      if (!heading || (heading[2] !== name && !(name === "To-Be" && heading[2] === "To-Be（規範契約）"))) return [];
+      let count = 0;
+      for (let j = i + 1; j < lines.length; j++) {
+        const next = lines[j].match(/^(#{2,6}) /);
+        if (next && next[1].length <= heading[1].length) break;
+        if (lines[j].startsWith("|") && !/^\|\s*-+/.test(lines[j])) count += 1;
+      }
+      return [count];
+    });
+    return Math.max(0, ...candidates);
   };
   const answers = (text.match(/\*\*回答\*\*: [^\n]*/g) ?? []).map((s) => s.length - 8);
   return {
     lines: lines.length - 1,
-    sections: lines.filter((l) => /^## /.test(l)).map((l) => l.slice(3)),
+    /**
+     * 節の在り処。**深さを問わない。**床が守っているのは「この節が章に在るか」で
+     * あって「`##` で置かれているか」ではない。2026-09-06 の移送で規範本文が
+     * `## 章の注記` の内側へ降りたとき、`##` だけを数える測り方は
+     * 「6 節が消えた」と報告した。**消えたのは深さであって節ではない。**
+     */
+    sections: headings.map((l) => l.replace(/^#{2,6} /, "")),
+    /** `##` に限った節。章の骨格そのものを見る検査だけがこちらを使う。 */
+    rootSections: lines.filter((l) => /^## /.test(l)).map((l) => l.slice(3)),
     headings: headings.length,
     tableRows,
     principles: (text.match(/^- 原則: /gm) ?? []).length,
@@ -713,11 +740,14 @@ const CHAPTERS: readonly Chapter[] = [
  */
 const GENERATED_SECTIONS = [
   "カテゴリ別収集状態",
-  "確定内容 (質疑録)",
+  // 2026-09-08 の dev 合流で生成節へ移った。手書き時代は `preserve` が末尾へ寄せていた。
+  "確定セルの記録 (正本 spec-state.json)",
   // 2026-09-08 (ah-lwmf): 手書き節から生成節へ移った。`spec_docset_chapters.py` が
   // 正本 `decisions[]` を `owner_category` で絞って描くようになったので、
   // `--on-handwritten preserve` が末尾へ寄せる対象ではなくなり、位置が前へ動く。
+  // **質疑録の手前に置く。**「何が決まったか」を読んでから「どう決まったか」を読む。
   "意思決定 (decisions)",
+  "確定内容 (質疑録)",
   "章の注記 (chapter_notes)",
   "上流指針 (doctrine anchor)",
   "適用された設計知識",
@@ -732,6 +762,31 @@ function regeneratedOrder(sections: readonly string[]): string[] {
 }
 
 const CEILING_MARGIN = 150;
+
+/**
+ * **空の一時出力先へ、正本だけから章を作り直す。**（2026-09-08 の dev 合流で移植）
+ *
+ * ここまでの床は「今ある章を測る」検査だった。測るだけでは
+ * **章が正本の純関数であること**は示せない——正本に無い記述が章にだけ在っても、
+ * 量が減っていなければ全部緑で通る。空のフォルダへ正本から生成し、その結果と
+ * 章そのものを突き合わせて初めて「章は正本から作り直せる」が主張になる。
+ *
+ * 出力先を空の一時ディレクトリにするのは、**既存の章を読ませないため**である。
+ * 既存の章が在る場所へ生成すると `--on-handwritten preserve` が手書き節を拾い、
+ * 「正本だけから作れた」のか「元の章から引き継いだ」のかが区別できなくなる。
+ */
+const GENERATED_DIR = mkdtempSync(join(tmpdir(), "chapter-floor-generated-"));
+const compile = spawnSync("python3", [
+  join(ROOT, ".claude/plugins/system-spec-harness/skills/run-system-spec-compile/scripts/compile-spec-doc.py"),
+  "compile",
+  "--spec",
+  join(ROOT, "system-spec/spec-state.json"),
+  "--references",
+  join(ROOT, "system-spec/fetched-references.json"),
+  "--out-dir",
+  GENERATED_DIR,
+], { encoding: "utf8" });
+afterAll(() => rmSync(GENERATED_DIR, { recursive: true, force: true }));
 
 /**
  * 測定用の口。**通常の実行では開かない。**
@@ -840,6 +895,12 @@ function decisionIdsInSection(text: string, heading: string): string[] {
 }
 
 describe("8 章を再生成しても痩せないこと (C03 の事前の床)", () => {
+  it("空の一時出力先へ正本だけから生成できる", () => {
+    // 下の「行数の床」と「章が生成物と 1 バイトも違わない」がこの生成に乗っている。
+    // 生成そのものが失敗した日に、後続が「読めなかったから空」で緑になる形を止める。
+    expect(compile.status, compile.stderr).toBe(0);
+  });
+
   it("測定用の口が開いていない（通常の実行では確定章そのものを見ている）", () => {
     // 口が開いたままだと、床は「どこかの太ったフォルダ」を見て緑になる。
     // 測定のときはここも赤くなるので、赤の件数を数えるときに床の赤と混ぜないこと。
@@ -968,6 +1029,20 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
     );
   });
 
+  /**
+   * 8 章の持ち分を足し合わせると、正本 `decisions[]` の全件になること。
+   * （2026-09-08 の dev 合流で移植）
+   *
+   * 上の 2 件は「00 章は全件」「各章は自分の持ち分と一致」を見ている。
+   * それだけだと **`owner_category` がどの章にも当たらない決定**が抜け落ちる——
+   * 各章は自分の持ち分と一致したまま緑、00 章は全件で緑、しかし
+   * その決定は 8 章のどこにも載らない。和で見るとその 1 件だけが差として出る。
+   */
+  it("8 章の意思決定表の和が正本 decisions[] の全件になる（どの章にも載らない決定を出さない）", () => {
+    const listed = CHAPTERS.flatMap((c) => decisionIdsInSection(read(c.name), "## 意思決定 (decisions)"));
+    expect([...listed].sort()).toEqual([...decisionIds()].sort());
+  });
+
   it("gap 1 の 2 節は 8 章すべてに載っている（旧 11 節の形を指す章は 0 件）", () => {
     // ── これは反転した検査である ────────────────────────────────
     // 2026-08-20 まで、この位置には「ui-ux だけが SHAPE_A のまま」という**目印**があり、
@@ -1031,9 +1106,21 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
     /**
      * 並びは生成器が決める。**ここが赤くなるのは、生成器の並べ方が変わったか、
      * 宣言していない節が増えたときである。**どちらも見えてよい。
+     *
+     * 見るのは `rootSections`（`##` に限った章の骨格）である。並びが意味を持つのは
+     * 骨格の上だけで、`## 章の注記` の内側へ移送された `#### ` の順序は
+     * 注記の登録順であって生成器の並べ方ではない。2026-09-06 の移送のあと
+     * 深さを問わず並べて比べると、この 1 件が 7 章で赤くなり、
+     * **「並びが変わった」ではなく「別のものを並べている」**を報せていた。
+     *
+     * 比較の左右を揃えるため、宣言 `ch.sections` のうち骨格に現れるものだけを
+     * 期待値に採る。骨格に**宣言していない節が増えた**場合は、左辺にだけ在る節として
+     * `toEqual` が落ちるので、増加の見張りは失われない。
      */
-    it("節の並びが生成器の出力どおり（生成節が先・手書き節が後）", () => {
-      expect(m.sections).toEqual(regeneratedOrder(ch.sections));
+    it("章の骨格の並びが生成器の出力どおり（生成節が先・手書き節が後）", () => {
+      expect(m.rootSections).toEqual(
+        regeneratedOrder(ch.sections.filter((s) => m.rootSections.includes(s))),
+      );
     });
 
     it("非規範注記が残っている（実装根拠に使えない参照であることの断り）", () => {
@@ -1072,6 +1159,20 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
     it(`行数が ${ch.lines} 以上 ${ceiling} 以下にある`, () => {
       expect(m.lines).toBeGreaterThanOrEqual(ch.lines);
       expect(m.lines).toBeLessThanOrEqual(ceiling);
+    });
+
+    /**
+     * **上乗せぶんが正本由来であること。**（2026-09-08 の dev 合流で移植）
+     *
+     * 床と天井は量しか見ない。量が範囲に収まったまま、正本に無い記述が章にだけ
+     * 増える形は上の 1 件では止まらない。空のフォルダへ正本だけから生成した章と
+     * 1 バイト単位で突き合わせれば、**増えた行が正本から来たのかどうか**が出る。
+     *
+     * 天井とは向きが違う。天井は「増えすぎ」を止め、こちらは「出所」を問う。
+     * どちらか一方では、もう一方の抜け道が開いたままになる。
+     */
+    it("章が、正本だけから作り直したものと 1 バイトも違わない", () => {
+      expect(read(ch.name)).toBe(readFileSync(join(GENERATED_DIR, `${ch.name}.md`), "utf8"));
     });
 
     if (ch.answers !== null) {
@@ -1168,7 +1269,11 @@ describe("8 章を再生成しても痩せないこと (C03 の事前の床)", (
       });
 
       it("確定回答を要約に置き換えると、逐語の床を割る", () => {
-        const cut = full.replace(/\*\*回答\*\*: .*/, "**回答**: Better Auth を採用。");
+        // **`/g`。**この章の回答は 2 本ある（2026-09-08 の dev 合流で 1 本増えた）。
+        // 1 本だけ縮めても残る 1 本が床 321 を超えているので、**要約して痩せさせたのに
+        // 緑になる**。「確定回答を要約に置き換える」は全部を置き換えることなので、
+        // 上の `replaceAll` 2 件と同じ理由でここも全件へ当てる。
+        const cut = full.replace(/\*\*回答\*\*: .*/g, "**回答**: Better Auth を採用。");
         expect(measure(cut).answersTotal).toBeLessThan(321);
       });
 

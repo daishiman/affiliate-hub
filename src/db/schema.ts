@@ -1,25 +1,24 @@
 import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   integer,
   primaryKey,
   real,
   sqliteTable,
+  sqliteView,
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
-import {
-  CHANNEL_CAPABILITIES,
-  PUBLICATION_STATES,
-  type ChannelKind,
-  type PublicationState,
-} from "@/domain/distribution";
 /*
   取りまとめ (`@/domain/blogops`) 経由にしない。あの index は 17 個を再輸出するので、
   定数 1 つのために本文の記法・自動生成の代替図版・記事一覧の並べ替えまで
   引き込む。表の定義は cron の入口から手が届く場所にあるため、引いた分は
   Worker の中にもう 1 部増える（`tests/architecture/worker-entry-weight.test.ts`）。
+  `@/domain/distribution` も同じ理由で分けて引く。
 */
+import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution/channel";
+import { PUBLICATION_STATES, type PublicationState } from "@/domain/distribution/publication";
 import { ARTICLE_TEMPLATES } from "@/domain/blogops/blog-article";
 import { BLOG_TAG_KINDS } from "@/domain/blogops/blog-tag";
 import {
@@ -34,33 +33,42 @@ import {
   POLICY_CHANNEL_SCOPES,
   POLICY_DOMAIN_SCOPES,
   POLICY_SEVERITIES,
-} from "@/domain/compliance";
+} from "@/domain/compliance/policy-rule";
+import {
+  CERTIFICATE_STATUSES,
+  CUSTOM_DOMAIN_STATUSES,
+} from "@/domain/domains/custom-domain";
+import {
+  INTERACTION_KINDS,
+  READER_SEGMENTS,
+  VIEWPORT_BANDS,
+} from "@/domain/analytics/reader-interaction";
+import { ASSESSMENT_STATES, SEO_CHECK_KINDS, SEO_SEVERITIES } from "@/domain/seo/assessment";
+import { ANSWER_UNIT_KINDS } from "@/domain/aeo/answer-unit";
+import { AUDIT_TRIGGERS } from "@/domain/seo/ai-search-audit-trigger";
+import {
+  AI_SEARCH_REAUDIT_FAILURE_CODES,
+  AI_SEARCH_REAUDIT_RUN_STATUSES,
+} from "@/domain/seo/ai-search-reaudit-run";
+import {
+  CONTENT_ANGLES,
+  CTA_TYPES,
+  type ContentAngle,
+  type CtaType,
+} from "@/domain/authoring/content-package";
+import { CONTENT_STATES, type ContentState } from "@/domain/authoring/content-state";
 import {
   COMPLIANCE_STATUSES,
-  CONTENT_ANGLES,
-  CONTENT_STATES,
   CONTENT_VARIANT_STATUSES,
-  CTA_TYPES,
-  SITE_DOCUMENT_ONLY_STORAGE_KINDS,
   type ComplianceStatus,
-  type ContentAngle,
-  type ContentState,
   type ContentVariantStatus,
-  type CtaType,
-} from "@/domain/authoring";
-import {
-  ASP_LABEL,
-  CONVERSION_STATUSES,
-  type AspKind,
-  type ConversionStatus,
-} from "@/domain/monetization";
-import {
-  COMPARISON_VERDICTS,
-  LOOP_RUN_STATUSES,
-  type ComparisonVerdict,
-  type LoopRunStatus,
-  type VariantSetting,
-} from "@/domain/analytics";
+} from "@/domain/authoring/content-variant";
+import { SITE_DOCUMENT_ONLY_STORAGE_KINDS } from "@/domain/authoring/site-routes";
+import { ASP_LABEL, type AspKind } from "@/domain/monetization/affiliate-program";
+import { CONVERSION_STATUSES, type ConversionStatus } from "@/domain/monetization/conversion";
+import { COMPARISON_VERDICTS, type ComparisonVerdict } from "@/domain/analytics/improvement";
+import { LOOP_RUN_STATUSES, type LoopRunStatus } from "@/domain/analytics/loop-run";
+import type { VariantSetting } from "@/domain/analytics/variant-spec";
 
 /**
  * 列に入れてよい値を、**業務側の一覧から取り出す**。
@@ -69,6 +77,15 @@ import {
  * 業務側だけが増えて保存先が古いまま残る。しかも壊れ方が
  * 「保存のときだけ失敗する」なので、画面では最後まで気づけない。
  * 写しではなく同じものを指すことで、ずれる余地を無くしている。
+ *
+ * **ただし、指す先はバレル (`@/domain/<領域>`) ではなく具体の module にする。**
+ * バレルは `export * from "./…"` を並べたもので、束ねる側から見ると
+ * 「副作用があるかもしれない module の束」なので、定数を 1 つしか使わなくても
+ * 領域一式が Worker へ入る。2026-09-05 の実測で、`@/domain/blogops` が 12 ファイル
+ * 68 KiB、`@/domain/monetization` が 8 ファイル 55 KiB を引いていた。
+ *
+ * この表は cron の入口と画面側の束の**両方**に入るので、ここで削った分は
+ * Worker の中で 2 回効く。定数を足すときも、バレルへ戻さず定義元を直に指すこと。
  */
 const CHANNEL_KIND_VALUES = Object.keys(CHANNEL_CAPABILITIES) as [ChannelKind, ...ChannelKind[]];
 const PUBLICATION_STATE_VALUES = [...PUBLICATION_STATES] as [
@@ -3304,6 +3321,540 @@ export type SeoPageMetricRow = typeof seoPageMetrics.$inferSelect;
 export type SeoSearchQueryMetricRow = typeof seoSearchQueryMetrics.$inferSelect;
 export type SeoSearchQuerySyncRow = typeof seoSearchQuerySyncs.$inferSelect;
 
+/**
+ * ブログの住所 (住所層)。
+ *
+ * 既定住所 `/s/<site_slug>` は行を持たない。**この表に行が無いことが
+ * 既定住所である**という意味で、独自ドメインは常に「追加」であって
+ * 「置き換え」ではない (AD-1)。既定住所を行として持つと、その行を
+ * 消したときにブログが読めなくなる経路ができてしまう。
+ *
+ * 正本は Cloudflare for SaaS の custom hostname で、この表はその写しである。
+ */
+export const siteCustomDomains = sqliteTable(
+  "site_custom_domain",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    /** 小文字に正規化済みの完全修飾ホスト名 (`validateHostname` の出力)。 */
+    hostname: text("hostname").notNull(),
+    status: text("status", { enum: CUSTOM_DOMAIN_STATUSES }).notNull().default("pending"),
+    certificateStatus: text("certificate_status", { enum: CERTIFICATE_STATUSES })
+      .notNull()
+      .default("none"),
+    canonical: integer("canonical", { mode: "boolean" }).notNull().default(false),
+    /** Cloudflare 側の custom hostname id。未申請なら null。 */
+    externalHostnameId: text("external_hostname_id"),
+    /** DNS に置いてもらう検証用レコードの値。運用者へそのまま見せる。 */
+    verificationToken: text("verification_token"),
+    /** 外部の状態を最後に写し取った時刻。null は一度も同期していない。 */
+    syncedAt: integer("synced_at", { mode: "timestamp" }),
+    lastError: text("last_error"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    /**
+     * 生きている住所は世界に 1 つ。
+     *
+     * `revoked` と論理削除済みを除くのは、取り下げた住所を**同じ行の復活
+     * ではなく新しい行として登録し直す**ためである (遷移表で `revoked` を
+     * 終端にした帰結)。除外しないと、一度取り下げたドメインを二度と
+     * 登録できなくなる。
+     */
+    uniqueIndex("site_custom_domain_hostname_idx")
+      .on(t.hostname)
+      .where(sql`status <> 'revoked' and deleted_at is null`),
+    /**
+     * 正規の住所はブログごとに 1 つ。
+     *
+     * `resolveCanonicalHost` は canonical が複数あるとき既定住所へ倒すが、
+     * それは読み取り側の防御であって、書き込み側でも二重に止める。
+     * 片側だけだと「画面上は正常なのに検索エンジンへ送る正規化情報だけが
+     * 揺れる」状態を作れてしまう。
+     */
+    uniqueIndex("site_custom_domain_canonical_idx")
+      .on(t.workspaceId, t.siteSlug)
+      .where(sql`canonical = 1 and status = 'active' and deleted_at is null`),
+    index("site_custom_domain_site_idx").on(t.workspaceId, t.siteSlug, t.status),
+  ],
+);
+
+/**
+ * 読者行動の生イベント (観測層)。
+ *
+ * 個人へ戻せる列を**構造として持たない**。cookie 由来の鍵も IP も
+ * user agent も無い。運用の約束ではなく列の不在で保証しているので、
+ * 誰かが後から「今回だけ」と判断する余地がない。
+ *
+ * `session_key` はその日かぎりの不透明な鍵で、日をまたいで同じ読者を
+ * 追えない。ユニークセッション数を数えるためだけに持つ。
+ */
+export const readerInteractionEvents = sqliteTable(
+  "reader_interaction_event",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    /** 記事に紐づかないページ (トップ・一覧) は null。 */
+    articleSlug: text("article_slug"),
+    kind: text("kind", { enum: INTERACTION_KINDS }).notNull(),
+    segment: text("segment", { enum: READER_SEGMENTS }).notNull(),
+    viewportBand: text("viewport_band", { enum: VIEWPORT_BANDS }).notNull(),
+    /**
+     * ページ全体に対する位置の比率 (0..1)。
+     * 画素ではなく比率なのは、画面幅の違う観測どうしを足せるようにするため。
+     */
+    positionRatio: real("position_ratio").notNull().default(0),
+    dwellSeconds: integer("dwell_seconds").notNull().default(0),
+    /** `click` で押された要素の識別子。それ以外は null。 */
+    elementKey: text("element_key"),
+    /** その日かぎりの不透明な鍵。日をまたぐと別の値になる。 */
+    sessionKey: text("session_key").notNull(),
+    /** 集計の対象日 (`YYYY-MM-DD`)。ロールアップの走査をこの列で絞る。 */
+    rollupDay: text("rollup_day").notNull(),
+    occurredAt: integer("occurred_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    /** 日次ロールアップの走査。この索引が無いと全表走査になる。 */
+    index("reader_interaction_event_rollup_idx").on(
+      t.workspaceId,
+      t.siteSlug,
+      t.rollupDay,
+    ),
+    index("reader_interaction_event_article_idx").on(
+      t.workspaceId,
+      t.articleSlug,
+      t.rollupDay,
+    ),
+    /** 保持期限を過ぎた行の掃除。時刻だけで引けるようにする。 */
+    index("reader_interaction_event_retention_idx").on(t.occurredAt),
+  ],
+);
+
+/**
+ * ブログ単位の日次集計 (観測層)。
+ *
+ * 生イベントが 90 日で消えた後も残る。同じ日を何度集計しても同じ結果に
+ * なるよう、`(workspace, site, day)` を一意にして**置き換え**で書く。
+ * 足し込みで書くと、再集計のたびに PV が増える。
+ */
+export const siteDailyMetrics = sqliteTable(
+  "site_daily_metric",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    day: text("day").notNull(),
+    views: integer("views").notNull().default(0),
+    uniqueSessions: integer("unique_sessions").notNull().default(0),
+    clicks: integer("clicks").notNull().default(0),
+    conversions: integer("conversions").notNull().default(0),
+    /** 最小通貨単位 (円) の整数。小数だと足し合わせで誤差が出る。 */
+    revenueMinor: integer("revenue_minor").notNull().default(0),
+    averageDwellSeconds: real("average_dwell_seconds").notNull().default(0),
+    averageScrollRatio: real("average_scroll_ratio").notNull().default(0),
+    /**
+     * この行を作った生イベントの件数。示唆を出してよいかの足切りに使う。
+     *
+     * 生イベントは 90 日で消えるので、後から数え直せない。集計と同時に
+     * 残しておかないと、古い日の数字が「何件から出たのか」が永久に
+     * 分からなくなる。
+     */
+    sampleCount: integer("sample_count").notNull().default(0),
+    /**
+     * この行を作った集計の実行時刻。
+     * 「集計がいつの時点のものか」を画面に出すために持つ。出さないと、
+     * 数字が古いのか本当に動きが無いのかを運用者が区別できない。
+     */
+    computedAt: integer("computed_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.siteSlug, t.day] }),
+    index("site_daily_metric_day_idx").on(t.workspaceId, t.day),
+  ],
+);
+
+/**
+ * 記事単位の日次集計 (観測層)。
+ *
+ * 「どの記事がどれだけ稼いでいるか」と「記事ごとの PV」を同じ 1 行で
+ * 持つ。売上と PV を別表に分けると、画面ごとに突き合わせ方が変わり、
+ * 同じ指標が画面ごとに別の値になる (AD-2)。
+ */
+export const articleDailyMetrics = sqliteTable(
+  "article_daily_metric",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    day: text("day").notNull(),
+    views: integer("views").notNull().default(0),
+    uniqueSessions: integer("unique_sessions").notNull().default(0),
+    clicks: integer("clicks").notNull().default(0),
+    conversions: integer("conversions").notNull().default(0),
+    revenueMinor: integer("revenue_minor").notNull().default(0),
+    averageDwellSeconds: real("average_dwell_seconds").notNull().default(0),
+    averageScrollRatio: real("average_scroll_ratio").notNull().default(0),
+    /**
+     * 要素別のクリック内訳 (JSON)。`{"cta-main": 12, "sidebar": 3}` の形。
+     *
+     * 列に展開しないのは、要素の識別子が記事の作りで増減するためである。
+     * 列にすると、新しい置き場所を足すたびに migration が要る。
+     */
+    clicksByElement: text("clicks_by_element").notNull().default("{}"),
+    /** 記事 1 本ぶんの観測件数。ブログ側と同じ足切りに使う。 */
+    sampleCount: integer("sample_count").notNull().default(0),
+    computedAt: integer("computed_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.siteSlug, t.articleSlug, t.day] }),
+    /** 「今月いちばん稼いだ記事」を引く経路。 */
+    index("article_daily_metric_revenue_idx").on(
+      t.workspaceId,
+      t.siteSlug,
+      t.day,
+      t.revenueMinor,
+    ),
+  ],
+);
+
+/**
+ * 記事ごとの SEO 診断 (改善層)。
+ *
+ * `evidence` を非 null にしているのが、この表のいちばん重い制約である。
+ * 根拠のない指摘を行として作れないようにすることで、「なんとなく
+ * 良くなりそう」な提案が混ざるのを構造で止める。
+ */
+export const articleSeoAssessments = sqliteTable(
+  "article_seo_assessment",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    checkKind: text("check_kind", { enum: SEO_CHECK_KINDS }).notNull(),
+    severity: text("severity", { enum: SEO_SEVERITIES }).notNull(),
+    state: text("state", { enum: ASSESSMENT_STATES }).notNull().default("open"),
+    detail: text("detail").notNull(),
+    /** 機械が現物のどこを見てそう言えるのか。空では登録できない。 */
+    evidence: text("evidence").notNull(),
+    suggestion: text("suggestion"),
+    /**
+     * 下書きにした記事改訂の id。改善層は公開面を直接書かない (AD-3) ため、
+     * ここから先は既存の編集・承認経路が担う。
+     */
+    draftRevisionId: text("draft_revision_id"),
+    /** `dismissed` にした理由。判断を後から辿れるようにする。 */
+    dismissedReason: text("dismissed_reason"),
+    assessedAt: integer("assessed_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    /**
+     * 同じ記事の同じ観点は 1 行。
+     *
+     * 診断を回すたびに行が増えると、運用者が同じ指摘を何度も見ることに
+     * なり、`dismissed` にした判断も毎回流される。再診断は置き換える。
+     */
+    uniqueIndex("article_seo_assessment_unique_idx").on(
+      t.workspaceId,
+      t.siteSlug,
+      t.articleSlug,
+      t.checkKind,
+    ),
+    index("article_seo_assessment_open_idx").on(
+      t.workspaceId,
+      t.siteSlug,
+      t.state,
+      t.severity,
+    ),
+  ],
+);
+
+/**
+ * サイト単位の月次 SEO 診断の完了印。
+ *
+ * 「指摘が 0 件」と「まだ診断していない」を指摘表からは
+ * 見分けられないため、診断結果とは別の表で持つ。`period` は
+ * cron が UTC で作る `YYYY-MM`。複合主キーは成功済みの同月再実行を
+ * 候補から外すためのもので、並行実行を排他する lease ではない。
+ * 同時に起動した場合は at-least-once で診断・監査が重なる余地がある。
+ */
+export const siteSeoAssessmentProgress = sqliteTable(
+  "site_seo_assessment_progress",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    period: text("period").notNull(),
+    /** 失敗した先頭サイトが毎日後続を塞がないためのローテーション時刻。 */
+    lastAttemptedAt: integer("last_attempted_at", { mode: "timestamp" }).notNull(),
+    /** null は診断・監査・完了書込みのどこかが未完了。 */
+    completedAt: integer("completed_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.siteSlug, t.period] }),
+    index("site_seo_assessment_progress_period_idx").on(
+      t.period,
+      t.completedAt,
+      t.lastAttemptedAt,
+      t.workspaceId,
+      t.siteSlug,
+    ),
+  ],
+);
+
+/**
+ * ブログ単位の AEO の構え (改善層)。
+ *
+ * 記事ごとの引用単位とは別に持つ。「このブログは何に答える場所か」が
+ * 記事をまたいで一貫していないと、どの記事も中途半端に引かれて終わる。
+ */
+export const siteAeoProfiles = sqliteTable(
+  "site_aeo_profile",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    /** このブログが答えると宣言する領域。 */
+    topicScope: text("topic_scope").notNull().default(""),
+    /** 誰の問いに答えるか。 */
+    audience: text("audience").notNull().default(""),
+    /** 出典として名乗る主体。構造化データの発行元になる。 */
+    publisherName: text("publisher_name").notNull().default(""),
+    structuredDataEnabled: integer("structured_data_enabled", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.siteSlug] })],
+);
+
+/**
+ * 記事から抽出した引用単位 (改善層)。
+ *
+ * 1 記事 = 1 回答として扱わないのは、問いの形によって引かれる部分が
+ * 違うためである。単位に分けておかないと、どの部分が引用されたのかが
+ * 分からず、直す場所を決められない。
+ */
+export const articleAnswerUnits = sqliteTable(
+  "article_answer_unit",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    kind: text("kind", { enum: ANSWER_UNIT_KINDS }).notNull(),
+    question: text("question").notNull(),
+    answer: text("answer").notNull(),
+    positionRatio: real("position_ratio").notNull().default(0),
+    sourceRef: text("source_ref"),
+    /**
+     * 検出した不足 (JSON 配列)。`detectGaps` の出力をそのまま入れる。
+     *
+     * 別表にしないのは、単位を作り直すたびに不足も丸ごと作り直すためで、
+     * 単位より長生きする不足が無いからである。
+     */
+    gaps: text("gaps").notNull().default("[]"),
+    extractedAt: integer("extracted_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    /** 同じ記事の同じ問いは 1 行。再抽出は置き換える。 */
+    uniqueIndex("article_answer_unit_question_idx").on(
+      t.workspaceId,
+      t.siteSlug,
+      t.articleSlug,
+      t.question,
+    ),
+    index("article_answer_unit_site_idx").on(t.workspaceId, t.siteSlug, t.kind),
+  ],
+);
+
+/**
+ * AI 検索適合の点検履歴（feat-seo-aeo-gap-closure / REQ-SEO07）。
+ *
+ * 記事の識別子は `published_articles` と同じ (site_slug, slug) の対。
+ * **外部キーを張らない。** 記事が取り下げられても「そのとき何が落ちていたか」は
+ * 監査の記録として残す必要がある。連鎖削除されると、取り下げの理由を後から辿れない。
+ *
+ * 保持は記事ごと直近 30 件（`AUDIT_HISTORY_WINDOW`）。刈り取りは追記と
+ * 同じトランザクションで行う。
+ */
+export const aiSearchAuditHistory = sqliteTable(
+  "ai_search_audit_history",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    slug: text("slug").notNull(),
+    trigger: text("trigger", { enum: AUDIT_TRIGGERS }).notNull(),
+    /** 7 チェックのうち ok だった数。一覧の並べ替えに使うので列に出す。 */
+    passedCount: integer("passed_count").notNull(),
+    /** 7 チェックの総数。checks の形が変わった行を後から見分けられる。 */
+    totalCount: integer("total_count").notNull(),
+    /** AiSearchCheck[] をそのまま入れた JSON。 */
+    checksJson: text("checks_json").notNull(),
+    /** 解析ロジックの版。版をまたいだ行を混ぜて比べないための印。 */
+    analyzerVersion: text("analyzer_version").notNull(),
+    checkedAt: integer("checked_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("ai_search_audit_history_article_idx").on(t.siteSlug, t.slug, t.checkedAt),
+    index("ai_search_audit_history_workspace_idx").on(t.workspaceId, t.checkedAt),
+  ],
+);
+
+/**
+ * AI 検索の定期再点検の、workspace ごとの直近の最終状態。
+ * 実行履歴を無限に持つ表ではなく、管理画面が今の健全性を読むための 1 行の投影。
+ */
+export const aiSearchReauditRuns = sqliteTable(
+  "ai_search_reaudit_runs",
+  {
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaces.id),
+    status: text("status", { enum: AI_SEARCH_REAUDIT_RUN_STATUSES }).notNull(),
+    startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
+    completedAt: integer("completed_at", { mode: "timestamp" }).notNull(),
+    scanned: integer("scanned").notNull(),
+    recorded: integer("recorded").notNull(),
+    failed: integer("failed").notNull(),
+    failureCode: text("failure_code", { enum: AI_SEARCH_REAUDIT_FAILURE_CODES }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId] }),
+    check(
+      "ai_search_reaudit_runs_counts_check",
+      sql`${t.scanned} >= 0 AND ${t.recorded} >= 0 AND ${t.failed} >= 0 AND ${t.scanned} = ${t.recorded} + ${t.failed}`,
+    ),
+    check(
+      "ai_search_reaudit_runs_time_check",
+      sql`${t.completedAt} >= ${t.startedAt}`,
+    ),
+    check(
+      "ai_search_reaudit_runs_state_check",
+      sql`(
+        (${t.status} = 'succeeded' AND ${t.failureCode} IS NULL AND ${t.failed} = 0)
+        OR (${t.status} = 'partial' AND ${t.failureCode} = 'article_audit_failed' AND ${t.recorded} > 0 AND ${t.failed} > 0)
+        OR (${t.status} = 'failed' AND ${t.failureCode} = 'article_audit_failed' AND ${t.recorded} = 0 AND ${t.failed} > 0)
+        OR (${t.status} = 'failed' AND ${t.failureCode} = 'target_list_unavailable' AND ${t.scanned} = 0)
+      )`,
+    ),
+  ],
+);
+
+/**
+ * 記事に貼られた画像の台帳。
+ *
+ * --- なぜ表が要るのか（置き場だけでは足りない理由） ---
+ *
+ * 1. **公開 URL から置き場の鍵を隠すため。** 記事本文に入るのは
+ *    `/api/article-images/<id>` だけで、`id` から鍵を引くのがこの表である
+ *    （`articleImageHref` / `articleImageKey`）。鍵をそのまま URL にすると、
+ *    公開ページの HTML を読むだけで他社の作業場所 id が拾える。
+ * 2. **送ったが使わなかった画像を回収するため。** 書き手は画像を送ってから
+ *    「やっぱりやめた」と消せる。置き場だけを見ても、その 1 枚が
+ *    記事から参照されているかは分からない。置き場は中身しか知らないため。
+ *
+ * `referenced` は**判定の結果を覚えておく欄**であって、真実そのものではない。
+ * 真実は記事本文の側にあり、`last_referenced_at` は「最後にそう見えた時刻」。
+ * 掃除は必ずこの 2 つと猶予期間を合わせて判断する
+ * （送った直後・まだ保存していない下書きの画像を消さないため）。
+ */
+export const articleImages = sqliteTable(
+  "article_image",
+  {
+    /** 公開 URL に出る覚えのない 1 語。置き場の鍵とは別物。 */
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    articleId: text("article_id").notNull(),
+    /** 置き場の鍵。組み立ては `articleImageKey` 1 か所だけが知っている。 */
+    objectKey: text("object_key").notNull().unique(),
+    mimeType: text("mime_type").notNull(),
+    byteSize: integer("byte_size").notNull(),
+    /** pending は未完了、deleting/deleted は永久に参照を再追加できない。 */
+    lifecycle: text("lifecycle", { enum: ["pending", "ready", "deleting", "deleted"] }).notNull().default("ready"),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+    /** 直近の点検で、記事本文から参照されていたか。 */
+    referenced: integer("referenced", { mode: "boolean" }).notNull().default(false),
+    /** 参照されていると最後に確かめられた時刻。一度も無ければ null。 */
+    lastReferencedAt: integer("last_referenced_at", { mode: "timestamp" }),
+    /** 公平な日次走査用。失敗も記録し、同じ先頭500枚への固定を防ぐ。 */
+    lastCheckedAt: integer("last_checked_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    // 絞り込みの 1 段目は必ず作業場所（tests/architecture/tenant-scoped-schema.test.ts）。
+    index("article_image_workspace_article_idx").on(t.workspaceId, t.articleId),
+    /*
+      掃除が拾う順。**`referenced` を先頭に置かない。**
+      置くと「一度は参照されていたが、あとで記事から外された画像」を
+      掃除が二度と見なくなる（台帳の `referenced` は前回の点検結果であって、
+      いまの真実ではないため）。古い順に端から見直すのが正しい。
+    */
+    index("article_image_sweep_idx").on(t.createdAt),
+    index("article_image_check_idx").on(t.lastCheckedAt, t.createdAt, t.id),
+    check("article_image_byte_size_check", sql`${t.byteSize} > 0`),
+    check("article_image_lifecycle_check", sql`${t.lifecycle} IN ('pending', 'ready', 'deleting', 'deleted')`),
+  ],
+);
+
+export type ArticleImageRow = typeof articleImages.$inferSelect;
+
+/** 全workspace共通のR2 prefix走査位置。利用者データではなく保守処理の進捗。 */
+export const articleImageSweepState = sqliteTable("article_image_sweep_state", {
+  id: text("id").primaryKey(),
+  cursor: text("cursor"),
+  version: integer("version").notNull().default(0),
+});
+
+/**
+ * 参照の正本は本文と公開JSON。JSON escapeを復号した文字列も含め、
+ * 点検と原子的claimが同じ資料を見る。UUIDへの言及も保護する安全側の索引。
+ */
+export const articleImageReferenceTexts = sqliteView("article_image_reference_text", {
+  workspaceId: text("workspace_id"),
+  body: text("body"),
+}).as(sql`
+  SELECT workspace_id, body FROM blog_article_block
+  UNION ALL
+  SELECT b.workspace_id, CAST(j.value AS TEXT) FROM blog_article_block b,
+    json_tree(CASE
+      WHEN json_valid(b.body) THEN b.body
+      WHEN substr(b.body, 1, 20) = 'expression-block:v1:' AND json_valid(substr(b.body, 21)) THEN substr(b.body, 21)
+      ELSE 'null' END) j WHERE j.type = 'text'
+  UNION ALL
+  SELECT workspace_id, article_json AS body FROM published_articles
+  UNION ALL
+  SELECT p.workspace_id, CAST(j.value AS TEXT) FROM published_articles p,
+    json_tree(CASE WHEN json_valid(p.article_json) THEN p.article_json ELSE 'null' END) j WHERE j.type = 'text'
+`);
+
+export type AiSearchAuditHistoryRow = typeof aiSearchAuditHistory.$inferSelect;
+export type AiSearchReauditRunRow = typeof aiSearchReauditRuns.$inferSelect;
 export type SiteNetworkNodeRow = typeof siteNetworkNodes.$inferSelect;
 export type BlogLayoutSlotRow = typeof blogLayoutSlots.$inferSelect;
 export type BlogLayoutBandRow = typeof blogLayoutBands.$inferSelect;
@@ -3314,5 +3865,13 @@ export type BlogTagRow = typeof blogTags.$inferSelect;
 export type BlogArticleTagRow = typeof blogArticleTags.$inferSelect;
 export type BlogDeliveryPartRow = typeof blogDeliveryParts.$inferSelect;
 export type BlogArticleRatingRow = typeof blogArticleRatings.$inferSelect;
+export type SiteCustomDomainRow = typeof siteCustomDomains.$inferSelect;
+export type ReaderInteractionEventRow = typeof readerInteractionEvents.$inferSelect;
+export type SiteDailyMetricRow = typeof siteDailyMetrics.$inferSelect;
+export type ArticleDailyMetricRow = typeof articleDailyMetrics.$inferSelect;
+export type ArticleSeoAssessmentRow = typeof articleSeoAssessments.$inferSelect;
+export type SiteSeoAssessmentProgressRow = typeof siteSeoAssessmentProgress.$inferSelect;
+export type SiteAeoProfileRow = typeof siteAeoProfiles.$inferSelect;
+export type ArticleAnswerUnitRow = typeof articleAnswerUnits.$inferSelect;
 
 export * from "./auth-schema";

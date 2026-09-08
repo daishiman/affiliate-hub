@@ -48,3 +48,27 @@ def test_unknown_versions_and_malformed_design_applications_are_rejected() -> No
     current["qa_log"][0]["design_applications"] = [{"principle": "incomplete"}]
     with __import__("pytest").raises(jsonschema.ValidationError):
         validator().validate(current)
+
+
+def test_only_archive_may_preserve_a_source_less_legacy_qa() -> None:
+    state = json.loads(LIVE_STATE.read_text(encoding="utf-8"))
+    source_less = {
+        "id": "qa-legacy-without-source",
+        "question": "由来契約より前の問い",
+        "answer": "当時の原文",
+    }
+
+    active = copy.deepcopy(state)
+    active["qa_log"].append(copy.deepcopy(source_less))
+    with __import__("pytest").raises(jsonschema.ValidationError):
+        validator().validate(active)
+
+    archived = copy.deepcopy(state)
+    archived["retracted_qa_log"].append({
+        "id": source_less["id"],
+        "reason": "現行契約を満たさないため原文のまま退避",
+        "retracted_on": "2026-09-06",
+        "retracted_with": "retract-qa",
+        "entry": source_less,
+    })
+    validator().validate(archived)

@@ -4,8 +4,9 @@ import {
   type AiCitationClientPort,
   type CitationCheckResult,
 } from "@/application/ports/seo-measurement";
-import { pageKeyOf } from "@/domain/seo/aeo-measurement";
-import { type DomainError, domainError, err, ok } from "@/domain/shared";
+import { pageKeyOf } from "@/domain/seo/aeo-measurement/page-key";
+import { type DomainError, domainError } from "@/domain/shared/errors";
+import { err, ok } from "@/domain/shared/result";
 
 /**
  * 系統③: AI 検索がこの記事を引用するかを調べる。

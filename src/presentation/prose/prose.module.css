@@ -101,6 +101,390 @@
   margin: var(--space-5) 0;
 }
 
+/* 目には見えないが読み上げには届く文言。色や形だけで意味を表さないために使う。 */
+.proseSrOnly {
+  position: absolute;
+  width: var(--sr-only-size);
+  height: var(--sr-only-size);
+  padding: 0;
+  margin: calc(-1 * var(--sr-only-size));
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- 行の中の装飾 (`prose-text.tsx`) -----------------------------------
+   **色は名前でしか指定できない** (FRONT-REQ-007)。任意の値を受けると、
+   テーマを切り替えた日に本文の一部だけが前のテーマの色で残る。
+   名前とテーマ変数の対応をここ 1 か所で持つ。 */
+.proseInkColor[data-token="accent"] {
+  color: var(--color-accent-default);
+}
+.proseInkColor[data-token="action"] {
+  color: var(--color-action-default);
+}
+.proseInkColor[data-token="success"] {
+  color: var(--color-intent-success);
+}
+.proseInkColor[data-token="warn"] {
+  color: var(--color-intent-warning);
+}
+.proseInkColor[data-token="danger"] {
+  color: var(--color-intent-danger);
+}
+.proseInkColor[data-token="muted"] {
+  color: var(--color-text-muted);
+}
+
+/*
+  地色を敷くときは字の色も一緒に決める。地色だけ変えると、
+  暗いテーマで「薄い地に薄い字」になる組み合わせが必ず出る。
+*/
+.proseInkBg {
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-1);
+  /*
+    地色は名前ごとの変数から受け取り、敷く場所はここ 1 つに保つ。
+    名前ごとに `background` を 6 回書くと、字の色との組を 6 回別々に
+    直すことになり、必ずどれか 1 つが取り残される。
+  */
+  background: var(--prose-ink-bg);
+  color: var(--color-text-strong);
+}
+.proseInkBg[data-token="accent"] {
+  --prose-ink-bg: var(--color-accent-subtle);
+}
+.proseInkBg[data-token="action"] {
+  --prose-ink-bg: var(--color-action-subtle);
+}
+.proseInkBg[data-token="success"] {
+  --prose-ink-bg: var(--color-intent-success-subtle);
+}
+.proseInkBg[data-token="warn"] {
+  --prose-ink-bg: var(--color-intent-warning-subtle);
+}
+.proseInkBg[data-token="danger"] {
+  --prose-ink-bg: var(--color-intent-danger-subtle);
+}
+.proseInkBg[data-token="muted"] {
+  --prose-ink-bg: var(--color-surface-sunken);
+}
+
+.proseCode {
+  /* 地色は強制配色で均される。枠が無いと、周りの本文と見分けが付かなくなる。 */
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-1);
+  background: var(--color-surface-sunken);
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+}
+
+/* --- プログラム (`code`) ---------------------------------------------- */
+/*
+  **横に溢れる行を折り返さない。**プログラムは折り返すと意味が変わって見える
+  （字下げが揃わない）。表と同じく、箱の中だけで横に流す。
+*/
+.proseCodeBlock {
+  overflow-x: auto;
+  max-width: 100%;
+  margin: 0;
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  background: var(--color-surface-sunken);
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+/* --- 画像の横並び (`image-row`) ---------------------------------------- */
+/*
+  枚数ぶんの桁を作るが、**狭い画面では 1 列に落とす**。
+  4 枚を横に並べたままにすると、1 枚あたりが親指の幅より狭くなる。
+*/
+.proseImageRow {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+@media (width >= 48rem) { /* --breakpoint-md */
+  .proseImageRow[data-count="2"] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .proseImageRow[data-count="3"] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .proseImageRow[data-count="4"] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.proseImageRowItem {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* --- 折りたたみ (`toggle`) --------------------------------------------- */
+.proseToggle {
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  background: var(--color-surface-default);
+}
+
+.proseToggleSummary {
+  /*
+    開閉は指で押される。素の `<summary>` は字の高さぶんしか無い。
+    下限は `--tap-target-min` 1 か所で決めてある。
+  */
+  display: flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+
+.proseToggleBody {
+  padding-top: var(--space-2);
+}
+.proseToggleBody p:last-child {
+  margin-bottom: 0;
+}
+
+/* --- チェックリスト (`checklist`) --------------------------------------- */
+/*
+  読者は押せない。だから `<input>` を置かず、印だけを描く。
+  行頭の点は消す——印が 2 つ並ぶと、どちらが状態なのか分からない。
+*/
+.proseChecklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.proseChecklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.proseCheckMark {
+  display: inline-flex;
+  align-items: center;
+  /* 行の 1 文字目と印の高さを合わせる。 */
+  min-height: var(--leading-body);
+  color: var(--color-text-muted);
+}
+.proseCheckMark[data-checked="true"] {
+  color: var(--color-intent-success);
+}
+
+/* --- 埋め込み (`embed`) ------------------------------------------------ */
+/*
+  高さを縦横比で決める。固定の高さを書くと、狭い画面で上下に黒帯が出るか、
+  中身が切れる。`aspect-ratio` なら幅が決まれば高さが決まる。
+*/
+.proseEmbed {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  overflow: hidden;
+  /* 読み込めなかったときに「何かが在るはずの場所」だと分かる枠を残す。 */
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+.proseEmbed iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.proseEmbedFallback {
+  /* 埋め込みにできなかったときの行。消さずにリンクとして残す。 */
+  color: var(--color-text-muted);
+}
+
+/* --- 押しボタン (`cta-button`) ----------------------------------------- */
+.proseCtaWrap {
+  margin: var(--space-4) 0;
+}
+
+.proseCta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target-min);
+  /* 強制配色では地色が均される。ボタンの形は枠が残す。 */
+  border: var(--border-width-default) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-5);
+  font-weight: var(--weight-bold);
+  text-decoration: none;
+}
+
+.proseCtaAction {
+  background: var(--color-action-default);
+  color: var(--color-text-on-action);
+}
+.proseCtaAccent {
+  background: var(--color-accent-default);
+  color: var(--color-text-on-accent);
+}
+
+/* --- リンクカード (`link-card`) ----------------------------------------- */
+.proseLinkCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  /* 箱ごと押される。中の字だけが押しどころだと、余白を押しても何も起きない。 */
+  min-height: var(--tap-target-min);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  text-decoration: none;
+}
+.proseLinkCard:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-raised);
+}
+
+.proseLinkCardTitle {
+  color: var(--color-text-strong);
+  font-weight: var(--weight-bold);
+}
+
+.proseLinkCardDesc {
+  color: var(--color-text-muted);
+}
+
+.proseLinkCardHost {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  /* 長い URL で箱が横に広がらないようにする。 */
+  overflow-wrap: anywhere;
+}
+
+/* --- 2 段組 (`columns`) ------------------------------------------------ */
+/*
+  狭い画面では縦に落ちる。並びは左→右のままなので、
+  読み上げの順序は画面幅で変わらない。
+*/
+.proseColumns {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+@media (width >= 48rem) { /* --breakpoint-md */
+  .proseColumns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.proseColumns p:last-child {
+  margin-bottom: 0;
+}
+
+/* --- 装飾つきの文字を書く欄 (`rich-text.tsx`) ---------------------------
+   **記法の文字を出さない** (受け入れ A1)。書いている間も出来上がりの形で、
+   `**` や `~~` は保存のときだけ組み立てる。 */
+.richText {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+/*
+  道具帯自身の高さを確保する。浮かせると狭い画面や表セルで折り返した帯が
+  行操作の「部品を足す」を覆い、装飾の直後に次の操作へ進めなくなる。
+*/
+.richTextBar {
+  position: relative;
+  z-index: var(--z-raised);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+  border: var(--border-width-default) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1);
+  background: var(--color-surface-raised);
+}
+
+.richTextInput {
+  width: 100%;
+  min-width: 0;
+  /* 打ち込む欄も押しどころである。ここへ指を置けないと本文を書き始められない。 */
+  min-height: var(--tap-target-min);
+  border: none;
+  border-bottom: var(--border-width-default) solid transparent;
+  padding: var(--space-1) 0;
+  color: var(--color-text-default);
+  font: inherit;
+  line-height: var(--leading-body);
+  /* 長い URL や英単語で欄が横に広がらないようにする。 */
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.richTextInput:focus {
+  outline: none;
+  border-bottom-color: var(--color-border-strong);
+}
+
+/*
+  空のときだけ案内を出す。`placeholder` 属性は `contenteditable` に効かないので、
+  中身が無いことを `:empty` で見て、擬似要素で描く。
+*/
+.richTextInput:empty::before {
+  content: attr(data-placeholder);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.richTextPopover {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* 色の見本。**名前だけでは選べない**ので、実際の色を隣に置く。 */
+.richTextSwatch {
+  display: inline-block;
+  width: var(--space-4);
+  height: var(--space-4);
+  /*
+    見本そのものが地色と同じ色になりうるので、枠は必ず持たせる。
+    枠が無いと、白い地に白い見本が「無い」ものとして見える。
+  */
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--prose-swatch);
+}
+.richTextSwatch[data-token="accent"] {
+  --prose-swatch: var(--color-accent-default);
+}
+.richTextSwatch[data-token="action"] {
+  --prose-swatch: var(--color-action-default);
+}
+.richTextSwatch[data-token="success"] {
+  --prose-swatch: var(--color-intent-success);
+}
+.richTextSwatch[data-token="warn"] {
+  --prose-swatch: var(--color-intent-warning);
+}
+.richTextSwatch[data-token="danger"] {
+  --prose-swatch: var(--color-intent-danger);
+}
+.richTextSwatch[data-token="muted"] {
+  --prose-swatch: var(--color-text-muted);
+}
+
 /* --- 本文を書く欄 (`prose-editor.tsx`) ---------------------------------
    出来上がりの見た目に寄せる。入力欄の枠を消し、字の大きさは公開面と同じ
    ものを使う。**書いている画面と読まれる画面が違う字で出ると、
@@ -114,6 +498,8 @@
   padding: var(--space-3);
   background: var(--color-surface-default);
 }
+
+.proseEditor[hidden] { display: none; }
 
 .proseEditorRow {
   display: flex;
@@ -156,10 +542,55 @@
   gap: var(--space-1);
 }
 
+/*
+  掴む取っ手。**ボタンとしても押せる形にしておく。**
+  掴んで動かす操作はポインタが要るので、これだけにすると
+  キーボードと読み上げで操作する人が並べ替えできなくなる。
+  上へ/下へのボタンは消さずに残す。
+
+  大きさ・枠・色は `.proseEditorIconButton` と一緒に着せる。
+  ここで書き直すと、押しどころの下限 (`--tap-target-min`) を
+  取っ手だけが持たない形になる。上げ下げ・削除と隣り合って並ぶので、
+  取っ手だけ小さいと押し間違えて隣の断片が動く（2026-08-27 の赤と同じ形）。
+  この規則が足すのは「掴める」という手つきの合図だけにする。
+*/
+.proseEditorGrip {
+  cursor: grab;
+}
+
+.proseEditorGrip:active {
+  cursor: grabbing;
+}
+
+.proseEditorRowDragging {
+  opacity: 0.5;
+}
+
+/*
+  落ちる場所は**行が既に着ている枠の、上辺か下辺だけを塗って**示す。
+
+  掴んだ断片を実際に動かして見せると、離すまで確定しない位置が
+  確定したように見え、離した先が違ったときに「戻す」から始めることになる。
+
+  影ではなく枠にするのは 2 つの理由による。影は強制配色（ハイコントラスト）で
+  消えるので、そこでだけ落ちる場所が見えなくなる。そして枠は
+  `.proseEditorRow` が透明な状態で先に置いてあるため、色を差すだけでよく、
+  太さも位置も動かない——刻みを外れた寸法を書かずに済む。
+*/
+.proseEditorRowDropBefore {
+  border-top-color: var(--color-border-strong);
+}
+
+.proseEditorRowDropAfter {
+  border-bottom-color: var(--color-border-strong);
+}
+
 .proseEditorIconButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-1);
+  white-space: nowrap;
   /*
     アイコンだけの操作は、字が無いぶん見た目の面積が中身の大きさで決まる。
     下限を書かないと、印そのものの大きさが押しどころになる。
@@ -257,6 +688,7 @@
 }
 
 .proseEditorSelect {
+  min-height: var(--tap-target-min);
   border: var(--border-width-default) solid var(--color-border-default);
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-2);
@@ -287,6 +719,7 @@
   align-items: center;
   gap: var(--space-2);
   width: 100%;
+  min-height: var(--tap-target-min);
   /* 上と同じ理由。指している候補が、強制配色で見分けられなくならないようにする。 */
   border: var(--border-width-default) solid transparent;
   border-radius: var(--radius-sm);
@@ -301,6 +734,108 @@
 .proseEditorMenuItem:hover {
   border-color: var(--color-border-default);
   background: var(--color-surface-default);
+}
+
+.proseEditorMenuItem[data-active="true"],
+.proseEditorMenuItem[aria-pressed="true"] {
+  background: var(--color-surface-default);
+  border-color: var(--color-border-strong);
+  font-weight: var(--weight-bold);
+}
+
+.proseEditorMenuItem:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.proseEditorToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+}
+
+.proseEditorToolbar > button,
+.proseEditorActions > button {
+  width: auto;
+  white-space: nowrap;
+}
+
+.proseEditorMenuPanel {
+  width: 100%;
+  padding: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.proseEditorMenuGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--layout-sidebar-width)), 1fr));
+  gap: var(--space-3);
+  max-height: min(50dvh, var(--table-scroll-max-block));
+  overflow-y: auto;
+  margin-block: var(--space-2);
+}
+
+.proseEditorMenuGroups .proseEditorMenu {
+  border: none;
+  padding: 0;
+}
+
+.proseEditorMenuHead {
+  font-weight: var(--weight-bold);
+  color: var(--color-text-muted);
+  margin-block: var(--space-2);
+}
+
+.proseMenuDescription {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: normal;
+}
+
+.proseEditorColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-min-width)), 1fr));
+  width: 100%;
+  gap: var(--space-4);
+}
+
+.proseEditorCode {
+  width: 100%;
+  min-height: calc(var(--space-8) * 2);
+  padding: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-default);
+  font-family: monospace;
+  line-height: var(--leading-body);
+  resize: vertical;
+}
+
+.prosePreview {
+  min-width: 0;
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-default);
+  color: var(--color-text-default);
+  line-height: var(--leading-body);
+  overflow-wrap: anywhere;
+}
+
+.prosePreview > * + * { margin-top: var(--space-4); }
+
+.proseEditor input:focus-visible,
+.proseEditor textarea:focus-visible,
+.proseEditor select:focus-visible,
+.proseEditor button:focus-visible,
+.richText [contenteditable]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .proseEditorMenuEmpty {

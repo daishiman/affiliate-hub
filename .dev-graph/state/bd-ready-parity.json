@@ -1,0 +1,366 @@
+{
+  "bd_version": "1.1.0",
+  "candidate_count": 33,
+  "conflicts": [],
+  "op": "ready",
+  "parity_provenance": null,
+  "ready_set": [],
+  "result": {
+    "candidate_count": 33,
+    "conflicts": [],
+    "parity_provenance": null,
+    "ready_set": [],
+    "unmapped": [
+      {
+        "bd_issue_id": "ah-8h2.2",
+        "external_ref": null,
+        "reason": "external_ref_absent"
+      },
+      {
+        "bd_issue_id": "ah-670",
+        "external_ref": "task-spec-completeness-gaps",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-ag8",
+        "external_ref": "task-llm-provider-connection",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-08q",
+        "external_ref": "task-deploy-credentials-registration",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-wois.1",
+        "external_ref": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-wois",
+        "external_ref": "feat-blog-scoped-admin-console",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-4d0q.1",
+        "external_ref": "SYS-AEO-ANSWER-OPTIMIZATION-P01",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-4d0q",
+        "external_ref": "feat-aeo-answer-optimization",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-ji7d.1",
+        "external_ref": "SYS-SEO-ASSESSMENT-REFLECTION-P01",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-ji7d",
+        "external_ref": "feat-seo-assessment-reflection",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-q4dt.1",
+        "external_ref": "SYS-BLOG-METRICS-ROLLUP-P01",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-q4dt",
+        "external_ref": "feat-blog-metrics-rollup",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-f4do.1",
+        "external_ref": "SYS-READER-BEHAVIOR-ANALYTICS-P01",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-f4do",
+        "external_ref": "feat-reader-behavior-analytics",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-t7vv.1",
+        "external_ref": "SYS-BLOG-CUSTOM-DOMAIN-P01",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-t7vv",
+        "external_ref": "feat-blog-custom-domain",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-s5k2",
+        "external_ref": "task-u6-parenthetical-to-truth",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-tm4p",
+        "external_ref": "task-decision-id-prefix-alignment",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-lwmf",
+        "external_ref": "task-chapter-decisions-generated-by-compile",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-0d2q.7",
+        "external_ref": "SYS-FB-CAPTURE-EXCLUSION-P07",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-0d2q",
+        "external_ref": "feat-feedback-capture-self-exclusion",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-u5l.1",
+        "external_ref": "task-doc-fetch-evidence-preservation",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-nuu",
+        "external_ref": "uiux-followup-reopen-discard-not-restored",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-f7v",
+        "external_ref": "task-llm-settings-auth-gate-eyes",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-ood",
+        "external_ref": "task-guard-inline-python-hole",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-u5l",
+        "external_ref": "task-spec-state-writer-gap",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-84i",
+        "external_ref": "task-qa-source-sha256-scope",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-tod",
+        "external_ref": "task-spec-gap-resume-receipt-invalid",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-a4c",
+        "external_ref": "task-spec-gap-c02-doc-refetch",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-1j5",
+        "external_ref": "task-model-catalog-screen-check",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-bgp",
+        "external_ref": "feat-spec-canonicalization",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-cgg",
+        "external_ref": "uiux-followup-reopen-qa-ref-required",
+        "reason": "parity_manifest_missing"
+      },
+      {
+        "bd_issue_id": "ah-pd0",
+        "external_ref": "task-proxy-migration-when-supported",
+        "reason": "parity_manifest_missing"
+      }
+    ],
+    "unmapped_summary": {
+      "external_ref_absent": 1,
+      "graph_node_missing": 0,
+      "parity_manifest_missing": 32
+    }
+  },
+  "unmapped": [
+    {
+      "bd_issue_id": "ah-8h2.2",
+      "external_ref": null,
+      "reason": "external_ref_absent"
+    },
+    {
+      "bd_issue_id": "ah-670",
+      "external_ref": "task-spec-completeness-gaps",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-ag8",
+      "external_ref": "task-llm-provider-connection",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-08q",
+      "external_ref": "task-deploy-credentials-registration",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-wois.1",
+      "external_ref": "SYS-BLOG-SCOPED-ADMIN-CONSOLE-P01",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-wois",
+      "external_ref": "feat-blog-scoped-admin-console",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-4d0q.1",
+      "external_ref": "SYS-AEO-ANSWER-OPTIMIZATION-P01",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-4d0q",
+      "external_ref": "feat-aeo-answer-optimization",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-ji7d.1",
+      "external_ref": "SYS-SEO-ASSESSMENT-REFLECTION-P01",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-ji7d",
+      "external_ref": "feat-seo-assessment-reflection",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-q4dt.1",
+      "external_ref": "SYS-BLOG-METRICS-ROLLUP-P01",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-q4dt",
+      "external_ref": "feat-blog-metrics-rollup",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-f4do.1",
+      "external_ref": "SYS-READER-BEHAVIOR-ANALYTICS-P01",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-f4do",
+      "external_ref": "feat-reader-behavior-analytics",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-t7vv.1",
+      "external_ref": "SYS-BLOG-CUSTOM-DOMAIN-P01",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-t7vv",
+      "external_ref": "feat-blog-custom-domain",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-s5k2",
+      "external_ref": "task-u6-parenthetical-to-truth",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-tm4p",
+      "external_ref": "task-decision-id-prefix-alignment",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-lwmf",
+      "external_ref": "task-chapter-decisions-generated-by-compile",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-0d2q.7",
+      "external_ref": "SYS-FB-CAPTURE-EXCLUSION-P07",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-0d2q",
+      "external_ref": "feat-feedback-capture-self-exclusion",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-u5l.1",
+      "external_ref": "task-doc-fetch-evidence-preservation",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-nuu",
+      "external_ref": "uiux-followup-reopen-discard-not-restored",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-f7v",
+      "external_ref": "task-llm-settings-auth-gate-eyes",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-ood",
+      "external_ref": "task-guard-inline-python-hole",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-u5l",
+      "external_ref": "task-spec-state-writer-gap",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-84i",
+      "external_ref": "task-qa-source-sha256-scope",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-tod",
+      "external_ref": "task-spec-gap-resume-receipt-invalid",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-a4c",
+      "external_ref": "task-spec-gap-c02-doc-refetch",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-1j5",
+      "external_ref": "task-model-catalog-screen-check",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-bgp",
+      "external_ref": "feat-spec-canonicalization",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-cgg",
+      "external_ref": "uiux-followup-reopen-qa-ref-required",
+      "reason": "parity_manifest_missing"
+    },
+    {
+      "bd_issue_id": "ah-pd0",
+      "external_ref": "task-proxy-migration-when-supported",
+      "reason": "parity_manifest_missing"
+    }
+  ],
+  "unmapped_summary": {
+    "external_ref_absent": 1,
+    "graph_node_missing": 0,
+    "parity_manifest_missing": 32
+  },
+  "workspace_identity": {
+    "attributes": {
+      "database_path": "/Users/dm/dev/dev/個人開発/affiliate-hub/.beads/embeddeddolt",
+      "prefix": "ah",
+      "schema_version": "1"
+    },
+    "workspace_id": "bdw_13e6d912cb16c9dddf55b21c"
+  }
+}

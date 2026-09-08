@@ -76,6 +76,23 @@ describe("記事を出したあとの知らせ", () => {
     expect(html).toContain("記録を保存できませんでした");
   });
 
+  it("AI 検索点検の履歴だけ失敗しても、公開成功と保存失敗を両方表示する", () => {
+    const html = render({
+      status: "done",
+      phase: "published",
+      message: "記事を公開しました。",
+      url: "/s/quiet-desk/guides/quiet-laptop",
+      aiSearchAuditRecord: {
+        status: "failed",
+        detail: "点検は完了しましたが、点検履歴を保存できませんでした。",
+      },
+    });
+
+    expect(html).toContain("記事を公開しました");
+    expect(html).toContain("AI 検索点検の履歴");
+    expect(html).toContain("点検履歴を保存できませんでした");
+  });
+
   it("AI 検索への備えが全て揃っていれば、点数と一言だけを出す", () => {
     const html = render({
       status: "done",

@@ -2,14 +2,14 @@ import { PUBLIC_ARTICLE_PAGE_SIZE } from "@/application/read-models/article-disc
 import { type PublishedArticle, articleHref } from "@/application/read-models/published-article";
 import { canonicalSiteUrl } from "@/application/seo/feeds";
 import { entrySitemapEntries } from "@/application/seo/sitemap";
+import type { SiteBlueprint } from "@/domain/authoring/site-blueprint";
 import {
   SITE_DOCUMENT_KEYS,
   findRoute,
   routesFor,
-  type SiteBlueprint,
   type SiteDocumentKey,
-} from "@/domain/authoring";
-import { pageKeyOf, type PageKey } from "@/domain/seo/aeo-measurement";
+} from "@/domain/authoring/site-routes";
+import { pageKeyOf, type PageKey } from "@/domain/seo/aeo-measurement/page-key";
 
 /** 1世代を有限に保つ。超過時は一部を「全体監査」として公開しない。 */
 export const STATIC_AUDIT_INVENTORY_LIMIT = 1_000;

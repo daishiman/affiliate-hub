@@ -18,17 +18,38 @@
  * 割り方（`parseProse`）の正しさは `tests/domain/blogops` が見ている。
  * ここで見るのは**割った結果をどう描くか**だけ:
  *
- * 1. 10 種すべてが、それぞれの意味を持つ印で出る。
+ * 1. 19 種すべてが、それぞれの意味を持つ印で出る。
  * 2. 出せないものは出さない（商品カードの描き方が無いとき）。
  * 3. 端の入力でも読者から情報が消えない（表の桁不揃い・空の代替文）。
  */
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { type ProseNode, serializeProse } from "@/domain/blogops";
+import { type ProseNode, type ProseNodeKind, PROSE_NODE_KINDS, serializeProse } from "@/domain/blogops";
 import { ProseBody } from "@/presentation/prose/prose-body";
+import { PROSE_NODE_FIXTURE_BY_KIND } from "../domain/blogops/prose-node-fixture";
 
 afterEach(cleanup);
+
+it("属性として入力した画像説明とカード文言の記号を勝手に解釈しない", () => {
+  renderBody([
+    { kind: "image", src: "/media/photo.png", alt: "**記号も含む説明**", width: null, height: null },
+    { kind: "cta-button", href: "/s/blog", label: "**そのまま読む**", tone: "action" },
+    { kind: "link-card", url: "/s/guide", title: "**記号の見出し**", description: "~~記号の説明~~" },
+    { kind: "embed", url: "https://www.youtube.com/embed/example", title: "**動画の名前**" },
+  ]);
+  expect(screen.getByRole("img").getAttribute("alt")).toBe("**記号も含む説明**");
+  expect(screen.getByRole("link", { name: /そのまま読む/ }).textContent).toContain("**そのまま読む**");
+  expect(screen.getByText("**記号の見出し**")).not.toBeNull();
+  expect(screen.getByText("~~記号の説明~~")).not.toBeNull();
+  expect(screen.getByTitle("**動画の名前**")).not.toBeNull();
+});
+
+it("見出しより長い既存表の行を全列公開する", () => {
+  render(<ProseBody keyPrefix="old-table" body={"| 見出し |\n| --- |\n| 左 | 右の余剰セル |"} />);
+  expect(screen.getByRole("cell", { name: "右の余剰セル" })).not.toBeNull();
+  expect(screen.getAllByRole("columnheader")).toHaveLength(2);
+});
 
 /**
  * 断片から本文の文字列を作って描く。
@@ -50,7 +71,41 @@ function renderBody(
   );
 }
 
-describe("10 種の断片を、それぞれの意味を持つ印で描く", () => {
+const PROSE_VIEWER_PROBE: Readonly<Record<ProseNodeKind, () => boolean>> = {
+  paragraph: () => screen.queryByText("選び方をまとめます。") !== null,
+  heading: () => screen.queryByRole("heading", { level: 3, name: "選ぶ基準" }) !== null,
+  "bullet-list": () => screen.queryByRole("list")?.textContent.includes("軽さ") === true,
+  "ordered-list": () => screen.queryByRole("list")?.textContent.includes("測る") === true,
+  quote: () => document.querySelector("blockquote")?.textContent.includes("使った人の感想") === true,
+  callout: () => document.querySelector("aside")?.textContent.includes("先に寸法を測ります。") === true,
+  "product-card": () => screen.queryByTestId("fixture-product-card")?.textContent === "pc_fixture",
+  "comparison-table": () => screen.queryByRole("table") !== null,
+  image: () => screen.queryByRole("img", { name: "机の全体" }) !== null,
+  divider: () => screen.queryByRole("separator") !== null,
+  code: () => document.querySelector("pre > code")?.textContent === "const answer = 42;",
+  table: () => screen.queryByRole("table") !== null,
+  "image-row": () => screen.queryAllByRole("img").length === 2,
+  toggle: () => screen.queryByText("詳しい条件") !== null,
+  checklist: () => screen.queryByText("寸法を測る") !== null,
+  embed: () => screen.queryByTitle("解説動画") !== null,
+  "cta-button": () => screen.queryByRole("link", { name: /詳しく見る/ }) !== null,
+  "link-card": () => screen.queryByRole("link", { name: /参考ガイド/ }) !== null,
+  columns: () => screen.queryByText("左の説明") !== null && screen.queryByText("右の説明") !== null,
+};
+
+describe("全種類の公開 consumer", () => {
+  for (const kind of PROSE_NODE_KINDS) {
+    it(`${kind} を保存文字列から描ける`, () => {
+      renderBody([PROSE_NODE_FIXTURE_BY_KIND[kind]], {
+        renderProductCard: (productId) => <span data-testid="fixture-product-card">{productId}</span>,
+      });
+
+      expect(PROSE_VIEWER_PROBE[kind]()).toBe(true);
+    });
+  }
+});
+
+describe("基本の断片を、それぞれの意味を持つ印で描く", () => {
   it("段落は p で出る", () => {
     const { container } = renderBody([{ kind: "paragraph", text: "道具を選ぶ前に決めること。" }]);
 

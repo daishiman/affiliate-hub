@@ -121,7 +121,7 @@ const EXEMPT: Record<string, Exemption> = {
     measured: "目次 1 項目のリンク。中身は節の見出し文字だけ（2026-08-30）",
     reason: "44px の押しどころを作るためだけの inline-flex。折り返しは器の ul 側が持つ",
   },
-  "src/presentation/ui/templates/site.module.css :: .articleIntroAuthorName a,\n.articleAuthorProfileName a": {
+  "src/presentation/ui/templates/site.module.css :: .articleAuthorProfileName a": {
     measured: "書き手の名前を包むリンク。見出しの中に単独で在る（2026-08-30）",
     reason: "44px の押しどころを作るためだけの inline-flex。中身は名前の文字 1 つ",
   },
@@ -341,6 +341,38 @@ const EXEMPT: Record<string, Exemption> = {
     reason:
       "印を本文の上へ回さないための横並び。狭い画面で溢れるのは本文の側なので、" +
       "縮む役は内側の `.proseCallout > div` が `min-width: 0` で受け持つ",
+  },
+  // ── 19 種への広がりで増えた分（2026-09-05）────────────────────────
+  // **5 件とも上と同じ理由で、折り返す先が無い。**印と文字、あるいは印 1 個だけ。
+  // 長い文字は文字の側が普通に折り返すので、行そのものを折る必要が無い。
+  "src/presentation/prose/prose.module.css :: .proseChecklist li": {
+    measured: "やることリストの 1 行。左に済み・未の印、右に項目の文（2026-09-05）",
+    reason:
+      "印を文の上へ回さないための横並び。子は印と文字ひとかたまりだけで、" +
+      "長い項目は文字の側が折り返す（`align-items: flex-start` で 1 行目に印が付く）",
+  },
+  "src/presentation/prose/prose.module.css :: .proseCheckMark": {
+    measured: "済み・未の印 1 個ぶん（2026-09-05）",
+    reason: "印 1 個を行の 1 文字目の高さへ揃えるためだけの inline-flex で、並べる直の子を持たない",
+  },
+  "src/presentation/prose/prose.module.css :: .proseToggleSummary": {
+    measured: "折りたたみの見出し行。開閉の三角と見出しの文（2026-09-05）",
+    reason:
+      "三角と見出しは 1 つの押しどころとして読まれる。途中で折り返すと" +
+      "三角だけが前の行に残り、どこを押せば開くのか分からなくなる",
+  },
+  "src/presentation/prose/prose.module.css :: .proseCta": {
+    measured: "本文に置く押しボタン 1 個ぶん。中身は「詳しく見る」程度の短い語（2026-09-05）",
+    reason:
+      "ボタンの中の語が割れると、押しどころが 2 つに見える。" +
+      "`inline-flex` にしているのは押しどころの下限 (`--tap-target-min`) を効かせるためで、" +
+      "並べる子は文字ひとかたまりだけ",
+  },
+  "src/presentation/prose/prose.module.css :: .richTextPopover": {
+    measured: "飾りの道具帯から出る小窓（リンクの行き先・色の一覧）の器（2026-09-05）",
+    reason:
+      "小窓を出す位置の基準 (`position: relative`) を持つためだけの横並びで、" +
+      "直の子は開くボタンと小窓の 2 つ。小窓の側は `position: absolute` で流れから外れる",
   },
   "src/presentation/prose/prose.module.css :: .proseEditorKind": {
     measured: "編集中の断片の種類名。印 1 個と「箇条書き」程度の短い語（2026-08-26）",
@@ -640,6 +672,36 @@ const SHRINKABLE: Record<string, Exemption> = {
   "src/presentation/prose/prose.module.css :: .proseCallout > div": {
     measured: "注意書きの本文側。印と横に並ぶ列で、長い行や表を含みうる（2026-08-26）",
     reason: "flex の子の最小幅は既定で `auto` なので、長い一行が注意書きごと横へ溢れるのを止めるため",
+  },
+  "src/presentation/prose/prose.module.css :: .richText": {
+    measured: "装飾つき入力欄の器。箇条書きや表のマスの中で横に並ぶ（2026-09-05）",
+    reason:
+      "flex の子の最小幅は既定で `auto`。長い URL を貼った行が" +
+      "箇条書きの印ごと画面外へ押し出すのを止めるため",
+  },
+  "src/presentation/prose/prose.module.css :: .prosePreview": {
+    measured: "記事編集内の本文プレビュー。公開と同じ表・画像・長い URL を含む（2026-09-06）",
+    reason:
+      "grid/flex の子の最小内容幅が編集画面を横へ押し出さないようプレビューの器を縮ませ、" +
+      "表の横スクロールを表の枠へ閉じ込めるため",
+  },
+  "src/presentation/admin/publish/article-editor.module.css :: .workspace": {
+    measured: "記事編集フォームをChromiumで375px/1440px表示しページ横溢れなし（2026-09-06）",
+    reason: "本文と設定のgrid全体が、章や表の最小幅に引かれてformを広げないため",
+  },
+  "src/presentation/admin/publish/article-editor.module.css :: .document": {
+    measured: "上記の本文列。375pxで入力面が画面幅以内に収まる",
+    reason: "grid子の本文列を縮め、各表のスクロールを本文内へ閉じ込めるため",
+  },
+  "src/presentation/admin/publish/article-editor.module.css :: .section": {
+    measured: "上記の章fieldset。長い本文を含む独立した入力枠",
+    reason: "fieldset既定のmin-content幅を解除して本文列を押し広げないため",
+  },
+  "src/presentation/prose/prose.module.css :: .richTextInput": {
+    measured: "実際に文字を打つ `contenteditable` の面（2026-09-05）",
+    reason:
+      "器 (`.richText`) だけ縮めても、中の面が最小内容幅を主張すると同じことが起きる。" +
+      "**器と中身の両方に要る**",
   },
   "src/presentation/prose/prose.module.css :: .proseEditorText,\n.proseEditorHeading3,\n.proseEditorHeading4,\n.proseEditorQuote": {
     measured: "本文・小見出し・引用の入力欄。箇条書きでは行頭の印と横に並ぶ（2026-08-26）",

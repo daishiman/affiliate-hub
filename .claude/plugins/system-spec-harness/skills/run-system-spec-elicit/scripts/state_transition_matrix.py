@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import datetime
 import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -140,6 +141,138 @@ def set_qa_design_applications(state: dict, qa_id: str, raw: object) -> None:
     # A successful validated backfill supersedes the temporary legacy escape.
     entry.pop("legacy_exempt", None)
     entry.pop("legacy_exempt_reason", None)
+
+
+SECONDARY_DESIGN_APPLICATION_WRITER = "attach-qa-design-applications"
+
+
+def _secondary_ref_cells(state: dict, qa_id: str) -> list[tuple[str, str]]:
+    """qa_id を **裏付け (`qa_refs[1:]`) として** 引いている確定セルを列挙する。
+
+    主参照 (`qa_ref`) として引いているセルは数えない。主参照は `confirm` の経路を
+    通っており、そこで `design_applications` を付ける機会が在った。含めてしまうと
+    「confirm のときに付けなかった entry」まで後付けで通り、`apply_turn` が
+    confirm 時に課している契約が意味を失う。
+    """
+    found: list[tuple[str, str]] = []
+    for category, row in (state.get("matrix") or {}).items():
+        if not isinstance(row, dict):
+            continue
+        for platform, cell in row.items():
+            if not isinstance(cell, dict) or cell.get("state") != "確定":
+                continue
+            extra = list(cell.get("qa_refs") or [])[1:]
+            if qa_id in extra:
+                found.append((category, platform))
+    return sorted(found)
+
+
+def qa_secondary_attachment_refusals(entry: dict, cells: list[tuple[str, str]]) -> list[str]:
+    """`attach-qa-design-applications` を断る理由を列挙する。空なら通す。
+
+    ── なぜこの扉が要るのか (2026-09-04 実測) ────────────────────────
+
+    確定セルの `qa_refs` へ後から裏付けを足す経路 (`extend-qa-refs`) は在るのに、
+    そうやって入った entry へ `design_applications` を付ける経路が 1 本も無かった。
+    `set_qa_design_applications` は `legacy_exempt` の旧 entry しか受けず、
+    `apply_turn` の confirm 経路は新規 entry のときしか働かない。結果、
+    `qa_refs` から引かれている 4 件 (`*-aeo-*-v4`) が
+    `validate-coverage-matrix.py --require-complete` を落とし続け、writer 側に
+    直す道が無い状態になった。
+
+    ── この関数が決めること ──────────────────────────────────
+
+    **どの entry なら後付けを許すか。**扉を作ること自体は上の穴が塞がるが、
+    広く開けると `legacy_exempt` の門も `confirm` 時の契約も一緒に無効化される。
+    ここが唯一の判断点である。
+
+    Args:
+        entry: 対象の qa_log entry。
+        cells: `_secondary_ref_cells` が返した (category, platform) の一覧。
+
+    Returns:
+        断る理由の一覧。空リストなら後付けを許す。
+    """
+    refusals: list[str] = []
+    if not cells:
+        # 引かれていない entry に設計適用を結線しても、どの確定も支えない。
+        # 逆に許すと、孤立 entry を「設計適用を持つ entry」に仕立ててから
+        # `extend-qa-refs` で確定セルへ差し込む二段の道ができる。
+        refusals.append(
+            "どの確定セルからも裏付け (qa_refs) として引かれていない"
+            " (主参照として引かれている entry は confirm 経路で付けること)"
+        )
+    if entry.get("design_applications") is not None:
+        # provenance の有無に関わらず断る。provenance が無い既存 design_applications は
+        # 対話経路で付いたものなので、`set_qa_design_applications` と同じく保護する。
+        refusals.append("既に design_applications を持っている (上書きはしない)")
+    if entry.get("legacy_exempt") is True:
+        refusals.append(
+            "legacy_exempt=true は set-qa-design-applications の対象"
+            " (扉を二重にすると、どちらを通ったか正本から読めなくなる)"
+        )
+    source = entry.get("source")
+    if not isinstance(source, dict) or not source.get("kind"):
+        # **出所を名乗っていない entry へ解釈だけ足さない。**
+        # 名乗りが無いまま設計適用が付くと、「何を根拠にこう解釈したか」の起点が
+        # 機械から辿れない entry が、設計適用を持つぶん本物らしく見える形で残る。
+        # 対話由来なら `set-qa-source`、書面由来なら `set-qa-written-up` が先。
+        refusals.append("source を名乗っていない (先に set-qa-source / set-qa-written-up)")
+    return refusals
+
+
+def attach_qa_design_applications(state: dict, qa_id: str, raw: object) -> None:
+    """`qa_refs` から引かれている entry へ、設計適用を後から結線する。
+
+    `set_qa_design_applications` (legacy 用) とは **provenance の mode で区別する。**
+    どちらの扉から入ったかが正本に残らないと、後で「legacy の門が緩んだ」のか
+    「こちらの扉が広すぎた」のかを分けて調べられない。
+
+    再適用は `set_qa_scope_notes` の流儀に揃える — 同じ内容なら通し、違う内容なら
+    拒む。「前に何を結線したか」を上書きで消せる writer にはしない。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(
+            f"{SECONDARY_DESIGN_APPLICATION_WRITER}: qa_id は非空文字列必須"
+        )
+    qa_id = qa_id.strip()
+    entry = next(
+        (candidate for candidate in state.get("qa_log", []) if candidate.get("id") == qa_id),
+        None,
+    )
+    if entry is None:
+        raise TransitionError(
+            f"{SECONDARY_DESIGN_APPLICATION_WRITER}: qa_log に存在しない qa_id: {qa_id}"
+        )
+
+    cells = _secondary_ref_cells(state, qa_id)
+    refusals = qa_secondary_attachment_refusals(entry, cells)
+    if refusals:
+        raise TransitionError(
+            f"{SECONDARY_DESIGN_APPLICATION_WRITER}: {qa_id}: " + " / ".join(refusals)
+        )
+
+    normalized = normalize_design_applications(raw)
+    provenance = {
+        "mode": "secondary_ref_attachment",
+        "writer": SECONDARY_DESIGN_APPLICATION_WRITER,
+    }
+    existing_provenance = entry.get("design_application_provenance")
+    if existing_provenance is not None:
+        if existing_provenance != provenance:
+            raise TransitionError(
+                f"{SECONDARY_DESIGN_APPLICATION_WRITER}: 別の扉が打刻した provenance の"
+                f"上書きは拒否: {qa_id} ({existing_provenance})"
+            )
+        if normalize_design_applications(entry.get("design_applications")) != normalized:
+            raise TransitionError(
+                f"{SECONDARY_DESIGN_APPLICATION_WRITER}: 結線済みと異なる "
+                f"design_applications の再適用は拒否: {qa_id}"
+            )
+        return
+
+    entry["design_applications"] = normalized
+    entry["design_application_provenance"] = provenance
 
 
 SCOPE_NOTE_WRITER = "set-qa-scope-notes"
@@ -410,6 +543,263 @@ def supersede_qa(state: dict, qa_id: str, by: object) -> None:
             f"{SUPERSEDE_QA_WRITER}: 既存 superseded_by={existing!r} と異なる再適用は拒否: {qa_id}"
         )
     entry["superseded_by"] = by
+
+
+RETRACT_QA_WRITER = "retract-qa"
+
+
+def retract_qa(state: dict, qa_id: str, reason: object) -> None:
+    """**書くべきでなかった記録**を qa_log から外し、理由を添えて丸ごと移す。
+
+    `supersede-qa` との違いは、扱っている出来事が違うことにある。後継の申告は
+    「一度こう決めて、あとで決め直した」ことを言う。**こちらは「その記録は
+    最初から正本の契約を満たしていなかった」ことを言う。**前者は経過だが、
+    後者は誤りである。誤りを後継として残すと、正本には守れていない契約を
+    名乗る entry が永久に残り、それを見張っている検査は二度と緑にならない。
+
+    実際に起きたのは 2026-09-04 で、P13 の書き戻しが `written-requirements` を
+    名乗りながら引用先の path も指紋も持たない entry を 2 件作った。名乗りは
+    裏取りの有無を機械へ伝えるためにあるので、**裏の取れない名乗りは記録では
+    なく嘘**である。ところが正本には、作った entry の source も本文も動かす道が
+    無かった (`set-qa-source` は user-dialogue 専用、`set-qa-written-up` は追記
+    のみ、`apply_turn` は既存 id を素通りする)。**残された道は「検査の上限を
+    緩めて通す」しか無く、それは記録を直すのではなく物差しを曲げることだった。**
+    この writer はその 1 か所だけを開ける。
+
+    **消さない。**entry は `retracted_qa_log` へ原文のまま移り、いつ・なぜ・
+    どの writer で外したかが並んで残る。消してしまうと「無かったこと」と
+    「取り下げたこと」が同じ姿になる。
+
+    条件を 4 つ置く。どれも「取り下げを、都合の悪い記録を消す道具にしない」
+    ためである。
+      - **まだセルから引かれている質疑は取り下げられない** — 引かれている
+        ものを外すと、確定セルの根拠が黙って死ぬ (`supersede_qa` と同じ門)
+      - **他の質疑が後継として名指ししている質疑も取り下げられない** — 名指し
+        の先が消えると、後継の申告そのものが宙に浮く
+      - **`written_up` を持つ質疑は取り下げられない** — 文書へ書き起こした
+        あとで元を外すと、書かれた側だけが裏付けを失って残る
+      - 理由が要る。理由の無い取り下げは、記録を消したのと区別が付かない
+
+    塞げていないところ: **「契約を満たしていなかった」かどうかを機械は判定
+    していない。**呼び出す側の申告を信じている。ここを機械化するには、正本の
+    どの検査に何が引っかかったかを受け取って突き合わせる必要がある。
+    """
+    if not isinstance(qa_id, str) or not qa_id.strip():
+        raise TransitionError(f"{RETRACT_QA_WRITER}: qa_id は非空文字列必須")
+    qa_id = qa_id.strip()
+    if not isinstance(reason, str) or not reason.strip():
+        raise TransitionError(
+            f"{RETRACT_QA_WRITER}: reason は非空文字列必須 ({qa_id})。"
+            "理由の無い取り下げは、記録を消したのと区別が付かない"
+        )
+    reason = reason.strip()
+
+    retracted = state.setdefault("retracted_qa_log", [])
+    if not isinstance(retracted, list):
+        raise TransitionError(f"{RETRACT_QA_WRITER}: retracted_qa_log が配列でない")
+
+    log = state.get("qa_log") or []
+    entry = next((c for c in log if isinstance(c, dict) and c.get("id") == qa_id), None)
+    if entry is None:
+        # 既に取り下げ済みなら冪等に通す。同じ id を違う理由で二度取り下げたと
+        # 書けてしまうと、理由の欄が後から上書きできる場所になる。
+        previous = next(
+            (r for r in retracted if isinstance(r, dict) and r.get("id") == qa_id), None
+        )
+        if previous is None:
+            raise TransitionError(f"{RETRACT_QA_WRITER}: qa_log に存在しない qa_id: {qa_id}")
+        if previous.get("reason") != reason:
+            raise TransitionError(
+                f"{RETRACT_QA_WRITER}: 既存の取り下げ理由と異なる再適用は拒否: {qa_id}"
+            )
+        return
+
+    citing = _cells_referencing(state, qa_id)
+    if citing:
+        cells = ", ".join(f"{cat}/{pf}" for cat, pf in citing)
+        raise TransitionError(
+            f"{RETRACT_QA_WRITER}: {qa_id} はまだセルから引かれている ({cells})。"
+            "先にセルを再確定して参照から外すこと (reopen → confirm の drops_backing)"
+        )
+    pointing = sorted(
+        c["id"]
+        for c in log
+        if isinstance(c, dict) and c.get("superseded_by") == qa_id and isinstance(c.get("id"), str)
+    )
+    if pointing:
+        raise TransitionError(
+            f"{RETRACT_QA_WRITER}: {qa_id} を後継として名指ししている質疑が在る "
+            f"({', '.join(pointing)})。名指しの先を外すと申告が宙に浮く"
+        )
+    if entry.get("written_up"):
+        raise TransitionError(
+            f"{RETRACT_QA_WRITER}: {qa_id} は written_up を持つ。"
+            "書き起こした先だけが裏付けを失って残る"
+        )
+
+    log.remove(entry)
+    retracted.append(
+        {
+            "id": qa_id,
+            "reason": reason,
+            "retracted_on": datetime.date.today().isoformat(),
+            "retracted_with": RETRACT_QA_WRITER,
+            "entry": entry,
+        }
+    )
+
+
+RETRACT_INVALID_QA_WRITER = "retract-invalid-qa"
+
+
+def qa_entry_fingerprint(entry: dict) -> str:
+    """Identify an exact record version; this is NOT evidence of source authenticity."""
+    return hashlib.sha256(json.dumps(
+        entry, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+    ).encode("utf-8")).hexdigest()
+
+
+def _written_source_is_incomplete(entry: dict) -> bool:
+    from foundation_provenance import SHA256_RE, _is_relative_path
+
+    source = entry.get("source")
+    if not isinstance(source, dict) or source.get("kind") != "written-requirements":
+        return False
+    section, digest = source.get("section"), source.get("sha256")
+    answer = entry.get("answer")
+    return (
+        not _is_relative_path(source.get("path"))
+        or not isinstance(section, str) or not section.strip()
+        or not isinstance(digest, str) or not SHA256_RE.fullmatch(digest)
+        or not isinstance(answer, str)
+        or hashlib.sha256(answer.encode("utf-8")).hexdigest() != digest
+    )
+
+
+def _live_qa_reference_paths(state: dict, qa_id: str) -> list[str]:
+    """Conservatively find exact references, excluding immutable historical logs/edges.
+
+    Free prose mentioning an ID is not rewritten. Exact references in foundation,
+    required_info.grounded_by, decisions or another QA's scope are live and block.
+    Supersession edges are checked against an explicit, fingerprinted inventory.
+    """
+    paths: list[str] = []
+
+    def scan(value: object, path: str) -> None:
+        if isinstance(value, str) and value == qa_id:
+            paths.append(path)
+        elif isinstance(value, dict):
+            for key, child in value.items():
+                scan(child, f"{path}.{key}")
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                scan(child, f"{path}[{index}]")
+
+    for key, value in state.items():
+        if key not in {"qa_log", "retracted_qa_log", "reopen_log", "approval_log"}:
+            scan(value, key)
+    for entry in state.get("qa_log", []):
+        if entry["id"] != qa_id:
+            scan({key: value for key, value in entry.items() if key not in {"id", "superseded_by"}},
+                 f"qa_log[{entry['id']}]")
+    return paths
+
+
+def retract_invalid_qa(state: dict, request: object) -> None:
+    """Retire invalid written provenance and preserve every predecessor's old claim.
+
+    Unlike retract-qa, this narrowly scoped repair supports already reused IDs and
+    incoming superseded_by edges. A unique receipt and exact record fingerprints
+    distinguish versions; neither question/answer/source nor previous archives are
+    edited. All preconditions are checked before either active log is changed.
+    """
+    writer = RETRACT_INVALID_QA_WRITER
+    fields = {"retraction_id", "qa_id", "expected_entry_sha256", "replacement_qa_id",
+              "expected_replacement_sha256", "predecessors", "reason"}
+    if not isinstance(request, dict) or set(request) != fields:
+        raise TransitionError(f"{writer}: request の必須欄・許可欄が不一致")
+    for key in fields - {"predecessors"}:
+        if not isinstance(request[key], str) or not request[key].strip():
+            raise TransitionError(f"{writer}: {key} は非空文字列必須")
+    for key in ("expected_entry_sha256", "expected_replacement_sha256"):
+        if not re.fullmatch(r"[0-9a-f]{64}", request[key]):
+            raise TransitionError(f"{writer}: {key} が不正")
+    expected_predecessors = request["predecessors"]
+    if not isinstance(expected_predecessors, list) or any(
+        not isinstance(item, dict) or set(item) != {"qa_id", "expected_entry_sha256"}
+        or not isinstance(item["qa_id"], str) or not item["qa_id"].strip()
+        or not isinstance(item["expected_entry_sha256"], str)
+        or not re.fullmatch(r"[0-9a-f]{64}", item["expected_entry_sha256"])
+        for item in expected_predecessors
+    ):
+        raise TransitionError(f"{writer}: predecessors が不正")
+    if len({item["qa_id"] for item in expected_predecessors}) != len(expected_predecessors):
+        raise TransitionError(f"{writer}: predecessors の id が重複")
+    log, archives = state.get("qa_log"), state.get("retracted_qa_log", [])
+    if not isinstance(log, list) or not isinstance(archives, list):
+        raise TransitionError(f"{writer}: qa_log / retracted_qa_log は配列必須")
+    if any(not isinstance(entry, dict) or not isinstance(entry.get("id"), str) for entry in log):
+        raise TransitionError(f"{writer}: qa_log entry が不正")
+    by_id = {entry["id"]: entry for entry in log}
+    if len(by_id) != len(log):
+        raise TransitionError(f"{writer}: active qa_log の id が重複")
+    qa_id, replacement_id = request["qa_id"], request["replacement_qa_id"]
+    previous = [item for item in archives if isinstance(item, dict)
+                and item.get("retraction_id") == request["retraction_id"]]
+    if previous:
+        if len(previous) != 1 or previous[0].get("request") != request:
+            raise TransitionError(f"{writer}: retraction_id の異なる再適用は拒否")
+        receipt = previous[0]
+        history = receipt.get("supersession_history")
+        if (qa_id in by_id or receipt.get("retracted_with") != writer
+                or receipt.get("id") != qa_id or receipt.get("reason") != request["reason"]
+                or not isinstance(receipt.get("entry"), dict)
+                or qa_entry_fingerprint(receipt["entry"]) != request["expected_entry_sha256"]
+                or not isinstance(history, list)
+                or [{"qa_id": item.get("id"), "expected_entry_sha256": qa_entry_fingerprint(item)}
+                    for item in history if isinstance(item, dict)] != expected_predecessors
+                or len(history) != len(expected_predecessors)):
+            raise TransitionError(f"{writer}: 退避記録または active ID が再適用と不整合")
+        return
+    entry, replacement = by_id.get(qa_id), by_id.get(replacement_id)
+    if entry is None or replacement is None or qa_id == replacement_id:
+        raise TransitionError(f"{writer}: 対象と別の実在する replacement が必須")
+    if (qa_entry_fingerprint(entry) != request["expected_entry_sha256"]
+            or qa_entry_fingerprint(replacement) != request["expected_replacement_sha256"]):
+        raise TransitionError(f"{writer}: 対象または replacement の版が変化")
+    if not _written_source_is_incomplete(entry):
+        raise TransitionError(f"{writer}: 対象は written source 契約違反ではない")
+    source = replacement.get("source")
+    if (replacement.get("superseded_by")
+            or not isinstance(source, dict) or source.get("kind") not in QA_SOURCE_KINDS
+            or _written_source_is_incomplete(replacement)
+            or any(not isinstance(replacement.get(key), str) or not replacement[key].strip()
+                   for key in ("question", "answer"))):
+        raise TransitionError(f"{writer}: replacement は有効な現行 QA でなければならない")
+    if entry.get("written_up"):
+        raise TransitionError(f"{writer}: written_up のある対象は取り下げ不可")
+    predecessors = [item for item in log if item.get("superseded_by") == qa_id]
+    actual = {item["id"]: qa_entry_fingerprint(item) for item in predecessors}
+    expected = {item["qa_id"]: item["expected_entry_sha256"] for item in expected_predecessors}
+    if actual != expected:
+        raise TransitionError(f"{writer}: predecessor の集合または版が変化")
+    for retired_id in [qa_id, *actual]:
+        refs = _live_qa_reference_paths(state, retired_id)
+        if refs:
+            raise TransitionError(f"{writer}: active 参照が残る {retired_id}: {', '.join(refs)}")
+
+    receipt = {
+        "id": qa_id, "retraction_id": request["retraction_id"], "reason": request["reason"],
+        "retracted_on": datetime.date.today().isoformat(), "retracted_with": writer,
+        "entry": copy.deepcopy(entry), "request": copy.deepcopy(request),
+        "supersession_history": [copy.deepcopy(by_id[item["qa_id"]]) for item in expected_predecessors],
+    }
+    # Commit only after all guards pass. Copies avoid aliasing archived originals.
+    state["qa_log"] = [
+        {**item, "superseded_by": replacement_id} if item["id"] in actual else item
+        for item in log if item["id"] != qa_id
+    ]
+    state["retracted_qa_log"] = [*archives, receipt]
 
 
 SPLIT_BUNDLE_WRITER = "split-qa-bundle"
@@ -1792,6 +2182,13 @@ def apply_cell_op(state: dict, op: dict) -> None:
         # `required_info_checks`。3 度目は確定 8 セル全ての `required_info_checks` が
         # 1 件から 0 件になっていた)。除外する側 (`CELL_MACHINE_FIELDS`) を挙げれば、
         # **知らない欄は退避される**方へ倒れる。
+        #
+        # 2026-09-08、dev との合流。dev は同じ穴を 4 度目として踏み、列挙へ
+        # `approval_ref` を足していた (set-approval が確定セルへ付ける承認参照)。
+        # ここでは足す先が無い——除外側に無い欄なので既に退避される。dev が併記した
+        # 「現在セルへは残さず、再検討後の承認とは区別する」も、この直後の
+        # `state["matrix"][category][platform] = {...}` がセルを丸ごと置き換える
+        # ため満たされている。**列挙をやめたこと自体が、dev の修正を含んでいる。**
         discarded = _snapshot_cell_fields(cell)
         log_entry = {
             "category": category,
@@ -2316,6 +2713,9 @@ def set_qa_source(state: dict, qa_id: str, reason: str) -> None:
 
 def apply_turn(state: dict, turn: dict) -> None:
     qa_id = turn.get("qa_id")
+    if (qa_id and not has_entry(state["qa_log"], qa_id)
+            and has_entry(state.get("retracted_qa_log", []), qa_id)):
+        raise TransitionError(f"取り下げ済み qa_id は再利用できない: {qa_id}。新しい ID を使うこと")
     ops = turn.get("ops", [])
     normalized_design_applications: list[dict] | None = None
     if state.get("design_application_contract_version") == DESIGN_APPLICATION_CONTRACT_VERSION:

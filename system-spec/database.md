@@ -3,7 +3,7 @@ status: confirmed
 category: database
 aggregate: 確定
 spec_cells: [database.web, database.mobile, database.tablet, database.desktop-windows, database.desktop-linux, database.desktop-macos]
-serves_goals: [G1, G2]
+serves_goals: [G1, G2, G3]
 ---
 
 # データベース (database)
@@ -15,12 +15,42 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-neutral-auto-scope-v6`, `qa-request-thumbnail-coverage-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-neutral-auto-scope-v6`, `qa-request-thumbnail-coverage-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-article-image-verbatim`, `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
+
+| 項目 | 値 |
+|---|---|
+| セル | database × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-seo-approved-diff-20260906` |
+| 資するゴール (serves_goals) | G1, G2, G3 |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
+
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`database`) を主担当とする **2 件**。全 15 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
+|---|---|---|---|---|
+| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 |
+| `dec-analysis-history-retention` | AEO/SEO 解析の結果履歴を D1 にどう保持するか。最新だけを持つのか、推移を追えるよう履歴を積むのか、積むならどこで打ち切るのか。 | `opt-append-with-window` | confirmed | G3, G2 |
+
+- **`decision-editorial-commercial-split` の caveat**: 既存テーブルの引っ越しが 1 回必要で、その回だけは本番データを触る / DB をまたぐ集計はアプリ側の突合になるため、突合のテストを先に書く / 分けたあとも、Commercial の値を関数の引数として渡せば混ざる。バインディングの分離は「うっかり」を防ぐが「意図」は防がない
+
+- **`dec-analysis-history-retention` の caveat**: 保持件数・保持期間の具体値は本セッションで根拠を持たない。実際にどれだけの期間を比較したいか (施策の効果が現れるまでの期間) を決めてから設定すること。根拠なく数値を確定しないこと / 刈り取りの失敗は容量が伸びるだけで画面に何も現れない。刈り取りの最終実行時刻と削除件数を記録し、確認できるようにすること / 解析ロジックのバージョンを各行へ記録すること。記録しないと、スコアの変化が記事の改善によるのか解析側の変更によるのか区別できず、履歴が比較に使えなくなる / 根拠として引用した Cloudflare D1 と Drizzle は取得済みの入口ページで、無料枠の具体的な容量上限は本セッションで再取得していない。保持件数を決める際に公式資料で再確認すること
 
 ## 確定内容 (質疑録)
 
@@ -106,7 +136,9 @@ serves_goals: [G1, G2]
 
 **質問**: database×web: 集計層 MetricRollup のスキーマと再計算方針は何か (書面入力 docs/spec/03 §5)
 
-**回答**: #### 5. 集計層(MetricRollup)
+**回答**:
+
+#### 5. 集計層(MetricRollup)
 
 ```yaml
 metric_rollup:
@@ -136,13 +168,55 @@ metric_rollup:
 
 - (注記: 正本 qa_log[qa-database-web-analytics].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 
-## 意思決定 (decisions)
+### qa-database-web-article-image-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
-> **本章を主担当とする論点だけ**を載せる。全 8 件の一覧・候補比較・推奨根拠は [`00-requirements-definition.md`](./00-requirements-definition.md) にある。
+**質問**: database×web: 記事への画像添付について利用者は何を求め、格納経路に何を選んだか。参照状態の設計を起草する前に、逐語で記録する
 
-| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
-|---|---|---|---|---|
-| `decision-editorial-commercial-split` | Editorial（編集評価）と Commercial（報酬・成果）のデータを、D1 でどう分けるか | `opt-two-databases` | confirmed | G1, G2 |
+**回答**: [機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
+
+[AskUserQuestion「画像添付の経路」への選択]
+「Cloudflare R2 へ直接アップロード（推奨）」
+
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-database-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: database×web: ブログごとに独自ドメインを接続でき、読者がどこに時間をかけ・どこを押したかを座標まで含めて解析でき、AEO (回答エンジン最適化) の状態を管理でき、ブログ横断で売上と PV を集約できるようにするには、データをどう持つか。既存の『読者向けホスト名は DB に保存せず SITE_BASE_DOMAIN から導出する』という site_blueprints の判断はどう扱うか
+
+**回答**: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
+
+### qa-database-web-audit-history-window-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: database×web: 点検履歴と定期再点検の最新実行状態を D1 にどう分けて保存し、workspace 境界と状態整合を保証するか (P13 書き戻し・v3)。
+
+**回答**: 記事単位の点検履歴は既存 0044 の `ai_search_audit_history` に保持し、記事ごと直近 30 件、追記と刈り取りを同一トランザクション、記事への外部キー無しという規則は変えない。刈り取り単体の実行マーカーは不要だが、それは cron 全体の成否を記録しないという意味ではない。
+
+0044 を編集せず、0045 で SEO 再点検専用の `ai_search_reaudit_runs` を追加する。これは履歴を無限に追記する表ではなく、1 workspace に直近の最終状態 1 行を上書き保存する投影である。`workspace_id` を主キーとして `workspaces.id` へ外部キーを持ち、管理画面の取得 SQL は必ず actor の `workspace_id` で絞る。
+
+`status` は `succeeded | partial | failed`、`failure_code` は `target_list_unavailable | article_audit_failed | null`。非負整数と `scanned = recorded + failed`、完了時刻が開始時刻以上、status・failure code・件数の正しい組み合わせを D1 CHECK 制約で保証する。時刻は UTC epoch 秒の integer timestamp で、`started_at` と `completed_at` を持つ。実行結果に自由文や秘匿情報は保存しない。
+
+0045 適用時に過去の cron を推定して backfill せず、初期は「未実行」と読む。次の cron 完了後に初めて最終状態と時刻が入る。巻き戻しは 0045 の表を先に落とし、その後に必要なら 0044 を落とす。記事本体は変更しない。
+
+### qa-database-web-aeo-analysis-storage-v4 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: database×web: AEO/SEO 解析結果とガイドライン参照レジストリ、および記事の機械可読要素の素材 (alt・出典・FAQ・手順・著者) をどこにどう保存するか。2026-09-03 利用者ヒアリング。
+
+**回答**: 既存の確定 (qa-database-web-blog-provisioning-integrity) の原則 — 正本を1か所に置き、別表へ複製しない — をそのまま適用する。
+
+#### 記事の機械可読要素の素材
+結論・要点・比較表・FAQ・手順・出典・著者/監修者・画像の alt と寸法・装飾画像の宣言は、記事本体の保存実体 (published_articles の記事 JSON) の中に持つ。構造化データ用の別表を作らない。別表にすると、記事を直したのに構造化データが古いまま残る状態が生まれる。
+
+#### 解析結果
+解析結果は記事単位・実行時刻付きの履歴として保存する。最新1件だけを上書き保存しない。上書きすると「直したのに直っていない」のか「判定が変わった」のかを後から区別できない。保存する内容は判定項目ごとの3値 (充足/不足/対象外)・不足時の該当箇所・判定に使った規則の版。記事本文は複製せず参照で持つ。
+
+#### ガイドライン参照レジストリ
+発行元・URL・確認日・要約を保存する。要約は取得した文章の複製ではなく、こちらで書いた要約であることを明示する。
+
+#### テナント境界
+解析結果とレジストリはワークスペースで区切る。読者向けの読み取り (記事一覧・本文・検索・カテゴリー・人物) はサイト単位で区切る既存の方針を維持し、解析結果を読者経路から読まない。
+
+- (注記: 正本 qa_log[qa-database-web-aeo-analysis-storage-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 
 ## 章の注記 (chapter_notes)
 
@@ -154,7 +228,7 @@ metric_rollup:
 定義の正本は `src/db/schema.ts` である。**ここは正本の写しではなく、
 なぜその形なのかと、実装で分かった未解決の欠陥を書く。**
 
-### 1. 確定した 6 表
+#### 1. 確定した 6 表
 
 | 表 | 一意性 | 作業場所索引 | 役割 |
 |---|---|---|---|
@@ -182,7 +256,7 @@ metric_rollup:
 **確定した契約 — 一意性は `site_slug` のままにする (作業場所を跨がない)。**
 「1 ブログ 1 配色」という制約そのものは作業場所と無関係だからである。
 
-### 2. 「上書きが無い」を NULL でなく行の不在で表す
+#### 2. 「上書きが無い」を NULL でなく行の不在で表す
 
 `page_theme_override` は、行を消すとブログ既定へ戻る。
 NULL 値で「上書きなし」を表すと、「上書きしていない」と
@@ -191,7 +265,7 @@ NULL 値で「上書きなし」を表すと、「上書きしていない」と
 同じ理由で `legal_page` の不在は「未整備」であり、既定文を出さない。
 **見本の文を本物として配らない。**
 
-### 3. `guideline_references` — 確認日と取得時刻を別の列で持つ
+#### 3. `guideline_references` — 確認日と取得時刻を別の列で持つ
 
 | 列 | 何を表すか |
 |---|---|
@@ -211,9 +285,9 @@ NULL 値で「上書きなし」を表すと、「上書きしていない」と
 90 日の判定は `src/domain/seo/guideline-reference.ts` の
 `referenceReviewStatus` だけが行う。表は日付を持つだけで、判定は持たない。
 
-### 4. 未解決の欠陥 (2026-08-30 時点)
+#### 4. 未解決の欠陥 (2026-08-30 時点)
 
-#### 4.1 🔴 `workspace_id` の migration が未コミット
+##### 4.1 🔴 `workspace_id` の migration が未コミット
 
 `blog_theme` と `page_theme_override` の `workspace_id` は
 `src/db/schema.ts` に定義済みだが、対応する migration
@@ -227,7 +301,7 @@ NULL 値で「上書きなし」を表すと、「上書きしていない」と
 **この検査は「生成できるか」ではなく「コミットに入っているか」を見ている。**
 生成だけで緑になると、CI は通るのにデプロイで落ちる状態が作れてしまう。
 
-#### 4.2 🔴 `legal_page` を 2 系統の語彙が触っている
+##### 4.2 🔴 `legal_page` を 2 系統の語彙が触っている
 
 同じ表を `SiteDocumentKey` (9 種) と `FixedPageKind` (8 種) が触っている。
 `site-document-repository.ts` が写像してから書く形になっているが、
@@ -249,7 +323,7 @@ NULL 値で「上書きなし」を表すと、「上書きしていない」と
 実測では 18 経路のうち 12 経路が 404
 (`docs/spec/feat-blog-ui-builder/evidence/11-a4-a13-http-status.txt`)。
 
-#### 4.3 ⚠️ 書き込みが操作の記録に届かない
+##### 4.3 ⚠️ 書き込みが操作の記録に届かない
 
 `createManageBlogAppearanceUseCase` (配色の保存) と
 `createReviewBlogPlacementsUseCase` (掲載の増減) の書き込みが、
@@ -257,6 +331,8 @@ NULL 値で「上書きなし」を表すと、「上書きしていない」と
 
 **掲載の増減は金銭に直結するため、いつ・誰が・何を消したかを
 後から機械で追えない状態は出す前に直すものである。**
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
 
 - 正本へ入れた理由: feat-blog-ui-builder P01〜P12 で確定した 6 表のデータモデル (workspace_id を列として持つ理由・索引順・行の不在で状態を表す設計) と、実装で判明した未解決の欠陥 3 件を正本へ記録する。章へ直接書くと compile で消えるため。
 
@@ -266,7 +342,7 @@ NULL 値で「上書きなし」を表すと、「上書きしていない」と
 🔴 として記録した「`workspace_id` の migration が未コミット」は、**本リリース commit で解消した。**
 前の記録は消さずに残す。消すと「一度この状態で出そうとしていた」という事実が引けなくなる。
 
-### 解消した内容
+#### 解消した内容
 
 `drizzle/0040_serious_madelyne_pryor.sql` と `drizzle/meta/0040_snapshot.json` を
 リリース commit に含めた。これで `pnpm run verify` の
@@ -276,7 +352,7 @@ NULL 値で「上書きなし」を表すと、「上書きしていない」と
 生成だけで緑になる設計だと、CI は通るのにデプロイで落ちる状態が作れてしまう。
 今回はまさにその状態が 1 日残っていた。
 
-### 0040 が壊れ方を選んでいる形
+#### 0040 が壊れ方を選んでいる形
 
 `workspace_id` の埋め戻しは、親 `site_blueprints` から所有が一意に決まらない行があると
 **schema 変更より前に停止する**。停止のさせ方は、`CHECK (workspace_backfill = 0)` を持つ
@@ -293,13 +369,15 @@ guard 表は `CREATE TABLE IF NOT EXISTS` + 先頭の `DELETE` なので、
 移行先の無い旧 `kind` が残っていれば止まり、`profile` と `company` が同じ site に両方あれば
 （どちらを `operator` として残すか決める根拠が無いので）止まる。**後勝ちで本文を捨てない。**
 
-### 残る 🔴 / ⚠️ は解消していない
+#### 残る 🔴 / ⚠️ は解消していない
 
 §4.2 (`legal_page` を 2 系統の語彙が触っている / 18 経路中 12 経路が 404) と
 §4.3 (配色の保存と掲載の増減が操作の記録に届かない) は**本リリースの範囲外で、開いたままである。**
 `dev` 環境へ出すのは、この 2 件が開いていることを承知の上での MVP としてである。
 本番 (`main`) へ進める前に §4.3 を先に閉じること — 掲載の増減は金銭に直結し、
 いつ・誰が・何を消したかを後から機械で追えない状態を本番に置くべきではない。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
 
 - 正本へ入れた理由: 同章 §4.1 が 🔴『migration が未コミット』と記録した状態を本リリース commit で解消したため、正本を現状に一致させる。前の記録は消さず差分として足す。
 
@@ -309,7 +387,7 @@ guard 表は `CREATE TABLE IF NOT EXISTS` + 先頭の `DELETE` なので、
 ⚠️ として記録した「書き込みが操作の記録に届かない」は、**本リリース commit で解消した。**
 前の記録は消さずに残す。消すと「一度この状態で出そうとしていた」という事実が引けなくなる。
 
-### 解消した内容
+#### 解消した内容
 
 `createManageBlogAppearanceUseCase`（見せ方の選択・ブログ既定の配色・ページ上書きの
 保存と取り消しの 4 操作）と `createReviewBlogPlacementsUseCase`（掲載の足し引き）が、
@@ -325,7 +403,7 @@ guard 表は `CREATE TABLE IF NOT EXISTS` + 先頭の `DELETE` なので、
 | `blog_placement.changed` | 記事のどこに成果リンクを載せたか |
 | `blog_placement.removed` | 記事のどこから外したか |
 
-### なぜ掲載だけ「足す」と「外す」を分けたか
+#### なぜ掲載だけ「足す」と「外す」を分けたか
 
 台帳 `blog_affiliate_placement` の行は**外すと物理削除される**（所在の記録であって
 履歴ではない、という表そのものの設計である）。つまり
@@ -336,7 +414,7 @@ guard 表は `CREATE TABLE IF NOT EXISTS` + 先頭の `DELETE` なので、
 外した内容は `before` ではなく `after` に平文で並べている。台帳から引き直せない以上、
 記録の側が「どの記事のどの位置から、どのコードの掲載が消えたか」を単独で言えるべきである。
 
-### 見た目の変更にも記録が要ると判断を変えた理由
+#### 見た目の変更にも記録が要ると判断を変えた理由
 
 `manage-blog-appearance.ts` は当初「配色とテンプレートは読者の目に映るだけで、
 法令上の主張を 1 つも含まない」として記録を書いていなかった。**この理由は誤りではないが、
@@ -347,24 +425,26 @@ guard 表は `CREATE TABLE IF NOT EXISTS` + 先頭の `DELETE` なので、
 残していて配色だけ残さないのは一貫していなかった——後から読む人にとって問いは同じ
 （「そのとき読者に何がどう見えていたか」）である。
 
-### 記録が書けなかったときは「変えました」で終わらせない
+#### 記録が書けなかったときは「変えました」で終わらせない
 
 保存は済んだが `audit_log` へ書けなかったとき、**保存を取り消さない。**
 取り消すと、押した人には「効かなかった」と見えるのに保存先には残っている、という
 別の食い違いを新しく 1 つ作ることになる。返すのは
 `auditWriteFailure`（済んだことと、残っていないことを両方その場で書く断り）である。
 
-### ポートの名前を 1 つ変えた
+#### ポートの名前を 1 つ変えた
 
 `BlogAppearancePort.selectTemplate` を `saveTemplate` へ改名した。
 `scripts/port-wiring.mjs` が読み書きを判定できずに止まったためで、
 語彙表へ `select` を足して黙らせることもできたが、**それをすると将来の読み取り手続きが
 黙って書き込み扱いになる**（SQL の `SELECT` は読みの語である）。名前の側を直した。
 
-### 残る 🔴 は §4.2 のみ
+#### 残る 🔴 は §4.2 のみ
 
 §4.2（`legal_page` を 2 系統の語彙が触っている / 18 経路中 12 経路が 404）は
 **開いたままである。**本番 (`main`) へ進める前に閉じること。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
 
 - 正本へ入れた理由: 同章 §4.3 が ⚠️『配色の保存と掲載の増減が操作の記録に届かない』と記録した状態を本リリース commit で解消したため、正本を現状に一致させる。前の記録は消さず差分として足す。
 
@@ -472,6 +552,160 @@ guard 表は `CREATE TABLE IF NOT EXISTS` + 先頭の `DELETE` なので、
 
 - 正本へ入れた理由: 手書きの「意思決定 (decisions)」節に在った章固有の注釈。表と件数は正本から生成するようにしたため節ごと置き換わるが、注釈は正本から導けないので移した(2026-09-08 / ah-lwmf)。
 
+### 章の規範本文を正本から再生成しない理由
+
+**2026-09-04 追記**: `## 確定セルの記録` そのものは、この日から compile が正本 `matrix` / `qa_log` から描く (手写しを 15 日続けた結果、2 度腐ったため)。
+**以下の 3 つの実測が指しているのは、その表ではなく章の規範本文である。**
+「章を丸ごと再生成して正本の本文で置き換える」を採らない理由として、そのまま生きている。
+
+C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[] を本文へ載せる」と書いているが、**再生成も本文複製もしない**。理由は 3 つあり、どれも読んで判断したのではなく測った結果である。次に読む人が善意で「正本に合わせる」と、下に書いた退行が起きる。**この節はそのために置いてある。**
+
+**理由 1: 再生成すると章の規範本文が消える。** compile 出力と本番章を突き合わせた結果、章にあって生成器にも正本にも無い行が `system-spec/*.md` 10 枚で **374 回出現**した (分母 = 10 枚の空行を除く全行)。同じ行をファイル内で畳むと **366 行**、10 枚を横断して畳むと **316 行**。3 つの数はすべて正しく、数えている対象が違うだけである (出現回数 / ファイル内一意 / 全体一意)。消えるのは To-Be 契約表 (`DB-*` / `BE-*` / `INF-*` / `*-REQ-*` / `*-ACC-*`)、故障モード、初期 SLO、Acceptance evidence、index の状態軸。
+
+**理由 2: 正本の回答は章より古い。** 章と正本の両方に現れうるトークン 9 個で照合した (分母 = 照合トークン 9 個)。
+
+| トークン | 正本 `qa-database-web-spec-intake` の回答 | `system-spec/database.md` |
+|---|---|---|
+| `conversions_pending` | 1 | 0 |
+| `conversions_approved` | 1 | 0 |
+| `revenue_confirmed` | 1 | 0 |
+| `conversions_decision_pending` | 0 | 2 |
+| `conversions_settlement_paid` | 0 | 2 |
+| `revenue_approved` | 0 | 4 |
+| `revenue_paid` | 0 | 4 |
+| `approval_status` | 0 | 7 |
+| `payment_status` | 0 | 5 |
+
+上 3 行は正本にしかない**旧名**、下 6 行は章にしかない**現行名**である。つまり `MetricRollup` の列名について**正本のほうが古い**。正本の本文を章へ複製すると列名が旧名へ戻る。「正本が新しい」という前提が成り立たない以上、複製は同期ではなく退行になる。
+
+**理由 3: 章が名指す確定質疑が正本の `qa_ref` と食い違っていた。** 8 カテゴリ中 **7 件で不一致**、一致は auth のみだった (分母 = `coverage_matrix` の web セル 8 件)。章側は `qa-*-analytics` / `qa-*-web` を、正本側は `qa-*-spec-intake` を名指していた。本節と `## カテゴリ別収集状態` の Web 行は**正本の値を正**として書き直した。章側の旧 ID が指していた質疑録の本文は `## 確定内容 (質疑録)` にそのまま残してあり、**消していない** (理由 2 のとおり、章側の本文のほうが新しいため)。
+
+以上より gaps[0] は、**本文を増やさず「確定の根拠がどこにあるか」を章に載せる**形で実行した。正本の所在は 2 つに分かれる — **規範本文の正本は章、確定セルの状態の正本は `spec-state.json`**。食い違ったら、本節の表は `spec-state.json` を正とし、規範本文は章を正とする。
+
+- 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
+
+### この章の要件 ID を書いたのは誰か
+
+この章の DB-IMAGE-01〜03 は、**AI が導いた受入条件**である。利用者が逐語で述べた要求そのものではない。出所を次のとおり分けて記録する。
+
+**利用者の逐語（`qa-database-web-article-image-verbatim` の answer に原文がある）**
+
+> カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように
+
+**そこから AI が導いた受入条件**
+
+- どの記事がどの R2 鍵を参照しているかの正本を Editorial 側の D1 が単独で持つこと
+- R2 側のオブジェクト一覧を参照状態の正本にしないこと
+- 参照の消滅と実体の消滅がずれる期間を、状態として表現できること
+
+**利用者の確認を受けている範囲**
+
+AskUserQuestion で「Cloudflare R2 へ直接アップロード（推奨）」を選択済み（承認記録 approval-article-image-upload-path）。参照状態をどこが持つかは提示していない。
+
+この区別を残すのは、要件 ID の文面を後から見直すときに「利用者が言ったから変えられない」ものと「AI が導いたので設計判断で変えてよい」ものを取り違えないためである。
+
+- 正本へ入れた理由: C06 round3 の指摘: AI が起草した受入条件が利用者の回答の顔で正本に載っていた。質疑側は逐語だけに作り直したので、章側で要件 ID の出所 (逐語 / AI 導出 / 利用者確認済みの範囲) を名乗らせる。
+
+### 画像送信経路変更後も維持するデータ契約（2026-09-06）
+
+`DB-IMAGE-01〜03` の参照台帳・状態遷移・回収猶予は、アップロード経路を Worker に統一しても維持する。2026-09-06 の現行承認は `approval-article-image-upload-path-worker-20260906` であり、画像は Worker の保存前検査を通って R2 へ入る。
+
+この章に先に残る「R2 へ直接アップロードを選択済み」は 2026-09-05 時点の確認範囲を記録した履歴で、現行の送信経路ではない。参照状態の正本を D1 に置き、R2 オブジェクト一覧を正本にしないという本章の契約は変わらない。
+
+- 正本へ入れた理由: 送信経路の変更と参照台帳の不変契約を分け、旧承認の記述を現行決定と誤読させない
+
+### 歴史的スナップショット（現行規範ではない、2026-09-06 移送）
+
+> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。
+
+#### 状態の意味と実装差分
+
+`confirmed` は要求判断と採用方針が確定していることを表す。**スキーマ適用済み・データ移行済み・分離検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
+
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §2 / §5、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
+
+##### As-Is（2026-08-16 のリポジトリ実体、Phase 1 マージ後）
+
+- 環境ごとに D1 binding `DB` が1つある。運営者ドメインは `asps`、`programs`、`conversions` の3テーブル。読者ドメインは Phase 1 で `categories`、`people`、`disclosures`、`products`、`articles`、`article_people`、`article_products`、`conversation_blocks` 等を追加した。両ドメインは同一 D1 に同居するが、コードコメントと `docs/spec/data-model-gap.md` で分離を宣言している。
+- 全テーブルに `workspace_id` がなく、actor / Workspace / membership / role / consent の永続化もない。D1 自体に行レベル認可はないため、現状はテナント分離を満たさない。
+- `conversions.external_id` は任意かつ非一意で、単一 `status` は `pending | approved | rejected` の判断現在値だけ。取込原票、冪等性、判断履歴、`cancelled`、独立した入金状態を保持しない。
+- ClickEvent、BehaviorEvent、MetricRollup、KPI辞書、`content_analytics_projection`、outbox は未実装である。
+- 公開ゲート `src/lib/content/publish-gate.ts` は記事メタ（著者・広告表記・更新責任者・結論・カテゴリー・次回確認日）だけを検査する。Claim / Evidence は未実装。
+- 記事画像の参照状態を持つテーブルが無い。どの記事がどの保管領域の実体を参照しているかを引く手段が無いため、記事から外された画像を孤児と判定できない。
+
+##### To-Be（規範契約）
+
+| ID | 契約 | 配置 / 状態 |
+|---|---|---|
+| DB-BOUNDARY-01 | `EDITORIAL_DB` と `COMMERCIAL_DB` の2つの D1 を物理境界とする。Editorial は利用者・Workspace・コンテンツ・根拠・公開業務、Commercial は affiliate account/link、tracking、consent、event、conversion、attribution、rollup を所有する。cross-D1 foreign key / transaction は前提にしない | 未実装 |
+| DB-TENANT-01 | tenant-owned row は `workspace_id NOT NULL`。主キー以外の business uniqueness、検索 index、repository 条件は workspace scope を先頭に含める。グローバル辞書だけを明示的な例外とする | 未実装 |
+| DB-IDENTITY-01 | Editorial に actor（user / service account）と `workspace_membership(actor_id, workspace_id, role, status)` を持つ。認可の同一性は actor ID 単体でなく、この membership tuple とする。Commercial へは監査用 actor ID のみ記録し、権限判定を複製しない | 未実装 |
+| DB-CONSENT-01 | Commercial に `consent_record(workspace_id, site_id, consent_key_hash, purpose, state, policy_version, effective_at)` を履歴として保持する。state は `granted \| denied \| withdrawn`。granted 前の event は session ID / IP hash を持たず、withdrawn 後は新規の識別可能 event を拒否する | 未実装 |
+| DB-CONVERSION-01 | backend の BE-CONV-01 に従い conversion、import record、decision / settlement history を分離する。`conversion_key` は Workspace と affiliate account に scope された一意制約、`import_record_key` は再送 no-op の一意制約とする。conversion の現在値は二軸を投影し、単一 `status` 列は持たない | 未実装 |
+| DB-STATE-01 | 承認軸は `approval_status = pending \| approved \| rejected \| cancelled`、支払軸は `payment_status = not_eligible \| unpaid \| scheduled \| paid \| reversed` とする。`scheduled/paid` は `approval_status=approved` の場合だけ許可する CHECK 制約を持つ。各軸の source timestamp と遷移を append し、古い原票で現在値を巻き戻さない。各変更は outbox event で集計再計算を要求する | 未実装 |
+| DB-KPI-01 | KPI名、version、分子、分母、bot/速報/承認/支払の除外規則、最低標本数を辞書として一元化し、rollup に `kpi_definition_version` / `aggregation_set_version` を記録する。`revenue_approved` は `approval_status=approved` の `commission_amount_approved`、`revenue_paid` は `payment_status=paid` の `commission_amount_paid` と定義し、混同・合算しない。その他の定義は `docs/spec/03-分析・解析基盤仕様.md` §4–§5 を参照し、画面ごとに式を複製しない | 未実装 |
+| DB-IMAGE-01 | Editorial に記事画像の参照状態を持つ。最低限 `article_image(workspace_id, article_id, object_key, referenced, last_referenced_at)` に相当する情報を保持し、「どの記事がどの R2 の鍵を参照しているか」を保管領域を走査せずに引けるようにする。孤児判定の根拠はここが唯一の正本であり、maintenance-ops の掃除ジョブは自前で数え直さない | 未実装 |
+| DB-IMAGE-02 | 記事から画像を外す操作は、参照状態を「参照なし」へ更新して `last_referenced_at` を打つだけにし、実体の削除を伴わない。猶予期間内に同じ鍵が再び参照されたら「参照あり」へ戻る。物理削除は maintenance-ops の掃除ジョブが `OPS-REQ-009` の猶予を過ぎたものだけに対して行う | 未実装 |
+| DB-IMAGE-03 | `object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする | 未実装 |
+| DB-PROJECTION-01 | Editorial の transaction は同一DB内の `outbox_event` へ、分析に必要な非機密の content dimension 変更を同時記録する。consumer は event ID で冪等化し、Commercial の `content_analytics_projection` を upsert する。projection は `workspace_id + content/variant/publication ID + dimension values + source_version` を持ち、収益を Editorial へ逆流させない | 未実装 |
+
+##### Delta
+
+1. `EDITORIAL_DB` / `COMMERCIAL_DB` の migration と binding を用意し、legacy `DB` の3テーブルを所有境界へ割り当てる。切替完了までは dual-write でなく、停止可能な backfill + 検証 + cutover を使う。
+2. DB-TENANT-01 / DB-IDENTITY-01 を先行し、テナント条件のない repository を許可しない。
+3. DB-CONSENT-01 / DB-CONVERSION-01 / DB-STATE-01 と append-only event を追加する。
+4. DB-PROJECTION-01 の outbox relay 後に DB-KPI-01 と MetricRollup を構築する。
+5. 記事画像の参照状態 (DB-IMAGE-01) を Editorial へ追加する。責務の分け方をここで明記するのは、以前この参照状態の持ち主が居らず、外した画像の実体が保管領域に残り続ける状態だったためである。database が「参照されているか」を持ち、maintenance-ops が「掃除を回す」。片方だけでは孤児は消えない。
+
+##### Dependencies
+
+依存方向は `前提 → 後続` とする。
+
+- DB-BOUNDARY-01 → infrastructure の2 D1 binding、環境別 migration、backup / restore 手順。
+- auth の session / service-account identity + DB-IDENTITY-01 → backend の BE-AUTH-01。
+- DB-CONSENT-01 → 計測タグと event ingestion の同意判定。
+- DB-PROJECTION-01 の outbox + Queue / dead-letter → projection consumer。consumer は `source_version` で順序逆転を解決する。
+- DB-KPI-01 → BE-ANA-01 と Analytics 表示/API。Commercial data を商品評価・ランキングへ入力しない。
+- DB-TENANT-01 → DB-IMAGE-01/03。参照状態も tenant-owned row であり、workspace scope の例外にしない。
+- DB-IMAGE-01/02 → maintenance-ops の `OPS-REQ-008/009` の掃除ジョブ → infrastructure の R2 削除。この順を逆にすると、参照状態を持たないまま保管領域を走査する掃除になる。
+
+##### Acceptance evidence
+
+- schema snapshot で2 D1の所有テーブル、全 tenant-owned table の `workspace_id NOT NULL` と scoped unique/index を検査した記録。
+- cross-workspace fixture が repository / API / MCP の全経路で分離されるテスト。
+- granted 前・withdrawn 後の event に session ID / IP hash が保存されない privacy test。
+- outbox を重複・順序逆転で配送しても projection が一意かつ最新になり、再送後に未処理 outbox がゼロになる recovery test。
+- conversion の再取込・遅延した二軸の状態更新・rollup 再計算と、KPI version 一致を示す migration / contract test。DB が `scheduled/paid + approval_status!=approved` を拒否し、approved/unpaid は `revenue_approved` のみ、approved/paid は `revenue_paid` も計上すること。
+- **DB-IMAGE-01**: 記事へ画像を 3 枚入れて保存し、うち 1 枚を外して保存する。参照状態から「参照なし」の鍵が 1 件だけ引けること、その問い合わせが R2 の一覧取得を伴わないことを、クエリログと併せて保存。
+- **DB-IMAGE-02**: 外した画像を猶予期間内に元へ戻して保存する。参照状態が「参照あり」へ戻り、`last_referenced_at` が更新されること。この時点で実体が削除されていないことを R2 のオブジェクト一覧で確認して保存。
+- **DB-IMAGE-03**: Workspace A の記事が参照する鍵と同じ `object_key` を、Workspace B の記事から参照させる挿入を試みる。制約により作れないか、`workspace_id` が異なるため別行として扱われ、A の参照状態が B の操作で変化しないことを示す tenant 越境テスト。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: 既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。
+
+### To-Be（規範契約）
+
+> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。
+
+画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。
+
+| 要件ID | 目標状態 |
+|---|---|
+| DB-BOUNDARY-01 | `EDITORIAL_DB` と `COMMERCIAL_DB` の2つの D1 を物理境界とする。Editorial は利用者・Workspace・コンテンツ・根拠・公開業務、Commercial は affiliate account/link、tracking、consent、event、conversion、attribution、rollup を所有する。cross-D1 foreign key / transaction は前提にしない |
+| DB-TENANT-01 | tenant-owned row は `workspace_id NOT NULL`。主キー以外の business uniqueness、検索 index、repository 条件は workspace scope を先頭に含める。グローバル辞書だけを明示的な例外とする |
+| DB-IDENTITY-01 | Editorial に actor（user / service account）と `workspace_membership(actor_id, workspace_id, role, status)` を持つ。認可の同一性は actor ID 単体でなく、この membership tuple とする。Commercial へは監査用 actor ID のみ記録し、権限判定を複製しない |
+| DB-CONSENT-01 | Commercial に `consent_record(workspace_id, site_id, consent_key_hash, purpose, state, policy_version, effective_at)` を履歴として保持する。state は `granted \| denied \| withdrawn`。granted 前の event は session ID / IP hash を持たず、withdrawn 後は新規の識別可能 event を拒否する |
+| DB-CONVERSION-01 | backend の BE-CONV-01 に従い conversion、import record、decision / settlement history を分離する。`conversion_key` は Workspace と affiliate account に scope された一意制約、`import_record_key` は再送 no-op の一意制約とする。conversion の現在値は二軸を投影し、単一 `status` 列は持たない |
+| DB-STATE-01 | 承認軸は `approval_status = pending \| approved \| rejected \| cancelled`、支払軸は `payment_status = not_eligible \| unpaid \| scheduled \| paid \| reversed` とする。`scheduled/paid` は `approval_status=approved` の場合だけ許可する CHECK 制約を持つ。各軸の source timestamp と遷移を append し、古い原票で現在値を巻き戻さない。各変更は outbox event で集計再計算を要求する |
+| DB-KPI-01 | KPI名、version、分子、分母、bot/速報/承認/支払の除外規則、最低標本数を辞書として一元化し、rollup に `kpi_definition_version` / `aggregation_set_version` を記録する。`revenue_approved` は `approval_status=approved` の `commission_amount_approved`、`revenue_paid` は `payment_status=paid` の `commission_amount_paid` と定義し、混同・合算しない。その他の定義は `docs/spec/03-分析・解析基盤仕様.md` §4–§5 を参照し、画面ごとに式を複製しない |
+| DB-IMAGE-01 | 記事画像のライフサイクル台帳を同一 D1 の article_image で保持する。workspace_id、article_id、object_key、pending/ready/deleting/deleted、参照状態と切断時刻を持ち、記事保存と参照状態更新を同一 transaction で同期する。孤児判定とdeleting（削除 claim）の判定は台帳と現在の本文/公開 JSON の参照を根拠とする。 |
+| DB-IMAGE-02 | 記事保存時に参照が切れた画像の detachment timestamp を記録する。ready の猶予期間内なら再参照できるが、deleting（削除 claim）/deleted は不可逆とし再参照・復元を拒否する。保存時は物理削除せず、掃除ジョブが deleting（削除 claim）→R2 delete→deleted 墓標へ遷移する。 |
+| DB-IMAGE-03 | `object_key` の一意制約は `workspace_id` を先頭に含む (DB-TENANT-01 に従う)。同じ鍵が別 workspace の記事から参照される状態を、制約として作れないようにする |
+| DB-PROJECTION-01 | Editorial の transaction は同一DB内の `outbox_event` へ、分析に必要な非機密の content dimension 変更を同時記録する。consumer は event ID で冪等化し、Commercial の `content_analytics_projection` を upsert する。projection は `workspace_id + content/variant/publication ID + dimension values + source_version` を持ち、収益を Editorial へ逆流させない |
+
+- 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -552,74 +786,9 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 | cloudflare-d1-use-indexes | 2026-08-10 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/best-practices/use-indexes/ | 2026-09-03T00:00:00Z | 2026-09-03T00:00:00Z |
 | sqlite-fts5 | 2026-08-27 | SQLite (www.sqlite.org) | https://www.sqlite.org/fts5.html | 2026-09-03T00:00:00Z | 2026-09-03T00:00:00Z |
 
-## 状態の意味と実装差分
+## 章にしか無い記述 (正本へ未接続)
 
-`confirmed` は要求判断と採用方針が確定していることを表す。**スキーマ適用済み・データ移行済み・分離検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
-
-- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §2 / §5、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
-
-### As-Is（2026-08-16 のリポジトリ実体、Phase 1 マージ後）
-
-- 環境ごとに D1 binding `DB` が1つある。運営者ドメインは `asps`、`programs`、`conversions` の3テーブル。読者ドメインは Phase 1 で `categories`、`people`、`disclosures`、`products`、`articles`、`article_people`、`article_products`、`conversation_blocks` 等を追加した。両ドメインは同一 D1 に同居するが、コードコメントと `docs/spec/data-model-gap.md` で分離を宣言している。
-- 全テーブルに `workspace_id` がなく、actor / Workspace / membership / role / consent の永続化もない。D1 自体に行レベル認可はないため、現状はテナント分離を満たさない。
-- `conversions.external_id` は任意かつ非一意で、単一 `status` は `pending | approved | rejected` の判断現在値だけ。取込原票、冪等性、判断履歴、`cancelled`、独立した入金状態を保持しない。
-- ClickEvent、BehaviorEvent、MetricRollup、KPI辞書、`content_analytics_projection`、outbox は未実装である。
-- 公開ゲート `src/lib/content/publish-gate.ts` は記事メタ（著者・広告表記・更新責任者・結論・カテゴリー・次回確認日）だけを検査する。Claim / Evidence は未実装。
-
-### To-Be（規範契約）
-
-| ID | 契約 | 配置 / 状態 |
-|---|---|---|
-| DB-BOUNDARY-01 | `EDITORIAL_DB` と `COMMERCIAL_DB` の2つの D1 を物理境界とする。Editorial は利用者・Workspace・コンテンツ・根拠・公開業務、Commercial は affiliate account/link、tracking、consent、event、conversion、attribution、rollup を所有する。cross-D1 foreign key / transaction は前提にしない | 未実装 |
-| DB-TENANT-01 | tenant-owned row は `workspace_id NOT NULL`。主キー以外の business uniqueness、検索 index、repository 条件は workspace scope を先頭に含める。グローバル辞書だけを明示的な例外とする | 未実装 |
-| DB-IDENTITY-01 | Editorial に actor（user / service account）と `workspace_membership(actor_id, workspace_id, role, status)` を持つ。認可の同一性は actor ID 単体でなく、この membership tuple とする。Commercial へは監査用 actor ID のみ記録し、権限判定を複製しない | 未実装 |
-| DB-CONSENT-01 | Commercial に `consent_record(workspace_id, site_id, consent_key_hash, purpose, state, policy_version, effective_at)` を履歴として保持する。state は `granted \| denied \| withdrawn`。granted 前の event は session ID / IP hash を持たず、withdrawn 後は新規の識別可能 event を拒否する | 未実装 |
-| DB-CONVERSION-01 | backend の BE-CONV-01 に従い conversion、import record、decision / settlement history を分離する。`conversion_key` は Workspace と affiliate account に scope された一意制約、`import_record_key` は再送 no-op の一意制約とする。conversion の現在値は二軸を投影し、単一 `status` 列は持たない | 未実装 |
-| DB-STATE-01 | 承認軸は `approval_status = pending \| approved \| rejected \| cancelled`、支払軸は `payment_status = not_eligible \| unpaid \| scheduled \| paid \| reversed` とする。`scheduled/paid` は `approval_status=approved` の場合だけ許可する CHECK 制約を持つ。各軸の source timestamp と遷移を append し、古い原票で現在値を巻き戻さない。各変更は outbox event で集計再計算を要求する | 未実装 |
-| DB-KPI-01 | KPI名、version、分子、分母、bot/速報/承認/支払の除外規則、最低標本数を辞書として一元化し、rollup に `kpi_definition_version` / `aggregation_set_version` を記録する。`revenue_approved` は `approval_status=approved` の `commission_amount_approved`、`revenue_paid` は `payment_status=paid` の `commission_amount_paid` と定義し、混同・合算しない。その他の定義は `docs/spec/03-分析・解析基盤仕様.md` §4–§5 を参照し、画面ごとに式を複製しない | 未実装 |
-| DB-PROJECTION-01 | Editorial の transaction は同一DB内の `outbox_event` へ、分析に必要な非機密の content dimension 変更を同時記録する。consumer は event ID で冪等化し、Commercial の `content_analytics_projection` を upsert する。projection は `workspace_id + content/variant/publication ID + dimension values + source_version` を持ち、収益を Editorial へ逆流させない | 未実装 |
-
-### Delta
-
-1. `EDITORIAL_DB` / `COMMERCIAL_DB` の migration と binding を用意し、legacy `DB` の3テーブルを所有境界へ割り当てる。切替完了までは dual-write でなく、停止可能な backfill + 検証 + cutover を使う。
-2. DB-TENANT-01 / DB-IDENTITY-01 を先行し、テナント条件のない repository を許可しない。
-3. DB-CONSENT-01 / DB-CONVERSION-01 / DB-STATE-01 と append-only event を追加する。
-4. DB-PROJECTION-01 の outbox relay 後に DB-KPI-01 と MetricRollup を構築する。
-
-### Dependencies
-
-依存方向は `前提 → 後続` とする。
-
-- DB-BOUNDARY-01 → infrastructure の2 D1 binding、環境別 migration、backup / restore 手順。
-- auth の session / service-account identity + DB-IDENTITY-01 → backend の BE-AUTH-01。
-- DB-CONSENT-01 → 計測タグと event ingestion の同意判定。
-- DB-PROJECTION-01 の outbox + Queue / dead-letter → projection consumer。consumer は `source_version` で順序逆転を解決する。
-- DB-KPI-01 → BE-ANA-01 と Analytics 表示/API。Commercial data を商品評価・ランキングへ入力しない。
-
-### Acceptance evidence
-
-- schema snapshot で2 D1の所有テーブル、全 tenant-owned table の `workspace_id NOT NULL` と scoped unique/index を検査した記録。
-- cross-workspace fixture が repository / API / MCP の全経路で分離されるテスト。
-- granted 前・withdrawn 後の event に session ID / IP hash が保存されない privacy test。
-- outbox を重複・順序逆転で配送しても projection が一意かつ最新になり、再送後に未処理 outbox がゼロになる recovery test。
-- conversion の再取込・遅延した二軸の状態更新・rollup 再計算と、KPI version 一致を示す migration / contract test。DB が `scheduled/paid + approval_status!=approved` を拒否し、approved/unpaid は `revenue_approved` のみ、approved/paid は `revenue_paid` も計上すること。
-
-## 確定セルの記録 (正本 spec-state.json)
-
-> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.database.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | database × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-seo-approved-diff-20260906` |
-| 資するゴール (serves_goals) | G1, G2 |
-| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/06-サイトブループリント-記事構成テンプレート.md` |
-| 出典 節 | §2 SiteBlueprint のパラメータ定義 |
-| 出典 sha256 | `d53fe38abd234fffa7905c74000b7198c025e5c84cbb019b88fa30245c99e18b` |
-| 適用された設計知識 (design_applications) | 7 件 — 本章 `## 適用された設計知識` を参照 |
+> 以下の 11 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### 本節を「転記」に留めた理由 (2026-08-20 実測)`, `### qa-database-web-fts5-trigram-index-v4b (対応セル: web)`, `##### 確定内容 qa-database-web-fts5-trigram-index-v4b (対応セル: web)`, `### qa-database-web-aeo-signal-store-v6 (対応セル: web)`, `### qa-neutral-application-mode-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)`, `##### 確定内容 qa-database-web-aeo-signal-store-v6 (対応セル: web)`, `##### 接地根拠 qa-neutral-application-mode-v6 (対応セル: web)`, `### 章にしか無い記述 (正本へ未接続)`, `##### qa-database-web-fts5-trigram-index-v4b (対応セル: web)`, `##### qa-database-web-aeo-signal-store-v6 (対応セル: web)`, `##### qa-neutral-application-mode-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
 
 ### 本節を「転記」に留めた理由 (2026-08-20 実測)
 
@@ -646,10 +815,6 @@ C05 gaps[0] は「8 章 + 00 を再生成して確定セル内容と decisions[]
 **理由 3: 章が名指す確定質疑が正本の `qa_ref` と食い違っていた。** 8 カテゴリ中 **7 件で不一致**、一致は auth のみだった (分母 = `coverage_matrix` の web セル 8 件)。章側は `qa-*-analytics` / `qa-*-web` を、正本側は `qa-*-spec-intake` を名指していた。本節と `## カテゴリ別収集状態` の Web 行は**正本の値を正**として書き直した。章側の旧 ID が指していた質疑録の本文は `## 確定内容 (質疑録)` にそのまま残してあり、**消していない** (理由 2 のとおり、章側の本文のほうが新しいため)。
 
 以上より gaps[0] は、**本文を増やさず「確定の根拠がどこにあるか」を章に載せる**形で実行した。正本の所在は 2 つに分かれる — **規範本文の正本は章、確定セルの状態の正本は `spec-state.json`**。食い違ったら、本節の表は `spec-state.json` を正とし、規範本文は章を正とする。
-
-## 章にしか無い記述 (正本へ未接続)
-
-> 以下の 10 件は正本 `spec-state.json` の `qa_ref` / `qa_refs` / `required_info[].grounded_by` のいずれからも導けない (`### qa-database-web-fts5-trigram-index-v4b (対応セル: web)`, `##### 確定内容 qa-database-web-fts5-trigram-index-v4b (対応セル: web)`, `### qa-database-web-aeo-signal-store-v6 (対応セル: web)`, `### qa-neutral-application-mode-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)`, `##### 確定内容 qa-database-web-aeo-signal-store-v6 (対応セル: web)`, `##### 接地根拠 qa-neutral-application-mode-v6 (対応セル: web)`, `### 章にしか無い記述 (正本へ未接続)`, `##### qa-database-web-fts5-trigram-index-v4b (対応セル: web)`, `##### qa-database-web-aeo-signal-store-v6 (対応セル: web)`, `##### qa-neutral-application-mode-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)`)。compile が消さずに引き継いでいるだけで、**章が正本の投影である性質はここだけ破れている**。正本へ接続するか、不要と確かめて消すこと。
 
 ### qa-database-web-fts5-trigram-index-v4b (対応セル: web)
 

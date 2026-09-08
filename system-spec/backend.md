@@ -3,7 +3,7 @@ status: confirmed
 category: backend
 aggregate: 確定
 spec_cells: [backend.web, backend.mobile, backend.tablet, backend.desktop-windows, backend.desktop-linux, backend.desktop-macos]
-serves_goals: [G2, G1]
+serves_goals: [G2, G1, G3]
 ---
 
 # バックエンド (backend)
@@ -15,12 +15,45 @@ serves_goals: [G2, G1]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-prose-verbatim`, `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
+
+| 項目 | 値 |
+|---|---|
+| セル | backend × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-seo-approved-diff-20260906` |
+| 資するゴール (serves_goals) | G2, G1, G3 |
+| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
+| 出典 kind | user-dialogue |
+| 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |
+
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`backend`) を主担当とする **3 件**。全 15 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
+|---|---|---|---|---|
+| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 |
+| `dec-aeo-analysis-trigger` | AEO/SEO の充足度解析を、いつ・どの頻度で走らせるか。記事の公開前に止めるのか、公開後に気づかせるのか、その両方か。 | `opt-publish-gate-plus-scheduled` | confirmed | G3, G2 |
+| `dec-article-body-storage-format` | 断片カタログを 19 種へ広げた記事本文を、どの形で保存するか (拡張 Markdown 文字列のままか、構造化 JSON ツリーへ移すか) | `opt-extended-markdown-string` | confirmed | G1, G3 |
+
+- **`decision-llm-provider` の caveat**: 鍵が社数ぶん増える。登録は本人がブラウザで行い、こちらでは受け取らない（11 §5） / どの用途にどの社を当てるかが未定のままだと、いちばん高い社が既定になる。用途ごとの既定を決める必要がある / 単価表の pricedOn は 2026-08-18 のまま。実費の見積りは llm-cost-simulator で別途取る
+
+- **`dec-aeo-analysis-trigger` の caveat**: ゲートの強さ (公開を止めるか、警告して通すか) を項目ごとに決めること。全項目を必須にすると公開できない記事が滞留し、ゲートを迂回する運用が生まれて検出が形骸化する / 定期実行の失敗は画面に何も現れない。実行の成否と最終実行時刻を管理画面から確認できるようにすること / 公開操作に解析の待ち時間が乗る。解析が重くなった場合に公開を待たせない逃げ道 (非同期化) を後から入れられる形で実装すること / 根拠として引用した Cloudflare Workers と Google 検索セントラルは取得済みの入口ページで、Cron Triggers の実行回数制限と個別型の必須プロパティは本セッションで再取得していない。実装着手時に公式資料で再確認すること
+
+- **`dec-article-body-storage-format` の caveat**: 19 種すべてで parseProse(serializeProse(nodes)) === nodes を検証しない限り、記法の追加が既存本文を壊しうる / 未知の記法は捨てずに literal な文字列を保持する段落として残すこと。読めないことと失ってよいことは違う / 表と段組みで記法の冗長さが実用限界を超えるなら、その断片だけ構造化して埋め込む折衷を再検討する
 
 ## 確定内容 (質疑録)
 
@@ -141,13 +174,58 @@ serves_goals: [G2, G1]
 
 **回答**: 利用者本人の回答を逐語主旨で記録する。「この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください」。具体的には (1) 各管理対象 (商品・ブログ・SNS チャネル・記事等) の新規作成・削除を含む CRUD API。(2) 商品×ブログの多対多対応付けと、ブログごとのコンセプト管理 API。(3) コンセプトごとの文章生成・保存 API。(4) X・Facebook 等を抽象化した SNS チャネル登録・投稿状態参照 API (プロバイダ追加可能な構成)。(5) ブログごとの構成 (セクション並び・テンプレート・コンポーネントセット) を保存・取得する構成管理 API。ドメインモデルは既確定の qa-backend-web-spec-intake を基礎とし、ブログ構成とチャネルの 2 概念を拡張する。既存のバックエンドスタック (Cloudflare Workers/D1) を継続使用する。
 
-## 意思決定 (decisions)
+### qa-backend-web-prose-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
-> **本章を主担当とする論点だけ**を載せる。全 8 件の一覧・候補比較・推奨根拠は [`00-requirements-definition.md`](./00-requirements-definition.md) にある。
+**質問**: backend×web: 記事本文の保存について利用者は何を求めたか。保存形の受入条件を起草する前に、利用者が実際に発した言葉を逐語で記録する
 
-| ID | 論点 | 採用した選択肢 | 状態 | 資するゴール |
-|---|---|---|---|---|
-| `decision-llm-provider` | 記事生成に使う LLM プロバイダを 1 社に固定するか、複数を持つか | `opt-catalog-multi` | confirmed | G1 |
+**回答**: [追加要望 (2026-09-05)]
+「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
+
+[機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
+
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-backend-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: backend×web: カスタムドメインの接続・検証・証明書、読者行動の受け口、日次ロールアップ、SEO/AEO の評価と記事への反映は、どの処理単位でどう並べるか
+
+**回答**: 4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない
+
+### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: backend×web: 定期 SEO/AEO 再点検の対象 0 件成功、一部失敗、全件失敗、対象取得失敗をどう区別し、最終実行時刻をどの workspace の管理画面に表示するか (P13 書き戻し・v3)。
+
+**回答**: 2026-09-04 時点の実装では、記事単位の点検結果と cron 自体の実行結果を別の状態として扱う。記事は未点検／全合格／要修正／取得不能、定期再点検は未実行／成功／一部失敗／失敗／状態取得不能を区別する。成功は失敗 0 件で対象 0 件も含み、一部失敗は保存の成功と失敗が混在、全件の保存失敗と対象取得失敗は失敗とする。固定 failure code で後ろ 2 つも区別し、自由文の例外は保存しない。
+
+scheduler は非停止 workspace を列挙した後、既存の古い順の全体バッチを 1 回だけ取得する。1 起動の上限 50 件は変えず、処理結果だけを workspace 別に集計する。対象取得自体が失敗したときも、列挙済みの各 workspace へ失敗と開始／完了時刻を残してから入口へ失敗を返す。run-state の保存失敗も成功に潰さない。Worker はジョブごとの独立 `waitUntil` と catch を維持し、失敗時は成功ログを出さず retry も要求しない。DB binding が無い場合は警告ログのみとする。
+
+管理画面は actor の `workspaceId` だけを読み口へ渡し、隣の workspace の状態や件数を表示しない。各最終状態に開始時刻と最終完了時刻、この回の対象／保存／失敗件数を表示する。対象 0 件は「この回で再点検した記事は無い」という事実だけを示し、未実行や失敗と混ぜない。
+
+HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上、1 起動 50 件、毎日 `0 17 * * *` の既存値は変えない。実 D1 での所要時間と記事 350 本超の挙動は引き続き未測定である。
+
+### qa-backend-web-aeo-analysis-pipeline-v4 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: backend×web: AEO/SEO の充足度を解析し、その結果をブログと記事エディターへ反映する仕組みをどこにどう置くか。API 契約はどうするか。2026-09-03 利用者ヒアリング。
+
+**回答**: 利用者の指示は「AEO,SEO 対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしい」。仕組みは次の3層に分ける。
+
+#### 1. 解析 (analyze)
+公開済み記事の保存実体を入力に、検証可能な項目の充足を判定する純粋関数をドメイン層に置く。判定項目は index 可否 (noindex/robots)・canonical の有無・JSON-LD の型と必須プロパティ・見出し階層の妥当性 (本文外見出しの混入なし)・画像の alt 被覆と width/height・広告リンクの rel・最終更新日の表示・結論/FAQ/手順/出典ブロックの有無・最終更新からの経過日数。各項目は充足/不足/対象外の3値と、不足時の該当箇所を返す。順位・流入・引用率のような外部由来の推定値は判定に含めない。含めると、確かめられない数字を根拠に記事を書き換えることになる。
+
+#### 2. 保存 (record)
+解析結果は記事単位・実行時刻付きで保存し、いつの時点の判定かを常に言えるようにする。保存はワークスペースで区切り、他テナントの記事の判定を読めない。
+
+#### 3. 反映 (apply)
+解析結果は2つの経路で反映する。(a) 管理画面の記事エディターへ、不足項目を名指しで差し戻す。書き手はその場で直せる。(b) 記事一覧に充足度を出し、どの記事から直すべきかを判断できるようにする。自動で本文を書き換えない。自動書き換えは、書き手が読んでいない文章が公開される状態を作る。
+
+#### API 契約 (api カテゴリは backend で扱う既存方針を踏襲)
+解析の実行・結果の取得・記事単位の再解析を、既存の管理 API と同じ規約 (ワークスペース境界・認可・エラー形状) で提供する。公開読者面はこの API を呼ばない。読者に見せる必要が無い情報を読者経路へ流さない。
+
+#### ガイドライン参照レジストリ
+SEO/AI 検索ガイドラインの出典 (発行元・URL・確認日・要約) をレジストリとして持ち、確認日から90日を超えたものを要再確認として管理画面へ出す。ガイドライン変更時は仕様セルを R4-reopen する運用とし、判定項目を勝手に書き換えない。
+
+- (注記: 正本 qa_log[qa-backend-web-aeo-analysis-pipeline-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 
 ## 章の注記 (chapter_notes)
 
@@ -227,6 +305,151 @@ is billed for each search query that the model decides to execute」と述べる
 - **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片もこの作業場所には置かない。
 
 - 正本へ入れた理由: 手書きの「意思決定 (decisions)」節に在った章固有の注釈。表と件数は正本から生成するようにしたため節ごと置き換わるが、注釈は正本から導けないので移した(2026-09-08 / ah-lwmf)。
+
+### 章の規範本文を正本から再生成しない理由
+
+同じ現行契約の全文と記録理由は [章の規範本文を正本から再生成しない理由](auth.md) を参照。本章にも同じ契約を適用する。
+
+### 本節を「転記」に留めた理由
+
+C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
+
+(2026-09-04 追記: 本節はこの日まで章にだけ在り、`## 章にしか無い記述 (正本へ未接続)` として引き継がれていた。同じ見出しの節が P13 の書き戻しでもう 1 つ生まれ、`##` 単位の引き継ぎが衝突して本節が落ちた。**落ちようのない場所へ移すのが直し方である**ため、正本の `chapter_notes` へ入れた。文面は落ちる前の逐語のままで、この段落だけが追記である。)
+
+- 正本へ入れた理由: 章にだけ在った本節が、P13 の書き戻しで同名の「章にしか無い記述」節が 2 つになった結果、## 単位の引き継ぎが衝突して落ちた。守るのではなく落ちようのない場所へ移す。
+
+### BE-PROSE-01 が前提とする保存形は未確定である
+
+この章の BE-PROSE-01〜03 / BE-PRODUCT-01 / BE-IMAGE-01 は、利用者の逐語（`qa-backend-web-prose-verbatim`）から **AI が導いた受入条件** であり、利用者が逐語で述べた要求そのものではない。導出の対応は次のとおり。
+
+- 利用者の逐語: 「記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです」
+- そこから導いた条件: 編集面が扱える断片が、保存形への直列化と保存形からの解析を往復しても失われないこと（BE-PROSE-01〜03）
+
+**BE-PROSE-01 が前提とする保存形の決定は、まだ利用者の確認を受けていない。** `decisions.dec-article-body-storage-format`（記事本文を拡張 Markdown 文字列のまま広げるか、構造化された木として持ち直すか）は `recommended_pending_confirmation` の状態にある。AI 推奨は「拡張 Markdown 文字列のまま広げる」だが、利用者はこの二択を提示されておらず、選んでもいない。
+
+したがって BE-PROSE-01 の受入条件は「往復で断片が失われないこと」までが確定であり、**その往復が拡張 Markdown 上で起きるという前提は未確定**である。保存形が構造化された木へ変わった場合、BE-PROSE-01 の受入条件そのものは生き残るが、記法の衝突検査（BE-PROSE-02）の対象は入れ替わる。
+
+実装に着手する前に、この二択を利用者へ提示して確認を得ること。確認前に保存形を既定として実装すると、未確認の決定が実装によって既成事実になる。
+
+- 正本へ入れた理由: C05 round3 の指摘: BE-PROSE-01 が status=recommended_pending_confirmation の決定に依拠しているのに、規範表にその印が無い。章の手書きでは compile のたび消えるため正本へ置く。
+
+### AI が起草した設計宣言（質疑から移した本文）
+
+以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。
+
+この本文はもともと質疑 `qa-backend-web-prose-roundtrip-and-product-search` の answer として `spec-state.json` に置かれ、`source.kind=user-dialogue`（＝利用者との対話に由来する）を名乗っていた。しかし内容は設計判断の宣言であり、利用者の発言ではない。独立監査 C06 が「AI 起草の設計宣言が利用者の回答の顔で正本に載っている」としてこれを指摘した。
+
+**内容を捨てるのではなく、居場所を移す。** 設計として要る記述なので章の散文として置き直し、元の質疑は取り下げた（`retracted_qa_log`）。この章のセルが実際に引く裏付けは `qa-backend-web-prose-verbatim` である。
+
+利用者の逐語は `qa-backend-web-prose-verbatim` および同章の「この章の要件 ID を書いたのは誰か」に記録がある。以下の記述で利用者の確認を受けているのは、そこに逐語として載っている範囲だけである。
+
+---
+
+**当初の問い**
+
+> backend×web: 本文断片を 19 種へ増やしても保存形 (拡張 Markdown 文字列) を保つために、往復変換と未知記法の扱い、および商品カードの選択に要る検索をどう定めるか。
+
+**設計宣言の本文**
+
+**保存形は拡張 Markdown 文字列のままにする。**JSON の木へ移さない理由は 3 つある。既存記事のデータが 1 件も壊れない、人が読める、AI が書ける。断片を 9 種足しても、足すのは記法であって保存形ではない。
+
+**往復の不変条件。**`parseProse(serializeProse(nodes)) === nodes` を全 19 種について保証する。新しい記法は、既存の Markdown 記法と衝突しない形で足す。コードブロックは三連バッククォートに言語名、表は既存の Markdown table、それ以外 (image-row / toggle / checklist / embed / cta-button / link-card / columns) は既存の callout や product-card と同じ「ディレクティブ行」の書き方に揃える。1 種類ごとに固有の記法を発明しない。
+
+**未知の記法に出会ったら、落とさず段落へ退避する。**版が進んで新しい記法が入った記事を古い版が読むことは起こりうる。そのとき解釈できない行を捨てると本文が消える。解釈できないものは、書かれた文字列そのままを持つ段落として保持し、保存し直しても元の文字列が戻るようにする。**読めないことと、失ってよいことは違う。**
+
+**商品検索 API。**商品カードで ID を手入力させないため、workspace 内の商品を名前で絞り込む読み取り専用の検索を足す。actor の workspace_id で必ず絞り、他 workspace の商品は 1 件も返さない。返すのはカードの描画に要る最小限 (id / 名称 / 画像 URL / 価格 / リンク) だけで、原価や内部メモは返さない。件数は上限を置き、無制限の全件取得にしない。
+
+- 正本へ入れた理由: C06 round4 の指摘: AI 起草の設計宣言が source.kind=user-dialogue を名乗って正本に載っていた。内容は設計として要るので章の散文へ移し、元の質疑は取り下げる。
+
+### 歴史的スナップショット（現行規範ではない、2026-09-06 移送）
+
+> 既存章にしか存在しなかった規範・受入条件・実装記録の保全移送。以下の本文は移送前のまま保持する。As-Is、Delta、PASS 等の実装・検証記録は本文に記された時点の記録であり、今回の実装完了・本番反映・新しい利用者承認を意味しない。後日の確定判断は本章の現在の質疑録・意思決定・日付付き注記を参照する。
+
+#### 状態の意味と実装差分
+
+`confirmed` は要求判断と採用方針が確定していることを表す。**実装済み・デプロイ済み・検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
+
+- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §1、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
+
+##### As-Is（2026-08-16 のリポジトリ実体）
+
+- Next.js / OpenNext の単一アプリ内に、D1 を直接読む stateless MCP PoC がある。
+- MCP PoC は `list_programs`、`record_conversion`、`get_revenue_summary` の3ツールのみ。単一の `MCP_TOKEN` または same-origin 判定で入口を分けるが、利用者主体、Workspace membership、role による認可はない。same-origin は主体認証ではない。
+- `record_conversion` は成果を1件追加するだけで、ASP API / CSV の一括取り込み、安定した成果同一性、再取り込みの冪等化、判断・入金の状態履歴はない。現在の単一 `status` は `pending | approved | rejected` のみで、入金状態を表現できない。任意の `external_id` に一意制約もない。
+- ClickEvent / BehaviorEvent / Channel Insights の収集、正規化、MetricRollup、Attribution、Insight Engine、Brief への提案は未実装である。
+- 記事本文の断片は 10 種で、`parseProse` / `serializeProse` の往復を 19 種で保証する検証はない。未知記法は保持されず落ちる。商品カード挿入のための商品検索 API と、記事画像の署名付き URL を発行する経路はいずれも存在しない。
+
+##### To-Be（規範契約）
+
+| ID | 契約 | 状態 |
+|---|---|---|
+| BE-ANA-01 | 収集→正規化→集計→分析→活用の責務境界は `docs/spec/03-分析・解析基盤仕様.md` §1–§7 を正本とする。各段は再実行可能な idempotent consumer とし、append-only の入力から同じ rollup を再構築できること | 未実装 |
+| BE-CONV-01 | 成果の安定同一性 `conversion_key` は `(workspace_id, affiliate_account_id, import_source, source_record_id)`。source ID がない取込元だけ、状態を除く不変項目から source fingerprint を作る。`import_record_key` は原票1行の canonical hash とし、同一キー再送は no-op、同一 `conversion_key` の新しい原票は承認または支払の状態更新履歴として扱う。現在値は `approval_status ∈ {pending, approved, rejected, cancelled}` と `payment_status ∈ {not_eligible, unpaid, scheduled, paid, reversed}` の二軸で投影し、単一 `status` へ合成しない。`scheduled/paid` は `approval_status=approved` の場合だけ許可する | 未実装 |
+| BE-AUTH-01 | UI / REST / WebMCP / backend MCP は共通の use-case 境界を呼び、そこで `actor(type, id) + workspace_id + membership status + role` を認可する。actor と workspace は検証済み session/token から導出し、ツール引数を信用しない | 未実装 |
+| BE-MCP-01 | 現行 MCP は接続性検証用 PoC。製品版では BE-AUTH-01 を通る薄い adapter とし、§24.3 の resource/tool 契約、監査、確認必須操作、集計値のみの開示を通常 API と共有する | PoC のみ |
+| BE-PROSE-01 | 記事本文の保存形は拡張 Markdown 文字列を維持する (`decisions[].dec-article-body-storage-format`)。構造化 JSON ツリーへ移さない。理由は 3 つ — 公開済み記事のデータが壊れない (移行不要)、DB を直接見て本文が読める、AI が文字列として本文を書ける | 未実装 |
+| BE-PROSE-02 | 断片 19 種すべてで `parseProse(serializeProse(nodes)) === nodes` が成り立つ。往復で失われる断片・属性を 0 件にする | 未実装 |
+| BE-PROSE-03 | `parseProse` が解釈できない記法は、捨てずに**その文字列を literal に保持する段落**として通す。読めないことと、失ってよいことは違う。未知記法を含む本文を保存し直しても、元の文字列が消えない | 未実装 |
+| BE-PRODUCT-01 | 商品カード挿入のための、ワークスペース内商品の読み取り専用検索 API を持つ。返す項目は id / 名称 / 画像 URL / 価格 / リンクに限り、それ以外の商品属性を返さない。`workspace_id` はセッションから導出し、引数を信用しない (BE-AUTH-01 に従う) | 未実装 |
+| BE-IMAGE-01 | 記事画像の署名付き URL 発行は backend の use-case 境界を通る。鍵は `workspace_id/記事id/一意なid.拡張子` の形で backend が組み立て、クライアントから受け取った鍵に署名しない | 未実装 |
+
+##### Delta
+
+1. BE-AUTH-01 を先に実装し、すべての repository query に workspace scope を必須化する。
+2. BE-CONV-01 の import command、idempotency ledger、判断・入金の状態履歴を実装する。現行 `record_conversion` の無条件 insert と単一 `status` は、移行後に二軸を扱う内部 command へ置換する。
+3. BE-ANA-01 を収集・正規化・rollup・分析の順に追加し、同じ KPI 契約を画面/API/MCPで使用する。
+4. 最後に BE-MCP-01 を PoC token 依存から actor-scoped credential に移行する。
+5. `parseProse` / `serializeProse` を断片 10 種から 19 種へ広げる。保存形は変えないため既存記事の移行は発生しない。追加する記法は既存本文と衝突しないことを、予約記法の衝突検査で先に確かめる。
+6. 未知記法の扱いを「落とす」から「literal な文字列を持つ段落として保持する」へ改める。これがないと、新しい記法で書かれた記事を古い版のコードが読んだときに本文が欠ける。
+7. 商品検索 API と署名付き URL 発行 API を、いずれも BE-AUTH-01 の use-case 境界の上に追加する。MCP 側にも同じ境界を通した薄い adapter としてのみ露出する。
+
+##### Dependencies
+
+依存方向は `前提 → 後続` とする。
+
+- `DB-IDENTITY-01` / `DB-TENANT-01` + auth 章の session 方針 → BE-AUTH-01。
+- `DB-CONVERSION-01` + Commercial D1 + ASPごとの原票正規化規則 → BE-CONV-01。
+- `DB-PROJECTION-01` / `DB-KPI-01` + infrastructure の Queue / Cron / Redirect Resolver → BE-ANA-01。
+- BE-AUTH-01 + 各 use case → BE-MCP-01。MCP 固有ロジックから DB を直接操作しない。
+- `ArticleBlockKind` の節骨格 + 断片カタログ 19 種の定義 → BE-PROSE-01/02/03。frontend の描画部品は本契約の後段であり、断片の種別を frontend 側で新設しない。
+- BE-AUTH-01 + database の商品テーブル → BE-PRODUCT-01。
+- BE-AUTH-01 + infrastructure の R2 バケットと鍵の並び → BE-IMAGE-01。署名で縛れる範囲は security の SEC-REQ-006/007 に従属する。
+
+##### Acceptance evidence
+
+- 同一取込ファイルを2回処理して成果件数・金額が増えず、後続の `approval_status` / `payment_status` 変更だけが同じ成果へ反映される自動テスト。
+- 異なる Workspace の actor が同じ resource ID を指定しても参照・変更できず、role 不足が拒否される API/MCP 共通の認可テスト。
+- 生イベントから rollup を全再計算した結果が増分集計と一致する fixture テスト。`approval_status=approved, payment_status=unpaid` では `revenue_approved` のみ、`payment_status=paid` への変更後は `revenue_paid` も計上され、承認報酬が二重加算されないこと。
+- MCP の tool call と通常 API が同一 use case / KPI 定義 / 監査記録を使うことを示す contract test。
+- **BE-PROSE-02**: 断片 19 種それぞれについて `parseProse(serializeProse(nodes)) === nodes` を検証する往復テスト。19 種すべてを含む 1 本の記事 fixture でも同じ等式が成り立つこと。属性 (コードの言語指定・表の列数・画像の代替テキスト・色トークン) が往復で失われないことを個別に検証した結果を保存。
+- **BE-PROSE-03**: 未知の記法 (将来の断片を模した文字列) を含む本文を保存 → 読み出し → 再保存する往復テスト。元の文字列がバイト単位で一致して残り、段落として描かれることを保存。
+- **BE-PROSE-01**: 現行の公開済み記事 fixture 全件を新しい `parseProse` で読み、既存の描画結果と差分が出ないことを示す退行テスト。保存形を変えていないため移行スクリプトが存在しないことを併せて記録。
+- **BE-PRODUCT-01**: Workspace A のセッションで商品を検索し、B の商品名・画像・価格が結果に含まれないことを示す tenant 越境テスト。返却項目が id / 名称 / 画像 URL / 価格 / リンクの 5 つに限られ、それ以外の属性が response に無いことを schema テストで保存。
+- **BE-IMAGE-01**: クライアントが `../` や別 workspace の鍵を指定して署名を要求し、いずれも拒否されるか、backend が組み立てた `workspace_id/記事id/一意なid.拡張子` の鍵でのみ署名が返ることを示す認可テストと、その拒否の監査記録。
+
+- (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
+
+- 正本へ入れた理由: 既存章にだけ存在する要件定義表・受入条件とその文脈を、正規writerのchapter_notesへ逐語移送して再生成時の欠落を防ぐ。利用者回答や承認内容は改変せず、過去の実装記録を現在のPASSとして扱わない。
+
+### To-Be（規範契約）
+
+> 2026-09-06 現行規範。旧注記「章の規範本文を正本から再生成しない理由」は superseded とし、その「再生成しない」指示を無効化する。正本 chapter_notes と正規 compiler を唯一の更新経路とする。旧 374 行等の欠落原因・旧方式・過去の実装/PASS 状態は歴史的スナップショットとして保持する。以下は要求であり、実装・受入・remote migration・本番公開の完了を意味しない。
+
+画像関連要件は 2026-09-06 の現行 Worker アップロード・ライフサイクル契約で同 ID を改訂した。旧 direct PUT/CORS/容量・可逆性の規定は歴史記録のみとし適用しない。
+
+| 要件ID | 目標状態 |
+|---|---|
+| BE-ANA-01 | 収集→正規化→集計→分析→活用の責務境界は `docs/spec/03-分析・解析基盤仕様.md` §1–§7 を正本とする。各段は再実行可能な idempotent consumer とし、append-only の入力から同じ rollup を再構築できること |
+| BE-CONV-01 | 成果の安定同一性 `conversion_key` は `(workspace_id, affiliate_account_id, import_source, source_record_id)`。source ID がない取込元だけ、状態を除く不変項目から source fingerprint を作る。`import_record_key` は原票1行の canonical hash とし、同一キー再送は no-op、同一 `conversion_key` の新しい原票は承認または支払の状態更新履歴として扱う。現在値は `approval_status ∈ {pending, approved, rejected, cancelled}` と `payment_status ∈ {not_eligible, unpaid, scheduled, paid, reversed}` の二軸で投影し、単一 `status` へ合成しない。`scheduled/paid` は `approval_status=approved` の場合だけ許可する |
+| BE-AUTH-01 | UI / REST / WebMCP / backend MCP は共通の use-case 境界を呼び、そこで `actor(type, id) + workspace_id + membership status + role` を認可する。actor と workspace は検証済み session/token から導出し、ツール引数を信用しない |
+| BE-MCP-01 | 現行 MCP は接続性検証用 PoC。製品版では BE-AUTH-01 を通る薄い adapter とし、§24.3 の resource/tool 契約、監査、確認必須操作、集計値のみの開示を通常 API と共有する |
+| BE-PROSE-01 | 記事本文の保存形は拡張 Markdown 文字列を維持する (`decisions[].dec-article-body-storage-format`)。構造化 JSON ツリーへ移さない。理由は 3 つ — 公開済み記事のデータが壊れない (移行不要)、DB を直接見て本文が読める、AI が文字列として本文を書ける |
+| BE-PROSE-02 | 断片 19 種すべてで `parseProse(serializeProse(nodes)) === nodes` が成り立つ。往復で失われる断片・属性を 0 件にする |
+| BE-PROSE-03 | `parseProse` が解釈できない記法は、捨てずに**その文字列を literal に保持する段落**として通す。読めないことと、失ってよいことは違う。未知記法を含む本文を保存し直しても、元の文字列が消えない |
+| BE-PRODUCT-01 | 商品カード挿入のための、ワークスペース内商品の読み取り専用検索 API を持つ。返す項目は id / 名称 / 画像 URL / 価格 / リンクに限り、それ以外の商品属性を返さない。`workspace_id` はセッションから導出し、引数を信用しない (BE-AUTH-01 に従う) |
+| BE-IMAGE-01 | 記事画像は同一生成元の Worker API と共通 use-case 認可境界を通る。workspace と記事の編集権限を検証し、鍵はサーバーが article-images/workspace_id/article_id/一意なid.拡張子として生成する。pending 予約→R2 put→ready 確定を経て利用可能とし、クライアント指定鍵や署名付き直接 PUT を受け付けない。 |
+
+- 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
 ## 上流指針 (doctrine anchor)
 
@@ -389,77 +612,11 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 |---|---|---|---|---|---|
 | drizzle-orm | 0.45.2 | Drizzle Team (orm.drizzle.team) | https://orm.drizzle.team/docs/overview | 2026-08-16T09:01:52Z | 2026-08-22T22:20:35Z |
 | anthropic-claude | 現行 active モデル (claude-fable-5-1 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5-20251001) | Anthropic (platform.claude.com) | https://platform.claude.com/docs/en/models/overview | 2026-09-02T08:19:13Z | 2026-09-02T08:19:13Z |
-| openai-platform | gpt-6-astra | OpenAI (developers.openai.com) | https://developers.openai.com/api/docs/models | 2026-09-03T21:46:11Z | 2026-09-03T21:46:11Z |
+| openai-platform | gpt-6-astra | OpenAI (developers.openai.com) | https://developers.openai.com/api/docs/models | 2026-09-04T13:41:59Z | 2026-09-04T13:41:59Z |
 | google-gemini | Gemini 3 系 (gemini-3.8-flash / gemini-3.7-flash / gemini-3.6-flash / gemini-3.5-flash / gemini-3.1-pro-preview) | Google (ai.google.dev) | https://ai.google.dev/gemini-api/docs/models | 2026-09-02T21:20:17Z | 2026-09-02T21:20:17Z |
 | google-search-console-api | 2026-08-11 | Google (developers.google.com) | https://developers.google.com/webmaster-tools/v1/searchanalytics/query | 2026-09-03T12:43:18Z | 2026-09-03T12:43:18Z |
 | anthropic-web-search-tool | web_search_20260318 | Anthropic (platform.claude.com) | https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool | 2026-09-03T20:57:54Z | 2026-09-03T21:02:59Z |
 | gemini-google-search-grounding | Gemini 3.8 Flash | Google (ai.google.dev) | https://ai.google.dev/gemini-api/docs/google-search.md.txt | 2026-09-03T20:57:55Z | 2026-09-03T20:57:55Z |
-
-## 状態の意味と実装差分
-
-`confirmed` は要求判断と採用方針が確定していることを表す。**実装済み・デプロイ済み・検証済みを表さない**。実装状態は、以下の As-Is / Delta と Acceptance evidence で別に判定する。
-
-- 本章内の `ref-system-design-knowledge/...` 参照は**非規範・取得証跡なし・実装根拠に使用不可**。規範根拠は `docs/spec/03` §1、`00-requirements-definition.md`、および本章の「最新ドキュメント出典」に記録した公式出典とする。
-
-### As-Is（2026-08-16 のリポジトリ実体）
-
-- Next.js / OpenNext の単一アプリ内に、D1 を直接読む stateless MCP PoC がある。
-- MCP PoC は `list_programs`、`record_conversion`、`get_revenue_summary` の3ツールのみ。単一の `MCP_TOKEN` または same-origin 判定で入口を分けるが、利用者主体、Workspace membership、role による認可はない。same-origin は主体認証ではない。
-- `record_conversion` は成果を1件追加するだけで、ASP API / CSV の一括取り込み、安定した成果同一性、再取り込みの冪等化、判断・入金の状態履歴はない。現在の単一 `status` は `pending | approved | rejected` のみで、入金状態を表現できない。任意の `external_id` に一意制約もない。
-- ClickEvent / BehaviorEvent / Channel Insights の収集、正規化、MetricRollup、Attribution、Insight Engine、Brief への提案は未実装である。
-
-### To-Be（規範契約）
-
-| ID | 契約 | 状態 |
-|---|---|---|
-| BE-ANA-01 | 収集→正規化→集計→分析→活用の責務境界は `docs/spec/03-分析・解析基盤仕様.md` §1–§7 を正本とする。各段は再実行可能な idempotent consumer とし、append-only の入力から同じ rollup を再構築できること | 未実装 |
-| BE-CONV-01 | 成果の安定同一性 `conversion_key` は `(workspace_id, affiliate_account_id, import_source, source_record_id)`。source ID がない取込元だけ、状態を除く不変項目から source fingerprint を作る。`import_record_key` は原票1行の canonical hash とし、同一キー再送は no-op、同一 `conversion_key` の新しい原票は承認または支払の状態更新履歴として扱う。現在値は `approval_status ∈ {pending, approved, rejected, cancelled}` と `payment_status ∈ {not_eligible, unpaid, scheduled, paid, reversed}` の二軸で投影し、単一 `status` へ合成しない。`scheduled/paid` は `approval_status=approved` の場合だけ許可する | 未実装 |
-| BE-AUTH-01 | UI / REST / WebMCP / backend MCP は共通の use-case 境界を呼び、そこで `actor(type, id) + workspace_id + membership status + role` を認可する。actor と workspace は検証済み session/token から導出し、ツール引数を信用しない | 未実装 |
-| BE-MCP-01 | 現行 MCP は接続性検証用 PoC。製品版では BE-AUTH-01 を通る薄い adapter とし、§24.3 の resource/tool 契約、監査、確認必須操作、集計値のみの開示を通常 API と共有する | PoC のみ |
-
-### Delta
-
-1. BE-AUTH-01 を先に実装し、すべての repository query に workspace scope を必須化する。
-2. BE-CONV-01 の import command、idempotency ledger、判断・入金の状態履歴を実装する。現行 `record_conversion` の無条件 insert と単一 `status` は、移行後に二軸を扱う内部 command へ置換する。
-3. BE-ANA-01 を収集・正規化・rollup・分析の順に追加し、同じ KPI 契約を画面/API/MCPで使用する。
-4. 最後に BE-MCP-01 を PoC token 依存から actor-scoped credential に移行する。
-
-### Dependencies
-
-依存方向は `前提 → 後続` とする。
-
-- `DB-IDENTITY-01` / `DB-TENANT-01` + auth 章の session 方針 → BE-AUTH-01。
-- `DB-CONVERSION-01` + Commercial D1 + ASPごとの原票正規化規則 → BE-CONV-01。
-- `DB-PROJECTION-01` / `DB-KPI-01` + infrastructure の Queue / Cron / Redirect Resolver → BE-ANA-01。
-- BE-AUTH-01 + 各 use case → BE-MCP-01。MCP 固有ロジックから DB を直接操作しない。
-
-### Acceptance evidence
-
-- 同一取込ファイルを2回処理して成果件数・金額が増えず、後続の `approval_status` / `payment_status` 変更だけが同じ成果へ反映される自動テスト。
-- 異なる Workspace の actor が同じ resource ID を指定しても参照・変更できず、role 不足が拒否される API/MCP 共通の認可テスト。
-- 生イベントから rollup を全再計算した結果が増分集計と一致する fixture テスト。`approval_status=approved, payment_status=unpaid` では `revenue_approved` のみ、`payment_status=paid` への変更後は `revenue_paid` も計上され、承認報酬が二重加算されないこと。
-- MCP の tool call と通常 API が同一 use case / KPI 定義 / 監査記録を使うことを示す contract test。
-
-## 確定セルの記録 (正本 spec-state.json)
-
-> 本節は正本 `system-spec/spec-state.json` の `coverage_matrix.backend.web` が保持している確定内容の**転記**である。規範ではない。値が食い違ったら正本を正とする。
-
-| 項目 | 値 |
-|---|---|
-| セル | backend × web |
-| 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-seo-approved-diff-20260906` |
-| 資するゴール (serves_goals) | G2, G1 |
-| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
-| 出典 kind | written-requirements |
-| 出典 path | `docs/spec/04-二層構造統合仕様.md` |
-| 出典 節 | §3 WebMCP の確定契約 / §4 禁止依存 |
-| 出典 sha256 | `101ad27f5bf796c7180815bd2d1e582f9378b645c5aea9e9f1d65330af27b6ef` |
-| 適用された設計知識 (design_applications) | 10 件 — 本章 `## 適用された設計知識` を参照 |
-
-### 本節を「転記」に留めた理由
-
-C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は正本からの**転記**に留めてある。根拠となる 3 つの実測 (再生成で消える 374 行 / 正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が 8 件中 7 件で不一致) は `system-spec/database.md` の同名節に 1 か所だけ書いてある。**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
 
 ## 章にしか無い記述 (正本へ未接続)
 

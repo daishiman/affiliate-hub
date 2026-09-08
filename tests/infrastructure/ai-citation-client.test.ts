@@ -1,6 +1,6 @@
 /**
  * @tier 1
- * @req REQ-SEO08
+ * @req REQ-SEO10
  * @types equivalence, boundary, secrets
  *
  * 系統③（AI 検索での被引用チェック）の外側の口を確かめる。

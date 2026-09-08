@@ -1,4 +1,4 @@
-import { MIN_KEY_VALUE_LENGTH } from "@/domain/feedback";
+import { MIN_KEY_VALUE_LENGTH } from "@/domain/feedback/integration-access";
 
 /**
  * 取りに来るときの合言葉を作り、潰す。

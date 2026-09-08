@@ -1,0 +1,84 @@
+{
+  "epic_bd_issue_id": "ah-q4dt",
+  "feature_id": "feat-blog-metrics-rollup",
+  "children": [
+    {
+      "phase_ref": "P01",
+      "bd_issue_id": "ah-q4dt.1",
+      "status": "closed",
+      "title": "日次ロールアップの要求ベースライン確定"
+    },
+    {
+      "phase_ref": "P02",
+      "bd_issue_id": "ah-q4dt.2",
+      "status": "closed",
+      "title": "日次指標テーブルと冪等集計の契約確定"
+    },
+    {
+      "phase_ref": "P03",
+      "bd_issue_id": "ah-q4dt.3",
+      "status": "closed",
+      "title": "集計設計の独立レビューと着手可否判定"
+    },
+    {
+      "phase_ref": "P04",
+      "bd_issue_id": "ah-q4dt.4",
+      "status": "closed",
+      "title": "日次ロールアップの受入テスト設計"
+    },
+    {
+      "phase_ref": "P05",
+      "bd_issue_id": "ah-q4dt.5",
+      "status": "closed",
+      "title": "日次ロールアップ処理の実装"
+    },
+    {
+      "phase_ref": "P06",
+      "bd_issue_id": "ah-q4dt.6",
+      "status": "closed",
+      "title": "日次ロールアップのテスト実行と緑化"
+    },
+    {
+      "phase_ref": "P07",
+      "bd_issue_id": "ah-q4dt.7",
+      "status": "closed",
+      "title": "日次ロールアップの受入9件の判定"
+    },
+    {
+      "phase_ref": "P08",
+      "bd_issue_id": "ah-q4dt.8",
+      "status": "closed",
+      "title": "既存集計経路との重複解消と移行"
+    },
+    {
+      "phase_ref": "P09",
+      "bd_issue_id": "ah-q4dt.9",
+      "status": "closed",
+      "title": "日次ロールアップの非機能検査"
+    },
+    {
+      "phase_ref": "P10",
+      "bd_issue_id": "ah-q4dt.10",
+      "status": "closed",
+      "title": "日次ロールアップの最終レビュー"
+    },
+    {
+      "phase_ref": "P11",
+      "bd_issue_id": "ah-q4dt.11",
+      "status": "closed",
+      "title": "日次ロールアップの証跡集約"
+    },
+    {
+      "phase_ref": "P12",
+      "bd_issue_id": "ah-q4dt.12",
+      "status": "closed",
+      "title": "日次ロールアップの運用手順と数値定義の説明"
+    },
+    {
+      "phase_ref": "P13",
+      "bd_issue_id": "ah-q4dt.13",
+      "status": "closed",
+      "title": "日次ロールアップのリリースと仕様書への書き戻し"
+    }
+  ]
+}

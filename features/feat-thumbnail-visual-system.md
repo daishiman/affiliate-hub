@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-08T00:00:00Z","origin_kind":"generated","source_digest":"a60032df41060c1a2dd6de5258d1cdf5dc42883baf0590ea245454f0ee902e69","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-08T04:21:47Z","origin_kind":"generated","source_digest":"d4b7ab4761cc4b05233b29d284c9efe1019083d0deb0556d80104462b217c536","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望「各画面のサムネイルを表示する。トップ画面にもサムネイルを表示する」を C14 macro 分解で 1 feature 化。system-spec/ui-ux.md qa-request-thumbnail-coverage-v6 に接地。細分は system-dev-planner の P01..P13 へ委譲"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-thumbnail-visual-system.md","confidence":0.95}]

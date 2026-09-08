@@ -1,5 +1,8 @@
 export * from "./analytics";
 export * from "./authoring";
+export * from "./blog-domains";
+export * from "./blog-improvement";
+export * from "./blog-observability";
 export * from "./blog-ops";
 export * from "./common";
 export * from "./compliance";
@@ -15,4 +18,5 @@ export * from "./monetization";
 export * from "./product";
 export * from "./ranking";
 export * from "./seo-measurement";
+export * from "./seo";
 export * from "./telemetry";

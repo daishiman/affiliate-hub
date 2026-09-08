@@ -1,4 +1,4 @@
-/** @tier 3 @req REQ-SEO13 @types scenario, boundary, state-transition */
+/** @tier 3 @req REQ-SEO15 @types scenario, boundary, state-transition */
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";

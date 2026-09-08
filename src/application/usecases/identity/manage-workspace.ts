@@ -5,14 +5,7 @@ import type {
 } from "@/application/ports/identity";
 import type { AuditLogPort, DisclosureRepositoryPort } from "@/application/ports/compliance";
 import type { AuditAction } from "@/domain/compliance";
-import {
-  DISCLOSURE_SURFACES,
-  type DisclosureSurface,
-  type EditorialInfluence,
-  type RelationshipType,
-  relAttributeFor,
-  requiresDisclosure,
-} from "@/domain/compliance";
+import { DISCLOSURE_SURFACES, relAttributeFor, requiresDisclosure, type DisclosureSurface, type EditorialInfluence, type RelationshipType } from "@/domain/compliance/disclosure";
 import type { Brand, BrandVoice, WorkspacePlan } from "@/domain/identity";
 import {
   DEFAULT_BRAND_VOICE,
@@ -946,6 +939,20 @@ export const AUDIT_ACTION_LABEL: Readonly<Record<AuditAction, string>> = {
   // ここで 1 つにまとめると、一覧を読む人が差分を開くまで区別できなくなる。
   "blog_rating.hidden": "読者の評価を伏せた",
   "blog_rating.shown": "伏せた評価を読者に戻した",
+  // 住所（独自ドメイン）。写し取りだけ主語が機械なので、
+  // 「取り直した」と書いて人の操作と読み分けられるようにする。
+  "blog_domain.registered": "ブログの住所を登録した",
+  "blog_domain.synced": "ブログの住所の状態を取り直した",
+  "blog_domain.canonical_changed": "正規の住所を切り替えた",
+  "blog_domain.revoked": "ブログの住所を取り下げた",
+  // SEO。「回した」と「直さないと決めた」を別語にしてある。
+  "metrics_rollup.rebuilt": "日次集計を作り直した",
+  "seo_assessment.ran": "SEO 診断を回した",
+  "seo_finding.drafted": "指摘から下書きを作った",
+  "seo_finding.dismissed": "指摘を直さないと決めた",
+  // AEO。抽出は置き換えなので「取り直した」と書く。
+  "aeo_profile.changed": "AEO の構えを変えた",
+  "aeo_answer_units.extracted": "記事から引用単位を取り直した",
 };
 
 export type ListAuditLogInput = { readonly limit?: number };

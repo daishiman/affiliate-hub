@@ -167,6 +167,26 @@ const EXEMPT: Record<string, Exemption> = {
       "この要素はそれを受け取っている。ここが足しているのは見出し行の地色と太字だけで、" +
       "地色が均されても枠と太字が残る",
   },
+  // --- 地色を敷くことが目的で、輪郭を持たせると壊れる（3 件・2026-09-05）-----
+  "src/presentation/prose/prose.module.css :: .proseInkBg": {
+    measured: "2026-09-05。本文の一部に地色を敷く飾り (`prose-text.tsx` の `bg`)",
+    reason:
+      "**輪郭を持たせてはいけない側。**蛍光ペンで引いた線に枠を描く人はいない。" +
+      "1 文の途中で始まり途中で終わるので、枠を付けると**行をまたぐたびに角が生える**。" +
+      "区別は地色ではなく `--color-text-strong` との組で作ってあり、" +
+      "強制配色では地色が均されても字の太さと色が残る",
+  },
+  "src/presentation/prose/prose.module.css :: .proseCtaAction": {
+    measured: "2026-09-05。押しボタンの主な調子。`.proseCta` と必ず一緒に着る",
+    reason:
+      "**壊れていない。**枠は `.proseCta` が `--color-border-strong` の実線で持っている。" +
+      "ここが足しているのは地色と字色の組だけで、地色が均されても枠と形が残る。" +
+      "どのクラスが一緒に着せられるかは `prose-body.tsx` の `CTA_CLASS` にしか無い",
+  },
+  "src/presentation/prose/prose.module.css :: .proseCtaAccent": {
+    measured: "2026-09-05。押しボタンのそえる調子。同じ形",
+    reason: "同上。`.proseCta` の枠を受け取っている",
+  },
   "src/presentation/ui/primitives/ui.module.css :: .inputAuto": {
     measured: "2026-08-21。`textarea.tsx` / `input.tsx` の className を読んで確認",
     reason:
@@ -352,6 +372,9 @@ describe("面の地色だけで区別している規則は、理由つきで数�
     ).toStrictEqual([
       "src/app/admin/admin.module.css :: .densityNavRow",
       "src/app/admin/admin.module.css :: .densityNavRowFixed",
+      // 2026-09-05。行の中の地色 (`.proseInkBg`)。角を丸めているだけで、
+      // 輪郭は持っていない——**持たせてはいけない側**である。理由は `EXEMPT` に。
+      "src/presentation/prose/prose.module.css :: .proseInkBg",
       // **4 件目は手で数えたときに落としていた。**私は `.navLink` の
       // `border-radius` を 2026-08-21 に自分で読んでいて、それでもこの一覧へ
       // 書き写すときに 3 件にした。**②の誤差は、直した後でも同じ手つきで再発する。**
