@@ -1,6 +1,6 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { PolicyView, SitePage } from "@/presentation/ui";
-import { ReadFailureBody, SiteFrame } from "./page-frame";
+import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
 import { siteHref } from "./view-model";
 
 /**
@@ -24,6 +24,13 @@ export async function PolicyPage({
     key: documentKey,
   });
 
+  /*
+    文書の鍵は 6 本のルートに直書きなので、通常ここは通らない。それでも他の 4 箇所と
+    同じに書くのは、**ここだけ書き方が違うと「この画面は例外でよい」の前例になる**ため。
+    設計図から方針を消せる日が来たとき、この 1 行の有無で 200 に戻る。（項目 36）
+  */
+  if (!result.ok) stopIfMissing(result.error);
+
   return (
     <SiteFrame
       siteSlug={siteSlug}
@@ -36,7 +43,7 @@ export async function PolicyPage({
             <PolicyView paragraphs={result.value.body} />
           </SitePage>
         ) : (
-          <ReadFailureBody error={result.error} what="この文書" siteSlug={siteSlug} />
+          <ReadFailureBody what="この文書" siteSlug={siteSlug} />
         )
       }
     </SiteFrame>

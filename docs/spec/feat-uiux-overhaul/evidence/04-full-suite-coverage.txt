@@ -1,0 +1,663 @@
+
+ RUN  v4.1.10 /Users/dm/orca/workspaces/affiliate-hub/ui-ux調整
+      Coverage enabled with v8
+
+ ❯ tests/architecture/doc-source-version-gap.test.ts (12 tests | 2 failed) 9ms
+     × 版が取得日で埋まっている章は 4 つ——本物の版が入った日にこの検査が赤くなる 5ms
+     × 残る 4 章は本物の版を持っている（欄が全部壊れているわけではない） 0ms
+ ❯ tests/architecture/doctrine-citation-gap.test.ts (12 tests | 3 failed) 12ms
+     × 確定 8 章すべてが To-Be の要件文を持っている（数える対象が消えていない） 4ms
+     × 要件文は合計 40 文ある（数える対象が減ったら気づく） 2ms
+       × authority を引いていない実在の要件文は数えられない 1ms
+ ❯ tests/architecture/qa-scope-notes-coverage.test.ts (4 tests | 1 failed) 23ms
+     × 戻した論点は確定セルの qa_refs[] から引けている（指されないものは見えなくなる） 4ms
+ ❯ tests/architecture/generated-doc-freshness.test.ts (5 tests | 1 failed) 13ms
+     × test-traceability.md が名乗るテストファイルの数の古さが、許した分を超えていない 6ms
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts (113 tests | 42 failed) 36ms
+     × gap 1 の 2 節は 8 章すべてに載っている（旧 11 節の形を指す章は 0 件） 7ms
+       × 必須の節が名前と順序ごと残っている 1ms
+       × 表「To-Be」の本文行が 5 行以上ある 0ms
+       × 表「Acceptance evidence」の本文行が 6 行以上ある 0ms
+       × 本章での適用の原則が 2 件以上ある 0ms
+       × 確定回答が逐語のまま残っている（最短 321 字以上） 0ms
+       × 必須の節が名前と順序ごと残っている 0ms
+       × 本章での適用の原則が 2 件以上ある 0ms
+       × 行数が 292 以上 442 以下にある 2ms
+       × 必須の節が名前と順序ごと残っている 0ms
+       × 本章での適用の原則が 2 件以上ある 0ms
+       × 行数が 219 以上 369 以下にある 0ms
+       × 確定回答が逐語のまま残っている（最短 23 字以上） 0ms
+       × 必須の節が名前と順序ごと残っている 0ms
+       × 表「To-Be」の本文行が 5 行以上ある 0ms
+       × 表「Acceptance evidence」の本文行が 5 行以上ある 0ms
+       × 本章での適用の原則が 2 件以上ある 0ms
+       × 確定回答が逐語のまま残っている（最短 31 字以上） 0ms
+       × 必須の節が名前と順序ごと残っている 0ms
+       × 本章での適用の原則が 2 件以上ある 0ms
+       × 確定回答が逐語のまま残っている（最短 86 字以上） 0ms
+       × 必須の節が名前と順序ごと残っている 0ms
+       × 表「To-Be」の本文行が 8 行以上ある 0ms
+       × 表「Acceptance evidence」の本文行が 8 行以上ある 0ms
+       × 本章での適用の原則が 2 件以上ある 0ms
+       × 確定回答が逐語のまま残っている（最短 69 字以上） 0ms
+       × 必須の節が名前と順序ごと残っている 0ms
+       × 表「To-Be」の本文行が 6 行以上ある 4ms
+       × 表「Acceptance evidence」の本文行が 6 行以上ある 0ms
+       × 本章での適用の原則が 2 件以上ある 0ms
+       × 必須の節が名前と順序ごと残っている 1ms
+       × 表「To-Be」の本文行が 5 行以上ある 0ms
+       × 表「Acceptance evidence」の本文行が 5 行以上ある 0ms
+       × 本章での適用の原則が 2 件以上ある 0ms
+         × 非規範注記を消すと見つかる 0ms
+         × 非規範注記を消すと見つかる 0ms
+         × 非規範注記を消すと見つかる 0ms
+         × 非規範注記を消すと見つかる 0ms
+         × 非規範注記を消すと見つかる 0ms
+         × 非規範注記を消すと見つかる 0ms
+         × 非規範注記を消すと見つかる 0ms
+         × 非規範注記を消すと見つかる 0ms
+ ❯ tests/architecture/chapter-normative-body-unreproducible.test.ts (8 tests | 3 failed) 774ms
+     × 生成器出力に章の規範定義本文は 1 件も現れない（塞げない穴。塞がった日に赤くなる） 135ms
+     × 素の ID が出力に現れるのは、章を名指しした記録の中だけ（異なり数 上限 2） 188ms
+     × 規範定義本文は正本にも生成器ソースにも無い（『塞げない理由』の裏取り） 12ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 52 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/architecture/chapter-normative-body-unreproducible.test.ts > 章の規範本文は生成器で再現できない (REQ-TS15 / 塞げない穴の固定) > 生成器出力に章の規範定義本文は 1 件も現れない（塞げない穴。塞がった日に赤くなる）
+AssertionError: expected [ 'AUTH-ACC-001', …(64) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "AUTH-ACC-001",
++   "AUTH-ACC-002",
++   "AUTH-ACC-003",
++   "AUTH-ACC-004",
++   "AUTH-ACC-005",
++   "AUTH-REQ-001",
++   "AUTH-REQ-002",
++   "AUTH-REQ-003",
++   "AUTH-REQ-004",
++   "BE-ANA-01",
++   "BE-AUTH-01",
++   "BE-CONV-01",
++   "BE-MCP-01",
++   "DB-BOUNDARY-01",
++   "DB-CONSENT-01",
++   "DB-CONVERSION-01",
++   "DB-IDENTITY-01",
++   "DB-KPI-01",
++   "DB-PROJECTION-01",
++   "DB-STATE-01",
++   "DB-TENANT-01",
++   "FRONT-ACC-001",
++   "FRONT-ACC-002",
++   "FRONT-ACC-003",
++   "FRONT-ACC-004",
++   "FRONT-REQ-001",
++   "FRONT-REQ-002",
++   "FRONT-REQ-003",
++   "FRONT-REQ-004",
++   "INF-DB-01",
++   "INF-EVENT-01",
++   "INF-OBS-01",
++   "INF-REDIRECT-01",
++   "OPS-ACC-001",
++   "OPS-ACC-002",
++   "OPS-ACC-003",
++   "OPS-ACC-004",
++   "OPS-ACC-005",
++   "OPS-ACC-006",
++   "OPS-ACC-007",
++   "OPS-REQ-001",
++   "OPS-REQ-002",
++   "OPS-REQ-003",
++   "OPS-REQ-004",
++   "OPS-REQ-005",
++   "OPS-REQ-006",
++   "OPS-REQ-007",
++   "SEC-ACC-001",
++   "SEC-ACC-002",
++   "SEC-ACC-003",
++   "SEC-ACC-004",
++   "SEC-ACC-005",
++   "SEC-REQ-001",
++   "SEC-REQ-002",
++   "SEC-REQ-003",
++   "SEC-REQ-004",
++   "SEC-REQ-005",
++   "UIUX-ACC-001",
++   "UIUX-ACC-002",
++   "UIUX-ACC-003",
++   "UIUX-ACC-004",
++   "UIUX-REQ-001",
++   "UIUX-REQ-002",
++   "UIUX-REQ-003",
++   "UIUX-REQ-004",
++ ]
+
+ ❯ tests/architecture/chapter-normative-body-unreproducible.test.ts:298:24
+    296|       .map(([id]) => id)
+    297|       .sort();
+    298|     expect(reproduced).toEqual([]);
+       |                        ^
+    299|   });
+    300|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/52]⎯
+
+ FAIL  tests/architecture/chapter-normative-body-unreproducible.test.ts > 章の規範本文は生成器で再現できない (REQ-TS15 / 塞げない穴の固定) > 素の ID が出力に現れるのは、章を名指しした記録の中だけ（異なり数 上限 2）
+AssertionError: expected 65 to be less than or equal to 2
+ ❯ tests/architecture/chapter-normative-body-unreproducible.test.ts:310:29
+    308|
+    309|     const distinct = [...new Set(occurrences.flatMap((o) => o.ids))].s…
+    310|     expect(distinct.length).toBeLessThanOrEqual(QUOTED_ID_CAP);
+       |                             ^
+    311|
+    312|     // 上限と対。名指しの無い素の出現は 1 件でも不可。
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/52]⎯
+
+ FAIL  tests/architecture/chapter-normative-body-unreproducible.test.ts > 章の規範本文は生成器で再現できない (REQ-TS15 / 塞げない穴の固定) > 規範定義本文は正本にも生成器ソースにも無い（『塞げない理由』の裏取り）
+AssertionError: expected [ 'AUTH-ACC-001', …(62) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "AUTH-ACC-001",
++   "AUTH-ACC-002",
++   "AUTH-ACC-003",
++   "AUTH-ACC-004",
++   "AUTH-ACC-005",
++   "AUTH-REQ-001",
++   "AUTH-REQ-002",
++   "AUTH-REQ-003",
++   "AUTH-REQ-004",
++   "BE-ANA-01",
++   "BE-AUTH-01",
++   "BE-CONV-01",
++   "BE-MCP-01",
++   "DB-BOUNDARY-01",
++   "DB-CONVERSION-01",
++   "DB-IDENTITY-01",
++   "DB-KPI-01",
++   "DB-PROJECTION-01",
++   "DB-TENANT-01",
++   "FRONT-ACC-001",
++   "FRONT-ACC-002",
++   "FRONT-ACC-003",
++   "FRONT-ACC-004",
++   "FRONT-REQ-001",
++   "FRONT-REQ-002",
++   "FRONT-REQ-003",
++   "FRONT-REQ-004",
++   "INF-DB-01",
++   "INF-EVENT-01",
++   "INF-OBS-01",
++   "INF-REDIRECT-01",
++   "OPS-ACC-001",
++   "OPS-ACC-002",
++   "OPS-ACC-003",
++   "OPS-ACC-004",
++   "OPS-ACC-005",
++   "OPS-ACC-006",
++   "OPS-ACC-007",
++   "OPS-REQ-001",
++   "OPS-REQ-002",
++   "OPS-REQ-003",
++   "OPS-REQ-004",
++   "OPS-REQ-005",
++   "OPS-REQ-006",
++   "OPS-REQ-007",
++   "SEC-ACC-001",
++   "SEC-ACC-002",
++   "SEC-ACC-003",
++   "SEC-ACC-004",
++   "SEC-ACC-005",
++   "SEC-REQ-001",
++   "SEC-REQ-002",
++   "SEC-REQ-003",
++   "SEC-REQ-004",
++   "SEC-REQ-005",
++   "UIUX-ACC-001",
++   "UIUX-ACC-002",
++   "UIUX-ACC-003",
++   "UIUX-ACC-004",
++   "UIUX-REQ-001",
++   "UIUX-REQ-002",
++   "UIUX-REQ-003",
++   "UIUX-REQ-004",
++ ]
+
+ ❯ tests/architecture/chapter-normative-body-unreproducible.test.ts:347:23
+    345|       .map(([id]) => id)
+    346|       .sort();
+    347|     expect(reachable).toEqual([]);
+       |                       ^
+    348|   });
+    349|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > gap 1 の 2 節は 8 章すべてに載っている（旧 11 節の形を指す章は 0 件）
+AssertionError: expected [ 'auth', 'backend', 'database', …(5) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "auth",
++   "backend",
++   "database",
++   "frontend",
++   "infrastructure",
++   "maintenance-ops",
++   "security",
++   "ui-ux",
++ ]
+
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:420:25
+    418|       return !GAP1_SECTIONS.every((s) => sections.includes(s));
+    419|     }).map((c) => c.name);
+    420|     expect(withoutGap1).toEqual([]);
+       |                         ^
+    421|     expect(CHAPTERS.length).toBe(8); // 0 件の主張が母数 0 由来でないことを同じ it で示す
+    422|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 必須の節が名前と順序ごと残っている
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 必須の節が名前と順序ごと残っている
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 必須の節が名前と順序ごと残っている
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 必須の節が名前と順序ごと残っている
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 必須の節が名前と順序ごと残っている
+AssertionError: expected [ 'カテゴリ別収集状態', '確定内容 (質疑録)', …(3) ] to deeply equal [ '状態の意味 (State semantics)', …(12) ]
+
+- Expected
++ Received
+
+  [
+-   "状態の意味 (State semantics)",
+-   "As-Is",
+-   "To-Be",
+-   "Delta",
+-   "Dependencies",
+-   "Acceptance evidence",
+    "カテゴリ別収集状態",
+-   "確定セルの記録 (正本 spec-state.json)",
+-   "意思決定 (decisions)",
+    "確定内容 (質疑録)",
+    "上流指針 (doctrine anchor)",
+    "適用された設計知識",
+    "最新ドキュメント出典",
+  ]
+
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:447:26
+    445|
+    446|     it("必須の節が名前と順序ごと残っている", () => {
+    447|       expect(m.sections).toEqual([...ch.sections]);
+       |                          ^
+    448|     });
+    449|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「To-Be」の本文行が 5 行以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「To-Be」の本文行が 5 行以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「Acceptance evidence」の本文行が 5 行以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「To-Be」の本文行が 5 行以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「Acceptance evidence」の本文行が 5 行以上ある
+AssertionError: expected 0 to be greater than or equal to 5
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:461:33
+    459|
+    460|     it.each(ch.tables)("表「%s」の本文行が %i 行以上ある", (name, floor) => {
+    461|       expect(m.tableRows(name)).toBeGreaterThanOrEqual(floor);
+       |                                 ^
+    462|     });
+    463|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「Acceptance evidence」の本文行が 6 行以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「To-Be」の本文行が 6 行以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「Acceptance evidence」の本文行が 6 行以上ある
+AssertionError: expected 0 to be greater than or equal to 6
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:461:33
+    459|
+    460|     it.each(ch.tables)("表「%s」の本文行が %i 行以上ある", (name, floor) => {
+    461|       expect(m.tableRows(name)).toBeGreaterThanOrEqual(floor);
+       |                                 ^
+    462|     });
+    463|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 本章での適用の原則が 2 件以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 本章での適用の原則が 2 件以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 本章での適用の原則が 2 件以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 本章での適用の原則が 2 件以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 本章での適用の原則が 2 件以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 本章での適用の原則が 2 件以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 本章での適用の原則が 2 件以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 本章での適用の原則が 2 件以上ある
+AssertionError: expected 1 to be greater than or equal to 2
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:465:28
+    463|
+    464|     it(`本章での適用の原則が ${ch.principles} 件以上ある`, () => {
+    465|       expect(m.principles).toBeGreaterThanOrEqual(ch.principles);
+       |                            ^
+    466|     });
+    467|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 確定回答が逐語のまま残っている（最短 321 字以上）
+AssertionError: expected 28 to be greater than or equal to 321
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:475:34
+    473|     if (ch.answer !== null) {
+    474|       it(`確定回答が逐語のまま残っている（最短 ${ch.answer} 字以上）`, () => {
+    475|         expect(m.shortestAnswer).toBeGreaterThanOrEqual(ch.answer as n…
+       |                                  ^
+    476|       });
+    477|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 必須の節が名前と順序ごと残っている
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 必須の節が名前と順序ごと残っている
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 必須の節が名前と順序ごと残っている
+AssertionError: expected [ 'カテゴリ別収集状態', '確定内容 (質疑録)', …(3) ] to deeply equal [ '状態の意味と実装差分', 'カテゴリ別収集状態', …(6) ]
+
+- Expected
++ Received
+
+  [
+-   "状態の意味と実装差分",
+    "カテゴリ別収集状態",
+-   "確定セルの記録 (正本 spec-state.json)",
+-   "意思決定 (decisions)",
+    "確定内容 (質疑録)",
+    "上流指針 (doctrine anchor)",
+    "適用された設計知識",
+    "最新ドキュメント出典",
+  ]
+
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:447:26
+    445|
+    446|     it("必須の節が名前と順序ごと残っている", () => {
+    447|       expect(m.sections).toEqual([...ch.sections]);
+       |                          ^
+    448|     });
+    449|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 行数が 292 以上 442 以下にある
+AssertionError: expected 284 to be greater than or equal to 292
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:469:23
+    467|
+    468|     it(`行数が ${ch.lines} 以上 ${ch.lines + CEILING_MARGIN} 以下にある`, () => {
+    469|       expect(m.lines).toBeGreaterThanOrEqual(ch.lines);
+       |                       ^
+    470|       expect(m.lines).toBeLessThanOrEqual(ch.lines + CEILING_MARGIN);
+    471|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 行数が 219 以上 369 以下にある
+AssertionError: expected 215 to be greater than or equal to 219
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:469:23
+    467|
+    468|     it(`行数が ${ch.lines} 以上 ${ch.lines + CEILING_MARGIN} 以下にある`, () => {
+    469|       expect(m.lines).toBeGreaterThanOrEqual(ch.lines);
+       |                       ^
+    470|       expect(m.lines).toBeLessThanOrEqual(ch.lines + CEILING_MARGIN);
+    471|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 確定回答が逐語のまま残っている（最短 23 字以上）
+AssertionError: expected 15 to be greater than or equal to 23
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:475:34
+    473|     if (ch.answer !== null) {
+    474|       it(`確定回答が逐語のまま残っている（最短 ${ch.answer} 字以上）`, () => {
+    475|         expect(m.shortestAnswer).toBeGreaterThanOrEqual(ch.answer as n…
+       |                                  ^
+    476|       });
+    477|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 確定回答が逐語のまま残っている（最短 31 字以上）
+AssertionError: expected 28 to be greater than or equal to 31
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:475:34
+    473|     if (ch.answer !== null) {
+    474|       it(`確定回答が逐語のまま残っている（最短 ${ch.answer} 字以上）`, () => {
+    475|         expect(m.shortestAnswer).toBeGreaterThanOrEqual(ch.answer as n…
+       |                                  ^
+    476|       });
+    477|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 確定回答が逐語のまま残っている（最短 86 字以上）
+AssertionError: expected 15 to be greater than or equal to 86
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:475:34
+    473|     if (ch.answer !== null) {
+    474|       it(`確定回答が逐語のまま残っている（最短 ${ch.answer} 字以上）`, () => {
+    475|         expect(m.shortestAnswer).toBeGreaterThanOrEqual(ch.answer as n…
+       |                                  ^
+    476|       });
+    477|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「To-Be」の本文行が 8 行以上ある
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 表「Acceptance evidence」の本文行が 8 行以上ある
+AssertionError: expected 0 to be greater than or equal to 8
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:461:33
+    459|
+    460|     it.each(ch.tables)("表「%s」の本文行が %i 行以上ある", (name, floor) => {
+    461|       expect(m.tableRows(name)).toBeGreaterThanOrEqual(floor);
+       |                                 ^
+    462|     });
+    463|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > undefined > 確定回答が逐語のまま残っている（最短 69 字以上）
+AssertionError: expected 28 to be greater than or equal to 69
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:475:34
+    473|     if (ch.answer !== null) {
+    474|       it(`確定回答が逐語のまま残っている（最短 ${ch.answer} 字以上）`, () => {
+    475|         expect(m.shortestAnswer).toBeGreaterThanOrEqual(ch.answer as n…
+       |                                  ^
+    476|       });
+    477|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/52]⎯
+
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > 痩せた章を止められること > undefined > 非規範注記を消すと見つかる
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > 痩せた章を止められること > undefined > 非規範注記を消すと見つかる
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > 痩せた章を止められること > undefined > 非規範注記を消すと見つかる
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > 痩せた章を止められること > undefined > 非規範注記を消すと見つかる
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > 痩せた章を止められること > undefined > 非規範注記を消すと見つかる
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > 痩せた章を止められること > undefined > 非規範注記を消すと見つかる
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > 痩せた章を止められること > undefined > 非規範注記を消すと見つかる
+ FAIL  tests/architecture/chapter-regeneration-floor.test.ts > 8 章を再生成しても痩せないこと (C03 の事前の床) > 痩せた章を止められること > undefined > 非規範注記を消すと見つかる
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/architecture/chapter-regeneration-floor.test.ts:497:50
+    495|       it("非規範注記を消すと見つかる", () => {
+    496|         const cut = full.replace("**非規範・取得証跡なし・実装根拠に使用不可**", "参考");
+    497|         expect(measure(cut).hasNonNormativeNote).toBe(false);
+       |                                                  ^
+    498|       });
+    499|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/52]⎯
+
+ FAIL  tests/architecture/doc-source-version-gap.test.ts > 最新ドキュメント出典の欄が欄名どおりの値を持っていない (塞げていないことの固定) > 版が取得日で埋まっている章は 4 つ——本物の版が入った日にこの検査が赤くなる
+AssertionError: expected [ 'cloudflare-d1=2026-04-30', …(2) ] to deeply equal [ 'cloudflare-d1=2026-08-16', …(3) ]
+
+- Expected
++ Received
+
+  [
+-   "cloudflare-d1=2026-08-16",
+-   "cloudflare-workers=2026-08-16",
+-   "google-sre=2026-08-16",
+-   "apple-hig=2026-08-16",
++   "cloudflare-d1=2026-04-30",
++   "cloudflare-workers=2026-04-23",
++   "apple-hig=2026-08-06",
+  ]
+
+ ❯ tests/architecture/doc-source-version-gap.test.ts:134:58
+    132|   it("版が取得日で埋まっている章は 4 つ——本物の版が入った日にこの検査が赤くなる", () => {
+    133|     const dated = rows.filter((r) => looksLikeDate(r.version));
+    134|     expect(dated.map((r) => `${r.target}=${r.version}`)).toEqual([
+       |                                                          ^
+    135|       "cloudflare-d1=2026-08-16",
+    136|       "cloudflare-workers=2026-08-16",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/52]⎯
+
+ FAIL  tests/architecture/doc-source-version-gap.test.ts > 最新ドキュメント出典の欄が欄名どおりの値を持っていない (塞げていないことの固定) > 残る 4 章は本物の版を持っている（欄が全部壊れているわけではない）
+AssertionError: expected [ 'better-auth=1.7.1', …(4) ] to deeply equal [ 'better-auth=1.6.29', …(3) ]
+
+- Expected
++ Received
+
+  [
+-   "better-auth=1.6.29",
++   "better-auth=1.7.1",
+    "drizzle-orm=0.45.2",
+    "nextjs=16.3.1",
++   "google-sre=2017",
+    "owasp-asvs=5.0",
+  ]
+
+ ❯ tests/architecture/doc-source-version-gap.test.ts:144:62
+    142|   it("残る 4 章は本物の版を持っている（欄が全部壊れているわけではない）", () => {
+    143|     const versioned = rows.filter((r) => !looksLikeDate(r.version));
+    144|     expect(versioned.map((r) => `${r.target}=${r.version}`)).toEqual([
+       |                                                              ^
+    145|       "better-auth=1.6.29",
+    146|       "drizzle-orm=0.45.2",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/52]⎯
+
+ FAIL  tests/architecture/doctrine-citation-gap.test.ts > 上流指針の条項が要件文へ引かれていない (塞げていないことの固定) > 確定 8 章すべてが To-Be の要件文を持っている（数える対象が消えていない）
+AssertionError: auth.md の要件文: expected 0 to be greater than 0
+ ❯ tests/architecture/doctrine-citation-gap.test.ts:127:51
+    125|   it("確定 8 章すべてが To-Be の要件文を持っている（数える対象が消えていない）", () => {
+    126|     for (const { name, sentences } of perChapter) {
+    127|       expect(sentences.length, `${name}.md の要件文`).toBeGreaterThan(0);
+       |                                                   ^
+    128|     }
+    129|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/52]⎯
+
+ FAIL  tests/architecture/doctrine-citation-gap.test.ts > 上流指針の条項が要件文へ引かれていない (塞げていないことの固定) > 要件文は合計 40 文ある（数える対象が減ったら気づく）
+AssertionError: expected +0 to be 40 // Object.is equality
+
+- Expected
++ Received
+
+- 40
++ 0
+
+ ❯ tests/architecture/doctrine-citation-gap.test.ts:133:19
+    131|   it("要件文は合計 40 文ある（数える対象が減ったら気づく）", () => {
+    132|     const total = perChapter.reduce((sum, c) => sum + c.sentences.leng…
+    133|     expect(total).toBe(40);
+       |                   ^
+    134|   });
+    135|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/52]⎯
+
+ FAIL  tests/architecture/doctrine-citation-gap.test.ts > 上流指針の条項が要件文へ引かれていない (塞げていないことの固定) > 見つける側が効いていること（止まる例） > authority を引いていない実在の要件文は数えられない
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ tests/architecture/doctrine-citation-gap.test.ts:169:21
+    167|       const security = readFileSync(join(ROOT, "system-spec/security.m…
+    168|       const first = requirementSentences(security)[0];
+    169|       expect(first).toContain("SEC-REQ-001");
+       |                     ^
+    170|       expect(citesAuthority(first)).toBe(false);
+    171|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/52]⎯
+
+ FAIL  tests/architecture/generated-doc-freshness.test.ts > 生成物が古くなっていないこと > test-traceability.md が名乗るテストファイルの数の古さが、許した分を超えていない
+AssertionError: docs/product/test-traceability.md は「テストファイル」を 220 件と名乗っていますが、
+実際に数えると 228 件です（-8 件だけ少なく名乗っています）。
+  数え方: tests 配下の *.test.ts / *.test.tsx を再帰で数える
+
+  **指紋は合っています。**指紋は中身と自分自身の整合しか見ないので、
+  中身ごと古ければ緑になります。生成し直してください。
+
+許してある古さは 0 件までです。
+`node scripts/traceability.mjs` を走らせて生成し直してください。
+**KNOWN_STALE_MAX を上げて緑にしないこと。**上げた時点で、この検査は何も見なくなります。: expected 8 to be less than or equal to 0
+ ❯ tests/architecture/generated-doc-freshness.test.ts:162:7
+    160|         "**KNOWN_STALE_MAX を上げて緑にしないこと。**上げた時点で、この検査は何も見なくなります。",
+    161|       ].join("\n"),
+    162|     ).toBeLessThanOrEqual(KNOWN_STALE_MAX);
+       |       ^
+    163|   });
+    164| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/52]⎯
+
+ FAIL  tests/architecture/qa-scope-notes-coverage.test.ts > 確定セルの裏付け範囲は機械が読める > 戻した論点は確定セルの qa_refs[] から引けている（指されないものは見えなくなる）
+AssertionError: expected 2 to be less than or equal to 1
+ ❯ tests/architecture/qa-scope-notes-coverage.test.ts:314:33
+    312|     const referenced = new Set(cells.map((cell) => cell.qaRef));
+    313|     const unreferenced = multiSection.filter((id) => !referenced.has(i…
+    314|     expect(unreferenced.length).toBeLessThanOrEqual(UNREFERENCED_BUNDL…
+       |                                 ^
+    315|   });
+    316| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/52]⎯
+
+
+ Test Files  6 failed | 222 passed (228)
+      Tests  52 failed | 5447 passed (5499)
+   Start at  04:18:14
+   Duration  39.98s (transform 15.86s, setup 4.04s, import 93.22s, tests 183.76s, environment 4.94s)
+
+ % Coverage report from v8
+
+=============================== Coverage summary ===============================
+Statements   : 89.32% ( 9541/10681 )
+Branches     : 81.61% ( 6937/8500 )
+Functions    : 89.06% ( 2655/2981 )
+Lines        : 91.61% ( 8602/9389 )
+================================================================================
+exit=1

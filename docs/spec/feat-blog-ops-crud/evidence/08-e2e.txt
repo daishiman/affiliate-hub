@@ -1,0 +1,29 @@
+$ npx playwright test
+
+ing-hit-targets.spec.ts:90:7 › admin/settings/workspaces/page.tsx の下限を宣言したリンクは実寸も基準を満たす (440ms)
+  ✓  343 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (394ms)
+  ✓  344 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/advertising-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす (1.3s)
+  ✓  345 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/ai-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす (688ms)
+  ✓  346 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/authors/[author]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (585ms)
+  ✓  347 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/best/[topic]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (560ms)
+  ✓  348 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/blog/page.tsx の下限を宣言したリンクは実寸も基準を満たす (285ms)
+  ✓  349 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/blog/[article]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (254ms)
+  ✓  350 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/categories/[category]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (255ms)
+  ✓  351 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/compare/[comparison]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (304ms)
+  ✓  352 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/contact/page.tsx の下限を宣言したリンクは実寸も基準を満たす (245ms)
+  ✓  353 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/corrections/page.tsx の下限を宣言したリンクは実寸も基準を満たす (1.4s)
+  ✓  354 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/editorial-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす (387ms)
+  ✓  355 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/experts/[expert]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (511ms)
+  ✓  356 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/guides/[topic]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (481ms)
+  ✓  357 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/measurement/page.tsx の下限を宣言したリンクは実寸も基準を満たす (289ms)
+  ✓  358 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/methodology/page.tsx の下限を宣言したリンクは実寸も基準を満たす (753ms)
+  ✓  359 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/privacy/page.tsx の下限を宣言したリンクは実寸も基準を満たす (595ms)
+  ✓  360 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/reviews/[product]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (750ms)
+  ✓  361 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/search/page.tsx の下限を宣言したリンクは実寸も基準を満たす (285ms)
+  ✓  362 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/shortlist/page.tsx の下限を宣言したリンクは実寸も基準を満たす (344ms)
+  ✓  363 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/terms/page.tsx の下限を宣言したリンクは実寸も基準を満たす (262ms)
+  ✓  364 [mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/tools/[tool]/page.tsx の下限を宣言したリンクは実寸も基準を満たす (408ms)
+
+  364 passed (4.3m)
+
+[exited with code 0]

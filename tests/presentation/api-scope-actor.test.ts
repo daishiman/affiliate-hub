@@ -58,13 +58,46 @@ function sameOriginCall(tool: string, body: unknown = {}): Request {
   });
 }
 
-/** 鍵を持った呼び出し（ブラウザ以外。Origin は付かない）。 */
-function bearerCall(tool: string, body: unknown = {}): Request {
+/** 門の合言葉だけを持った呼び出し（ブラウザ以外。Origin は付かない）。 */
+function bearerCall(tool: string, body: unknown = {}, extraHeaders: Record<string, string> = {}): Request {
   return new Request(`https://hub.test/api/tools/${tool}`, {
     method: "POST",
-    headers: { "content-type": "application/json", authorization: "Bearer test-token" },
+    headers: {
+      "content-type": "application/json",
+      authorization: "Bearer test-token",
+      ...extraHeaders,
+    },
     body: JSON.stringify(body),
   });
+}
+
+const KEY_PLAIN = "integration-key-for-tests-0123456789abcdef";
+
+/**
+ * 見本の作業場所に、読み取りの鍵を 1 本置く。
+ *
+ * `tryGetDb()` が届かない試験環境では、鍵の保存先は見本の実装になる。
+ * 置いた鍵は `vi.resetModules()` で消えるので、必要な試験ごとに置き直す。
+ */
+async function seedReadKey(): Promise<string> {
+  const { issueIntegrationKey } = await import("@/domain/feedback");
+  const { asIntegrationKeyId, asWorkspaceId } = await import("@/domain/shared");
+  const { hashSecret } = await import("@/infrastructure/platform/secret-minter");
+  const { seedIntegrationKey } = await import(
+    "@/infrastructure/persistence/sample/feedback-sample-repository"
+  );
+  const built = issueIntegrationKey({
+    id: asIntegrationKeyId("key_test"),
+    workspaceId: asWorkspaceId("ws_sample"),
+    label: "試験用の鍵",
+    hashedValue: await hashSecret(KEY_PLAIN),
+    scopes: ["read"],
+    createdBy: "tester",
+    at: new Date("2026-08-01T00:00:00Z"),
+  });
+  if (!built.ok) throw new Error(built.error.message);
+  seedIntegrationKey(built.value);
+  return "ws_sample";
 }
 
 function params(tool: string) {
@@ -177,6 +210,22 @@ describe("鍵を持った呼び出しは変わらない", () => {
 
     expect(await codeOf(res)).toBe("FORBIDDEN");
   });
+
+  /**
+   * `ah-p9e` で決めたことの実物。**門と身元は別の見出しで名乗る。**
+   * `Authorization: Bearer <MCP_TOKEN>` は「叩いてよい相手か」だけを通し、
+   * 「どの作業場所の誰か」は `X-Integration-Key` の鍵から決まる。
+   */
+  it("鍵を添えた Bearer は、その鍵の作業場所として管理用の読み取りが通る", async () => {
+    await seedReadKey();
+    const route = await import("@/app/api/tools/[tool]/route");
+    const res = await route.POST(
+      bearerCall("list_feedback", {}, { "x-integration-key": KEY_PLAIN }),
+      params("list_feedback"),
+    );
+
+    expect(await codeOf(res)).not.toBe("FORBIDDEN");
+  });
 });
 
 describe("身元の決め方そのもの（口を 1 行触らずに穴が開くのを止める）", () => {
@@ -189,7 +238,51 @@ describe("身元の決め方そのもの（口を 1 行触らずに穴が開く�
 
     // 口の側の検査だけだと「たまたま今は閉じている」しか言えない。
     // 身元の決め方が見本へ戻されたら、route.ts を 1 行も触らずに穴が開く。
-    expect(await actorForScope("same-origin")).toEqual(readerActor());
+    expect(await actorForScope("same-origin", sameOriginCall("search_articles"))).toEqual(
+      readerActor(),
+    );
+  });
+
+  it("鍵の無い Bearer の身元は、見本ではなく読者になる", async () => {
+    const { actorForScope, readerActor } = await import("@/presentation/composition");
+    const { SAMPLE_ACTOR } = await import("@/infrastructure/identity/sample-actor");
+
+    const actor = await actorForScope("bearer", bearerCall("list_feedback"));
+    // ここが `currentActor()` へ戻ると見本になり、3 件の課題が同時に元へ戻る。
+    expect(actor).toEqual(readerActor());
+    expect(actor.workspaceId).not.toBe(SAMPLE_ACTOR.workspaceId);
+  });
+
+  it("通らない鍵を添えた Bearer も、見本ではなく読者になる", async () => {
+    const { actorForScope, readerActor } = await import("@/presentation/composition");
+
+    const actor = await actorForScope(
+      "bearer",
+      bearerCall("list_feedback", {}, { "x-integration-key": "no-such-key-0123456789abcdef" }),
+    );
+    expect(actor).toEqual(readerActor());
+  });
+
+  it("鍵を添えた Bearer の身元は、鍵の作業場所の ai_service_account になる", async () => {
+    const workspaceId = await seedReadKey();
+    const { actorForScope } = await import("@/presentation/composition");
+
+    const actor = await actorForScope(
+      "bearer",
+      bearerCall("list_feedback", {}, { "x-integration-key": KEY_PLAIN }),
+    );
+
+    // 受入条件の 1 つ目。記録に残す材料が身元そのものに入っていること
+    // （どの作業場所か・どの鍵か）。
+    expect(actor.workspaceId).toBe(workspaceId);
+    expect(actor.userId).toContain("試験用の鍵");
+    expect(actor.roles).toEqual(["ai_service_account"]);
+    expect(actor.isAiServiceAccount).toBe(true);
+    expect(actor.identified).toBe(true);
+
+    // 受入条件の 2 つ目。鍵の作業場所以外へは広がらない。
+    const { SAMPLE_ACTOR } = await import("@/infrastructure/identity/sample-actor");
+    expect(actor.roles).not.toEqual(SAMPLE_ACTOR.roles);
   });
 
   it("見本の身元は、書き込みの役を 1 つも持たない", async () => {

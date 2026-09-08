@@ -1,15 +1,6 @@
 import type { MetricsRepositoryPort } from "@/application/ports/analytics";
-import {
-  type FeedbackTarget,
-  type MetricCategory,
-  type MetricKey,
-  type MetricSample,
-  DEFAULT_METRICS_WINDOW_DAYS,
-  METRIC_DEFINITIONS,
-  allowedMetricsFor,
-  assertFeedbackAllowed,
-  metricDefinition,
-} from "@/domain/analytics";
+import { allowedMetricsFor, assertFeedbackAllowed, type FeedbackTarget } from "@/domain/analytics/feedback-policy";
+import { DEFAULT_METRICS_WINDOW_DAYS, METRIC_DEFINITIONS, metricDefinition, type MetricCategory, type MetricKey, type MetricSample } from "@/domain/analytics/metrics";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

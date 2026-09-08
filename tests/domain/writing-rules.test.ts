@@ -1,22 +1,29 @@
 /**
  * @tier 1
- * @req REQ-QC01, REQ-QC08, REQ-QC10, REQ-W01, REQ-W09, REQ-W10
+ * @req REQ-QC01, REQ-QC08, REQ-QC10, REQ-W01, REQ-W09, REQ-W10, REQ-S06
  * @types equivalence, boundary, decision-table
  */
 import { describe, expect, it } from "vitest";
 import {
   ARTICLE_TYPES,
+  REVENUE_MODELS,
+  REVENUE_MODEL_LABEL,
+  SITE_PATTERNS,
+  SITE_PATTERN_LABEL,
+  STANDARD_PAGES,
   COMMON_ARTICLE_SECTIONS,
   CONVERSATION_MAX_LENGTH,
   CONVERSATION_MIN_LENGTH,
   MAX_CONSECUTIVE_BLOCKS,
   MIN_DIFFERENT_AXES,
+  SAME_AXIS_SIMILARITY,
   type ConversationBlock,
   type DifferentiationAxes,
   createConversationBlock,
   differentiationGap,
   missingSections,
   requiredSectionsFor,
+  similarity,
   validateConversationFlow,
 } from "@/domain/authoring";
 import { taggedString } from "@/domain/shared";
@@ -50,9 +57,206 @@ function block(
   return { ...result.value, ...overrides };
 }
 
+/**
+ * 仕様 §8 の共通骨格 25 節を、**並び順・名前・必須かどうかまで手で書き写した表**。
+ *
+ * `COMMON_ARTICLE_SECTIONS` から作らないこと。作ると、節を書き換えても
+ * 書き換わったほうの一覧を回して緑を返す
+ * （`tests/domain/article-type-sections.test.ts` が型ごとの節で同じ形にしてある）。
+ *
+ * **2026-08-21 まで、この骨格には「25 件ある」という数の検査しか無かった。**
+ * 25 件のうち名前が挙がっていたのは `disclosure` / `cons` / `sources` /
+ * `correction_report` の 4 つだけで、残り 21 節は**必須を任意へ落としても緑**だった
+ * （実測: `alternatives` と `update_log` を `required: false` にして
+ * `tests/domain` / `tests/application` / `tests/presentation` の 2821 件が緑のまま）。
+ * 必須が任意へ落ちると、その節が無いまま公開ゲートを通る。
+ * 数だけを見る検査は、**入れ替えと格下げのどちらも見ていない**。
+ */
+const EXPECTED_COMMON: readonly (readonly [string, string, boolean])[] = [
+  ["breadcrumb", "パンくず", true],
+  ["disclosure", "広告・アフィリエイト表記", true],
+  ["h1", "タイトル", true],
+  ["one_sentence_conclusion", "一文の結論", true],
+  ["dates", "公開日・更新日・検証日", true],
+  ["byline", "著者・編集者・監修者", true],
+  ["target_audience", "対象読者", false],
+  ["suitable_for", "向いている人", true],
+  ["not_suitable_for", "向いていない人", true],
+  ["pros", "主要なメリット", true],
+  ["cons", "主要なデメリット", true],
+  ["quick_comparison", "簡易比較", false],
+  ["toc", "目次", true],
+  ["how_to_choose", "選び方または評価方法", true],
+  ["body", "根拠付き本文", true],
+  ["measurements", "実測・体験・引用", false],
+  ["conversation", "会話ブロック", false],
+  ["alternatives", "代替候補", true],
+  ["faq", "FAQ", true],
+  ["final_conclusion", "最終結論", true],
+  ["merchant_options", "販売店の選択肢", false],
+  ["sources", "出典", true],
+  ["update_log", "更新履歴", true],
+  ["correction_report", "訂正報告", true],
+  ["author_profile", "著者情報", true],
+];
+
+/**
+ * ブログに置く固定ページの一覧。
+ *
+ * ここを足した理由。**この一覧から 1 項目抜いても、22 項目のどれを抜いても
+ * 8003 件すべて緑だった**（実測、2026-08-28）。`STANDARD_PAGES` を名前で見ている
+ * 検査が 1 件も無く、`StandardPage` 型の materialize 先としてしか使われていなかった。
+ * 一覧が黙って縮むと、**型のほうも一緒に縮む**ので、消えたページを指す設計図は
+ * 「そんなページは無い」として型で弾かれる——つまり広告ポリシーや訂正の
+ * ページごと落としても、誰も止めない状態だった。
+ *
+ * **期待値を実装から組み立てない。**仕様の並びを手で書き写して突き合わせる。
+ * `[...STANDARD_PAGES]` と比べる書き方だと、一覧が縮むと期待値も一緒に縮む。
+ */
+describe("固定ページの品ぞろえ", () => {
+  /**
+   * `docs/spec/01-要求仕様書-v1.0.md` §16.3 の 20 行を上から順に写したもの。
+   * 末尾 2 本（`search` / `shortlist`）だけは §16.3 に無く、
+   * `docs/spec/ai-first-webmcp.md` §7 の情報アーキテクチャが `/search` `/shortlist`
+   * として並べている。出典が違うので、ここで分けて書いておく。
+   */
+  const EXPECTED_PAGES = [
+    "home",
+    "category",
+    "ranking",
+    "review",
+    "comparison",
+    "how_to_choose",
+    "beginner_guide",
+    "faq",
+    "glossary",
+    "tools",
+    "authors",
+    "experts",
+    "methodology",
+    "editorial_policy",
+    "advertising_policy",
+    "ai_policy",
+    "corrections",
+    "contact",
+    "privacy",
+    "terms",
+    // ここから下は ai-first-webmcp.md §7 由来。
+    "search",
+    "shortlist",
+  ];
+
+  it("固定ページは、仕様が並べた 22 種が順番どおりにそろっている", () => {
+    expect([...STANDARD_PAGES]).toEqual(EXPECTED_PAGES);
+  });
+
+  /**
+   * ブログパターン 10 種。
+   *
+   * ここを足した理由。**この一覧から 1 項目抜いても 10 項目のうち 9 項目までが
+   * 8005 件すべて緑だった**（実測、2026-08-28。赤くなったのは `beginner_guide` だけ）。
+   * 「複数ブログ対応を分岐やコピーで作らない」（§16.1）の受け皿がこの一覧なので、
+   * 型が縮めば「そのパターンのブログは作れない」に静かに変わる。
+   *
+   * 表示名の側も一緒に見る。実装が「**ここが唯一の正本**」と名乗っているのに、
+   * 一覧と表示名が別々に縮んだら、作るときと見るときで呼び名が食い違う。
+   */
+  it("ブログパターンは、仕様 §16.1 の表の 10 種が順番どおりにそろっている", () => {
+    // `docs/spec/01-要求仕様書-v1.0.md` §16.1 の表を上から。実装から輸入しない。
+    const expected = [
+      ["specialist_review", "専門レビュー型"],
+      ["comparison_lab", "比較研究所型"],
+      ["beginner_guide", "初心者案内型"],
+      ["personal_brand", "個人ブランド型"],
+      ["product_discovery", "商品発見型"],
+      ["service_signup", "サービス申込み型"],
+      ["tool", "ツール型"],
+      ["editorial_media", "メディア編集部型"],
+      ["story", "ストーリー型"],
+      ["database", "データベース型"],
+    ];
+    expect([...SITE_PATTERNS]).toEqual(expected.map(([key]) => key));
+    // 表示名は「唯一の正本」を名乗っている。キーの順も名前も表と合っていること。
+    expect(Object.entries(SITE_PATTERN_LABEL)).toEqual(expected);
+  });
+
+  /**
+   * 収益モデル 5 種。
+   *
+   * ここを足した理由。**5 項目のうち 4 項目は、抜いても 8007 件すべて緑だった**
+   * （実測、2026-08-28。赤くなったのは `affiliate` だけ）。収益モデルは
+   * ブログの構成と CTA の既定値を決めるので、静かに 1 つ消えると
+   * 「そのモデルのブログは作れない」に変わる。
+   *
+   * **仕様と実装が食い違っている。**`docs/spec/06-サイトブループリント-記事構成テンプレート.md`
+   * の step 5 は `enum[アフィリエイト, 広告, 自社商品, 複合]` の **4 種**で、
+   * 実装にある `lead`（問い合わせの送客）が仕様側に無い。どちらが正かは
+   * 決められないので、ここでは実装の 5 種を手で書き写して固定し、
+   * 食い違いは `docs/product/traceability.md` の REQ-E06 へ書き出す。
+   * **一覧が静かに縮むのを止めるのと、出典のずれを表に出すのは別の作業。**
+   */
+  it("収益モデルは、5 種が順番どおりにそろっている（表示名も同じ並び）", () => {
+    const expected = [
+      ["affiliate", "成果報酬の紹介"],
+      ["ad", "広告の掲載"],
+      ["lead", "問い合わせの送客"], // ← 仕様 §06 step 5 に無い。上のコメントを参照。
+      ["own_product", "自社の商品"],
+      ["mixed", "組み合わせ"],
+    ];
+    expect([...REVENUE_MODELS]).toEqual(expected.map(([key]) => key));
+    expect(Object.entries(REVENUE_MODEL_LABEL)).toEqual(expected);
+  });
+
+  it("信頼のために必ず要る 8 ページが、固定ページの一覧から落ちていない", () => {
+    /*
+     * `TRUST_REQUIRED_PAGES` は公開ゲート（compliance）が検査する一覧で、
+     * 中身は `StandardPage` でなければならない。**片方だけ縮むと、
+     * 検査が「無いページ」を探し続けて永久に通らない／逆に素通りする。**
+     * ここは名前を書き写して、両方に居ることを見る。
+     */
+    for (const page of [
+      "authors",
+      "methodology",
+      "editorial_policy",
+      "advertising_policy",
+      "ai_policy",
+      "corrections",
+      "contact",
+      "privacy",
+    ]) {
+      expect(EXPECTED_PAGES, `${page} が書き写した表から落ちています`).toContain(page);
+      expect([...STANDARD_PAGES], `${page} が固定ページの一覧から落ちています`).toContain(page);
+    }
+  });
+});
+
 describe("記事の骨格", () => {
   it("共通の骨格は 25 節（仕様 §8 の数）", () => {
     expect(COMMON_ARTICLE_SECTIONS).toHaveLength(25);
+    // 書き写した表のほうも 25 行であること。表が痩せると上の数と一緒にずれる。
+    expect(EXPECTED_COMMON).toHaveLength(25);
+  });
+
+  it("25 節が、並び順も名前も必須かどうかも仕様 §8 のとおり", () => {
+    expect(COMMON_ARTICLE_SECTIONS.map((s) => [s.id, s.label, s.required])).toEqual(
+      EXPECTED_COMMON.map((r) => [...r]),
+    );
+  });
+
+  it("必須と書いた 20 節は、どの記事の型でも必須一覧に残る（黙って任意へ落ちない）", () => {
+    /*
+     * 上の 1 件は一覧そのものの形を見る。こちらは**公開ゲートが読む側**を見る。
+     * `required` を任意へ落とすと、一覧の形は「そう書いてある」だけになり、
+     * 節が無いまま公開できる状態が実際に生まれる。
+     */
+    const mustBeRequired = EXPECTED_COMMON.filter(([, , req]) => req).map(([id]) => id);
+    expect(mustBeRequired).toHaveLength(20);
+    for (const type of ARTICLE_TYPES) {
+      const required = requiredSectionsFor(type);
+      for (const id of mustBeRequired) {
+        expect(required, `${type} で ${id} が必須一覧から落ちています`).toContain(id);
+      }
+    }
   });
 
   it("節の名前が重複していない", () => {
@@ -204,6 +408,39 @@ describe("吹き出し", () => {
     );
     expect(issues).toEqual([]);
   });
+
+  /**
+   * **話者は 4 役だけ（ブログ層 §11）。**
+   *
+   * `SpeakerRole` は型のうえの直和で、実行時の一覧をどこにも持っていない。
+   * 2026-08-21 に測ったところ、5 つ目の役（`"sponsor_message"`）を足しても
+   * **2836 件が緑のまま**通った。`SpeakerRole` は `conversation-block.ts` の外から
+   * 1 度も参照されておらず、足した役は
+   * `validateConversationFlow` のどの分岐にも当たらない
+   * ＝**本文の裏付けを 1 度も問われない話者**が生まれる（`W03` 型）。
+   *
+   * 下の表はその実行時の一覧を兼ねる。`Record<SpeakerRole, …>` にしてあるので、
+   * 役が増えれば `pnpm exec tsc --noEmit` が鍵の不足で落ち、
+   * 役が減れば余分な鍵で落ちる。値のほうは実際に流して突き合わせる。
+   */
+  const SPEAKER_NEEDS_FACT_IN_BODY: Readonly<Record<ConversationBlock["role"], boolean>> = {
+    reader_question: false, // 疑問は事実ではない
+    guide_answer: false, // 要約と次の行動。事実そのものは本文が持つ
+    reviewer_note: true, // 検証した人の感想。根拠が吹き出しだけに残ってはいけない
+    expert_caution: true, // 専門性に基づく注意。同上
+  };
+
+  it("話者は 4 役で、役ごとに「本文の裏付けが要るか」が決まっている", () => {
+    const roles = Object.keys(SPEAKER_NEEDS_FACT_IN_BODY) as ConversationBlock["role"][];
+    expect(roles).toHaveLength(4);
+    for (const role of roles) {
+      const issues = validateConversationFlow([block(role, { factAlsoInBody: false })], {
+        hasVerifiedExpert: true,
+      });
+      const stopped = issues.some((i) => i.message.includes("本文にありません"));
+      expect(stopped, `${role} の扱いが表と違います`).toBe(SPEAKER_NEEDS_FACT_IN_BODY[role]);
+    }
+  });
 });
 
 describe("似たブログを増やさない", () => {
@@ -219,6 +456,34 @@ describe("似たブログを増やさない", () => {
     internalLinkStrategy: "用途別ページへ送る",
     ctaStrategy: "価格確認へ送る",
   };
+
+  /**
+   * 軸を「同じ」とみなす近さの物差しが、実際に効いている。
+   *
+   * ここを足した理由。**`SAME_AXIS_SIMILARITY` を 0.5 から 0.1 へ**緩める向き**に
+   * 動かしても 7990 件すべて緑だった**（実測、2026-08-28）。この定数を見ている検査が
+   * 1 件も無く、下の 4 件はどれも**境目から遠い**ペアしか渡していなかった——
+   * 言い換えのペアは類似度が高く、離れた軸のペアは `similarity()` が 0 を返すので、
+   * しきい値を 0.1 まで下げても、どちらの側も動かない。
+   * 「単なる言い換え記事を量産しない」（§16.6）を止めているのはこの数なので、
+   * 下げ放題では要件が名指しで禁じたものが通る。
+   */
+  it("軸を「同じ」とみなす近さの物差しが、決めた 0.5 で効いている", () => {
+    /** `docs/spec/05-文章作成メソッド仕様.md` §6-1 が名乗る数。実装から輸入しない。 */
+    const DECLARED_SAME_AXIS_SIMILARITY = 0.5;
+    expect(SAME_AXIS_SIMILARITY, "軸の近さの物差しが動いている").toBe(
+      DECLARED_SAME_AXIS_SIMILARITY,
+    );
+
+    // 送り仮名だけを変えた言い換え。**この近さが境目の上に居ることを実際に測る。**
+    // 上に居るからこそ「違う軸ではない」と数えられる。ここが下回った日に、
+    // 言い換えだけのブログが `sufficient: true` へ通る。
+    const paraphrase = similarity("候補を 3 つに絞る", "候補を 3 つにしぼる");
+    expect(paraphrase).toBeGreaterThanOrEqual(DECLARED_SAME_AXIS_SIMILARITY);
+    expect(
+      differentiationGap(base, { ...base, articlePurpose: "候補を 3 つにしぼる" }).differentAxes,
+    ).toEqual([]);
+  });
 
   it("言い換えただけのブログは足せない", () => {
     const gap = differentiationGap(base, { ...base, articlePurpose: "候補を 3 つにしぼる" });

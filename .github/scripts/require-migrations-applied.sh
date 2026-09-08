@@ -11,6 +11,16 @@
 #
 # 決めごとを人の記憶に預けるのをやめ、機械に見張らせるのがこのファイルである。
 #
+# 未適用だったときにどうするかは `PENDING_ACTION` で切り替える:
+#   fail   … 落とす（既定。**本番はこれ以外を使わない**）
+#   report … 書き出して通す。dev で「このあと自分で適用する」と決まっているときだけ
+#
+# `report` を足したのは、dev で公開の前に自動適用するようにしたからである。
+# 自動適用の**前**に置く見張りは、未適用を見つけても落としてはいけない。
+# 落とすと、直そうとしている当のステップへ辿り着けない。
+# **`report` が緩めるのは pending だけで、`unknown` は変わらず落とす。**
+# 「測れなかった」を通す道はどちらの設定でも作らない。
+#
 # 手元でも同じように実行できる:
 #   D1_ENV=dev bash .github/scripts/require-migrations-applied.sh
 #
@@ -19,6 +29,14 @@ set -euo pipefail
 
 if [ -z "${D1_ENV:-}" ]; then
   echo "::error::D1_ENV が設定されていません（dev または production）。"
+  exit 1
+fi
+
+# 既定は落とすほう。**書き忘れたら厳しい側に倒れる**ようにしてある。
+# 逆にすると、変数を書き損じた回だけ見張りが消えて、しかも緑で気づけない。
+pending_action="${PENDING_ACTION:-fail}"
+if [ "$pending_action" != "fail" ] && [ "$pending_action" != "report" ]; then
+  echo "::error::PENDING_ACTION には fail か report を指定してください（入力値: '${pending_action}'）。"
   exit 1
 fi
 
@@ -90,6 +108,10 @@ case "$verdict" in
     echo "未適用の移行はありません（${D1_ENV}）。公開へ進みます。"
     ;;
   pending)
+    if [ "$pending_action" = "report" ]; then
+      echo "::notice::${D1_ENV} に未適用の移行があります。このあとの自動適用で合わせます。"
+      exit 0
+    fi
     echo "::error::${D1_ENV} に未適用の移行が残っています。先に「データの形の変更」を実行してください。"
     echo "  gh workflow run migrate.yml -f environment=${D1_ENV} -f confirm=APPLY"
     exit 1

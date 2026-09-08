@@ -1,0 +1,28 @@
+/*
+  DiagramFallback 専用。affiliate 文脈に依存しない汎用パターンなので、
+  affiliate-preview.module.css からは切り離してある。
+  （汎用部品が affiliate 用の CSS を引き摺ると、affiliate と無関係な画面でも
+  無関係な規則が読み込まれる。）
+*/
+.diagram {
+  display: grid;
+  gap: var(--space-2);
+  align-content: center;
+  place-items: center;
+  min-height: calc(var(--space-8) + var(--space-8) + var(--space-6));
+  padding: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.diagram svg {
+  width: min(100%, var(--layout-sidebar-width));
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}

@@ -419,15 +419,32 @@ describe("主張が使える期間の境目", () => {
 // ---------------------------------------------------------------------------
 
 describe("同じ商品かどうかの境目", () => {
+  /**
+   * 決めた数を手で書き写す。**`NAME_SIMILARITY_THRESHOLD` から入力を組み立てない。**
+   *
+   * ここを直した理由。**0.92 を 0.999 にしても 0.52 にしても 7990 件すべて緑だった**
+   * （実測、2026-08-28）。下の 2 件は `matchIdentity(..., NAME_SIMILARITY_THRESHOLD)` と
+   * `- 0.0001` で入力を作っていたので、**しきい値をいくつに変えても入力が
+   * 常にちょうど上と少し下に居続けた。**境目を当てているつもりで、
+   * 当てていたのは「その定数が使われているか」だけだった。
+   */
+  const DECLARED_NAME_SIMILARITY = 0.92;
+
+  it("床: 実装のしきい値が、ここに書き写した 0.92 と一致している", () => {
+    expect(NAME_SIMILARITY_THRESHOLD, "商品の同一性のしきい値が動いている").toBe(
+      DECLARED_NAME_SIMILARITY,
+    );
+  });
+
   it("名前の類似度は、しきい値ちょうどなら同一とみなす", () => {
-    const m = matchIdentity([], [], NAME_SIMILARITY_THRESHOLD);
+    const m = matchIdentity([], [], DECLARED_NAME_SIMILARITY);
     expect(m.matched).toBe(true);
     expect(m.by).toBe("name_similarity");
   });
 
   it("しきい値をわずかに下回れば別商品とする", () => {
     // ここを緩めると、読者に別の商品を買わせることになる。
-    expect(matchIdentity([], [], NAME_SIMILARITY_THRESHOLD - 0.0001).matched).toBe(false);
+    expect(matchIdentity([], [], DECLARED_NAME_SIMILARITY - 0.0001).matched).toBe(false);
   });
 
   it("強い識別子が食い違うときは、名前がどれだけ似ていても別商品とする", () => {

@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SESSION_COOKIE_NAME } from "@/infrastructure/identity/session-actor";
 import { decideEntry, isGuardedPath } from "@/infrastructure/identity/entry-gate";
+import {
+  decideHostRouting,
+  isAlwaysPassPath,
+  routeResolvedSite,
+} from "@/domain/authoring/site-host-routing";
+import { buildSecurityHeaders } from "@/infrastructure/http/security-headers";
+import { readSiteBaseDomain } from "@/infrastructure/platform/site-base-domain";
 
 /**
  * 画面を一括で守る入口。
@@ -31,12 +38,58 @@ import { decideEntry, isGuardedPath } from "@/infrastructure/identity/entry-gate
  * だから「何をしてよいか」は、いまどおり各ユースケースが断る。
  */
 export const config = {
-  // 守るのは管理画面だけ。読者のページ・サインイン画面・ログインの往復は通す。
-  // ここへ `/api/auth` を含めると、誰もログインできなくなる。
-  matcher: ["/admin", "/admin/:path*"],
+  /**
+   * 管理画面の門に加えて、**住所でブログを振り分ける**ためにほぼ全 path を通す。
+   *
+   * 守る対象が増えたわけではない。`isGuardedPath` が今までどおり
+   * `/admin` だけを門の対象にするので、読者のページ・サインイン画面・
+   * ログインの往復は素通しである（ここへ `/api/auth` の門を作ると
+   * 誰もログインできなくなる、という性質は変わっていない）。
+   *
+   * 除いているのは画面の部品 (`_next`)・Cloudflare の内部 (`cdn-cgi`)・
+   * 拡張子付きの静的ファイルで、これらは住所に関係なく同じものを返す。
+   */
+  matcher: ["/((?!_next/|cdn-cgi/|.*\\.[\\w]+$).*)"],
 };
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
+  // 1. 住所（ホスト名）でブログを決める。**認証より先**に行う。
+  //    後にすると、ブログの住所で開いた読者向けページが
+  //    管理画面の門の判定を通ることになる。
+  const host = request.headers.get("host");
+  const pathname = request.nextUrl.pathname;
+  let routing = decideHostRouting({
+    host,
+    pathname,
+    baseDomain: await readSiteBaseDomain(),
+  });
+
+  //    基底ドメインの下に無いホストは `pass` で返ってくる。**そこには
+  //    本体の画面（管理画面）と独自ドメインの両方が混ざっている**ので、
+  //    住所表を引いて分ける。引けるのはここだけ（純関数は文字列しか触れない）。
+  //    画面の部品は要求のたびに何十件も届くため、その前に落とす。
+  if (routing.kind === "pass" && !isAlwaysPassPath(pathname)) {
+    const slug = await tryResolveCustomHostSlug(host);
+    if (slug !== null) routing = routeResolvedSite(slug, pathname);
+  }
+
+  if (routing.kind === "not-found") {
+    // ブログの住所からは管理画面を開かせない。**転送しない**のは、
+    // 転送先の存在（＝管理画面がどこにあるか）を教えてしまうため。
+    return new NextResponse("Not Found", {
+      status: 404,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
+  }
+  if (routing.kind === "rewrite") {
+    const target = new URL(request.nextUrl);
+    target.pathname = routing.pathname;
+    // 転送 (redirect) ではなく差し替え (rewrite)。
+    // 読者のアドレス欄は `<URL名>.<基底ドメイン>` のままにする。
+    return NextResponse.rewrite(target);
+  }
+
+  // 2. 本体の画面。ここから先は今までどおり管理画面だけを守る。
   if (!isGuardedPath(request.nextUrl.pathname)) return NextResponse.next();
 
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value ?? null;
@@ -47,7 +100,34 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // 外のアドレスへ飛ばされないことを検査で固定してからにする。
   // 断る言葉は入口と奥で分ける。ここは「ログインしてください」だけを意味する。
   const signin = new URL("/signin", request.nextUrl);
-  return NextResponse.redirect(signin);
+  const response = NextResponse.redirect(signin);
+  // Proxy が直接返す応答は Next 設定の headers が Cloudflare adapter で落ちる。
+  // 値を書き写さず、通常応答と同じ正本を redirect にも適用する。
+  for (const { key, value } of buildSecurityHeaders("admin")) {
+    response.headers.set(key, value);
+  }
+  return response;
+}
+
+/**
+ * 独自ドメインの住所表を引く。引けなければ `null`（＝本体の画面として扱う）。
+ *
+ * ここだけ `try` で包んでいるのは、住所が引けないことを
+ * **通行証が確かめられないこと（[[entry-gate]]）とは逆向きに倒す**ためである。
+ * 通行証は「確かめられない＝通さない」でよいが、住所は「引けない＝いつもの
+ * 画面」にしないと、D1 が一瞬落ちただけで管理画面まで 404 になる。
+ *
+ * 取り込みを呼ばれた時にしているのは `tryGetSessionReader` と同じ理由。
+ */
+async function tryResolveCustomHostSlug(host: string | null): Promise<string | null> {
+  try {
+    const { resolveCustomHostSlug, lookupCustomHostInD1 } = await import(
+      "@/infrastructure/domains/resolve-custom-host"
+    );
+    return await resolveCustomHostSlug(host, lookupCustomHostInD1);
+  } catch {
+    return null;
+  }
 }
 
 /**

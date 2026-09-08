@@ -156,7 +156,7 @@ def _confirmed_state():
     state = mod.init_state(_taxonomy())
     mod.apply_turn(
         state,
-        {"qa_id": "qa-001", "question": "q", "answer": "a",
+        {"qa_id": "qa-001", "question": "q", "answer": "a", "source": {"kind": "user-dialogue"},
          "design_applications": _design_applications(),
          "ops": [{"action": "confirm", "category": "database", "platform": "web"}]},
     )
@@ -171,6 +171,7 @@ def test_apply_turn_preserves_valid_design_application_as_separate_interpretatio
         state,
         {
             "qa_id": "qa-design-001",
+            "source": {"kind": "user-dialogue"},
             "question": "永続化方式は?",
             "answer": "SQLite 単一ファイル",
             "design_applications": [
@@ -206,6 +207,7 @@ def test_apply_turn_rejects_malformed_design_application(application):
             state,
             {
                 "qa_id": "qa-design-bad",
+                "source": {"kind": "user-dialogue"},
                 "question": "q",
                 "answer": "a",
                 "design_applications": [application],
@@ -413,6 +415,7 @@ def test_writer_rejects_confirm_without_design_applications():
             state,
             {
                 "qa_id": "qa-no-design",
+                "source": {"kind": "user-dialogue"},
                 "question": "q",
                 "answer": "a",
                 "ops": [

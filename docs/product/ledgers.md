@@ -42,7 +42,8 @@ baseline:
 ```yaml
 assumptions:
   - id: ASM-001
-    statement: 記事構成テンプレートは、参考記事 https://makuring.jp/pc/best-laptop-video-editing/ ではなく
+    statement: 記事構成テンプレートは、参考サイトのまとめ記事 1 本 (抽象パス /<sub>/best-<topic>/。実名は
+               docs/spec/feat-reference-blog-admin-ux/evidence/reference-site-profile.json) ではなく
                プラットフォーム層 §16.4 標準記事構成 + ブログ層 §8 + §9.1 から導出する
     why: 本実行環境から当該URLを取得できなかった。Bash の外部取得が権限拒否され、
          WebFetch ツールも提供されていない
@@ -50,6 +51,21 @@ assumptions:
     resolution: 取得可能になった時点で構造のみを比較し、差分を CHG として追記する。
                 文章・画像は複製しない（プラットフォーム層 §6.2）
     who_decides: 依頼者（取得手段の提供）
+    status_2026_08_25: 部分解消。参考サイトのトップページと記事ページ 1 本、及び sitemap index の存在を
+                       構造のみ観測し、全ページ種別 (23 種) の目録を導線から復元して
+                       docs/spec/13-参考サイト全体構成解析-抽象ブループリント.md (v1.1) に反映した。
+                       全ページの機械取得は権限拒否のため未実施で、観測外の種別は「推定」として区別している。
+                       差分は CHG-13-01〜08 (同文書 §7) に記録
+    status_2026_08_30: 上の「全ページの機械取得は未実施」を訂正する。root sitemap と 14 の分割 sitemap を
+                       機械取得し、重複を除いた公開 URL 1,072 件の台帳を得た
+                       (docs/spec/feat-reference-blog-admin-ux/evidence/、13-* v1.2 §1)。
+                       これで解消したのは **URL の網羅** だけである。取得したのは URL と
+                       更新日時であって本文ではない。記事の中身を構造として見たのは
+                       依然 2026-08-25 の手動観測 2 ページのみで、statement が言う
+                       「まとめ記事 1 本の構造から導出する」は満たせていない。
+                       したがって status は open のままにする。**網羅の解消を
+                       構造の解消と読み替えない。** 数えられる範囲が広がったことと、
+                       中を見たこととは別である
     status: open
 
   - id: ASM-002

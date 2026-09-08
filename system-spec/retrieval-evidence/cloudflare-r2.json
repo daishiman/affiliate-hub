@@ -1,0 +1,19 @@
+{
+  "target_id": "cloudflare-r2",
+  "source_url": "https://developers.cloudflare.com/r2/api/s3/presigned-urls/",
+  "retrieved_at": "2026-09-05T00:57:28Z",
+  "http_status": 200,
+  "content_bytes": 149375,
+  "content_sha256": "d4c1c25b3ed87e70735812e5d2bd185528f11ca12a9180d242d2c6d28f66acfe",
+  "page_title": "Presigned URLs · Cloudflare R2 docs",
+  "freshness_extraction": {
+    "freshness_source": "page-declared",
+    "value": "2026-08-22",
+    "found_in": [
+      "JSON-LD \"dateModified\":\"2026-08-22\"",
+      "<time datetime=\"2026-08-22T00:24:36.000Z\">"
+    ],
+    "http_last_modified": null,
+    "note": "値の由来は freshness_source と対応する。取得日を last_updated へ代入しない (C13 validate-source-citation.py の取得日代入検査が拒否する)。"
+  }
+}

@@ -40,9 +40,22 @@ const siteSlug = z.string().min(1);
 export function siteTools(deps: AppDeps): readonly AnyToolDefinition[] {
   const site = { sites: deps.sites, content: deps.publishedContent };
   const reader = {
+    sites: deps.sites,
     shortlist: deps.shortlist,
     readerTools: deps.readerTools,
     contact: deps.contact,
+    contactRateLimitKeys: deps.contactRateLimitKeys,
+    humanCheck: deps.humanCheck,
+  };
+  const submitContact = createSubmitContactUseCase(reader);
+  const submitContactFromTool: typeof submitContact = {
+    async execute(actor, input) {
+      // API利用者が rate-limit identity を名乗れないよう、認証済みactorをserver側で付ける。
+      return submitContact.execute(actor, {
+        ...input,
+        rateLimitIdentity: { scope: "actor", value: String(actor.userId) },
+      });
+    },
   };
 
   return [
@@ -129,7 +142,7 @@ export function siteTools(deps: AppDeps): readonly AnyToolDefinition[] {
         item: z.object({
           productId: z.string().min(1),
           productName: z.string().min(1),
-          savedAt: z.string().min(1),
+          shortlistedAt: z.string().min(1),
           fromArticleHref: z.string().optional(),
           oneLine: z.string().optional(),
         }),
@@ -165,7 +178,8 @@ export function siteTools(deps: AppDeps): readonly AnyToolDefinition[] {
     defineTool({
       name: "run_reader_tool",
       description:
-        "診断・計算の道具を実行します。計算式が未登録の道具は、その旨を返します（数値を作りません）。",
+        "診断・計算の道具を実行します。入力が足りない・数字でない・0 で割る場合は、" +
+        "どの欄が原因かを添えて失敗を返します（数値を作りません）。",
       schema: z.object({
         siteSlug,
         slug: z.string().min(1),
@@ -181,12 +195,12 @@ export function siteTools(deps: AppDeps): readonly AnyToolDefinition[] {
         siteSlug,
         body: z.string().min(1),
         replyTo: z.string().optional(),
-        humanCheckToken: z.string().optional(),
+        humanCheckToken: z.string().min(1).max(2048),
       }),
       readOnly: false,
       // 自動送信を運営者へ届かせない。AI サービスアカウントからは呼べない。
       requiresHumanApproval: true,
-      useCase: createSubmitContactUseCase(reader),
+      useCase: submitContactFromTool,
     }),
   ];
 }

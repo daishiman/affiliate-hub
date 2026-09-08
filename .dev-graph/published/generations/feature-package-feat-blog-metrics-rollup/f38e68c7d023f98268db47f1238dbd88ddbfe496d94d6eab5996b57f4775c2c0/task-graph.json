@@ -1,0 +1,196 @@
+{
+  "edges": [
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P01",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P02",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P03",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P04",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P05",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P06",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P05",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P08",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P09",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P07",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P09",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P10",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P11",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-BLOG-METRICS-ROLLUP-P12",
+      "to": "SYS-BLOG-METRICS-ROLLUP-P13",
+      "type": "depends_on"
+    }
+  ],
+  "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P01",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P01"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P02",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P02"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P03",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P03"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P04",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P04"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P05",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P05"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P06",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P06"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P07",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P05"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P08",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P08"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P09",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P09"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P10",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P07",
+        "SYS-BLOG-METRICS-ROLLUP-P09"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P11",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P10",
+        "SYS-BLOG-METRICS-ROLLUP-P11"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P12",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P12"
+      ],
+      "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+      "id": "SYS-BLOG-METRICS-ROLLUP-P13",
+      "parent_feature": "feat-blog-metrics-rollup",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-blog-metrics-rollup",
+  "schema_version": "1.0.0"
+}

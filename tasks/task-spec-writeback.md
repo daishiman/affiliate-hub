@@ -12,8 +12,8 @@ iteration: null
 title: "仕様整理の最終レビューと draft PR"
 owners: ["daishiman"]
 created_at: "2026-08-16T11:19:17Z"
-updated_at: "2026-08-16T11:23:49.692375Z"
-status: "draft"
+updated_at: "2026-08-17T10:36:03Z"
+status: "closed"
 depends_on: []
 related_nodes: ["feat-spec-canonicalization","arch-spec-governance"]
 resource_scope: ["docs/spec","system-spec","specs","architecture","features","tasks",".dev-graph",".beads"]

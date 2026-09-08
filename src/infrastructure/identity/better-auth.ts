@@ -269,8 +269,58 @@ export async function applyAppSession(
  * 設定の奥に埋めないため**。ここが変わったら記録の量が変わるので、
  * 変わったことがテストから見える場所に置く。
  */
+const SENSITIVE_LOG_KEY =
+  /^(?:authorization|cookie|set-cookie|token|access[_-]?token|refresh[_-]?token|session(?:[_-]?token)?|secret|client[_-]?secret|password)$/i;
+
+/** 値が文章へ混ざった場合も、よくある `key=value` と Bearer の形を落とす。 */
+function redactSensitiveText(value: string): string {
+  return value
+    .replace(/\b(Bearer)\s+[^\s,;]+/gi, "$1 [REDACTED]")
+    .replace(
+      /\b((?:authorization|cookie|set-cookie|token|access[_-]?token|refresh[_-]?token|session(?:[_-]?token)?|secret|client[_-]?secret|password)\s*[:=]\s*)(?:"[^"]*"|'[^']*'|[^\s,;}\]]+)/gi,
+      "$1[REDACTED]",
+    );
+}
+
+/**
+ * 認証基盤から来た未知の例外を、診断に要る構造を保ったまま安全な値へ写す。
+ * 元の Error/object を console に渡すと、enumerable な headers や cookie まで
+ * Cloudflare のログへ展開されるため、必ずこの境界を通す。
+ */
+function safeAuthLogValue(
+  value: unknown,
+  seen: WeakSet<object> = new WeakSet<object>(),
+  depth = 0,
+): unknown {
+  if (typeof value === "string") return redactSensitiveText(value);
+  if (
+    value === null ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "undefined"
+  ) {
+    return value;
+  }
+  if (typeof value !== "object") return `[${typeof value}]`;
+  if (seen.has(value)) return "[Circular]";
+  if (depth >= 6) return "[Truncated]";
+  seen.add(value);
+
+  const safe: Record<string, unknown> = {};
+  if (value instanceof Error) {
+    safe.name = redactSensitiveText(value.name);
+    safe.message = redactSensitiveText(value.message);
+  }
+  for (const [key, nested] of Object.entries(value).slice(0, 50)) {
+    safe[key] = SENSITIVE_LOG_KEY.test(key)
+      ? "[REDACTED]"
+      : safeAuthLogValue(nested, seen, depth + 1);
+  }
+  return safe;
+}
+
 export function reportAuthApiError(error: unknown): void {
-  console.error("[auth] ログインの往復が失敗しました:", error);
+  console.error("[auth] ログインの往復が失敗しました:", safeAuthLogValue(error));
 }
 
 /**
@@ -281,14 +331,16 @@ export function reportAuthApiError(error: unknown): void {
  * 出るはずのものが出ない状態のまま運用すると、次に壊れたときも
  * 「黙って /signin へ戻る」だけになる。
  *
- * **`args` まで出す。** ここに入るのは例外そのもので、
- * 今回原因を指していたのも `args` の側だった（`message` は
- * 「データベースに問い合わせられませんでした」までしか言わない）。
- * 出力先は Cloudflare の記録で、運用する人しか見ない。
- * 画面へ返す言葉とは別物なので、入ろうとした人には何も伝わらない。
+ * `args` の原因は残すが、例外をそのまま渡さない。例外には request headers、
+ * cookie、token が付くことがあり、運用者だけが見るログでも秘密の保存先にしては
+ * ならない。診断用の message と安全な追加項目だけへ写してから記録する。
  */
 export function reportBetterAuthLog(level: string, message: string, ...args: unknown[]): void {
-  console.error(`[better-auth:${level}]`, message, ...args);
+  console.error(
+    `[better-auth:${redactSensitiveText(level)}]`,
+    redactSensitiveText(message),
+    ...args.map((value) => safeAuthLogValue(value)),
+  );
 }
 
 /**

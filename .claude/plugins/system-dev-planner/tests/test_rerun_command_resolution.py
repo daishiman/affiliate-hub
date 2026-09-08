@@ -19,8 +19,8 @@ import test_runtime as fx
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 SYNC_SCRIPT = SCRIPTS / "build-task-projection-rerun.py"
-SLUG = "feature-package-feat-x"
-PACKAGE_ID = "feature-package/feat-x"
+SLUG = "feature-package-feat"
+PACKAGE_ID = "feature-package/feat"
 
 
 def _load(name: str, filename: str):
@@ -32,6 +32,7 @@ def _load(name: str, filename: str):
 
 
 VALIDATOR = _load("test_cc6_validator", "validate-system-plan.py")
+SYNC = _load("test_cc6_sync", "build-task-projection-rerun.py")
 
 
 def _pointer_repo(tmp_path: Path, *, package_id: str = PACKAGE_ID) -> Path:
@@ -119,7 +120,7 @@ def test_current_pointer_symlink_escape_is_rejected(tmp_path: Path) -> None:
 
 PROJECTION = """---
 graph_node_id: "T1"
-feature_package_id: "feature-package/feat-x"
+feature_package_id: "feature-package/feat"
 phase_ref: "P01"
 ---
 
@@ -135,7 +136,22 @@ def _projection_repo(tmp_path: Path, body: str = PROJECTION) -> Path:
     # 書込先の containment 検査を C09 へ委ねているため、fixture も C09 が受理する形にする。
     root = (tmp_path / "repo").resolve()
     root.mkdir(parents=True)
-    fx.make_repo(root)
+    repository_id = fx.make_repo(root)
+    generation, digest = fx.make_fixture(
+        root,
+        repository_id,
+        relative=f".dev-graph/plans/generations/{SLUG}/gen1",
+    )
+    pointer = root / ".dev-graph" / "state" / "current" / f"{SLUG}.json"
+    pointer.parent.mkdir(parents=True, exist_ok=True)
+    pointer.write_text(json.dumps({
+        "schema_version": "1.0.0",
+        "feature_package_id": PACKAGE_ID,
+        "generation_id": "gen1",
+        "published_path": generation.relative_to(root).as_posix(),
+        "published_digest": digest,
+        "receipt": f"{generation.relative_to(root).as_posix()}/atomic-promotion-receipt.json",
+    }), encoding="utf-8")
     target = root / "tasks" / "feat-x" / "sys-x-p01.md"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(body, encoding="utf-8")
@@ -168,11 +184,53 @@ def test_sync_wires_generation_independent_command(tmp_path: Path) -> None:
     assert _sync(root).returncode == 0
     text = (root / "tasks" / "feat-x" / "sys-x-p01.md").read_text(encoding="utf-8")
     assert f"--feature-package {PACKAGE_ID}" in text
+    assert "published task spec 内の `validate-system-plan.py --repo-root . --staging .`" not in text
     # generation id を直書きしない (再計画で stale にならない)
     assert "gen1" not in text
     lines = text.splitlines()
     assert lines[lines.index(next(l for l in lines if l.startswith("- rerun:"))) - 1].startswith("- verification:")
     assert _sync(root, "--check").returncode == 0
+
+
+def test_rerun_template_keeps_legacy_explanation_only_before_contract_1_3() -> None:
+    legacy = SYNC._rerun_template(PACKAGE_ID, "1.2.0")
+    current = SYNC._rerun_template(PACKAGE_ID, "1.3.0")
+
+    assert "--staging .` は repository root から解決できない" in legacy
+    assert "--staging" not in current
+    assert f"--feature-package {PACKAGE_ID}" in current
+
+
+def test_sync_fails_closed_when_current_pointer_identity_differs(tmp_path: Path) -> None:
+    root = _projection_repo(tmp_path)
+    pointer = root / ".dev-graph" / "state" / "current" / f"{SLUG}.json"
+    payload = json.loads(pointer.read_text(encoding="utf-8"))
+    payload["feature_package_id"] = "feature-package/other"
+    pointer.write_text(json.dumps(payload), encoding="utf-8")
+
+    proc = _sync(root, "--feature-package", PACKAGE_ID)
+    report = json.loads(proc.stdout)
+
+    assert proc.returncode == 2
+    assert report["updated"] == []
+    assert "current pointer package identity mismatch" in report["missing"][0]["reason"]
+
+
+def test_sync_creates_minimal_execution_contract_for_legacy_projection(tmp_path: Path) -> None:
+    root = _projection_repo(tmp_path, body=PROJECTION.replace(
+        "\n## 実行契約\n\n- claim: Beads issueをatomic claimする。\n"
+        "- verification: published task spec の Automated commands と Required evidence を全件実行・保存する。\n"
+        "- completion: linked PR merge authority を満たす。\n",
+        "\n",
+    ))
+
+    assert _sync(root, "--feature-package", PACKAGE_ID).returncode == 0
+    text = (root / "tasks" / "feat-x" / "sys-x-p01.md").read_text(encoding="utf-8")
+    assert text.count("## 実行契約") == 1
+    contract = text.split("## 実行契約", 1)[1]
+    assert "- verification: published task spec の Automated commands" in contract
+    assert "python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py" in contract
+    assert _sync(root, "--feature-package", PACKAGE_ID, "--check").returncode == 0
 
 
 def test_sync_is_idempotent(tmp_path: Path) -> None:
@@ -203,7 +261,10 @@ def test_projection_without_anchor_fails_closed(tmp_path: Path) -> None:
 
 
 def test_projection_without_package_id_fails_closed(tmp_path: Path) -> None:
-    root = _projection_repo(tmp_path, body=PROJECTION.replace('feature_package_id: "feature-package/feat-x"', ""))
+    root = _projection_repo(
+        tmp_path,
+        body=PROJECTION.replace(f'feature_package_id: "{PACKAGE_ID}"', ""),
+    )
     proc = _sync(root)
     assert proc.returncode == 2
     assert "feature_package_id" in json.loads(proc.stdout)["missing"][0]["reason"]

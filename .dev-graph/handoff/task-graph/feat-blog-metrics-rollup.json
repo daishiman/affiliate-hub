@@ -1,0 +1,203 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "handoff_target": "task-graph",
+  "feature_id": "feat-blog-metrics-rollup",
+  "feature_package_id": "feature-package/feat-blog-metrics-rollup",
+  "graph_snapshot_digest": "sha256:f2da12b065505697edafd0031dfd6d39001b2a702fb2e70f9c3704a1781bac6c",
+  "graph_revision": 481,
+  "scope_digest": "sha256:af2550468a0b74b5be0ec4d9431bb92087b05f4254fb8a5d9e8e2d76a4e34bae",
+  "trace_plan_digest": "sha256:0a5b2fdf7823ec144eacd0718ea14b147927284b5c1c2c96dd0024a2093ab44e",
+  "requirements_document": "docs/requirements/feat-blog-metrics-rollup-implementation-requirements.md",
+  "requirements_document_sha256": "8a0d9bc35643bc6cbac8146acc2ac1944fa3e3c0ed04d2cbff0dc99c1c6eb016",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-blog-metrics-rollup/f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
+  "lineage_closure": [
+    "SYS-BLOG-METRICS-ROLLUP-P01",
+    "SYS-BLOG-METRICS-ROLLUP-P02",
+    "SYS-BLOG-METRICS-ROLLUP-P03",
+    "SYS-BLOG-METRICS-ROLLUP-P04",
+    "SYS-BLOG-METRICS-ROLLUP-P05",
+    "SYS-BLOG-METRICS-ROLLUP-P06",
+    "SYS-BLOG-METRICS-ROLLUP-P07",
+    "SYS-BLOG-METRICS-ROLLUP-P08",
+    "SYS-BLOG-METRICS-ROLLUP-P09",
+    "SYS-BLOG-METRICS-ROLLUP-P10",
+    "SYS-BLOG-METRICS-ROLLUP-P11",
+    "SYS-BLOG-METRICS-ROLLUP-P12",
+    "SYS-BLOG-METRICS-ROLLUP-P13",
+    "arch-blog-operations-console",
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "feat-blog-metrics-rollup"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "C02_saved_state": {
+      "scope_count": 17,
+      "implementation_readiness": "complete",
+      "evaluation_status": "pass",
+      "confirmation_status": "confirmed",
+      "missing_sections": []
+    },
+    "source_digest": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-source-digest.py --repo-root . --registered <closure17>",
+      "exit": 0,
+      "checked": 17,
+      "registered_mismatch": 0
+    },
+    "validate_system_plan": {
+      "command": "python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-metrics-rollup",
+      "exit": 0,
+      "status": "pass",
+      "contract_version": "1.3.0",
+      "phase_refs": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "violations": 0,
+      "validated_digest": "sha256:f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0"
+    }
+  },
+  "tasks": [
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P01",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p01.md",
+      "tracker_binding": "beads",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P02",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p02.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P03",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p03.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P04",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p04.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P05",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p05.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P06",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p06.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P07",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p07.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P08",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p08.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P09",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p09.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P10",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p10.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P11",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p11.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P07",
+        "SYS-BLOG-METRICS-ROLLUP-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P12",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p12.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P10",
+        "SYS-BLOG-METRICS-ROLLUP-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-METRICS-ROLLUP-P13",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-blog-metrics-rollup/sys-blog-metrics-rollup-p13.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-METRICS-ROLLUP-P12"
+      ]
+    }
+  ],
+  "requirements_quality": "detailed",
+  "implementation_code_generated": 0,
+  "emitted_at": "2026-09-04T00:00:00Z"
+}

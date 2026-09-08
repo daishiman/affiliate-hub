@@ -1,0 +1,10 @@
+# 環境（証跡の再現条件）
+
+取得日時: 2026-08-22
+node: v22.21.1
+vitest: vitest/4.1.10 darwin-arm64 node-v22.21.1
+pnpm: 10.19.0
+OS: Darwin 25.3.0
+枝: daishiman/ui-ux調整
+HEAD: 43a12cef096546a20a15b8f4a11a25c0280460cf
+未コミット差分: 203 件（M 118 / 未追跡 85）

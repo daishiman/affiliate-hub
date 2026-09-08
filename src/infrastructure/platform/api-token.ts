@@ -11,6 +11,14 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
  * - `bearer`      : 発行済みトークンと一致。読み書きの両方を実行できる。
  * - `same-origin` : 自サイトの画面からの呼び出し（WebMCP を含む）。読み取りのみ。
  *
+ * **ここが決めるのは「呼んでよい相手か」だけで、「どの作業場所の誰か」ではない。**
+ * `MCP_TOKEN` は製品全体に 1 つしかなく、作業場所にも人にも結びついていない。
+ * したがって `bearer` で通ったことを身元の根拠に使ってはいけない。使うと
+ * 身元の分からない呼び出しが管理用のデータを読めることになる（`ah-p9e`）。
+ * 身元は連携の鍵（`X-Integration-Key`）から `resolveIntegrationAccess()` が
+ * 組み立て、鍵が無ければ読者の範囲に落ちる。門と身元は別のものなので、
+ * 名乗る見出しも `Authorization` と `X-Integration-Key` に分けてある。
+ *
  * トークンの値はこのファイルの外へ出さない。ログにも、エラー本文にも載せない。
  * 登録は利用者本人が別のターミナルで `wrangler secret put MCP_TOKEN` を実行する。
  */

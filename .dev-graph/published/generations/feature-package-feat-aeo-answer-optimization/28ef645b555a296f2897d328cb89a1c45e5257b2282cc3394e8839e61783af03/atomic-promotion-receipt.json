@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "status": "promoted",
+  "promoted_at": "2026-09-03T23:50:39Z",
+  "generation_id": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "supersedes": null,
+  "repo_identity": "github:daishiman/affiliate-hub",
+  "staging_digest": "sha256:28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "evaluated_digest": "sha256:28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "published_digest": "sha256:28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "implementation_readiness": "complete",
+  "quality_conditions": {
+    "no_contradiction": "PASS",
+    "no_missing": "PASS",
+    "consistent": "PASS",
+    "dependency_integrity": "PASS"
+  },
+  "promotion_method": "same-filesystem-atomic-rename",
+  "registration_manifest": ".dev-graph/published/generations/feature-package-feat-aeo-answer-optimization/28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03/dev-graph-registration.json"
+}

@@ -13,6 +13,20 @@ import {
  * なってしまう。ここは保存処理を持たず、見本をつなぐ最小限の identity だけを持つ。
  */
 export const SAMPLE_WORKSPACE_ID = taggedString<"WorkspaceId">("ws_sample") as WorkspaceId;
+
+/**
+ * 見本のブログの住所（URL 名）。
+ *
+ * 保存先の module ではなく**ここ**が正本である。保存先どうしで貸し借りすると
+ * import が輪になり、輪の中では相手の定数がまだ `undefined` のまま読まれる。
+ * 種データの `siteSlug` が `undefined` になっても例外は出ず、
+ * 見本のブログが黙って 404 になるだけなので、気づける場所が無い。
+ */
+export const SAMPLE_SITE_SLUG = "home-office-desk";
+export const SECOND_SITE_SLUG = "compact-kitchen-gear";
+export const THIRD_SITE_SLUG = "first-camera";
+export const FOURTH_SITE_SLUG = "run-and-recover";
+export const FIFTH_SITE_SLUG = "mobile-plan-navi";
 export const SAMPLE_MODEL_ID = taggedString<"RankingModelId">(
   "rm_office_chair",
 ) as RankingModelId;

@@ -1,0 +1,30 @@
+{
+ "target_id": "github-actions",
+ "source_url": "https://docs.github.com/en/actions",
+ "retrieved_at": "2026-08-22T15:05:16Z",
+ "http_status": 200,
+ "content_bytes": 435875,
+ "content_sha256": "cd37e0607236e9102587e895626fdb9fe655b1b2560724bff99ddd23f53c603b",
+ "page_title": "GitHub Actions documentation - GitHub Docs",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "free-pro-team@latest",
+  "found_in": [
+   "本文の版指定 JSON 逐語: \"version\":\"free-pro-team@latest\"",
+   "画面表示逐語: \"Version: Free, Pro, & Team\""
+  ],
+  "http_last_modified": null,
+  "body_declares_date": false,
+  "body_search_method": "本文 435875 bytes に対し JSON-LD \"dateModified\"/\"datePublished\"、<time datetime=...>、\"Last updated\"/\"Updated on\" 語彙、© 年 の 4 通りで探して全て 0 件。GitHub Docs は日付ではなく版セレクタで鮮度を表す設計である。",
+  "other_versions_offered": [
+   "enterprise-cloud@latest",
+   "enterprise-server@3.17",
+   "enterprise-server@3.18",
+   "enterprise-server@3.19",
+   "enterprise-server@3.20",
+   "enterprise-server@3.21",
+   "enterprise-server@3.22"
+  ],
+  "note": "ページは版セレクタで複数版を提供しており、取得したのは既定の free-pro-team@latest。他版の存在も記録して、選んだ版が唯一の版であるかのように見えることを防ぐ。取得日 2026-08-22 を last_updated へ代入していない。"
+ }
+}

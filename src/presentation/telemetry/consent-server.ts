@@ -1,12 +1,6 @@
 import { cookies, headers } from "next/headers";
 import { CONSENT_COOKIE } from "../ui/consent";
-import {
-  type ConsentChoice,
-  type ConsentDecision,
-  type ConsentSignals,
-  DEFAULT_CONSENT_SIGNALS,
-  decideConsent,
-} from "@/domain/analytics";
+import { DEFAULT_CONSENT_SIGNALS, decideConsent, type ConsentChoice, type ConsentDecision, type ConsentSignals } from "@/domain/analytics/consent";
 
 /**
  * 同意の材料をサーバー側で集める。**ここが唯一の集め場所。**

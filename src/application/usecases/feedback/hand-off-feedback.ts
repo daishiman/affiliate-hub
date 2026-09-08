@@ -5,19 +5,13 @@ import type {
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import {
-  type FeedbackReport,
-  type HandoffRoute,
-  HANDOFF_IDEMPOTENCY_TEXT,
-  WISH_ABSENT_TEXT,
-  appendHistory,
-  assertEnvelopeIsClean,
-  composeHandoffPrompt,
-  recordHandoff,
-} from "@/domain/feedback";
+import { WISH_ABSENT_TEXT, appendHistory, type FeedbackReport } from "@/domain/feedback/report";
+import { HANDOFF_IDEMPOTENCY_TEXT, recordHandoff, type HandoffRoute } from "@/domain/feedback/handoff";
+import { assertEnvelopeIsClean, composeHandoffPrompt } from "@/domain/feedback/handoff-prompt";
 import { requireCapability } from "@/domain/identity";
 import { type ActorContext, type DomainError, type Result, err, notFound, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import { ensureFeedbackAccess } from "./feedback-access";
 
 /**
  * 指示文を作って払い出す。
@@ -118,7 +112,13 @@ export function createHandOffFeedbackUseCase(
           skipped.push({ reportId: id, reason: "見つかりませんでした。" });
           continue;
         }
-        const report = found.value;
+        const accessible = ensureFeedbackAccess(actor, found.value);
+        if (!accessible.ok) {
+          // 担当外と不存在を同じ語調にして、まとめ払い出しのskippedから存在を漏らさない。
+          skipped.push({ reportId: id, reason: "見つかりませんでした。" });
+          continue;
+        }
+        const report = accessible.value;
 
         const composed = composeHandoffPrompt({
           envelopeTemplate: template.value.template,

@@ -148,6 +148,7 @@ describe("どの作業場所のものかは、URL ではなく身元から決ま
         roles: ["feedback_admin"] as const,
         workspaceId: "ws_mine",
       }),
+      canReadFeedbackCapture: async () => true,
     }));
     vi.doMock("@/infrastructure/platform/bucket-connection", () => ({
       tryGetBucket: async () => ({}),
@@ -163,6 +164,36 @@ describe("どの作業場所のものかは、URL ではなく身元から決ま
     await route.GET(...request("cap_belonging_to_ws_theirs"));
 
     expect(seen).toEqual(["ws_mine"]);
+  });
+
+  it("限定担当者には担当外ブランドのcapture IDを知っていても画像を渡さない", async () => {
+    let storageReads = 0;
+    vi.doMock("@/presentation/composition", async (importOriginal) => ({
+      ...(await importOriginal<typeof import("@/presentation/composition")>()),
+      signedInActor: async () => ({
+        ...SAMPLE_ACTOR,
+        roles: ["brand_manager"] as const,
+        workspaceId: "ws_mine",
+        scopedBrandIds: ["br_allowed"],
+      }),
+      // server-sideのcapture→report逆引きが、reportの担当外brandを検出した結果。
+      canReadFeedbackCapture: async () => false,
+    }));
+    vi.doMock("@/infrastructure/platform/bucket-connection", () => ({
+      tryGetBucket: async () => ({}),
+    }));
+    vi.doMock("@/infrastructure/platform/feedback-capture-r2", () => ({
+      readFeedbackCapture: async () => {
+        storageReads += 1;
+        return new ArrayBuffer(8);
+      },
+    }));
+
+    const route = await import("@/app/api/feedback-captures/[capture]/route");
+    const res = await route.GET(...request("cap_belongs_to_other_brand"));
+
+    expect(res.status).toBe(404);
+    expect(storageReads).toBe(0);
   });
 });
 

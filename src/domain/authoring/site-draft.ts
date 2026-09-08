@@ -29,6 +29,11 @@ import {
 export type SiteDraft = {
   readonly id: SiteDraftId;
   readonly workspaceId: WorkspaceId;
+  /**
+   * 保存のたびに 1 ずつ増える版。0 はまだ保存していない新規下書きだけ。
+   * 秒精度の更新日時では同時保存を区別できないため、競合判定には使わない。
+   */
+  readonly revision: number;
   /** 1. ブログの目的 */
   readonly purpose: string;
   /** 2. ジャンル */
@@ -127,6 +132,7 @@ export function createSiteDraft(input: {
   return {
     id: input.id,
     workspaceId: input.workspaceId,
+    revision: 0,
     purpose: "",
     genre: "",
     targetReader: "",

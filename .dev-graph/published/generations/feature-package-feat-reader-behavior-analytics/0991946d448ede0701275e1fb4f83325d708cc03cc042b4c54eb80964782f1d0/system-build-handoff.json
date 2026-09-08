@@ -1,0 +1,234 @@
+{
+  "digest_contract": {
+    "algorithm": "sha256",
+    "final_manifest_digest_scope": "all manifest files including handoff; manifest itself excluded",
+    "handoff_digest_location": "staging-manifest.json#files/system-build-handoff.json",
+    "self_reference_policy": "handoff omits its own digest and final manifest digest",
+    "source_digest_scope": "source_inputs only; handoff and manifest excluded"
+  },
+  "execution_tasks": [
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [],
+      "phase_ref": "P01",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P01",
+      "task_spec_path": "task-specs/phase-01-requirements.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P01"
+      ],
+      "phase_ref": "P02",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P02",
+      "task_spec_path": "task-specs/phase-02-architecture.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P02"
+      ],
+      "phase_ref": "P03",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P03",
+      "task_spec_path": "task-specs/phase-03-design-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P03"
+      ],
+      "phase_ref": "P04",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P04",
+      "task_spec_path": "task-specs/phase-04-test-design.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P04"
+      ],
+      "phase_ref": "P05",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P05",
+      "task_spec_path": "task-specs/phase-05-implementation.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+      ],
+      "phase_ref": "P06",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P06",
+      "task_spec_path": "task-specs/phase-06-test-run.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P06"
+      ],
+      "phase_ref": "P07",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+      "task_spec_path": "task-specs/phase-07-acceptance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+      ],
+      "phase_ref": "P08",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P08",
+      "task_spec_path": "task-specs/phase-08-refactoring-migration.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P08"
+      ],
+      "phase_ref": "P09",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P09",
+      "task_spec_path": "task-specs/phase-09-quality-assurance.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+      ],
+      "phase_ref": "P10",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+      "task_spec_path": "task-specs/phase-10-final-review.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+        "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+      ],
+      "phase_ref": "P11",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P11",
+      "task_spec_path": "task-specs/phase-11-evidence.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+        "SYS-READER-BEHAVIOR-ANALYTICS-P11"
+      ],
+      "phase_ref": "P12",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P12",
+      "task_spec_path": "task-specs/phase-12-documentation-operations.md"
+    },
+    {
+      "build_target_kind": "application-code",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P12"
+      ],
+      "phase_ref": "P13",
+      "task_id": "SYS-READER-BEHAVIOR-ANALYTICS-P13",
+      "task_spec_path": "task-specs/phase-13-release-deploy.md"
+    }
+  ],
+  "identity": {
+    "feature_id": "feat-reader-behavior-analytics",
+    "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+    "parent_feature": "feat-reader-behavior-analytics",
+    "repository_id": "github:daishiman/affiliate-hub",
+    "source_feature_digest": "sha256:25cf7678032cb21eca5ac6adf9e53cf3d8224d988514d32c88e569f35893831f"
+  },
+  "kind": "system-build-handoff",
+  "p01_entry_gate": {
+    "operator": "all",
+    "required_statuses": [
+      "done",
+      "closed"
+    ],
+    "selector": "parent_feature.depends_on"
+  },
+  "registration_request": {
+    "consumer": "dev-graph/C02",
+    "owner": "system-dev-planner/C11",
+    "path": "dev-graph-registration.json",
+    "promotion_receipt": {
+      "owner": "system-dev-planner/C11",
+      "path": "atomic-promotion-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "registration_receipt": {
+      "owner": "dev-graph/C02",
+      "path": "dev-graph-registration-receipt.json",
+      "produced_by_this_component": false,
+      "status": "not-emitted"
+    },
+    "status": "deferred-until-promotion"
+  },
+  "schema_version": "1.0.0",
+  "source_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "cebb23acc4761130a28d54e5761a0847e6d9f3d1a548044c05c6a3b7433f1686"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "dc866df0f67240703bd410f8dc872b83fcaee16391febb900edb695200ccb11a"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "ec0d727711396a9860321579fb425afd246a8f2566976d2c4a3326dd01dda31c"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "623b567d5ab9caa4768dee1b7963ac42b8a14597e2da4823702caec60c960db2"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "64437540ea762e08e3115fb6e28e444294f6abc7d534008f359ab8c8488d7406"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "2ce0849f8e9a1195fd86b73c92abf16923870ee2c2452ceda0da0e6aa9592fab"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "2c08bcab7b38269601d2c7d51b5615f5b2ec4ed91872e098c7554fb83a838e62"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "42e6e6e09aba23fb8d90e6c0f784c78ffc5dbac70611fa9239d42b6896aaa2d9"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "7db0ccc062cc38e4eb0b3ef9553aa78462738a4e3a8911a1ffddee1b37c002e0"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "ef3a5b3df79560f397c5f4130b00ec5b8d51527ba9b4925533ad3baf07687c79"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "a53de436d46e91c5182e880d941feea4d18ef20794a3a23c2a778487a011ba59"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "9303f0be604ea3c63a956f1b56a51263cba7bb6cd9f76f68c229ba22a2b9e68f"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "08d7bec69d410a7a73f35cad80b654e5dd57532234abfd394d348bcb877c87b2"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "8ca1f62d1724c10f3680658f1d629995e727d5dc4dcb9aef56277e7cb5b7e134"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "601b579745006fe456813a51af5e72ff15af06fd95b03026fa68c784ad9da023"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "5597a04dc7e6a7142697870b0944381d4d81febb188fa5807db05da9712b3365"
+    }
+  ],
+  "source_manifest": {
+    "canonical_digest_before_handoff": "sha256:afaba2b6de09944d90d793ef099a7fd2baa4d42b30b06150cbc6c4f06649d911",
+    "path": "staging-manifest.json",
+    "sha256_before_handoff": "e54763339f4c49063a1f389d657f01dea5fcfa6c3fad89ba521415d9a1ded7ae"
+  }
+}

@@ -22,6 +22,12 @@ serves_goals: []
 | デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 保守運用は外部委託のため本仕様の対象外 |
 | デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 保守運用は外部委託のため本仕様の対象外 |
 
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`maintenance-ops`) を主担当とする **0 件**。全 1 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+- 本章を主担当とする決定は無い。
+
 ## 確定内容 (質疑録)
 
 - (確定セルなし。本章は対象外または収集中)
@@ -43,6 +49,8 @@ serves_goals: []
 - **operations が引用可になる条件**: targets[] に SRE Workbook を足して C02 で取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得すれば塞がる穴であって、塞げない穴ではない。
 
 ## 適用された設計知識
+
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
 
 ### Clean Code — deep knowledge card
 

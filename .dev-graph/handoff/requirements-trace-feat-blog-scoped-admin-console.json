@@ -1,0 +1,291 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-blog-scoped-admin-console",
+  "scope_digest": "sha256:243f05cf690ec41c0874592b709e4ca68e505e9fe8e3d83211058fe47b48b108",
+  "trace_plan_digest": "sha256:0f70400f0febf6001aed94b049dac5d7388cac43bbd461fcb80ab29a6607ad1e",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)",
+  "derivation_rule": "base=[P01,P04,P05,P06,P07,P11]。受入条件本文の語で加算する: テーブル/列/制約/契約/モデル→P02、移行/重複解消/既存→P08、冪等/失敗/性能/権限/audit/削除/期限→P09、手順/説明/文言/画面に出る→P12、配信/公開面/リリース→P13。加算後に昇順で一意化する。",
+  "verdict": "PASS",
+  "entry_count": 10,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9",
+    "A10"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "/admin/sites/[site]/ 配下に記事・レイアウト・固定ページ・ドメイン・分析・SEO/AEO・配信の各画面が存在する",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[0]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "既存の /admin/blog/* へのアクセスが対応する /admin/sites/[site]/ へ転送される",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[1]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P08|P11|P13]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "ブログのダッシュボードの先頭が収益・PV・転換の推移と、住所が生きているかである",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[2]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "ドメインが非 active または証明書期限 21 日以内のブログが、ブログ一覧の先頭に出る",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[3]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "記事ごとの滞在・到達・ヒートマップが記事画面にあり、ブログ画面には無い",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[4]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "SEO/AEO の個別指摘が記事画面に、残数がブログ画面にある",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[5]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "横断画面に記事単位の数値が現れない",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[6]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "根拠件数が閾値未満のとき示唆が抑止され、その理由が画面に出る",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[7]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A8",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P09|P11|P12]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A9",
+      "requirement": "通知が新しい仕組みを増やさず既存の画面内お知らせ板に出る",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[8]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A9",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P08|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    },
+    {
+      "requirement_id": "A10",
+      "requirement": "ブログを切り替えても同じ画面構成で、URL からどのブログを見ているかが判別できる",
+      "confirmed_sources": [
+        "feature:feat-blog-scoped-admin-console#acceptance[9]",
+        "context:feat-blog-scoped-admin-console",
+        "arch-system-spec-overview",
+        "arch-two-layer-platform",
+        "arch-blog-operations-console"
+      ],
+      "system_tasks": [
+        "P01",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A10",
+        "tasks[phase_ref=P01|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation",
+        "feature_package_id"
+      ]
+    }
+  ]
+}

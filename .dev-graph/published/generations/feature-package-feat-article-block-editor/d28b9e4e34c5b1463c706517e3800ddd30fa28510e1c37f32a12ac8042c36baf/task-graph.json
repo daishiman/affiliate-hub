@@ -1,0 +1,196 @@
+{
+  "edges": [
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P01",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P03",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P04",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P06",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P08",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P07",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P10",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+      "to": "SYS-ARTICLE-BLOCK-EDITOR-P13",
+      "type": "depends_on"
+    }
+  ],
+  "feature_package_id": "feature-package/feat-article-block-editor",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P01",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P01"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P02",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P02"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P03",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P03"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P04",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P04"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P05",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P05"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P06",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P06"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P07",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P05"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P08",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P08"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P09",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P10",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P07",
+        "SYS-ARTICLE-BLOCK-EDITOR-P09"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P11",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P10",
+        "SYS-ARTICLE-BLOCK-EDITOR-P11"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P12",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-ARTICLE-BLOCK-EDITOR-P12"
+      ],
+      "feature_package_id": "feature-package/feat-article-block-editor",
+      "id": "SYS-ARTICLE-BLOCK-EDITOR-P13",
+      "parent_feature": "feat-article-block-editor",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-article-block-editor",
+  "schema_version": "1.0.0"
+}

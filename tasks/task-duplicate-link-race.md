@@ -12,8 +12,8 @@ iteration: null
 title: "同時に同じリンクを貼ったときの重複の取りこぼし"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-17T02:21:55.000818Z"
-status: "draft"
+updated_at: "2026-08-21T05:08:51Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["src/application/usecases","drizzle"]

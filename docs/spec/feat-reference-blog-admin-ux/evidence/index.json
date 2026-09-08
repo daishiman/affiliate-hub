@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-30T11:32:14+09:00",
+  "tool_versions": {
+    "collector": "reference-site-analysis/1.1",
+    "verifier": "verify-evidence-index/1",
+    "completion_audit": "completion-audit/1",
+    "vitest": "4.1.10",
+    "playwright": "repository-lockfile"
+  },
+  "entries": [
+    {
+      "id": "p01-sitemap-snapshot",
+      "path": "docs/spec/feat-reference-blog-admin-ux/sitemap-snapshot.json",
+      "sha256": "59e13612967a1423c32c6f3a514bca296692c11b5b36feeb340f57d7de831792",
+      "captured_at": "2026-08-30T11:20:00+09:00",
+      "requirements": [
+        "A1"
+      ],
+      "phases": [
+        "P01"
+      ]
+    },
+    {
+      "id": "p01-url-inventory",
+      "path": "docs/spec/feat-reference-blog-admin-ux/reference-url-inventory.json",
+      "sha256": "fe78ebafcbc2497723127de880b7faca4f88b800500d0bbd55fce52a50cd3ddb",
+      "captured_at": "2026-08-30T11:20:00+09:00",
+      "requirements": [
+        "A1",
+        "A2"
+      ],
+      "phases": [
+        "P01"
+      ]
+    },
+    {
+      "id": "p01-archetype-analysis",
+      "path": "docs/spec/feat-reference-blog-admin-ux/page-archetype-analysis.md",
+      "sha256": "3fb7a32346a899c698e453d560b989aceec30a4cf72fe485dc0ee098ad2a6f32",
+      "captured_at": "2026-08-30T11:32:14+09:00",
+      "requirements": [
+        "A2",
+        "A4"
+      ],
+      "phases": [
+        "P01"
+      ]
+    },
+    {
+      "id": "p01-sitemap-snapshot-raw",
+      "path": "docs/spec/feat-reference-blog-admin-ux/evidence/sitemap-snapshot.raw.json",
+      "sha256": "15df95c5c3e2782cb987d8d1f0b394651591220e8fc5d0b9812ae465c270c539",
+      "captured_at": "2026-08-30T11:20:00+09:00",
+      "requirements": [
+        "A1"
+      ],
+      "phases": [
+        "P01"
+      ]
+    },
+    {
+      "id": "p01-url-inventory-raw",
+      "path": "docs/spec/feat-reference-blog-admin-ux/evidence/reference-url-inventory.raw.json",
+      "sha256": "43b4c1fc3d0f42f2d5547620a9a4510313212b1fa3d3d7987be392ef0ffabf0d",
+      "captured_at": "2026-08-30T11:20:00+09:00",
+      "requirements": [
+        "A1",
+        "A2"
+      ],
+      "phases": [
+        "P01"
+      ]
+    },
+    {
+      "id": "p01-site-profile",
+      "path": "docs/spec/feat-reference-blog-admin-ux/evidence/reference-site-profile.json",
+      "sha256": "666f3e0738d412e7437967026a86704412786faed94f83f99d5e03565e47d0d2",
+      "captured_at": "2026-08-30T11:20:00+09:00",
+      "requirements": [
+        "A1",
+        "A4"
+      ],
+      "phases": [
+        "P01"
+      ]
+    },
+    {
+      "id": "p01-screen-inventory",
+      "path": "docs/spec/feat-reference-blog-admin-ux/screen-inventory.md",
+      "sha256": "b5bf8e6d9142ee7df2311d731c0d4d9c28fa69a79a91bad47729a123897ab330",
+      "captured_at": "2026-08-30T09:05:00+09:00",
+      "requirements": [
+        "A3",
+        "A12"
+      ],
+      "phases": [
+        "P01"
+      ]
+    },
+    {
+      "id": "p06-test-report",
+      "path": "docs/spec/feat-reference-blog-admin-ux/test-run-report.md",
+      "sha256": "578904a789116da3ed896e9a66d03b67a1efeccfcf6820d8e2c9373fc6cd8df0",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A11"
+      ],
+      "phases": [
+        "P06"
+      ]
+    },
+    {
+      "id": "p06-machine-summary",
+      "path": "test-results/reference-blog-admin-ux/p06/summary.json",
+      "sha256": "f130aa902830769a42d30cd36f52e70fd2d1a1434dae16183b45f3b222e7adab",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A11"
+      ],
+      "phases": [
+        "P06"
+      ]
+    },
+    {
+      "id": "p06-e2e-summary",
+      "path": "test-results/reference-blog-admin-ux/p06/e2e-summary.json",
+      "sha256": "51a55193884160454521869503df4d13ee1fb96efeb929c8c5a38e5ad97790f9",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A11"
+      ],
+      "phases": [
+        "P06"
+      ]
+    },
+    {
+      "id": "p08-migration-report",
+      "path": "docs/spec/feat-reference-blog-admin-ux/migration-report.md",
+      "sha256": "3c630d611a6d964a1377f341f8dfe95e2d7c74f3e5cdcd9d2ed34a2ef7372226",
+      "captured_at": "2026-08-30T10:07:23+09:00",
+      "requirements": [
+        "A6",
+        "A8",
+        "A9"
+      ],
+      "phases": [
+        "P08"
+      ]
+    },
+    {
+      "id": "p08-isolated-d1-rehearsal",
+      "path": "test-results/reference-blog-admin-ux/p08/isolated-d1-rehearsal.json",
+      "sha256": "831ce4e44f7e0c619f0a22c4bb65f56864b1d9c71a805341985b13d5a80dcd79",
+      "captured_at": "2026-08-30T10:07:23+09:00",
+      "requirements": [
+        "A6",
+        "A8",
+        "A9"
+      ],
+      "phases": [
+        "P08"
+      ]
+    },
+    {
+      "id": "p07-acceptance-report",
+      "path": "docs/spec/feat-reference-blog-admin-ux/acceptance-report.md",
+      "sha256": "c16f08458cd72816ed13b970bee60524073ea292dcf694e4afde0f1ee44207f6",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12"
+      ],
+      "phases": [
+        "P07"
+      ]
+    },
+    {
+      "id": "p07-usability-report",
+      "path": "docs/spec/feat-reference-blog-admin-ux/usability-report.md",
+      "sha256": "b010bfcffa6e45db0a0ff075058d4bc2ca7ccde979ed51c6a28406169f109466",
+      "captured_at": "2026-08-30T09:05:00+09:00",
+      "requirements": [
+        "A10"
+      ],
+      "phases": [
+        "P07"
+      ]
+    },
+    {
+      "id": "p09-qa-report",
+      "path": "docs/spec/feat-reference-blog-admin-ux/qa-report.md",
+      "sha256": "b7d0c1cb51501f1bd6bb2d404b504ddec3662b04b27c5c954e5b1b658db96e73",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A4",
+        "A8",
+        "A10",
+        "A11"
+      ],
+      "phases": [
+        "P09"
+      ]
+    },
+    {
+      "id": "p09-cwv-desktop",
+      "path": "test-results/reference-blog-admin-ux/qa/core-web-vitals-desktop.json",
+      "sha256": "f8e387250ca106dcab7b568c3c86669744c91ea6774242e597b589ca4226f7ab",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A11"
+      ],
+      "phases": [
+        "P09"
+      ]
+    },
+    {
+      "id": "p09-cwv-mobile",
+      "path": "test-results/reference-blog-admin-ux/qa/core-web-vitals-mobile.json",
+      "sha256": "8a37b94456b30aa2d95e030efe249560b43196b1beaec9330055dd5fcdaa39f5",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A11"
+      ],
+      "phases": [
+        "P09"
+      ]
+    },
+    {
+      "id": "p09-responsive-desktop",
+      "path": "test-results/reference-blog-admin-ux/qa/responsive-desktop.json",
+      "sha256": "252a11d1e7e8d6a8a496a7e60166b903f7e42656727c7a8ec755cb00d21481fb",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A11"
+      ],
+      "phases": [
+        "P09"
+      ]
+    },
+    {
+      "id": "p10-final-review",
+      "path": "docs/spec/feat-reference-blog-admin-ux/final-review.md",
+      "sha256": "472f071f69e80e96bb1817cc763c257461b8f23598a73dcfaf292e9e789f36d4",
+      "captured_at": "2026-08-30T09:56:08+09:00",
+      "requirements": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12"
+      ],
+      "phases": [
+        "P10"
+      ]
+    },
+    {
+      "id": "exact-13-completion-audit",
+      "path": "test-results/reference-blog-admin-ux/completion-audit.json",
+      "sha256": "af6c3b2636682cebc18fc454fbb804c3c09a4f88c5d1c5d8149c8d44f26235f2",
+      "captured_at": "2026-08-30T10:07:23+09:00",
+      "requirements": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12"
+      ],
+      "phases": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ]
+    }
+  ],
+  "isolation_policy": "source host, concrete URLs and proper nouns exist only under docs/spec/feat-reference-blog-admin-ux/evidence/; every other tier carries abstract path shapes and digests only"
+}

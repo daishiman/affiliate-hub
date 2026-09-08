@@ -5,5 +5,15 @@
  "http_status": 200,
  "content_bytes": 254974,
  "content_sha256": "860f003449aa68abca339979034d00e642354aea6fa256bdc0527b159148b0a5",
- "page_title": "Drizzle ORM - Why Drizzle?"
+ "page_title": "Drizzle ORM - Why Drizzle?",
+ "freshness_extraction": {
+  "freshness_source": "publisher-registry",
+  "value": "0.45.2",
+  "found_in": [
+   "2026-08-22T22:20:35Z に `npm view drizzle-orm version dist-tags.latest time.modified` で照会: version = '0.45.2' / dist-tags.latest = '0.45.2' / time.modified = '2026-08-12T14:59:59.314Z'"
+  ],
+  "body_declares_date": null,
+  "body_search_method": "この record は 2026-08-16 の取得時に freshness_extraction を持たずに作られた。本文は保存していないので、当時のページが日付や版を表明していたかどうかを今から確かめる手段が無い。**「本文に表明が無かった」とは書かない** — 確かめていないことを確かめた形にすると、他の record の body_declares_date=false (実際に探して 0 件だったもの) と区別がつかなくなる。null は「未確認」であって「無い」ではない。",
+  "note": "C08 鮮度監査 (2026-08-22) が freshness_extraction の欠落を medium finding として検出したため後から補った。値の出所は publisher の配布 registry であり、記録済みの version 0.45.2 と一致することを再照会で確かめた。docs ページは rolling で版を持たないため、説明対象の版は registry にしか無い (better-auth / nextjs / stryker-mutator と同じ扱い)。content_sha256 は 2026-08-16 の docs ページ取得証跡であって、registry 照会の証跡ではない。"
+ }
 }

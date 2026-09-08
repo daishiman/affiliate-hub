@@ -37,6 +37,22 @@ export type ActorResolution =
  */
 export type MembershipReaderPort = Pick<MembershipRepositoryPort, "findByUser">;
 
+/**
+ * 管理画面の読み取りに渡せる身元を選ぶ。
+ *
+ * cookie が無い開発・検査環境だけは従来どおり見本を使う。一方、有効な
+ * session を持つ人が担当から外れた場合と、保存先を確認できない場合は
+ * 見本へ権限降格して読み続けず、呼び出し側が入口へ戻せるよう null にする。
+ */
+export function selectAdminReadActor(
+  resolution: ActorResolution,
+  anonymousFallback: ActorContext,
+): ActorContext | null {
+  if (resolution.kind === "actor") return resolution.actor;
+  if (resolution.kind === "anonymous") return anonymousFallback;
+  return null;
+}
+
 export function createSessionActorResolver(deps: {
   readonly sessions: SessionReaderPort;
   readonly memberships: MembershipReaderPort;
@@ -56,6 +72,15 @@ export function createSessionActorResolver(deps: {
     if (!membership.ok) return { kind: "unavailable", reason: membership.error.message };
     if (membership.value === null) return { kind: "not_member", userId };
 
+    // Port が誤った行を返しても、別 workspace / 別 user の役割を借りない。
+    // DB の WHERE だけに依存せず、権限を ActorContext へ移す直前でも照合する。
+    if (
+      String(membership.value.workspaceId) !== String(workspaceId) ||
+      String(membership.value.userId) !== String(userId)
+    ) {
+      return { kind: "not_member", userId };
+    }
+
     // 取り消された担当者は、合言葉が生きていても操作できない。
     if (membership.value.revokedAt !== null) return { kind: "not_member", userId };
 
@@ -65,6 +90,7 @@ export function createSessionActorResolver(deps: {
         workspaceId,
         userId: String(userId),
         roles: membership.value.roles,
+        scopedBrandIds: membership.value.scopedBrandIds,
         // 人が使っている経路なので、AI サービスアカウントではない。
         // AI の入口は別に身元確認を持つ（`api-token`）。
         isAiServiceAccount: false,

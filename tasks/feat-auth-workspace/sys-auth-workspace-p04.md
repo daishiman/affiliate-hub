@@ -12,8 +12,8 @@ iteration: null
 title: "受け入れ条件に基づくテストファースト設計"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:39:37Z"
-updated_at: "2026-08-16T13:01:24.707942Z"
-status: "active"
+updated_at: "2026-08-24T12:54:42Z"
+status: "closed"
 depends_on: ["SYS-AUTH-WORKSPACE-P03"]
 related_nodes: []
 resource_scope: ["src/lib/auth/__tests__/login-redirect.spec.ts","src/lib/workspace/__tests__/workspace-isolation.spec.ts","src/lib/brand/__tests__/brand-defaults.spec.ts","src/lib/rbac/__tests__/role-403.spec.ts","docs/spec/feat-auth-workspace/test-design.md"]
@@ -171,3 +171,10 @@ system-spec/auth.md・security.md・database.md が確定した振る舞い契�
 - source spec: 昇格済み generation の task spec 本文 (byte-for-byte 不変)
 - verification: published task spec の Automated commands
 - rerun: published task spec 内の `validate-system-plan.py --repo-root . --staging .` は repository root から解決できない。再検証は世代非依存の `python3 plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` を使い、current pointer から現行世代を再解決する。
+
+## 実行記録 (2026-08-24 最終レビュー)
+
+- Beads `ah-361.4` は closed。ローカル MVP の受入は完了。
+- 本番 Google OAuth / remote D1 は未検証（`docs/spec/feat-auth-workspace/release-notes.md` §7）。
+- draft PR: https://github.com/daishiman/affiliate-hub/pull/29
+- 証跡: `docs/spec/feat-auth-workspace/test-design.md`, `beads:ah-361.4`

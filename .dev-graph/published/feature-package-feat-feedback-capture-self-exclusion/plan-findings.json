@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-feedback-capture-self-exclusion/run-20260830T035936Z-fcse",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "旧 staging (run-20260830T034542Z-fcse) との差分を独立に確認した結果、本 staging で内容が変わったのは feature-package.json#source_feature_digest、goal-spec.json#lineage.feature_context.source_digest/run_id、system-build-handoff.json の digest/hash 追随フィールド4件、staging-manifest.json の digest 一式のみであり、13件の task-specs、workstream-inventory.json、task-graph.json はバイト単位で無変更 (diff -rq で差分0件)。従って C1 の実体評価 (purpose/goal/scope_in 7件/scope_out 5件/acceptance 7件と13 task 本文・write_scope の突き合わせ) は前回評価時と同一根拠で成立する。評価対象外参照 features/feat-feedback-capture-self-exclusion.md の scope_in 7項目 (撮影開始と可視化の時点分離、写し確定までモーダル非表示、起動ボタンの写し対象除外、撮り直し経路への同一規則適用、拒否/非対応/失敗時の退避経路、data-floating-overlay の共通化、属性付与漏れの検査) はいずれも P01..P13 の該当 task (P02/P05/P08/P04/P06 など) の目的・成果物へ具体的に展開されており、全13 task の『スコープ外』節は feature の scope_out 5件と同一文言で一致し、いずれの task 本文もこれらへ踏み込んでいない。write_scope は P05/P06 のみが feature の resource_scope (src/presentation/ui/patterns, tests/e2e, tests) に完全一致し、P01/P02/P03/P04/P07/P09/P10/P11/P12/P13 の write_scope (docs/spec/feat-feedback-capture-self-exclusion/ 配下、P12 は加えて共有文書 docs/spec/12-改善要望フィードバック仕様.md) は resource_scope の明示3パスに literal には含まれず、P08 の write_scope (src/presentation/ui) も resource_scope より広い。これらは前回同様 medium finding として維持する。P12 の共有文書への書き戻しは feature 本文『目的』節が同文書への欠落補完を明示しているため逸脱ではないと判断する。",
+      "evidence": [
+        "feature-package.json",
+        "task-specs/phase-01-requirements.md#スコープ外",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-08-refactoring-migration.md#成果物",
+        "task-specs/phase-12-documentation-operations.md#成果物",
+        "workstream-inventory.json#tasks",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "本 staging でも exact-13 (P01..P13)、13-entry workstream-inventory、13-node task-graph、必須 section 全件は前回評価から無変更 (diff -rq で task-specs/workstream-inventory.json/task-graph.json いずれも差分0件、決定論ゲート violations=[])。feature が宣言する上流 qa 要件 qa-frontend-web-capture-self-occlusion は評価対象外参照 system-spec/spec-state.json#qa_log[id=qa-frontend-web-capture-self-occlusion] に登録済みで、matrix.frontend.web.qa_ref が同 id を指し、system-spec/frontend.md の『確定内容 (質疑録)』『本章での適用』の両節にも同一内容が転記されている。確認済み回答の要素 ((1) 撮影すると送信モーダル/起動ボタンが写り込む事象、(2) 本当に伝えたい箇所が伝わらない問題、(3) 『撮影中だけ自動で隠す』案の採用、(4) 撮り直しにも同一規則を適用) は feature-package.json の goal/task_spec_paths、および P01..P13 の目的/成果物へ意味として反映されており (P01: 現状棚卸し、P02/P05: 撮影要求と送信 UI 描画の時点分離、全13 task のスコープ外節: 機能無効化しない、P02/P04/P06: 撮り直し経路の設計・テスト・検査)、qa-ref-unregistered/qa-semantic-coverage/qa-task-trace のいずれの欠落も確認されなかった。さらに今回のみの追加確認点として、feature-package.json#source_feature_digest の変化元である features/feat-feedback-capture-self-exclusion.context.json の architecture_refs が [\"arch-two-layer-platform\"] から [\"architecture/arch-two-layer-platform.md\",\"system-spec/frontend.md\",\"system-spec/ui-ux.md\"] へ改訂され、qa 出典である system-spec/frontend.md への参照が feature context 側にも repo 相対パスとして明示された。これは P01..P13 の各 task spec が既に『Architecture and deploy unit』節でこの同じ3パスを参照していた実態 (旧 staging 時点から無変更) と feature context の宣言を一致させるものであり、trace 上の欠落を新たに生むものではなく、むしろ従来存在した『task spec は3パスを参照するが feature context は node-id 1件のみ』という非対称を解消する改善である。",
+      "evidence": [
+        "workstream-inventory.json#tasks",
+        "feature-package.json#task_spec_paths",
+        "task-specs/phase-01-requirements.md#成果物",
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-04-test-design.md#成果物",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-06-test-run.md#成果物",
+        "task-specs/phase-07-acceptance.md#目的",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "本 staging の feature-package.json#source_feature_digest は sha256:3ff191c19523cd47fb620ed9b27ade3221ab8e58124bc02b4d3550447727da28 へ更新されている。評価対象外参照 features/feat-feedback-capture-self-exclusion.context.json を独立に実測 (sha256) した結果、この新 digest と完全一致することを確認した (purpose/goal/scope_in/scope_out/acceptance/updated_at は無変更、architecture_refs のみ [\"arch-two-layer-platform\"] から [\"architecture/arch-two-layer-platform.md\",\"system-spec/frontend.md\",\"system-spec/ui-ux.md\"] へ変更されたことによる digest 変化)。この3パスはいずれも repo 相対の実在ファイルであることをディスク上で確認済み (architecture/arch-two-layer-platform.md, system-spec/frontend.md, system-spec/ui-ux.md)。feature 前面 (features/feat-feedback-capture-self-exclusion.md) の frontmatter 側 architecture_refs は node-id 表記 [\"arch-two-layer-platform\"] のまま無変更であり、既存 feat-blog-ui-builder と同じ『feature .md は node-id、context.json/goal-spec.json は repo 相対実パス』の二重表記方針に整合する。全13 task の graph_node_registration.file_path は tasks/<parent_feature>/<小文字 task id>.md 規約 (無変更) に一致。workstream-inventory.json#repo_context.repo_identity と system-build-handoff.json#identity.repository_id はいずれも github:daishiman/affiliate-hub で評価対象外参照 .dev-graph/config.json#repository_id と完全一致 (これらのファイルは今回 digest フィールドのみ変化し repo_identity 自体は無変更)。staging 配下 (18ファイル) を再走査した結果、絶対パス参照・symlink・placeholder はいずれも0件。",
+      "evidence": [
+        "feature-package.json#source_feature_digest",
+        "workstream-inventory.json#repo_context",
+        "system-build-handoff.json#identity",
+        "task-specs/phase-01-requirements.md#Verification and evidence",
+        "task-specs/phase-13-release-deploy.md#Verification and evidence",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json はバイト単位で旧 staging と無変更であり、13 node の depends_on は P01(なし)→P02→P03→…→P13 の完全な直列で循環・後方edge・feature外task参照は0件。system-build-handoff.json#execution_tasks[].depends_on (今回 digest 系4フィールドのみ変化、depends_on 構造自体は無変更) は task-graph.json#nodes[].depends_on と完全一致する。orphan・多重依存は0件。決定論ゲート (validate-system-plan.py, 本 staging 対象) の出力も status=pass, validated_digest=sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b, violations=[] で機械検査上の矛盾は検出されなかった。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "system-build-handoff.json#execution_tasks",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--config",
+        ".dev-graph/config.json",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-feedback-capture-self-exclusion/run-20260830T035936Z-fcse"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b\",\n  \"feature_package_id\": \"feature-package/feat-feedback-capture-self-exclusion\",\n  \"parent_feature\": \"feat-feedback-capture-self-exclusion\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"violations\": []\n}",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "f16758ee58a8a96112b4bac24ae5a2267496549f227bc873e46f1a500c4acfe7"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "da94a8260519ca850c68e707c4b9e672c023a0934da02fa9e660761579c8bd78"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "e6cd0d21be7a61e79770845306dca0ac7ef353d34a186dd50c2398aa8f4a62d9"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "d9e39195938ac3115ba8374ba172535ec1d0735b7c391a573ab76aa935fb755a"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "247b8e8b4bbbb5b8e429bc633b251d5433e8053a49584e724b3621f9c8227136"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "84d58b8a2492471505bc6e10fb4eb0f26c763391d250e2f14ca04e6df2624fc7"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "e3360b6423fc7d7b7e244b6798e21b32e0d4d33684df940d786a9063525a52c1"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "f92bdbc6263012dbd56f2575ef2cdbd58f3fdf7a7d25a5e0a10ac523d387b31a"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "1854c81ba6cc5fa6286b1a3e35998e1f84a4eadc9aa2ac780a1e8f428c0e2c9e"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "4526ec7e7a13e95214bf14cc24bfcf57aa8d6d2d55c1c283672f9b464d397923"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "0023229c322e7d787abee49026e7db22f54fefc4b18d5c7c65b30f5c5938473c"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "35e6c3224ff58cd5c3886f662ca243c58108ec97e32b98ff2c4f5d988d30bfef"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "126d73f9f01b1877ae06ece58830dfc603d376e6a429d77c14b758c5bb9315cb"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "2d795955c67a7042e2ddacd65671b5b86385635b6472333ab2996ed8f13149ae"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "8ea05de04d754a3b80e272c08389a0a0bc1a5ae46aaa1f305fa3c3d0369549dd"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "e585ff7ccca64d5524258d98335917238f6302d8c3cc51d7bb7094a82c71e826"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "3fd8beda756629fc8f9e2bcc921b60beddcdea50e6ee0255572493873e7bee0c"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "25c8da2630343445ac679e06a7cd44171fc42b614a8d95f81dc618e43c13f1cc"
+    }
+  ],
+  "staleness_rule": "evaluated_digest は本 staging (run-20260830T035936Z-fcse) の staging-manifest.json#canonical_digest (=sha256:13ad980aa71b9f1c7e2e661bdfc41f4cc44de5f2854df51ae40f4c676d1d6f9b) に束縛される。staging 配下の17ファイル (feature-package.json/workstream-inventory.json/task-graph.json/system-build-handoff.json/task-specs 13件) のいずれか1件でも内容が変わり canonical_digest が再計算されて変化した場合、本 plan-findings.json は無効となり、新しい digest に対して評価をやり直す必要がある。source_feature_digest=sha256:3ff191c19523cd47fb620ed9b27ade3221ab8e58124bc02b4d3550447727da28 (features/feat-feedback-capture-self-exclusion.context.json 由来) が再度変化した場合 (architecture_refs の再改訂や purpose/goal/scope の再確定) や system-spec/spec-state.json#qa_log[qa-frontend-web-capture-self-occlusion]/matrix.frontend.web.qa_ref が変化した場合も同様に本 plan-findings.json は無効化し、system-dev-plan-architect による再生成とその独立評価からやり直す。旧 staging (run-20260830T034542Z-fcse, canonical_digest=sha256:77e5996b1e9a5847d5a96d6deed72fa096b557000f1ca1cad2c005575f9df6c0) に対する verdict は本 evaluated_digest とは別 digest の判定であり、C11 promotion 判断には流用しない。",
+  "findings": [
+    {
+      "severity": "medium",
+      "bucket": "C1-scope-boundary",
+      "observation": "feature 前面 (features/feat-feedback-capture-self-exclusion.md) の resource_scope は [\"src/presentation/ui/patterns\",\"tests/e2e\",\"tests\"] の3パスのみを宣言しているが、実際の13 task write_scope のうち P01/P02/P03/P04/P07/P09/P10/P11/P12/P13 の10件は docs/spec/feat-feedback-capture-self-exclusion/ 配下 (または P12 のみ docs/spec/12-改善要望フィードバック仕様.md) の文書成果物であり、resource_scope の宣言範囲に literal には含まれない。旧 staging (run-20260830T034542Z-fcse) の評価時から task-specs は無変更であるため、この finding は本 staging (run-20260830T035936Z-fcse) にも引き続き該当する。system-dev-planner の一般的な運用 (要件/設計/レビュー/受入/証跡/文書化などの中間 phase が docs/spec 配下へ書く) に沿うものであり FAIL とするほどの逸脱ではないが、feature front matter の resource_scope が実態を過小に宣言しているという整合性の緩みがある。次回 feature 起票時に resource_scope へ docs/spec/feat-feedback-capture-self-exclusion (および必要なら docs/spec/12-改善要望フィードバック仕様.md への追記権限) を明示することを推奨する。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#成果物",
+        "task-specs/phase-04-test-design.md#成果物",
+        "task-specs/phase-09-quality-assurance.md#成果物",
+        "task-specs/phase-12-documentation-operations.md#成果物"
+      ]
+    },
+    {
+      "severity": "medium",
+      "bucket": "C1-scope-boundary",
+      "observation": "P08 (浮遊要素の属性統一と重なり監査との共通化) の write_scope は src/presentation/ui であり、feature の resource_scope が明示する src/presentation/ui/patterns よりも広いディレクトリを対象にしている。旧 staging の評価時から P08 の task spec は無変更であるため、この finding は本 staging にも引き続き該当する。P08 本文は書き込み対象コンポーネントを明示していないため、write_scope の広さがそのまま『既存の src/presentation/ui 配下の feedback-button.tsx 以外のコンポーネントにも書き込みうる』余地を作っている。P08 の実行時に、実際の変更ファイルが feedback-button.tsx およびその直接の重なり監査対象 (tests/e2e/app-routes.spec.ts) に限定されているか、既存の他コンポーネントへの意図しない改変が無いかを P09/P10 で確認することを推奨する。",
+      "evidence": [
+        "task-specs/phase-08-refactoring-migration.md#成果物"
+      ]
+    }
+  ]
+}

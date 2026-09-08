@@ -7,7 +7,7 @@ import {
   type ReadDashboardDeps,
   createGetDashboardUseCase,
 } from "@/application/usecases/dashboard/read-dashboard";
-import { ok } from "@/domain/shared";
+import { ok, taggedString } from "@/domain/shared";
 import { ADMIN_NAV } from "@/presentation/ui";
 import { currentActor, dashboardUseCases } from "@/presentation/composition";
 import { aNobody, anAnalyst, anOwner, aWriter } from "../support/actors";
@@ -138,6 +138,16 @@ describe("並びと約束", () => {
     expect(got.ok).toBe(false);
     if (got.ok) return;
     expect(got.error.code).toBe("FORBIDDEN");
+  });
+
+  it("ブランド限定担当者には、ブランド対応のない全社集計を出さない", async () => {
+    const got = await createGetDashboardUseCase(deps()).execute(
+      anOwner({ scopedBrandIds: [taggedString<"BrandId">("brand-limited")] }),
+      { at: AT },
+    );
+
+    expect(got.ok).toBe(false);
+    if (!got.ok) expect(got.error.code).toBe("TENANT_MISMATCH");
   });
 });
 
@@ -295,6 +305,22 @@ describe("数え方", () => {
     expect(got.value.allClearReason).toContain("手当てが要るものはありません");
     expect(got.value.unavailableCount).toBe(0);
     expect(pick(got.value.widgets, "generation_queue").valueLabel).toBe("0本");
+  });
+
+  it("手動で見直し状態にした記事を、次回確認日の超過と断定しない", async () => {
+    const widgets = await widgetsFor(owner, {
+      ...emptyWorld(),
+      contentVariants: portOf("contentVariants", {
+        // 保存先は REFRESH_DUE と reviewDueAt 超過の両方を、この一覧へ返す。
+        listByState: async () => ok({ items: [], nextCursor: null }),
+        listReviewOverdue: async () => ok([{}]),
+      }),
+    });
+
+    const w = pick(widgets, "refresh_due");
+    expect(w.label).toBe("見直しが必要な記事");
+    expect(w.reason).toContain("見直しが必要");
+    expect(w.reason).not.toMatch(/次回確認日|期限.*過ぎ/);
   });
 
   it("出どころが怪しい商品と、期限切れの商品を数える", async () => {

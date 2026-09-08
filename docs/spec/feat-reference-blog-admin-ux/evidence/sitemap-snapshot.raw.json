@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-29T21:28:58+00:00",
+  "collector": "scripts/reference-site-analysis/collect_reference_inventory.py",
+  "root_sitemap": "https://makuring.jp/sitemap.xml",
+  "root_status": 200,
+  "root_content_type": "application/xml; charset=UTF-8",
+  "root_content_sha256": "09542eed44457d0d36284d080792f07ab80729bf0514eb046ecea1e6bab9febb",
+  "sitemap_part_count": 14,
+  "sitemap_parts": [
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2026.xml",
+      "index_last_modified": "2026-08-25T02:01:57+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "7e6db604188c2de5f7bee6ff5e6d157e47e6dbd23e50765af9264f29548c9e55",
+      "url_memberships": 60
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2025.xml",
+      "index_last_modified": "2026-08-12T14:54:04+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "82954ef76fecab79e18dfec46f6d76757dcd6ae0158f8ebb96518a9302939da4",
+      "url_memberships": 70
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2024.xml",
+      "index_last_modified": "2026-07-11T23:44:44+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "7beaee910516e74eebbe2356f54141592c48ff329ab9cff0237f44205f6ac0bf",
+      "url_memberships": 81
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2023.xml",
+      "index_last_modified": "2026-08-25T02:08:53+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "8f12aaad73ced8b72d739e4aa75616e438145faf5f34a87820c310c756c714e9",
+      "url_memberships": 100
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2022.xml",
+      "index_last_modified": "2025-08-05T21:50:51+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "d0a09ac87be1b5283e716f34d19a23b405098170badad20c0da85b0c116dff15",
+      "url_memberships": 111
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2021.xml",
+      "index_last_modified": "2025-04-12T22:01:17+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "52b45e5c6a5a553d2cf2c03ea0fd756927558c09a75ef2106671700a26da7db7",
+      "url_memberships": 137
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2020.xml",
+      "index_last_modified": "2026-05-05T04:13:00+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "5831139880bdc9d1e70f31279416dd4b6e06d2ca13b09f01f88c384ad1873403",
+      "url_memberships": 150
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2019.xml",
+      "index_last_modified": "2026-05-05T04:13:42+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "5d26ec9fff34ada3961f6d4bba6db4b8f8bd77d3e5bb5700aca496c05e8ea2f6",
+      "url_memberships": 214
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-post.2018.xml",
+      "index_last_modified": "2025-04-14T14:08:30+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "e59c8bd387871e76e376a809f37b47d7e7b63e26890df762992b6db917a7c6ac",
+      "url_memberships": 45
+    },
+    {
+      "url": "https://makuring.jp/sitemap-posttype-page.xml",
+      "index_last_modified": "2026-07-25T03:28:37+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "32df1a415e0e6f55a309e7cb11afd5cbf9230889de8d2780d944eb50e690afe4",
+      "url_memberships": 17
+    },
+    {
+      "url": "https://makuring.jp/sitemap-taxonomy-category.xml",
+      "index_last_modified": "2026-08-24T19:39:15+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "f17bedb94e1a5fb280dc5e320153aed1e5e2f01015d51619097658d89ab51083",
+      "url_memberships": 32
+    },
+    {
+      "url": "https://makuring.jp/sitemap-taxonomy-post_tag.xml",
+      "index_last_modified": "2026-08-24T19:39:15+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "983b343af4bc490dedcb56ddd958bad78fffe533555a291282a9ee9d2ac2a88e",
+      "url_memberships": 32
+    },
+    {
+      "url": "https://makuring.jp/sitemap-author.xml",
+      "index_last_modified": "2026-08-24T19:39:15+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "8006dc93dc759ef9a52e7ce1b0105e68702931344ebf7957ef11d0067ffd2815",
+      "url_memberships": 23
+    },
+    {
+      "url": "https://makuring.jp/sitemap-news.xml",
+      "index_last_modified": "2026-08-24T19:39:15+09:00",
+      "status": 200,
+      "content_type": "application/xml; charset=UTF-8",
+      "content_sha256": "18047b20cba2032c0ac61c05122a7e7606681220609d83e62283e2dce8981272",
+      "url_memberships": 1
+    }
+  ],
+  "membership_count": 1073,
+  "canonical_url_count": 1072,
+  "duplicate_memberships": [
+    {
+      "canonical_url": "https://makuring.jp/",
+      "kept_sitemap": "https://makuring.jp/sitemap-posttype-page.xml",
+      "duplicate_sitemap": "https://makuring.jp/sitemap-news.xml"
+    }
+  ],
+  "screen_type_counts": {
+    "article": 968,
+    "article-index": 2,
+    "author": 23,
+    "fixed-page": 8,
+    "home": 1,
+    "navigator": 6,
+    "taxonomy": 64
+  },
+  "screen_variant_counts": {
+    "all-posts": 1,
+    "category": 32,
+    "comparison-or-guided-choice": 6,
+    "editorial-home": 1,
+    "html-sitemap": 1,
+    "policy-or-contact": 5,
+    "profile-and-post-list": 23,
+    "publisher-profile": 1,
+    "tag": 32,
+    "utility": 2,
+    "yearly-post": 968
+  },
+  "post_year_counts": {
+    "2018": 45,
+    "2019": 214,
+    "2020": 150,
+    "2021": 137,
+    "2022": 111,
+    "2023": 100,
+    "2024": 81,
+    "2025": 70,
+    "2026": 60
+  },
+  "unclassified_count": 0,
+  "inventory_digest": "bac24ebe95f012964c6d51f7bfaec1266783e09c9505187925edcdc3c352b288",
+  "retention_policy": "metadata-and-digests-only; no page body, image, logo, CSS, or theme asset"
+}

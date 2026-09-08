@@ -1,8 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Button, Callout, Field, ToolForm, UI_COPY } from "@/presentation/ui";
+import Script from "next/script";
+import { Button, Field, FormResult, FormValue, ToolForm, UI_COPY } from "@/presentation/ui";
 import { type ContactFormState, submitContactAction } from "./contact-action";
+import { TURNSTILE_CONTACT_ACTION } from "@/application/ports/reader-interaction";
 
 const INITIAL: ContactFormState = { status: "idle", message: "" };
 
@@ -12,18 +14,20 @@ const INITIAL: ContactFormState = { status: "idle", message: "" };
  * 送信中・成功・失敗の 3 つを必ず出す。押したあと何も変わらない状態を作らない。
  * 失敗の文言はユースケースが返したものをそのまま出す（画面で言い換えない）。
  */
-export function ContactForm({ siteSlug }: { readonly siteSlug: string }) {
+export function ContactForm({
+  siteSlug,
+  turnstileSiteKey,
+}: {
+  readonly siteSlug: string;
+  readonly turnstileSiteKey?: string | null;
+}) {
   const [state, action, pending] = useActionState(submitContactAction, INITIAL);
   const [body, setBody] = useState("");
   const [replyTo, setReplyTo] = useState("");
 
   return (
-    <ToolForm
-      action={action}
-      toolName="submitContact"
-      toolDescription="このブログの運営者へ問い合わせを送る"
-    >
-      <input type="hidden" name="siteSlug" value={siteSlug} />
+    <ToolForm action={action} toolName="submitContact" toolDescription="このブログの運営者へ問い合わせを送る">
+      <FormValue name="siteSlug" value={siteSlug} />
 
       <Field
         name="body"
@@ -44,14 +48,30 @@ export function ContactForm({ siteSlug }: { readonly siteSlug: string }) {
         toolParamDescription="返信先のメールアドレス（任意）"
       />
 
-      <Button type="submit" disabled={pending}>
+      {turnstileSiteKey ? (
+        <>
+          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" />
+          <div
+            className="cf-turnstile"
+            data-sitekey={turnstileSiteKey}
+            data-action={TURNSTILE_CONTACT_ACTION}
+            data-response-field-name="cf-turnstile-response"
+          />
+        </>
+      ) : (
+        <FormResult
+          state={{
+            status: "failed",
+            message: "自動送信よけの設定が未完了のため、現在このフォームからは送れません。",
+          }}
+        />
+      )}
+
+      <Button type="submit" disabled={pending || !turnstileSiteKey}>
         {pending ? UI_COPY.reader.contactSending : UI_COPY.reader.contactSubmit}
       </Button>
 
-      {state.status === "sent" ? <Callout tone="success" reason={state.message} /> : null}
-      {state.status === "failed" && state.field === undefined ? (
-        <Callout tone="warn" reason={state.message} />
-      ) : null}
+      <FormResult state={state} />
     </ToolForm>
   );
 }

@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-QC09, REQ-SEC07 */
 import { describe, expect, it } from "vitest";
 import { READER_DISCLOSURE_TEXT } from "@/domain/compliance/disclosure";
 import { UI_COPY } from "@/presentation/ui/copy";

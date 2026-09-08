@@ -1,0 +1,42 @@
+{
+ "graph_node_id": "feat-seo-aeo-gap-closure",
+ "artifact_kind": "feature",
+ "purpose": "SEO/AEO の仕組みのうち、確定済み decision に対して実装が追いついていない 3 点だけを埋め、「決めたが動いていない」状態を無くす",
+ "goal": "手順記事と読み上げ向けの構造化データが記事から導出され、公開時点検の結果が履歴として残り、公開後の記事も定期に再点検されて陳腐化に気づける状態になっている",
+ "scope_in": [
+  "HowTo の JSON-LD 導出 (手順ブロックを持つ記事から。src/application/seo/structured-data.ts へ追加)",
+  "Speakable の JSON-LD 導出 (結論・要点ブロックを読み上げ対象として指定)",
+  "公開時点検 (auditArticleForAiSearch) の結果を履歴として保持する (dec-analysis-history-retention = append-with-window。追記のみ・保持窓を超えた分は落とす)",
+  "公開後の記事を定期に再点検する経路 (dec-aeo-analysis-trigger の scheduled 側。wrangler.jsonc の crons に対する scheduled handler と、再点検結果の履歴への追記)",
+  "再点検で新たに落ちた記事を管理画面で見つけられる一覧"
+ ],
+ "scope_out": [
+  "記事からの JSON-LD 導出そのもの (実装済み: src/application/seo/structured-data.ts。BlogPosting/FAQPage/BreadcrumbList/Person/Organization/WebPage/ItemList)",
+  "llms.txt・IndexNow・sitemap・RSS の生成 (実装済み: src/app/s/[site]/llms.txt/route.ts、src/domain/seo/indexnow.ts、src/application/seo/feeds.ts)",
+  "ガイドライン出典レジストリと 90 日の陳腐化判定 (実装済み: src/application/usecases/seo/manage-guideline-references.ts、src/domain/seo/guideline-reference.ts の review_due)",
+  "公開時点検の判定ロジックそのもの (実装済み: src/application/seo/ai-search-audit.ts、src/application/usecases/site/publish-article.ts に組込済)",
+  "記事本文の AI 生成 (feat-ai-content-studio)",
+  "クリック・成果のアトリビューション (feat-analytics-insight)",
+  "管理画面の単一用途画面再編 (feat-uiux-overhaul)",
+  "参考ブログ水準の読者導線・目次・サイドバー配置 (feat-reference-blog-admin-ux)"
+ ],
+ "acceptance": [
+  "手順ブロックを持つ記事の公開ページに HowTo の JSON-LD が出力され、手順を持たない記事には出力されない",
+  "結論・要点ブロックを持つ記事に Speakable の JSON-LD が出力される",
+  "公開のたびに点検結果が履歴へ追記され、保持窓を超えた古い分だけが落ちる",
+  "定期実行で公開済み記事が再点検され、結果が同じ履歴へ追記される",
+  "再点検で落ちた記事が管理画面の一覧に現れ、落ちた理由 (hint) が読める",
+  "既存の JSON-LD・llms.txt・IndexNow・出典レジストリ・公開時点検の挙動が変わらない"
+ ],
+ "architecture_refs": [
+  "architecture/system-spec-overview.md",
+  "architecture/arch-two-layer-platform.md",
+  "system-spec/index.md",
+  "system-spec/00-requirements-definition.md",
+  "system-spec/frontend.md",
+  "system-spec/ui-ux.md",
+  "system-spec/backend.md",
+  "system-spec/database.md"
+ ],
+ "updated_at": "2026-09-04T00:00:00Z"
+}

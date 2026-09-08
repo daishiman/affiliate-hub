@@ -9,14 +9,18 @@
  */
 import { describe, expect, it } from "vitest";
 import {
+  createGetGenerationMatrixUseCase,
   MATRIX_CHANNELS,
   MATRIX_ROW_AXES,
 } from "@/application/usecases/authoring/plan-generation-matrix";
+import { type BrandId, taggedString } from "@/domain/shared";
 import {
   currentActor,
   generationMatrixUseCases,
   sampleContentPackageId,
 } from "@/presentation/composition";
+import { anOwner } from "../support/actors";
+import { testDeps } from "../support/doubles";
 
 /**
  * 生成マトリクスの確認。
@@ -35,6 +39,21 @@ async function matrix(axis?: (typeof MATRIX_ROW_AXES)[number], limit?: number) {
 }
 
 describe("生成マトリクス", () => {
+  it("担当外ブランドの企画はIDを知っていても参照できない", async () => {
+    const base = testDeps();
+    const actor = anOwner({
+      workspaceId: (await currentActor()).workspaceId,
+      scopedBrandIds: [taggedString<"BrandId">("brand-outside") as BrandId],
+    });
+    const result = await createGetGenerationMatrixUseCase({
+      packages: base.contentPackages,
+      variants: base.contentVariants,
+      personas: base.personas,
+    }).execute(actor, { packageId: sampleContentPackageId() });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("TENANT_MISMATCH");
+  });
+
   it("列は仕様どおり 7 媒体で、順序も固定されている", async () => {
     const m = await matrix();
     expect(m.channels.map((c) => c.channel)).toEqual([...MATRIX_CHANNELS]);

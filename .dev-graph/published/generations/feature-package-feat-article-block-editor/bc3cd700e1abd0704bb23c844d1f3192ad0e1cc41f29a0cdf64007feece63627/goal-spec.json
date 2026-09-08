@@ -1,0 +1,316 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-bffa54145d30",
+  "session_owner": "claude-opus-4-6",
+  "generated_at": "2026-09-07T14:16:00Z",
+  "feature_id": "feat-article-block-editor",
+  "graph_node_id": "feat-article-block-editor",
+  "artifact_kind": "feature",
+  "purpose": "管理画面の記事編集を、記法の生テキストが見える入力欄の集まりから、出来上がりの見た目のまま編集できるブロックエディターへ変え、記事を構成する全ての情報を編集面から扱えるようにする",
+  "goal": "編集面と公開ページが同一の描画部品を通り、節 (見出し2 固定) と本文断片 (見出し3/4) の 2 層が UI 上で見分けられ、どの編集操作でも見出しレベルが動かず、19 種の断片 (コードブロック・商品カード・並列画像・表・色付き文字を含む) が `/` から挿入・編集・公開できる。商品は検索選択、画像は URL や object key の手入力・ブラウザ直接 PUT ではなく同一生成元の Worker API への添付で入り、Worker が認可・8 MiB 上限・実バイト形式を検査し、サーバー生成鍵で pending 予約→R2 put→ready 確定する状態になっている",
+  "scope_in": [
+    "編集面の WYSIWYG 化 — 記法の生テキストを編集面へ出さず、編集面と公開ページが同一の描画部品を通る (UIUX-REQ-005〜007, FRONT-REQ-005)",
+    "節 (外側・見出し2 固定) と本文断片 (内側・見出し3/4) の 2 層を UI で見せ、編集操作で見出しレベルが動かないようにする (FRONT-REQ-006〜008, UIUX-ACC-005〜007)",
+    "本文断片カタログを現行 10 種から 19 種へ拡張する (コードブロック・商品カード・並列画像・表・色付き文字を含む) (BE-PROSE-01〜03)",
+    "商品カードを商品検索結果からの選択で挿入し、商品 id の手入力欄を無くす (BE-PRODUCT-01, UIUX-ACC-008)",
+    "画像を同一生成元の認証済み Worker API へ送信し、Worker が編集権限・workspace/article 所属・8 MiB 上限・PNG/JPEG/WebP/GIF の実バイトと MIME 一致を検査し、サーバー生成鍵で pending 予約→R2 put→ready 確定する。URL・object key の手入力、署名付き URL、ブラウザから R2 への直接 PUT、R2 書込 CORS は採用しない。参照状態の正本は Editorial 側の D1 が持つ (BE-IMAGE-01, DB-IMAGE-01〜03, INF-IMG-01〜05, SEC-REQ-006〜008)",
+    "保存形式の往復保全 — 拡張 Markdown 文字列と断片木の相互変換が情報を落とさない (BE-PROSE-02〜03)",
+    "描画時の許可リスト絞り込みと投稿内容の無害化 (SEC-REQ-006〜009, SEC-ACC-006)",
+    "参照されなくなった画像の回収と、現行記事の移行手順 (OPS-REQ-008〜010)"
+  ],
+  "scope_out": [
+    "記事本文の AI 生成 (feat-ai-content-studio)",
+    "SEO/AEO の構造化データ導出と公開時点検 (feat-seo-aeo-gap-closure)",
+    "公開ページ側の読者導線・目次・サイドバー配置 (feat-reference-blog-admin-ux)",
+    "管理画面全体の単一用途画面再編 (feat-uiux-overhaul)",
+    "複数媒体向け原稿の生成ハーネス (feat-editorial-workflow)",
+    "複数人の同時編集と競合解決 (単独編集を前提とする)",
+    "記事のバージョン履歴 UI と差分表示",
+    "商品データそのものの取込・更新 (feat-blog-ui-builder が持つ)"
+  ],
+  "acceptance": [
+    "編集面に記法の生テキスト (``` や ** や表のパイプ) が現れず、全ての断片が出来上がりの見た目で表示・編集できる",
+    "節の見出しは常に見出し2、断片の見出しは見出し3/4 に固定され、挿入・移動・削除・貼り付けのいずれでもレベルが動かない",
+    "19 種の断片すべてを `/` から挿入でき、編集でき、公開ページで編集面と同じ見た目で表示される",
+    "商品カードは検索結果からの選択でのみ挿入でき、商品 id の手入力欄が存在しない",
+    "画像は URL・object key の手入力やブラウザから R2 への直接 PUT を使わず、同一生成元の Worker API から添付できる。8 MiB 超過、許可外形式、MIME/実バイト不一致は R2 保存前に理由付きで拒否され、成功時だけサーバー生成鍵の台帳が pending→ready になる",
+    "公開ページの描画が許可リストで絞られ、許可外の断片・属性・スタイルが出力されない",
+    "現行 10 種の断片で書かれた既存記事が壊れずに読み込め、保存し直しても内容が変わらない"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "system-spec/database.md",
+    "system-spec/infrastructure.md",
+    "system-spec/security.md",
+    "system-spec/maintenance-ops.md"
+  ],
+  "spec_chapters": [
+    "system-spec/00-requirements-definition.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "system-spec/database.md",
+    "system-spec/infrastructure.md",
+    "system-spec/security.md",
+    "system-spec/maintenance-ops.md"
+  ],
+  "requirement_ids": [
+    "UIUX-REQ-005",
+    "UIUX-REQ-006",
+    "UIUX-REQ-007",
+    "UIUX-ACC-005",
+    "UIUX-ACC-006",
+    "UIUX-ACC-007",
+    "UIUX-ACC-008",
+    "FRONT-REQ-005",
+    "FRONT-REQ-006",
+    "FRONT-REQ-007",
+    "FRONT-REQ-008",
+    "BE-PROSE-01",
+    "BE-PROSE-02",
+    "BE-PROSE-03",
+    "BE-PRODUCT-01",
+    "BE-IMAGE-01",
+    "DB-IMAGE-01",
+    "DB-IMAGE-02",
+    "DB-IMAGE-03",
+    "INF-IMG-01",
+    "INF-IMG-02",
+    "INF-IMG-03",
+    "INF-IMG-04",
+    "INF-IMG-05",
+    "SEC-REQ-006",
+    "SEC-REQ-007",
+    "SEC-REQ-008",
+    "SEC-REQ-009",
+    "SEC-ACC-006",
+    "OPS-REQ-008",
+    "OPS-REQ-009",
+    "OPS-REQ-010"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-article-block-editor.context.json",
+      "source_plugin": "system-dev-planner",
+      "source_plugin_version": "0.1.0",
+      "source_digest": "sha256:9a9bfacc9dd444dfcaaf27d9ac1d83a0a3596dce3afffc094f1ace4d430eac02",
+      "digest_note": "caller (run-system-dev-plan / C09) 提供の feature-context ファイル bytes sha256。本 agent は再計算ツールを持たないため、caller 提供値をそのまま接地する",
+      "updated_at": "2026-09-07T14:07:47Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-article-block-editor.md",
+      "confirmation_status": "draft",
+      "evaluation_status": "pending",
+      "implementation_readiness_status": "incomplete",
+      "implementation_readiness_missing": [
+        "Worker 経由画像契約に基づく P01〜P13 の再計画と独立評価"
+      ],
+      "source_lineage": {
+        "origin_kind": "system-spec-harness",
+        "source_digest": "8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
+        "source_path": "system-spec/ui-ux.md",
+        "source_plugin": "system-spec-harness",
+        "source_version": "0.1.0",
+        "imported_at": "2026-09-07T14:07:47Z"
+      }
+    },
+    "spec_confirmation": {
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "evaluator_version": "0.1.0",
+      "report_path": "system-spec/completeness-report.json",
+      "report_inputs_digest": "sha256:af070252a1844420d1aa521f2ad17e4641ecd89d9c2de2289b9f468ca193fbd4",
+      "overall_verdict": "PASS",
+      "gate_results": [
+        {
+          "id": "G-matrix",
+          "name": "validate-coverage-matrix",
+          "exit_code": 0,
+          "mode": "--require-complete --require-foundation"
+        },
+        {
+          "id": "G-source-citation",
+          "name": "validate-source-citation",
+          "exit_code": 0
+        },
+        {
+          "id": "G-knowledge-graph",
+          "name": "validate-knowledge-graph",
+          "exit_code": 0,
+          "subgates": [
+            "knowledge:0",
+            "doctrine:0",
+            "required-info:0",
+            "cross:0"
+          ]
+        }
+      ],
+      "aspects": {
+        "foundation_trace": "PASS",
+        "decision_guidance": "PASS",
+        "matrix_coverage": "PASS",
+        "design_knowledge_reflection": "PASS",
+        "doc_freshness": "PASS",
+        "prompt_quality": "PASS"
+      },
+      "chapter_digests": {
+        "system-spec/00-requirements-definition.md": "sha256:cf8c44862e1a45d8b2a5fc7b72555e2bf5c5dd04f8514f11e1ce0dfc1d4310b4",
+        "system-spec/ui-ux.md": "sha256:8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
+        "system-spec/frontend.md": "sha256:b510acf0dcaa4ac8731560386a1e2ab0fa3284fed594391394628aa5e19eb6fa",
+        "system-spec/backend.md": "sha256:bd4cb7171cd7d1749f92b31c2a42b159b05b339c1d39d05d1daddc064ef6803e",
+        "system-spec/database.md": "sha256:7f3ad0dbc59c6d329ad8acb478db2b5ecc94e77f5368808ceed72878283bae90",
+        "system-spec/infrastructure.md": "sha256:efdd6943ce4134b315cd08faec2119854db4a43a06f6d05161a9535daf9d7a71",
+        "system-spec/security.md": "sha256:8e958f748863afbc955e1dcbbdf8cd43d9b1d9bbbb844c9596baf69acac6614d",
+        "system-spec/maintenance-ops.md": "sha256:964e46c321a93eef3ff944b08eb517d5cdcac0cdd2e6df92512f48e2f1984b23"
+      }
+    },
+    "architecture_refs_resolution": [
+      {
+        "ref": "architecture/system-spec-overview.md",
+        "status": "resolved",
+        "graph_node_id": "arch-system-spec-overview",
+        "confirmation_status": "confirmed",
+        "evaluation_status": "pass",
+        "evaluated_digest": "sha256:8b9f71296dd003243007dd8d7c4201423bb9039143c2ad3bae4e547a2b2364bf",
+        "evaluator": "system-spec-harness/assign-system-spec-completeness-evaluator",
+        "evidence_ref": "system-spec/completeness-report.json"
+      },
+      {
+        "ref": "architecture/arch-two-layer-platform.md",
+        "status": "resolved",
+        "graph_node_id": "arch-two-layer-platform",
+        "confirmation_status": "confirmed",
+        "evaluation_status": "pass",
+        "evaluated_digest": "sha256:d01442b19c1b9e29681719f2768847c39ec0fea34bfdf6438247c814c037f765",
+        "evaluator": "app-orchestrator/two-layer-arbitration",
+        "evidence_ref": "docs/spec/04-二層構造統合仕様.md"
+      },
+      {
+        "ref": "system-spec/ui-ux.md",
+        "status": "resolved",
+        "chapter_digest": "sha256:8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6",
+        "gate": "G-matrix PASS"
+      },
+      {
+        "ref": "system-spec/frontend.md",
+        "status": "resolved",
+        "chapter_digest": "sha256:b510acf0dcaa4ac8731560386a1e2ab0fa3284fed594391394628aa5e19eb6fa",
+        "gate": "G-matrix PASS"
+      },
+      {
+        "ref": "system-spec/backend.md",
+        "status": "resolved",
+        "chapter_digest": "sha256:bd4cb7171cd7d1749f92b31c2a42b159b05b339c1d39d05d1daddc064ef6803e",
+        "gate": "G-matrix PASS"
+      },
+      {
+        "ref": "system-spec/database.md",
+        "status": "resolved",
+        "chapter_digest": "sha256:7f3ad0dbc59c6d329ad8acb478db2b5ecc94e77f5368808ceed72878283bae90",
+        "gate": "G-matrix PASS"
+      },
+      {
+        "ref": "system-spec/infrastructure.md",
+        "status": "resolved",
+        "chapter_digest": "sha256:efdd6943ce4134b315cd08faec2119854db4a43a06f6d05161a9535daf9d7a71",
+        "gate": "G-matrix PASS"
+      },
+      {
+        "ref": "system-spec/security.md",
+        "status": "resolved",
+        "chapter_digest": "sha256:8e958f748863afbc955e1dcbbdf8cd43d9b1d9bbbb844c9596baf69acac6614d",
+        "gate": "G-matrix PASS"
+      },
+      {
+        "ref": "system-spec/maintenance-ops.md",
+        "status": "resolved",
+        "chapter_digest": "sha256:964e46c321a93eef3ff944b08eb517d5cdcac0cdd2e6df92512f48e2f1984b23",
+        "gate": "G-matrix PASS"
+      }
+    ],
+    "requirement_ids_verified": {
+      "system-spec/ui-ux.md": {
+        "verified": [
+          "UIUX-REQ-005",
+          "UIUX-REQ-006",
+          "UIUX-REQ-007",
+          "UIUX-ACC-005",
+          "UIUX-ACC-006",
+          "UIUX-ACC-007",
+          "UIUX-ACC-008"
+        ],
+        "verification_note": "全 ID を To-Be 規範表および受入条件表の双方で確認。UIUX-REQ-005〜007 は WYSIWYG 化・2 層 UI・挿入口の二重化。UIUX-ACC-005〜008 は断片ごとの視覚一致・見出しレベル固定・挿入ボタン到達・商品/画像 E2E。"
+      },
+      "system-spec/frontend.md": {
+        "verified": [
+          "FRONT-REQ-005",
+          "FRONT-REQ-006",
+          "FRONT-REQ-007",
+          "FRONT-REQ-008"
+        ],
+        "verification_note": "全 ID を To-Be 規範表で確認。FRONT-REQ-005=19 種断片カタログ、FRONT-REQ-006=編集/公開共有描画、FRONT-REQ-007=行内装飾とトークン色、FRONT-REQ-008=見出しレベル骨格導出。"
+      },
+      "system-spec/backend.md": {
+        "verified": [
+          "BE-PROSE-01",
+          "BE-PROSE-02",
+          "BE-PROSE-03",
+          "BE-PRODUCT-01",
+          "BE-IMAGE-01"
+        ],
+        "verification_note": "To-Be 規範表で確認。BE-PROSE-01=拡張 Markdown 維持、BE-PROSE-02=往復等式、BE-PROSE-03=未知記法の literal 保持。BE-PRODUCT-01=商品読み取り検索 API。BE-IMAGE-01 は 2026-09-06 改訂版: 同一生成元 Worker API・サーバー生成鍵・pending→ready 状態機械・クライアント指定鍵/署名付き直接 PUT 拒否。"
+      },
+      "system-spec/database.md": {
+        "verified": [
+          "DB-IMAGE-01",
+          "DB-IMAGE-02",
+          "DB-IMAGE-03"
+        ],
+        "verification_note": "To-Be 規範表で確認。DB-IMAGE-01=article_image 台帳 (workspace_id/article_id/object_key/pending・ready・deleting・deleted/参照状態)。DB-IMAGE-02=切断時刻記録・deleting 不可逆・掃除ジョブ委譲。DB-IMAGE-03=object_key 一意制約に workspace_id を含む。"
+      },
+      "system-spec/infrastructure.md": {
+        "verified": [
+          "INF-IMG-01",
+          "INF-IMG-02",
+          "INF-IMG-03",
+          "INF-IMG-04",
+          "INF-IMG-05"
+        ],
+        "verification_note": "To-Be 規範表で確認 (2026-09-06 改訂版)。INF-IMG-01=同一生成元 Worker API 経由 R2 格納・旧ブラウザ直接 PUT 廃止。INF-IMG-02=サーバー生成鍵 article-images/workspace_id/article_id/uuid.ext。INF-IMG-03=不透明 ID /api/article-images/{imageId} 参照・バケット URL 非埋込。INF-IMG-04=Worker binding 限定・ブラウザ向け直接 PUT/CORS/署名発行禁止。INF-IMG-05=8 MiB 上限・PNG/JPEG/WebP/GIF・実バイト検証・R2 保存前拒否。"
+      },
+      "system-spec/security.md": {
+        "verified": [
+          "SEC-REQ-006",
+          "SEC-REQ-007",
+          "SEC-REQ-008",
+          "SEC-REQ-009",
+          "SEC-ACC-006"
+        ],
+        "verification_note": "To-Be 規範表で確認 (2026-09-06 Worker 契約改訂版)。SEC-REQ-006=署名付き URL 発行禁止・Worker API で権限検証・pending/ready 台帳。SEC-REQ-007=実バイト PNG/JPEG/WebP/GIF 検証・8 MiB 強制・R2 put 前拒否。SEC-REQ-008=same-origin 検証+認証+tenant 認可・ブラウザ直接 PUT CORS 禁止。SEC-REQ-009=要素/属性/URL スキーム許可リスト・embed ホスト限定・色トークン強制。SEC-ACC-006 は旧 As-Is 表に署名付き URL の受入条件として存在するが、To-Be 規範は SEC-REQ-006〜008 で Worker API 契約へ改訂済み。本 goal-spec では scope_in の許可リスト絞り込み・無害化の受入証拠として扱う。"
+      },
+      "system-spec/maintenance-ops.md": {
+        "verified": [
+          "OPS-REQ-008",
+          "OPS-REQ-009",
+          "OPS-REQ-010"
+        ],
+        "verification_note": "To-Be 規範表で確認。OPS-REQ-008=定期掃除ジョブ責務・記事保存時即時削除禁止。OPS-REQ-009=猶予期間 (未参照 24h/切断後 30d)・deleting 不可逆・再出現再回収。OPS-REQ-010=台帳 500 件取得・prefix 100 件 CAS 走査・deleting→deleted 墓標・監査記録。"
+      }
+    },
+    "supersedes": {
+      "digest": "sha256:398f44a4d8b94fa488312a96bde5f28975d90abfc62a6c702f8fef6cc998ac6a",
+      "generation_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+      "reason": "旧生成物 (d28b9e4e...) は画像アップロード契約として「ブラウザから R2 への署名付き URL 直接 PUT・R2 書込 CORS 設定・クライアント指定鍵への署名」を前提としていた。2026-09-06 の dec-article-image-upload-path 改訂により、この契約は全廃された。新契約は「同一生成元の Worker API への添付・Worker による認可と 8 MiB/MIME 検査・サーバー生成鍵・pending 予約→R2 put→ready 確定の状態機械」であり、署名付き URL・ブラウザ直接 PUT・R2 書込 CORS はいずれも採用しない。この変更は INF-IMG-01〜05・BE-IMAGE-01・SEC-REQ-006〜008 の規範表を全て書き換えるため、旧 goal-spec を本生成物で置き換え、P01〜P13 を新契約で再計画する。"
+    }
+  },
+  "not_performed": [
+    "feature 分割",
+    "workstream 分解",
+    "P01..P13 task 生成",
+    "readiness promotion"
+  ]
+}

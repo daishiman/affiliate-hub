@@ -12,8 +12,8 @@ iteration: null
 title: "生成基盤 (プロンプト・スキル・サブエージェント・評価セット)"
 owners: ["daishiman"]
 created_at: "2026-08-16T13:20:00Z"
-updated_at: "2026-08-16T14:20:00Z"
-status: "active"
+updated_at: "2026-08-30T15:16:22Z"
+status: "closed"
 depends_on: ["feat-persona-studio","feat-product-intelligence"]
 related_nodes: ["spec-system-spec-index"]
 resource_scope: ["src","drizzle","docs/spec","system-spec"]

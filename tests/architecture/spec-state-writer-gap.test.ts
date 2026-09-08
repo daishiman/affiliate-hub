@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-TS16 */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";

@@ -52,9 +52,9 @@ const {
   FeedbackHandoffForm,
   FeedbackPullCommand,
   FeedbackStatusForm,
-} = await import("@/presentation/admin/feedback-forms");
+} = await import("@/presentation/admin/maintain/feedback-forms");
 const { IssueIntegrationAccessForm, RevokeIntegrationAccessForm } = await import(
-  "@/presentation/admin/integration-access-form"
+  "@/presentation/admin/maintain/integration-access-form"
 );
 
 afterEach(cleanup);

@@ -1,0 +1,1051 @@
+{
+  "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+  "parent_feature": "feat-feedback-capture-self-exclusion",
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "schema_version": "1.0.0",
+  "source_lineage": {
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "confirmed": true,
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/frontend.md",
+      "system-spec/ui-ux.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0"
+  },
+  "tasks": [
+    {
+      "acceptance": [
+        "P01: 受入7件のそれぞれに、観測手段と判定条件と現行コード該当箇所を持つ行が requirements-baseline.md に一意で存在し、撮影の各時点と送信 UI の可視状態が capture-timeline.md に、浮遊要素と属性付与状況が floating-overlay-inventory.json に機械可読で確定している状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p01.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P01 lifecycle 責務への確定写像"
+      },
+      "depends_on": [],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p01.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P01",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P01"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P01",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P01",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P01 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p01",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "改善要望の写しに送信 UI が写り込む条件の要求ベースライン確定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P01 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/requirements-baseline.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-timeline.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-inventory.json"
+      ]
+    },
+    {
+      "acceptance": [
+        "P02: 撮影開始から送信 UI 可視化までの状態遷移が capture-sequence-design.md に一意に定まり、押した勢いを保つ呼出位置・拒否/非対応/失敗時の退避経路・隠した要素の復元責務が明示され、 data-floating-overlay の付与規則と二つの用途が floating-overlay-contract.md に確定している状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p02.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P02 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P01"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p02.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P02",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P02"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P02",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P02",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P02 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality",
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p02",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "撮影と送信 UI 可視化を別の時点へ分ける設計の確定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P02 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "frontend",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-sequence-design.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/floating-overlay-contract.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P03: 押した勢いの喪失・待ちの無限延長・要素の復元漏れの各失敗様式について、P02 設計のどの決定がそれを塞ぐかが design-review-findings.md に根拠付きで記され、未解決の指摘が 0 件であるか、残る場合は P04 以降の担当 phase へ割り当てられている状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p03.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P03 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P02"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p03.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P03",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P03"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P03",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P03",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P03 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p03",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "設計の独立レビューと退避経路の妥当性判定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P03 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/design-review-findings.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P04: 受入7件のそれぞれに対応するテストケースが test-design.md に一意で列挙され、写り込みの観測手段と拒否/非対応/失敗の再現手段が capture-test-fixtures.md に確定し、画素位置や DOM 構造に依存しない振る舞い検証だけで構成されている状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p04.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P04 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P03"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p04.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P04",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P04"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P04",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P04",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P04 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p04",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "写り込み検査と退避経路のテスト設計",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P04 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/test-design.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/capture-test-fixtures.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P05: 改善ボタン押下で撮影の要求が押した勢いを保ったまま出され、写しの確定後に送信モーダルが開き、撮影中は起動ボタンと送信モーダルが写しの対象から外れ、確定後に元の状態へ戻り、拒否/非対応/失敗では待たずに送信 UI が開く実装が src/presentation/ui/patterns 配下に存在する状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p05.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P05 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P04"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p05.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P05",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P05"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P05",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P05",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P05 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p05",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "撮影中だけ送信 UI を写しの対象から外す実装",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P05 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "frontend",
+      "write_scope": [
+        "src/presentation/ui/patterns"
+      ]
+    },
+    {
+      "acceptance": [
+        "P06: P04 が列挙した受入7件対応のテストが tests および tests/e2e 配下に実在し、実行結果が全件成功で、既存テストの失敗が 0 件である状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p06.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P06 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P05"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p06.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P06",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P06"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P06",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P06",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P06 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p06",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "写り込み検査と回帰テストの実行と緑化",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P06 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "tests",
+        "tests/e2e"
+      ]
+    },
+    {
+      "acceptance": [
+        "P07: 受入7件のそれぞれに対応する検査と実行結果が acceptance-report.md で一意に対応付けられ、未達が 0 件である状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p07.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P07 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P06"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p07.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P07",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P07"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P07",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P07",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P07 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p07",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "受入7件の受入判定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P07 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/acceptance-report.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P08: 本文の上に浮く要素が data-floating-overlay で一様に名乗り、写し除外と重なり監査がその同一の手掛かりを参照し、属性が欠けた浮遊要素が 0 件である状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p08.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P08 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P07"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p08.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P08",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P08"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P08",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P08",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P08 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p08",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "浮遊要素の属性統一と重なり監査との共通化",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P08 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "frontend",
+      "write_scope": [
+        "src/presentation/ui",
+        "tests/e2e/app-routes.spec.ts"
+      ]
+    },
+    {
+      "acceptance": [
+        "P09: 送信 UI の焦点と読み上げ順が撮影の前後で壊れず、アクセシビリティ検査の重大違反が 0 件で、既存画面の回帰が 0 件であることが quality-report.md に確定している状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p09.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P09 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P08"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p09.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P09",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P09"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P09",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P09",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P09 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p09",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "品質保証と非機能の確認",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P09 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/quality-report.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P10: P02 の設計決定のそれぞれが実装と検査のどこに現れているかが final-review.md で追え、P03 の指摘の未反映が 0 件である状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p10.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P10 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P09"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p10.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P10",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P10"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P10",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P10",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P10 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "documentation"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p10",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "最終レビューと反映漏れの判定",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P10 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "quality",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/final-review.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P11: 受入7件のそれぞれについて、根拠となる検査結果と実行ログの所在が evidence/index.md から辿れ、所在不明の受入が 0 件である状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p11.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P11 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P10"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p11.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P11",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P11"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P11",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P11",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P11 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p11",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "証跡の収集と保全",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P11 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/evidence"
+      ]
+    },
+    {
+      "acceptance": [
+        "P12: 写しに送信 UI が含まれない条件が docs/spec/12-改善要望フィードバック仕様.md の受入条件として追補され、浮遊要素追加時の属性付与手順が operations.md に確定している状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p12.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P12 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P11"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p12.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P12",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P12"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P12",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P12",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P12 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p12",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "仕様書と運用手順の追補",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P12 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/12-改善要望フィードバック仕様.md",
+        "docs/spec/feat-feedback-capture-self-exclusion/operations.md"
+      ]
+    },
+    {
+      "acceptance": [
+        "P13: 本 feature の全変更が dev への PR として出され、CI の品質ゲートが成功し、リリース内容と切り戻し手順が release-notes.md に確定している状態を成立させる。"
+      ],
+      "branch_policy": {
+        "assignment_owner": "dev-graph-scheduler",
+        "completion_projection": "default-branch-reconciliation",
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true
+      },
+      "build_target_kind": "application-code",
+      "classification": {
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "candidate_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p13.md",
+            "confidence": 1.0
+          }
+        ],
+        "confidence": 1.0,
+        "reason": "feat-feedback-capture-self-exclusion の P13 lifecycle 責務への確定写像"
+      },
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P12"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app (Next.js 16 + OpenNext, Workers/D1/R2)",
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "graph_node_registration": {
+        "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+        "file_path": "tasks/feat-feedback-capture-self-exclusion/sys-fb-capture-exclusion-p13.md",
+        "graph_node_id": "SYS-FB-CAPTURE-EXCLUSION-P13",
+        "parent_feature": "feat-feedback-capture-self-exclusion",
+        "phase_ref": "P13"
+      },
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P13",
+      "implementation_readiness": {
+        "checked_at": "2026-08-30T03:45:47Z",
+        "missing_sections": [],
+        "status": "complete"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P13",
+      "pr_completion_policy": "linked_pr_merged_all",
+      "related_nodes": [],
+      "rollback": "P13 の write_scope に含まれる変更を revert し、直前の promoted generation へ差し戻す",
+      "secondary_workstreams": [
+        "frontend",
+        "quality"
+      ],
+      "source_lineage": [
+        "system-spec/index.md",
+        "system-spec/00-requirements-definition.md",
+        "system-spec/frontend.md",
+        "system-spec/ui-ux.md",
+        "architecture/arch-two-layer-platform.md"
+      ],
+      "tags": [
+        "p13",
+        "feat-feedback-capture-self-exclusion"
+      ],
+      "title": "dev への反映と公開",
+      "tracker_binding_intent": "beads",
+      "verification": [
+        "P13 の Verification and evidence section に記載する自動コマンドと証跡パスで検証する"
+      ],
+      "workstream_kind": "documentation",
+      "write_scope": [
+        "docs/spec/feat-feedback-capture-self-exclusion/release-notes.md"
+      ]
+    }
+  ]
+}

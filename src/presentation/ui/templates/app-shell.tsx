@@ -1,7 +1,25 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { adminScreenStateContract, type OperationalScreenState } from "../admin-screen-state-contract";
+import { adminDisclosureContract } from "../admin-disclosure-contract";
+import {
+  ADMIN_NAV_GROUP_LABELS,
+  ADMIN_ROUTE_METADATA,
+  type AdminNavGroupId,
+} from "../admin-route-metadata";
 import { FeedbackButton, type FeedbackSubmission } from "../patterns/feedback-button";
+import { NavCollapseToggle } from "../patterns/nav-collapse-toggle";
+import { Icon, type IconName } from "../primitives/icon";
 import styles from "../primitives/ui.module.css";
+
+const SCREEN_STATE_LABEL: Readonly<Record<OperationalScreenState, string>> = {
+  ideal: "通常",
+  empty: "0件",
+  loading: "読み込み中",
+  partial: "一部のみ",
+  error: "失敗",
+  slow: "低速",
+};
 
 /**
  * 画面の骨格。
@@ -29,35 +47,35 @@ export type NavItem = {
    * 押しても必ず断られるリンクが残る。
    */
   readonly requires: string | null;
+  /**
+   * 目印のアイコン。畳んだときに残るのはこれだけになる。
+   *
+   * **項目ごとに違う絵にする。** 重なった 2 項目は、畳んだ時点で見分けが付かない。
+   * 型を必須にしてあるので、項目を足して絵を忘れると型検査で止まる。
+   *
+   * アイコンは意味を持たない。意味は `label` が持ち、読み上げから隠す。
+   * アイコンに意味を持たせると、絵柄を知らない人に何も伝わらない画面になる。
+   */
+  readonly icon: IconName;
 };
 
 /**
  * 案内の一覧。
  *
- * ここに載っていない画面は、どこからも辿り着けない孤立ページになる。
- * 画面を足したらこの表にも足す。
+ * route metadataで `nav` を持つ画面だけを、業務順のまま射影する。
  */
-export const ADMIN_NAV: readonly NavItem[] = [
-  { href: "/admin", label: "ホーム", requires: null },
-  { href: "/admin/products", label: "商品", requires: "product.read" },
-  { href: "/admin/evidence", label: "根拠", requires: "content.read" },
-  { href: "/admin/rankings", label: "評価基準と順位", requires: "content.read" },
-  { href: "/admin/content", label: "記事", requires: "content.read" },
-  { href: "/admin/personas", label: "書き手と読者像", requires: "content.read" },
-  { href: "/admin/writing", label: "書き方の決めごと", requires: "content.read" },
-  { href: "/admin/generation", label: "生成の仕組み", requires: "content.read" },
-  { href: "/admin/sites", label: "サイト", requires: "content.read" },
-  { href: "/admin/distribution", label: "配信", requires: "content.read" },
-  { href: "/admin/affiliate", label: "提携と成果", requires: "affiliate.read_revenue" },
-  { href: "/admin/inbox", label: "成果リンクの受信箱", requires: "affiliate.read_revenue" },
-  { href: "/admin/analytics", label: "数字", requires: "analytics.read" },
-  { href: "/admin/ai-usage", label: "AI の利用と費用", requires: "analytics.read" },
-  { href: "/admin/improvement", label: "改善の状況", requires: "analytics.read" },
-  { href: "/admin/feedback", label: "使い勝手を直す", requires: "feedback.read" },
-  { href: "/admin/tools", label: "AI から使える道具", requires: "content.read" },
-  { href: "/admin/ui-catalog", label: "画面部品の見本", requires: "content.read" },
-  { href: "/admin/settings", label: "設定", requires: "content.read" },
-];
+export const ADMIN_NAV: readonly NavItem[] = ADMIN_ROUTE_METADATA.flatMap((route) =>
+  route.nav === null || route.label === null
+    ? []
+    : [
+        {
+          href: route.pattern,
+          label: route.label,
+          requires: route.nav.requires,
+          icon: route.nav.icon,
+        },
+      ],
+);
 
 /**
  * その人に見せる案内だけを残す。
@@ -77,7 +95,7 @@ export function visibleNav(
 export type NavGroup = {
   readonly id: string;
   readonly label: string;
-  /** この分類に入る項目の行き先。`ADMIN_NAV` から作らず、ここに書き出す。 */
+  /** route metadataで同じ分類IDを持つ項目の行き先。 */
   readonly hrefs: readonly string[];
 };
 
@@ -87,14 +105,15 @@ export type NavGroup = {
  * ホームは「どこかの仕事」ではなく全部の入口なので、分類に入れると
  * どの分類に入れても嘘になる。例外は 1 つだけにして、ここに書き出す。
  */
-export const UNGROUPED_NAV_HREFS: readonly string[] = ["/admin"];
+export const UNGROUPED_NAV_HREFS: readonly string[] = ADMIN_ROUTE_METADATA.filter(
+  (route) => route.nav !== null && route.nav.group === null,
+).map((route) => route.pattern);
 
 /**
  * 案内の分類。
  *
- * **この表は `ADMIN_NAV` から作らない。** 作ると、`ADMIN_NAV` から項目が
- * 1 つ消えたときに分類表も一緒に消えてしまい、「消えたこと」を誰も言えなくなる。
- * 別々に書いて突き合わせるから、片方だけが変わったときに検査が赤くなる。
+ * `ADMIN_NAV` と別書きにせず、同じroute metadataの `nav.group` から作る。
+ * 項目を足す場所が1箇所なので、ナビだけ増えて分類だけ古い状態を作れない。
  *
  * 分類は、機能名からではなく「誰がどの場面で開くか」から導いている。
  * 各画面の `lead`（この画面で何ができるかの 1 文）が根拠。
@@ -106,30 +125,15 @@ export const UNGROUPED_NAV_HREFS: readonly string[] = ["/admin"];
  *   見る … 出したあとに何が起きたか
  *   整える … 作業場所そのものの手入れ
  */
-export const ADMIN_NAV_GROUPS: readonly NavGroup[] = [
-  {
-    id: "material",
-    label: "素材",
-    hrefs: ["/admin/products", "/admin/evidence", "/admin/rankings"],
-  },
-  {
-    id: "write",
-    label: "書く",
-    hrefs: ["/admin/content", "/admin/personas", "/admin/writing", "/admin/generation"],
-  },
-  { id: "publish", label: "出す", hrefs: ["/admin/sites", "/admin/distribution"] },
-  { id: "earn", label: "稼ぐ", hrefs: ["/admin/affiliate", "/admin/inbox"] },
-  {
-    id: "observe",
-    label: "見る",
-    hrefs: ["/admin/analytics", "/admin/ai-usage", "/admin/improvement"],
-  },
-  {
-    id: "maintain",
-    label: "整える",
-    hrefs: ["/admin/feedback", "/admin/tools", "/admin/ui-catalog", "/admin/settings"],
-  },
-];
+export const ADMIN_NAV_GROUPS: readonly NavGroup[] = (
+  Object.entries(ADMIN_NAV_GROUP_LABELS) as readonly [AdminNavGroupId, string][]
+).map(([id, label]) => ({
+  id,
+  label,
+  hrefs: ADMIN_ROUTE_METADATA.filter((route) => route.nav?.group === id).map(
+    (route) => route.pattern,
+  ),
+}));
 
 export type GroupedNav = {
   /** 分類の外の項目。先頭に単独で置く。 */
@@ -171,6 +175,32 @@ export function groupedNav(
   };
 }
 
+/**
+ * いま案内のどの項目の中にいるか。
+ *
+ * 完全一致だけで判定すると、`/admin/settings/appearance` のような
+ * 案内に載せていない子画面で現在地が消える。**現在地が消えると、
+ * 自分がどの分類の中にいるか分からなくなる。** 画面を単一用途へ割ったことで
+ * 子画面は増える一方なので、親が代わりに現在地を示す。
+ *
+ * 最も長く一致した 1 つだけを選ぶ。前方一致した全部を現在地にすると、
+ * `/admin`（ホーム）が常に現在地になり、どの項目も等しく光ってしまう。
+ *
+ * 一致が無いときは null。無理にどこかを現在地にしない。
+ */
+export function currentNavHref(
+  items: readonly NavItem[],
+  navContextPath: string,
+): string | null {
+  let best: string | null = null;
+  for (const item of items) {
+    const hit = navContextPath === item.href || navContextPath.startsWith(`${item.href}/`);
+    if (!hit) continue;
+    if (best === null || item.href.length > best.length) best = item.href;
+  }
+  return best;
+}
+
 export type Breadcrumb = {
   readonly label: string;
   readonly href?: string;
@@ -190,14 +220,21 @@ export type ShellFeedback = {
 };
 
 export function AppShell({
-  currentPath,
+  actualRoutePath,
+  navContextPath,
   breadcrumbs,
   actions,
   capabilities,
   feedback,
+  routeId,
+  screenState = "ideal",
+  navCollapsed = false,
   children,
 }: {
-  readonly currentPath: string;
+  /** いま実際に開いているURL。計測・改善要望の出所へ使う。 */
+  readonly actualRoutePath: string;
+  /** サイドバーで現在地として示す親route。実URLとは混用しない。 */
+  readonly navContextPath: string;
   readonly breadcrumbs: readonly Breadcrumb[];
   /** 退避先。保存・戻る・次へ。無い画面でも「一覧へ戻る」は置く。 */
   readonly actions?: ReactNode;
@@ -205,11 +242,25 @@ export function AppShell({
   readonly capabilities?: readonly string[];
   /** 渡さない場面（権限の概念が無い画面）では、ボタンを出さない。 */
   readonly feedback?: ShellFeedback;
+  /** 全6状態をroute固有のevent・安全な情報・次行動へ結ぶキー。 */
+  readonly routeId?: import("../admin-route-metadata").AdminRouteId;
+  readonly screenState?: OperationalScreenState;
+  /**
+   * 案内を最初から畳んでおくか。前回の選択を復元するときに渡す。
+   *
+   * 畳んでも項目は HTML から消えない。消えるのは見た目だけで、
+   * 名前も行き先も残る（潰すのは CSS の仕事）。
+   */
+  readonly navCollapsed?: boolean;
   readonly children: ReactNode;
 }) {
   const nav = groupedNav(ADMIN_NAV, ADMIN_NAV_GROUPS, capabilities);
+  const currentHref = currentNavHref(ADMIN_NAV, navContextPath);
+  const stateInstruction =
+    routeId === undefined ? null : adminScreenStateContract(routeId).states[screenState];
+  const disclosure = routeId === undefined ? null : adminDisclosureContract(routeId);
   const navLink = (item: NavItem) => {
-    const current = currentPath === item.href;
+    const current = currentHref === item.href;
     return (
       <Link
         key={item.href}
@@ -220,23 +271,40 @@ export function AppShell({
         // 色と太さだけでなく、読み上げにも現在地を伝える
         aria-current={current ? "page" : undefined}
       >
-        {item.label}
+        {/* 目印は意味を持たない。意味は次の文字が持ち、Icon 自身が読み上げから隠れる。 */}
+        <span className={styles.navIcon}>
+          <Icon name={item.icon} size="md" />
+        </span>
+        {/* 畳んだときに潰れるのはこの文字だけ。読み上げには残る。 */}
+        <span className={styles.navLabel}>{item.label}</span>
       </Link>
     );
   };
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-nav-collapsed={navCollapsed}>
       <a className={styles.skipLink} href="#admin-main-content">
         本文へ移動
       </a>
       <nav className={styles.sidebar} aria-label="主な案内">
-        <div className={styles.brandBlock}>
-          <Link href="/admin" className={styles.brandName}>
-            affiliate-hub
-          </Link>
-          <span className={styles.brandContext}>ブログ運営メニュー</span>
+        <a className={styles.skipLink} href="#admin-main-content">
+          本文へ移動
+        </a>
+        <div className={styles.sidebarHead}>
+          <div className={styles.brandBlock}>
+            <Link href="/admin" className={styles.brandName}>
+              affiliate-hub
+            </Link>
+            <span className={styles.brandContext}>ブログ運営メニュー</span>
+          </div>
+          <NavCollapseToggle defaultCollapsed={navCollapsed} />
         </div>
+        {/*
+          項目は案内の直下に置く。**間の隙間は `.sidebar` の gap が持つ。**
+          まとめ役の要素を 1 枚挟むと、隙間を持つ要素が入れ替わり、
+          分類の境目の比を測っている検査 (tests/ui/layout-density.test.ts) が
+          読む値と、実際に効く値が食い違う。
+        */}
         {nav.ungrouped.map(navLink)}
         {nav.groups.map(({ group, items }) => (
           // 分類の境目を、見た目の隙間だけでなく読み上げにも伝える。
@@ -266,7 +334,12 @@ export function AppShell({
                   {crumb.href !== undefined && !last ? (
                     <Link href={crumb.href}>{crumb.label}</Link>
                   ) : (
-                    <span className={last ? styles.breadcrumbCurrent : undefined}>{crumb.label}</span>
+                    <span
+                      className={last ? styles.breadcrumbCurrent : undefined}
+                      aria-current={last ? "page" : undefined}
+                    >
+                      {crumb.label}
+                    </span>
                   )}
                 </span>
               );
@@ -275,7 +348,31 @@ export function AppShell({
           {actions !== undefined && <div className={styles.headerActions}>{actions}</div>}
         </header>
 
-        <main id="admin-main-content" className={styles.content}>
+        <main
+          id="admin-main-content"
+          className={styles.content}
+          tabIndex={-1}
+          data-admin-route-id={routeId}
+          data-screen-state={routeId === undefined ? undefined : screenState}
+          data-screen-state-event={stateInstruction?.event}
+          data-screen-state-safe-data={stateInstruction?.safeData}
+          data-screen-state-next-action={stateInstruction?.nextAction}
+          data-detail-disclosure={disclosure?.strategy}
+          data-detail-route={
+            disclosure?.strategy === "dedicated-route" ? disclosure.targetRouteId : undefined
+          }
+        >
+          {stateInstruction === null || screenState === "ideal" ? null : (
+            <aside
+              className={styles.screenStateSummary}
+              aria-label={`画面の状態: ${SCREEN_STATE_LABEL[screenState]}`}
+              data-screen-state-summary={screenState}
+            >
+              <strong>{SCREEN_STATE_LABEL[screenState]}</strong>
+              <span>確定している情報: {stateInstruction.safeData}</span>
+              <span>次にできること: {stateInstruction.nextAction}</span>
+            </aside>
+          )}
           {children}
         </main>
       </div>
@@ -283,7 +380,7 @@ export function AppShell({
       {feedback !== undefined && (
         <FeedbackButton
           screenName={feedback.screenName}
-          route={currentPath}
+          route={actualRoutePath}
           canSubmit={feedback.canSubmit}
           onSubmit={feedback.onSubmit}
         />
@@ -316,6 +413,45 @@ export function Page({
   );
 }
 
-export function Card({ children }: { readonly children: ReactNode }) {
-  return <section className={styles.card}>{children}</section>;
+type CardSupportingItems =
+  | readonly []
+  | readonly [ReactNode]
+  | readonly [ReactNode, ReactNode]
+  | readonly [ReactNode, ReactNode, ReactNode]
+  | readonly [ReactNode, ReactNode, ReactNode, ReactNode];
+
+type StructuredCardProps = {
+  /** 1枚のカードが伝える主張。120字を超える説明は本文へ移す。 */
+  readonly claim: string;
+  /** 主情報は必ず1つ。 */
+  readonly main: ReactNode;
+  /** 主情報を補う情報は4つまで。 */
+  readonly supporting?: CardSupportingItems;
+  /** 主操作は0または1つ。 */
+  readonly primaryAction?: ReactNode;
+  readonly children?: never;
+};
+
+/**
+ * 情報を束ねるカード。
+ *
+ * 新しい呼び出しは structured props を使い、主張1・本文1・補助4以下・主操作1以下を
+ * 呼び出し口で固定する。既存の2箇所は移行中も壊さないため children も受け付ける。
+ */
+export function Card(props: StructuredCardProps) {
+  if (props.claim.length > 120) throw new Error("Card claim must be 120 characters or fewer");
+  const supporting = props.supporting ?? [];
+  if (supporting.length > 4) throw new Error("Card supporting items must be 4 or fewer");
+  return (
+    <section className={styles.card} data-card-claim={props.claim}>
+      <p className={styles.cardClaim}>{props.claim}</p>
+      <div className={styles.cardMain} data-card-main="true">{props.main}</div>
+      {supporting.map((item, index) => (
+        <div key={index} className={styles.cardSupport} data-card-support="true">{item}</div>
+      ))}
+      {props.primaryAction === undefined ? null : (
+        <div className={styles.cardAction} data-card-primary-action="true">{props.primaryAction}</div>
+      )}
+    </section>
+  );
 }

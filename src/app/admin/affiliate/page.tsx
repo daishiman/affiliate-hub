@@ -1,6 +1,4 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
 import {
   affiliatePeriods,
   affiliateStorageNotice,
@@ -9,13 +7,18 @@ import {
 } from "@/presentation/composition";
 import {
   Callout,
-  Card,
+  DataTable,
   EmptyView,
   ErrorView,
-  Page,
+  FactList,
+  ListView,
+  Note,
+  Prose,
+  Section,
   StorageNotice,
+  SubSection,
+  TextLink,
 } from "@/presentation/ui";
-import styles from "../admin.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -47,232 +50,214 @@ export default async function AffiliatePage({
     uc.listConversions.execute(actor, { period }),
   ]);
 
-  if (!accounts.ok) {
-    return (
-      <Shell>
+  return (
+    <AdminShell
+      routeId="affiliate"
+      title="提携と成果"
+      lead="提携先と成果額を見ます。順位には影響しません。"
+      actions={
+        <>
+          <TextLink href="/admin/affiliate/links">登録したリンク</TextLink>
+          <TextLink href="/admin/affiliate/accounts/new">提携先を登録する</TextLink>
+          <TextLink href="/admin/affiliate/programs/new">提携条件を登録する</TextLink>
+          <TextLink href="/admin">ホームへ戻る</TextLink>
+        </>
+      }
+    >
+      {!accounts.ok ? (
         <ErrorView
           title="提携先の一覧を出せませんでした"
           body={accounts.error.message}
           suggestedAction={accounts.error.suggestedAction ?? null}
-          action={<Link href="/admin">ホームへ戻る</Link>}
+          action={<TextLink href="/admin">ホームへ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <>
+          <StorageNotice status={await affiliateStorageNotice()} />
 
-  return (
-    <Shell>
-      <StorageNotice status={await affiliateStorageNotice()} />
-
-      <Callout
-        tone="info"
-        title="この金額は記事の順位に入りません"
-        reason="報酬の額を順位づけの計算へ渡せないよう、プログラムの作りとして止めています。渡そうとすると組み上がりません。"
-      />
-
-      <Card>
-        <h2 className={styles.sectionTitle}>提携先</h2>
-        {accounts.value.total === 0 ? (
-          <EmptyView
-            title="提携先がありません"
-            body={accounts.value.emptyReason ?? "まだ提携先を登録していません。"}
+          <Callout
+            tone="info"
+            title="この金額は記事の順位に入りません"
+            reason="報酬の額を順位づけの計算へ渡せないよう、プログラムの作りとして止めています。渡そうとすると組み上がりません。"
           />
-        ) : (
-          <>
-            <p className={styles.sectionLead}>
-              各サービスのパスワードや鍵はここに控えていません。
-              登録は、ご自身のブラウザで各サービスの画面から行ってください。
-            </p>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">提携先</th>
-                  <th scope="col">名前</th>
-                  <th scope="col">公開されるID</th>
-                  <th scope="col">接続情報</th>
-                </tr>
-              </thead>
-              <tbody>
-                {accounts.value.items.map((a) => (
-                  <tr key={a.accountId}>
-                    <th scope="row">{a.aspLabel}</th>
-                    <td>{a.label}</td>
-                    <td>{a.publicTrackingId ?? "—"}</td>
-                    <td>{a.credentialRegistered ? "登録済み" : "未登録"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {accounts.value.items
-              .filter((a) => a.blockedReason !== null)
-              .map((a) => (
-                <Callout
-                  key={a.accountId}
-                  tone="warn"
-                  title={`${a.aspLabel}：いまは使えません`}
-                  reason={a.blockedReason ?? ""}
+
+          <Section title="提携先">
+            {accounts.value.total === 0 ? (
+              <EmptyView
+                title="提携先がありません"
+                body={accounts.value.emptyReason ?? "まだ提携先を登録していません。"}
+                action={
+                  <TextLink href="/admin/affiliate/accounts/new">提携先を登録する</TextLink>
+                }
+              />
+            ) : (
+              <>
+                <Prose>
+                  各サービスのパスワードや鍵はここに控えていません。
+                  登録は、ご自身のブラウザで各サービスの画面から行ってください。
+                </Prose>
+                <DataTable
+                  caption="登録してある提携先と、接続情報の有無"
+                  columns={[
+                    { key: "asp", label: "提携先" },
+                    { key: "label", label: "名前" },
+                    { key: "public", label: "公開されるID" },
+                    { key: "cred", label: "接続情報" },
+                  ]}
+                  rows={accounts.value.items.map((a) => ({
+                    key: a.accountId,
+                    cells: [
+                      a.aspLabel,
+                      a.label,
+                      a.publicTrackingId ?? "—",
+                      a.credentialRegistered ? "登録済み" : "未登録",
+                    ],
+                  }))}
                 />
-              ))}
-          </>
-        )}
-      </Card>
+                {accounts.value.items
+                  .filter((a) => a.blockedReason !== null)
+                  .map((a) => (
+                    <Callout
+                      key={a.accountId}
+                      tone="warn"
+                      title={`${a.aspLabel}：いまは使えません`}
+                      reason={a.blockedReason ?? ""}
+                    />
+                  ))}
+              </>
+            )}
+          </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>提携の条件</h2>
-        {!programs.ok ? (
-          <ErrorView
-            title="提携の条件を出せませんでした"
-            body={programs.error.message}
-            suggestedAction={programs.error.suggestedAction ?? null}
-          />
-        ) : programs.value.total === 0 ? (
-          <EmptyView
-            title="提携しているプログラムがありません"
-            body={programs.value.emptyReason ?? "まだ提携していません。"}
-          />
-        ) : (
-          <>
-            <p className={styles.sectionLead}>
-              掲載してよい書き方の条件は、文章で書かれていて機械では判定できません。
-              {programs.value.restrictionCount}件の条件は、掲載前にご自身で確認してください。
-            </p>
-            {programs.value.items.map((p) => (
-              <div key={p.programId}>
-                <h3 className={styles.sectionTitle}>
-                  {p.advertiserName}（{p.aspLabel}）
-                </h3>
-                <dl className={styles.criteria}>
-                  <div>
-                    <dt>報酬</dt>
-                    <dd>{p.rewardLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>承認率</dt>
-                    <dd className={styles.numeric}>{p.approvalRateLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>確定までの日数</dt>
-                    <dd className={styles.numeric}>{p.confirmationDaysLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>成果が残る期間</dt>
-                    <dd className={styles.numeric}>{p.cookieDurationLabel}</dd>
-                  </div>
-                  <div>
-                    <dt>いまの状態</dt>
-                    <dd>{p.active ? "提携中" : "終了しています"}</dd>
-                  </div>
-                </dl>
-                {p.restrictions.length === 0 ? (
-                  <p className={styles.linkNote}>確認が要る条件は登録されていません。</p>
-                ) : (
-                  <ul className={styles.linkList}>
-                    {p.restrictions.map((r) => (
-                      <li key={r}>{r}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </>
-        )}
-      </Card>
-
-      <Card>
-        <h2 className={styles.sectionTitle}>成果（{period}）</h2>
-        <ul className={styles.linkList}>
-          {periods.map((p) => (
-            <li key={p}>
-              {p === period ? (
-                <span>{p}（表示中）</span>
-              ) : (
-                <Link href={`/admin/affiliate?period=${encodeURIComponent(p)}`}>{p}を見る</Link>
-              )}
-            </li>
-          ))}
-        </ul>
-        {!conversions.ok ? (
-          <ErrorView
-            title="成果を出せませんでした"
-            body={conversions.error.message}
-            suggestedAction={conversions.error.suggestedAction ?? null}
-          />
-        ) : conversions.value.total === 0 ? (
-          <EmptyView
-            title="成果がありません"
-            body={conversions.value.emptyReason ?? "この期間の成果はまだ取り込まれていません。"}
-          />
-        ) : (
-          <>
-            <dl className={styles.criteria}>
-              <div>
-                <dt>確定した合計</dt>
-                <dd className={styles.numeric}>{conversions.value.approvedTotalLabel}</dd>
-              </div>
-              <div>
-                <dt>未確定の件数</dt>
-                <dd className={styles.numeric}>{conversions.value.pendingCount}件</dd>
-              </div>
-              <div>
-                <dt>この期間</dt>
-                <dd>{conversions.value.closed ? "締め済み（直せません）" : "受付中"}</dd>
-              </div>
-            </dl>
-            <p className={styles.sectionLead}>
-              合計には確定した成果だけを入れています。
-              未確定を足すと、入ってこない金額を見込みにしてしまうためです。
-            </p>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">提携先</th>
-                  <th scope="col">状態</th>
-                  <th scope="col">発生日</th>
-                  <th scope="col">取り込んだ額</th>
-                  <th scope="col">直した額</th>
-                  <th scope="col">実際に使う額</th>
-                </tr>
-              </thead>
-              <tbody>
-                {conversions.value.items.map((c) => (
-                  <tr key={c.conversionId}>
-                    <th scope="row">
-                      <Link href={`/admin/affiliate/${encodeURIComponent(c.conversionId)}`}>
-                        {c.aspLabel}
-                      </Link>
-                    </th>
-                    <td>{c.statusLabel}</td>
-                    <td>{c.occurredAt.toLocaleDateString("ja-JP")}</td>
-                    <td className={styles.numeric}>{c.ingestedLabel}</td>
-                    <td className={styles.numeric}>{c.adjustedLabel ?? "—"}</td>
-                    <td className={styles.numeric}>{c.effectiveLabel}</td>
-                  </tr>
+          <Section title="提携の条件">
+            {!programs.ok ? (
+              <ErrorView
+                title="提携の条件を出せませんでした"
+                body={programs.error.message}
+                suggestedAction={programs.error.suggestedAction ?? null}
+              />
+            ) : programs.value.total === 0 ? (
+              <EmptyView
+                title="提携しているプログラムがありません"
+                body={programs.value.emptyReason ?? "まだ提携していません。"}
+                action={
+                  <TextLink href="/admin/affiliate/programs/new">提携条件を登録する</TextLink>
+                }
+              />
+            ) : (
+              <>
+                <Prose>
+                  掲載してよい書き方の条件は、文章で書かれていて機械では判定できません。
+                  {programs.value.restrictionCount}件の条件は、掲載前にご自身で確認してください。
+                </Prose>
+                {programs.value.items.map((p) => (
+                  <SubSection key={p.programId} title={`${p.advertiserName}（${p.aspLabel}）`}>
+                    <FactList
+                      rows={[
+                        { key: "reward", label: "報酬", value: p.rewardLabel },
+                        { key: "approval", label: "承認率", value: p.approvalRateLabel },
+                        { key: "days", label: "確定までの日数", value: p.confirmationDaysLabel },
+                        { key: "cookie", label: "成果が残る期間", value: p.cookieDurationLabel },
+                        {
+                          key: "active",
+                          label: "いまの状態",
+                          value: p.active ? "提携中" : "終了しています",
+                        },
+                      ]}
+                    />
+                    {p.restrictions.length === 0 ? (
+                      <Note>確認が要る条件は登録されていません。</Note>
+                    ) : (
+                      <ListView rows={p.restrictions.map((r) => ({ key: r, label: r }))} />
+                    )}
+                  </SubSection>
                 ))}
-              </tbody>
-            </table>
-            <p className={styles.linkNote}>
-              「未取得」は、まだ金額が取れていないという意味です。0円ではありません。
-            </p>
-          </>
-        )}
-      </Card>
-    </Shell>
-  );
-}
+              </>
+            )}
+          </Section>
 
-function Shell({ children }: { readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/affiliate"
-      breadcrumbs={[{ label: "ホーム", href: "/admin" }, { label: "提携と成果" }]}
-      actions={<Link href="/admin">ホームへ戻る</Link>}
-    >
-      <Page
-        title="提携と成果"
-        lead="どこと提携していて、いくら成果が出たかを見る画面です。ここの金額は記事の順位には入りません。"
-      >
-        {children}
-      </Page>
+          <Section title={`成果（${period}）`}>
+            <ListView
+              rows={periods.map((p) =>
+                p === period
+                  ? { key: p, label: `${p}（表示中）` }
+                  : {
+                      key: p,
+                      label: `${p}を見る`,
+                      href: `/admin/affiliate?period=${encodeURIComponent(p)}`,
+                    },
+              )}
+            />
+            {!conversions.ok ? (
+              <ErrorView
+                title="成果を出せませんでした"
+                body={conversions.error.message}
+                suggestedAction={conversions.error.suggestedAction ?? null}
+              />
+            ) : conversions.value.total === 0 ? (
+              <EmptyView
+                title="成果がありません"
+                body={conversions.value.emptyReason ?? "この期間の成果はまだ取り込まれていません。"}
+              />
+            ) : (
+              <>
+                <FactList
+                  rows={[
+                    {
+                      key: "approved",
+                      label: "確定した合計",
+                      value: conversions.value.approvedTotalLabel,
+                    },
+                    {
+                      key: "pending",
+                      label: "未確定の件数",
+                      value: `${conversions.value.pendingCount}件`,
+                    },
+                    {
+                      key: "closed",
+                      label: "この期間",
+                      value: conversions.value.closed ? "締め済み（直せません）" : "受付中",
+                    },
+                  ]}
+                />
+                <Prose>
+                  合計には確定した成果だけを入れています。
+                  未確定を足すと、入ってこない金額を見込みにしてしまうためです。
+                </Prose>
+                <DataTable
+                  caption="この期間に発生した成果の 1 件ずつ"
+                  columns={[
+                    { key: "asp", label: "提携先" },
+                    { key: "status", label: "状態" },
+                    { key: "occurred", label: "発生日" },
+                    { key: "ingested", label: "取り込んだ額", numeric: true },
+                    { key: "adjusted", label: "直した額", numeric: true },
+                    { key: "effective", label: "実際に使う額", numeric: true },
+                  ]}
+                  rows={conversions.value.items.map((c) => ({
+                    key: c.conversionId,
+                    cells: [
+                      <TextLink
+                        key="link"
+                        href={`/admin/affiliate/${encodeURIComponent(c.conversionId)}`}
+                      >
+                        {c.aspLabel}
+                      </TextLink>,
+                      c.statusLabel,
+                      c.occurredAt.toLocaleDateString("ja-JP"),
+                      c.ingestedLabel,
+                      c.adjustedLabel ?? "—",
+                      c.effectiveLabel,
+                    ],
+                  }))}
+                />
+                <Note>
+                  「未取得」は、まだ金額が取れていないという意味です。0円ではありません。
+                </Note>
+              </>
+            )}
+          </Section>
+        </>
+      )}
     </AdminShell>
   );
 }

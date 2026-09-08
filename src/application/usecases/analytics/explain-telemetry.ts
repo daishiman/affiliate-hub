@@ -1,10 +1,5 @@
-import {
-  type ConsentChoice,
-  type ConsentRequirement,
-  type TelemetryCategory,
-  RETENTION_DAYS,
-  listTelemetryEvents,
-} from "@/domain/analytics";
+import { RETENTION_DAYS, type ConsentChoice } from "@/domain/analytics/consent";
+import { listTelemetryEvents, type ConsentRequirement, type TelemetryCategory } from "@/domain/analytics/telemetry-events";
 import { type ActorContext, type DomainError, type Result, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";
 

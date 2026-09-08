@@ -6,6 +6,7 @@
  */
 export * from "./agent-roster";
 export * from "./approval-bridge";
+export * from "./capacity-consumption";
 export * from "./draft-instructions";
 export * from "./generation-input";
 export * from "./injection-guard";

@@ -12,8 +12,8 @@ iteration: null
 title: "feat-auth-workspace 受け入れ判定"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:39:37Z"
-updated_at: "2026-08-16T13:01:34.646583Z"
-status: "active"
+updated_at: "2026-08-24T12:54:42Z"
+status: "closed"
 depends_on: ["SYS-AUTH-WORKSPACE-P06"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-auth-workspace/acceptance-report.md"]
@@ -172,3 +172,10 @@ goal-spec.json の acceptance 4項目 (未ログイン遷移/workspace_id分離/
 - source spec: 昇格済み generation の task spec 本文 (byte-for-byte 不変)
 - verification: published task spec の Automated commands
 - rerun: published task spec 内の `validate-system-plan.py --repo-root . --staging .` は repository root から解決できない。再検証は世代非依存の `python3 plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` を使い、current pointer から現行世代を再解決する。
+
+## 実行記録 (2026-08-24 最終レビュー)
+
+- Beads `ah-361.7` は closed。ローカル MVP の受入は完了。
+- 本番 Google OAuth / remote D1 は未検証（`docs/spec/feat-auth-workspace/release-notes.md` §7）。
+- draft PR: https://github.com/daishiman/affiliate-hub/pull/29
+- 証跡: `docs/spec/feat-auth-workspace/acceptance-report.md`, `beads:ah-361.7`

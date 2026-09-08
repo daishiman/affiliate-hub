@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-TS01 */
 import { describe, expect, it } from "vitest";
 import { ok } from "@/domain/shared/result";
 import { describeViolations, findA11yViolations } from "./a11y";

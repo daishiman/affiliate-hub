@@ -8,7 +8,7 @@ import type {
   EditorialRankingModelRepositoryPort,
   EditorialScoreCardRepositoryPort,
 } from "@/application/ports/ranking";
-import { requireCapability } from "@/domain/identity";
+import { requireCapability, requireWorkspaceWideCapability } from "@/domain/identity";
 import type { Claim, Evidence, TestRun } from "@/domain/evidence";
 import type { Product } from "@/domain/product";
 import { type RankingResult, rankProducts } from "@/domain/ranking";
@@ -471,7 +471,7 @@ export function createListRankingUseCase(
   guardEditorial(deps, "順位の参照");
   return {
     async execute(actor, input) {
-      const allowed = requireCapability(actor, "content.read", "順位の参照");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "順位の参照");
       if (!allowed.ok) return allowed;
       return loadRanking(deps, actor, input);
     },
@@ -502,7 +502,7 @@ export function createExplainRankingUseCase(
   guardEditorial(deps, "順位の説明");
   return {
     async execute(actor, input) {
-      const allowed = requireCapability(actor, "content.read", "順位の説明");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "順位の説明");
       if (!allowed.ok) return allowed;
 
       const view = await loadRanking(deps, actor, input);

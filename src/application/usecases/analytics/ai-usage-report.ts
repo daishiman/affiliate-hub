@@ -1,11 +1,6 @@
 import type { TelemetrySinkPort } from "@/application/ports/telemetry";
-import {
-  type AiUsageRollup,
-  DEFAULT_METRICS_WINDOW_DAYS,
-  MODEL_PRICES,
-  findModelPrice,
-  totalAiCost,
-} from "@/domain/analytics";
+import { MODEL_PRICES, findModelPrice, totalAiCost, type AiUsageRollup } from "@/domain/analytics/ai-usage";
+import { DEFAULT_METRICS_WINDOW_DAYS } from "@/domain/analytics/metrics";
 import { requireCapability } from "@/domain/identity";
 import { type ActorContext, type DomainError, type Result, formatMoney, ok } from "@/domain/shared";
 import type { UseCase } from "../usecase";

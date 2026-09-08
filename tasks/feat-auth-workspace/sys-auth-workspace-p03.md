@@ -12,8 +12,8 @@ iteration: null
 title: "アーキテクチャ独立設計レビュー"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:39:37Z"
-updated_at: "2026-08-16T13:01:21.466055Z"
-status: "active"
+updated_at: "2026-08-24T12:54:42Z"
+status: "closed"
 depends_on: ["SYS-AUTH-WORKSPACE-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-auth-workspace/design-review-log.md"]
@@ -171,3 +171,10 @@ system-spec-harness の確定成果物 (system-spec/auth.md・security.md・data
 - source spec: 昇格済み generation の task spec 本文 (byte-for-byte 不変)
 - verification: published task spec の Automated commands
 - rerun: published task spec 内の `validate-system-plan.py --repo-root . --staging .` は repository root から解決できない。再検証は世代非依存の `python3 plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-auth-workspace` を使い、current pointer から現行世代を再解決する。
+
+## 実行記録 (2026-08-24 最終レビュー)
+
+- Beads `ah-361.3` は closed。ローカル MVP の受入は完了。
+- 本番 Google OAuth / remote D1 は未検証（`docs/spec/feat-auth-workspace/release-notes.md` §7）。
+- draft PR: https://github.com/daishiman/affiliate-hub/pull/29
+- 証跡: `docs/spec/feat-auth-workspace/design-review-log.md`, `beads:ah-361.3`

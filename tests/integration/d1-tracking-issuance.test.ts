@@ -1,6 +1,4 @@
 /** @tier 2 @req REQ-E13, REQ-P09 @types db-migration, idempotency, tenant-isolation, state-transition */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { drizzle } from "drizzle-orm/d1";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
@@ -21,6 +19,7 @@ import {
   createD1PublishedArticleWriter,
   createD1ContentRepository,
 } from "@/infrastructure/persistence/d1/published-article-repository";
+import { createD1SiteRepository } from "@/infrastructure/persistence/d1/site-repository";
 import {
   createD1RedirectResolver,
   createD1TrackingCoverage,
@@ -33,6 +32,7 @@ import {
 } from "@/infrastructure/persistence/d1/telemetry-repository";
 import { withTrackingLinkIssuance } from "@/infrastructure/persistence/tracking-issuing-writer";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
+import { migrationStatements } from "../support/migrations";
 
 /**
  * 記事を出したときに合言葉が発行され、押されたクリックが
@@ -70,20 +70,6 @@ const owner = SAMPLE_WORKSPACE_ID as WorkspaceId;
 /** 読者の身元。写しにこれが入ると「貯まっているのに 0」になる。 */
 const reader = asWorkspaceId("ws_public");
 
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-  expect(files.length).toBeGreaterThan(0);
-  return files.flatMap((file) =>
-    readFileSync(path.join(dir, file), "utf8")
-      .split("--> statement-breakpoint")
-      .map((s) => s.trim())
-      .filter((s) => s !== ""),
-  );
-}
-
 beforeAll(async () => {
   proxy = await getPlatformProxy<TestEnv>({
     configPath: "wrangler.jsonc",
@@ -99,7 +85,7 @@ beforeAll(async () => {
     createD1PublishedArticleWriter(db),
     createD1TrackingLinkIssuer(db),
   );
-  content = createD1ContentRepository(db);
+  content = createD1ContentRepository(db, createD1SiteRepository(db));
   resolver = createD1RedirectResolver(db);
   coverage = createD1TrackingCoverage(db);
   metrics = createD1TelemetryMetricsRepository(db);
@@ -120,8 +106,17 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM published_articles").run();
+  await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
   await proxy.env.DB.prepare("DELETE FROM redirect_resolutions").run();
   await proxy.env.DB.prepare("DELETE FROM telemetry_events").run();
+  await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
+  await proxy.env.DB.prepare(
+    `INSERT INTO site_blueprints
+      (id, workspace_id, slug, name, pattern, published_at, blueprint_json)
+     VALUES ('sb_tracking_owner', ?, 'sample-site', '計測ブログ', 'specialist_review', unixepoch(), '{}')`,
+  )
+    .bind(String(owner))
+    .run();
 });
 
 function anArticle(over: Partial<PublishedArticle> = {}): PublishedArticle {
@@ -207,6 +202,18 @@ describe("記事を出すと、合言葉が発行される", () => {
       "SELECT count(*) as n FROM redirect_resolutions",
     ).first<{ n: number }>();
     expect(count?.n).toBe(1);
+  });
+
+  it("合言葉の発行で包んだ後も、公開記事の取り下げを保存先へ渡す", async () => {
+    const article = anArticle();
+    await writer.save(owner, article);
+
+    const unpublished = await writer.unpublish(owner, article.siteSlug, article.slug);
+    expect(unpublished.ok).toBe(true);
+
+    const found = await content.findArticle(article.siteSlug, article.slug);
+    if (!found.ok) throw new Error("読み取りに失敗しました");
+    expect(found.value).toBeNull();
   });
 
   it("転送先が変わると新しい合言葉を出し、古い合言葉は 410 になる", async () => {

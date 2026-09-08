@@ -1,0 +1,24 @@
+{
+  "current_pointer": ".dev-graph/state/current/feature-package-feat-article-block-editor.json",
+  "feature_package_id": "feature-package/feat-article-block-editor",
+  "notice": "この directory は supersede 済みの旧世代であり、正本ではない。実装要件の正本は superseded_by.published_path 配下の content-addressed generation を読むこと。旧世代は byte-for-byte 不変で保持されるため、この directory の中身を編集して現行世代へ追随させてはならない。さらに世代が進んだ場合は current_pointer から再解決すること。",
+  "published_digest": "sha256:d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+  "schema_version": "1.0.0",
+  "status": "superseded",
+  "superseded_by": {
+    "generation_id": "bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+    "published_digest": "sha256:bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+    "published_path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627",
+    "receipt": ".dev-graph/published/generations/feature-package-feat-article-block-editor/bc3cd700e1abd0704bb23c844d1f3192ad0e1cc41f29a0cdf64007feece63627/atomic-promotion-receipt.json"
+  },
+  "superseded_receipts": {
+    "promotion": {
+      "path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/atomic-promotion-receipt.json",
+      "sha256": "sha256:36a23dcb796a71f39ea6e64e052b9c414b0811225192b1ef78b67e5c401039fa"
+    },
+    "registration": {
+      "path": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/dev-graph-registration-receipt.json",
+      "sha256": "sha256:0f2b1cc6bc71aa503067238972b08f855ef7d80747e16be1edba7805662096df"
+    }
+  }
+}

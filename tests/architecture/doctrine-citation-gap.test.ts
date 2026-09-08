@@ -3,9 +3,16 @@
  * @req REQ-TS13
  * @types equivalence, boundary
  */
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  declaredSourceTargets,
+  EMPTY_INVENTORY_DELTA,
+  inventoryDelta,
+  SOURCE_TARGET_FLOOR,
+} from "./spec-source-inventory";
 
 /**
  * 確定章の要件文に、上流指針 (doctrine anchor) の条項が 1 件も引かれていない。
@@ -84,6 +91,21 @@ const CHAPTERS = [
 ] as const;
 
 /**
+ * 2026-09-06 実測: 8 章 67 要件。旧 40 文の記録は履歴として上に保持する。
+ * 母数だけを増やさず、各規範表の全 ID を列挙し、別表の混入・同数置換・重複も検出する。
+ */
+const REQUIRED_IDS = {
+  auth: ["AUTH-REQ-001", "AUTH-REQ-002", "AUTH-REQ-003", "AUTH-REQ-004"],
+  backend: ["BE-ANA-01", "BE-CONV-01", "BE-AUTH-01", "BE-MCP-01", "BE-PROSE-01", "BE-PROSE-02", "BE-PROSE-03", "BE-PRODUCT-01", "BE-IMAGE-01"],
+  database: ["DB-BOUNDARY-01", "DB-TENANT-01", "DB-IDENTITY-01", "DB-CONSENT-01", "DB-CONVERSION-01", "DB-STATE-01", "DB-KPI-01", "DB-IMAGE-01", "DB-IMAGE-02", "DB-IMAGE-03", "DB-PROJECTION-01"],
+  frontend: ["FRONT-REQ-001", "FRONT-REQ-002", "FRONT-REQ-003", "FRONT-REQ-004", "FRONT-REQ-005", "FRONT-REQ-006", "FRONT-REQ-007", "FRONT-REQ-008"],
+  infrastructure: ["INF-DB-01", "INF-REDIRECT-01", "INF-EVENT-01", "INF-OBS-01", "INF-IMG-01", "INF-IMG-02", "INF-IMG-03", "INF-IMG-04", "INF-IMG-05"],
+  "maintenance-ops": ["OPS-REQ-001", "OPS-REQ-002", "OPS-REQ-003", "OPS-REQ-004", "OPS-REQ-005", "OPS-REQ-006", "OPS-REQ-007", "OPS-REQ-008", "OPS-REQ-009", "OPS-REQ-010"],
+  security: ["SEC-REQ-001", "SEC-REQ-002", "SEC-REQ-003", "SEC-REQ-004", "SEC-REQ-005", "SEC-REQ-006", "SEC-REQ-007", "SEC-REQ-008", "SEC-REQ-009"],
+  "ui-ux": ["UIUX-REQ-001", "UIUX-REQ-002", "UIUX-REQ-003", "UIUX-REQ-004", "UIUX-REQ-005", "UIUX-REQ-006", "UIUX-REQ-007"],
+} satisfies Record<(typeof CHAPTERS)[number], readonly string[]>;
+
+/**
  * doctrine anchor に挙がっている 4 つの authority を、名前で見つける。
  *
  * **わざと緩く書いてある。**節番号まで求めると「名前すら出ていない」現状と
@@ -97,44 +119,197 @@ const AUTHORITY_PATTERNS = [
   /\bSRE\b|Site Reliability/i,
 ];
 
-/** 表の本文行のうち、先頭列が ID になっているもの＝要件文。見出し行と罫線は除く。 */
+/**
+ * 意味上の規範見出しと列契約の両方で表を選ぶ。汎用 To-Be / Delta の先頭一致はしない。
+ * 生の本文行は保持するので、引用の有無は ID や抽出器の語彙に依存しない。
+ */
 function requirementSentences(markdown: string): string[] {
-  const section = markdown.split(/^#{2,3} /m).find((s) => s.startsWith("To-Be"));
-  if (section === undefined) return [];
-  return section
-    .split("\n")
-    .filter(
-      (line) =>
-        /^\|\s*[A-Z][A-Z-]*-?[A-Z]*-?\d*\s*\|/.test(line) &&
-        !/^\|\s*-+/.test(line) &&
-        !/^\|\s*(ID|要件ID)\s*\|/.test(line),
-    );
+  let fence: { marker: string; length: number } | undefined;
+  // コード例の見出し・表は候補にしない。空行へ置換し、例をまたいで表を接続しない。
+  const lines = markdown.split(/\r?\n/).map((line) => {
+    const delimiter = line.match(/^\s{0,3}(`{3,}|~{3,})(.*)$/);
+    if (fence) {
+      if (delimiter && delimiter[1][0] === fence.marker && delimiter[1].length >= fence.length && !delimiter[2].trim()) fence = undefined;
+      return "";
+    }
+    if (delimiter) {
+      fence = { marker: delimiter[1][0], length: delimiter[1].length };
+      return "";
+    }
+    return line;
+  });
+  const tables: string[][] = [];
+  let normativeDepth: number | undefined;
+  const cells = (line: string) => line.trim().split("|").slice(1, -1).map((cell) => cell.trim());
+  const separator = (line: string) => /^\s*\|(?:\s*:?-{3,}:?\s*\|)+\s*$/.test(line);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const heading = line.match(/^(#{1,6})\s+(.+?)\s*#*\s*$/);
+    if (heading) {
+      if (normativeDepth !== undefined && heading[1].length <= normativeDepth) normativeDepth = undefined;
+      if (/^To-Be(?:（規範契約）|\(規範契約\))?$/.test(heading[2]) && [2, 3].includes(heading[1].length)) normativeDepth = heading[1].length;
+      continue;
+    }
+    if (normativeDepth === undefined) continue;
+    const header = cells(line);
+    const requirementHeader = header.length === 2 && header[0] === "要件ID" && header[1] === "目標状態";
+    const contractHeader = header.length === 3 && header[0] === "ID" && header[1] === "契約" && ["状態", "配置 / 状態"].includes(header[2]);
+    if (!(requirementHeader || contractHeader) || !separator(lines[index + 1] ?? "")) continue;
+    const rows: string[] = [];
+    index += 2;
+    while (index < lines.length && /^\s*\|.*\|\s*$/.test(lines[index])) {
+      rows.push(lines[index]);
+      index += 1;
+    }
+    tables.push(rows);
+    index -= 1;
+  }
+  if (tables.length > 1) throw new Error(`規範表が複数あります (${tables.length})。正本を一意にしてください。`);
+  return tables[0] ?? [];
 }
 
 function citesAuthority(sentence: string): boolean {
   return AUTHORITY_PATTERNS.some((pattern) => pattern.test(sentence));
 }
 
+type EvidenceReference = {
+  target_id: string;
+  source_url: string;
+  retrieved_at: string;
+  evidence_ref: string;
+  evidence_sha256: string;
+};
+
+/**
+ * C03/R4 層0と同じく、取得物は URL・取得時刻・実 bytes の digest へ束縛する。
+ * merge 64423e9f は R2 の同名別ページを分離し、概要の証跡 bytes を保持している。
+ * 証跡内部の取得時 target_id を今のファイル名へ書き換えさせて履歴を壊さない。
+ */
+function evidenceBindingMismatches(reference: EvidenceReference, bytes: string): string[] {
+  const evidence = JSON.parse(bytes) as Record<string, unknown>;
+  const mismatches = ["source_url", "retrieved_at"]
+    .filter((key) => evidence[key] !== reference[key as "source_url" | "retrieved_at"]);
+  if (createHash("sha256").update(bytes).digest("hex") !== reference.evidence_sha256) {
+    mismatches.push("evidence_sha256");
+  }
+  return mismatches;
+}
+
+describe("取得対象と歴史証跡の束縛", () => {
+  const bytes = JSON.stringify({ target_id: "original-name", source_url: "https://example.test/docs/", retrieved_at: "2026-09-03T12:55:14Z" });
+  const reference: EvidenceReference = {
+    target_id: "current-name",
+    source_url: "https://example.test/docs/",
+    retrieved_at: "2026-09-03T12:55:14Z",
+    evidence_ref: "system-spec/retrieval-evidence/current-name.json",
+    evidence_sha256: createHash("sha256").update(bytes).digest("hex"),
+  };
+
+  it("取得時の旧名を保持しても、同じ URL・取得時刻・bytes の証跡は一致する", () => {
+    expect(evidenceBindingMismatches(reference, bytes)).toEqual([]);
+  });
+
+  it.each([
+    ["source_url", "https://example.test/other/"],
+    ["retrieved_at", "2026-09-04T12:55:14Z"],
+    ["evidence_sha256", "0".repeat(64)],
+  ])("%s の食い違いは現在名や件数が同じでも検出する", (key, value) => {
+    expect(evidenceBindingMismatches({ ...reference, [key]: value }, bytes)).toEqual([key]);
+  });
+
+  it("証跡を取得後に書き換えると、メタデータが同じでも実 bytes の不一致を検出する", () => {
+    expect(evidenceBindingMismatches(reference, `${bytes}\n`)).toEqual(["evidence_sha256"]);
+  });
+});
+
+describe("規範表の選択が汎用 To-Be / Delta や別の表へ逸れない", () => {
+  const requirement = "| SEC-REQ-001 | OWASP ASVS の確認済み条項に従う |";
+  const table = ["| 要件ID | 目標状態 |", "|---|---|", requirement].join("\n");
+
+  it.each(["## To-Be", "### To-Be（規範契約）"])(
+    "%s の規範表を、先行する汎用 To-Be / Delta より優先する",
+    (heading) => {
+      const markdown = [
+        "## To-Be / Delta",
+        "### 到達すべき状態 (To-Be)",
+        "| 区分 | 内容 |",
+        "|---|---|",
+        "| GAP-001 | 規範要件ではない |",
+        heading,
+        table,
+        "## 受入条件",
+        "| 要件ID | 目標状態 |",
+        "|---|---|",
+        "| SEC-ACC-001 | 別の受入表 |",
+      ].join("\n");
+      expect(requirementSentences(markdown)).toEqual([requirement]);
+      expect(requirementSentences(markdown).filter(citesAuthority)).toEqual([requirement]);
+    },
+  );
+
+  it("同じ見出し内でも規範列を持たない対応表や ID の言及を数えない", () => {
+    const markdown = [
+      "## To-Be",
+      "| ID | 参考リンク |",
+      "|---|---|",
+      "| REF-001 | 補助資料 |",
+      "SEC-REQ-002 は本文中で言及しているだけ。",
+      "",
+      table,
+    ].join("\n");
+    expect(requirementSentences(markdown)).toEqual([requirement]);
+  });
+
+  it.each(["```markdown", "~~~~markdown"])("%s のコード例にある規範表を数えない", (fence) => {
+    const closing = fence.startsWith("`") ? "```" : "~~~~";
+    const example = table.replace("SEC-REQ-001", "EXAMPLE-001");
+    const markdown = [fence, "## To-Be", example, closing, "## To-Be", table].join("\n");
+    expect(requirementSentences(markdown)).toEqual([requirement]);
+  });
+
+  it("汎用 To-Be / Delta しかない場合は、規範表の欠落を空配列として検出する", () => {
+    expect(requirementSentences(["## To-Be / Delta", table].join("\n"))).toEqual([]);
+  });
+
+  it("規範表が二重にある場合は先頭だけを黙って採用しない", () => {
+    expect(() => requirementSentences(["## To-Be", table, "", table].join("\n")))
+      .toThrow("規範表が複数");
+  });
+
+  it.each(["状態", "配置 / 状態"])("ID・契約・%s 形式も全行の本文を保持する", (status) => {
+    const row = "| DB-STATE-01 | state は `granted \\| denied`。 | 未実装 |";
+    const markdown = ["### To-Be（規範契約）", `| ID | 契約 | ${status} |`, "|---|---|---|", row].join("\n");
+    expect(requirementSentences(markdown)).toEqual([row]);
+  });
+});
+
 describe("上流指針の条項が要件文へ引かれていない (塞げていないことの固定)", () => {
-  const perChapter = CHAPTERS.map((name) => {
+  // 不正な実文書で throw しても、describe の収集を止めて陽性対照まで 0 件にしない。
+  const perChapter = () => CHAPTERS.map((name) => {
     const text = readFileSync(join(ROOT, `system-spec/${name}.md`), "utf8");
     const sentences = requirementSentences(text);
     return { name, sentences, cited: sentences.filter(citesAuthority) };
   });
 
   it("確定 8 章すべてが To-Be の要件文を持っている（数える対象が消えていない）", () => {
-    for (const { name, sentences } of perChapter) {
+    for (const { name, sentences } of perChapter()) {
       expect(sentences.length, `${name}.md の要件文`).toBeGreaterThan(0);
     }
   });
 
-  it("要件文は合計 40 文ある（数える対象が減ったら気づく）", () => {
-    const total = perChapter.reduce((sum, c) => sum + c.sentences.length, 0);
-    expect(total).toBe(40);
+  it("各章の規範表が実在する全要件 ID を持つ（欠落・同数置換・重複を検出する）", () => {
+    for (const { name, sentences } of perChapter()) {
+      const ids = sentences.map((sentence) => sentence.split("|")[1].trim());
+      expect(inventoryDelta(ids, REQUIRED_IDS[name]), `${name}.md の規範要件`).toEqual(EMPTY_INVENTORY_DELTA);
+    }
   });
 
   it("そのうち authority を引いている文は 0 文——引かれた日にこの検査が赤くなる", () => {
-    const cited = perChapter.flatMap((c) => c.cited.map((s) => `${c.name}: ${s}`));
+    const chapters = perChapter();
+    for (const { name, sentences } of chapters) {
+      expect(inventoryDelta(sentences.map((s) => s.split("|")[1].trim()), REQUIRED_IDS[name]), name).toEqual(EMPTY_INVENTORY_DELTA);
+    }
+    const cited = chapters.flatMap((c) => c.cited.map((s) => `${c.name}: ${s}`));
     expect(cited).toEqual([]);
   });
 
@@ -181,35 +356,104 @@ describe("上流指針の条項が要件文へ引かれていない (塞げて�
   });
 
   /**
-   * 塞げない理由 1 の当てどころ。証跡が節名を持ち始めたら赤くなる。
+   * 塞げない理由 1 の当てどころ。**証跡が節名を持ち始めたら赤くなる。**
    *
-   * `freshness_extraction` は 2026-08-20 に足した欄で、**節名ではない**。
-   * 「その record の更新日表明をどこからどう取ったか」だけを持ち、
-   * 章・節・見出しの類は一切入らない。よってこの検査の趣旨
-   * (証跡から条項は引けない = doctrine の引用根拠に使えない) は保たれている。
-   * 欄が増えたこと自体はここで固定し、増えた欄が節名を持ち込んだら
-   * 下の EVIDENCE_KEYS 検査が赤くなる。
+   * ── 2026-08-23: 代理指標をやめ、目的そのものへ当て直した ──────────────
+   *
+   * 前の版は `owasp-asvs` / `apple-hig` / `google-sre` の 3 件について
+   * 「基本の欄以外は、この一覧と**完全に一致**すること」を求めていた。
+   * これは「節名を持っていない」ことを**欄の名前の一覧で代理**したもので、
+   * 目的に対して両方向にずれていた。
+   *
+   * - **厳しすぎる**: 節名と無関係な欄が 1 つ増えるだけで赤くなる。実際 2 度起きた。
+   *   owasp-asvs に `freshness_extraction`（鮮度の由来）が載って 1 度、
+   *   apple-hig に `reverification`（上流へ取り直した記録）が載って 1 度。
+   *   どちらも証跡を**強くする**追記であり、止めるべきものではない。
+   * - **緩すぎる**: 21 件のうち 3 件しか見ていない。残る 18 件は節名を持ち込んでも黙る。
+   *
+   * いま測っているのは目的そのもの——**どの証跡のどの階層にも、章・節・条項・
+   * 見出しを指す名前の欄が無いこと**——を取得対象の全件に対して、である。
+   * これで証跡から条項は引けない（doctrine の引用根拠に使えない）が保たれる。
+   * 欄が増えることは通し、節名が入ることだけを止める。
    */
-  const EVIDENCE_BASE_KEYS = [
-    "content_bytes",
-    "content_sha256",
-    "http_status",
-    "page_title",
-    "retrieved_at",
-    "source_url",
-    "target_id",
-  ];
+  const EVIDENCE_BASE_KEYS = ["page_title", "retrieved_at", "source_url", "target_id"];
 
-  it("取得証跡は節名を持っていない（hash と page_title と鮮度の由来だけ）", () => {
-    for (const id of ["owasp-asvs", "apple-hig", "google-sre"]) {
-      const evidence = JSON.parse(
-        readFileSync(join(ROOT, `system-spec/retrieval-evidence/${id}.json`), "utf8"),
-      ) as Record<string, unknown>;
-      const extra = Object.keys(evidence).filter((k) => !EVIDENCE_BASE_KEYS.includes(k));
-      expect(extra.sort(), `${id}.json の想定外の欄`).toEqual(
-        id === "owasp-asvs" ? [] : ["freshness_extraction"],
-      );
+  /**
+   * 生バイト列に由来する欄。**取り方によっては原理的に持てない。**
+   *
+   * WebFetch は本文を要約して返し、応答の生 HTML も HTTP 状態も渡さない。
+   * その経路で取った証跡に `content_sha256` を書けば、何のダイジェストでもない
+   * 64 桁を書くことになる——つまり捏造である。だから「無い」を許す。
+   *
+   * ただし**黙って欠けるのは許さない**。欠かすなら `retrieval_method.note` に
+   * 「なぜ持てないか」を書かせる。書き忘れれば下の検査が赤くなるので、
+   * 「面倒だから 3 欄落とす」で証跡を弱める経路が塞がれる。
+   */
+  const RAW_BYTE_KEYS = ["content_bytes", "content_sha256", "http_status"];
+
+  /** 章・節・条項・見出しを指す欄名。これが証跡に現れたら、証跡から条項が引ける。 */
+  const SECTION_KEY = /section|clause|heading|anchor|chapter|節|条項|見出し|章/i;
+
+  /** 入れ子のどこにある欄名も見る（浅い一致で逃げられないように）。 */
+  function allKeys(value: unknown, out: string[] = []): string[] {
+    if (Array.isArray(value)) for (const v of value) allKeys(v, out);
+    else if (value !== null && typeof value === "object") {
+      for (const [k, v] of Object.entries(value)) {
+        out.push(k);
+        allKeys(v, out);
+      }
     }
+    return out;
+  }
+
+  const EVIDENCE_IDS = readdirSync(join(ROOT, "system-spec/retrieval-evidence"))
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => f.replace(/\.json$/, ""));
+  const evidenceReferences = (JSON.parse(readFileSync(join(ROOT, "system-spec/fetched-references.json"), "utf8")) as {
+    references: EvidenceReference[];
+  }).references;
+
+  it("全取得対象の証跡がそろっている（既知 22 対象の欠落・重複・同数置換を止める）", () => {
+    // 2026-09-04 に 15 → 19。**増えた 4 件は実在する取得証跡である**
+    // (`google-search-central` / `schema-org` / `w3c-wai-aria` /
+    // `web-dev-core-web-vitals`。G3 の AEO/SEO 決定を裏取りするために取った)。
+    // 2026-09-05 の dev 合流で 19 → 21。こちら側が独自ドメインと画像の保管を
+    // 裏取りするために取った `cloudflare-for-saas` / `cloudflare-r2` が加わった。
+    // **この数を減らす向きに触らないこと。**減らせば母数が縮み、下の
+    // 「節名を持っていない」が 0 件で緑になる。増える向きの更新だけが正しい。
+    const targetIds = declaredSourceTargets(ROOT).map((target) => target.target_id);
+    const floor = Object.values(SOURCE_TARGET_FLOOR).flat();
+    expect(targetIds).toEqual(expect.arrayContaining(floor));
+    expect(new Set(targetIds).size).toBe(targetIds.length);
+    expect(inventoryDelta(EVIDENCE_IDS, targetIds)).toEqual(EMPTY_INVENTORY_DELTA);
+    expect(inventoryDelta(evidenceReferences.map((ref) => ref.target_id), targetIds)).toEqual(EMPTY_INVENTORY_DELTA);
+  });
+
+  it.each(EVIDENCE_IDS)("%s.json の証跡は節名を持っていない", (id) => {
+    const path = `system-spec/retrieval-evidence/${id}.json`;
+    const bytes = readFileSync(join(ROOT, path), "utf8");
+    const evidence = JSON.parse(bytes) as Record<string, unknown>;
+    const keys = allKeys(evidence);
+    const reference = evidenceReferences.find((record) => record.target_id === id);
+    if (!reference) throw new Error(`${id}: 取得証跡に対応する参照がありません`);
+    expect(reference.evidence_ref).toBe(path);
+    expect(evidenceBindingMismatches(reference, bytes), `${id}: 参照と取得証跡の束縛`).toEqual([]);
+    // 「節名の欄は 0 件」は、欄そのものが 0 件でも成り立ってしまう。母集団の床を同居させる。
+    expect(keys.length, `${id}.json の欄が少なすぎます（0 件で緑になっていないか）`).toBeGreaterThan(6);
+    // 基本の欄は全件とも欠かさず持っていること（欄が増えるのは通すが、減るのは通さない）。
+    expect(Object.keys(evidence), `${id}.json に欠けている基本の欄`).toEqual(
+      expect.arrayContaining(EVIDENCE_BASE_KEYS),
+    );
+    // 生バイト由来の欄は、落とすなら取り方の但し書きと引き換えにする。
+    const missingRaw = RAW_BYTE_KEYS.filter((k) => !(k in evidence));
+    if (missingRaw.length > 0) {
+      const method = evidence.retrieval_method as { note?: unknown } | undefined;
+      expect(
+        typeof method?.note === "string" && method.note.length > 0,
+        `${id}.json は ${missingRaw.join("/")} を落としているのに retrieval_method.note が無い`,
+      ).toBe(true);
+    }
+    expect(keys.filter((k) => SECTION_KEY.test(k)), `${id}.json の節名を指す欄`).toEqual([]);
   });
 
   /**

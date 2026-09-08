@@ -2,16 +2,9 @@ import type { FeedbackRepositoryPort } from "@/application/ports/feedback";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import {
-  type FeedbackDisposition,
-  type FeedbackStatus,
-  FEEDBACK_DISPOSITION_LABELS,
-  FEEDBACK_STATUS_LABELS,
-  appendHistory,
-  assertStatusChange,
-  decideDisposition,
-  undoDisposition,
-} from "@/domain/feedback";
+import { FEEDBACK_DISPOSITION_LABELS, decideDisposition, undoDisposition, type FeedbackDisposition } from "@/domain/feedback/disposition";
+import { FEEDBACK_STATUS_LABELS, assertStatusChange, type FeedbackStatus } from "@/domain/feedback/status";
+import { appendHistory } from "@/domain/feedback/report";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
@@ -23,6 +16,7 @@ import {
   validationError,
 } from "@/domain/shared";
 import type { UseCase } from "../usecase";
+import { ensureFeedbackAccess } from "./feedback-access";
 
 /**
  * 対応状況と扱いを変える。
@@ -87,15 +81,18 @@ export function createUpdateFeedbackStatusUseCase(
       const found = await deps.repository.findById(actor.workspaceId, input.id);
       if (!found.ok) return found;
       if (found.value === null) return err(notFound("改善要望", input.id));
+      const accessible = ensureFeedbackAccess(actor, found.value);
+      if (!accessible.ok) return accessible;
 
       const at = deps.now();
       // 変える前の姿をここで控える。下で `report` を差し替えていくので、
       // 保存の後に取ろうとすると、もう変わった後のものしか無い。
       const before = {
-        status: found.value.status,
-        disposition: found.value.disposition === null ? null : found.value.disposition.kind,
+        status: accessible.value.status,
+        disposition:
+          accessible.value.disposition === null ? null : accessible.value.disposition.kind,
       };
-      let report = found.value;
+      let report = accessible.value;
 
       if (input.status !== undefined) {
         const changed = assertStatusChange(report.status, input.status, input.note ?? null);

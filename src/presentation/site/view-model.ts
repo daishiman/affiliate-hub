@@ -1,24 +1,38 @@
 import {
   type ArticleSummary,
   type PublishedArticle,
+  type PublishedFormattedBody,
+  type PublishedProductCard,
   articleHref,
   outboundHref,
 } from "@/application/read-models/published-article";
+import { expressionBlocksOf } from "@/application/seo/expression-blocks";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
-import {
-  type ArticleType,
-  type SiteRoute,
-  buildPath,
-  footerRoutes,
-  routesFor,
-  siteBasePathBySlug,
-} from "@/domain/authoring";
+import type { ArticleType } from "@/domain/authoring/article-structure";
+import { buildPath, footerRoutes, routesFor, type SiteRoute } from "@/domain/authoring/site-routes";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
 import type {
   ArticleCardView,
   ArticleViewModel,
   CorrectionView,
   SiteChrome,
 } from "@/presentation/ui";
+import type { PublicSiteProjection } from "./public-site-projection";
+import type { ProductCardView } from "@/presentation/ui/templates/article-view";
+
+/** 本文内と再掲欄の商品は同じ表示契約へ写す。 */
+export function toProductCardView(siteSlug: string, card: PublishedProductCard): ProductCardView {
+  return {
+    productId: card.productId, name: card.name, brand: card.brand, oneLine: card.oneLine,
+    specs: card.specs.map((spec) => ({ label: spec.label, value: spec.value, basis: spec.kind })),
+    priceNote: card.priceNote,
+    affiliateHref: outboundHref(card.trackingCode, card.affiliateUrl),
+    blockedReason: card.affiliateUrl === undefined && card.trackingCode === undefined
+      ? (card.blockedReason ?? "この商品は、いま提携している販売先がありません。")
+      : undefined,
+    detailHref: card.reviewSlug === undefined ? undefined : siteHref(siteSlug, `/reviews/${card.reviewSlug}`),
+  };
+}
 
 /**
  * 保存されている形 → 画面に出す形 の変換。
@@ -64,7 +78,11 @@ export function siteRouteHref(
  * 中身はすべて設計図とルート表から作る。ブログごとに書き並べない。
  * 書き並べると、ブログを 1 本増やすたびに案内を作り直すことになる。
  */
-export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): SiteChrome {
+export function toChrome(
+  siteSlug: string,
+  blueprint: PublicSiteBlueprint,
+  projection?: PublicSiteProjection,
+): SiteChrome {
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
   const search = routes.find((r) => r.key === "search");
@@ -75,14 +93,42 @@ export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): Site
     label: c.name,
   }));
 
+  const headerSlots = projection?.chrome.headerSlots ?? [];
+  const savedHeader = headerSlots.length > 0;
+  const headerBrand = headerSlots.find((slot) => slot.slotKey === "header-brand");
   const nav = [
     ...(home === undefined ? [] : [{ href: siteRouteHref(siteSlug, home), label: "トップ" }]),
     ...categoryNav,
-    ...(search === undefined ? [] : [{ href: siteRouteHref(siteSlug, search), label: search.label }]),
+    ...(search === undefined || (savedHeader && !headerSlots.some((s) => s.slotKey === "header-search-modal"))
+      ? []
+      : [{ href: siteRouteHref(siteSlug, search), label: search.label }]),
   ];
 
+  const defaultFooter = footerRoutes(blueprint).map((route) => ({
+    href: siteRouteHref(siteSlug, route),
+    label: route.label,
+  }));
+  const savedFooter = projection?.chrome.footerSlots ?? [];
+  const projectedFooter =
+    savedFooter.length === 0
+      ? defaultFooter
+      : [
+          ...(savedFooter.some((slot) => slot.slotKey === "footer-logo-nav")
+            ? defaultFooter
+            : []),
+          ...(savedFooter.some((slot) => slot.slotKey === "footer-category-tree")
+            ? blueprint.categories.map((category) => ({
+                href: siteHref(siteSlug, `/categories/${category.slug}`),
+                label: category.name,
+              }))
+            : []),
+        ];
+  const footer = projectedFooter.filter(
+    (item, index, all) => all.findIndex((candidate) => candidate.href === item.href) === index,
+  );
+
   return {
-    siteName: blueprint.name,
+    siteName: headerBrand?.title.trim() || blueprint.name,
     tagline: blueprint.purpose,
     brandTheme: blueprint.theme.brandTheme,
     nav,
@@ -94,10 +140,7 @@ export function toChrome(siteSlug: string, blueprint: PublicSiteBlueprint): Site
       editorialPolicy === undefined
         ? siteBasePathBySlug(siteSlug)
         : siteRouteHref(siteSlug, editorialPolicy),
-    footer: footerRoutes(blueprint).map((r) => ({
-      href: siteRouteHref(siteSlug, r),
-      label: r.label,
-    })),
+    footer,
   };
 }
 
@@ -119,17 +162,45 @@ export function toArticleCards(
   return summaries.map((s) => toArticleCard(siteSlug, s));
 }
 
+/** 保存データ由来の値を、表示側が安全に運べる形へ正規化する。 */
+function normalizeFormattedBody(value: unknown): PublishedFormattedBody | undefined {
+  if (typeof value !== "object" || value === null) return undefined;
+
+  const candidate = value as Readonly<Record<string, unknown>>;
+  if (
+    candidate.format !== "prose-v1" ||
+    candidate.version !== 1 ||
+    typeof candidate.source !== "string"
+  ) {
+    return undefined;
+  }
+
+  return {
+    format: candidate.format,
+    version: candidate.version,
+    source: candidate.source,
+  };
+}
+
 /** 記事 1 本。順位表の商品名は、レビューがある商品だけリンクにする。 */
 export function toArticleView(
   siteSlug: string,
   article: PublishedArticle,
   relatedArticles?: readonly ArticleCardView[],
+  /** ブログが選んだ見せ方の並び（受入 A1・A5）。未選択なら渡さない。 */
+  blockOrder?: readonly string[],
 ): ArticleViewModel {
+  const blocks = expressionBlocksOf(article);
+  const answer = blocks.find((block) => block.kind === "answer");
+  const keyPoints = blocks.find((block) => block.kind === "key_points");
+  const faq = blocks.find((block) => block.kind === "faq");
+  const freshness = blocks.find((block) => block.kind === "freshness");
+
   return {
     title: article.title,
-    summary: article.summary,
+    summary: answer?.text ?? "",
     publishedAt: article.publishedAt,
-    updatedAt: article.updatedAt,
+    updatedAt: freshness?.asOf ?? "",
     authorName: article.author.name,
     authorHref: siteHref(siteSlug, `/authors/${article.author.slug}`),
     authorBio: article.author.bio,
@@ -146,6 +217,7 @@ export function toArticleView(
       id: s.id,
       heading: s.heading,
       paragraphs: s.paragraphs,
+      formattedBody: normalizeFormattedBody(s.formattedBody),
       claims: s.claims?.map((c) => ({
         id: c.id,
         statement: c.statement,
@@ -160,26 +232,13 @@ export function toArticleView(
       })),
     })),
     conversation: article.conversation,
-    productCards: article.productCards?.map((card) => ({
-      name: card.name,
-      brand: card.brand,
-      oneLine: card.oneLine,
-      specs: card.specs.map((spec) => ({
-        label: spec.label,
-        value: spec.value,
-        basis: spec.kind,
-      })),
-      priceNote: card.priceNote,
-      affiliateHref: outboundHref(card.trackingCode, card.affiliateUrl),
-      // 買う導線が無いときは、理由を必ず添える。
-      // 理由が無いと、読者には「リンクの貼り忘れ」と区別が付かない。
-      blockedReason:
-        card.affiliateUrl === undefined && card.trackingCode === undefined
-          ? (card.blockedReason ?? "この商品は、いま提携している販売先がありません。")
-          : undefined,
-      detailHref:
-        card.reviewSlug === undefined ? undefined : siteHref(siteSlug, `/reviews/${card.reviewSlug}`),
-    })),
+    blockOrder,
+    // answer / key_points / faq / freshness は画面で読み直さない。
+    // 公開前監査・JSON-LD と同じ射影に、空白の扱いまで揃える。
+    keyPoints: keyPoints?.items,
+    faq: faq?.items,
+    productCards: article.productCards?.map((card) => toProductCardView(siteSlug, card)),
+    inlineProductCards: article.inlineProductCards?.map((card) => toProductCardView(siteSlug, card)),
     ranking:
       article.ranking === undefined
         ? undefined

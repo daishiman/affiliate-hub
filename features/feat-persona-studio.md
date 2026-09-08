@@ -12,7 +12,7 @@ iteration: null
 title: "Persona Studio"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:20:00Z"
-updated_at: "2026-08-16T14:35:00Z"
+updated_at: "2026-08-30T15:15:56Z"
 status: "active"
 depends_on: ["feat-auth-workspace","feat-data-model"]
 related_nodes: ["spec-system-spec-index"]
@@ -46,7 +46,6 @@ execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
 implementation_readiness: {"checked_at":"2026-08-16T13:30:00Z","missing_sections":[],"status":"complete"}
 ---
-
 
 # 目的
 

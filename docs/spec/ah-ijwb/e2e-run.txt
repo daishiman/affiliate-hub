@@ -1,0 +1,49 @@
+# ブラウザ E2E 実測（ah-ijwb）
+# 実施: 2026-08-30T10:45:51Z
+# コマンド: PLAYWRIGHT_PORT=8789 pnpm run test:e2e
+# ポートを既定 8788 から動かした理由: 他 worktree が 8788 を占有しているため
+
+437 passed / 41 failed （2.4m、desktop + mobile の 2 プロファイル）
+
+## 失敗 41 件の内訳
+[desktop] › tests/e2e/app-routes.spec.ts:224:5 › route registryは87画面、signin確認済みを除く監査対象は86画面 ────
+[desktop] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/[fixedPage]/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[desktop] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/advertising-policy/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[desktop] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/ai-policy/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[desktop] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/contact/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[desktop] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/editorial-policy/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[desktop] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/methodology/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[desktop] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/tools/[tool]/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:70:5 › screen-hit-and-currentの保留は0件で、監査対象は86画面 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/[fixedPage]/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/advertising-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/ai-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/best/[topic]/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/contact/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/editorial-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/methodology/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[desktop] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/tools/[tool]/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[desktop] › tests/e2e/public-site-lifecycle.spec.ts:116:5 › 公開サイトはhidden・論理削除で404になり、同じURL・内容へ戻る 
+[mobile] › tests/e2e/app-routes.spec.ts:224:5 › route registryは87画面、signin確認済みを除く監査対象は86画面 ─────
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › admin/evidence/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › admin/content/published/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › admin/sites/[site]/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › admin/affiliate/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/[fixedPage]/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/advertising-policy/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/ai-policy/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/blog/[article]/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/contact/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/editorial-policy/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/methodology/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/app-routes.spec.ts:231:7 › s/[site]/tools/[tool]/page.tsx は実route本体へ到達し、主要見出しと配置が壊れていない 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:70:5 › screen-hit-and-currentの保留は0件で、監査対象は86画面 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/[fixedPage]/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/advertising-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/ai-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/best/[topic]/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/contact/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/editorial-policy/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/methodology/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[mobile] › tests/e2e/pending-hit-targets.spec.ts:90:7 › s/[site]/tools/[tool]/page.tsx の下限を宣言したリンクは実寸も基準を満たす 
+[mobile] › tests/e2e/public-site-lifecycle.spec.ts:116:5 › 公開サイトはhidden・論理削除で404になり、同じURL・内容へ戻る 

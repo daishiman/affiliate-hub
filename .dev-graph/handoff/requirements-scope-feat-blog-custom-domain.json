@@ -1,0 +1,37 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-blog-custom-domain.md",
+  "package_current_pointer": ".dev-graph/state/current/feature-package-feat-blog-custom-domain.json",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-blog-custom-domain/e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
+  "selected_feature": "feat-blog-custom-domain",
+  "feature_package_id": "feature-package/feat-blog-custom-domain",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "arch-blog-operations-console"
+  ],
+  "task_ids": [
+    "SYS-BLOG-CUSTOM-DOMAIN-P01",
+    "SYS-BLOG-CUSTOM-DOMAIN-P02",
+    "SYS-BLOG-CUSTOM-DOMAIN-P03",
+    "SYS-BLOG-CUSTOM-DOMAIN-P04",
+    "SYS-BLOG-CUSTOM-DOMAIN-P05",
+    "SYS-BLOG-CUSTOM-DOMAIN-P06",
+    "SYS-BLOG-CUSTOM-DOMAIN-P07",
+    "SYS-BLOG-CUSTOM-DOMAIN-P08",
+    "SYS-BLOG-CUSTOM-DOMAIN-P09",
+    "SYS-BLOG-CUSTOM-DOMAIN-P10",
+    "SYS-BLOG-CUSTOM-DOMAIN-P11",
+    "SYS-BLOG-CUSTOM-DOMAIN-P12",
+    "SYS-BLOG-CUSTOM-DOMAIN-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-blog-custom-domain-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-blog-custom-domain.json"
+  ],
+  "scope_digest": "sha256:32201ef63bbd04e586be9983b6765d83305d310be3ed94024a39e4884371eded"
+}

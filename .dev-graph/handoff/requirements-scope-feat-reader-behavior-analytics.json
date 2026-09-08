@@ -1,0 +1,37 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-reader-behavior-analytics.md",
+  "package_current_pointer": ".dev-graph/state/current/feature-package-feat-reader-behavior-analytics.json",
+  "promoted_generation": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "selected_feature": "feat-reader-behavior-analytics",
+  "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "arch-blog-operations-console"
+  ],
+  "task_ids": [
+    "SYS-READER-BEHAVIOR-ANALYTICS-P01",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P02",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P03",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P04",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P05",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P06",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P08",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P09",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P11",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P12",
+    "SYS-READER-BEHAVIOR-ANALYTICS-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-reader-behavior-analytics-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-reader-behavior-analytics.json"
+  ],
+  "scope_digest": "sha256:b1eabe6b2fe4e44315c32af05163649c44fdf9d0374ef9499acbbbf799d3d0af"
+}

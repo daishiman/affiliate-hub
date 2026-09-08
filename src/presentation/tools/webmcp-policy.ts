@@ -11,7 +11,19 @@
  *   3. 「これは 6 個以下か」「読み取り専用か」を機械で確かめられる形
  */
 
-import { MAX_TOOLS_PER_PAGE } from "./webmcp-adapter";
+/**
+ * 1 ページに載せてよい道具の上限。
+ *
+ * 多いほど良いものではない。選択肢が増えるほどエージェントは誤った道具を選ぶ。
+ * 読み取り専用から始めて少数に絞る、が仕様（ブログ層 §14.4）の指示。
+ *
+ * **ここに置いてあるのは、上限と一覧が同じ決めごとだからである。**
+ * 以前は `webmcp-adapter.ts` が持ち、この表がそれを取りに行っていた。
+ * 掲載の根拠を表の側へ移した（下の `WEBMCP_LISTED_TOOLS`）ので、
+ * 逆向きに参照すると輪になる。上限を表と同じ場所へ置いて向きを 1 つにした。
+ * 取り出し口は `webmcp-adapter.ts` にも残してあるので、呼ぶ側は変わらない。
+ */
+export const MAX_TOOLS_PER_PAGE = 6;
 
 export type PageKind =
   | "article"
@@ -94,6 +106,33 @@ export const PAGE_TOOLS: Readonly<Record<PageKind, readonly string[]>> = {
     "list_managed_sites",
   ],
 };
+
+/**
+ * **WebMCP に載せてよい道具の全体（③ の唯一の根拠）。**
+ *
+ * 上の表に名前が書いてあるものだけ。**書いていないものは載らない。**
+ *
+ * 以前は道具定義の `readOnly` がこれを決めていた。
+ * `readOnly` は MCP の注釈（`readOnlyHint`）のために付ける旗で、
+ * 「ページ内の AI へ渡してよいか」とは**別の問い**である。
+ * 実際 `export_manual_draft` は「投稿はしない」という意味で `readOnly: true` と
+ * 書かれ、その 1 語が黙って③に効いて**記事の本文をページ内の AI へ渡していた。**
+ *
+ * 旗を根拠にすると、**既定は「載る」**になる（読み取りの道具を足すと自動で候補に入る）。
+ * 明示列挙を根拠にすると、**既定は「載らない」**になる。
+ * 事故が起きるのは書き忘れたときなので、既定は載せない側へ倒す。
+ *
+ * 2026-08-21 の実測: `readOnly` を名乗る道具は 83 個、この表にあるのは 14 個。
+ * 差の 69 個は、旗を根拠にしていた間ずっと**掲載の候補に入っていた。**
+ */
+export const WEBMCP_LISTED_TOOLS: ReadonlySet<string> = new Set(
+  Object.values(PAGE_TOOLS).flat(),
+);
+
+/** その道具を WebMCP に載せてよいか。載せてよい理由は「表に書いてある」ことだけ。 */
+export function isListedOnWebMcp(name: string): boolean {
+  return WEBMCP_LISTED_TOOLS.has(name);
+}
 
 /**
  * 機能フラグの名前（統合仕様 §3「導入条件: 機能フラグ配下」）。

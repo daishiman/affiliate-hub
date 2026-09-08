@@ -9,11 +9,11 @@ priority: "high"
 start_date: "2026-08-17"
 target_date: null
 iteration: null
-title: "`pnpm verify` と自動チェック 3 本の設置"
+title: "pnpm verify と自動チェック 3 本の設置"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-17T02:21:43.593642Z"
-status: "draft"
+updated_at: "2026-08-17T14:10:24Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: [".github/workflows","scripts/verify.mjs"]

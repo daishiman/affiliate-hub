@@ -18,7 +18,8 @@ import { similarity } from "./quality-check";
  * ブログ固有の処理を書きたくなったら、それは Blueprint の項目が
  * 足りていないという合図であり、if 文を足す合図ではない。
  *
- * 参考記事 (makuring.jp の「動画編集向けノートパソコン」記事) の構成を
+ * 参考記事 (参考サイトのまとめ記事 1 本。実ホストと実 slug は
+ * docs/spec/feat-reference-blog-admin-ux/evidence/reference-site-profile.json にだけ置く) の構成を
  * 参照しているが、本文・画像は一切複製しない。参照したのは
  * 「ランキング記事の並び方」だけであり、その並びは仕様書
  * (プラットフォーム層 §16.4 / ブログ層 §9.1) の記事構成と一致する。

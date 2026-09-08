@@ -9,8 +9,8 @@ import type {
 } from "@/application/ports/monetization";
 import type { EditorialContentVariantRepositoryPort } from "@/application/ports/authoring";
 import type { EditorialProductRepositoryPort } from "@/application/ports/product";
-import { CHANNEL_CAPABILITIES } from "@/domain/distribution";
-import { can, requireCapability } from "@/domain/identity";
+import { CHANNEL_CAPABILITIES } from "@/domain/distribution/channel";
+import { can, requireWorkspaceWideCapability } from "@/domain/identity";
 import { effectiveReward } from "@/domain/monetization";
 import {
   type DomainError,
@@ -190,7 +190,7 @@ export function createGetDashboardUseCase(
 ): UseCase<ReadDashboardInput, DashboardView> {
   return {
     async execute(actor, input): Promise<Result<DashboardView, DomainError>> {
-      const allowed = requireCapability(actor, "content.read", "ホーム画面の参照");
+      const allowed = requireWorkspaceWideCapability(actor, "content.read", "ホーム画面の参照");
       if (!allowed.ok) return allowed;
 
       const at = input.at ?? new Date();
@@ -372,11 +372,11 @@ export function createGetDashboardUseCase(
         }),
         widget({
           key: "refresh_due",
-          label: "更新期限を過ぎた記事",
+          label: "見直しが必要な記事",
           value: refreshDue.ok ? refreshDue.value.length : null,
           unit: "本",
-          reasonWhenZero: "次回確認日を過ぎた公開記事はありません。",
-          reasonWhenSome: (n) => `${n}本の公開記事が、決めた次回確認日を過ぎています。`,
+          reasonWhenZero: "見直しが必要な公開記事はありません。",
+          reasonWhenSome: (n) => `${n}本の公開記事に見直しが必要です。`,
           href: "/admin/content",
           actionLabel: "見直す記事を見る",
           unavailableReason: refreshDue.ok ? null : refreshDue.error.message,

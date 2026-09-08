@@ -1,0 +1,140 @@
+{
+  "source_digest": "sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "feature": {
+    "graph_node_id": "feat-reader-behavior-analytics",
+    "title": "読者行動の計測とヒートマップ可視化",
+    "description": "読者が記事のどこで時間を使い、どこを押しているのかを、個人を追跡せずに分布として観測できるようにする\n\n読者面が滞在・スクロール到達・要素クリック・ポインタ標本を要素相対比率で束ねて送り、reader_interaction_events へ追記され、管理画面が viewport_bucket ごとの集計分布としてヒートマップを描き、同意が無い読者は reader_key を持たず 90 日で生データが消える状態になっている\n\nfile: features/feat-reader-behavior-analytics.md"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測の要求ベースライン確定",
+      "description": "feat-reader-behavior-analytics の受入10件を検証可能な条件文へ写像し、個人を追跡しないという制約が「持たない列」と「描けない画面」の両方として表現された要求を実装着手前に確定した状態を成立させる。\n\nfeat-reader-behavior-analytics の受入10件を検証可能な条件文へ写像し、個人を追跡しないという制約が「持たない列」と「描けない画面」の両方として表現された要求を実装着手前に確定した状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p01.md",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "reader_interaction_events のデータモデルと計測契約の確定",
+      "description": "reader_interaction_events のスキーマ (workspace_id / site_slug / article_slug / occurred_at / reader_key nullable / kind / viewport_bucket / element_ref / x_ratio / y_ratio / value)、束ね送信の受入契約、canvas 重ね描画の集計クエリ設計、および reader_key 指定の抽出・削除の実行経路と audit_logs への記録項目を確定した状態を成立させる。\n\nreader_interaction_events のスキーマ (workspace_id / site_slug / article_slug / occurred_at / reader_key nullable / kind / viewport_bucket / element_ref / x_ratio / y_ratio / value)、束ね送信の受入契約、canvas 重ね描画の集計クエリ設計、および reader_key 指定の抽出・削除の実行経路と audit_logs への記録項目を確定した状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p02.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測設計の独立レビューと着手可否判定",
+      "description": "設計が個人追跡へ転ばないこと、読者面の描画を壊さないこと、重複受入で件数が狂わないことを独立観点で検査し、実装着手の可否を判定した状態を成立させる。\n\n設計が個人追跡へ転ばないこと、読者面の描画を壊さないこと、重複受入で件数が狂わないことを独立観点で検査し、実装着手の可否を判定した状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p03.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測の受入テスト設計",
+      "description": "受入10件それぞれを自動テストへ写像し、reader_key が常に null であること・絶対座標の列が存在しないこと・単一 reader_key の再生経路が無いこと・二重受入で件数が増えないこと・計測失敗が描画を壊さないこと・reader_key 指定の抽出削除が Owner だけで実行でき audit_logs に記録が残ることを、実行可能なケース表として確定した状態を成立させる。\n\n受入10件それぞれを自動テストへ写像し、reader_key が常に null であること・絶対座標の列が存在しないこと・単一 reader_key の再生経路が無いこと・二重受入で件数が増えないこと・計測失敗が描画を壊さないこと・reader_key 指定の抽出削除が Owner だけで実行でき audit_logs に記録が残ることを、実行可能なケース表として確定した状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p04.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測とヒートマップの実装",
+      "description": "読者面の計測プローブ (IntersectionObserver による到達、visibilitychange と滞在タイマーによる dwell、委譲した単一 click リスナ、間隔標本のポインタ位置)、sendBeacon による束ね送信、追記専用の受入、管理画面の canvas 重ね描画と viewport_bucket 切替、および reader_key 指定の抽出・削除を Owner 限定で実行し audit_logs へ記録する経路を実装した状態を成立させる。\n\n読者面の計測プローブ (IntersectionObserver による到達、visibilitychange と滞在タイマーによる dwell、委譲した単一 click リスナ、間隔標本のポインタ位置)、sendBeacon による束ね送信、追記専用の受入、管理画面の canvas 重ね描画と viewport_bucket 切替、および reader_key 指定の抽出・削除を Owner 限定で実行し audit_logs へ記録する経路を実装した状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p05.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測のテスト実行と緑化",
+      "description": "P04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。\n\nP04 で設計した全テストケースを実行し、失敗0件かつ新規実装コードのカバレッジが80%以上である状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p06.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測の受入10件の判定",
+      "description": "feat-reader-behavior-analytics の受入10件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。\n\nfeat-reader-behavior-analytics の受入10件を1件ずつ証跡付きで判定し、すべて満たされていることを確定した状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p07.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "既存イベント基盤との重複解消と移行",
+      "description": "feat-analytics-insight の汎用イベント基盤と本 feature の計測が同じ観測を二重に取っている箇所を洗い出し、観測の責務が一箇所に定まった状態を成立させる。\n\nfeat-analytics-insight の汎用イベント基盤と本 feature の計測が同じ観測を二重に取っている箇所を洗い出し、観測の責務が一箇所に定まった状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p08.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測の非機能検査",
+      "description": "計測が読者面の描画性能へ与える影響、計測 script 例外時の非破壊性、reader_key 抽出・削除の権限限定、および 90 日削除の実行を検査し、いずれも基準を満たす状態を成立させる。\n\n計測が読者面の描画性能へ与える影響、計測 script 例外時の非破壊性、reader_key 抽出・削除の権限限定、および 90 日削除の実行を検査し、いずれも基準を満たす状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p09.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測の最終レビュー",
+      "description": "P01 から P09 までの成果物を通しでレビューし、要求で宣言した非追跡の制約が実装とクエリの両方で守られていることを確認して残課題を確定した状態を成立させる。\n\nP01 から P09 までの成果物を通しでレビューし、要求で宣言した非追跡の制約が実装とクエリの両方で守られていることを確認して残課題を確定した状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p10.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測の証跡集約",
+      "description": "受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入10件の成立を再確認できる状態を成立させる。\n\n受入判定と非機能検査の証跡を一箇所へ集約し、後から第三者が受入10件の成立を再確認できる状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p11.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P07",
+        "SYS-READER-BEHAVIOR-ANALYTICS-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測の運用手順と説明",
+      "description": "何を計測し何を計測しないか、保持期間はどれだけか、reader_key 指定の抽出・削除をどう実行するかを、運用手順と利用者向け説明として整えた状態を成立させる。\n\n何を計測し何を計測しないか、保持期間はどれだけか、reader_key 指定の抽出・削除をどう実行するかを、運用手順と利用者向け説明として整えた状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p12.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P10",
+        "SYS-READER-BEHAVIOR-ANALYTICS-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-BEHAVIOR-ANALYTICS-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-reader-behavior-analytics",
+      "title": "読者行動計測のリリースと仕様書への書き戻し",
+      "description": "読者行動計測を dev 経由で本番へ反映し、確定した観測項目と保持期間を system-spec の該当章へ書き戻した状態を成立させる。\n\n読者行動計測を dev 経由で本番へ反映し、確定した観測項目と保持期間を system-spec の該当章へ書き戻した状態を成立させる。\n\nfile: tasks/feat-reader-behavior-analytics/sys-reader-behavior-analytics-p13.md",
+      "depends_on": [
+        "SYS-READER-BEHAVIOR-ANALYTICS-P12"
+      ]
+    }
+  ]
+}

@@ -11,7 +11,12 @@ import {
   validationError,
 } from "../shared";
 import type { GateResult } from "../compliance/publish-gate";
-import { type ChannelKind, CHANNEL_CAPABILITIES, supportsDirectPublish } from "./channel";
+import {
+  type ChannelKind,
+  CHANNEL_CAPABILITIES,
+  supportsDirectPublish,
+  supportsExternalDirectPublish,
+} from "./channel";
 
 /**
  * Distribution コンテキスト / Publication 集約 (プラットフォーム層 §18.2)。
@@ -67,6 +72,19 @@ const ALLOWED: Readonly<Record<PublicationState, readonly PublicationState[]>> =
   CANCELLED: [],
 };
 
+/** 予定日時を人が変更できる状態と、変更時に戻す先。 */
+const RESCHEDULE_TARGET: Partial<Record<PublicationState, PublicationState | null>> = {
+  QUEUED: null,
+  FAILED_VALIDATION: "QUEUED",
+  FAILED_SEND: "RETRY_SCHEDULED",
+  RETRY_SCHEDULED: null,
+  MANUAL_EXPORT_READY: null,
+};
+
+export const RESCHEDULABLE_PUBLICATION_STATES = Object.freeze(
+  Object.keys(RESCHEDULE_TARGET) as PublicationState[],
+);
+
 /** 再試行の上限。無限に叩くと相手先の規約違反になる。 */
 export const MAX_SEND_ATTEMPTS = 5;
 
@@ -74,17 +92,29 @@ export type Publication = {
   readonly id: PublicationId;
   readonly workspaceId: WorkspaceId;
   readonly variantId: ContentVariantId;
+  /** 予約時に公開前確認を通した本文の版。旧行のnullは送信時にfail-closed。 */
+  readonly variantRevision: number | null;
   readonly channelKind: ChannelKind;
   readonly connectionId: ChannelConnectionId | null;
   readonly state: PublicationState;
   /** 予約時刻。null は即時。 */
   readonly scheduledAt: Date | null;
+  /** 一時失敗後に、次に試してよい時刻。元の予約時刻は上書きしない。 */
+  readonly retryAt: Date | null;
+  /** worker停止時に別workerが回収できるようにするclaimの期限。 */
+  readonly deliveryLeaseUntil: Date | null;
   /**
    * 冪等キー。
    * 同じキーの送信は 1 回しか行わない。
    * 再試行・二重クリック・Queue の再配信で同じ投稿が 2 つ出るのを防ぐ。
    */
   readonly idempotencyKey: string;
+  /** 外部送信claim時に接続から固定したprovider主体。BlueskyではDID。 */
+  readonly providerIdentity: string | null;
+  /** provider側で使う一意キー。最初のclaimで一度だけ確定する。 */
+  readonly providerDeliveryKey: string | null;
+  /** provider record本文へ焼き込む時刻。初回claim後はretryでも変更しない。 */
+  readonly providerRecordCreatedAt: Date | null;
   readonly attempts: number;
   /** 送信先での ID。取り下げと計測に必要。 */
   readonly externalId: string | null;
@@ -98,6 +128,7 @@ export function createPublication(input: {
   id: PublicationId;
   workspaceId: WorkspaceId;
   variantId: ContentVariantId;
+  variantRevision: number;
   channelKind: ChannelKind;
   connectionId: ChannelConnectionId | null;
   scheduledAt?: Date | null;
@@ -111,7 +142,7 @@ export function createPublication(input: {
       ),
     );
   }
-  if (supportsDirectPublish(input.channelKind) && input.connectionId === null) {
+  if (supportsExternalDirectPublish(input.channelKind) && input.connectionId === null) {
     return err(
       validationError(
         `${CHANNEL_CAPABILITIES[input.channelKind].label} へ出すには、先に接続の設定が必要です。`,
@@ -119,15 +150,29 @@ export function createPublication(input: {
       ),
     );
   }
+  if (!Number.isSafeInteger(input.variantRevision) || input.variantRevision < 1) {
+    return err(
+      validationError(
+        "承認済みの記事の版が必要です。記事を確認してから配信を作り直してください。",
+        "variantRevision",
+      ),
+    );
+  }
   return ok({
     id: input.id,
     workspaceId: input.workspaceId,
     variantId: input.variantId,
+    variantRevision: input.variantRevision,
     channelKind: input.channelKind,
     connectionId: input.connectionId,
     state: "QUEUED",
     scheduledAt: input.scheduledAt ?? null,
+    retryAt: null,
+    deliveryLeaseUntil: null,
     idempotencyKey: input.idempotencyKey.trim(),
+    providerIdentity: null,
+    providerDeliveryKey: null,
+    providerRecordCreatedAt: null,
     attempts: 0,
     externalId: null,
     externalUrl: null,
@@ -214,7 +259,13 @@ export function advance(
 }
 
 export function recordSendFailure(publication: Publication, message: string): Publication {
-  return { ...publication, state: "FAILED_SEND", lastError: message };
+  return {
+    ...publication,
+    state: "FAILED_SEND",
+    retryAt: null,
+    deliveryLeaseUntil: null,
+    lastError: message,
+  };
 }
 
 export function recordSendSuccess(
@@ -225,11 +276,155 @@ export function recordSendSuccess(
   return {
     ...publication,
     state: "PUBLISHED",
+    retryAt: null,
+    deliveryLeaseUntil: null,
     externalId: external.id,
     externalUrl: external.url,
     publishedAt: at,
     lastError: null,
   };
+}
+
+/**
+ * due行を外部送信のclaimへ進める。保存先のCASと組にして使う。
+ * staleなSENDINGはlease切れのときだけ回収し、試行回数へ数える。
+ */
+export function claimPublicationForDelivery(
+  publication: Publication,
+  input: {
+    readonly at: Date;
+    readonly leaseUntil: Date;
+    readonly providerIdentity: string;
+    readonly providerDeliveryKey: string;
+    readonly providerRecordCreatedAt: Date;
+    readonly gate: GateResult;
+  },
+): Result<Publication, DomainError> {
+  let sending: Result<Publication, DomainError>;
+  if (publication.state === "QUEUED") {
+    const rendering = advance(publication, "RENDERING", { at: input.at });
+    if (!rendering.ok) return rendering;
+    const validating = advance(rendering.value, "VALIDATING", { at: input.at });
+    if (!validating.ok) return validating;
+    sending = advance(validating.value, "SENDING", { at: input.at, gate: input.gate });
+  } else if (publication.state === "RETRY_SCHEDULED") {
+    sending = advance(publication, "SENDING", { at: input.at });
+  } else if (
+    publication.state === "SENDING" &&
+    publication.deliveryLeaseUntil !== null &&
+    publication.deliveryLeaseUntil <= input.at &&
+    publication.providerDeliveryKey !== null
+  ) {
+    // provider応答後・保存前にworkerが止まった可能性がある。同じprovider keyへの
+    // 冪等な再実行は新しい論理試行ではないため、attemptsを増やさず回収する。
+    sending = ok(publication);
+  } else {
+    return err(
+      domainError("CONFLICT", "この配信は、いま送信を始められる状態ではありません。", {
+        suggestedAction: "現在の状態と再試行時刻を確認してください。",
+      }),
+    );
+  }
+  if (!sending.ok) return sending;
+  if (
+    publication.providerIdentity !== null &&
+    publication.providerIdentity !== input.providerIdentity
+  ) {
+    return err(
+      domainError("CONFLICT", "この配信に固定した接続先と現在の接続先が一致しません。", {
+        suggestedAction: "接続を差し替えず、配信を作り直してください。",
+      }),
+    );
+  }
+  return ok({
+    ...sending.value,
+    state: "SENDING",
+    retryAt: null,
+    deliveryLeaseUntil: input.leaseUntil,
+    providerIdentity: publication.providerIdentity ?? input.providerIdentity,
+    providerDeliveryKey: publication.providerDeliveryKey ?? input.providerDeliveryKey,
+    providerRecordCreatedAt:
+      publication.providerRecordCreatedAt ?? input.providerRecordCreatedAt,
+    lastError: null,
+  });
+}
+
+/** 一時失敗を指数backoffで後刻へ回す。元の予約時刻は不変。 */
+export function scheduleSendRetry(publication: Publication, at: Date): Publication {
+  const delayMs = Math.min(60, 2 ** Math.max(0, publication.attempts - 1)) * 60_000;
+  return {
+    ...publication,
+    state: "RETRY_SCHEDULED",
+    retryAt: new Date(at.getTime() + delayMs),
+    deliveryLeaseUntil: null,
+  };
+}
+
+/**
+ * 人が予定日時を変更する唯一のdomain入口。
+ *
+ * `RETRY_SCHEDULED` はworkerが `retryAt` で検索するため、画面用の
+ * `scheduledAt` だけを変えてはならない。日時指定なしは「今から再試行可能」とし、
+ * 次のworker実行で必ず到達できる時刻を入れる。
+ */
+export function changePublicationSchedule(
+  publication: Publication,
+  scheduledAt: Date | null,
+  at: Date,
+): Result<Publication, DomainError> {
+  if (!RESCHEDULABLE_PUBLICATION_STATES.includes(publication.state)) {
+    return err(
+      domainError("CONFLICT", "この配信は、いま予定日時を変更できません。", {
+        suggestedAction: "最新の状態を読み直してください。",
+      }),
+    );
+  }
+
+  const target = RESCHEDULE_TARGET[publication.state] ?? null;
+  const moved = target === null ? ok(publication) : advance(publication, target, { at });
+  if (!moved.ok) return moved;
+
+  return ok({
+    ...moved.value,
+    scheduledAt,
+    retryAt: moved.value.state === "RETRY_SCHEDULED" ? (scheduledAt ?? at) : null,
+  });
+}
+
+/** 古い読み取りで別処理の更新を上書きしようとしたときの共通応答。 */
+export function publicationMutationConflict(): DomainError {
+  return domainError("CONFLICT", "別の処理が先にこの配信を更新しました。", {
+    suggestedAction: "最新の状態を読み直してから、もう一度操作してください。",
+  });
+}
+
+function sameDate(left: Date | null, right: Date | null): boolean {
+  return left?.getTime() === right?.getTime();
+}
+
+/** CASで比較するPublication全体の版。列を足したときの比較漏れを分散させない。 */
+export function samePublicationVersion(left: Publication, right: Publication): boolean {
+  return (
+    left.id === right.id &&
+    left.workspaceId === right.workspaceId &&
+    left.variantId === right.variantId &&
+    left.variantRevision === right.variantRevision &&
+    left.channelKind === right.channelKind &&
+    left.connectionId === right.connectionId &&
+    left.state === right.state &&
+    sameDate(left.scheduledAt, right.scheduledAt) &&
+    sameDate(left.retryAt, right.retryAt) &&
+    sameDate(left.deliveryLeaseUntil, right.deliveryLeaseUntil) &&
+    left.idempotencyKey === right.idempotencyKey &&
+    left.providerIdentity === right.providerIdentity &&
+    left.providerDeliveryKey === right.providerDeliveryKey &&
+    sameDate(left.providerRecordCreatedAt, right.providerRecordCreatedAt) &&
+    left.attempts === right.attempts &&
+    left.externalId === right.externalId &&
+    left.externalUrl === right.externalUrl &&
+    left.lastError === right.lastError &&
+    sameDate(left.publishedAt, right.publishedAt)
+  );
 }
 
 /**
@@ -252,9 +447,10 @@ export function canRetry(publication: Publication, retryable: boolean): boolean 
  */
 export function buildIdempotencyKey(input: {
   variantId: ContentVariantId;
+  variantRevision: number;
   channelKind: ChannelKind;
   scheduledAt: Date | null;
 }): string {
   const when = input.scheduledAt ? input.scheduledAt.toISOString() : "immediate";
-  return `${input.variantId}:${input.channelKind}:${when}`;
+  return `${input.variantId}:r${input.variantRevision}:${input.channelKind}:${when}`;
 }

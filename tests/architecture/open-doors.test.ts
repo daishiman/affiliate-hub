@@ -1,6 +1,7 @@
 /** @tier 1 */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import {
   OPEN_DOORS_MAX_IRREVERSIBLE,
@@ -42,8 +43,8 @@ import { expectLedgerFile } from "../support/ledger-file";
 const ROOT = process.cwd();
 const LEDGER_PATH = join(ROOT, "docs/product/open-doors.md");
 
-/** 通れる人の区分。狭い順に並べてある（表示の並びもこの順）。 */
-type Gate = "誰でも" | "ログイン" | "鍵";
+/** 条件付き公開は「ログイン必須」でも「全画像を匿名公開」でもない。 */
+type Gate = "誰でも" | "公開参照／同一作業場所" | "ログイン" | "鍵";
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
@@ -85,8 +86,35 @@ const gateSource = gateFile === undefined ? "" : readFileSync(join(ROOT, gateFil
  * 範囲を絞れるので、範囲を狭めれば守りは黙って外れる。
  * だから「門がある」と「その URL が範囲に入っている」を別に測る。
  */
-const gateCoversAdmin = /matcher[\s\S]{0,200}["'`]\/admin/.test(gateSource) &&
-  /decideEntry\s*\(/.test(gateSource);
+/**
+ * 範囲は**字面ではなく実際の判定で測る**。
+ *
+ * もとは `matcher` の近くに文字列 `"/admin"` があるかを見ていた。
+ * 住所（サブドメイン）でブログを振り分けるために `matcher` をほぼ全 path へ
+ * 広げた日、その字面は消えた。**守る範囲は 1 文字も狭まっていない**のに
+ * 「範囲が測れない」と読み、管理画面 86 枚が丸ごと「開いている」と数えられた。
+ *
+ * 字面を追いかけて `"/admin"` を書き足す形に直すと、次に書き方が変わった日に
+ * 同じことが起きる。だから `matcher` を実際に当て、`isGuardedPath` を実際に呼ぶ。
+ * 守りが本当に外れた日にだけ落ちる。
+ */
+const gateCoversAdmin = await (async () => {
+  if (gateFile === undefined) return false;
+  if (!/decideEntry\s*\(/.test(gateSource)) return false;
+  const { isGuardedPath } = await import("@/infrastructure/identity/entry-gate");
+  const { config } = await import("@/middleware");
+  // `matcher` を素の正規表現として当てる。門へ届かない path は守りようがない。
+  const reaches = (path: string) =>
+    config.matcher.some((m: string) => new RegExp(`^${m}$`).test(path));
+  return (
+    reaches("/admin") &&
+    reaches("/admin/sites") &&
+    isGuardedPath("/admin") &&
+    isGuardedPath("/admin/sites") &&
+    // 守りすぎていないことも同時に見る。ログインの往復まで守ると誰も入れない。
+    !isGuardedPath("/signin")
+  );
+})();
 
 /** `src/app/admin/settings/page.tsx` → `/admin/settings` */
 function urlOfPage(id: string): string {
@@ -139,8 +167,56 @@ function gateOfRoute(source: string): Gate {
   const code = codeOnly(source);
   if (/authenticate(Api)?Request\s*\(/.test(code)) return "鍵";
   if (/resolveIntegrationAccess\s*\(/.test(code)) return "鍵";
+  if (hasArticleImageAccessGate(source)) return "公開参照／同一作業場所";
   if (/signedInActor\s*\(/.test(code)) return "ログイン";
   return "誰でも";
+}
+
+/**
+ * 画像 GET の分岐を構文として読む。optional な身元取得を一律のログイン門と
+ * 誤認しない。名前が出るだけでなく、非公開分岐の全拒否条件が R2 読取に先行
+ * している形を測る。判定関数の実動作は下の 2 本の回帰試験が引き受ける。
+ * 別の制御構造へ変更された場合は推測せず、台帳との差として再確認を求める。
+ */
+const ARTICLE_IMAGE_ACCESS_PROOFS = {
+  route: "tests/presentation/article-images-route.test.ts",
+  reference: "tests/integration/d1-article-image-lifecycle.test.ts",
+} as const;
+
+function hasArticleImageAccessGate(source: string): boolean {
+  const file = ts.createSourceFile("route.ts", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const get = file.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === "GET");
+  const attempt = get?.body?.statements.find(ts.isTryStatement);
+  if (attempt === undefined) return false;
+  const compact = (node: ts.Node) => node.getText(file).replace(/\s+/g, "");
+  const statements = attempt.tryBlock.statements;
+  const imageRead = statements.findIndex((node) =>
+    ts.isVariableStatement(node)
+      && compact(node) === "constbytes=awaitreadArticleImageObject(bucket,record.objectKey);");
+  if (imageRead < 3) return false;
+  const guard = statements[imageRead - 1];
+  const found = statements[imageRead - 3];
+  const missing = statements[imageRead - 2];
+  if (!ts.isVariableStatement(found)
+    || compact(found) !== "constrecord=awaitfindArticleImage(db,image);"
+    || !ts.isIfStatement(missing)
+    || compact(missing) !== "if(record===null)returnnotFound();"
+    || !ts.isIfStatement(guard) || guard.elseStatement !== undefined
+    || compact(guard.expression) !== "!(awaitisArticleImagePublic(db,record))"
+    || !ts.isBlock(guard.thenStatement)) return false;
+  const [actor, rejection, ...rest] = guard.thenStatement.statements;
+  if (actor === undefined || rejection === undefined || rest.length !== 0
+    || !ts.isVariableStatement(actor) || compact(actor) !== "constactor=awaitsignedInActor();"
+    || !ts.isIfStatement(rejection) || rejection.elseStatement !== undefined
+    || !ts.isReturnStatement(rejection.thenStatement)
+    || compact(rejection.thenStatement) !== "returnnotFound();") return false;
+  const checks = compact(rejection.expression).split("||");
+  return checks.length === 4
+    && checks[0] === "actor===null"
+    && checks[1] === "actor.workspaceId!==record.workspaceId"
+    && /^!requireWorkspaceWideCapability\(actor,["']content.read["'],["'][^"']+["']\)\.ok$/.test(checks[2])
+    && checks[3] === "!(awaitownsImageArticle(db,actor.workspaceId,record.articleId))";
 }
 
 /**
@@ -187,6 +263,20 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
     intent: "ログイン",
     what: "指摘に添えた画面の写しの取り出し",
   },
+  "src/app/api/article-images/route.ts": {
+    intent: "ログイン",
+    what: "記事に貼る画像を送る口（置き場に物を置ける口なので、門は必須）",
+  },
+  "src/app/api/article-images/[image]/route.ts": {
+    // 匿名に出せるのは現在公開中の記事が参照する画像だけ。
+    // 下書きは同 workspace の閲覧権限・記事所有確認を別途満たした人に限る。
+    intent: "公開参照／同一作業場所",
+    what: "公開記事が参照する挿絵、または同じ作業場所で閲覧権限のある記事の下書きプレビュー",
+  },
+  "src/app/api/article-products/route.ts": {
+    intent: "ログイン",
+    what: "商品カードを挿すときの検索（作業場所は呼び出し元の身元から決める）",
+  },
   "src/app/api/auth/[...all]/route.ts": {
     // ログインの入口そのもの。ここに門を置くと、誰もログインできない。
     // 「誰でも叩ける」のは意図どおりで、通してよい相手かの判定は
@@ -194,13 +284,71 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
     intent: "誰でも",
     what: "ログインの入口（Google との往復）",
   },
+  "src/app/api/dev-signin/route.ts": {
+    // 手元で画面を見るためだけの入口。**旗が 2 つ同時に立ったときしか存在しない**
+    // （`DEV_SIGNIN_ENABLED=1` かつ積んだ環境でない、[[dev-signin]]）。
+    // 積んだ環境では 404 を返すので、ここでの「誰でも」は
+    // 「手元でだけ、誰でも」を指す。通行証は本番と同じ発行側が出すため、
+    // 担当者の登録が無いアドレスはこの口を通っても入れない。
+    intent: "誰でも",
+    what: "手元で画面を確かめるための入口（積んだ環境には存在しない）",
+  },
+  "src/app/internal-cron/route.ts": {
+    // 定期実行の中身の置き場。**この道は外の世界に存在しない。**
+    //
+    // Cloudflare へ来た要求は必ず入口（`worker-entry.js`）の `fetch` を通り、
+    // そこがこの道筋を 404 で落とす。入口が `scheduled` から生成物の `fetch` へ
+    // 直に要求を渡すときだけ、ここへ届く。だから門を置く相手が居ない。
+    //
+    // ここで「誰でも」と書いているのは、**この 1 枚だけを読んだときの姿**である
+    // （`dev-signin` と同じ書き方）。門で守っていないのは、合言葉は漏れうるが
+    // 通らない道は漏れようがないためで、塞いでいることは
+    // `worker-entry-weight.test.ts` の要件 5 が入口の側から確かめている。
+    //
+    // なぜ画面側の束に置くのか: 入口がここの TypeScript を直に読むと、
+    // 同じものが Worker に 2 部入る（2026-09-05 の実測で 82 ファイル 791 KiB）。
+    intent: "誰でも",
+    what: "定期実行の中身（入口の fetch が 404 で塞ぐので、外からは届かない）",
+  },
   "src/app/api/telemetry/route.ts": {
     intent: "誰でも",
     what: "読者の画面から届く計測（未ログインの読者が送るので、門は置けない）",
   },
+  "src/app/api/reader-events/route.ts": {
+    // 読者行動の観測（観測層の入口）。送るのは公開ブログを読んでいる
+    // 未ログインの読者なので、門を置くと **観測できる読者がログイン済みの
+    // 人だけになり、数字が運営者の自己観測に化ける**。
+    // 守りは資格ではなく受け取る中身の側にある
+    // （同意・件数上限・本文の大きさ）。
+    intent: "誰でも",
+    what: "公開ブログの読者行動の記録（未ログインの読者が送るので、門は置けない）",
+  },
   "src/app/go/[code]/route.ts": {
     intent: "誰でも",
     what: "成果リンクの転送（読者がクリックする先）",
+  },
+  // --- 機械向け配信（feat-blog-ui-builder §SEO/AI 検索）---
+  // 検索エンジン・AI クローラーが読む配信ファイル。門を置くと
+  // クローラーが読めず、置かないことが意図そのもの。
+  "src/app/s/[site]/sitemap.xml/route.ts": {
+    intent: "誰でも",
+    what: "サイトマップ（公開記事の一覧を検索エンジン・AI へ配る）",
+  },
+  "src/app/s/[site]/robots.txt/route.ts": {
+    intent: "誰でも",
+    what: "クローラー方針（AI クローラーを明示許可し sitemap の場所を知らせる）",
+  },
+  "src/app/s/[site]/feed.xml/route.ts": {
+    intent: "誰でも",
+    what: "RSS（新着記事の配信）",
+  },
+  "src/app/s/[site]/llms.txt/route.ts": {
+    intent: "誰でも",
+    what: "llms.txt（AI 向けサイト要約。設計図の任意項目で出し分け）",
+  },
+  "src/app/indexnow.txt/route.ts": {
+    intent: "誰でも",
+    what: "IndexNow 鍵ファイル（公開配信が所有権証明の仕組みそのもの。鍵未設定なら 404）",
   },
 };
 
@@ -219,11 +367,69 @@ type Reversible = "つく" | "つかない";
 const ACTION_INTENT: Readonly<
   Record<string, { readonly intent: Gate; readonly what: string; readonly reversible: Reversible }>
 > = {
+  previewAffiliateUrlAction: {
+    intent: "ログイン",
+    what: "成果リンクを保存する前に、安全な接続先から取得できる情報だけを確認する（保存はしない）",
+    reversible: "つく",
+  },
+  manageBlogSeoAction: {
+    intent: "ログイン",
+    /*
+      改善層は公開面へ書かない (AD-3)。診断は指摘を作るだけ、下書きは
+      直す場所を指すだけ、見送りは行に理由を残すだけで、
+      いずれも読者に出ているものを 1 つも変えない。だから「つく」。
+    */
+    what: "SEO の診断・直しの下書き・指摘の見送り（読者側は変わらない）",
+    reversible: "つく",
+  },
+  manageBlogAeoAction: {
+    intent: "ログイン",
+    what: "AEO の構えの保存と、引用できる答えの取り直し（読者側は変わらない）",
+    reversible: "つく",
+  },
+  rebuildDailyMetricsAction: {
+    intent: "ログイン",
+    /*
+      置き換えなのに「つく」に置いてある理由。
+
+      作り直しは足し込みではなく上書きで、前の集計値はその場で消える。
+      それでも取り返しがつくのは、(1) 読者側へは何も出ない、(2) 元になる
+      観測が残っている日しか指定できない（保持期限の 90 日を過ぎた日は
+      入口が拒む）ので同じ日をもう一度回せば同じ値に戻る、(3) 売上と
+      成果の列は上書きの対象から外してあり、集計をやり直しても消えない、
+      の 3 つが同時に成り立つためである。どれか 1 つでも崩れたら
+      「つかない」へ移すこと。
+    */
+    what: "日ごとの集計を、日付を指定して作り直す（読者側は変わらない）",
+    reversible: "つく",
+  },
   // --- 取り返しがつかない（公開・配信・失効・削除） ---
+  manageBlogDomainAction: {
+    intent: "ログイン",
+    /*
+      **他の 3 つに引きずられて「つく」にしない。** 住所は外の世界に出る。
+      登録は提供元 (Cloudflare) に実物の hostname を作り、取り下げは
+      それを消す。切り替えは読者へ名乗る正規 URL を変えるので、
+      検索側が拾った住所は元に戻しても即座には戻らない。
+    */
+    what: "ブログの住所を登録・確認・切り替え・取り下げする（提供元に実物が作られ、読者の入口が変わる）",
+    reversible: "つかない",
+  },
   publishArticleAction: { intent: "ログイン", what: "記事を公開する", reversible: "つかない" },
+  saveSiteDocumentAction: {
+    intent: "ログイン",
+    what: "ブログの固定ページを書き換える（運営者情報・特定商取引法に基づく表記を含む）",
+    // 書き換えると前の文は残らない。事業者の法的な表示がそのまま入れ替わる。
+    reversible: "つかない",
+  },
   schedulePublicationAction: {
     intent: "ログイン",
     what: "投稿を予定に入れる（時刻が来たら外へ出る）",
+    reversible: "つかない",
+  },
+  registerBlueskyConnectionAction: {
+    intent: "ログイン",
+    what: "Blueskyへ実認証し、workspace共通の配信先DIDを固定する",
     reversible: "つかない",
   },
   reschedulePublicationAction: {
@@ -239,6 +445,16 @@ const ACTION_INTENT: Readonly<
   manageLlmCredentialAction: {
     intent: "ログイン",
     what: "生成 AI の API キーを預ける・消す（預けた鍵で課金が発生する）",
+    reversible: "つかない",
+  },
+  /**
+   * 「つく」に見えて**つかない**。行は消えないが、外した人を画面から戻す道が無い
+   * （外した行は役割を変えられず、同じアドレスへ招き直すと既にある行と当たる）。
+   * 役割を変える操作も、変えた相手が持っていた承認の権限をその場で失わせる。
+   */
+  manageMemberAction: {
+    intent: "ログイン",
+    what: "担当者を招く・役割を変える・担当から外す（入ってよい人の一覧が変わる）",
     reversible: "つかない",
   },
   createSiteFromDraftAction: {
@@ -257,13 +473,207 @@ const ACTION_INTENT: Readonly<
     reversible: "つかない",
   },
 
+  /*
+    削除は 3 つとも取り返しがつかない。**記録の側も残らない**からである。
+    段階を戻す・下書きへ落とすといった操作は、後から中身を見て直せるが、
+    削除は「何が書いてあったか」を確かめる手段ごと消える。
+    道具の側でも `requiresHumanApproval: true` にしてあり、
+    鍵を持った外部の AI からは実行できない（画面で人が押すことでしか起きない）。
+  */
+  deleteManagedSiteAction: {
+    intent: "ログイン",
+    what: "ブログを消す（記事ごと消える）",
+    reversible: "つかない",
+  },
+  deleteContentVariantAction: {
+    intent: "ログイン",
+    what: "記事を消す（本文を後から確かめる手段が残らない）",
+    reversible: "つかない",
+  },
+  deleteProductAction: {
+    intent: "ログイン",
+    what: "商品を消す（順位表と比較表の入力が消える）",
+    reversible: "つかない",
+  },
+  /*
+    取りやめは削除と違い、記録そのものは残る。それでも「つかない」に入れてある。
+    `src/domain/distribution/publication.ts` の遷移表で `CANCELLED: []` — **戻る先が無い**。
+    予定へ戻すことも、そこから出すこともできない。もう一度出すには作り直すしかない。
+    「消えない」と「戻せる」は別のことである。
+  */
+  cancelPublicationAction: {
+    intent: "ログイン",
+    what: "予定していた配信を取りやめる（取りやめた先は終点で、予定へは戻せない）",
+    reversible: "つかない",
+  },
+
+  /*
+    止めた日時は押し直せない。二度押しは domain（`disableAffiliateLink`）が断る。
+    断らせている理由は、押すたびに日時が後ろへずれると
+    「いつ読者に出なくなったか」が言えなくなるため。行は消えないが、
+    **消えないことと戻せることは別**で、止めたものを読者へ戻す道は無い。
+  */
+  disableAffiliateLinkAction: {
+    intent: "ログイン",
+    what: "登録済みの成果リンクを止める（記事に貼ったままでも読者へ出なくなる。戻すには新しいリンクとして登録し直す）",
+    reversible: "つかない",
+  },
+
   // --- 取り返しがつく（記録が残り、後から直せる） ---
   archivePublishedArticleAction: {
     intent: "ログイン",
     what: "公開済み記事を非表示にする（データは残す）",
     reversible: "つく",
   },
+  /*
+    作成と更新は「つく」。作ったものは消せるし、直した内容は上書きで戻せる。
+    ただし `updatePublicationAction` だけは別で、予定日を前倒しにすると
+    今日外へ出るので、`reschedulePublicationAction` と同じ扱いにしてある。
+  */
+  updateManagedSiteAction: { intent: "ログイン", what: "ブログの設定を直す", reversible: "つく" },
+  /*
+    どちらも「つく」。見せ方と配色は選び直せば元に戻り、
+    掲載台帳は運営が見る記録で、読者に出ている文を 1 文字も書き換えない。
+    同じ `sites/[site]` の下でも `saveSiteDocumentAction`（法的表示）とは
+    取り返しのつき方が正反対なので、並べて置いて対比が見えるようにする。
+  */
+  manageBlogAppearanceAction: {
+    intent: "ログイン",
+    what: "ブログの見せ方と配色を決める（ページ単位の例外を含む）",
+    reversible: "つく",
+  },
+  manageBlogPlacementAction: {
+    intent: "ログイン",
+    what: "記事のどこに成果リンクを出しているかを台帳へ記録する・外す",
+    reversible: "つく",
+  },
+  createContentVariantAction: { intent: "ログイン", what: "記事の枠を作る", reversible: "つく" },
+  updateContentVariantAction: {
+    intent: "ログイン",
+    what: "記事の題名・本文・要約を直す",
+    reversible: "つく",
+  },
+  createAuthorPersonaAction: {
+    intent: "ログイン",
+    what: "書き手（記事をどの立場・文体で書かせるか）を登録する",
+    reversible: "つく",
+  },
+  createAudiencePersonaAction: {
+    intent: "ログイン",
+    what: "読者像（誰に向けて書くか・何を比べたいか）を登録する",
+    reversible: "つく",
+  },
+  createContentPackageAction: {
+    intent: "ログイン",
+    what: "企画（どの商品を・誰が・誰に向けて・何のために書くか）を立てる",
+    reversible: "つく",
+  },
+  createRankingModelAction: {
+    intent: "ログイン",
+    what: "順位づけの基準（何をどれだけ重く見るか・どう測るか）を立てる",
+    reversible: "つく",
+  },
+  saveScoreCardAction: {
+    intent: "ログイン",
+    what: "決めた基準で測った商品 1 つの点と、その根拠を登録する",
+    reversible: "つく",
+  },
+  /*
+    ブランドと作業場所は、どちらも**画面の見た目を変えずに公開の可否を動かす**。
+    ブランドの問い合わせ先を空にすると記事が公開できなくなり、
+    作業場所の区分を下げると新しく作れなくなる。どちらも直後は何も起きないので、
+    記録が無いと後から原因に辿り着けない。よって 2 つとも記録を残す。
+
+    作業場所の区分を下げても、**上限を超えた分は消さない**。
+    消す作りにすると、料金の欄を触っただけで記事の載っているブログが消える。
+  */
+  saveBrandAction: {
+    intent: "ログイン",
+    what: "読者から見た書き手（名前・問い合わせ先・文体）を 1 つ作る・直す",
+    reversible: "つく",
+  },
+  updateWorkspaceAction: {
+    intent: "ログイン",
+    what: "作業場所の名前・契約の区分・時間帯・通貨を直す",
+    reversible: "つく",
+  },
+  /*
+    根拠・言えること・検証記録は 3 つとも「つく」。
+    入れた直後の言えることは「確認待ち」で、確かめる人が承認するまで記事に出ない。
+    つまり**間違えて入れても、外へは出ない**。
+    根拠は後から下ろせるが、下ろすとそれに支えられていた言えることが
+    まとめて根拠なしへ落ちる。落ちるだけで消えないので、付け直せる。
+  */
+  createEvidenceAction: {
+    intent: "ログイン",
+    what: "記事に書くことの出所になる資料を 1 つ登録する",
+    reversible: "つく",
+  },
+  createClaimAction: {
+    intent: "ログイン",
+    what: "商品について記事に書ける 1 文と、その裏付けを登録する（確認待ちで入る）",
+    reversible: "つく",
+  },
+  createTestRunAction: {
+    intent: "ログイン",
+    what: "いつ・誰が・どの方法で測ったかの記録を登録する",
+    reversible: "つく",
+  },
+  createProductAction: { intent: "ログイン", what: "商品を登録する", reversible: "つく" },
+  updateProductAction: { intent: "ログイン", what: "商品の内容を直す", reversible: "つく" },
+  updatePublicationAction: {
+    intent: "ログイン",
+    what: "配信の予定を直す（前倒しにすれば今日出せる）",
+    reversible: "つかない",
+  },
+  createConceptDraftsAction: {
+    intent: "ログイン",
+    what: "1 つの商品から、ブログごとの切り口で下書きをまとめて作る",
+    reversible: "つく",
+  },
+  /*
+    広告表記と表記のきまりは、どちらも「上書きで前の値へ戻せる」ので「つく」に置く。
+
+    ただし**外へ出た後は戻らない**ことは書いておく。
+    きまりを止めている間に公開した記事は、きまりを戻しても確認され直さない。
+    その取り返しのつかなさは `publishArticleAction`（「つかない」）が引き受けている。
+    ここで「つかない」にすると、公開の側の重さと二重に数えることになる。
+  */
+  editDisclosureAction: {
+    intent: "ログイン",
+    what: "広告であることの断り書きを登録・変更する（読者に出る文が変わる）",
+    reversible: "つく",
+  },
+  editPolicyRuleAction: {
+    intent: "ログイン",
+    what: "表記のきまりを足す・止める・効かせ直す（止めている間は記事の表現が確認されない）",
+    reversible: "つく",
+  },
+  /*
+    見本帳のボタンにつなぐ、何もしない操作。
+
+    何もしないのに門を通しているのは、**操作は画面と別に叩ける**からである。
+    見本帳の画面自体はログインしないと開けないが、この操作の URL は
+    画面を開かなくても呼べる。「中身が空だから素通しでよい」を一度認めると、
+    次に中身が入ったときも素通しのまま残る。
+  */
+  sampleAction: { intent: "ログイン", what: "見本帳のボタンの見本（何もしない）", reversible: "つく" },
   adjustConversionAction: { intent: "ログイン", what: "成果の実績を手で直す", reversible: "つく" },
+  /*
+    提携の 2 語。**鍵そのものは通らない。** 通るのは保管先の名前だけで、
+    値を入れる列も無い。止める・終了にするは行を消さないので、
+    間違えても過去の成果の出どころは残る。
+  */
+  saveAffiliateAccountAction: {
+    intent: "ログイン",
+    what: "提携先（ASP のアカウント）を登録・変更する",
+    reversible: "つく",
+  },
+  saveAffiliateProgramAction: {
+    intent: "ログイン",
+    what: "提携条件（広告主と報酬の決め方）を登録・変更する",
+    reversible: "つく",
+  },
   advanceContentStateAction: {
     intent: "ログイン",
     what: "記事の作業段階を進める",
@@ -277,6 +687,13 @@ const ACTION_INTENT: Readonly<
   },
   submitFeedbackAction: { intent: "ログイン", what: "指摘を登録する", reversible: "つく" },
   changeFeedbackStatusAction: { intent: "ログイン", what: "指摘の状態を変える", reversible: "つく" },
+  // 印を付けても外せる（同じ場所に戻すボタンがある）ので「つく」。
+  // 問い合わせの本文そのものは、この操作では消えない。
+  markContactHandledAction: {
+    intent: "ログイン",
+    what: "読者からの問い合わせに対応済みの印を付ける・外す",
+    reversible: "つく",
+  },
   handOffFeedbackAction: { intent: "ログイン", what: "指摘を引き継ぐ", reversible: "つく" },
   submitAffiliateUrlAction: { intent: "ログイン", what: "成果リンクを登録する", reversible: "つく" },
   advanceLinkIngestionAction: {
@@ -307,6 +724,84 @@ const ACTION_INTENT: Readonly<
   updatePublishedArticleAction: {
     intent: "ログイン",
     what: "公開済み記事を訂正する",
+    reversible: "つく",
+  },
+  // 読者が自分の「気になる」を出し入れするだけの 2 つ。ログインは求めない。
+  // 触れるのは自分のブラウザの合言葉に紐づく行だけで、他人の一覧には届かない。
+  saveToShortlistAction: {
+    intent: "誰でも",
+    what: "読者が自分の「気になる商品」へ 1 件保存する",
+    reversible: "つく",
+  },
+  removeFromShortlistAction: {
+    intent: "誰でも",
+    what: "読者が自分の「気になる商品」から 1 件外す",
+    reversible: "つく",
+  },
+  /*
+    ブログ運用の 6 操作（feat-blog-ops-crud）。
+
+    網・記事・固定ページは論理削除され、所有workspaceの削除済み一覧から同じID/URLまたは
+    同じ種別へ元の内容で復元できるため「つく」。タグだけは旧内容を復元するUIが無い。
+    版面（枠）と配信部品は並べ替えと切り替えだけで、消しても同じ枠をもう一度置ける。
+  */
+  manageSiteNetworkAction: {
+    intent: "ログイン",
+    what: "サイト網の枝を足す・直す・論理削除し、削除済み一覧から同じURLへ復元する",
+    reversible: "つく",
+  },
+  manageBlogArticleAction: {
+    intent: "ログイン",
+    what: "記事を作る・直す・論理削除し、本文・タグ・評価ごと同じURLへ復元する",
+    reversible: "つく",
+  },
+  manageBlogRatingAction: {
+    intent: "ログイン",
+    // **「消す」がここに無い。**票は行として残り、印だけが付け替わる。
+    // だから取り消しが「つく」。消す口を作っていれば「つかない」になっていた。
+    what: "読者が付けた評価を伏せる・戻す（票は消えず、平均と件数から外れるだけ）",
+    reversible: "つく",
+  },
+  manageBlogTagAction: {
+    intent: "ログイン",
+    what: "タグを作る・直す・消す（消したタグの説明は残らない）",
+    reversible: "つかない",
+  },
+  manageBlogLayoutAction: {
+    intent: "ログイン",
+    what: "版面の枠と帯を並べ替える・出し入れする",
+    reversible: "つく",
+  },
+  manageBlogDeliveryAction: {
+    intent: "ログイン",
+    what: "配信部品を出し入れする",
+    reversible: "つく",
+  },
+  /*
+    点検は**読むだけに見えて、書く口である**（結果を履歴として積む）。
+    読み取りと同じ扱いにすると、誰でも押せる口から表が伸び続ける。
+  */
+  checkBlogDeliveryAction: {
+    intent: "ログイン",
+    what: "配信物を組み立て直して、結果を履歴に積む",
+    reversible: "つかない",
+  },
+  /*
+    読者の評価。**門を置かない**のは、点を付けるのに名前も連絡先も要らないため
+    （要求すると、点の分布が「登録した人の分布」に変わる）。
+
+    「つく」なのは、同じ端末の目印で**上書き**されるからである。
+    押し直せば前の点は残らず、票も増えない。記事の本文はこの口から触れない
+    （`ArticleRatingPort` に記事を書く道が無い）。
+  */
+  submitReaderRatingAction: {
+    intent: "誰でも",
+    what: "記事に点を付ける（公開フォーム。押し直すと上書きされる）",
+    reversible: "つく",
+  },
+  manageGuidelineReferenceAction: {
+    intent: "ログイン",
+    what: "SEO/AI 指針の出典を登録する・確認日を更新する（一覧に残り、後から直せる）",
     reversible: "つく",
   },
 };
@@ -429,7 +924,7 @@ function table(subset: readonly Row[], withReversible = false): string[] {
 }
 
 /**
- * **「誰でも」と宣言した行そのもの。**
+ * **匿名閲覧を宣言した行そのもの（条件付き公開も含む）。**
  *
  * 意図は人が書くので、行を 1 つ「誰でも」にすれば、その扉は差の数から消える。
  * 今のところ正しく使われているが、**上限で詰まった人が最短路として選べる形**が
@@ -437,7 +932,7 @@ function table(subset: readonly Row[], withReversible = false): string[] {
  *
  * ここを増やすには上限を上げる diff が要り、上げた事実が記録に残る。
  */
-const declaredPublic = rows.filter((r) => r.intent === "誰でも");
+const declaredPublic = rows.filter((r) => r.intent === "誰でも" || r.intent === "公開参照／同一作業場所");
 
 /** 走査が見つけた「変更を起こす入口」。**上限 0 を支える母集団**（下限 ④ の対象）。 */
 const actionRows = rows.filter((r) => r.kind === "操作");
@@ -470,7 +965,7 @@ function renderLedger(): string {
     "",
     `開いている扉: **${gaps.length} 件** / 全 ${rows.length} 件`,
     "",
-    `「誰でも」と宣言してある行: **${declaredPublic.length} 件**`,
+    `匿名閲覧を含むと宣言してある行（「誰でも」・条件付き公開）: **${declaredPublic.length} 件**`,
     "（宣言すればその扉は差の数から消える。だから宣言の件数そのものにも上限がある）",
     "",
     ...declaredPublic.map((r) => `- \`${r.id}\` — ${r.what}`),
@@ -542,6 +1037,11 @@ function renderLedger(): string {
     ...table(of("画面")),
     "",
     "## REST・転送",
+    "",
+    "「公開参照／同一作業場所」は条件付き公開。画像は公開中の記事が現在参照する場合のみ匿名取得できる。",
+    "それ以外はログイン・同一 workspace・content.read・記事所有の全確認が必要で、認可変更を反映するため no-store で返す。",
+    `分岐の接続はこの検査、応答の実動作は \`${ARTICLE_IMAGE_ACCESS_PROOFS.route}\`、公開参照判定は \`${ARTICLE_IMAGE_ACCESS_PROOFS.reference}\` が検証する。`,
+    "条件付き公開も上記の公開宣言数に含める。守りを削って匿名公開へ戻すと意図と実測の差になる。",
     "",
     ...table([...of("REST"), ...of("転送")]),
     "",
@@ -657,6 +1157,46 @@ describe("いま開いている入口", () => {
     expect(gateOfRoute(`/** signedInActor() で判定する。 */\nconst a = await currentActor();`)).toBe(
       "誰でも",
     );
+  });
+
+  const articleImageRouteSource = read(join(ROOT, "src/app/api/article-images/[image]/route.ts"));
+
+  it("画像 GET は公開参照または同じ作業場所の閲覧権限を必要とする条件付き公開である", () => {
+    expect(gateOfRoute(articleImageRouteSource)).toBe("公開参照／同一作業場所");
+  });
+
+  it.each([
+    ["公開参照判定の除去", "isArticleImagePublic(db, record)", "true"],
+    ["公開参照判定の反転", "!(await isArticleImagePublic(db, record))", "(await isArticleImagePublic(db, record))"],
+    ["身元確認の除去", "actor === null || ", ""],
+    ["workspace確認の除去", "actor.workspaceId !== record.workspaceId", "false"],
+    ["workspace確認の反転", "actor.workspaceId !== record.workspaceId", "actor.workspaceId === record.workspaceId"],
+    ["閲覧権限の除去", '!requireWorkspaceWideCapability(actor, "content.read", "記事画像の確認").ok', "false"],
+    ["記事所有確認の除去", "!(await ownsImageArticle(db, actor.workspaceId, record.articleId))", "false"],
+    ["拒否の無効化", "|| !(await ownsImageArticle(db, actor.workspaceId, record.articleId))) return notFound();", "|| !(await ownsImageArticle(db, actor.workspaceId, record.articleId))) void 0;"],
+    ["認可前の画像読取", "if (!(await isArticleImagePublic", "const bytes = await readArticleImageObject(bucket, record.objectKey); if (!(await isArticleImagePublic"],
+  ])("%s を条件付き公開として認めない", (_name, before, after) => {
+    expect(articleImageRouteSource).toContain(before);
+    expect(articleImageRouteSource.split(before)).toHaveLength(2);
+    expect(gateOfRoute(articleImageRouteSource.replace(before, after))).not.toBe("公開参照／同一作業場所");
+  });
+
+  it("画像 GET の守りを注釈や文字列へ写しても条件付き公開にはならない", () => {
+    expect(gateOfRoute(`/* ${articleImageRouteSource.replace(/\*\//g, "* /")} */`)).not.toBe("公開参照／同一作業場所");
+    expect(gateOfRoute(`const explanation = ${JSON.stringify(articleImageRouteSource)};`)).not.toBe("公開参照／同一作業場所");
+  });
+
+  it("条件付き公開の証拠は実際の画像 GET と公開参照 repository を使う試験へつながる", () => {
+    const routeProof = codeOnly(read(join(ROOT, ARTICLE_IMAGE_ACCESS_PROOFS.route)));
+    const referenceProof = codeOnly(read(join(ROOT, ARTICLE_IMAGE_ACCESS_PROOFS.reference)));
+    expect(routeProof).toContain('import("@/app/api/article-images/[image]/route")');
+    expect(routeProof).toMatch(/\bGET\s*\(/);
+    expect(referenceProof).toContain('from "@/infrastructure/persistence/d1/article-image-repository"');
+    expect(referenceProof).toMatch(/\bisArticleImagePublic\s*\(/);
+  });
+
+  it("条件付き公開へ分類し直しても、画像 GET を匿名公開の宣言数から除外しない", () => {
+    expect(declaredPublic.map((row) => row.id)).toContain("src/app/api/article-images/[image]/route.ts");
   });
 
   it("開いている扉が増えていない", () => {
@@ -782,12 +1322,12 @@ describe("いま開いている入口", () => {
     ).toBe(1);
   });
 
-  it("「誰でも」と宣言した行が増えていない", () => {
+  it("条件付き公開を含め、匿名閲覧を宣言した行が増えていない", () => {
     // この一覧は人が手で書く。1 行足せば、その扉は差の数から黙って消える。
     // 上限で詰まったとき、いちばん短い道がこれになってしまうのを塞ぐ。
     expect(
       declaredPublic.length,
-      `「誰でも」と宣言してある行が ${declaredPublic.length} 件` +
+      `匿名閲覧（条件付き公開を含む）を宣言してある行が ${declaredPublic.length} 件` +
         `（上限 ${OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION} 件）: ` +
         `${declaredPublic.map((r) => r.id).join(" / ")}。` +
         "扉を数から消すために宣言を足していないか確かめてください。",

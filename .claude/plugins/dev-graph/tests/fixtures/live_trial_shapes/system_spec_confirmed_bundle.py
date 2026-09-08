@@ -3,8 +3,34 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 
 from .base_shape import FIXED_TS
+
+_EVALUATOR = (
+    Path(__file__).resolve().parents[4]
+    / "system-spec-harness"
+    / "skills"
+    / "assign-system-spec-completeness-evaluator"
+)
+
+RECEIPT_SCHEMA = _EVALUATOR / "schemas" / "resume-receipt.schema.json"
+
+
+def _fixture_is_input(relative: str) -> bool:
+    """Independent acceptance vector for the three input shapes in this fixture."""
+    path = Path(relative).as_posix()
+    return path == "system-spec/spec-state.json" or (
+        path.endswith(".md")
+        and (path.startswith("docs/spec/") or path.startswith("system-spec/"))
+    )
+
+
+def _fixture_fold(entries: list[dict]) -> str:
+    ordered = sorted(entries, key=lambda entry: entry["path"])
+    return hashlib.sha256(
+        "\n".join(f"{entry['path']}:{entry['sha256']}" for entry in ordered).encode("utf-8")
+    ).hexdigest()
 
 
 REQUIREMENTS = """---
@@ -95,8 +121,33 @@ def _response_digest(auditor: str) -> str:
     return hashlib.sha256(f"{auditor}:PASS".encode("utf-8")).hexdigest()
 
 
-def _completeness() -> dict:
+def _inputs(files: dict[str, str]) -> dict:
+    """この束が実際に持っている入力を数える。
+
+    `files` は「これから materialize する path -> 本文」。数える規則も畳み方も
+    評価器の物を借りるので、規則が変われば fixture の指紋も一緒に動く。
+    mtime は materialize 時刻に依るが指紋の材料ではないので、固定値を置く。
+    """
+    entries = [
+        {
+            "path": path,
+            "sha256": hashlib.sha256(body.encode("utf-8")).hexdigest(),
+            "mtime": 0,
+        }
+        for path, body in sorted(files.items())
+        if _fixture_is_input(path)
+    ]
+    return {"file_count": len(entries), "sha256": _fixture_fold(entries), "files": entries}
+
+
+def _receipt_schema_version() -> str:
+    schema = json.loads(RECEIPT_SCHEMA.read_text(encoding="utf-8"))
+    return schema["properties"]["schema_version"]["const"]
+
+
+def _completeness(inputs: dict) -> dict:
     return {
+        "inputs": inputs,
         "evaluator": {
             "name": "assign-system-spec-completeness-evaluator",
             "version": "0.1.0",
@@ -194,7 +245,16 @@ def _spec_state() -> dict:
 
 
 def content(plugin_version: str) -> dict[str, str]:
-    completeness = _completeness()
+    # 入力を先に数えてからレポートへ入れる。レポート自身は入力ではない
+    # (`system-spec/*.md` と `spec-state.json` だけが入力) ので循環しない。
+    inputs = _inputs(
+        {
+            "system-spec/index.md": INDEX,
+            "system-spec/00-requirements-definition.md": REQUIREMENTS,
+            "system-spec/spec-state.json": _json(_spec_state()),
+        }
+    )
+    completeness = _completeness(inputs)
     artifacts = {
         "system-spec/index.md": INDEX,
         "system-spec/00-requirements-definition.md": REQUIREMENTS,
@@ -203,7 +263,8 @@ def content(plugin_version: str) -> dict[str, str]:
         "system-spec/fetched-references.json": _json({"references": []}),
     }
     receipt = {
-        "schema_version": "1.1",
+        "schema_version": _receipt_schema_version(),
+        "inputs": {"file_count": inputs["file_count"], "sha256": inputs["sha256"]},
         "producer": {
             "plugin": "system-spec-harness",
             "version": plugin_version,

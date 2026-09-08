@@ -22,6 +22,94 @@ serves_goals: [G1]
 | デスクトップ (Linux) (desktop-linux) | 確定 | 確定質疑: qa-database |
 | デスクトップ (macOS) (desktop-macos) | 確定 | 確定質疑: qa-database |
 
+## 確定セルの記録 (正本 spec-state.json)
+
+> 本節は正本 `system-spec/spec-state.json` の該当セルと `qa_log` から **compile が描く**。手で書き換えても次の再生成で正本の値へ戻る (2026-09-04 まで手写しで、その間ずっと腐っていた)。
+
+| 項目 | 値 |
+|---|---|
+| セル | database × web |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-database` |
+| 資するゴール (serves_goals) | G1 |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | — |
+| 出典 path | — |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 0 件 — 本章 `## 適用された設計知識` を参照 |
+
+| 項目 | 値 |
+|---|---|
+| セル | database × mobile |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-database` |
+| 資するゴール (serves_goals) | — |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | — |
+| 出典 path | — |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 0 件 — 本章 `## 適用された設計知識` を参照 |
+
+| 項目 | 値 |
+|---|---|
+| セル | database × tablet |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-database` |
+| 資するゴール (serves_goals) | — |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | — |
+| 出典 path | — |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 0 件 — 本章 `## 適用された設計知識` を参照 |
+
+| 項目 | 値 |
+|---|---|
+| セル | database × desktop-windows |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-database` |
+| 資するゴール (serves_goals) | — |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | — |
+| 出典 path | — |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 0 件 — 本章 `## 適用された設計知識` を参照 |
+
+| 項目 | 値 |
+|---|---|
+| セル | database × desktop-linux |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-database` |
+| 資するゴール (serves_goals) | — |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | — |
+| 出典 path | — |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 0 件 — 本章 `## 適用された設計知識` を参照 |
+
+| 項目 | 値 |
+|---|---|
+| セル | database × desktop-macos |
+| 状態 | 確定 |
+| 確定質疑 (qa_ref) | `qa-database` |
+| 資するゴール (serves_goals) | — |
+| required-info | なし (この確定に block 指定の必須情報は登録されていない) |
+| 出典 kind | — |
+| 出典 path | — |
+| 出典 節 | — |
+| 出典 sha256 | — |
+| 適用された設計知識 (design_applications) | 0 件 — 本章 `## 適用された設計知識` を参照 |
+
+## 意思決定 (decisions)
+
+> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`database`) を主担当とする **0 件**。全 1 件の一覧は [`00-requirements-definition.md`](./00-requirements-definition.md) が正本から描く (章へ写さない)。
+
+- 本章を主担当とする決定は無い。
+
 ## 確定内容 (質疑録)
 
 ### qa-database (対応セル: web, mobile, tablet, desktop-windows, desktop-linux, desktop-macos)
@@ -51,6 +139,8 @@ serves_goals: [G1]
 - **data-access の反転先**: 反転先は無い。application-architecture の reversal_note と同じ理由。
 
 ## 適用された設計知識
+
+> 以下の deep knowledge card は設計判断を支援する**非規範の参考資料**であり、実装済み・検証済みの証拠ではない。カード内の `採否: applied` は設計採用を意味し、実装状態は意味しない。規範となる差分は本章の To-Be / Delta 節と参照先仕様で管理する。
 
 ### Domain-Driven Design — deep knowledge card
 
@@ -101,7 +191,7 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 
 - 確定要件: PostgreSQL 16 を全プラットフォーム共通で採用
 - 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: (未記録 — qa_log[].design_applications を writer 経由で補完すること)
+- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
 - 資するゴール: G1
 
 ## 最新ドキュメント出典

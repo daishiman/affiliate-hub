@@ -1,4 +1,4 @@
-/** @tier 1 */
+/** @tier 1 @req REQ-IM01, REQ-IM08, REQ-IM09 */
 import { describe, expect, it } from "vitest";
 import type { ImprovementRepositoryPort, LoopObservation } from "@/application/ports/improvement";
 import {

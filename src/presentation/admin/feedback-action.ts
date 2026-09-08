@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { FEEDBACK_DISPOSITIONS, FEEDBACK_STATUSES, KEY_SCOPES } from "@/domain/feedback";
+import { FEEDBACK_DISPOSITIONS } from "@/domain/feedback/disposition";
+import { FEEDBACK_STATUSES } from "@/domain/feedback/status";
+import { KEY_SCOPES } from "@/domain/feedback/integration-access";
 import type { FeedbackDisposition, FeedbackStatus, KeyScope } from "@/domain/feedback";
 // `currentActor` はもう使わない。このファイルの 4 つの操作はすべて
 // `signedInActor()` を通す（`ah-dao`）。import を残すと、次に書く人が

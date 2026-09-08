@@ -22,19 +22,41 @@
  * **4 度目を捕まえるのは、この下の「道具を通らない書き込み」の検査**である。
  * 新しく生成物を 1 枚足した人が `writeFileSync` で直接書けば、ここで落ちる。
  */
-import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   digestOf,
+  hasStampLine,
   inspectStamped,
   stamp,
+  writeGeneratedBlock,
   writeGeneratedDoc,
 } from "../../scripts/lib/generated-doc.mjs";
 import { expectLedgerFile } from "../support/ledger-file";
 
 const ROOT = process.cwd();
+
+/**
+ * `coverage.md` の囲みを丸ごと拾う式。**`scripts/coverage-report.mjs` と同じもの。**
+ *
+ * 3 か所へ書き写していたのを 1 つにした。写しが増えると、片方だけ直した日に
+ * 「拾えなくなった」が空文字として返り、`inspectStamped("")` は UNPINNED を返す。
+ * つまり**式が壊れたことが、指紋が無いことに化ける**。
+ */
+const COVERAGE_MARKER =
+  /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/;
+
+/** 生成物の中身（指紋を除いた本体）を取り出す。囲みだけの文書はその囲みから。 */
+function bodyOf(rel: string): string {
+  const text = readFileSync(join(ROOT, rel), "utf8");
+  const block = rel.endsWith("coverage.md") ? (text.match(COVERAGE_MARKER)?.[0] ?? "") : text;
+  // **空を静かに通さない。** 式が当たらなくなった日、ここは UNPINNED の空本体を返し、
+  // 下の検査は「手書きが無い」と答え続ける。見えていないことは、守れている顔をする。
+  expect(block, `${rel} の生成物本体が取り出せていません（囲みの式が古い？）`).not.toBe("");
+  return inspectStamped(block).body;
+}
 
 /**
  * 指紋が焼かれているべき文書。
@@ -58,6 +80,38 @@ const STAMPED = [
 ] as const;
 
 /**
+ * 静止した写しを焼く本。**手で並べずに `scripts/` からさがす。**
+ *
+ * 2026-08-28 に 2 本目・3 本目が増えた。1 本目だけを名指ししていたあいだ、
+ * 増えた本はこの検査の外に落ちる（除外にも入らず、条件の検査にも掛からない）。
+ * さがして拾えば、足した時点で同じ決まりが当たる。名前の付け方
+ * （`write-*-preview.tsx`）は `tests/architecture/static-preview-writer.test.ts` と同じ。
+ */
+const PREVIEW_WRITERS = readdirSync(join(ROOT, "scripts"))
+  .filter((name) => name.startsWith("write-") && name.endsWith("-preview.tsx"))
+  .sort();
+
+/**
+ * 写しを焼く本の除外理由。**全部同じ条件なので、1 文を全部に配る。**
+ *
+ * 書き出し先 `docs/product/preview/` は `.gitignore` に入っていて git が追わない。
+ * 焼くのは人が `pnpm run preview:*` を打ったときだけで、`pnpm run verify` は呼ばない。
+ * つまり「verify を打った瞬間に黙って消える」は起きない。
+ *
+ * **これは条件であって、性質ではない。**追跡され始めた日か、verify の並びに
+ * 入った日に、この除外は静かに間違いになる。だから下の
+ * 「除外の条件がまだ成り立っている」で、見つかった本を全部見ている。
+ */
+const PREVIEW_WRITER_EXCEPTIONS: Readonly<Record<string, string>> = Object.fromEntries(
+  PREVIEW_WRITERS.map((name) => [
+    name,
+    "書き出す HTML は `.gitignore` 済みで git が追わず、`pnpm run verify` も焼かない。" +
+      "**この除外は、その 2 つが両方とも真であるあいだだけ成り立つ。**" +
+      "追跡する日か verify に入れる日には、先に writeGeneratedDoc を通すこと（HTML なので指紋の置き場所はある）。",
+  ]),
+);
+
+/**
  * 道具を通さずに `docs/` へ書いてよいもの。**理由を必ず書く。**
  * 理由の無い除外は、次に見た人には「そういうものだ」としか読めない。
  */
@@ -72,15 +126,56 @@ const WRITE_EXCEPTIONS: Readonly<Record<string, string>> = {
     "JSON で、コメント欄が無い（指紋を置く場所が無い）。" +
     "**この除外は `pnpm run verify` が `llm-live-proof.mjs` を呼ばないあいだだけ成り立つ。**" +
     "verify の並びに入れる日には、先に指紋の置き方（別ファイルか JSON の一項目か）を決めること。",
+
+  ...PREVIEW_WRITER_EXCEPTIONS,
 };
 
-/** `tests/` の下を全部たどる。浅く見ると、深いところの書き込みを見失う。 */
-function listTestFiles(dir: string): { label: string; path: string }[] {
+/**
+ * `docs/` の下の `.md` を全部たどる（返すのは `root` からの相対）。
+ *
+ * **`docs/product/` だけを見ない。** 生成物の置き場所は `docs/product/` に
+ * 縛られていないので、そこだけを回すと**別の場所へ置かれた 1 枚**を見失う。
+ * 見失った検査は緑になり、それは「載っている」と同じ顔をする。
+ */
+function listDocFiles(root: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(root, { withFileTypes: true, recursive: true })) {
+    if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+    const dir = entry.parentPath.slice(root.length).replace(/^[/\\]/, "");
+    out.push(dir === "" ? entry.name : `${dir}/${entry.name}`);
+  }
+  return out.sort();
+}
+
+/**
+ * 指紋を焼いてある文書の一覧を、**構造から**作る。
+ *
+ * 判定そのものは生成側の道具（`hasStampLine`）が持っている。
+ * 検査の側で語を書き写すと、道具と検査で別々の「生成物の定義」を持つことになり、
+ * 片方だけ変わった日に差が静かに開く。
+ */
+function stampedDocsUnder(root: string): string[] {
+  return listDocFiles(root).filter((rel) => hasStampLine(readFileSync(join(root, rel), "utf8")));
+}
+
+/**
+ * 書き込みうるファイルを全部たどる。浅く見ると、深いところの書き込みを見失う。
+ *
+ * **`scripts/` を「直下の `.mjs` だけ」で見ない。** そう見ていたころ、
+ * `scripts/lib/` の下と `.tsx` の書き手は最初から視界に入っていなかった。
+ * 検査の名前は「docs へ書くスクリプトとテストが、全部この道具を通っている」で、
+ * 読む人はそれを**全部**と受け取る。実際に見ていたのは 17 本のうちの 17 本で、
+ * 残る 9 本（`lib/` と `.tsx`）は数えられてすらいなかった。
+ * **見ていないものは違反 0 件として出る。**それは守れている顔をする。
+ *
+ * 拡張子を `tests/` と揃えるのも同じ理由で、片方だけ広いと差がそのまま穴になる。
+ */
+function listSourceFiles(dir: string): { label: string; path: string }[] {
   const out: { label: string; path: string }[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...listTestFiles(path));
-    else if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
+    if (entry.isDirectory()) out.push(...listSourceFiles(path));
+    else if (/\.(mjs|cjs|ts|tsx)$/.test(entry.name)) {
       out.push({ label: path.slice(ROOT.length + 1), path });
     }
   }
@@ -91,24 +186,82 @@ describe("生成物であることの保証", () => {
   it("指紋が焼かれている文書は、いまの中身と一致している", () => {
     for (const rel of STAMPED) {
       const text = readFileSync(join(ROOT, rel), "utf8");
-      const found = inspectStamped(
-        rel.endsWith("coverage.md")
-          ? (text.match(
-              /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/,
-            )?.[0] ?? "")
-          : text,
-      );
-      expect(found.state, `${rel} の指紋が中身と合っていません`).toBe("INTACT");
+      const block = rel.endsWith("coverage.md") ? (text.match(COVERAGE_MARKER)?.[0] ?? "") : text;
+      expect(block, `${rel} の生成物本体が取り出せていません（囲みの式が古い？）`).not.toBe("");
+      expect(inspectStamped(block).state, `${rel} の指紋が中身と合っていません`).toBe("INTACT");
     }
   });
 
   it("指紋を焼いている文書が、増えても減っても気づける", () => {
-    const stamped = readdirSync(join(ROOT, "docs/product"))
-      .filter((n) => n.endsWith(".md"))
-      .filter((n) => readFileSync(join(ROOT, "docs/product", n), "utf8").includes("生成物の指紋"))
-      .map((n) => `docs/product/${n}`)
-      .sort();
-    expect(stamped).toEqual([...STAMPED].sort());
+    // **数える対象そのものの床。** 走査先が空になっても「増減なし」は緑で出る。
+    // 一覧が合っていることより先に、見えていることを確かめる。
+    const docs = listDocFiles(join(ROOT, "docs"));
+    expect(docs.length, "docs 配下の .md が見つかりません").toBeGreaterThanOrEqual(40);
+    expect(
+      docs.filter((rel) => !rel.startsWith("product/")).length,
+      "docs/product の外が見えていません（走査が浅い？）",
+    ).toBeGreaterThanOrEqual(10);
+
+    const stamped = stampedDocsUnder(join(ROOT, "docs")).map((rel) => `docs/${rel}`);
+    expect(
+      stamped,
+      [
+        "指紋を焼いている文書と STAMPED の一覧が食い違っています。",
+        "増えた側なら、その 1 枚を STAMPED へ足してください（勝手に外さない）。",
+        "減った側なら、焼くのをやめた理由をここに書いてから外してください。",
+      ].join("\n"),
+    ).toEqual([...STAMPED].sort());
+  });
+
+  it("説明文に語を書いた文書は生成物に数えず、語を書かない生成物は数える", () => {
+    // **この検査が塞いでいるのは見落としの側である。**
+    // 「`生成物の指紋` という語を含むか」で数えていたころは、
+    //   - その語を書かない生成物（別の場所へ置かれた 1 枚）が一覧から静かに漏れ、
+    //   - 生成物について説明しただけの文書が巻き込まれて赤くなった。
+    // 誤検出は打った本人がその場で気づくが、**見落としは誰も気づかない。**
+    const root = mkdtempSync(join(tmpdir(), "generated-docs-scan-"));
+    mkdirSync(join(root, "reports"), { recursive: true });
+
+    // 1. 生成物。指紋は焼いてあるが、説明文にはその語を一切書いていない。
+    //    しかも `docs/product/` ではない場所に置いてある。
+    writeGeneratedDoc(join(root, "reports", "nine.md"), "# 9 枚目\n\nこれは機械が作った。");
+
+    // 2. 生成物ではない。散文でその語を説明し、囲みの中に本物と同じ形の行まで引いている。
+    writeFileSync(
+      join(root, "explainer.md"),
+      [
+        "# 指紋の焼き方",
+        "",
+        "生成物の指紋 は、中身から作って末尾に焼く。行はこの形になる:",
+        "",
+        "```",
+        `<!-- 生成物の指紋 sha256:${digestOf("例")} -->`,
+        "```",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+
+    // **数えた母集団そのものの床。** 下の「`product/` に該当は 0 件」は、
+    // 見落としが無いときと**走査が何も拾わなかったとき**の両方で 0 になる。
+    // ここで置いた 2 枚は、片方が下の階層（`reports/`）にあるので、
+    // **再帰が止まった日にこの床が 1 件で落ちる**——それがこの検査の壊れ方そのものである。
+    const 走査できたもの = listDocFiles(root);
+    expect(走査できたもの.length, "置いた 2 枚を走査が拾えていません（再帰が止まった？）").toBeGreaterThanOrEqual(
+      2,
+    );
+
+    // **古いやり方の答えを、そう書いて固定しておく。** 語で数えると、
+    // 説明しただけの `explainer.md` を生成物と読む（誤検出）。
+    // 加えて走査を `product/` に限れば `reports/nine.md` は最初から視界に入らない（見落とし）。
+    const 語で数えた = 走査できたもの.filter((rel) =>
+      readFileSync(join(root, rel), "utf8").includes("生成物の指紋"),
+    );
+    expect(語で数えた).toContain("explainer.md");
+    expect(語で数えた.filter((rel) => rel.startsWith("product/"))).toEqual([]);
+
+    // 構造で数えれば、生成物だけが 1 枚残る。
+    expect(stampedDocsUnder(root)).toEqual(["reports/nine.md"]);
   });
 
   it("手で 1 文字書き足すと、指紋が合わなくなる", () => {
@@ -162,6 +315,87 @@ describe("生成物であることの保証", () => {
     );
   });
 
+  /*
+   * --- 囲みの経路（`coverage.md`）を、なぜ別に張るのか ---
+   *
+   * 8 枚のうち `coverage.md` だけは、ファイル全体ではなく**囲みの中身だけ**が生成物で、
+   * 通る道具も `writeGeneratedBlock` のほうである。ところがこの下の
+   * 「実際の 4 枚に…」は、`coverage.md` の中身も `writeGeneratedDoc` に当てていた。
+   * **測っていたのは 8 枚ぶんの中身であって、8 本ぶんの道ではなかった。**
+   *
+   * 実測（2026-08-21）: `writeGeneratedBlock` の突き合わせを丸ごと外しても、
+   * この検査群は 1 件も赤くならなかった。**外して緑になるなら、それは検査ではない。**
+   * だから囲みの経路そのものに、下の 3 本を当てる。
+   */
+  it("囲みの中を手で書き換えると、上書きせずに止まる", () => {
+    const dir = mkdtempSync(join(tmpdir(), "generated-block-"));
+    const path = join(dir, "coverage.md");
+    const block = "<!-- ここから下は scripts/coverage-report.mjs -->\n行 91.3\n<!-- ここまで -->";
+    const marker = /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/;
+
+    writeFileSync(path, "# 覆い方\n\n人が書いた前書き。\n\n", "utf8");
+    writeGeneratedBlock(path, marker, block);
+
+    // 囲みの中へ手で 1 行足す。**内容が正しいかどうかは関係ない。**
+    writeFileSync(path, readFileSync(path, "utf8").replace("行 91.3", "行 91.3\n手で足した行"), "utf8");
+    expect(() => writeGeneratedBlock(path, marker, block)).toThrow(/手で書き換えられています/);
+    // ここが要点。投げるだけでなく、**書かずに**投げる。手で書いた行は残っている。
+    expect(readFileSync(path, "utf8")).toContain("手で足した行");
+    expect(readFileSync(path, "utf8")).toContain("人が書いた前書き");
+  });
+
+  it("囲みの外は人が書く場所なので、直しても止まらない", () => {
+    // 外まで見張ると、本文を直すたびに赤くなる。
+    // 「どうせ毎回赤い」と扱われた検査は、やがて誰も見なくなる。
+    // **見なくなった検査は、外した検査と同じ**なので、ここは通さないといけない。
+    const dir = mkdtempSync(join(tmpdir(), "generated-block-"));
+    const path = join(dir, "coverage.md");
+    const block = "<!-- ここから下は scripts/coverage-report.mjs -->\n行 91.3\n<!-- ここまで -->";
+    const marker = /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/;
+
+    writeFileSync(path, "# 覆い方\n\n前書き。\n\n", "utf8");
+    writeGeneratedBlock(path, marker, block);
+    writeFileSync(path, readFileSync(path, "utf8").replace("前書き。", "前書きを書き直した。"), "utf8");
+
+    expect(() => writeGeneratedBlock(path, marker, block)).not.toThrow();
+    expect(readFileSync(path, "utf8")).toContain("前書きを書き直した");
+  });
+
+  it("実際の coverage.md の囲みに、手書きと同じ差分を当てると捕まる", () => {
+    // 中身は実物を写す。作り話の囲みだけで測ると、実物の形（表・注記・空行）で
+    // 式が当たらなくなった日に、この検査は当たらないまま緑で出る。
+    // 行き先の見張り（下の「道具を通っている」）は、`const X = "docs/…"` を
+    // 書き込み先の名前とみなす。**中身をその名前に入れると、読んだだけで
+    // 「docs へ書いている」に見える。**見張りの読み方に合わせて、
+    // 名前が指すものを実際どおり（こちらは経路、あちらは中身）に分けておく。
+    const COVERAGE_DOC = "docs/product/coverage.md";
+    const body = bodyOf(COVERAGE_DOC);
+    const dir = mkdtempSync(join(tmpdir(), "generated-block-real-"));
+    const path = join(dir, "coverage.md");
+    const 前書き = "# カバレッジ\n\n人が書く節。\n\n";
+
+    // 1. 囲みの中の末尾に 1 行足す
+    writeFileSync(path, `${前書き}${stamp(body)}\n`, "utf8");
+    writeFileSync(path, readFileSync(path, "utf8").replace("<!-- ここまで -->", "手で足したひとこと\n<!-- ここまで -->"), "utf8");
+    expect(() => writeGeneratedBlock(path, COVERAGE_MARKER, body), "行の足しを見逃した").toThrow(
+      /手で書き換えられています/,
+    );
+
+    // 2. 中身の 1 文字を変える
+    const flipped = body.replace(/[0-9]/, (d) => (d === "0" ? "1" : "0"));
+    expect(flipped, "数字が 1 つも無いので 1 文字の書き換えを試せていません").not.toBe(body);
+    writeFileSync(path, `${前書き}${stamp(body).replace(body, flipped)}\n`, "utf8");
+    expect(() => writeGeneratedBlock(path, COVERAGE_MARKER, body), "1 文字の書き換えを見逃した").toThrow(
+      /手で書き換えられています/,
+    );
+
+    // 3. 指紋の行ごと外して書き換える
+    writeFileSync(path, `${前書き}${flipped}\n`, "utf8");
+    expect(() => writeGeneratedBlock(path, COVERAGE_MARKER, body), "指紋外しを見逃した").toThrow(
+      /指紋の行が外された/,
+    );
+  });
+
   it("実際の 4 枚に、手書きと同じ差分を当てると捕まる", () => {
     // **手で 1 度書いて赤を見る**のは、その 1 回しか確かめない。
     // ここでは 4 枚それぞれの**いまの中身**を写して、手書きと同じ差分
@@ -169,13 +403,7 @@ describe("生成物であることの保証", () => {
     const dir = mkdtempSync(join(tmpdir(), "generated-doc-real-"));
 
     for (const rel of STAMPED) {
-      const text = readFileSync(join(ROOT, rel), "utf8");
-      const block = rel.endsWith("coverage.md")
-        ? (text.match(
-            /<!-- ここから下は scripts\/coverage-report\.mjs[\s\S]*?<!-- ここまで -->(?:\n<!-- 生成物の指紋[^\n]*-->)?/,
-          )?.[0] ?? "")
-        : text;
-      const body = inspectStamped(block).body;
+      const body = bodyOf(rel);
       const path = join(dir, `${rel.replaceAll("/", "_")}`);
 
       // 1. 末尾に 1 行足す（いちばん多い手書き）
@@ -225,6 +453,50 @@ describe("生成物であることの保証", () => {
     ).toEqual([]);
   });
 
+  it("除外の条件がまだ成り立っている（静的プレビューが git にも verify にも入っていない）", async () => {
+    // 除外の理由は「追跡されていない」と「verify が焼かない」の 2 つ。
+    // **両方とも、いつでも真でなくなりうる。**片方が崩れた日に、
+    // 手で書いた行は黙って消えるほうへ戻る。条件のほうを検査にしておく。
+    const ignored = readFileSync(join(ROOT, ".gitignore"), "utf8");
+    expect(
+      ignored.split("\n").some((l) => l.trim() === "docs/product/preview/"),
+      [
+        "docs/product/preview/ が .gitignore から外れました。",
+        "追跡されるなら、手で書いた行は差分に乗り、次の preview:static で黙って消えます。",
+        "WRITE_EXCEPTIONS の write-static-preview.tsx を外し、writeGeneratedDoc を通してください。",
+      ].join("\n"),
+    ).toBe(true);
+
+    const { CHECKS } = (await import("../../quality-gates.config.mjs")) as {
+      CHECKS: readonly { readonly command: readonly string[] }[];
+    };
+    const commands = CHECKS.flatMap((g) => g.command);
+    // **数えた母集団そのものの床。** 下の「該当は 0 件」は、呼んでいないときと
+    // **一覧が読めなくなったとき**の両方で 0 になる。名前で 1 本引くだけでは、
+    // その 1 本が残ったまま並びが痩せた日に気づけないので、件数も見る。
+    // 実測（2026-08-21）: 門 14 群・引数 35 個。門は増える向きにしか動かない。
+    expect(CHECKS.length, "verify の門が読めていません").toBeGreaterThanOrEqual(12);
+    expect(commands.length, "verify の並びが痩せています（一覧が読めていない？）").toBeGreaterThanOrEqual(
+      30,
+    );
+    // 中身が読めていることも見る（件数だけだと、別物が 30 個並んでも通る）。
+    expect(commands, "verify の一覧が読めていません（CHECKS の名前が変わった？）").toContain(
+      "scripts/port-wiring.mjs",
+    );
+    // **名前を 1 本だけ見ていると、増えた本は除外されたまま verify に入っても
+    // 誰も気づかない。**さがして拾った本を全部見る。`preview:<名>` の呼び名も
+    // 同じ本を指すので、本の名前から作って両方を当てる。
+    const previewNames = PREVIEW_WRITERS.flatMap((name) => {
+      const stem = name.replace(/\.tsx$/, "");
+      return [stem, `preview:${stem.replace(/^write-/, "").replace(/-preview$/, "")}`];
+    });
+    expect(previewNames.length, "写しを焼く本が 1 本も見つかっていません").toBeGreaterThanOrEqual(4);
+    expect(
+      commands.filter((a) => previewNames.some((name) => a.includes(name))),
+      "pnpm run verify が静的プレビューを焼くようになりました。除外の理由はもう成り立ちません。",
+    ).toEqual([]);
+  });
+
   it("正本を先に直してから同じ内容を手で書いても、台帳は通らない", () => {
     // **これが A の 4 枚に開いていた穴そのものである。**
     // 内容の比較だけだと、正本を先に直してから同じ内容を手で書けば一致して通る。
@@ -268,17 +540,28 @@ describe("生成物であることの保証", () => {
     // そこを見ないと「5 枚目の台帳をテストから直接書く」が素通りする。
     // 見る範囲が生成物の置き場所より狭いと、その差が次の穴になる。
     const files = [
-      ...readdirSync(join(ROOT, "scripts"))
-        .filter((n) => n.endsWith(".mjs"))
-        .map((n) => ({ label: `scripts/${n}`, path: join(ROOT, "scripts", n) })),
-      ...listTestFiles(join(ROOT, "tests")),
+      ...listSourceFiles(join(ROOT, "scripts")),
+      ...listSourceFiles(join(ROOT, "tests")),
     ];
     // **数える対象そのものの床。**「違反 0 件」は、違反が無いときと
     // 走査先が空になったときの両方で出る。2 つの入口を別々に張るのは、
     // 片方が消えたときにもう片方の数で埋め合わせられないようにするため。下げない。
-    const scriptCount = files.filter((f) => f.label.startsWith("scripts/")).length;
-    expect(scriptCount, "scripts/*.mjs が見つかりません").toBeGreaterThanOrEqual(15);
-    expect(files.length - scriptCount, "tests 配下が見つかりません").toBeGreaterThanOrEqual(200);
+    const scriptFiles = files.filter((f) => f.label.startsWith("scripts/"));
+    expect(scriptFiles.length, "scripts 配下が見つかりません").toBeGreaterThanOrEqual(24);
+    // **直下だけを数えても床は埋まる。** 深いところと `.tsx` を見失った日に、
+    // 直下 17 本で 24 に届いてしまうと、この床は「見えている」と答え続ける。
+    // だから「浅く見たら足りない数」ではなく、**浅い側と深い側を別々に**張る。
+    expect(
+      scriptFiles.filter((f) => f.label.includes("/lib/")).length,
+      "scripts/lib が見えていません（走査が浅い？）",
+    ).toBeGreaterThanOrEqual(5);
+    expect(
+      scriptFiles.filter((f) => f.label.endsWith(".tsx")).length,
+      "scripts の .tsx が見えていません（拡張子の絞り込みが狭い？）",
+    ).toBeGreaterThanOrEqual(2);
+    expect(files.length - scriptFiles.length, "tests 配下が見つかりません").toBeGreaterThanOrEqual(
+      200,
+    );
 
     const offenders: string[] = [];
 

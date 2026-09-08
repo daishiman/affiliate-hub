@@ -296,8 +296,15 @@ describe("作ったブログ", () => {
 // --- ここから下は、つなぎ目を差し替えて 1 段階ずつ確かめる ------------------
 
 import type { SiteDraft } from "@/domain/authoring";
-import { createSiteDraft } from "@/domain/authoring";
 import {
+  SITE_PROVISIONING_REQUIRED_COUNTS,
+  createSiteDraft,
+  evaluateSiteComposition,
+} from "@/domain/authoring";
+import type { SiteProvisionRequest } from "@/application/ports/authoring";
+import { defaultLayoutSlotSeeds } from "@/domain/blogops";
+import {
+  STEP_FIELDS,
   createCreateSiteFromDraftUseCase,
   createGetSiteDraftUseCase,
   createListSiteDraftsUseCase,
@@ -324,6 +331,7 @@ function memoryDrafts(seed: readonly SiteDraft[] = []) {
   const rows = new Map<string, SiteDraft>();
   for (const d of seed) rows.set(String(d.id), d);
   const published: string[] = [];
+  const creationAudits: SiteProvisionRequest["audit"][] = [];
   const port = {
     find: async (_ws: unknown, id: unknown) => ok(rows.get(String(id)) ?? null),
     list: async () => ok([...rows.values()]),
@@ -335,8 +343,24 @@ function memoryDrafts(seed: readonly SiteDraft[] = []) {
       published.push(slug);
       return ok(bp);
     },
+    provisionSite: async (request: SiteProvisionRequest) => {
+      published.push(request.slug);
+      rows.set(String(request.completedDraft.id), request.completedDraft);
+      creationAudits.push(request.audit);
+      return ok({
+        blueprint: request.blueprint,
+        composition: evaluateSiteComposition(
+          {
+            ...SITE_PROVISIONING_REQUIRED_COUNTS,
+            categories: request.blueprint.categories.length,
+            articles: 0,
+          },
+          ["site_documents"],
+        ),
+      });
+    },
   } as unknown as BuildSiteDeps["drafts"];
-  return { port, rows, published };
+  return { port, rows, published, creationAudits };
 }
 
 /**
@@ -348,7 +372,15 @@ function buildDeps(
   over: Partial<BuildSiteDeps> = {},
 ): BuildSiteDeps & { readonly audit: ReturnType<typeof recordingAuditLog> } {
   const audit = recordingAuditLog();
-  return { drafts, ids: testDeps().ids, auditLog: audit.port, now: () => new Date(), ...over, audit };
+  return {
+    drafts,
+    ids: testDeps().ids,
+    auditLog: audit.port,
+    now: () => new Date(),
+    capacity: { withLease: async (_workspaceId, _kind, mutation) => mutation() },
+    ...over,
+    audit,
+  };
 }
 
 const DRAFT_ID = taggedString<"SiteDraftId">("sd_test") as SiteDraftId;
@@ -646,7 +678,83 @@ describe("住所の段階", () => {
   });
 });
 
+/**
+ * REQ-S06 の「未入力のステップは次へ進めない理由を表示」を、**段階ごとに**押さえる。
+ *
+ * ここを足した理由（実測、2026-08-29）。`createSaveSiteDraftStepUseCase` の
+ * `isStepComplete` の門を丸ごと素通しにしたとき、赤くなったのは 2 件だけだった
+ *（この段の「空欄のまま進もうとしたら…」と `admin-actions.test.ts` の 1 件）。
+ * さらに `purpose` と `content_plan` の 2 段階だけ検査を残して**残り 11 段階を
+ * 素通し**にしたところ、この 2 ファイル 123 件すべて緑だった。
+ *
+ * つまり要件は 13 段階について書かれているのに、機械が見ていたのは 2 段階だけだった。
+ * 段階を足したときも同じ穴が空く（新しい段階の検査は誰も見ていない）。
+ *
+ * `create` は入力欄を持たない最終段階なので除く（`STEP_FIELDS.create` が空）。
+ */
+describe("REQ-S06: どの段階も、空欄のままでは次へ進めない", () => {
+  const inputSteps = SITE_WIZARD_STEPS.filter((s) => STEP_FIELDS[s].length > 0);
+
+  it("入力欄を持つ段階が 12 ある（段階を足したらこの数も動く）", () => {
+    expect(inputSteps).toHaveLength(12);
+  });
+
+  it.each(inputSteps)("%s: 空欄で保存しようとすると断られる", async (step) => {
+    // その段階の入力欄をすべて空文字で埋めて保存を試みる。
+    const answers = Object.fromEntries(STEP_FIELDS[step].map((f) => [f, "  "]));
+    const result = await save(memoryDrafts([filledDraft()]).port, step, answers);
+
+    // 「次へ進めない」。どちらの門が断ったかは問わない
+    //（段階によっては `isStepComplete` より先に `applyStep` が断る）。
+    expect(result.ok, `${step} が空欄のまま通った`).toBe(false);
+    if (result.ok) return;
+
+    // 「理由を表示」。文言そのものは写さない——実装から期待値を組み立てると、
+    // 文言を変えたときテストも一緒に動いて何も守らなくなる。
+    // 代わりに**直す場所を指しているか**を見る。読者にとっての「理由」は
+    // 「どこを直せばよいか」であって、文章の言い回しではない。
+    expect(result.error.message.trim()).not.toBe("");
+    expect(STEP_FIELDS[step], `${step} の誤りが、この段階の入力欄を指していない`).toContain(
+      result.error.field,
+    );
+  });
+});
+
 describe("ブログを作る（つなぎ目を差し替えて）", () => {
+  it("上限なら公開保存の前に止める", async () => {
+    const drafts = memoryDrafts([filledDraft()]);
+    const result = await createCreateSiteFromDraftUseCase(
+      buildDeps(drafts.port, {
+        capacity: { withLease: async () => failing("ブログの上限です。") },
+      }),
+    ).execute(owner, { draftId: String(DRAFT_ID) });
+
+    expect(result.ok).toBe(false);
+    expect(drafts.published).toHaveLength(0);
+  });
+
+  it("作成済みの下書きは編集経路へ案内し、作成も容量確保もしない", async () => {
+    const drafts = memoryDrafts([
+      filledDraft({ slug: "changed-draft-slug", createdSiteSlug: "lens-start" }),
+    ]);
+    let leases = 0;
+    const result = await createCreateSiteFromDraftUseCase(
+      buildDeps(drafts.port, {
+        capacity: {
+          withLease: async () => {
+            leases += 1;
+            return failing("ブログの上限です。");
+          },
+        },
+      }),
+    ).execute(owner, { draftId: String(DRAFT_ID) });
+
+    expect(result.ok).toBe(false);
+    expect(leases).toBe(0);
+    expect(drafts.published).toEqual([]);
+    if (!result.ok) expect(result.error.message).toContain("編集画面");
+  });
+
   it("信頼のために足りないページを、作ったあとに伝える", async () => {
     const drafts = memoryDrafts([filledDraft()]);
     const result = await createCreateSiteFromDraftUseCase(buildDeps(drafts.port)).execute(owner, {
@@ -656,9 +764,20 @@ describe("ブログを作る（つなぎ目を差し替えて）", () => {
     if (!result.ok) return;
     expect(result.value.readerPath).toBe("/s/lens-start");
     expect(drafts.published).toContain("lens-start");
-    // 作れたことと、まだ足りないものは別。足りないものは隠さず返す。
-    expect(Array.isArray(result.value.missingTrustPages)).toBe(true);
+    expect(result.value.missingTrustPages).toHaveLength(8);
+    /*
+      `pageCount` は**中身のあるサイト文書の実数**であって、枠の数ではない。
+      空の枠を 8 行先に作るのをやめた（`SITE_PROVISIONING_REQUIRED_COUNTS`
+      の `site_documents: 0`）ので、作った直後は 0 で、8 種すべてが
+      `missingTrustPages` に並ぶ。ここを 8 に戻すと、まだ 1 文字も書かれて
+      いない運営者情報を「作成済みのページ」として数えることになる。
+    */
+    expect(result.value.pageCount).toBe(0);
+    expect(result.value.provisioningComplete).toBe(true);
+    expect(result.value.contentReady).toBe(false);
+    expect(result.value.gaps.map((gap) => gap.element)).toEqual(["site_documents", "articles"]);
     expect(result.value.summary).toContain("はじめてのレンズ");
+    expect(result.value.summary).toContain("公開準備には未完了");
   });
 
   it("作ったあと、下書きに「作った先」が記録される（二重に作らせない）", async () => {
@@ -672,7 +791,7 @@ describe("ブログを作る（つなぎ目を差し替えて）", () => {
   it("登録に失敗したら、作れたことにしない", async () => {
     const drafts = {
       ...memoryDrafts([filledDraft()]).port,
-      publishBlueprint: async () => failing("登録できません。"),
+      provisionSite: async () => failing("登録できません。"),
     };
     const result = await createCreateSiteFromDraftUseCase(
       buildDeps(drafts as BuildSiteDeps["drafts"]),
@@ -680,10 +799,10 @@ describe("ブログを作る（つなぎ目を差し替えて）", () => {
     expect(result.ok).toBe(false);
   });
 
-  it("下書きの更新に失敗したら、成功として返さない", async () => {
+  it("下書き更新を含む一括保存が失敗したら、成功として返さない", async () => {
     const drafts = {
       ...memoryDrafts([filledDraft()]).port,
-      save: async () => failing("保存できません。"),
+      provisionSite: async () => failing("下書きを更新できません。"),
     };
     const result = await createCreateSiteFromDraftUseCase(
       buildDeps(drafts as BuildSiteDeps["drafts"]),
@@ -708,13 +827,14 @@ describe("ブログを作る（つなぎ目を差し替えて）", () => {
  */
 describe("ブログを作ったことの記録", () => {
   it("誰が・どのブログを作ったかが残る", async () => {
-    const deps = buildDeps(memoryDrafts([filledDraft()]).port);
+    const drafts = memoryDrafts([filledDraft()]);
+    const deps = buildDeps(drafts.port);
     const done = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
       draftId: String(DRAFT_ID),
     });
     expect(done.ok, done.ok ? "" : done.error.message).toBe(true);
 
-    const entries = deps.audit.entries();
+    const entries = drafts.creationAudits;
     expect(entries).toHaveLength(1);
     const entry = entries[0];
     expect(entry?.action).toBe("site.created");
@@ -725,34 +845,33 @@ describe("ブログを作ったことの記録", () => {
     expect(entry?.after).toMatchObject({ name: "はじめてのレンズ", recreated: false });
   });
 
-  it("同じ下書きから作り直したときは、作り直しと分かる形で残る", async () => {
-    // 2 度目は設計図を上書きする。「作った」が 2 行並んだとき、
-    // どちらが最初かを後から読めないと、いつからいまの形なのかが分からない。
+  it("同じ下書きの二重作成を断り、監査記録も 1 件のままにする", async () => {
     const drafts = memoryDrafts([filledDraft()]);
     const deps = buildDeps(drafts.port);
     const useCase = createCreateSiteFromDraftUseCase(deps);
     await useCase.execute(owner, { draftId: String(DRAFT_ID) });
-    await useCase.execute(owner, { draftId: String(DRAFT_ID) });
+    const second = await useCase.execute(owner, { draftId: String(DRAFT_ID) });
 
-    const entries = deps.audit.entries();
-    expect(entries).toHaveLength(2);
-    expect(entries[0]?.after).toMatchObject({ recreated: false });
-    expect(entries[1]?.after).toMatchObject({ recreated: true });
+    expect(second.ok).toBe(false);
+    expect(drafts.creationAudits).toHaveLength(1);
+    expect(drafts.creationAudits[0]?.after).toMatchObject({ recreated: false });
   });
 
   it("記録を残せなかったときは、作れたこととして返さない", async () => {
-    const deps = buildDeps(memoryDrafts([filledDraft()]).port, {
-      auditLog: { ...recordingAuditLog().port, append: async () => failing("記録できません。") },
-    });
+    const base = memoryDrafts([filledDraft()]);
+    const drafts = {
+      ...base.port,
+      provisionSite: async () => failing("操作の記録を保存できません。"),
+    } as BuildSiteDeps["drafts"];
+    const deps = buildDeps(drafts);
     const done = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
       draftId: String(DRAFT_ID),
     });
 
     expect(done.ok).toBe(false);
     if (done.ok) return;
-    // 「作れませんでした」だけを返さない。ブログはもう読む人から見えている。
-    expect(done.error.message).toContain("はじめてのレンズ");
     expect(done.error.message).toContain("記録");
+    expect(base.published).toEqual([]);
   });
 });
 
@@ -829,5 +948,72 @@ describe("下書きの記録の中身", () => {
     expect(after?.step).toBe("purpose");
     expect(after?.totalSteps).toBe(13);
     expect(after?.doneCount).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * 「作れた」と言ったのに `/s/<URL名>` が 404 だった事故の再発防止。
+ *
+ * 成功の定義を**保存先から数え直した件数**に一本化する。
+ * 数え直しは本物の保存先でも見本でも同じ順序で行うので、
+ * 手元と本番で「作れた」の意味が分かれない。
+ */
+describe("作れたと言えるのは、原子的な一括保存が完了したときだけ", () => {
+  it("必要実体がそろえば作成完了、本文未公開なら内容準備は未完了と返す", async () => {
+    const drafts = memoryDrafts([filledDraft()]);
+    const result = await createCreateSiteFromDraftUseCase(buildDeps(drafts.port)).execute(owner, {
+      draftId: String(DRAFT_ID),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.reachable).toBe(true);
+    expect(result.value.provisioningComplete).toBe(true);
+    expect(result.value.contentReady).toBe(false);
+    expect(result.value.gaps.map((gap) => gap.element)).toEqual(["site_documents", "articles"]);
+    expect(result.value.counts.network_node).toBe(1);
+    expect(result.value.counts.layout_slots).toBe(defaultLayoutSlotSeeds().length);
+    expect(result.value.counts.articles).toBe(0);
+  });
+
+  it("一括保存が失敗したら、下書きを完了にせず成功も返さない", async () => {
+    const base = memoryDrafts([filledDraft()]);
+    const drafts = {
+      ...base.port,
+      provisionSite: async () => failing("ブログの作成を完了できません。"),
+    } as BuildSiteDeps["drafts"];
+    const result = await createCreateSiteFromDraftUseCase(
+      buildDeps(drafts),
+    ).execute(owner, { draftId: String(DRAFT_ID) });
+
+    expect(result.ok).toBe(false);
+    expect(base.rows.get(String(DRAFT_ID))?.createdSiteSlug).toBeNull();
+    expect(base.published).toEqual([]);
+  });
+
+  it("住所が設定されていれば、読者に伝える先はサブドメインになる", async () => {
+    const drafts = memoryDrafts([filledDraft()]);
+    const result = await createCreateSiteFromDraftUseCase(
+      buildDeps(drafts.port, { siteBaseDomain: "example.com" }),
+    ).execute(owner, { draftId: String(DRAFT_ID) });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.readerHost).toBe("lens-start.example.com");
+    expect(result.value.summary).toContain("lens-start.example.com");
+    // パスでも同じものが開くことは、案内から落とさない。
+    expect(result.value.summary).toContain("/s/lens-start");
+  });
+
+  it("住所が設定されていない環境では、パスだけを案内する", async () => {
+    const drafts = memoryDrafts([filledDraft()]);
+    const result = await createCreateSiteFromDraftUseCase(buildDeps(drafts.port)).execute(owner, {
+      draftId: String(DRAFT_ID),
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.readerHost).toBeNull();
+    expect(result.value.summary).toContain("/s/lens-start");
   });
 });

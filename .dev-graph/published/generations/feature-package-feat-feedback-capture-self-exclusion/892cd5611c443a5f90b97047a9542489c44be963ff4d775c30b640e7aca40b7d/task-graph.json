@@ -1,0 +1,136 @@
+{
+  "edges": [
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P01", "to": "SYS-FB-CAPTURE-EXCLUSION-P02", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P02", "to": "SYS-FB-CAPTURE-EXCLUSION-P03", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P03", "to": "SYS-FB-CAPTURE-EXCLUSION-P04", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P04", "to": "SYS-FB-CAPTURE-EXCLUSION-P05", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P05", "to": "SYS-FB-CAPTURE-EXCLUSION-P06", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P06", "to": "SYS-FB-CAPTURE-EXCLUSION-P07", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P07", "to": "SYS-FB-CAPTURE-EXCLUSION-P08", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P08", "to": "SYS-FB-CAPTURE-EXCLUSION-P09", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P09", "to": "SYS-FB-CAPTURE-EXCLUSION-P10", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P10", "to": "SYS-FB-CAPTURE-EXCLUSION-P11", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P11", "to": "SYS-FB-CAPTURE-EXCLUSION-P12", "type": "depends_on"},
+    {"from": "SYS-FB-CAPTURE-EXCLUSION-P12", "to": "SYS-FB-CAPTURE-EXCLUSION-P13", "type": "depends_on"}
+  ],
+  "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+  "nodes": [
+    {
+      "depends_on": [],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P01",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P01"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P01"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P02",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P02"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P02"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P03",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P03"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P03"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P04",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P04"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P04"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P05",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P05"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P05"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P06",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P06"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P06"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P07",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P07"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P07"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P08",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P08"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P08"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P09",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P09"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P09"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P10",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P10"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P10"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P11",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P11"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P11"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P12",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P12"
+    },
+    {
+      "depends_on": [
+        "SYS-FB-CAPTURE-EXCLUSION-P12"
+      ],
+      "feature_package_id": "feature-package/feat-feedback-capture-self-exclusion",
+      "id": "SYS-FB-CAPTURE-EXCLUSION-P13",
+      "parent_feature": "feat-feedback-capture-self-exclusion",
+      "phase_ref": "P13"
+    }
+  ],
+  "parent_feature": "feat-feedback-capture-self-exclusion",
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0.0",
+  "graph_node_id": "SYS-BLOG-UI-BUILDER-P01",
+  "beads_issue_id": "ah-45ba.1",
+  "feature": "feat-blog-ui-builder",
+  "recorded_at": "2026-08-30",
+  "source_feature_digest": "sha256:8953a167a43f5fc55998ebfcaa83f437d59f0d567cde6e7c15e8b568ab470d7b",
+  "purpose": "画面ごとに『残す情報・落とす情報・加工して出す情報』を機械可読で固定し、P02 以降の画面設計が情報量の判断を作り直さずに済むようにする。",
+  "legend": {
+    "keep": "その画面の主目的に直接効く。省いてはならない。",
+    "drop": "他の画面で足りる、または主目的の判断に効かない。この画面には出さない。",
+    "derive": "生の値ではなく、判断に効く形へ加工して出す。"
+  },
+  "vocabulary_conflicts": [
+    {
+      "id": "V1",
+      "subject": "記事内の表現ブロックの語彙",
+      "system_a": {
+        "name": "EXPRESSION_BLOCK_KINDS",
+        "count": 10,
+        "path": "src/domain/authoring/blog-template.ts",
+        "line": 43,
+        "persisted": false,
+        "note": "導出専用。永続化経路を持たない。"
+      },
+      "system_b": {
+        "name": "ARTICLE_BLOCK_KINDS",
+        "count": 15,
+        "path": "src/domain/blogops/blueprint-parts.ts",
+        "line": 122,
+        "persisted": true,
+        "note": "blog_article_block へ永続する。"
+      },
+      "affects": ["A5", "A12"],
+      "resolution_owner": "P02",
+      "status": "unresolved"
+    },
+    {
+      "id": "V2",
+      "subject": "固定ページの種別の名札",
+      "system_a": {
+        "name": "FIXED_PAGE_KINDS",
+        "count": 8,
+        "path": "src/domain/blogops/fixed-page.ts",
+        "line": 7
+      },
+      "system_b": {
+        "name": "SITE_DOCUMENT_KEYS",
+        "count": null,
+        "path": "src/db/schema.ts",
+        "line": 2285,
+        "note": "schema コメント自身が二重化の危険を明記している。"
+      },
+      "affects": ["A4"],
+      "resolution_owner": "P02",
+      "status": "unresolved"
+    },
+    {
+      "id": "V3",
+      "subject": "公開面の配色の正本",
+      "system_a": {
+        "name": "blog_theme + page_theme_override",
+        "path": "src/db/schema.ts",
+        "line": 2244,
+        "connected": false
+      },
+      "system_b": {
+        "name": "site_blueprints.theme",
+        "path": "src/presentation/site/page-frame.tsx",
+        "line": 113,
+        "connected": true,
+        "note": "現在の実運用はこちら 1 層のみ。"
+      },
+      "affects": ["A2", "A8"],
+      "resolution_owner": "P02",
+      "status": "unresolved"
+    }
+  ],
+  "dormant_tables": [
+    {
+      "table": "blog_template",
+      "schema_line": 2226,
+      "migration": "0022_neat_virginia_dare",
+      "has_port": false,
+      "has_usecase": false,
+      "has_screen": false,
+      "blocks_acceptance": ["A1", "A8"]
+    },
+    {
+      "table": "blog_theme",
+      "schema_line": 2244,
+      "migration": "0022_neat_virginia_dare",
+      "has_port": false,
+      "has_usecase": false,
+      "has_screen": false,
+      "blocks_acceptance": ["A2", "A8"]
+    },
+    {
+      "table": "page_theme_override",
+      "schema_line": 2261,
+      "migration": "0022_neat_virginia_dare",
+      "has_port": false,
+      "has_usecase": false,
+      "has_screen": false,
+      "blocks_acceptance": ["A2", "A8"]
+    },
+    {
+      "table": "blog_affiliate_placement",
+      "schema_line": 2321,
+      "migration": "0022_neat_virginia_dare",
+      "has_port": false,
+      "has_usecase": false,
+      "has_screen": false,
+      "blocks_acceptance": ["A6", "A7"]
+    }
+  ],
+  "screens": [
+    {
+      "id": "N1",
+      "route": "/admin/sites/new",
+      "kind": "existing_extended",
+      "purpose": "新しいブログを作るときにテンプレート 6 種から 1 つ選ぶ",
+      "acceptance": ["A1"],
+      "keep": [
+        "テンプレート 6 種の名前と、それぞれが得意とする記事の型",
+        "選んだテンプレートで記事がどう並ぶかの見本"
+      ],
+      "drop": [
+        "テンプレートの内部 ID",
+        "テンプレートが持つブロックの実装上の並び順の生データ"
+      ],
+      "derive": [
+        "「この 6 種のどれを選んでも、あとから差し替えられる」ことを可視の一文で伝える（差し替え不能という誤解が最大の離脱要因）"
+      ]
+    },
+    {
+      "id": "N2",
+      "route": "/admin/blog/theme",
+      "kind": "new",
+      "purpose": "ブログ既定の配色（brand_theme と color_mode）を決める",
+      "acceptance": ["A2", "A8"],
+      "keep": [
+        "選べる配色の見本（実際の本文の見え方）",
+        "light / dark それぞれの本文コントラストが基準を満たすか"
+      ],
+      "drop": [
+        "配色トークンの生の 16 進値",
+        "管理画面自身の配色設定（/admin/settings/appearance の担当。混同を招く）"
+      ],
+      "derive": [
+        "この既定を上書きしているページが何枚あるか（上書きの存在を既定側から気づけるようにする）"
+      ]
+    },
+    {
+      "id": "N3",
+      "route": "/admin/blog/theme/overrides",
+      "kind": "new",
+      "purpose": "ページ単位の配色上書きを一覧し、外す",
+      "acceptance": ["A2", "A8"],
+      "keep": [
+        "上書きしているページのパス",
+        "何を上書きしているか（brand_theme のみ / color_mode のみ / 両方）",
+        "外す操作"
+      ],
+      "drop": ["上書きしていないページ（一覧を埋めるだけで判断に効かない）"],
+      "derive": [
+        "「外す＝行を消す＝既定へ戻る」ことを操作の直前に示す（NULL 行を残す実装との差が利用者に見えないため）"
+      ]
+    },
+    {
+      "id": "N4",
+      "route": "/admin/blog/articles/[article]",
+      "kind": "existing_extended",
+      "purpose": "記事に表現ブロック（図解・比較表・CTA・要約・スペック表 ほか）を挿入する",
+      "acceptance": ["A5", "A12"],
+      "keep": [
+        "挿入できるブロックの種類と、それぞれが読者に何を伝えるか",
+        "スロットに何が入っているか（差し替え可能な箇所）",
+        "差し替えなかったときの fallback"
+      ],
+      "drop": [
+        "ブロックの内部 kind 文字列",
+        "永続テーブルの行 ID"
+      ],
+      "derive": [
+        "この記事に SEO 標準ブロック（結論・要点・FAQ・出典・最終更新）が揃っているか（A12 の充足を編集中に気づける形にする）"
+      ]
+    },
+    {
+      "id": "N5",
+      "route": "/admin/blog/affiliates",
+      "kind": "new",
+      "purpose": "このブログに掲載中のアフィリエイトを記事単位で一覧する",
+      "acceptance": ["A6"],
+      "keep": [
+        "記事名",
+        "掲載位置（placement）",
+        "tracking_code"
+      ],
+      "drop": [
+        "workspace_id",
+        "placement 行の内部 ID",
+        "成果・報酬額（/admin/affiliate の担当。ここは掲載の所在を見る画面）"
+      ],
+      "derive": [
+        "掲載が 0 件の記事を、掲載漏れとして数え上げる（一覧の目的は『どこに出ているか』ではなく『どこに出ていないか』に効く）"
+      ]
+    },
+    {
+      "id": "N6",
+      "route": "/admin/affiliate/links/[link]",
+      "kind": "new",
+      "purpose": "アフィリエイト 1 件から、掲載しているブログと記事へ逆引きする",
+      "acceptance": ["A7"],
+      "keep": [
+        "掲載しているブログ",
+        "掲載している記事とその公開状態",
+        "各掲載の placement"
+      ],
+      "drop": ["アフィリエイトの登録情報の詳細（別画面の担当）"],
+      "derive": [
+        "作成画面・保存後・公開面の 3 面で同じ集合が出ているか（A7-3 の一致を画面上で確かめられるようにする）"
+      ]
+    },
+    {
+      "id": "N7",
+      "route": "/s/[site]/blog/[article]",
+      "kind": "existing_completed",
+      "purpose": "ブログ記事に generateMetadata と JSON-LD を足す",
+      "acceptance": ["A10", "A12"],
+      "keep": [
+        "title / description / canonical / OGP",
+        "BlogPosting + BreadcrumbList の JSON-LD",
+        "FAQ ブロックがあるときの FAQPage",
+        "最終更新日の可視表示"
+      ],
+      "drop": [],
+      "derive": [
+        "dateModified を JSON-LD と可視テキストの両方から同じ 1 つの値で出す（片方だけ更新される事故を構造で防ぐ）"
+      ],
+      "note": "published_articles 経路（reviews/compare/best/guides/tools）は既に揃っている。生成関数を再利用し、2 つ目の生成経路を作らない。"
+    },
+    {
+      "id": "N8",
+      "route": "src/presentation/ui/templates/site.module.css",
+      "kind": "existing_changed",
+      "purpose": "ヘッダーとフッターを sticky にする",
+      "acceptance": ["A3", "A9"],
+      "keep": [
+        "スクロール中も出ている必要がある操作（ナビゲーション）"
+      ],
+      "drop": [
+        "sticky にしたせいで狭幅で本文を圧迫する装飾"
+      ],
+      "derive": [
+        "375px で本文の可読領域が何 px 残るか（sticky の代償を数値で見る）"
+      ],
+      "note": "サイドバー（.siteAsideSticky :982）と狭幅の折りたたみ（:990）は既にある。欠けているのはヘッダー（.siteHeader :34-39 が position:relative）とフッター（.siteFooter :297）。"
+    }
+  ],
+  "regression_surfaces": [
+    {
+      "path": "tests/e2e/app-routes.spec.ts",
+      "line": 224,
+      "risk": "route registry を『87 画面』と数え上げで固定している。N1〜N6 で画面が増えると必ず落ちる。",
+      "owner": "P04"
+    },
+    {
+      "path": "tests/ui/route-table.ts",
+      "risk": "ルート表の正本。上と連動する。",
+      "owner": "P04"
+    },
+    {
+      "path": "tests/ui/blog-ops-a11y-floor.test.tsx",
+      "line": 16,
+      "risk": "条文が『A14』を指しており、本 feature の A9 と受入番号が衝突している。",
+      "owner": "P04"
+    },
+    {
+      "path": "tests/ui/theme-contrast.test.ts",
+      "risk": "A2 で配色の読み取り経路が変わると影響する。",
+      "owner": "P04"
+    },
+    {
+      "path": "tests/visual/baseline-updates.jsonl",
+      "risk": "A3 の sticky 変更で視覚基準が動く。",
+      "owner": "P09"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "question": "V1（表現ブロック語彙 10 種 vs 15 種）の正本をどちらにするか",
+      "owner": "P02",
+      "blocks": ["A5", "A12"]
+    },
+    {
+      "id": "Q2",
+      "question": "V2（固定ページ名札）の正本と、要求 6 種 vs 実装 8 種の差（review_guidelines・company）の扱い",
+      "owner": "P02",
+      "blocks": ["A4"]
+    },
+    {
+      "id": "Q3",
+      "question": "V3（配色を blog_theme に持つか site_blueprints.theme に持つか）の正本",
+      "owner": "P02",
+      "blocks": ["A2", "A8"]
+    },
+    {
+      "id": "Q4",
+      "question": "A3 の『常時表示』がフッターにも掛かるか（system-spec/ui-ux.md の qa-uiux-web-blog-builder を再読して確定）",
+      "owner": "P02",
+      "blocks": ["A3"]
+    },
+    {
+      "id": "Q5",
+      "question": "IndexNow スキップの記録先を console.info のままにするか audit_log へ書くか",
+      "owner": "P02",
+      "blocks": ["A13"]
+    },
+    {
+      "id": "Q6",
+      "question": "A7 の逆引きを blog_affiliate_placement だけで実現するか、affiliate_links 側にも記事参照列を足すか",
+      "owner": "P02",
+      "blocks": ["A7"]
+    }
+  ]
+}

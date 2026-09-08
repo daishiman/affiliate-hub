@@ -1,12 +1,8 @@
 import { and, desc, eq } from "drizzle-orm";
 import type { ImprovementRepositoryPort, LoopObservation } from "@/application/ports/improvement";
-import {
-  type LoopRun,
-  type VariantSpec,
-  assertRecordableLoopRun,
-  assertRecordableObservation,
-  assertRecordableVariantSpec,
-} from "@/domain/analytics";
+import type { LoopRun } from "@/domain/analytics/loop-run";
+import type { VariantSpec } from "@/domain/analytics/variant-spec";
+import { assertRecordableLoopRun, assertRecordableObservation, assertRecordableVariantSpec } from "@/domain/analytics/loop-record";
 import {
   type Provenance,
   type WorkspaceId,

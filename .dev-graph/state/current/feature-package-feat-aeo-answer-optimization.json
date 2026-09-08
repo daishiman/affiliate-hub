@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-aeo-answer-optimization",
+  "generation_id": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "published_path": ".dev-graph/published/generations/feature-package-feat-aeo-answer-optimization/28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "published_digest": "sha256:28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
+  "receipt": ".dev-graph/published/generations/feature-package-feat-aeo-answer-optimization/28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03/atomic-promotion-receipt.json"
+}

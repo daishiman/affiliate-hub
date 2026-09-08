@@ -1,5 +1,6 @@
 /** @tier 1 */
 import { describe, expect, it } from "vitest";
+import { EVAL_CASES } from "../../evals/generation/cases";
 import { AI_EVAL_BUDGET } from "../../quality-gates.config.mjs";
 import { BudgetExceeded, createBudgetGuard, estimate } from "../../scripts/ai-eval-budget.mjs";
 
@@ -65,5 +66,42 @@ describe("AI 評価セットの費用の上限", () => {
     const guard = createBudgetGuard();
     expect(guard.limits.maxCases).toBe(AI_EVAL_BUDGET.maxCases);
     expect(guard.limits.maxTokens).toBe(AI_EVAL_BUDGET.maxTokens);
+  });
+
+  /**
+   * **上限を、書き写した数ではなく実物の件数に結ぶ。**
+   *
+   * 既存の 2 つの検査（`tests/architecture/ci-config.test.ts` と
+   * `tests/architecture/quality-gates.test.ts`）は
+   * 「上限は**評価セットの実件数**（51）を超えない」という名前を持ちながら、
+   * 中身は `toBeLessThanOrEqual(51)` だった。**51 は実件数ではなく、実件数の写し**である。
+   * 評価ケースを 10 件消しても、上限 51 はそのまま緑で通る
+   * ＝「上限が 1 度も効かない飾りになっていないか」を見るという主張が成り立たない。
+   *
+   * ここでは `EVAL_CASES` を読み込み、その `length` と突き合わせる。
+   * 実測（2026-08-21）: `EVAL_CASES.length` は 51、`AI_EVAL_BUDGET.maxCases` も 51。
+   *
+   * **この検査が見ていないもの**: 上限がケースごとのトークン実測に対して妥当か
+   * （`maxTokens` の側）は、ここでは件数×目安の掛け算しか見ていない。
+   */
+  it("件数の上限が、評価セットの実件数を超えていない（写しではなく実物と突き合わせる）", () => {
+    // **母集団の床**。評価セットが空でも「上限 ≦ 件数」は破れないので、先に実物を確かめる。
+    // 仕様の下限は 50 件（docs/spec/11-CI-CD・品質ゲート仕様.md §8-4）。
+    expect(EVAL_CASES.length, "評価セットを読めていません").toBeGreaterThanOrEqual(50);
+
+    expect(
+      AI_EVAL_BUDGET.maxCases,
+      "上限が実件数より大きいと、上限は 1 度も効かない飾りになります",
+    ).toBeLessThanOrEqual(EVAL_CASES.length);
+    expect(AI_EVAL_BUDGET.maxCases).toBeGreaterThan(0);
+    expect(AI_EVAL_BUDGET.maxTokens).toBeGreaterThan(0);
+  });
+
+  it("正本の理由書きに書かれた件数も、実件数と合っている", () => {
+    // `why` は人が読む欄だが、ここが実物とずれると
+    // 「なぜこの上限なのか」を確かめる術が無くなる（上の検査は数だけを見て文を見ない）。
+    const written = AI_EVAL_BUDGET.why.match(/評価セットは\s*(\d+)\s*件/);
+    expect(written, "理由書きから件数を読み取れません").not.toBeNull();
+    expect(Number(written?.[1])).toBe(EVAL_CASES.length);
   });
 });

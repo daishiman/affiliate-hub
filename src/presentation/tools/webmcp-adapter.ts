@@ -5,11 +5,22 @@
  *
  * 3 つの原則:
  *   1. ブラウザ側に業務処理を持たせない。呼び出しはサーバーの同じ入口へ送る。
- *   2. 載せるのは読み取り専用のツールだけ。ページ内の AI に状態を変えさせない。
+ *   2. 載せるのは `webmcp-policy.ts` の表に名前を書いたものだけ。
+ *      **書いていないものは載らない**（既定は「載せない」）。
+ *      「状態を変えないこと」は道具定義の旗ではなく
+ *      `tests/presentation/readonly-honesty.test.ts` が実行で測る。
  *   3. すべての WebMCP ツールには、同じことができる通常の画面操作がある。
  *      AI からしかできない機能を作らない。
  */
 import type { AnyToolDefinition } from "./tool-definition";
+import { MAX_TOOLS_PER_PAGE, isListedOnWebMcp } from "./webmcp-policy";
+
+/**
+ * 1 ページに載せてよいツールの上限。
+ *
+ * 正本は `webmcp-policy.ts`（載せる表と同じ場所）。ここは取り出し口として残す。
+ */
+export { MAX_TOOLS_PER_PAGE };
 
 export type WebMcpToolResult = {
   content: { type: "text"; text: string }[];
@@ -61,14 +72,6 @@ async function callServer(endpoint: string, name: string, args: Record<string, u
 }
 
 /**
- * 1 ページに載せてよいツールの上限。
- *
- * 多いほど良いものではない。選択肢が増えるほどエージェントは誤った道具を選ぶ。
- * 読み取り専用から始めて少数に絞る、が仕様（ブログ層 §14.4）の指示。
- */
-export const MAX_TOOLS_PER_PAGE = 6;
-
-/**
  * ブラウザへ渡せる形のツール宣言。
  *
  * 実行の関数は含まない。サーバーからブラウザへ関数は渡せないため、
@@ -80,13 +83,23 @@ export type WebMcpDescriptor = {
   readonly inputSchema: unknown;
 };
 
-/** カタログを宣言に直す。読み取り専用だけを、上限の数まで。 */
+/**
+ * カタログを宣言に直す。**表に名前があるものだけを、上限の数まで。**
+ *
+ * 絞る根拠は道具定義の `readOnly` ではなく、`webmcp-policy.ts` の `PAGE_TOOLS` である。
+ * 旗を根拠にすると既定が「載る」になり、読み取りの道具を足しただけで
+ * ページ内の AI の手が届く範囲が黙って広がる。表を根拠にすると既定は「載らない」。
+ *
+ * `listed` を差し替えられるのは、検査が**別の表**を回せるようにするため。
+ * 既定は必ず正本の表で、**差し替えないと何も載らない**側に倒してある。
+ */
 export function toWebMcpDescriptors(
   catalog: readonly AnyToolDefinition[],
-  limit = MAX_TOOLS_PER_PAGE,
+  options: { readonly limit?: number; readonly listed?: (name: string) => boolean } = {},
 ): readonly WebMcpDescriptor[] {
+  const { limit = MAX_TOOLS_PER_PAGE, listed = isListedOnWebMcp } = options;
   return catalog
-    .filter((t) => t.readOnly)
+    .filter((t) => listed(t.name))
     .slice(0, limit)
     .map((t) => ({ name: t.name, description: t.description, inputSchema: t.inputSchema }));
 }

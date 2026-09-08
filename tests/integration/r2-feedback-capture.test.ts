@@ -1,4 +1,4 @@
-/** @tier 2 */
+/** @tier 2 @req REQ-FB04, REQ-FB06, REQ-TS07 */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
 import {

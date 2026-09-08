@@ -1,5 +1,5 @@
 import type { IdGeneratorPort } from "@/application/ports/common";
-import { type AuditAction, type AuditActor, type AuditLogEntry, createAuditLogEntry } from "@/domain/compliance";
+import { createAuditLogEntry, type AuditAction, type AuditActor, type AuditLogEntry } from "@/domain/compliance/audit-log";
 import {
   type ActorContext,
   type AuditLogId,
@@ -85,6 +85,11 @@ export function buildAuditEntry(
     before: input.before ?? null,
     after: input.after ?? null,
     reason: input.reason ?? null,
+    /*
+     * 糸は**身元と一緒に運ぶ**。入力として各ユースケースに書かせない。
+     * 書かせると、書き忘れた入口だけが糸の無い行を積む。
+     */
+    requestId: actor.requestId ?? null,
     occurredAt: clock.now(),
   });
 }

@@ -200,6 +200,28 @@ def test_legacy_registration_receipt_name_is_supported(tmp_path: Path) -> None:
         f"{LEGACY_REL}/registration-receipt.json"
 
 
+def test_archived_registration_receipt_avoids_legacy_package_duplication(tmp_path: Path) -> None:
+    """旧 flat package に receipt を複製せず content-addressed archive を参照する。"""
+    root, legacy_digest, _ = build_repo(tmp_path)
+    legacy_receipt = root / LEGACY_REL / "dev-graph-registration-receipt.json"
+    archive = (
+        root
+        / ".dev-graph/plans/generations"
+        / SLUG
+        / legacy_digest.removeprefix("sha256:")
+    )
+    archive.mkdir(parents=True)
+    archived_receipt = archive / legacy_receipt.name
+    legacy_receipt.replace(archived_receipt)
+
+    assert run(root, "--write-markers").returncode == 0
+    marker = json.loads((root / LEGACY_REL / "SUPERSEDED.json").read_text(encoding="utf-8"))
+    assert marker["superseded_receipts"]["registration"]["path"] == \
+        archived_receipt.relative_to(root).as_posix()
+    assert not legacy_receipt.exists()
+    assert run(root).returncode == 0
+
+
 def test_ambiguous_registration_receipt_names_fail_closed(tmp_path: Path) -> None:
     root, _, _ = build_repo(tmp_path)
     canonical = root / LEGACY_REL / "dev-graph-registration-receipt.json"

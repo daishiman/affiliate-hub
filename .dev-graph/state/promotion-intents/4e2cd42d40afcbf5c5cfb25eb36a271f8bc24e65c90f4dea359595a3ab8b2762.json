@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-reader-behavior-analytics",
+  "destination": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "digest": "sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "feature_package_id": "feature-package/feat-reader-behavior-analytics",
+  "package_slug": "feature-package-feat-reader-behavior-analytics",
+  "generation_id": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "supersedes": null,
+  "receipt": ".dev-graph/published/generations/feature-package-feat-reader-behavior-analytics/0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0/atomic-promotion-receipt.json",
+  "completed_at": "2026-09-03T23:47:24Z"
+}

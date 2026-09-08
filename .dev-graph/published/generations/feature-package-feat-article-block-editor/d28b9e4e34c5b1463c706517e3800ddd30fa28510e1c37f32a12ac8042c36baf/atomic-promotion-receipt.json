@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "status": "promoted",
+  "promoted_at": "2026-09-05T12:56:06Z",
+  "generation_id": "d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+  "supersedes": null,
+  "repo_identity": "github:daishiman/affiliate-hub",
+  "staging_digest": "sha256:d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+  "evaluated_digest": "sha256:d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+  "published_digest": "sha256:d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf",
+  "implementation_readiness": "complete",
+  "quality_conditions": {
+    "no_contradiction": "PASS",
+    "no_missing": "PASS",
+    "consistent": "PASS",
+    "dependency_integrity": "PASS"
+  },
+  "promotion_method": "same-filesystem-atomic-rename",
+  "registration_manifest": ".dev-graph/published/generations/feature-package-feat-article-block-editor/d28b9e4e34c5b1463c706517e3800ddd30fa28510e1c37f32a12ac8042c36baf/dev-graph-registration.json"
+}

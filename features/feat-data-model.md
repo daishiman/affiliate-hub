@@ -12,7 +12,7 @@ iteration: null
 title: "データモデル基盤 (32エンティティ)"
 owners: ["daishiman"]
 created_at: "2026-08-16T13:20:00Z"
-updated_at: "2026-08-16T14:20:00Z"
+updated_at: "2026-08-30T15:16:21Z"
 status: "active"
 depends_on: ["feat-auth-workspace"]
 related_nodes: ["spec-system-spec-index"]

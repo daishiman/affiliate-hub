@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-uiux-overhaul",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "feature-package.json / task-graph.json / workstream-inventory.json / system-build-handoff.json の全13 task entry で parent_feature=feat-uiux-overhaul, feature_package_id=feature-package/feat-uiux-overhaul, source_feature_digest=sha256:187911ad75fd98ac95e63403e29882c25a23af190e9120583c5eac569fc595f2 が一致し矛盾なし。全13 task spec の「スコープ外」節は feat-uiux-overhaul の scope_out 5件 (認証・Workspace基盤/記事生成エンジン本体/SNS実配信の実行系/文章品質規則そのもの/読者向け公開面) を同一文言で列挙して踏み込みを禁止しており、各 task の write_scope も docs/spec/feat-uiux-overhaul 配下・src/presentation/ui・src/app/admin・src/app/api/admin・src/application・src/infrastructure/sns・scripts/scaffold-blog-components.ts・(P13のみ) system-spec/ui-ux.md,frontend.md に限定され、認証/Workspace基盤・記事生成エンジン本体・文章品質規則・読者向け公開面のいずれにも踏み込んでいない。ただし P05/system-build-handoff の src/infrastructure/sns/ が『X/Facebook 等を追加実装のみで拡張できるプロバイダ実装群』と記述されており、scope_out の『SNS実配信・外部API接続の実行系 (feat-distribution-hub)』との境界がやや曖昧である点を findings に medium severity で記録した (P02 の sns-provider-contract が抽象契約のみを定義し、feature の depends_on 理由が『投稿記録データを表示面へ引く』に限定されていることから、実配信実行系そのものではなく抽象+拡張点の実装と解釈できるため verdict を FAIL とするほどの明確な逸脱ではないと判断した)。",
+      "evidence": [
+        "feature-package.json#parent_feature",
+        "feature-package.json#source_feature_digest",
+        "task-graph.json#nodes",
+        "task-specs/phase-01-requirements.md#スコープ外",
+        "task-specs/phase-05-implementation.md#スコープ外",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-13-release-deploy.md#スコープ外",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "exact-13 (P01..P13)、13-entry workstream-inventory、13-node task-graph、必須 section (Machine-readable registration fields/目的/背景/前提条件/Workstream applicability/Architecture and deploy unit/成果物/Tracker publication and completion/Branch and worktree execution/スコープ外/テスト戦略/Verification and evidence/Inner goal-seek execution loop/Rollout and rollback/Handoff/参照情報) が P01..P13 の全13件に存在する。feat-uiux-overhaul の受入10件はいずれも本文で意味として接地している: (1)単一用途画面分割はP01(screen-inventory)→P02(screen-architecture)→P05(実装)→P07/P10で判定、(2)管理対象4種CRUDと対応APIはP01→P02(admin-api-contract)→P04(APIテスト)→P05(src/app/api/admin実装)、(3)投稿状態の画面反映はP01(情報優先度マップ)→P02(投稿状態参照API契約)→P05(投稿状態の反映実装)→P07(実物確認)、(4)SNSプロバイダ追加のみでの拡張はP02(sns-provider-contract)→P05(src/infrastructure/sns)→P07(受入判定)、(5)1商品→複数ブログのコンセプト別文章はP02設計→P05(作成導線実装)→P07(『複数ブログのコンセプト別文章が保存され参照できることを確認する』)、(6)重複実装0件はP02(重複禁止規約)→P08(既存画面の共通部品への移行と重複解消)→P09(品質検査)、(7)ブログ別コンポーネントscaffoldはP02(blog-scaffold-contract)→P05(scripts/scaffold-blog-components.ts)、(8)カード間隔・文章量・サイドバー構成の規則文書化はP02(component-contract内トークン規則)→P12(ui-rules.md)、(9)アイコン付き開閉サイドバーはP02(構造設計)→P05(app-shell.tsxへのアイコン付与・折りたたみ)→P09(折りたたみ時のアクセシビリティ実測)→P07(受入判定)、(10)認知負荷低減(不要情報の非表示)はP01(情報優先度マップで残す/落とす情報を確定)→P02/P03(設計レビューで具体化検証)→P05(実装)で、それぞれ全13 task本文で明示的に言及・接地している。",
+      "evidence": [
+        "feature-package.json#tasks",
+        "workstream-inventory.json#tasks",
+        "task-graph.json#nodes",
+        "task-specs/phase-01-requirements.md#成果物",
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-07-acceptance.md#目的",
+        "task-specs/phase-08-refactoring-migration.md#目的",
+        "task-specs/phase-09-quality-assurance.md#背景",
+        "task-specs/phase-12-documentation-operations.md#成果物",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "全13 task の graph_node_registration.file_path は tasks/feat-uiux-overhaul/sys-uiux-overhaul-p01.md 〜 p13.md の tasks/feat-uiux-overhaul/<小文字 task id>.md 規約に一致 (機械検査済み)。全13 task spec の Verification and evidence の再実行コマンドは `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-uiux-overhaul` の世代非依存形で統一され、--staging (staging ディレクトリ名依存) は使用していない。task-specs 全13件・feature-package.json・workstream-inventory.json・task-graph.json・system-build-handoff.json を走査したが TODO/TBD/角括弧 placeholder は0件 (owners/tags/related_nodes 等の実配列表記のみ)。workstream-inventory.json#repo_context.repo_identity=github:daishiman/affiliate-hub は .dev-graph/config.json#repository_id と完全一致する。",
+      "evidence": [
+        "workstream-inventory.json#repo_context",
+        "workstream-inventory.json#tasks[].graph_node_registration.file_path",
+        "task-specs/phase-01-requirements.md#Verification and evidence",
+        "task-specs/phase-13-release-deploy.md#Verification and evidence",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json の13 node を独立再計算した結果、全edgeが前方DAG (小さいphase_refから大きいphase_refへのみ) で循環・後方edge・feature外task参照 (SYS-UIUX-OVERHAUL- 以外のprefix) は0件。実際の構造は P01→P02→P03→P04→P05→P06→P07 の直列に加え、P05→P08→P09→P10、P07とP09→P11、P10とP11→P12→P13 という期待どおりの分岐/合流であり、それ以外の依存追加・欠落はない。P01以外の12 nodeは全て1件以上のincoming edgeを持ち、orphanは0件。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        "/Users/dm/orca/workspaces/affiliate-hub/ui-ux調整",
+        "--config",
+        ".dev-graph/config.json",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-uiux-overhaul"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0\",\n  \"feature_package_id\": \"feature-package/feat-uiux-overhaul\",\n  \"parent_feature\": \"feat-uiux-overhaul\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"violations\": []\n}",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "82ac9154decc6f6ad83ef171e0fe2e5f30c2eafb5233ff7449ed2ef309a882af"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "92784c1ef51063399bae463528f69acaa4998a2ed1e924aaa527de87ffc1feeb"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "76c5195befec376df94abd05f841190b6d54199b3a27cd0aa053c606f29dd2f0"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "4a1c92227efcd89ac47f6211a3ced7c6004d5d5a695ccd6b5efa55f4a0b4707b"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "44d8887498adf8154848e480c4617a17a28fe3f903d2efb580671dc370330ae0"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "bd6f6f61196c930bb347af6cec1cbd049ca7c54790968cf15364d84255c7b39a"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "5642514416e2177a7970f74ac3abe8de09f615db89cd906db30743730d4c9d22"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "09d68c4a4d6c0d654a2be901a1dba9f1081e2ef8b1c9936f83bafecb9d97c1d5"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "3aea399674371a3d72fe8eed8219dede178730e9275ca1353dbb425629100977"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "9c17e22ef2175ca10715b56ea8562b7bf0c8fb84a4f61f379965a4181f6aa49a"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "abce69033ad94b91282d2346d6a436f223a96b131d261218e5604e6f39840f01"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "604e335971d787224e93b68e1cd887d4c123042a9802c12000f08cea1bd162f2"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "97de570788e11607102de8ad8355f1a4a8fc049beb87b08217250d21e56da02b"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "c6cde77fbd71df657f746f05da5dacd3a0cba525a7bb37f574adc25ecf97f5cb"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "ccbbd16a56e6b68734c1c165475815f02da1774b17516cc948550cc18c0109bd"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "d99494f7c6fcbe4d55f42266dfb0ec5ad200191ba9717411fcd1d1d1d1ac9139"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "8ff2e00bb2ce20886f77d57a7bf7369706f53689d2196f9dfcfe2be9b4f47b77"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "44ce44c5ebf260068801ec3611cb3e681dcc0c5eb333530e4aaf049969661d23"
+    }
+  ],
+  "staleness_rule": "evaluated_digest は staging-manifest.json#canonical_digest (=sha256:3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0) に束縛される。staging 配下の16ファイル (feature-package.json/workstream-inventory.json/task-graph.json/system-build-handoff.json/task-specs 13件) のいずれか1件でも内容が変わり canonical_digest が再計算されて変化した場合、本 plan-findings.json は無効となり、新しい digest に対して評価をやり直す必要がある。source_feature_digest=sha256:187911ad75fd98ac95e63403e29882c25a23af190e9120583c5eac569fc595f2 が変化した場合 (features/feat-uiux-overhaul.md の再確定) も同様に無効化し、system-dev-plan-architect による再生成からやり直す。",
+  "findings": [
+    {
+      "severity": "medium",
+      "bucket": "C1-scope-boundary",
+      "observation": "P05 の成果物『src/infrastructure/sns/ (X/Facebook 等を追加実装のみで拡張できるプロバイダ実装群)』という表現は、feature の scope_out『SNS実配信・外部API接続の実行系 (feat-distribution-hub)』との境界を明文で切り分けていない。P02 の sns-provider-contract がインターフェース/抽象契約を定義するにとどまり、実際のトークン管理・レート制御・リトライ等の配信実行がfeat-distribution-hub側に残ることを task spec 本文で明示すれば、実装フェーズでのスコープ逸脱 (feat-distribution-hub の責務の重複実装) を防げる。P08/P09 での重複検査時にこの境界を確認することを推奨する。",
+      "evidence": [
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-02-architecture.md#成果物"
+      ]
+    }
+  ]
+}

@@ -228,6 +228,17 @@ const ARTICLE_TYPE_CASES: readonly EvalCase[] = [
     cta: "free_diagnosis",
     angles: ["use_case"],
   }),
+  // 出し先が 10 種から 11 種へ増えた（マルチ SNS 対応で `facebook` を足した）。
+  // **評価セットは出し先を全部使っていることを検査で要求している**ので、
+  // 出し先を足した便で評価も足さないと、足した側だけが測られないまま残る。
+  // EVAL-051 と同じ理由——実装にあって評価が無いものを作らない。
+  evalCase("EVAL-052", "coverage", "記事タイプ", "レビューを実名投稿の本文にする", {
+    articleType: "review",
+    length: "standard",
+    channel: "facebook",
+    cta: "read_detail",
+    angles: ["experience_first"],
+  }),
 ];
 
 /* ------------------------------------------------------------------ *

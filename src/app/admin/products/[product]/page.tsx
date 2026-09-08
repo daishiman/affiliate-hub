@@ -1,6 +1,8 @@
 import { AdminShell } from "@/presentation/admin/admin-shell";
-import Link from "next/link";
-import type { ReactNode } from "react";
+import { adminOperation } from "@/presentation/admin/admin-operation-manifest";
+import { DeleteConfirm } from "@/presentation/admin/delete-confirm";
+import { deleteProductAction } from "@/presentation/admin/delete-form-action";
+import type { SuccessOf } from "@/presentation/admin/use-case-result";
 import {
   affiliateUseCases,
   currentActor,
@@ -10,16 +12,21 @@ import {
 } from "@/presentation/composition";
 import {
   Callout,
-  Card,
   ClaimStatement,
+  Code,
+  DataTable,
   EmptyView,
   ErrorView,
-  EvidenceList,
-  Page,
-  StubNotice,
   type EvidenceView,
+  EvidenceList,
+  FactList,
+  ListView,
+  Prose,
+  Section,
+  Stack,
+  StubNotice,
+  TextLink,
 } from "@/presentation/ui";
-import styles from "../../admin.module.css";
 import { factualityOf, formatDate } from "../claim-view";
 
 export const dynamic = "force-dynamic";
@@ -45,72 +52,105 @@ export default async function ProductDetailPage({
 }) {
   const { product: productId } = await params;
   const actor = await currentActor();
-  const uc = productUseCases();
+  const uc = await productUseCases();
 
   const detail = await uc.getProduct.execute(actor, { productId });
-  if (!detail.ok) {
-    return (
-      <Shell title="商品">
+  const title = detail.ok
+    ? `${detail.value.product.brand} ${detail.value.product.name}`
+    : "商品";
+
+  return (
+    <AdminShell
+      routeId="products/[product]"
+      routeParams={{ product: productId }}
+      title={title}
+      lead="仕様・根拠・検証記録と順位の理由。"
+      actions={
+        <TextLink href={`/admin/products/${encodeURIComponent(productId)}/edit`}>
+          この商品を直す
+        </TextLink>
+      }
+    >
+      {!detail.ok ? (
         <ErrorView
           title="この商品を表示できませんでした"
           body={detail.error.message}
           suggestedAction={detail.error.suggestedAction ?? null}
-          action={<Link href="/admin/products">商品の一覧へ戻る</Link>}
+          action={<TextLink href="/admin/products">商品の一覧へ戻る</TextLink>}
         />
-      </Shell>
-    );
-  }
+      ) : (
+        <ProductDetail productId={productId} detail={detail.value} />
+      )}
+    </AdminShell>
+  );
+}
 
-  const { product, specifications, retrievedAt, validUntil } = detail.value;
-  const target = rankingScreenTarget();
+type Detail = SuccessOf<
+  ReturnType<Awaited<ReturnType<typeof productUseCases>>["getProduct"]["execute"]>
+>;
+
+/**
+ * 中身。骨格の外側（パンくず・戻り先）を 2 回書かないために分けている。
+ *
+ * 読み出しを 5 本まとめて待つのは、順に待つと 5 往復ぶんの間、
+ * 画面が何も出ないため。互いに結果を必要としないので、順番に意味は無い。
+ */
+async function ProductDetail({
+  productId,
+  detail,
+}: {
+  readonly productId: string;
+  readonly detail: Detail;
+}) {
+  const operation = adminOperation("product.delete");
+  const { product, specifications, retrievedAt, validUntil } = detail;
+  const actor = await currentActor();
+  const uc = await productUseCases();
+  // 順位の説明に要るのは「どの基準で・どの商品群の中で」の 2 つだけ。
+  // 画面向けの付随情報（選択肢や表示名）はここへ渡さない。
+  const { modelId, productIds } = await rankingScreenTarget();
 
   const [evidence, testRuns, alternatives, explained, links] = await Promise.all([
     uc.getEvidence.execute(actor, { productId }),
     uc.listTestRuns.execute(actor, { productId }),
     uc.findAlternatives.execute(actor, { productId }),
-    uc.explainRanking.execute(actor, { ...target, productId }),
+    uc.explainRanking.execute(actor, { modelId, productIds, productId }),
     // 提携リンクは商業の区分。上の順位の計算とは別のつなぎ目から取る。
     (await affiliateUseCases()).listProductLinks.execute(actor, { productId }),
   ]);
 
   return (
-    <Shell title={`${product.brand} ${product.name}`}>
+    <>
       <StubNotice
         what="商品データの保存先"
         blockedBy="products / claims / evidence / test_runs テーブルの追加とマイグレーション"
         stubId="persistence:product-sample"
       >
-        <span>{productSampleNotice()}</span>
+        {productSampleNotice()}
       </StubNotice>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>仕様</h2>
-        <p className={styles.sectionLead}>
-          {product.description ?? "説明はまだ登録されていません。"}
-          （{formatDate(retrievedAt)}時点の情報 / 有効期限: {formatDate(validUntil)}）
-        </p>
+      <Section
+        title="仕様"
+        lead={`${product.description ?? "説明はまだ登録されていません。"}（${formatDate(
+          retrievedAt,
+        )}時点の情報 / 有効期限: ${formatDate(validUntil)}）`}
+      >
         {specifications.length === 0 ? (
           <EmptyView
             title="仕様がまだ登録されていません"
             body="仕様が無いと比較表の列を作れません。メーカー公式の値を登録してください。"
           />
         ) : (
-          <dl className={styles.criteria}>
-            {specifications.map((s) => (
-              <div key={s.key}>
-                <dt>{s.key}</dt>
-                <dd>{s.value}</dd>
-              </div>
-            ))}
-          </dl>
+          <FactList
+            rows={specifications.map((s) => ({ key: s.key, label: s.key, value: s.value }))}
+          />
         )}
-      </Card>
+      </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>この商品について言えること</h2>
-        <p className={styles.sectionLead}>
-          測った内容と、そこから導いた判断を分けて出します。判断には必ず印が付きます。
-        </p>
+      <Section
+        title="この商品について言えること"
+        lead="測った内容と、そこから導いた判断を分けて出します。判断には必ず印が付きます。"
+      >
         {!evidence.ok ? (
           <ErrorView
             title="根拠を読み出せませんでした"
@@ -121,10 +161,10 @@ export default async function ProductDetailPage({
           <EmptyView
             title="登録された内容がありません"
             body={evidence.value.emptyReason ?? "この商品にはまだ何も登録されていません。"}
-            action={<Link href="/admin/evidence">根拠の一覧を見る</Link>}
+            action={<TextLink href="/admin/evidence">根拠の一覧を見る</TextLink>}
           />
         ) : (
-          <div className={styles.catalogStack}>
+          <Stack>
             {evidence.value.items.map((item) => (
               <ClaimStatement
                 key={String(item.claim.id)}
@@ -136,19 +176,20 @@ export default async function ProductDetailPage({
                 )}
                 <EvidenceList
                   items={item.evidence.map(toEvidenceView)}
-                  emptyAction={<Link href="/admin/evidence">根拠を登録する画面へ</Link>}
+                  emptyAction={
+                    <TextLink href="/admin/evidence">根拠を登録する画面へ</TextLink>
+                  }
                 />
               </ClaimStatement>
             ))}
-          </div>
+          </Stack>
         )}
-      </Card>
+      </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>編集部の検証記録</h2>
-        <p className={styles.sectionLead}>
-          ここに記録がある項目だけ、記事で「実際に使ってみた」と書けます。
-        </p>
+      <Section
+        title="編集部の検証記録"
+        lead="ここに記録がある項目だけ、記事で「実際に使ってみた」と書けます。"
+      >
         {!testRuns.ok ? (
           <ErrorView
             title="検証記録を読み出せませんでした"
@@ -161,111 +202,93 @@ export default async function ProductDetailPage({
             body={testRuns.value.emptyReason ?? "この商品はまだ編集部で実測していません。"}
           />
         ) : (
-          <ul className={styles.linkList}>
-            {testRuns.value.runs.map((run) => (
-              <li key={String(run.id)}>
-                測定方法 {run.methodVersion}（{formatDate(run.completedAt)}）
-                <span className={styles.linkNote}>
-                  {Object.entries(run.rawResults)
-                    .map(([k, v]) => `${k}: ${String(v)}`)
-                    .join(" / ")}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <ListView
+            rows={testRuns.value.runs.map((run) => ({
+              key: String(run.id),
+              label: `測定方法 ${run.methodVersion}（${formatDate(run.completedAt)}）`,
+              note: Object.entries(run.rawResults)
+                .map(([k, v]) => `${k}: ${String(v)}`)
+                .join(" / "),
+            }))}
+          />
         )}
-      </Card>
+      </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>この順位になった理由</h2>
+      <Section title="この順位になった理由">
         {!explained.ok ? (
           <ErrorView
             title="順位の理由を出せませんでした"
             body={explained.error.message}
             suggestedAction={explained.error.suggestedAction ?? null}
-            action={<Link href="/admin/rankings">評価基準と順位を見る</Link>}
+            action={<TextLink href="/admin/rankings">評価基準と順位を見る</TextLink>}
           />
         ) : explained.value.excludedReason !== null ? (
           <EmptyView
             title="この商品は順位に入っていません"
             body={explained.value.excludedReason}
-            action={<Link href="/admin/rankings">評価基準を確認する</Link>}
+            action={<TextLink href="/admin/rankings">評価基準を確認する</TextLink>}
           />
         ) : (
           <>
-            <p className={styles.sectionLead}>
+            <Prose>
               評価方法 {explained.value.modelVersion} で {explained.value.rank}位（総合{" "}
               {explained.value.totalScore.toFixed(2)}）。内訳は次のとおりです。
-            </p>
-            <table className={styles.rankTable}>
-              <thead>
-                <tr>
-                  <th scope="col">評価項目</th>
-                  <th scope="col">どう測ったか</th>
-                  <th scope="col" className={styles.numeric}>
-                    重み
-                  </th>
-                  <th scope="col" className={styles.numeric}>
-                    点数
-                  </th>
-                  <th scope="col" className={styles.numeric}>
-                    総合への寄与
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {explained.value.contributions.map((c) => (
-                  <tr key={c.key}>
-                    <td>{c.key}</td>
-                    <td>{c.measurement}</td>
-                    <td className={styles.numeric}>{Math.round(c.weight * 100)}%</td>
-                    <td className={styles.numeric}>{c.score.toFixed(2)}</td>
-                    <td className={styles.numeric}>{c.contribution.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            </Prose>
+            <DataTable
+              caption="評価項目ごとの、測り方と重みと点数"
+              columns={[
+                { key: "criterion", label: "評価項目" },
+                { key: "measurement", label: "どう測ったか" },
+                { key: "weight", label: "重み", numeric: true },
+                { key: "score", label: "点数", numeric: true },
+                { key: "contribution", label: "総合への寄与", numeric: true },
+              ]}
+              rows={explained.value.contributions.map((c) => ({
+                key: c.key,
+                cells: [
+                  c.key,
+                  c.measurement,
+                  `${Math.round(c.weight * 100)}%`,
+                  c.score.toFixed(2),
+                  c.contribution.toFixed(2),
+                ],
+              }))}
+            />
           </>
         )}
-      </Card>
+      </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>この商品の提携リンク</h2>
-        <p className={styles.sectionLead}>
-          リンクは発行されたままの形で使います。
-          計測用の印を足すと多くの提携先で規約違反になり、成果が付かなくなるためです。
-          ここに出る内容は、上の順位の計算には一切入りません。
-        </p>
+      <Section
+        title="この商品の提携リンク"
+        lead="リンクは発行されたままの形で使います。計測用の印を足すと多くの提携先で規約違反になり、成果が付かなくなるためです。ここに出る内容は、上の順位の計算には一切入りません。"
+      >
         {!links.ok ? (
           <ErrorView
             title="提携リンクを出せませんでした"
             body={links.error.message}
             suggestedAction={links.error.suggestedAction ?? null}
-            action={<Link href="/admin/affiliate">提携と成果を見る</Link>}
+            action={<TextLink href="/admin/affiliate">提携と成果を見る</TextLink>}
           />
         ) : links.value.items.length === 0 ? (
           <EmptyView
             title="提携リンクがありません"
             body={links.value.emptyReason ?? "この商品につながる提携リンクはまだありません。"}
-            action={<Link href="/admin/affiliate">提携と成果を見る</Link>}
+            action={<TextLink href="/admin/affiliate">提携と成果を見る</TextLink>}
           />
         ) : (
-          <ul className={styles.linkList}>
-            {links.value.items.map((l) => (
-              <li key={l.linkId}>
-                {l.url}
-                <span className={styles.linkNote}>
-                  {l.usable ? "使えます" : (l.blockedReason ?? "使えません")}
-                  {l.alterationProhibited ? " / 改変禁止" : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <ListView
+            rows={links.value.items.map((l) => ({
+              key: l.linkId,
+              label: <Code>{l.url}</Code>,
+              note: `${l.usable ? "使えます" : (l.blockedReason ?? "使えません")}${
+                l.alterationProhibited ? " / 改変禁止" : ""
+              }`,
+            }))}
+          />
         )}
-      </Card>
+      </Section>
 
-      <Card>
-        <h2 className={styles.sectionTitle}>ほかの候補</h2>
+      <Section title="ほかの候補">
         {!alternatives.ok ? (
           <ErrorView
             title="ほかの候補を出せませんでした"
@@ -276,22 +299,33 @@ export default async function ProductDetailPage({
           <EmptyView
             title="ほかの候補がありません"
             body={alternatives.value.emptyReason ?? "同じ用途の商品がまだ登録されていません。"}
-            action={<Link href="/admin/products">商品の一覧を見る</Link>}
+            action={<TextLink href="/admin/products">商品の一覧を見る</TextLink>}
           />
         ) : (
-          <ul className={styles.linkList}>
-            {alternatives.value.alternatives.map((a) => (
-              <li key={a.productId}>
-                <Link href={`/admin/products/${encodeURIComponent(a.productId)}`}>
-                  {a.brand} {a.name}
-                </Link>
-                <span className={styles.linkNote}>{a.oneLine}</span>
-              </li>
-            ))}
-          </ul>
+          <ListView
+            rows={alternatives.value.alternatives.map((a) => ({
+              key: a.productId,
+              label: `${a.brand} ${a.name}`,
+              href: `/admin/products/${encodeURIComponent(a.productId)}`,
+              note: a.oneLine,
+            }))}
+          />
         )}
-      </Card>
-    </Shell>
+      </Section>
+
+      <Section title="この商品を消す">
+        <DeleteConfirm
+          action={deleteProductAction}
+          toolName={operation.tool}
+          toolDescription="商品を消す（使っている記事が残っていれば断られる）"
+          idName="productId"
+          idValue={productId}
+          label={`${product.brand} ${product.name}`}
+          verb="消す"
+          consequence="この商品を使っている記事が残っていれば断られます。消すと、順位表と比較表からこの商品の列が無くなります。集めた根拠も一緒に消えます。"
+        />
+      </Section>
+    </>
   );
 }
 
@@ -309,22 +343,4 @@ function toEvidenceView(e: {
     url: e.urlOrAssetId.startsWith("http") ? e.urlOrAssetId : undefined,
     checkedAt: formatDate(e.capturedAt),
   };
-}
-
-function Shell({ title, children }: { readonly title: string; readonly children: ReactNode }) {
-  return (
-    <AdminShell
-      currentPath="/admin/products"
-      breadcrumbs={[
-        { label: "ホーム", href: "/admin" },
-        { label: "商品", href: "/admin/products" },
-        { label: title },
-      ]}
-      actions={<Link href="/admin/products">商品の一覧へ戻る</Link>}
-    >
-      <Page title={title} lead="仕様・根拠・検証記録・順位の理由をまとめて確かめます。">
-        {children}
-      </Page>
-    </AdminShell>
-  );
 }

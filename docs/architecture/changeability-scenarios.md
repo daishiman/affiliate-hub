@@ -193,8 +193,10 @@
 すべて能力表から導かれているため、追加しただけで
 「300 字を超えたら止める」が全経路（画面・REST・WebMCP・MCP）で効く。
 
-**本実装（API 連携）を足すとき**: `src/infrastructure/channels/bluesky-connector.ts` を
-新規に書き、対応表の 1 行をスタブから差し替える。他の層は再び無変更。
+**2026-08-27 に API 連携も実装済み。**
+`src/infrastructure/channels/bluesky.ts` が実認証、DID固定、公式XRPC投稿を担い、
+`channel-registry.ts` の同じ対応表から選ばれる。初期の追加容易性の実測は上記のまま残し、
+本番接続で追加された安全境界は `docs/product/bluesky-distribution.md` を正本とする。
 
 **domain を触るか**: 触る（能力表に 1 件）。判定ロジックは触らない。
 
@@ -267,7 +269,7 @@ domain の変更は 0 になるが、同時に `affiliate_commission` のよう�
  src/domain/shared/ids.ts               |  1 +
  src/infrastructure/composition.ts      | 17 +++++++++---
  src/presentation/composition.ts        | 20 ++++++++++----
- src/presentation/admin/inbox-action.ts |  5 ++--
+ src/presentation/admin/earn/inbox-action.ts |  5 ++--
  src/app/admin/inbox/page.tsx           |  5 ++--
  新規: src/infrastructure/persistence/d1/link-inbox-repository.ts
  新規: src/infrastructure/persistence/d1/connection.ts
@@ -301,8 +303,16 @@ domain が `drizzle-orm` を import していないことは `pnpm test` が毎�
    絶対に出ない。実際の D1 で通して初めて表面化した
    （`tests/integration/d1-link-inbox.test.ts`）。
    一意索引は `drizzle/0004_numerous_wiccan.sql` で通常の索引に落とした。
-   同時投入で印が付かない取りこぼしは残るが、それは表示上の問題であって
-   データの破損ではない（残課題 23）。
+
+   **2026-08-21 に、残っていた取りこぼしを塞いだ（残課題 23）。**
+   落とした代わりに残っていたのは「2 人が同時に入れるとどちらにも印が付かない」
+   ことだったが、これは一意制約を戻さずに直せた。
+   受け取りの行は今までどおり全部通し、**「最初の 1 本は誰か」だけを別表
+   （`link_ingestion_url_claims` / `drizzle/0019_stiff_fabian_cortez.sql`）の
+   主キーで取り合わせる**。取れなかった側は相手の ID を受け取り、それが
+   `duplicate_of` になる。ここでも学びは同じ形をしている——
+   **一意にすべきなのは「受け取り」ではなく「最初の 1 本という役割」だった。**
+   同じ表に両方を背負わせようとしたのが最初の誤りである。
 
    **この項目自体が、シナリオ ⑥ の測定結果として最も重い。**
    「保存先を替える」で本当に危ないのは呼び出し側のファイル数ではなく、

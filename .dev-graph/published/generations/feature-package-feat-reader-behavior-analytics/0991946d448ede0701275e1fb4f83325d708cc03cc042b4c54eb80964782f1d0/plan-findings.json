@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-reader-behavior-analytics",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "全13 phaseのpurpose/背景/成果物はfeature contextのpurpose/goal/scope_in/scope_out/depends_onと矛盾せず、固有名(reader_interaction_events列名・viewport_bucket・sendBeacon等)や件数も一致している。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#目的",
+        "task-specs/phase-02-architecture.md#目的",
+        "task-specs/phase-05-implementation.md#目的",
+        "task-specs/phase-13-release-deploy.md#目的"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "前回FAILの原因だった受入10件目「reader_key指定の抽出・削除がOwnerだけで実行でき、audit_logsに残る」は、P02のsubject-request-design.md(実行経路・Owner限定権限判定・audit_logs記録項目)、P04のテストケース(Owner限定・audit_logs記録の写像)、P05のreader-subject-request.ts実装、P07のacceptance-report判定、P09の権限・監査ログ検査、P12のoperations-runbook(抽出削除手順とaudit_logs確認方法)へ従属句まで含めて意味的に写像されており、残り9件の受入も含め10件全件がP01/P02/P04/P05/P07/P09/P12の実行内容・受け入れ条件へ具体的に反映されている。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-04-test-design.md#目的",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-07-acceptance.md#背景",
+        "task-specs/phase-09-quality-assurance.md#目的",
+        "task-specs/phase-12-documentation-operations.md#成果物"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "全phaseのWrite scope/touchesはfeature contextのresource_scope配下(src/db/schema.ts, src/domain/analytics/, src/application/analytics/(ingest-reader-interactions.ts, reader-subject-request.ts), src/app/api/reader-events/, src/components/reader/behavior-probe.tsx, admin behavior画面, drizzle/, docs/spec/feat-reader-behavior-analytics/, tests/, system-spec/)に完全に包含され、逆に実態がresource_scopeを超えて過大になっている phase もない。",
+      "evidence": [
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-08-refactoring-migration.md#成果物",
+        "task-specs/phase-09-quality-assurance.md#成果物",
+        "task-specs/phase-13-release-deploy.md#成果物"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.jsonの13ノード・エッジは各task specの参照情報Dependencies欄と一致し、P01→P02→P03→P04→P05→{P06→P07, P08→P09→P10}, {P07,P09}→P11, {P10,P11}→P12→P13の非循環な実行順として成立する。P01のupstream entry gate(parent_feature.depends_on all done|closed)はworkstream-inventory.json/system-build-handoff.jsonのp01_entry_gateおよび各task specのready_whenと整合している。",
+      "evidence": [
+        "task-graph.json#edges",
+        "task-specs/phase-11-evidence.md#参照情報",
+        "task-specs/phase-12-documentation-operations.md#参照情報",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-reader-behavior-analytics"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0\",\n  \"feature_package_id\": \"feature-package/feat-reader-behavior-analytics\",\n  \"parent_feature\": \"feat-reader-behavior-analytics\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"contract_version\": \"1.3.0\",\n  \"contract_baseline_exemption\": false,\n  \"test_strategy_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.2.0\"\n  },\n  \"rerun_command_contract\": {\n    \"mode\": \"enforced\",\n    \"contract_version\": \"1.3.0\",\n    \"enforced_from\": \"1.3.0\"\n  },\n  \"violations\": []\n}\n",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "cebb23acc4761130a28d54e5761a0847e6d9f3d1a548044c05c6a3b7433f1686"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "edd92e902f8b4dea04b46c9be316f7dcedfb02bdbb65d8c5d6c2616b8101bad1"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "3eec899b445e2e48bf91bb0a3c77ead6e22a9b3d777c628037febead6f2cd3e4"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "ec0d727711396a9860321579fb425afd246a8f2566976d2c4a3326dd01dda31c"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "623b567d5ab9caa4768dee1b7963ac42b8a14597e2da4823702caec60c960db2"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "64437540ea762e08e3115fb6e28e444294f6abc7d534008f359ab8c8488d7406"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "2ce0849f8e9a1195fd86b73c92abf16923870ee2c2452ceda0da0e6aa9592fab"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "2c08bcab7b38269601d2c7d51b5615f5b2ec4ed91872e098c7554fb83a838e62"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "42e6e6e09aba23fb8d90e6c0f784c78ffc5dbac70611fa9239d42b6896aaa2d9"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "7db0ccc062cc38e4eb0b3ef9553aa78462738a4e3a8911a1ffddee1b37c002e0"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "ef3a5b3df79560f397c5f4130b00ec5b8d51527ba9b4925533ad3baf07687c79"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "a53de436d46e91c5182e880d941feea4d18ef20794a3a23c2a778487a011ba59"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "9303f0be604ea3c63a956f1b56a51263cba7bb6cd9f76f68c229ba22a2b9e68f"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "08d7bec69d410a7a73f35cad80b654e5dd57532234abfd394d348bcb877c87b2"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "8ca1f62d1724c10f3680658f1d629995e727d5dc4dcb9aef56277e7cb5b7e134"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "601b579745006fe456813a51af5e72ff15af06fd95b03026fa68c784ad9da023"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "5597a04dc7e6a7142697870b0944381d4d81febb188fa5807db05da9712b3365"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "dc866df0f67240703bd410f8dc872b83fcaee16391febb900edb695200ccb11a"
+    }
+  ],
+  "staleness_rule": "evaluated_inputs の path 集合と各 sha256 が promotion 時点の staging bytes と完全一致しない場合、本 findings は失効とみなし再評価する。",
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "C2",
+      "observation": "前回指摘(受入10件目がどのphaseにも写像されていない, severity high)は解消済みと判定する。 — 再評価対象のP02(subject-request-design.md)、P04(Owner限定・audit_logs記録のテストケース)、P05(reader-subject-request.ts実装)、P07(acceptance-report.mdでの受入10件判定)、P09(権限限定・audit_logs記録の非機能検査)、P12(operations-runbook.mdでの抽出削除手順・audit_logs確認手順)を確認し、受入10件目の従属句(Owner限定/audit_logsへ残る)が要求→設計→テスト→実装→検証→運用の全段階に具体的な成果物として存在することを確認した。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#成果物"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "C4",
+      "observation": "staging-manifest.jsonのcanonical_digestとgate結果validation-feat-reader-behavior-analytics.jsonのvalidated_digestが一致し、repo_identity(github:daishiman/affiliate-hub)もworkstream-inventory.json/system-build-handoff.json/各task specで一致している。 — canonical_digest=sha256:23a81f74cc5c5f15b1382227dd57fa74fcfedb6bf9b142671e23dd7155136186がgate結果と一致することを確認し、別digestのverdictが混入していないことを確認した。",
+      "evidence": [
+        "staging-manifest.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "epic_bd_issue_id": "ah-t7vv",
+  "feature_id": "feat-blog-custom-domain",
+  "children": [
+    {
+      "phase_ref": "P01",
+      "bd_issue_id": "ah-t7vv.1",
+      "status": "closed",
+      "title": "独自ドメイン接続の要求ベースライン確定"
+    },
+    {
+      "phase_ref": "P02",
+      "bd_issue_id": "ah-t7vv.2",
+      "status": "closed",
+      "title": "site_custom_domains のデータモデルと provider 連携契約の確定"
+    },
+    {
+      "phase_ref": "P03",
+      "bd_issue_id": "ah-t7vv.3",
+      "status": "closed",
+      "title": "独自ドメイン設計の独立レビューと着手可否判定"
+    },
+    {
+      "phase_ref": "P04",
+      "bd_issue_id": "ah-t7vv.4",
+      "status": "closed",
+      "title": "独自ドメイン受入のテスト設計"
+    },
+    {
+      "phase_ref": "P05",
+      "bd_issue_id": "ah-t7vv.5",
+      "status": "closed",
+      "title": "独自ドメイン接続機能の実装"
+    },
+    {
+      "phase_ref": "P06",
+      "bd_issue_id": "ah-t7vv.6",
+      "status": "closed",
+      "title": "独自ドメイン機能のテスト実行と緑化"
+    },
+    {
+      "phase_ref": "P07",
+      "bd_issue_id": "ah-t7vv.7",
+      "status": "closed",
+      "title": "独自ドメイン受入10件の判定"
+    },
+    {
+      "phase_ref": "P08",
+      "bd_issue_id": "ah-t7vv.8",
+      "status": "closed",
+      "title": "既存ホスト解決経路との重複解消と移行"
+    },
+    {
+      "phase_ref": "P09",
+      "bd_issue_id": "ah-t7vv.9",
+      "status": "closed",
+      "title": "独自ドメイン機能の非機能検査"
+    },
+    {
+      "phase_ref": "P10",
+      "bd_issue_id": "ah-t7vv.10",
+      "status": "closed",
+      "title": "独自ドメイン機能の最終レビュー"
+    },
+    {
+      "phase_ref": "P11",
+      "bd_issue_id": "ah-t7vv.11",
+      "status": "closed",
+      "title": "独自ドメイン機能の証跡集約"
+    },
+    {
+      "phase_ref": "P12",
+      "bd_issue_id": "ah-t7vv.12",
+      "status": "closed",
+      "title": "独自ドメイン接続の運用手順と利用者向け説明"
+    },
+    {
+      "phase_ref": "P13",
+      "bd_issue_id": "ah-t7vv.13",
+      "status": "closed",
+      "title": "独自ドメイン機能のリリースと仕様書への書き戻し"
+    }
+  ]
+}

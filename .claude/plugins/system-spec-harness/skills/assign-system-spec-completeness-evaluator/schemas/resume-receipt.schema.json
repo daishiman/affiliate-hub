@@ -11,7 +11,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["file_count", "sha256"],
-      "description": "この receipt が再利用してよいと言っている入力の指紋。**受領書を入力へ束縛する**ための欄 (gap 6)。これが無いと、receipt は『どの版の仕様書に対する PASS か』を名乗れないまま再利用され、入力が変わったあとの PASS が古いまま有効に見え続ける。sha256 は scripts/spec_input_inventory.py の定義で求め、mtime は材料に入れない。再開時はこの値と現状の指紋を突き合わせ、異なるなら再利用せず再評価する。",
+      "description": "この receipt が再利用してよいと言っている入力の指紋。**受領書を入力へ束縛する**ための欄 (gap 6)。これが無いと、receipt は『どの版の仕様書に対する PASS か』を名乗れないまま再利用され、入力が変わったあとの PASS が古いまま有効に見え続ける。sha256 は scripts/spec_input_inventory.py の定義で求め、mtime は材料に入れない。再開時はこの値と現状の指紋を突き合わせ、異なるなら再利用せず再評価する。突き合わせは人の心がけではなく再利用の門 (`.claude/plugins/dev-graph/scripts/validate-system-spec-resume.py` の `input_binding_failures`) が数え直して行い、不一致は `receipt-inputs-stale` で落ちる。受領書の `artifacts` は 5 本しか見ていないため、章 (`system-spec/*.md`) の書き換えはこの欄でしか捕まらない。",
       "properties": {
         "file_count": {"type": "integer", "minimum": 1},
         "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}

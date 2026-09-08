@@ -15,9 +15,9 @@
  * （`ERROR_STATUS`）。ここへ書き写すと、種類が増えたときに追随しない。
  */
 import { describe, expect, it } from "vitest";
-import { domainError } from "@/domain/shared";
+import { domainError, notFound } from "@/domain/shared";
 import type { DomainErrorCode } from "@/domain/shared";
-import { ERROR_STATUS, errorResponse, statusOf } from "@/presentation/http/error-response";
+import { ERROR_STATUS, errorResponse, maskExistence, statusOf } from "@/presentation/http/error-response";
 import { errorToMcpResult } from "@/presentation/tools/mcp-adapter";
 
 const CODES = Object.keys(ERROR_STATUS) as DomainErrorCode[];
@@ -55,6 +55,32 @@ describe("エラーの種類ごとの番号（判定表）", () => {
     }
     expect(ERROR_STATUS.TENANT_MISMATCH).toBe(ERROR_STATUS.NOT_FOUND);
   });
+
+  /**
+   * **番号が同じでも本文が違えば存在は漏れる。**
+   *
+   * 上の検査は番号までしか見ておらず、`(id: xxx)` の有無や `code` の違いで
+   * 他所の Workspace の中身が列挙できる状態を、緑のまま通していた。
+   * ここでバイト単位の同一性を固定する。
+   */
+  it("他所のものと、そもそも無いものは、REST の本文まで同一", async () => {
+    const 他所 = errorResponse(
+      domainError("TENANT_MISMATCH", "記事 が見つかりません。", {
+        suggestedAction: "ワークスペースを切り替えているか確認してください。",
+      }),
+    );
+    const 無い = errorResponse(notFound("記事", "obj-9999"));
+    expect(他所.status).toBe(無い.status);
+    expect(await 他所.text()).toBe(await 無い.text());
+  });
+
+  it("MCP の文面でも同一", () => {
+    const 他所 = errorToMcpResult(domainError("TENANT_MISMATCH", "記事 が見つかりません。"));
+    const 無い = errorToMcpResult(notFound("記事", "obj-9999"));
+    expect(他所.content.map((c) => c.text).join("\n")).toBe(
+      無い.content.map((c) => c.text).join("\n"),
+    );
+  });
 });
 
 describe("どの種類でも、返す形は 1 つ", () => {
@@ -65,17 +91,20 @@ describe("どの種類でも、返す形は 1 つ", () => {
     expect(Object.keys(body.error).sort()).toEqual(
       ["code", "field", "message", "retryable", "suggestedAction"].sort(),
     );
-    expect(body.error.code).toBe(code);
+    // 存在を隠す 2 種は、外へ出る手前で 1 種類へ潰される。
+    // ここで元の種類を期待すると、**潰しを外したときに緑のまま**になる。
+    expect(body.error.code).toBe(maskExistence(domainError(code, "説明")).code);
   });
 
   it.each(CODES.map((code) => [code] as const))("%s: MCP の文面に種類と番号が入る", (code) => {
     const result = errorToMcpResult(domainError(code, "説明", { suggestedAction: "次の一手" }));
     expect(result.isError).toBe(true);
     const text = result.content.map((c) => c.text).join("\n");
-    expect(text).toContain(`code: ${code}`);
-    expect(text).toContain(`status: ${ERROR_STATUS[code]}`);
+    const 外向き = maskExistence(domainError(code, "説明", { suggestedAction: "次の一手" }));
+    expect(text).toContain(`code: ${外向き.code}`);
+    expect(text).toContain(`status: ${ERROR_STATUS[外向き.code]}`);
     // 「失敗しました」だけだと、エージェントは同じ呼び出しを繰り返す。
-    expect(text).toContain("次にできること: 次の一手");
+    expect(text).toContain(`次にできること: ${外向き.suggestedAction}`);
   });
 });
 

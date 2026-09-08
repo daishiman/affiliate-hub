@@ -1,0 +1,1150 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+  "promotion_receipt": ".dev-graph/published/feature-package-feat-uiux-overhaul/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-uiux-overhaul",
+  "parent_feature": "feat-uiux-overhaul",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-UIUX-OVERHAUL-P01": "beads",
+    "SYS-UIUX-OVERHAUL-P02": "beads",
+    "SYS-UIUX-OVERHAUL-P03": "beads",
+    "SYS-UIUX-OVERHAUL-P04": "beads",
+    "SYS-UIUX-OVERHAUL-P05": "beads",
+    "SYS-UIUX-OVERHAUL-P06": "beads",
+    "SYS-UIUX-OVERHAUL-P07": "beads",
+    "SYS-UIUX-OVERHAUL-P08": "beads",
+    "SYS-UIUX-OVERHAUL-P09": "beads",
+    "SYS-UIUX-OVERHAUL-P10": "beads",
+    "SYS-UIUX-OVERHAUL-P11": "beads",
+    "SYS-UIUX-OVERHAUL-P12": "beads",
+    "SYS-UIUX-OVERHAUL-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理画面 UI/UX 全面改善の要求ベースライン確定",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
+        "docs/spec/feat-uiux-overhaul/screen-inventory.md",
+        "docs/spec/feat-uiux-overhaul/information-priority-map.json"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p01.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P01 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p01.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "単一用途画面・共通コンポーネント・マルチSNS抽象の設計",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P01"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/screen-architecture.md",
+        "docs/spec/feat-uiux-overhaul/component-contract.md",
+        "docs/spec/feat-uiux-overhaul/sns-provider-contract.md",
+        "docs/spec/feat-uiux-overhaul/blog-scaffold-contract.md",
+        "docs/spec/feat-uiux-overhaul/admin-api-contract.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p02.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P02 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p02.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "設計レビューと認知負荷・重複排除の独立検証",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P02"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/design-review.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p03.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P03 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p03.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入10件に対応するテスト設計",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P03"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/test-design.md",
+        "src/presentation/ui/__tests__/",
+        "src/app/api/admin/__tests__/"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p04.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P04 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p04.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "単一用途画面・共通コンポーネント・管理API・マルチSNSの実装",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P04"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/presentation/ui/",
+        "src/app/admin/",
+        "src/app/api/admin/",
+        "src/application/",
+        "src/infrastructure/sns/",
+        "scripts/scaffold-blog-components.ts"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p05.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P05 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p05.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "テスト実行と回帰0件の確認",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/test-run-report.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p06.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P06 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p06.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "受入10件の受け入れ判定",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P06"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/acceptance-report.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p07.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P07 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p07.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存画面の共通部品への移行と重複実装の解消",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P05"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "src/app/admin/",
+        "src/presentation/ui/",
+        "docs/spec/feat-uiux-overhaul/migration-report.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p08.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P08 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p08.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "品質保証と非機能検査",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P08"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/quality-report.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p09.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P09 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p09.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "最終レビューと残課題の確定",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/final-review.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p10.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P10 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p10.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "証跡の集約と検証可能性の確保",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P07",
+        "SYS-UIUX-OVERHAUL-P09"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/evidence/"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p11.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P11 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p11.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "規則の文書化と運用手順の整備",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P10",
+        "SYS-UIUX-OVERHAUL-P11"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/ui-rules.md",
+        "docs/spec/feat-uiux-overhaul/operations.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p12.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P12 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p12.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-UIUX-OVERHAUL-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "リリースと仕様への書き戻し",
+      "project_id": "feature-package-feat-uiux-overhaul",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-uiux-overhaul"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-08-21T12:39:22Z",
+      "updated_at": "2026-08-21T12:39:22Z",
+      "depends_on": [
+        "SYS-UIUX-OVERHAUL-P12"
+      ],
+      "related_nodes": [],
+      "resource_scope": [
+        "docs/spec/feat-uiux-overhaul/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md"
+      ],
+      "parent_feature": "feat-uiux-overhaul",
+      "feature_package_id": "feature-package/feat-uiux-overhaul",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p13.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-uiux-overhaul/plan-findings.json",
+        "evaluated_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-uiux-overhaul/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "3c9e340b6675b9d0b51c5a8b14331885611cb6e7f9129f16eb853231a3a7fbf0",
+        "imported_at": "2026-08-21T12:39:22Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-uiux-overhaul の P13 lifecycle 責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-uiux-overhaul/sys-uiux-overhaul-p13.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-08-21T12:40:00Z"
+      }
+    }
+  ]
+}

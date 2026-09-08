@@ -2,14 +2,7 @@ import type { IntegrationKeyPort } from "@/application/ports/feedback";
 import type { AuditLogPort } from "@/application/ports/compliance";
 import type { IdGeneratorPort } from "@/application/ports/common";
 import { auditWriteFailure, buildAuditEntry } from "@/application/audit";
-import {
-  type KeyScope,
-  KEY_HANDLING_TEXT,
-  KEY_SCOPE_LABELS,
-  KEY_SHOWN_ONCE_TEXT,
-  issueIntegrationKey,
-  revokeIntegrationKey,
-} from "@/domain/feedback";
+import { KEY_HANDLING_TEXT, KEY_SCOPE_LABELS, KEY_SHOWN_ONCE_TEXT, issueIntegrationKey, revokeIntegrationKey, type KeyScope } from "@/domain/feedback/integration-access";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,

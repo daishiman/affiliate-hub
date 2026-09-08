@@ -20,8 +20,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+from plugin_layout_contract import optional_source_inventory, repository_root
+
 PLUGIN = Path(__file__).resolve().parents[1]
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = repository_root(PLUGIN)
+SOURCE_INVENTORY = optional_source_inventory(PLUGIN)
 SCRIPTS = PLUGIN / "scripts"
 DRIVER = SCRIPTS / "build-merged-graph.py"
 GRAPH_REL = ".dev-graph/state/graph.json"
@@ -269,9 +272,16 @@ def test_driver_rejects_unparsable_input_without_writing_garbage(tmp_path):
 # --- 4. 実 git merge での発火 (HarnessHub-3829 受入条件) -----------------------
 
 
+def _merge_attribute_contract() -> str:
+    """source wiring または downstream の hermetic merge fixture を返す。"""
+    if SOURCE_INVENTORY is not None:
+        return (REPO_ROOT / ".gitattributes").read_text(encoding="utf-8")
+    return f"{GRAPH_REL} merge={mod.DRIVER_NAME}\n"
+
+
 def test_repository_gitattributes_routes_graph_json_to_the_driver():
-    """.gitattributes の宣言が無いと driver は永久に発火しない。宣言の存在を固定する。"""
-    text = (REPO_ROOT / ".gitattributes").read_text(encoding="utf-8")
+    """source wiring と配布 driver の属性名が同じ契約を使う。"""
+    text = _merge_attribute_contract()
 
     assert f"{GRAPH_REL} merge=devgraph-json" in text
 
@@ -311,7 +321,7 @@ def _init_repo(tmp_path: Path, *, install_driver: bool = True) -> Path:
     _git(root, "config", "user.email", "test@example.com")
     _git(root, "config", "user.name", "dev-graph test")
     (root / ".gitattributes").write_text(
-        (REPO_ROOT / ".gitattributes").read_text(encoding="utf-8"), encoding="utf-8"
+        _merge_attribute_contract(), encoding="utf-8"
     )
     if install_driver:
         install = subprocess.run(
