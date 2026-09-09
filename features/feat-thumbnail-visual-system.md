@@ -12,7 +12,7 @@ iteration: null
 title: "サムネイルと図版の体系 (全画面表示・代替生成・版面崩れ防止)"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-07T23:40:13.858231Z"
+updated_at: "2026-09-09T10:23:04Z"
 status: "active"
 depends_on: ["feat-blog-ops-crud","feat-ui-foundation"]
 related_nodes: ["spec-system-spec-index"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-08T00:00:00Z","origin_kind":"generated","source_digest":"c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-09T10:23:04Z","origin_kind":"generated","source_digest":"6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望「各画面のサムネイルを表示する。トップ画面にもサムネイルを表示する」を C14 macro 分解で 1 feature 化。system-spec/ui-ux.md qa-request-thumbnail-coverage-v6 に接地。細分は system-dev-planner の P01..P13 へ委譲"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-thumbnail-visual-system.md","confidence":0.95}]

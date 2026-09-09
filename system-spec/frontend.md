@@ -744,25 +744,3 @@ route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + 
 | google-search-central | 2025-12-10 | Google (developers.google.com) | https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | schema-org | 30.0 | Schema.org Community Group (W3C) (schema.org) | https://schema.org/docs/releases.html | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | web-dev-core-web-vitals | 2024-10-31 | Google (web.dev) | https://web.dev/articles/vitals | 2026-09-03T23:21:19Z | 2026-09-03T23:21:19Z |
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 17 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `<<<<<<< HEAD`
-- `| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-frontend-web-fixed-header-seo-aio-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-ogp-fallback-v6`, `qa-request-thumbnail-coverage-v6`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `||||||| b6f0e24b`
-- `| Web (web) | 確定 | 確定質疑: qa-frontend-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `=======`
-- `| Web (web) | 確定 | 確定質疑: qa-frontend-web-site-scoped-route-ownership。裏付け質疑 (`qa_refs`): `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `>>>>>>> origin/dev`
-- `| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |`
-- `### qa-seo-approved-diff-20260906 (対応セル: web)`
-- `### qa-frontend-web-editor-verbatim (対応セル: web)`
-- `##### 確定内容 qa-frontend-web-editor-verbatim (対応セル: web)`
-- `- 確定要件: [追加要望 (2026-09-05)]`

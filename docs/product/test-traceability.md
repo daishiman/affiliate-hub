@@ -6,8 +6,8 @@
 テスト側の `@req` 印を重ねたもの。
 
 - 最終更新: 2026-09-09
-- テストファイル: 575 件
-- 由来の要件が分かる: 573 件
+- テストファイル: 574 件
+- 由来の要件が分かる: 572 件
 - **由来不明: 2 件**（上限 2 件）
 
 由来不明とは「どの要件のために書いたのか、機械から辿れない」という意味で、
@@ -462,7 +462,6 @@
 | `tests/property/variant-spec.property.test.ts` | REQ-E14, REQ-IM05, REQ-IM06 | 印と表 |
 | `tests/support/support.test.ts` | REQ-TS01 | 印 |
 | `tests/thumbnail/fallback-cover-palette.test.ts` | REQ-TH02 | 印 |
-| `tests/tmp-ledger-diff.test.ts` | REQ-S09 | 印 |
 | `tests/ui/adjust-conversion-form.test.tsx` | REQ-P09 | 表 |
 | `tests/ui/admin-edit-forms.test.tsx` | REQ-UX02 | 印 |
 | `tests/ui/admin-route-cardinality-ssot.test.ts` | REQ-S09 | 印 |
@@ -595,4 +594,4 @@
 | `tests/ui/use-draft.test.tsx` | REQ-BOPS04, REQ-BOPS05 | 印 |
 | `tests/ui/zz-probe-tone.test.tsx` | REQ-TM07 | 表 |
 | `tests/visual/visual-regression.test.ts` | REQ-S09, REQ-TS12, REQ-UX08 | 印 |
-<!-- 生成物の指紋 sha256:676c1f64402511c3eea21c29f0838a370a4ba49bfa4da2079ef91ea5e939ed8a -->
+<!-- 生成物の指紋 sha256:95262642440ef57fc0cec0c3793cdc977f50ea5a8d34b5929a0957f54db7febf -->

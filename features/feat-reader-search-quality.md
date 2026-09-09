@@ -12,7 +12,7 @@ iteration: null
 title: "読者向け検索の実装深化 (D1 全文検索・日本語部分一致・JS 無効動作)"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-07T23:39:04.004309Z"
+updated_at: "2026-09-09T11:46:23Z"
 status: "active"
 depends_on: ["feat-blog-composition-visibility","feat-webmcp-surface"]
 related_nodes: ["spec-system-spec-index"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-09T11:46:23Z","origin_kind":"generated","source_digest":"8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望「検索も含める」を C14 macro 分解で 1 feature 化。SearchBox と searchArticles ユースケースは実在するが FTS5 索引が未実装であることを実地確認。system-spec/backend.md qa-neutral-search-method-v6 / qa-backend-web-site-search-llms-txt-v4b に接地"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-reader-search-quality.md","confidence":0.95}]

@@ -12,7 +12,7 @@ iteration: null
 title: "SEO/AEO の自前計測と反映ループ (静的解析・Search Console・AI 被引用の 3 データ源)"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-07T23:39:50.162539Z"
+updated_at: "2026-09-09T11:46:23Z"
 status: "draft"
 depends_on: ["feat-reader-surface","feat-analytics-insight","feat-blog-subdomain-routing"]
 related_nodes: ["spec-system-spec-index"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "stale"
 confirmation_evidence: {"evaluated_digest":"46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-09T11:46:23Z","origin_kind":"generated","source_digest":"8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望「AEO/SEO 対策を分析・解析してブログへ反映する仕組み」および「3 データ源をすべて自作」を C14 macro 分解で 1 feature 化。feat-analytics-insight はアフィリエイト成果の計測であり SEO/AEO の順位・被引用を含まないため責務は重ならない。system-spec/backend.md qa-backend-web-aeo-analysis-pipeline-v6 / qa-decision-aeo-data-sources-v5 に接地"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-seo-aeo-measurement-loop.md","confidence":0.95}]

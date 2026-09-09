@@ -840,26 +840,3 @@ AskUserQuestion で「2層を維持し、層をUIで見せる（推奨）」「�
 |---|---|---|---|---|---|
 | apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json | 2026-09-02T21:40:54Z | 2026-09-02T21:40:54Z |
 | w3c-wai-aria | 1.2 (W3C Recommendation) | W3C (www.w3.org) | https://www.w3.org/TR/wai-aria-1.2/ | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 18 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `<<<<<<< HEAD`
-- `| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-uiux-web-top-composition-v6`, `qa-request-thumbnail-coverage-v6`, `qa-neutral-ogp-fallback-v6`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-editor-verbatim`, `qa-uiux-web-blog-scoped-admin`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `||||||| b6f0e24b`
-- `| Web (web) | 確定 | 確定質疑: qa-uiux-web-editor-verbatim。裏付け質疑 (`qa_refs`): `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `=======`
-- `| Web (web) | 確定 | 確定質疑: qa-uiux-web-site-scoped-authoring-ia。裏付け質疑 (`qa_refs`): `qa-uiux-web-editor-verbatim`, `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `>>>>>>> origin/dev`
-- `| 適用された設計知識 (design_applications) | 1 件 — 本章 `## 適用された設計知識` を参照 |`
-- `| 適用された設計知識 (design_applications) | 2 件 — 本章 `## 適用された設計知識` を参照 |`
-- `### qa-seo-approved-diff-20260906 (対応セル: web)`
-- `### qa-uiux-web-editor-verbatim (対応セル: web)`
-- `##### 確定内容 qa-uiux-web-editor-verbatim (対応セル: web)`
-- `- 確定要件: [機能要望 (2026-09-05)]`

@@ -12,7 +12,7 @@ iteration: null
 title: "管理画面の証跡集約"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T11:19:04Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P07","SYS-BLOG-SCOPED-ADMIN-CONSOLE-P09"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-04T11:19:04Z","evidence_refs":["beads:ah-wois.11"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-04T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

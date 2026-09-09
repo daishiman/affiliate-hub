@@ -12,7 +12,7 @@ iteration: null
 title: "評価セットを実際に走らせる仕組み"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-17T13:55:59Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: []
 related_nodes: []
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"open"}
+completion_evidence: {"completed_at":"2026-08-17T13:55:59Z","evidence_refs":["beads:ah-gzq"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":null,"missing_sections":[],"status":"incomplete"}
 ---
 

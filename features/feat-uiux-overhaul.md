@@ -12,7 +12,7 @@ iteration: null
 title: "管理画面 UI/UX 全面改善"
 owners: ["daishiman"]
 created_at: "2026-08-21T12:00:00Z"
-updated_at: "2026-09-07T16:12:05.419068Z"
+updated_at: "2026-09-09T10:25:38Z"
 status: "active"
 depends_on: ["feat-ui-foundation","feat-distribution-hub"]
 related_nodes: []
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"c3b797019d4e6a44859a1e502255b51ee723bdc471d184e6f5b3a625728c7089","evaluator":"system-spec-harness/aggregate-completeness (C05, forks C06/C07/C08 resolved)","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-09T10:25:38Z","origin_kind":"generated","source_digest":"6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "ユーザー要望の macro want を C14 分解で feature 化 (単一用途画面分割/基本管理/密度最適化/サイドバー/投稿反映/マルチSNS/複数ブログ/共通コンポーネント)"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-uiux-overhaul.md","confidence":0.95}]

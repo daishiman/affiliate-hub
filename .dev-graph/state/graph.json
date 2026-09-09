@@ -1,5 +1,5 @@
 {
-  "graph_revision": 907,
+  "graph_revision": 1064,
   "nodes": [
     {
       "acceptance": [],
@@ -872,9 +872,9 @@
         "confirmed artifacts are not rewritten by this adapter"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-08T03:17:22Z",
+        "imported_at": "2026-09-09T10:19:49Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "df609c5a16feae29650a989573e419875b29371a4d5249d952d13162e0b9cf4b",
+        "source_digest": "03e917523475834144c0bb88173f85f476b4af72dd483b0580d5902800121908",
         "source_path": "system-spec/00-requirements-definition.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -891,7 +891,7 @@
       "template_version": "1.0.0",
       "title": "system-spec architecture overview",
       "tracker_binding": "none",
-      "updated_at": "2026-09-08T03:17:22Z"
+      "updated_at": "2026-09-09T10:19:49Z"
     },
     {
       "acceptance": [
@@ -2958,12 +2958,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T01:47:33Z",
+        "evidence_refs": [
+          "beads:ah-361.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3035,7 +3037,7 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace 基盤の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:41Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3064,12 +3066,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T01:47:42Z",
+        "evidence_refs": [
+          "beads:ah-361.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3144,7 +3148,7 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace/Brand/RBAC アーキテクチャ設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:41Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3173,12 +3177,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T02:07:57Z",
+        "evidence_refs": [
+          "beads:ah-361.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3252,7 +3258,7 @@
       "template_version": "1.1.0",
       "title": "アーキテクチャ独立設計レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:42Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3281,12 +3287,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T02:42:50Z",
+        "evidence_refs": [
+          "beads:ah-361.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3364,7 +3372,7 @@
       "template_version": "1.1.0",
       "title": "受け入れ条件に基づくテストファースト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:42Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3393,12 +3401,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T02:44:43Z",
+        "evidence_refs": [
+          "beads:ah-361.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3478,7 +3488,7 @@
       "template_version": "1.1.0",
       "title": "Better Auth・Workspace・RBAC 実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:42Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3508,12 +3518,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T04:49:39Z",
+        "evidence_refs": [
+          "beads:ah-361.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3587,7 +3599,7 @@
       "template_version": "1.1.0",
       "title": "認証/Workspace/RBAC テスト実行",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:42Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3617,12 +3629,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T08:24:41Z",
+        "evidence_refs": [
+          "beads:ah-361.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3696,7 +3710,7 @@
       "template_version": "1.1.0",
       "title": "feat-auth-workspace 受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:42Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3725,12 +3739,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T02:53:10Z",
+        "evidence_refs": [
+          "beads:ah-361.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3805,7 +3821,7 @@
       "template_version": "1.1.0",
       "title": "workspace_id 移行とスキーマ整備",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:43Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3835,12 +3851,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T02:55:39Z",
+        "evidence_refs": [
+          "beads:ah-361.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -3914,7 +3932,7 @@
       "template_version": "1.1.0",
       "title": "品質・セキュリティ・運用保証",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:43Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -3944,12 +3962,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T03:47:24Z",
+        "evidence_refs": [
+          "beads:ah-361.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -4023,7 +4043,7 @@
       "template_version": "1.1.0",
       "title": "独立最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:43Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -4053,12 +4073,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T08:45:41Z",
+        "evidence_refs": [
+          "beads:ah-361.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -4133,7 +4155,7 @@
       "template_version": "1.1.0",
       "title": "再現可能な証跡取得",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:43Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -4162,12 +4184,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T08:46:37Z",
+        "evidence_refs": [
+          "beads:ah-361.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -4243,7 +4267,7 @@
       "template_version": "1.1.0",
       "title": "ドキュメント・ランブック・引き継ぎ",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T12:54:43Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -4273,12 +4297,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-auth-workspace の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-24T08:46:39Z",
+        "evidence_refs": [
+          "beads:ah-361.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "35483f66bb1988fc2b3ede65937a16e41d29637c455a092e3fa463c0c90fbb0c",
@@ -4354,7 +4380,7 @@
       "template_version": "1.1.0",
       "title": "リリース/デプロイとクローズアウト",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-24T13:18:16Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -5818,12 +5844,14 @@
       "classification_confidence": 0.95,
       "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-17T14:10:24Z",
+        "evidence_refs": [
+          "beads:ah-ita"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
@@ -5895,7 +5923,7 @@
       "template_version": "1.0.0",
       "title": "pnpm verify と自動チェック 3 本の設置",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T14:10:24Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [],
@@ -5918,12 +5946,14 @@
       "classification_confidence": 0.95,
       "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-17T13:55:59Z",
+        "evidence_refs": [
+          "beads:ah-gzq"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "open"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
@@ -5994,7 +6024,7 @@
       "template_version": "1.0.0",
       "title": "評価セットを実際に走らせる仕組み",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-17T13:55:59Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [],
@@ -6017,12 +6047,14 @@
       "classification_confidence": 0.95,
       "classification_reason": "docs/product/backlog.md の残課題を作業単位として登録",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-21T05:08:51Z",
+        "evidence_refs": [
+          "beads:ah-q0h"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "open"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": null,
@@ -6094,7 +6126,7 @@
       "template_version": "1.0.0",
       "title": "同時に同じリンクを貼ったときの重複の取りこぼし",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-21T05:08:51Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [],
@@ -6513,9 +6545,9 @@
         "外部のチケット管理サービスとの連携"
       ],
       "source_lineage": {
-        "imported_at": "2026-08-17T00:00:00Z",
+        "imported_at": "2026-09-09T10:20:35Z",
         "origin_kind": "generated",
-        "source_digest": "f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856",
+        "source_digest": "63724449bb0a61f4cb3c88f15ebbda784cee1e529b5d284c37c6ecf52b8a2a22",
         "source_path": "docs/spec/12-改善要望フィードバック仕様.md",
         "source_plugin": "app-orchestrator",
         "source_version": "1.0.0"
@@ -6532,7 +6564,7 @@
       "template_version": "1.0.0",
       "title": "改善要望フィードバック（受け取り → 一覧 → 払い出し）",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T12:03:07Z"
+      "updated_at": "2026-09-09T10:20:35Z"
     },
     {
       "acceptance": [],
@@ -14445,9 +14477,9 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T03:18:04.488664Z",
+        "imported_at": "2026-09-09T09:56:11Z",
         "origin_kind": "generated",
-        "source_digest": "e0a7778a04b7dd00d668e5143f9e38a62bd966d3b36fc254300c1f3973fb4c2a",
+        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -14467,7 +14499,7 @@
       "template_version": "1.0.0",
       "title": "ブログ UI ビルダー (テンプレート・配色・アフィリエイト配置管理)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-09T03:18:04.488664Z"
+      "updated_at": "2026-09-09T09:56:11Z"
     },
     {
       "acceptance": [
@@ -14496,12 +14528,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T03:59:19Z",
+        "evidence_refs": [
+          "beads:ah-45ba.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -14575,7 +14609,7 @@
       "template_version": "1.1.0",
       "title": "ブログ UI ビルダーの要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T03:59:19Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -14604,12 +14638,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T04:07:37Z",
+        "evidence_refs": [
+          "beads:ah-45ba.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -14687,7 +14723,7 @@
       "template_version": "1.1.0",
       "title": "データモデル・テーマ契約・コンポーネント契約・管理API契約・SEO/AI検索契約の設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T04:07:37Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -14716,12 +14752,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T04:10:51Z",
+        "evidence_refs": [
+          "beads:ah-45ba.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -14795,7 +14833,7 @@
       "template_version": "1.1.0",
       "title": "設計レビューと参照妥当性・テーマ一貫性・SEO/AI検索設計の独立検証",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T04:10:51Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -14824,12 +14862,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T04:22:56Z",
+        "evidence_refs": [
+          "beads:ah-45ba.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -14907,7 +14947,7 @@
       "template_version": "1.1.0",
       "title": "受入14件に対応するテスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T04:22:56Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -14938,12 +14978,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T06:05:35Z",
+        "evidence_refs": [
+          "beads:ah-45ba.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15032,7 +15074,7 @@
       "template_version": "1.1.0",
       "title": "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T06:05:35Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15062,12 +15104,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T06:19:13Z",
+        "evidence_refs": [
+          "beads:ah-45ba.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15141,7 +15185,7 @@
       "template_version": "1.1.0",
       "title": "テスト全量実行と回帰0件の確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T06:19:13Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15171,12 +15215,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T08:51:18Z",
+        "evidence_refs": [
+          "beads:ah-45ba.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15250,7 +15296,7 @@
       "template_version": "1.1.0",
       "title": "受入14件の受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T08:51:18Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15280,12 +15326,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T09:56:43Z",
+        "evidence_refs": [
+          "beads:ah-45ba.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15362,7 +15410,7 @@
       "template_version": "1.1.0",
       "title": "既存サイト管理画面の新エンティティへの移行と重複実装の解消",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T09:56:43Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15393,12 +15441,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T10:01:38Z",
+        "evidence_refs": [
+          "beads:ah-45ba.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15472,7 +15522,7 @@
       "template_version": "1.1.0",
       "title": "品質保証とアクセシビリティ・非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T10:01:38Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15501,12 +15551,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T10:08:31Z",
+        "evidence_refs": [
+          "beads:ah-45ba.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15580,7 +15632,7 @@
       "template_version": "1.1.0",
       "title": "最終レビューと残課題の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T10:08:31Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15609,12 +15661,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T10:19:00Z",
+        "evidence_refs": [
+          "beads:ah-45ba.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15689,7 +15743,7 @@
       "template_version": "1.1.0",
       "title": "受入・品質証跡の集約と検証可能性の確保",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T10:19:00Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15718,12 +15772,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-30T10:25:24Z",
+        "evidence_refs": [
+          "beads:ah-45ba.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15799,7 +15855,7 @@
       "template_version": "1.1.0",
       "title": "UI規則・SEO/AI検索運用規則と運用手順の文書化",
       "tracker_binding": "beads",
-      "updated_at": "2026-08-30T10:25:24Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -15829,12 +15885,14 @@
       "classification_confidence": 1,
       "classification_reason": "feat-blog-ui-builder の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-08-31T03:49:03Z",
+        "evidence_refs": [
+          "beads:ah-45ba.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "168ac050680f91d58ce05948b6b0d3618f062ec304dfdb901713e98bdaa84c48",
@@ -15911,7 +15969,7 @@
       "template_version": "1.1.0",
       "title": "開発環境へのリリースとsystem-specへの書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-02T08:56:57Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -16037,9 +16095,9 @@
         "独自ドメイン・DNS 運用"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-08T00:00:00Z",
+        "imported_at": "2026-09-09T10:21:15Z",
         "origin_kind": "generated",
-        "source_digest": "3a64ad1a8ac30e22cabfc2aaa2cc3dd69df4c7d5ac0379465bb439a9a29ff353",
+        "source_digest": "22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -16060,7 +16118,7 @@
       "template_version": "1.0.0",
       "title": "ブログ運用 CRUD とサイト網ブループリント再現 (作成者面・閲覧者面)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-07T23:37:32.944655Z"
+      "updated_at": "2026-09-09T10:21:15Z"
     },
     {
       "acceptance": [
@@ -17654,9 +17712,9 @@
         "この段階での本番公開、全記事の再編集、既存データの一括破壊的移行"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T03:18:04.488664Z",
+        "imported_at": "2026-09-09T10:21:52Z",
         "origin_kind": "generated",
-        "source_digest": "d914bdc51b26c001641963d8cbe7f1059303396527f95b674016e359696d056b",
+        "source_digest": "22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -17677,7 +17735,7 @@
       "template_version": "1.0.0",
       "title": "参照ブログ解析と低認知負荷の運用 UX",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-09T03:18:04.488664Z"
+      "updated_at": "2026-09-09T10:21:52Z"
     },
     {
       "acceptance": [
@@ -19345,9 +19403,9 @@
         "写し以外の添付手段の追加"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-08T00:00:00Z",
+        "imported_at": "2026-09-09T10:22:27Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "3a64ad1a8ac30e22cabfc2aaa2cc3dd69df4c7d5ac0379465bb439a9a29ff353",
+        "source_digest": "22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -19364,7 +19422,7 @@
       "template_version": "1.0.0",
       "title": "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-07T23:38:39.323882Z"
+      "updated_at": "2026-09-09T10:22:27Z"
     },
     {
       "acceptance": [
@@ -20065,14 +20123,15 @@
       "classification_reason": "feat-feedback-capture-self-exclusion の P07 lifecycle 責務への確定写像",
       "closed_at": null,
       "completion_evidence": {
-        "completed_at": null,
+        "completed_at": "2026-09-05T04:01:31Z",
         "evidence_refs": [
+          "beads:ah-0d2q.7",
           "docs/spec/feat-feedback-capture-self-exclusion/acceptance-report.md"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-30T13:20:30Z",
+        "reconciled_at": "2026-09-09T00:00:00Z",
         "source": "reconciliation",
-        "status": "open"
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
@@ -20146,7 +20205,7 @@
       "template_version": "1.1.0",
       "title": "受入7件の受入判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T04:01:31Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -20178,14 +20237,15 @@
       "classification_reason": "feat-feedback-capture-self-exclusion の P08 lifecycle 責務への確定写像",
       "closed_at": null,
       "completion_evidence": {
-        "completed_at": null,
+        "completed_at": "2026-09-05T14:25:06Z",
         "evidence_refs": [
+          "beads:ah-0d2q.8",
           "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P07"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-30T13:20:30Z",
+        "reconciled_at": "2026-09-09T00:00:00Z",
         "source": "reconciliation",
-        "status": "blocked"
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
@@ -20260,7 +20320,7 @@
       "template_version": "1.1.0",
       "title": "浮遊要素の属性統一と重なり監査との共通化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T14:25:06Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -20291,14 +20351,15 @@
       "classification_reason": "feat-feedback-capture-self-exclusion の P09 lifecycle 責務への確定写像",
       "closed_at": null,
       "completion_evidence": {
-        "completed_at": null,
+        "completed_at": "2026-09-05T14:26:24Z",
         "evidence_refs": [
+          "beads:ah-0d2q.9",
           "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P08"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-30T13:20:30Z",
+        "reconciled_at": "2026-09-09T00:00:00Z",
         "source": "reconciliation",
-        "status": "blocked"
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
@@ -20372,7 +20433,7 @@
       "template_version": "1.1.0",
       "title": "品質保証と非機能の確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T14:26:24Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -20402,14 +20463,15 @@
       "classification_reason": "feat-feedback-capture-self-exclusion の P10 lifecycle 責務への確定写像",
       "closed_at": null,
       "completion_evidence": {
-        "completed_at": null,
+        "completed_at": "2026-09-05T14:27:57Z",
         "evidence_refs": [
+          "beads:ah-0d2q.10",
           "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P09"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-30T13:20:30Z",
+        "reconciled_at": "2026-09-09T00:00:00Z",
         "source": "reconciliation",
-        "status": "blocked"
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
@@ -20483,7 +20545,7 @@
       "template_version": "1.1.0",
       "title": "最終レビューと反映漏れの判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T14:27:57Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -20513,14 +20575,15 @@
       "classification_reason": "feat-feedback-capture-self-exclusion の P11 lifecycle 責務への確定写像",
       "closed_at": null,
       "completion_evidence": {
-        "completed_at": null,
+        "completed_at": "2026-09-05T14:28:07Z",
         "evidence_refs": [
+          "beads:ah-0d2q.11",
           "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P10"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-30T13:20:30Z",
+        "reconciled_at": "2026-09-09T00:00:00Z",
         "source": "reconciliation",
-        "status": "blocked"
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
@@ -20594,7 +20657,7 @@
       "template_version": "1.1.0",
       "title": "証跡の収集と保全",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T14:28:07Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -20624,14 +20687,15 @@
       "classification_reason": "feat-feedback-capture-self-exclusion の P12 lifecycle 責務への確定写像",
       "closed_at": null,
       "completion_evidence": {
-        "completed_at": null,
+        "completed_at": "2026-09-05T14:29:28Z",
         "evidence_refs": [
+          "beads:ah-0d2q.12",
           "dev-graph:SYS-FB-CAPTURE-EXCLUSION-P11"
         ],
         "policy": "manual",
-        "reconciled_at": "2026-08-30T13:20:30Z",
+        "reconciled_at": "2026-09-09T00:00:00Z",
         "source": "reconciliation",
-        "status": "blocked"
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d",
@@ -20706,7 +20770,7 @@
       "template_version": "1.1.0",
       "title": "仕様書と運用手順の追補",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-05T14:29:28Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -21900,9 +21964,9 @@
         "画像の著作権処理・素材調達の運用"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-08T00:00:00Z",
+        "imported_at": "2026-09-09T10:23:04Z",
         "origin_kind": "generated",
-        "source_digest": "c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670",
+        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -21923,7 +21987,7 @@
       "template_version": "1.0.0",
       "title": "サムネイルと図版の体系 (全画面表示・代替生成・版面崩れ防止)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-07T23:40:13.858231Z"
+      "updated_at": "2026-09-09T10:23:04Z"
     },
     {
       "acceptance": [
@@ -22031,9 +22095,9 @@
         "管理画面内の記事検索。読者向け公開面だけを対象とし、管理画面側の検索は本 feature の範囲外とする"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-09T11:46:23Z",
         "origin_kind": "generated",
-        "source_digest": "952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6",
+        "source_digest": "8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -22053,7 +22117,7 @@
       "template_version": "1.0.0",
       "title": "読者向け検索の実装深化 (D1 全文検索・日本語部分一致・JS 無効動作)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-07T23:39:04.004309Z"
+      "updated_at": "2026-09-09T11:46:23Z"
     },
     {
       "acceptance": [
@@ -22164,9 +22228,9 @@
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-04T00:00:00Z",
+        "imported_at": "2026-09-09T11:46:23Z",
         "origin_kind": "generated",
-        "source_digest": "952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6",
+        "source_digest": "8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -22187,7 +22251,7 @@
       "template_version": "1.0.0",
       "title": "SEO/AEO の自前計測と反映ループ (静的解析・Search Console・AI 被引用の 3 データ源)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-07T23:39:50.162539Z"
+      "updated_at": "2026-09-09T11:46:23Z"
     },
     {
       "acceptance": [
@@ -22300,9 +22364,9 @@
         "SNS導線の新規要件化。現時点では公開URL・表示データ・正本acceptanceが無いため必須scopeへ含めず、情報源とroute契約を持つ別feature判断に委ねる"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-08T00:00:00Z",
+        "imported_at": "2026-09-09T10:24:59Z",
         "origin_kind": "generated",
-        "source_digest": "c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670",
+        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -22322,7 +22386,7 @@
       "template_version": "1.0.0",
       "title": "ブログトップページの構成 (参照ブログの情報階層を非模倣で抽象化)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-07T23:37:55.246864Z"
+      "updated_at": "2026-09-09T10:24:59Z"
     },
     {
       "acceptance": [
@@ -31164,9 +31228,9 @@
         "読者向け公開面 (feat-reader-surface)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-07T15:53:28Z",
+        "imported_at": "2026-09-09T10:25:38Z",
         "origin_kind": "generated",
-        "source_digest": "c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670",
+        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -31186,7 +31250,7 @@
       "template_version": "1.0.0",
       "title": "管理画面 UI/UX 全面改善",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-07T16:12:05.419068Z"
+      "updated_at": "2026-09-09T10:25:38Z"
     },
     {
       "acceptance": [
@@ -31290,9 +31354,9 @@
         "参考ブログ水準の読者導線・目次・サイドバー配置 (feat-reference-blog-admin-ux)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-07T15:53:28Z",
+        "imported_at": "2026-09-09T11:46:23Z",
         "origin_kind": "generated",
-        "source_digest": "952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6",
+        "source_digest": "8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -31311,7 +31375,7 @@
       "template_version": "1.0.0",
       "title": "SEO/AEO の未実装差分を埋める",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-07T15:54:30.015955Z"
+      "updated_at": "2026-09-09T11:46:23Z"
     },
     {
       "acceptance": [
@@ -31341,12 +31405,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T04:28:55Z",
+        "evidence_refs": [
+          "beads:ah-f60p.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -31420,7 +31486,7 @@
       "template_version": "1.0.0",
       "title": "SEO/AEO 未実装差分の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T04:28:55Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -31450,12 +31516,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T04:37:12Z",
+        "evidence_refs": [
+          "beads:ah-f60p.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -31531,7 +31599,7 @@
       "template_version": "1.0.0",
       "title": "点検履歴の保持と定期再点検経路とJSON-LD導出の設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T04:37:12Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -31561,12 +31629,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T04:41:38Z",
+        "evidence_refs": [
+          "beads:ah-f60p.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -31640,7 +31710,7 @@
       "template_version": "1.0.0",
       "title": "設計レビューと既存 SEO 実装との重複有無の独立検証",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T04:41:38Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -31670,12 +31740,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T06:08:36Z",
+        "evidence_refs": [
+          "beads:ah-f60p.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -31749,7 +31821,7 @@
       "template_version": "1.0.0",
       "title": "受入6件に対応するテスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T06:08:36Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -31781,12 +31853,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T07:44:01Z",
+        "evidence_refs": [
+          "beads:ah-f60p.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -31871,7 +31945,7 @@
       "template_version": "1.0.0",
       "title": "HowTo・Speakable 導出と点検履歴と定期再点検と管理画面一覧の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T07:44:01Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -31903,12 +31977,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T07:45:08Z",
+        "evidence_refs": [
+          "beads:ah-f60p.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -31982,7 +32058,7 @@
       "template_version": "1.0.0",
       "title": "テスト全量実行と回帰0件の確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T07:45:08Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -32012,12 +32088,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T07:47:07Z",
+        "evidence_refs": [
+          "beads:ah-f60p.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -32091,7 +32169,7 @@
       "template_version": "1.0.0",
       "title": "受入6件の受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T07:47:07Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -32122,12 +32200,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:02:55Z",
+        "evidence_refs": [
+          "beads:ah-f60p.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -32205,7 +32285,7 @@
       "template_version": "1.0.0",
       "title": "既存 SEO 実装との統合整理とマイグレーションの前方互換確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:02:55Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -32236,12 +32316,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:14:18Z",
+        "evidence_refs": [
+          "beads:ah-f60p.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -32316,7 +32398,7 @@
       "template_version": "1.0.0",
       "title": "品質保証と非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:14:18Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -32346,12 +32428,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T12:21:24Z",
+        "evidence_refs": [
+          "beads:ah-f60p.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -32425,7 +32509,7 @@
       "template_version": "1.0.0",
       "title": "最終レビューと残課題の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T12:21:24Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -32455,12 +32539,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:28:11Z",
+        "evidence_refs": [
+          "beads:ah-f60p.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -32535,7 +32621,7 @@
       "template_version": "1.0.0",
       "title": "受入・品質証跡の集約と検証可能性の確保",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:28:11Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -32565,12 +32651,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-aeo-gap-closure の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:38:19Z",
+        "evidence_refs": [
+          "beads:ah-f60p.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "2689733e08bc4e992eabe2e406ecea05433ae3d5312cc7e8e60876b0a3798298",
@@ -32646,7 +32734,7 @@
       "template_version": "1.0.0",
       "title": "運用手順と文書化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:38:19Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -32868,9 +32956,9 @@
         "商品データそのものの取込・更新 (feat-blog-ui-builder が持つ)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-07T14:07:47Z",
+        "imported_at": "2026-09-09T10:26:50Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670",
+        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -32889,7 +32977,7 @@
       "template_version": "1.0.0",
       "title": "記事を出来上がりの見た目のまま編集できるブロックエディター",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T07:58:12.387506Z"
+      "updated_at": "2026-09-09T10:26:50Z"
     },
     {
       "acceptance": [
@@ -35356,12 +35444,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:11:51Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -35438,7 +35528,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン接続の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:11:51Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -35469,12 +35559,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:11:53Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -35553,7 +35645,7 @@
       "template_version": "1.1.0",
       "title": "site_custom_domains のデータモデルと provider 連携契約の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:11:53Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -35584,12 +35676,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:11:55Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -35667,7 +35761,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン設計の独立レビューと着手可否判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:11:55Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -35698,12 +35792,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:11:57Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -35781,7 +35877,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン受入のテスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:11:57Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -35813,12 +35909,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:00Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -35902,7 +36000,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン接続機能の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:00Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -35933,12 +36031,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:02Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -36016,7 +36116,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン機能のテスト実行と緑化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:02Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36047,12 +36147,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:04Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -36129,7 +36231,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン受入10件の判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:04Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36160,12 +36262,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:06Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -36244,7 +36348,7 @@
       "template_version": "1.1.0",
       "title": "既存ホスト解決経路との重複解消と移行",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:06Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36276,12 +36380,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:08Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -36359,7 +36465,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン機能の非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:08Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36390,12 +36496,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:10Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -36472,7 +36580,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン機能の最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:10Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36503,12 +36611,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:12Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -36586,7 +36696,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン機能の証跡集約",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:12Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36617,12 +36727,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:14Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -36701,7 +36813,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン接続の運用手順と利用者向け説明",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:14Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36733,12 +36845,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-custom-domain の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T08:12:16Z",
+        "evidence_refs": [
+          "beads:ah-t7vv.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "e33eb8d95a75835e66b14bef7d64e50b255e1ee0063d3b8d10a59fca9d73e581",
@@ -36817,7 +36931,7 @@
       "template_version": "1.1.0",
       "title": "独自ドメイン機能のリリースと仕様書への書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T08:12:16Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36848,12 +36962,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:30:59Z",
+        "evidence_refs": [
+          "beads:ah-f4do.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -36930,7 +37046,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:30:59Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -36961,12 +37077,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:01Z",
+        "evidence_refs": [
+          "beads:ah-f4do.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37046,7 +37164,7 @@
       "template_version": "1.1.0",
       "title": "reader_interaction_events のデータモデルと計測契約の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:01Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37077,12 +37195,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:03Z",
+        "evidence_refs": [
+          "beads:ah-f4do.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37160,7 +37280,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測設計の独立レビューと着手可否判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:03Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37191,12 +37311,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:05Z",
+        "evidence_refs": [
+          "beads:ah-f4do.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37274,7 +37396,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測の受入テスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:05Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37306,12 +37428,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:07Z",
+        "evidence_refs": [
+          "beads:ah-f4do.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37395,7 +37519,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測とヒートマップの実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:07Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37426,12 +37550,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:09Z",
+        "evidence_refs": [
+          "beads:ah-f4do.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37509,7 +37635,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測のテスト実行と緑化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:09Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37540,12 +37666,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:11Z",
+        "evidence_refs": [
+          "beads:ah-f4do.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37622,7 +37750,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測の受入10件の判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:11Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37653,12 +37781,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:13Z",
+        "evidence_refs": [
+          "beads:ah-f4do.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37738,7 +37868,7 @@
       "template_version": "1.1.0",
       "title": "既存イベント基盤との重複解消と移行",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:13Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37770,12 +37900,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:15Z",
+        "evidence_refs": [
+          "beads:ah-f4do.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37853,7 +37985,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測の非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:15Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37884,12 +38016,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:17Z",
+        "evidence_refs": [
+          "beads:ah-f4do.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -37966,7 +38100,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測の最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:17Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -37997,12 +38131,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:19Z",
+        "evidence_refs": [
+          "beads:ah-f4do.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -38080,7 +38216,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測の証跡集約",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:19Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -38111,12 +38247,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:21Z",
+        "evidence_refs": [
+          "beads:ah-f4do.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -38195,7 +38333,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測の運用手順と説明",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:21Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -38227,12 +38365,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-reader-behavior-analytics の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:31:23Z",
+        "evidence_refs": [
+          "beads:ah-f4do.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "0991946d448ede0701275e1fb4f83325d708cc03cc042b4c54eb80964782f1d0",
@@ -38311,7 +38451,7 @@
       "template_version": "1.1.0",
       "title": "読者行動計測のリリースと仕様書への書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:31:23Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -38342,12 +38482,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:10Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -38423,7 +38565,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップの要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:10Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -38454,12 +38596,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:13Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -38539,7 +38683,7 @@
       "template_version": "1.1.0",
       "title": "日次指標テーブルと冪等集計の契約確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:13Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -38570,12 +38714,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:15Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -38653,7 +38799,7 @@
       "template_version": "1.1.0",
       "title": "集計設計の独立レビューと着手可否判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:15Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -38684,12 +38830,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:18Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -38767,7 +38915,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップの受入テスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:18Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -38799,12 +38947,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:20Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -38886,7 +39036,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップ処理の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:20Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -38917,12 +39067,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:22Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -39000,7 +39152,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップのテスト実行と緑化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:22Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39031,12 +39183,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:24Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -39113,7 +39267,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップの受入9件の判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:24Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39144,12 +39298,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:26Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -39228,7 +39384,7 @@
       "template_version": "1.1.0",
       "title": "既存集計経路との重複解消と移行",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:26Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39260,12 +39416,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:29Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -39343,7 +39501,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップの非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:29Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39374,12 +39532,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:31Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -39456,7 +39616,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップの最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:31Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39487,12 +39647,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:33Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -39570,7 +39732,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップの証跡集約",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:33Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39601,12 +39763,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:35Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -39685,7 +39849,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップの運用手順と数値定義の説明",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:35Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39717,12 +39881,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-metrics-rollup の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:14:37Z",
+        "evidence_refs": [
+          "beads:ah-q4dt.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "f38e68c7d023f98268db47f1238dbd88ddbfe496d94d6eab5996b57f4775c2c0",
@@ -39801,7 +39967,7 @@
       "template_version": "1.1.0",
       "title": "日次ロールアップのリリースと仕様書への書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:14:37Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39832,12 +39998,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:26Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -39914,7 +40082,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断と書き戻しの要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:26Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -39945,12 +40113,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:28Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40029,7 +40199,7 @@
       "template_version": "1.1.0",
       "title": "診断テーブルと構造化データ検証の契約確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:28Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40060,12 +40230,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:30Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40143,7 +40315,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断設計の独立レビューと着手可否判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:30Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40174,12 +40346,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:32Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40257,7 +40431,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断の受入テスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:32Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40289,12 +40463,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:34Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40376,7 +40552,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断と推奨書き戻しの実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:34Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40407,12 +40583,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:36Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40490,7 +40668,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断のテスト実行と緑化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:36Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40521,12 +40699,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:38Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40603,7 +40783,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断の受入10件の判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:38Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40634,12 +40814,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:40Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40718,7 +40900,7 @@
       "template_version": "1.1.0",
       "title": "既存公開面生成経路との重複解消と移行",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:40Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40750,12 +40932,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:42Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40833,7 +41017,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断の非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:42Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40864,12 +41048,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:44Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -40946,7 +41132,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断の最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:44Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -40977,12 +41163,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:46Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -41060,7 +41248,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断の証跡集約",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:46Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -41091,12 +41279,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:47Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -41175,7 +41365,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断の運用手順と指針出典の説明",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:47Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -41207,12 +41397,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-seo-assessment-reflection の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T10:45:49Z",
+        "evidence_refs": [
+          "beads:ah-ji7d.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "7d8842a138d09aacfd5b87277165649d3c17a1ffa89019dfa4a6aa68b4480f49",
@@ -41291,7 +41483,7 @@
       "template_version": "1.1.0",
       "title": "SEO 診断のリリースと仕様書への書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T10:45:49Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -41322,12 +41514,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:12Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -41404,7 +41598,7 @@
       "template_version": "1.1.0",
       "title": "回答単位と AI クローラ方針の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:12Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -41435,12 +41629,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:14Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -41521,7 +41717,7 @@
       "template_version": "1.1.0",
       "title": "回答単位テーブルと配信契約の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:14Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -41552,12 +41748,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:16Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -41635,7 +41833,7 @@
       "template_version": "1.1.0",
       "title": "AEO 設計の独立レビューと着手可否判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:16Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -41666,12 +41864,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:18Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -41749,7 +41949,7 @@
       "template_version": "1.1.0",
       "title": "AEO の受入テスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:18Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -41781,12 +41981,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:21Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -41869,7 +42071,7 @@
       "template_version": "1.1.0",
       "title": "回答単位と AI 向け配信の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:21Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -41900,12 +42102,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:23Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -41983,7 +42187,7 @@
       "template_version": "1.1.0",
       "title": "AEO のテスト実行と緑化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:23Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42014,12 +42218,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:25Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -42096,7 +42302,7 @@
       "template_version": "1.1.0",
       "title": "AEO の受入9件の判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:25Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42127,12 +42333,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:27Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -42211,7 +42419,7 @@
       "template_version": "1.1.0",
       "title": "SEO 側構造化データ経路との重複解消と移行",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:27Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42243,12 +42451,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:29Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -42326,7 +42536,7 @@
       "template_version": "1.1.0",
       "title": "AEO の非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:29Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42357,12 +42567,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:31Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -42439,7 +42651,7 @@
       "template_version": "1.1.0",
       "title": "AEO の最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:31Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42470,12 +42682,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:33Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -42553,7 +42767,7 @@
       "template_version": "1.1.0",
       "title": "AEO の証跡集約",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:33Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42584,12 +42798,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:35Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -42668,7 +42884,7 @@
       "template_version": "1.1.0",
       "title": "AEO の運用手順と回答単位の書き方の説明",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:35Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42700,12 +42916,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-aeo-answer-optimization の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:01:37Z",
+        "evidence_refs": [
+          "beads:ah-4d0q.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "28ef645b555a296f2897d328cb89a1c45e5257b2282cc3394e8839e61783af03",
@@ -42784,7 +43002,7 @@
       "template_version": "1.1.0",
       "title": "AEO のリリースと仕様書への書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:01:37Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42815,12 +43033,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:18:43Z",
+        "evidence_refs": [
+          "beads:ah-wois.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -42897,7 +43117,7 @@
       "template_version": "1.1.0",
       "title": "ブログ単位管理画面の要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:18:43Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -42928,12 +43148,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:18:46Z",
+        "evidence_refs": [
+          "beads:ah-wois.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43012,7 +43234,7 @@
       "template_version": "1.1.0",
       "title": "画面階層とデータ読み取り経路の設計確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:18:46Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43043,12 +43265,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:18:48Z",
+        "evidence_refs": [
+          "beads:ah-wois.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43126,7 +43350,7 @@
       "template_version": "1.1.0",
       "title": "管理画面設計の独立レビューと着手可否判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:18:48Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43157,12 +43381,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:18:50Z",
+        "evidence_refs": [
+          "beads:ah-wois.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43240,7 +43466,7 @@
       "template_version": "1.1.0",
       "title": "管理画面の受入テスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:18:50Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43272,12 +43498,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:18:52Z",
+        "evidence_refs": [
+          "beads:ah-wois.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43357,7 +43585,7 @@
       "template_version": "1.1.0",
       "title": "ブログ階層管理画面の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:18:52Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43388,12 +43616,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:18:54Z",
+        "evidence_refs": [
+          "beads:ah-wois.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43471,7 +43701,7 @@
       "template_version": "1.1.0",
       "title": "管理画面のテスト実行と緑化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:18:54Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43502,12 +43732,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:18:56Z",
+        "evidence_refs": [
+          "beads:ah-wois.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43584,7 +43816,7 @@
       "template_version": "1.1.0",
       "title": "管理画面の受入10件の判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:18:56Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43615,12 +43847,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:18:58Z",
+        "evidence_refs": [
+          "beads:ah-wois.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43701,7 +43935,7 @@
       "template_version": "1.1.0",
       "title": "既存 admin 画面との重複解消と移行",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:18:58Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43733,12 +43967,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:19:00Z",
+        "evidence_refs": [
+          "beads:ah-wois.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43816,7 +44052,7 @@
       "template_version": "1.1.0",
       "title": "管理画面の非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:19:00Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43847,12 +44083,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:19:02Z",
+        "evidence_refs": [
+          "beads:ah-wois.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -43929,7 +44167,7 @@
       "template_version": "1.1.0",
       "title": "管理画面の最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:19:02Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -43960,12 +44198,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:19:04Z",
+        "evidence_refs": [
+          "beads:ah-wois.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -44043,7 +44283,7 @@
       "template_version": "1.1.0",
       "title": "管理画面の証跡集約",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:19:04Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -44074,12 +44314,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:19:06Z",
+        "evidence_refs": [
+          "beads:ah-wois.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -44158,7 +44400,7 @@
       "template_version": "1.1.0",
       "title": "管理画面の運用手順と読み方の説明",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:19:06Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -44190,12 +44432,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-scoped-admin-console の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-04T11:19:08Z",
+        "evidence_refs": [
+          "beads:ah-wois.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "853e62dd85ae447de546d96eaf3e412e863d1b488e14a378074ff490e46edb32",
@@ -44274,7 +44518,7 @@
       "template_version": "1.1.0",
       "title": "管理画面のリリースと仕様書への書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T11:19:08Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -44778,12 +45022,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P01 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T09:08:53Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.1"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -44863,7 +45109,7 @@
       "template_version": "1.1.0",
       "title": "サイト所属型オーサリングIAの要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:42:01.513735Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -44894,12 +45140,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P02 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T09:09:19Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.2"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -44983,7 +45231,7 @@
       "template_version": "1.1.0",
       "title": "転送契約・所属替え契約・入口束ね直し契約・近道契約・雛形複製契約の設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:42:32.661358Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45014,12 +45262,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P03 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T09:35:56Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.3"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -45098,7 +45348,7 @@
       "template_version": "1.1.0",
       "title": "設計レビューと転送網羅性・越境防止・ラベル整合性の独立検証",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:43:01.707417Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45129,12 +45379,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P04 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T09:39:45Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.4"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -45216,7 +45468,7 @@
       "template_version": "1.1.0",
       "title": "受入10件に対応するテスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:43:30.315151Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45248,12 +45500,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P05 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T10:34:45Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.5"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -45339,7 +45593,7 @@
       "template_version": "1.1.0",
       "title": "所属替え・転送・入口束ね直し・近道・雛形複製の実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:43:58.816520Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45371,12 +45625,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P06 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T11:19:25Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.6"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -45455,7 +45711,7 @@
       "template_version": "1.1.0",
       "title": "テスト全量実行と回帰0件の確認",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:44:35.525734Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45487,12 +45743,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P07 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T11:27:50Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.7"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -45571,7 +45829,7 @@
       "template_version": "1.1.0",
       "title": "受入10件の受け入れ判定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:45:08.368339Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45603,12 +45861,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P08 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T11:31:23Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.8"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -45691,7 +45951,7 @@
       "template_version": "1.1.0",
       "title": "旧入口の重複実装解消と転送シェルへの一本化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:45:40.008960Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45723,12 +45983,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P09 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T11:36:34Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.9"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -45807,7 +46069,7 @@
       "template_version": "1.1.0",
       "title": "品質保証とアクセシビリティ・危険操作分離の非機能検査",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:46:10.951083Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45838,12 +46100,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P10 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T11:37:59Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.10"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -45922,7 +46186,7 @@
       "template_version": "1.1.0",
       "title": "最終レビューと残課題の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:46:42.268082Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -45953,12 +46217,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P11 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T11:52:36Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.11"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -46038,7 +46304,7 @@
       "template_version": "1.1.0",
       "title": "受入・品質証跡の集約と検証可能性の確保",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:47:12.983092Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -46069,12 +46335,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P12 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T11:56:46Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.12"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -46155,7 +46423,7 @@
       "template_version": "1.1.0",
       "title": "所属替え・束ね直しの運用規則と運用手順の文書化",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:47:41.531539Z"
+      "updated_at": "2026-09-09T00:00:00Z"
     },
     {
       "acceptance": [
@@ -46187,12 +46455,14 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-site-scoped-authoring-ia の P13 lifecycle 責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-08T19:52:17Z",
+        "evidence_refs": [
+          "beads:ah-ro3w.13"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-09T00:00:00Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
@@ -46274,7 +46544,306 @@
       "template_version": "1.1.0",
       "title": "開発環境へのリリースとsystem-specへの書き戻し",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-08T05:48:11.039081Z"
+      "updated_at": "2026-09-09T00:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-k9b",
+        "github_mirror": null,
+        "linked_at": "2026-09-09T00:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/UIUX-FOLLOWUP-CURRENT-POINTER.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "bd issue ah-k9b の external_ref が指す先の node が存在せず、lint-orphan-external-ref が OE-001 (true_orphan) として検出したため実在させた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-09-09T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/UIUX-FOLLOWUP-CURRENT-POINTER.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "UIUX-FOLLOWUP-CURRENT-POINTER",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "feat-auth-workspace は published/generations/<世代>/ の形で置かれ state/current/ に対応行があるが、feat-uiux-overhaul は published/feature-package-feat-uiux-overhaul/ に世代なしで置かれている。2026-08-23 に利用者判断で保留。完成度 verdict が FAIL (C08 doc_freshness が apple-hig の last_updated を再取得できず INDETERMINATE) である以上、promote を通すには verdict を PASS にする必要があり、それは今の証跡では嘘になる。",
+        "mvp_fit": "enabling",
+        "purpose": "feat-uiux-overhaul の published が世代ディレクトリと current ポインタを持たないため、validate-system-plan.py が入口で exit=2 になる。promotion 手続きを通してポインタを生成し、検証を再開できる状態にする。",
+        "rationale": "ポインタを手で書いて通すことはしない。手で書いた値を自分で検証することになり、検証にならない。"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "docs",
+        "feature-package"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-09-09T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": "docs/spec/feat-uiux-overhaul/evidence/08-plan-validation.txt",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-09-09",
+      "status": "blocked",
+      "tags": [
+        "system-dev-planner",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "feat-uiux-overhaul の current ポインタが無く、計画の決定論検証が入口で止まる",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-09T00:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-u5l.1",
+        "github_mirror": null,
+        "linked_at": "2026-09-09T00:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/task-doc-fetch-evidence-preservation.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "bd issue ah-u5l.1 の external_ref が指す先の node が存在せず、lint-orphan-external-ref が OE-001 (true_orphan) として検出したため実在させた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-09-09T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/task-doc-fetch-evidence-preservation.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "task-doc-fetch-evidence-preservation",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "起票時のバグ本体 (全 15 record から 3 欄が落ちる) は再現しない。3 欄は REQUIRED_INPUT_FIELDS と OUTPUT_FIELD_ORDER の両方に入っており、system-spec/fetched-references.json の実データ 15 件すべてが保持している。未達だったのは受入条件の最後の一項 (回帰テスト 0 件) で、2026-08-28 に .claude/plugins/system-spec-harness/tests/test_fetched_references_evidence.py を新設した (11 件・全緑)。",
+        "mvp_fit": "enabling",
+        "purpose": "build-fetched-references.py assemble が freshness_source / evidence_ref / evidence_sha256 の拡張契約を保持することを、回帰テストで両側から固定する。",
+        "rationale": "保持だけを当てると『入れたものが出てきた』という主張にしかならず、欄を持たない素材への振る舞いを何も言わない。欠けた素材が組み立てを断られることを同じ便で当てる。"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec",
+        "docs"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-09-09T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": ".claude/plugins/system-spec-harness/tests/test_fetched_references_evidence.py",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-09-09",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "C02 assembler で取得証跡の拡張フィールドを保持する",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-09T00:00:00Z"
+    },
+    {
+      "acceptance": [],
+      "architecture_refs": [],
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "beads_linkage": {
+        "bd_issue_id": "ah-nuu",
+        "github_mirror": null,
+        "linked_at": "2026-09-09T00:00:00Z",
+        "sync_state": "linked"
+      },
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "candidate_path": "tasks/uiux-followup-reopen-discard-not-restored.md",
+          "confidence": 0.9
+        }
+      ],
+      "classification_confidence": 0.9,
+      "classification_reason": "bd issue ah-nuu の external_ref が指す先の node が存在せず、lint-orphan-external-ref が OE-001 (true_orphan) として検出したため実在させた",
+      "completion_evidence": {
+        "completed_at": null,
+        "evidence_refs": [],
+        "policy": "manual",
+        "reconciled_at": null,
+        "source": "manual",
+        "status": "open"
+      },
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "confirmation_status": "draft",
+      "created_at": "2026-09-09T00:00:00Z",
+      "depends_on": [],
+      "domain": "quality",
+      "evaluation_status": "pending",
+      "execution_contexts": [],
+      "feature_package_id": null,
+      "file_path": "tasks/uiux-followup-reopen-discard-not-restored.md",
+      "github_project_linkages": [],
+      "github_publication": {
+        "labels": [],
+        "milestone": null,
+        "mode": "local_only",
+        "project_aliases": []
+      },
+      "goal": null,
+      "graph_node_id": "uiux-followup-reopen-discard-not-restored",
+      "implementation_readiness": {
+        "checked_at": null,
+        "missing_sections": [],
+        "status": "incomplete"
+      },
+      "issue_linkage": null,
+      "iteration": null,
+      "mvp_alignment": {
+        "background": "同じ形の抜けが 3 度起きた (required_info_checks / qa_refs / 再び required_info_checks)。2026-08-28 の実測では戻っていない欄は 0 件で、症状はいま出ていない。原因は 2 つ構造の側に残っている: (A) 退避する欄が state_transition_matrix.py の reopen 分岐にリテラルの一覧で書かれており、新しい欄を載せ忘れると黙って消える (上限 0 で固定・現在 0 件)。(B) 戻す窓口が欄ごとに個別なので、退避されるが戻す窓口が無い欄が作れる (上限 1 で固定)。(B) は現在 1 件 = serves_intents。",
+        "mvp_fit": "enabling",
+        "purpose": "reopen が退避した欄を再確定が戻さない構造上の穴を、症状ではなく原因の側で上限固定する。",
+        "rationale": "退避を戻すのではなく現在の状態で数え直すほうが真実に近い、と 2026-08-22 に判断した。その判断は残しつつ、載せ忘れと窓口欠落を件数上限として機械に見張らせる。"
+      },
+      "owners": [
+        "daishiman"
+      ],
+      "parent_feature": null,
+      "phase_ref": null,
+      "priority": "medium",
+      "project_id": "affiliate-hub",
+      "pull_request_linkages": [],
+      "purpose": null,
+      "related_nodes": [],
+      "resource_scope": [
+        "system-spec"
+      ],
+      "scope_in": [],
+      "scope_out": [],
+      "source_lineage": {
+        "imported_at": "2026-09-09T00:00:00Z",
+        "origin_kind": "manual",
+        "source_digest": null,
+        "source_path": ".claude/plugins/system-spec-harness/skills/run-system-spec-elicit/scripts/state_transition_matrix.py",
+        "source_plugin": null,
+        "source_version": null
+      },
+      "start_date": "2026-09-09",
+      "status": "draft",
+      "tags": [
+        "system-spec",
+        "quality"
+      ],
+      "target_date": null,
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "title": "reopen で退避された欄が再確定時に戻らない問題が反復して起きている",
+      "tracker_binding": "beads",
+      "updated_at": "2026-09-09T00:00:00Z"
     }
   ],
   "repository_id": "github:daishiman/affiliate-hub",

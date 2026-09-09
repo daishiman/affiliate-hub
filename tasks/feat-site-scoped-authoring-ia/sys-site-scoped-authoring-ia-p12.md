@@ -12,7 +12,7 @@ iteration: null
 title: "所属替え・束ね直しの運用規則と運用手順の文書化"
 owners: ["daishiman"]
 created_at: "2026-09-08T04:15:58Z"
-updated_at: "2026-09-08T05:47:41.531539Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "active"
 depends_on: ["SYS-SITE-SCOPED-AUTHORING-IA-P10","SYS-SITE-SCOPED-AUTHORING-IA-P11"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-08T11:56:46Z","evidence_refs":["beads:ah-ro3w.12"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-08T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

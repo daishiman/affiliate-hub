@@ -67,10 +67,3 @@ kind: index
 ```
 
 この順序を飛ばして後続を実装した場合、`implementation_status` は上げない。各章の Acceptance evidence が揃ったときだけ `verification_status=pass` とする。
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 2 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `| インフラ (infrastructure) | [infrastructure.md](./infrastructure.md) | 確定 | `confirmed` | G2 G1 G3 | infrastructure.web infrastructure.mobile infrastructure.tablet infrastructure.desktop-windows infrastructure.desktop-linux infrastructure.desktop-macos |`
-- `| バックエンド (backend) | [backend.md](./backend.md) | 確定 | `confirmed` | G2 G1 G3 | backend.web backend.mobile backend.tablet backend.desktop-windows backend.desktop-linux backend.desktop-macos |`

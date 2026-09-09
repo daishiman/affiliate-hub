@@ -318,21 +318,6 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 - 正本へ入れた理由: 章にだけ在った本節が、P13 の書き戻しで同名の「章にしか無い記述」節が 2 つになった結果、## 単位の引き継ぎが衝突して落ちた。守るのではなく落ちようのない場所へ移す。
 
-### BE-PROSE-01 が前提とする保存形は未確定である
-
-この章の BE-PROSE-01〜03 / BE-PRODUCT-01 / BE-IMAGE-01 は、利用者の逐語（`qa-backend-web-prose-verbatim`）から **AI が導いた受入条件** であり、利用者が逐語で述べた要求そのものではない。導出の対応は次のとおり。
-
-- 利用者の逐語: 「記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです」
-- そこから導いた条件: 編集面が扱える断片が、保存形への直列化と保存形からの解析を往復しても失われないこと（BE-PROSE-01〜03）
-
-**BE-PROSE-01 が前提とする保存形の決定は、まだ利用者の確認を受けていない。** `decisions.dec-article-body-storage-format`（記事本文を拡張 Markdown 文字列のまま広げるか、構造化された木として持ち直すか）は `recommended_pending_confirmation` の状態にある。AI 推奨は「拡張 Markdown 文字列のまま広げる」だが、利用者はこの二択を提示されておらず、選んでもいない。
-
-したがって BE-PROSE-01 の受入条件は「往復で断片が失われないこと」までが確定であり、**その往復が拡張 Markdown 上で起きるという前提は未確定**である。保存形が構造化された木へ変わった場合、BE-PROSE-01 の受入条件そのものは生き残るが、記法の衝突検査（BE-PROSE-02）の対象は入れ替わる。
-
-実装に着手する前に、この二択を利用者へ提示して確認を得ること。確認前に保存形を既定として実装すると、未確認の決定が実装によって既成事実になる。
-
-- 正本へ入れた理由: C05 round3 の指摘: BE-PROSE-01 が status=recommended_pending_confirmation の決定に依拠しているのに、規範表にその印が無い。章の手書きでは compile のたび消えるため正本へ置く。
-
 ### AI が起草した設計宣言（質疑から移した本文）
 
 以下は **AI が起草した設計宣言**である。利用者が述べた要求ではない。
@@ -478,6 +463,23 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
   保証が消える。
 
 - 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
+### BE-PROSE-01 が前提とする保存形（2026-09-05 確定）
+
+この章の BE-PROSE-01〜03 / BE-PRODUCT-01 / BE-IMAGE-01 は、利用者の逐語（`qa-backend-web-prose-verbatim`）から **AI が導いた受入条件** であり、利用者が逐語で述べた要求そのものではない。導出の対応は次のとおり。
+
+- 利用者の逐語: 「記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです」
+- そこから導いた条件: 編集面が扱える断片が、保存形への直列化と保存形からの解析を往復しても失われないこと（BE-PROSE-01〜03）
+
+**BE-PROSE-01 が前提とする保存形は確定している。** `decisions.dec-article-body-storage-format` は 2026-09-05T10:21:16Z に `opt-extended-markdown-string`（拡張 Markdown 文字列のまま広げる）で確定した。利用者は 3 択（拡張 Markdown 文字列のまま / 構造化 JSON ツリーへ移す / 折衷案）を提示されたうえで明示的に選んでいる。選択理由として述べられていたのは、既存の公開記事に移行が発生せずデータが壊れる危険が生じないこと、DB を直接見て本文が読めることと AI が文字列として本文を書けることを保てること。
+
+したがって BE-PROSE-01 の往復は **拡張 Markdown 上で起きる**。これは前提ではなく確定した設計である。記法の衝突検査（BE-PROSE-02）の対象も拡張 Markdown の予約記法に固定される。
+
+**確定に付いた条件を落とさないこと。** 利用者の選択には「19 種すべてで `parseProse(serializeProse(x)) === x` の往復テストを課す」という条件が付いている。この往復テストが 19 種を網羅しないまま実装を進めると、利用者が受け入れた前提が満たされないまま保存形だけが既成事実になる。断片カタログを増やすときは、同じ便で往復テストも増やすこと。
+
+- 2026-09-09 追記の経緯: 本節はもともと「保存形は未確定である」と述べ、実装前に二択を利用者へ提示するよう求めていた。その求めは 2026-09-05 に果たされている（利用者が 3 択から明示選択）。しかし確定後も注記が更新されず、同じ章の後段（「保存形は拡張 Markdown 文字列のままにする」）と矛盾したまま残っていた。独立監査 C06 がこの並立を検出したため、旧注記を `retired_chapter_notes` へ移し、確定後の事実として本節を立て直した。**決定そのものは何も変えていない。章の記述が決定に追いついていなかった。**
+
+- 正本へ入れた理由: BE-PROSE-01〜03 が AI 導出の受入条件であることは章に残す必要がある（利用者の逐語ではない）。加えて、確定に付いた条件「19 種すべてで parseProse(serializeProse(x)) === x」を章に残さないと、断片を増やすときに往復テストだけ置き去りになる。旧注記（保存形は未確定）は確定に追いついておらず retire 済み。
 
 ## 上流指針 (doctrine anchor)
 
@@ -645,17 +647,3 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 | google-search-console-api | 2026-08-11 | Google (developers.google.com) | https://developers.google.com/webmaster-tools/v1/searchanalytics/query | 2026-09-03T12:43:18Z | 2026-09-03T12:43:18Z |
 | anthropic-web-search-tool | web_search_20260318 | Anthropic (platform.claude.com) | https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool | 2026-09-03T20:57:54Z | 2026-09-03T21:02:59Z |
 | gemini-google-search-grounding | Gemini 3.8 Flash | Google (ai.google.dev) | https://ai.google.dev/gemini-api/docs/google-search.md.txt | 2026-09-03T20:57:55Z | 2026-09-03T20:57:55Z |
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 9 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `serves_goals: [G2, G1, G3]`
-- `| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-prose-verbatim`, `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
-- `| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
-- `### qa-seo-approved-diff-20260906 (対応セル: web)`
-- `### qa-backend-web-prose-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)`

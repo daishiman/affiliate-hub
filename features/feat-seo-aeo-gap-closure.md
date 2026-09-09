@@ -12,7 +12,7 @@ iteration: null
 title: "SEO/AEO の未実装差分を埋める"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-07T15:54:30.015955Z"
+updated_at: "2026-09-09T11:46:23Z"
 status: "active"
 depends_on: ["feat-blog-ui-builder"]
 related_nodes: []
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/feature-package-feat-seo-aeo-gap-closure/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-09T11:46:23Z","origin_kind":"generated","source_digest":"8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "撤回した feat-seo-aeo-machine-readable / feat-seo-aeo-analysis-feedback のうち、src/ への grep が 0 件だった 3 項目だけを残した差分 feature"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-seo-aeo-gap-closure.md","confidence":0.95}]
