@@ -3,7 +3,7 @@ status: confirmed
 category: infrastructure
 aggregate: 確定
 spec_cells: [infrastructure.web, infrastructure.mobile, infrastructure.tablet, infrastructure.desktop-windows, infrastructure.desktop-linux, infrastructure.desktop-macos]
-serves_goals: [G2, G1, G3]
+serves_goals: [G1, G2, G3]
 ---
 
 # 本章での適用 — インフラ (infrastructure)
@@ -142,4 +142,11 @@ serves_goals: [G2, G1, G3]
   - 章固有の根拠: ASP のリンク改変禁止 (U8) をインフラ層で保証する。sub_id 付与は対応 ASP のリンク生成時のみに限定する
   - トレードオフ:
     - 経路情報の付加余地は減るが、ASP 規約違反リスクを排除できる
-- 資するゴール: G2, G1, G3
+- 資するゴール: G1, G2, G3
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 2 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `serves_goals: [G2, G1, G3]`
+- `- 資するゴール: G2, G1, G3`

@@ -12,7 +12,7 @@ iteration: null
 title: "順位づけへ「印の無いもの」を渡すと実行時は素通りする（2 つの入口が逆向きの守りをしている）"
 owners: ["daishiman"]
 created_at: "2026-08-19T06:00:00Z"
-updated_at: "2026-08-19T06:00:00Z"
+updated_at: "2026-09-08T07:37:00.321557Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "REQ-FD02 の決定表を書いたときに実測で見�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-ranking-unmarked-port.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-ckr","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

@@ -12,8 +12,8 @@ iteration: null
 title: "品質保証と非機能の確認"
 owners: ["daishiman"]
 created_at: "2026-08-30T12:31:04Z"
-updated_at: "2026-08-30T13:33:11.719297Z"
-status: "active"
+updated_at: "2026-09-05T14:26:24Z"
+status: "closed"
 closed_at: null
 depends_on: ["SYS-FB-CAPTURE-EXCLUSION-P08"]
 related_nodes: []

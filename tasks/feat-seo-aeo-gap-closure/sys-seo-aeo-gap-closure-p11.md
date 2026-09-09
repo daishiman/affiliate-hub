@@ -12,8 +12,8 @@ iteration: null
 title: "受入・品質証跡の集約と検証可能性の確保"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:26:56.541112Z"
-status: "active"
+updated_at: "2026-09-04T08:28:11Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P07","SYS-SEO-AEO-GAP-CLOSURE-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/evidence.md"]

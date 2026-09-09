@@ -1,0 +1,165 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-site-scoped-ia-20260908",
+  "session_owner": "aa46c608-dc04-4825-8144-a087dd2c6ddd",
+  "generated_at": "2026-09-08T00:00:00Z",
+  "feature_id": "feat-site-scoped-authoring-ia",
+  "graph_node_id": "feat-site-scoped-authoring-ia",
+  "artifact_kind": "feature",
+  "purpose": "作業の対象物ごとに画面を束ね、いまどのブログの決め事を見ているかを画面が示す状態にして、管理画面の認知負荷を下げる",
+  "background": "利用者要望『サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理するべきところを、全体で構成する形になっている』『どこで何をするのか直感的にわからないため、この辺を整えてください』への対応。管理ルートが 93 本あり、入口が作業の単位ではなく機能の単位で並んでいるため、目的の画面に辿り着く前にどれが自分の作業かを判断する手間が挟まっている (system-spec/ui-ux.md #740)。受け皿である /admin/sites/[site]/ 階層と記事画面そのものは feat-blog-scoped-admin-console が正本として新設・配置するため、本 feature はその配下へ読者像 (/admin/personas/*) と書き方の決め事 (/admin/writing/*) を所属替えし、記事については旧 /admin/content/* からの転送だけを担う。動詞ラベル・危険操作の分離・直接編集の UX 規則そのものは feat-reference-blog-admin-ux が正本であり、本 feature はそれを適用する側に回る。指標の提示順序の規則は feat-blog-scoped-admin-console が正本、数値の正本は feat-blog-metrics-rollup の site_daily_metrics / article_daily_metrics であり、本 feature は新しい指標や集計表を作らない。ブログ実体そのものは feat-blog-ops-crud が持つ",
+  "goal": "読者像と書き方の決め事が /admin/sites/[site]/ 配下に属し、93 本ある管理ルートが作業の対象物 (ブログ・記事・読者・商品・配信) の数まで畳まれ、各入口の名前から何ができるかが分かり、/admin/content/* と /admin/personas/* と /admin/writing/* が転送で受けられている状態になっている",
+  "scope_in": [
+    "記事の旧入口 /admin/content/* を、feat-blog-scoped-admin-console が置いた /admin/sites/[site]/ 配下の記事画面へ転送で受ける (記事画面そのものの新設・配置は同 feature が正本)",
+    "読者像 (/admin/personas/*) を /admin/sites/[site]/ 配下へ所属替えし、旧 URL を転送で受ける",
+    "書き方の決め事 (/admin/writing/*) を /admin/sites/[site]/ 配下へ所属替えし、旧 URL を転送で受ける",
+    "93 本ある管理ルートを作業の対象物 (ブログ・記事・読者・商品・配信) で束ね、入口の数を対象物の数まで減らす",
+    "feat-reference-blog-admin-ux が定めた日本語の動詞ラベルの規則を、束ね直した各入口へ適用する (規則そのものは同 feature が正本)",
+    "ブログをまたいで書き方の決め事を揃えるための、共通の雛形から複製する経路",
+    "よく使う画面への近道 (階層が 1 段深くなることの相殺)",
+    "feat-reference-blog-admin-ux が定めた危険操作の分離と直接編集の規則を、所属替えした画面と束ね直した入口へ適用する (規則そのものは同 feature が正本)",
+    "site セグメントが解決できないときの notFound と、他ブログの内容を出さないこと",
+    "ブログを特定できない旧 URL からのブログ選択への誘導",
+    "feat-blog-scoped-admin-console が定めた既存指標 (site_daily_metrics / article_daily_metrics) の提示順序の規則を、所属替えした読者像・書き方の決め事の画面と束ね直した入口へ適用する (提示順序そのものの規則は同 feature が正本)"
+  ],
+  "scope_out": [
+    "新しい指標や集計を作ること (指標の正本は feat-blog-metrics-rollup)",
+    "/admin/sites/[site]/ 配下の各画面そのものの新設 (feat-blog-scoped-admin-console)",
+    "記事画面そのものの新設・配置 (feat-blog-scoped-admin-console が正本。本 feature が記事について担うのは旧 /admin/content/* からの転送だけ)",
+    "ブログの作成・削除そのもの (feat-blog-ops-crud)",
+    "読者面のデザイン (feat-blog-ui-builder / feat-reader-surface)",
+    "権限モデルの新設 (既存 workspace 権限を使う)",
+    "管理画面の UX 規則そのものの策定 (1 画面 1 目的・日本語の動詞ラベル・進行開示・直接編集・危険操作の分離・次にすべきことの明示) — feat-reference-blog-admin-ux が正本",
+    "既存指標の提示順序そのものの規則の策定 (feat-blog-scoped-admin-console が正本。feat-blog-metrics-rollup も同 feature を正本と名指している)"
+  ],
+  "acceptance": [
+    "読者像・書き方の決め事の各画面が /admin/sites/[site]/ 配下に存在する (記事画面の存在は feat-blog-scoped-admin-console の受入で判定する)",
+    "/admin/content/*・/admin/personas/*・/admin/writing/* へのアクセスが、ブログを特定できる場合は対応する /admin/sites/[site]/... へ転送される",
+    "ブログを特定できない旧 URL へのアクセスがブログ選択へ送られる",
+    "site セグメントが解決できないとき notFound になり、他ブログの内容が出ない",
+    "管理画面の一段目の入口が、作業の対象物の数まで畳まれている",
+    "一段目の各入口の名前が feat-reference-blog-admin-ux の動詞ラベル規則に従い、初見の運営者がラベル一覧だけを見て各入口でできることを言い当てる正答率が、同 feature の受入と同じ 90% 以上である",
+    "書き方の決め事を共通の雛形から複製する経路が存在する",
+    "よく使う画面への近道が存在し、その近道を使った到達クリック数が、束ね直す前の構成での同じ画面への到達クリック数以下である",
+    "ブログ設定・ドメイン・公開の各操作に確認が挟まり、下書きの編集には挟まらない (分岐の規則は feat-reference-blog-admin-ux に従う)",
+    "所属替えした画面と束ね直した入口に出る結果一覧とグラフが、既存の site_daily_metrics / article_daily_metrics だけを読み、新しい集計表を追加していない (提示順序そのものの妥当性は feat-blog-scoped-admin-console の受入で判定する)"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "architecture/arch-blog-operations-console.md",
+    "system-spec/index.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-site-scoped-authoring-ia.context.json",
+      "source_plugin": "dev-graph",
+      "source_digest": "sha256:887d7e9ab4115e01a83bf4e15f6b6e7062a808800c14952eddbe2595283c0f60",
+      "digest_note": "呼び出し元指示に記載の sha256 (C09 containment 検証済み) をそのまま記録した。本 agent の利用可能ツールセット (Read/Write/Glob/Grep のみ、Bash 不可) では shasum による独立再計算を実行できないため、再計算は未実施であり fail-closed 判定はできていない。値の改変・捏造は行っていない",
+      "updated_at": "2026-09-08T00:00:00Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-site-scoped-authoring-ia.md",
+      "confirmation_status": "draft",
+      "evaluation_status": "pending",
+      "confirmation_evidence": {
+        "evaluated_digest": null,
+        "evaluator": null,
+        "evidence_ref": null
+      },
+      "note": "feat-site-scoped-authoring-ia.md フロントマターの confirmation_status/evaluation_status/confirmation_evidence をそのまま転記した。本 feature 文書自体は completeness evaluator による pass 判定をまだ受けていない (draft/pending)。purpose/goal/scope/acceptance/architecture_refs の各値は feature.md フロントマターと features/feat-site-scoped-authoring-ia.context.json の間で完全一致することを確認済み。frontmatter source_lineage.source_path=system-spec/index.md, source_digest=sha256:fd3b80fd19353ff6568fd24dbc57037e98d76d4c43605a343aee2bfd0683e976 (feature.md 記載値、独立再計算はしていない)。classification_reason に記載の確定質疑 qa-uiux-web-site-scoped-authoring-ia / qa-frontend-web-site-scoped-route-ownership を根拠として system-spec/ui-ux.md・system-spec/frontend.md 双方に同一趣旨の質疑・回答本文があることを確認した"
+    },
+    "system_spec_sources": [
+      {
+        "source_path": "system-spec/index.md",
+        "role": "章一覧・収集状態インデックス。8/8 章が確定 (database/auth/ui-ux/security/infrastructure/backend/frontend/maintenance-ops)。U3 の G1/G2 上位ゴールから本 feature の goal/purpose がトレース可能なことを確認",
+        "verdict": "確定 (8/8 章)"
+      },
+      {
+        "source_path": "system-spec/00-requirements-definition.md",
+        "role": "上位概念 U1-U9 正本。purpose/goal の上位ゴール (G1/G2) トレース元",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/ui-ux.md",
+        "role": "管理ルート 93 本の機能単位配列という現状課題 (§740 章固有の根拠)、/admin/sites/[site]/ 配下への記事・読者像・書き方の決め事の集約、既存入口の転送維持、site セグメント未解決時の notFound、危険操作の段階表示の技術投影。feature.md の scope_in/acceptance の一次根拠",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "system-spec/frontend.md",
+        "role": "/admin/sites/[site]/ を正本階層とする確定要件、既存 /admin/content/* と /admin/blog/* を消さず転送で受ける方針、ブログ特定不可時のブログ選択誘導、site 未解決時の notFound の技術投影 (§61, §603-614)",
+        "verdict": "確定"
+      },
+      {
+        "source_path": "architecture/arch-blog-operations-console.md",
+        "role": "住所層・観測層・改善層・提示層の 4 層境界と site_slug 結合キー。提示層 (/admin/sites/[site]/) が集計・診断を再実装せず上流結果を並べ替えるだけという境界が、本 feature の『新しい指標や集計を作らない』scope_out の裏付け",
+        "verdict": "確定 (confirmation_status=confirmed, evaluation_status=pass)"
+      },
+      {
+        "source_path": "architecture/system-spec-overview.md",
+        "role": "8章確定成果物の実装投影を単一 architecture context として参照",
+        "verdict": "generated (confirmed system-spec に接地)"
+      },
+      {
+        "source_path": "architecture/arch-two-layer-platform.md",
+        "role": "feat-site-scoped-authoring-ia.md フロントマター architecture_refs=[\"arch-system-spec-overview\",\"arch-two-layer-platform\",\"arch-blog-operations-console\"] の参照先。読者面 (公開ブログ) と運営者面 (作成・保存・管理一覧) の二層境界との整合確認用",
+        "verdict": "確定"
+      }
+    ],
+    "dependency_features": [
+      {
+        "feature_id": "feat-blog-scoped-admin-console",
+        "source_path": "features/feat-blog-scoped-admin-console.md",
+        "confirmation_status": "confirmed",
+        "evaluation_status": "pass",
+        "role": "/admin/sites/[site]/ 階層と記事画面そのものの新設・配置の正本。既存指標の提示順序そのものの規則の正本。本 feature の受け皿"
+      },
+      {
+        "feature_id": "feat-reference-blog-admin-ux",
+        "source_path": "features/feat-reference-blog-admin-ux.md",
+        "confirmation_status": "confirmed",
+        "evaluation_status": "pass",
+        "role": "1画面1目的・日本語の動詞ラベル・進行開示・直接編集・危険操作の分離・次にすべきことの明示という管理画面 UX 規則そのものの正本。本 feature はこの規則を適用する側"
+      },
+      {
+        "feature_id": "feat-blog-metrics-rollup",
+        "source_path": "features/feat-blog-metrics-rollup.md",
+        "confirmation_status": "confirmed",
+        "evaluation_status": "pass",
+        "role": "site_daily_metrics / article_daily_metrics の正本。本 feature は既存指標の見せ方だけを扱い、新しい指標や集計表を作らない"
+      },
+      {
+        "feature_id": "feat-blog-ops-crud",
+        "source_path": "features/feat-blog-ops-crud.md",
+        "confirmation_status": "confirmed",
+        "evaluation_status": "pass",
+        "role": "ブログ実体の作成・削除そのものの正本"
+      }
+    ],
+    "completeness_evaluation": {
+      "source_path": "system-spec/completeness-report.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "evaluator_version": "0.1.0",
+      "verdict": "PASS",
+      "note": "system-spec 全体を対象とした確定済み completeness-report.json (verdict=PASS) を参照。本 feature 個別の evaluation_status は features/feat-site-scoped-authoring-ia.md フロントマター評価上 confirmation_status=\"draft\" / evaluation_status=\"pending\" であり、この feature 文書自体はまだ completeness evaluator による pass 判定を受けていない (confirmation_evidence が null)。ただし本 goal-spec が引用する上位の system-spec 章 8/8 と、依存する4 feature (feat-blog-scoped-admin-console / feat-reference-blog-admin-ux / feat-blog-metrics-rollup / feat-blog-ops-crud) および architecture/arch-blog-operations-console.md は全て confirmation_status=confirmed かつ evaluation_status=pass である"
+    }
+  },
+  "not_performed": [
+    "feature 分割 (macro feature のさらなる分解)",
+    "workstream 分解",
+    "P01..P13 task 生成 (exact-13 task spec 設計)",
+    "task-graph / DAG 構築",
+    "system-build-handoff 生成",
+    "readiness promotion (staging → published)",
+    "atomic-promotion-receipt 発行",
+    "既存 staging 成果物 (feature-package.json / workstream-inventory.json / task-graph.json / system-build-handoff.json / staging-manifest.json / task-specs/) の変更・再生成",
+    "tracker (beads) への起票",
+    "dev-graph ノード再登録・graph revision 更新",
+    "GitHub Issue / PR への反映",
+    "実装コードの変更",
+    "quality gate (test/lint/build) の実行",
+    "feature_context digest の独立再計算 (Bash 不可のため未実施)",
+    "feat-site-scoped-authoring-ia.md 自体の completeness 再評価・confirmation_status/evaluation_status の変更"
+  ]
+}

@@ -94,18 +94,34 @@ describe("管理画面route metadataの正本", () => {
     // `[site]/[slug]/edit` の 2 枚が加わった。数は手で決めず、
     // `find src/app/admin -name page.tsx | wc -l` で数え直すこと。
     // 2026-08-30: 86 → 88。ブログの「見せ方と配色」と「成果リンクの掲載」を足した。
-    // 2026-09-04: 88 → 89。「検索とAIからの見え方」を足した。
-    // 2026-09-08: 89 → 94。dev との合流でブログ運営コンソールの 5 枚（住所・
-    // 読者の行動・記事ごとの成果・SEO 診断・AEO）が加わった。いずれもブログ
-    // 詳細の子で、ナビには出さない（入口はブログ詳細の中に置く）。
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(94);
+    // 2026-09-04: 88 → 93。ブログ運営コンソールの 5 枚（住所・読者の行動・
+    // 記事ごとの成果・SEO 診断・AEO）を足した。いずれもブログ詳細の子で、
+    // ナビには出さない（入口はブログ詳細の中に置く）。
+    // 2026-09-08: 93 → 99。書き手・読者像・書き方の決めごとを site 配下へ移し
+    // （5 枚）、全ブログ共通の雛形（`writing/template`）を 1 枚足した。
+    // 旧 5 枚は転送の殻として残っているので、差は +6 になる。
+    // 2026-09-09: 99 → 100。dev との合流。**また両側が別々に足していた。**
+    // dev が上の +6、こちらが「検索とAIからの見え方」の +1。片側の数を採ると
+    // 実物とずれたまま緑になるので、`ADMIN_ROUTE_METADATA.length` を実測して
+    // 100 と確かめた（93 + 6 + 1 と一致する）。
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(100);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));
 
     const groupedHrefs = ADMIN_NAV_GROUPS.flatMap((group) => group.hrefs);
-    expect(groupedHrefs).toEqual(
-      navRoutes.filter((route) => route.nav?.group !== null).map((route) => route.pattern),
+    /*
+      **並び順ではなく顔ぶれを見る。**
+      2026-09-08 に一段目を作業の対象物 5 つへ畳んだ (A5)。分類は表の順ではなく
+      業務の順で並ぶので、表の並びと畳んだ後の並びは一致しない。
+      ここで見たいのは「分類を持つ入口が、過不足なく分類のどれかに入っている」
+      ことなので、集合として比べる。順序は分類表が別に決めている事実である。
+    */
+    expect([...groupedHrefs].sort()).toEqual(
+      navRoutes
+        .filter((route) => route.nav?.group !== null)
+        .map((route) => route.pattern)
+        .sort(),
     );
     expect(new Set(groupedHrefs).size).toBe(groupedHrefs.length);
   });
@@ -138,12 +154,14 @@ describe("管理画面route metadataの正本", () => {
  * 聞こえるものまで増やさない、という分け方をここで固定する。
  */
 describe("分類の境目", () => {
-  it("分類は 6 つ、境目は 5 つ（外側には付かない）", () => {
+  it("分類は 5 つ、境目は 4 つ（外側には付かない）", () => {
     // 線の本数そのものは CSS の `+` が決めるので数えられない。
     // 数えられるのは**間の数**で、それが 5 であることは分類の数で決まる。
     // 分類が増減したらここが赤くなり、線の本数の話に戻れる。
-    expect(ADMIN_NAV_GROUPS).toHaveLength(6);
-    expect(ADMIN_NAV_GROUPS.length - 1).toBe(5);
+    // 2026-09-08: 6 → 5。一段目を「作業の対象物」まで畳んだ（A5）。
+    // ブログ・記事・読者・商品・配信の 5 つで、設定などの補助口は分類の外に置く。
+    expect(ADMIN_NAV_GROUPS).toHaveLength(5);
+    expect(ADMIN_NAV_GROUPS.length - 1).toBe(4);
   });
 
   it("見出しは分類の数だけ出る（線だけで済ませていない）", () => {

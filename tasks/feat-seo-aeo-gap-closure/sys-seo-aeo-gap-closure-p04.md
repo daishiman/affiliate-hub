@@ -12,8 +12,8 @@ iteration: null
 title: "受入6件に対応するテスト設計"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:24:35.318379Z"
-status: "active"
+updated_at: "2026-09-04T06:08:36Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P03"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/test-design.md"]

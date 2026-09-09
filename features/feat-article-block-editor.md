@@ -12,7 +12,7 @@ iteration: null
 title: "記事を出来上がりの見た目のまま編集できるブロックエディター"
 owners: ["daishiman"]
 created_at: "2026-09-05T03:05:03.225569Z"
-updated_at: "2026-09-07T15:31:08Z"
+updated_at: "2026-09-08T07:58:12.387506Z"
 status: "active"
 depends_on: ["feat-blog-composition-visibility"]
 related_nodes: []
@@ -38,7 +38,7 @@ classification_reason: "2026-09-07 の再検証で、画像送信契約を旧ブ
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-article-block-editor.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-6yym","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測の受入テスト設計"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:54:20.755346Z"
-status: "active"
+updated_at: "2026-09-04T10:31:05Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P03"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-reader-behavior-analytics/test-plan.md","docs/spec/feat-reader-behavior-analytics/test-cases.md"]

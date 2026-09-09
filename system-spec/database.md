@@ -15,12 +15,12 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-article-image-verbatim`, `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4`, `qa-seo-approved-diff-20260906`, `qa-neutral-search-method-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
+| タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
 
 ## 確定セルの記録 (正本 spec-state.json)
 
@@ -30,7 +30,7 @@ serves_goals: [G1, G2, G3]
 |---|---|
 | セル | database × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-seo-approved-diff-20260906` |
+| 確定質疑 (qa_ref) | `qa-database-web-article-image-verbatim` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
@@ -54,29 +54,35 @@ serves_goals: [G1, G2, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-seo-approved-diff-20260906 (対応セル: web)
+### qa-database-web-article-image-verbatim (対応セル: web)
 
-**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
+**質問**: database×web: 記事への画像添付について利用者は何を求め、格納経路に何を選んだか。参照状態の設計を起草する前に、逐語で記録する
 
-**回答**: つづけて
+**回答**: [機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
 
-### qa-neutral-search-method-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+[AskUserQuestion「画像添付の経路」への選択]
+「Cloudflare R2 へ直接アップロード（推奨）」
 
-**質問**: 読者向けブログの検索はどの方式にしますか。Cloudflare Workers + D1 構成が前提です。(a) D1 の FTS5 全文検索 — 本文まで検索できる。外部サービスを増やさず D1 の中で完結する。日本語は形態素解析が使えず trigram の部分一致が上限なので検索精度に天井がある。索引のぶん保存量と書き込み費用が増える。(b) 題名・カテゴリの部分一致のみ — 実装が最も軽く、索引を持たないので保存量も書き込み費用も増えない。本文中の語では記事が見つからないため、題名に含まれない話題を探している読者は辿り着けない。(c) 外部検索サービスを足す — 日本語の形態素解析やあいまい検索など、精度の上限が最も高い。一方で鍵の管理・障害時の縮退・月額費用という運用が新たに3つ増え、Cloudflare の外に依存先ができる。（2026-09-03 AskUserQuestion『検索方式』。独立監査 C06 が qa-decision-search-method-v4 を『推奨バッジが片方にだけ付いた状態で提示されており、他の選択肢と対等に提示されていない疑いがある』と指摘したため、推奨表示を外し 3 案を対等に並べて再提示した。順序は前回と同一。利用者は前回と同じ案を選んだ）
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
 
-**回答**: D1 の FTS5 全文検索
+### qa-database-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
-### qa-answer-aeo-feasibility-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+**質問**: database×web: ブログごとに独自ドメインを接続でき、読者がどこに時間をかけ・どこを押したかを座標まで含めて解析でき、AEO (回答エンジン最適化) の状態を管理でき、ブログ横断で売上と PV を集約できるようにするには、データをどう持つか。既存の『読者向けホスト名は DB に保存せず SITE_BASE_DOMAIN から導出する』という site_blueprints の判断はどう扱うか
 
-**質問**: 利用者が qa-decision-aeo-data-sources-v5 の回答末尾で『1、2、3を自作で行いたいなと思ってます。可能ですか？』と逆質問したことへの応答。3 系統 (サイト内静的解析 / Google Search Console 連携 / AI 検索での被引用チェック) を自作することは可能か。（独立監査 C06 が『利用者の疑問に対する応答が qa_log 上に残っていない』と指摘したため、応答を記録として残す）
+**回答**: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
 
-**回答**: 可能です。系統1 (サイト内静的解析) は自分の記事データを走査するだけなので外部依存が無く、Workers の中で完結します。系統2 (Google Search Console) は公式 API が公開されており、運営者が登録した認証情報で表示回数・クリック・掲載順位・クエリを取り込めます。系統3 (AI 検索での被引用) は AI 基盤の web 検索機能へ問い合わせ、返る引用 URL に自サイトが含まれるかを記録する形で作れます。ただし 3 系統は再現性が大きく異なるため、同じ『分析結果』として混ぜず、収集・保持・表示のすべての層で分けて持つ必要があります。
+### qa-database-web-audit-history-window-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
-### qa-decision-aeo-data-sources-v5 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+**質問**: database×web: 点検履歴と定期再点検の最新実行状態を D1 にどう分けて保存し、workspace 境界と状態整合を保証するか (P13 書き戻し・v3)。
 
-**質問**: AEO/SEO の分析・解析はどのデータ源で行いますか。(1) サイト内の静的解析（自分の記事データから構造化データ・見出し階層・内部リンク・画像 alt などを走査して採点する。外部依存なし） (2) Google Search Console 連携（表示回数・クリック・掲載順位・クエリを取り込む。API 認証が要る） (3) AI 検索での被引用チェック（AI 検索面へ問い合わせ、自サイトが引用されたかを記録する）。どれを使いますか。（2026-09-03 AskUserQuestion『データ源』。qa-followup-aeo-data-sources-v5 と同一の問答を、裏付け entry へ要求される設計適用を伴う形で作り直したもの）
+**回答**: 記事単位の点検履歴は既存 0044 の `ai_search_audit_history` に保持し、記事ごと直近 30 件、追記と刈り取りを同一トランザクション、記事への外部キー無しという規則は変えない。刈り取り単体の実行マーカーは不要だが、それは cron 全体の成否を記録しないという意味ではない。
 
-**回答**: 1、2、3を自作で行いたいなと思ってます。可能ですか？
+0044 を編集せず、0045 で SEO 再点検専用の `ai_search_reaudit_runs` を追加する。これは履歴を無限に追記する表ではなく、1 workspace に直近の最終状態 1 行を上書き保存する投影である。`workspace_id` を主キーとして `workspaces.id` へ外部キーを持ち、管理画面の取得 SQL は必ず actor の `workspace_id` で絞る。
+
+`status` は `succeeded | partial | failed`、`failure_code` は `target_list_unavailable | article_audit_failed | null`。非負整数と `scanned = recorded + failed`、完了時刻が開始時刻以上、status・failure code・件数の正しい組み合わせを D1 CHECK 制約で保証する。時刻は UTC epoch 秒の integer timestamp で、`started_at` と `completed_at` を持つ。実行結果に自由文や秘匿情報は保存しない。
+
+0045 適用時に過去の cron を推定して backfill せず、初期は「未実行」と読む。次の cron 完了後に初めて最終状態と時刻が入る。巻き戻しは 0045 の表を先に落とし、その後に必要なら 0044 を落とす。記事本体は変更しない。
 
 ### qa-database-web-blog-provisioning-integrity (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -156,36 +162,6 @@ metric_rollup:
 
 - (注記: 正本 qa_log[qa-database-web-analytics].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 
-### qa-database-web-article-image-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: database×web: 記事への画像添付について利用者は何を求め、格納経路に何を選んだか。参照状態の設計を起草する前に、逐語で記録する
-
-**回答**: [機能要望 (2026-09-05)]
-「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
-
-[AskUserQuestion「画像添付の経路」への選択]
-「Cloudflare R2 へ直接アップロード（推奨）」
-
-※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
-
-### qa-database-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: database×web: ブログごとに独自ドメインを接続でき、読者がどこに時間をかけ・どこを押したかを座標まで含めて解析でき、AEO (回答エンジン最適化) の状態を管理でき、ブログ横断で売上と PV を集約できるようにするには、データをどう持つか。既存の『読者向けホスト名は DB に保存せず SITE_BASE_DOMAIN から導出する』という site_blueprints の判断はどう扱うか
-
-**回答**: 既存の導出は消さず、既定の住所として残す。カスタムドメインはそれを置き換えるのではなく別名として足す。site_custom_domains 表を新設し、workspace_id / site_slug / hostname (一意) / status (pending→verifying→active→failed→revoked) / verification_token / provider_hostname_id (Cloudflare for SaaS のカスタムホスト名 id) / cert_status / verified_at / last_checked_at / failure_reason を持つ。環境ごとの値を行へ焼き込む懸念は、dev/prod で D1 binding が分かれている既存の分離に委ねる (行に environment 列を作らない)。読者行動は telemetry_events を太らせず reader_interaction_events を別表にする。1 記事の 1 回の閲覧で数十から数百行に達し、保持期間も既存イベントより短くしたいためである。列は workspace_id / site_slug / article_slug / occurred_at / reader_key (同意なしは null) / kind (scroll_depth | dwell | element_click | pointer_sample) / viewport_bucket / element_ref / x_ratio / y_ratio / value。座標は絶対値でなく要素基準の比率で持ち、端末幅が違っても重ねられるようにする。集計は毎回の全走査に頼らず、site_daily_metrics (site_slug × 日付: 訪問・PV・クリック・成果・収益) と article_daily_metrics (記事 × 日付: PV・平均滞在・到達深度中央値・CTR・成果・収益) の日次ロールアップを置く。既存の affiliate_conversions / affiliate_links / redirect_resolutions から収益側を、reader_interaction_events から行動側を、同じ site_slug で突き合わせる。AEO は site_aeo_profiles (site_slug ごとの llms.txt 方針・AI クローラー許可・回答単位の生成方針) と article_answer_units (記事内の一問一答単位: 問い・答え・根拠 ref・構造化データ出力可否) を持つ。SEO/AEO の評価結果は article_seo_assessments (記事 × 評価時点: 見出し構造・内部リンク・構造化データ充足・回答単位数・指摘一覧) に残し、記事本文とは分けて時系列で追える形にする
-
-### qa-database-web-audit-history-window-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: database×web: 点検履歴と定期再点検の最新実行状態を D1 にどう分けて保存し、workspace 境界と状態整合を保証するか (P13 書き戻し・v3)。
-
-**回答**: 記事単位の点検履歴は既存 0044 の `ai_search_audit_history` に保持し、記事ごと直近 30 件、追記と刈り取りを同一トランザクション、記事への外部キー無しという規則は変えない。刈り取り単体の実行マーカーは不要だが、それは cron 全体の成否を記録しないという意味ではない。
-
-0044 を編集せず、0045 で SEO 再点検専用の `ai_search_reaudit_runs` を追加する。これは履歴を無限に追記する表ではなく、1 workspace に直近の最終状態 1 行を上書き保存する投影である。`workspace_id` を主キーとして `workspaces.id` へ外部キーを持ち、管理画面の取得 SQL は必ず actor の `workspace_id` で絞る。
-
-`status` は `succeeded | partial | failed`、`failure_code` は `target_list_unavailable | article_audit_failed | null`。非負整数と `scanned = recorded + failed`、完了時刻が開始時刻以上、status・failure code・件数の正しい組み合わせを D1 CHECK 制約で保証する。時刻は UTC epoch 秒の integer timestamp で、`started_at` と `completed_at` を持つ。実行結果に自由文や秘匿情報は保存しない。
-
-0045 適用時に過去の cron を推定して backfill せず、初期は「未実行」と読む。次の cron 完了後に初めて最終状態と時刻が入る。巻き戻しは 0045 の表を先に落とし、その後に必要なら 0044 を落とす。記事本体は変更しない。
-
 ### qa-database-web-aeo-analysis-storage-v4 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: database×web: AEO/SEO 解析結果とガイドライン参照レジストリ、および記事の機械可読要素の素材 (alt・出典・FAQ・手順・著者) をどこにどう保存するか。2026-09-03 利用者ヒアリング。
@@ -205,6 +181,30 @@ metric_rollup:
 解析結果とレジストリはワークスペースで区切る。読者向けの読み取り (記事一覧・本文・検索・カテゴリー・人物) はサイト単位で区切る既存の方針を維持し、解析結果を読者経路から読まない。
 
 - (注記: 正本 qa_log[qa-database-web-aeo-analysis-storage-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+
+### qa-seo-approved-diff-20260906 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
+
+**回答**: つづけて
+
+### qa-neutral-search-method-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 読者向けブログの検索はどの方式にしますか。Cloudflare Workers + D1 構成が前提です。(a) D1 の FTS5 全文検索 — 本文まで検索できる。外部サービスを増やさず D1 の中で完結する。日本語は形態素解析が使えず trigram の部分一致が上限なので検索精度に天井がある。索引のぶん保存量と書き込み費用が増える。(b) 題名・カテゴリの部分一致のみ — 実装が最も軽く、索引を持たないので保存量も書き込み費用も増えない。本文中の語では記事が見つからないため、題名に含まれない話題を探している読者は辿り着けない。(c) 外部検索サービスを足す — 日本語の形態素解析やあいまい検索など、精度の上限が最も高い。一方で鍵の管理・障害時の縮退・月額費用という運用が新たに3つ増え、Cloudflare の外に依存先ができる。（2026-09-03 AskUserQuestion『検索方式』。独立監査 C06 が qa-decision-search-method-v4 を『推奨バッジが片方にだけ付いた状態で提示されており、他の選択肢と対等に提示されていない疑いがある』と指摘したため、推奨表示を外し 3 案を対等に並べて再提示した。順序は前回と同一。利用者は前回と同じ案を選んだ）
+
+**回答**: D1 の FTS5 全文検索
+
+### qa-answer-aeo-feasibility-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 利用者が qa-decision-aeo-data-sources-v5 の回答末尾で『1、2、3を自作で行いたいなと思ってます。可能ですか？』と逆質問したことへの応答。3 系統 (サイト内静的解析 / Google Search Console 連携 / AI 検索での被引用チェック) を自作することは可能か。（独立監査 C06 が『利用者の疑問に対する応答が qa_log 上に残っていない』と指摘したため、応答を記録として残す）
+
+**回答**: 可能です。系統1 (サイト内静的解析) は自分の記事データを走査するだけなので外部依存が無く、Workers の中で完結します。系統2 (Google Search Console) は公式 API が公開されており、運営者が登録した認証情報で表示回数・クリック・掲載順位・クエリを取り込めます。系統3 (AI 検索での被引用) は AI 基盤の web 検索機能へ問い合わせ、返る引用 URL に自サイトが含まれるかを記録する形で作れます。ただし 3 系統は再現性が大きく異なるため、同じ『分析結果』として混ぜず、収集・保持・表示のすべての層で分けて持つ必要があります。
+
+### qa-decision-aeo-data-sources-v5 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: AEO/SEO の分析・解析はどのデータ源で行いますか。(1) サイト内の静的解析（自分の記事データから構造化データ・見出し階層・内部リンク・画像 alt などを走査して採点する。外部依存なし） (2) Google Search Console 連携（表示回数・クリック・掲載順位・クエリを取り込む。API 認証が要る） (3) AI 検索での被引用チェック（AI 検索面へ問い合わせ、自サイトが引用されたかを記録する）。どれを使いますか。（2026-09-03 AskUserQuestion『データ源』。qa-followup-aeo-data-sources-v5 と同一の問答を、裏付け entry へ要求される設計適用を伴う形で作り直したもの）
+
+**回答**: 1、2、3を自作で行いたいなと思ってます。可能ですか？
 
 ## 章の注記 (chapter_notes)
 
@@ -694,6 +694,29 @@ AskUserQuestion で「Cloudflare R2 へ直接アップロード（推奨）」�
 
 - 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+
+- **`decision-editorial-commercial-split` が本章に効く形**: 「報酬額をランキングの
+  入力にしない」という禁止を、コードの中ではなく **D1 を 2 本に分ける**位置で
+  担保する。越えるには設定を書き換えるしかなくなり、越えた事実が差分に残る。
+- **`dec-analysis-history-retention` が本章に効く形** (2026-09-04 確定、
+  `opt-append-with-window`): 解析結果は上書きせず追記する。上書きすると「施策の
+  前後で何が変わったか」が原理的に取れず、AEO/SEO の改善が効いたのかを判定する
+  手段が消える。無制限に貯めないのは D1 の無料枠が有限だからで、**保持件数・
+  保持期間の具体値は本決定では確定しない** — 施策の効果が現れるまでの期間を
+  決めてから設定する。
+- **各行に解析ロジックのバージョンを記録する。**これが無いと、判定基準を変えた
+  前後の行が同じ土俵に並び、実際にはロジックが変わっただけの差を「改善」と
+  読み違える。刈り取り (retention) は、この列を持つ行を古い順に消す形で実装する。
+- **編集用と商用の分離は解析履歴にも及ぶ。**解析結果は編集判断の入力なので、
+  報酬データと同じ本に置かない。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -773,3 +796,16 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 | cloudflare-d1 | 2026-04-30 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/ | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |
 | cloudflare-d1-use-indexes | 2026-08-10 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/best-practices/use-indexes/ | 2026-09-03T00:00:00Z | 2026-09-03T00:00:00Z |
 | sqlite-fts5 | 2026-08-01 | SQLite (www.sqlite.org) | https://www.sqlite.org/fts5.html | 2026-09-08T12:32:03Z | 2026-09-08T12:32:03Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 8 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-article-image-verbatim`, `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-aeo-analysis-storage-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `### qa-seo-approved-diff-20260906 (対応セル: web)`
+- `### qa-database-web-article-image-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)`

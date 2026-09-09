@@ -12,8 +12,8 @@ iteration: null
 title: "管理画面のテスト実行と緑化"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:49:43.129974Z"
-status: "active"
+updated_at: "2026-09-04T11:18:54Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P05"]
 related_nodes: []
 resource_scope: ["tests/","docs/spec/feat-blog-scoped-admin-console/test-run-report.md"]

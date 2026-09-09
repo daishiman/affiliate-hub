@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン機能の非機能検査"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:39:31.001478Z"
-status: "active"
+updated_at: "2026-09-04T08:12:08Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P08"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-custom-domain/quality-report.md","tests/"]

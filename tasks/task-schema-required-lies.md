@@ -12,7 +12,7 @@ iteration: null
 title: "必須でないと宣言した項目が実際には必須なので、スキーマどおりに呼ぶ AI は必ず失敗し、同じ呼び方を繰り返す"
 owners: ["daishiman"]
 created_at: "2026-08-18T22:40:00Z"
-updated_at: "2026-08-18T22:40:00Z"
+updated_at: "2026-09-08T07:33:57.385146Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "2026-08-18 に見本の入力を総当たりして見つ
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-schema-required-lies.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-9vh","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

@@ -1,4 +1,6 @@
+import { capabilitiesOf } from "@/domain/identity";
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { hiddenEntryCount, workObjectBoard } from "@/presentation/admin/work-object-board";
 import {
   actorNotice,
   createToolCatalog,
@@ -12,8 +14,10 @@ import {
   EmptyView,
   ErrorView,
   ListView,
+  Note,
   Prose,
   Section,
+  SubSection,
   TextLink,
   WorkBoard,
 } from "@/presentation/ui";
@@ -35,6 +39,13 @@ export default async function AdminHome() {
   const actor = await currentActor();
   const tools = await createToolCatalog();
   const board = await (await dashboardUseCases()).getDashboard.execute(actor, {});
+  /*
+    サイドバーと同じ `nav.group` から射影する。ホーム側に第 2 の表を作らない。
+    権限で見えない入口はここでも落とすので、サイドバーと見える顔ぶれが食い違わない。
+  */
+  const capabilities = [...capabilitiesOf(actor.roles)].map(String);
+  const objects = workObjectBoard(capabilities);
+  const hidden = hiddenEntryCount(capabilities);
 
   return (
     <AdminShell
@@ -99,6 +110,38 @@ export default async function AdminHome() {
               renderLink={(href, label) => <TextLink href={href}>{label}</TextLink>}
             />
           </>
+        )}
+      </Section>
+
+      <Section
+        title="何について作業しますか"
+        lead="管理画面でできることは、この 5 つの対象物のどれかについての作業です。目当てのものを選ぶと、その下の画面が出ます。"
+      >
+        {objects.map((object) => (
+          <SubSection
+            key={object.id}
+            title={`${object.label}（画面 ${object.screenCount} 枚）`}
+          >
+            <ListView
+              rows={object.entries.map((entry) => ({
+                key: entry.href,
+                label: entry.label,
+                href: entry.href,
+              }))}
+            />
+          </SubSection>
+        ))}
+        {hidden === 0 ? null : (
+          /*
+            **減ったなら、代わりに何かが増えていなければならない。**
+            権限で入口が落ちただけだと、その人には最初から無かったのと同じに見え、
+            誰に頼めば増えるのかが分からない。何が隠れているかは書かない
+            (伏せた意味が消える)。数と頼み先だけを出す。
+          */
+          <Note>
+            いまの権限では出していない入口が {hidden} 件あります。必要な場合は、
+            ワークスペースの管理者に権限を頼んでください。
+          </Note>
         )}
       </Section>
 

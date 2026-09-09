@@ -12,8 +12,8 @@ iteration: null
 title: "既存 SEO 実装との統合整理とマイグレーションの前方互換確認"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:25:58.423989Z"
-status: "active"
+updated_at: "2026-09-04T08:02:55Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P05"]
 related_nodes: []
 resource_scope: ["src/application/seo","src/db/schema.ts","drizzle","docs/spec/feat-seo-aeo-gap-closure/migration-compatibility.md","tests"]

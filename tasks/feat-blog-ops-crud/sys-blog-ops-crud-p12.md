@@ -12,8 +12,8 @@ iteration: null
 title: "運用文書・API/コンポーネント文書の確定"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:09:39.404665Z"
-status: "active"
+updated_at: "2026-09-08T01:32:05Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P10","SYS-BLOG-OPS-CRUD-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/operations.md","docs/spec/feat-blog-ops-crud/data-model.md","docs/spec/feat-blog-ops-crud/api-contract.md"]

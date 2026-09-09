@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"c3b797019d4e6a44859a1e502255b51ee723bdc471d184e6f5b3a625728c7089","evaluator":"system-spec-harness/aggregate-completeness (C05, forks C06/C07/C08 resolved)","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"c8089536f8fa40067b561bb1be5a705bd4ccb77c83e163bbfe28bfa66f079670","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "ユーザー要望の macro want を C14 分解で feature 化 (単一用途画面分割/基本管理/密度最適化/サイドバー/投稿反映/マルチSNS/複数ブログ/共通コンポーネント)"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-uiux-overhaul.md","confidence":0.95}]
@@ -45,7 +45,7 @@ pull_request_linkages: [{"base_branch":"dev","closing_reference_verified":false,
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"],"policy":"manual","reconciled_at":null,"source":"reconciliation","status":"open"}
 implementation_readiness: {"checked_at":"2026-08-21T12:00:00Z","missing_sections":[],"status":"complete"}
-acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:11dcf6db10b78994c9e188f51db577070f9df7527ff244d2b9830e59bcfe982e","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
+acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:21b9f20d83a9cb354e162b08ac503f88265d2aede5b60644e7cf9498a75120df","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
 ---
 
 # 目的

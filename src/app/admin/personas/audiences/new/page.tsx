@@ -1,30 +1,22 @@
-import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateAudiencePersonaForm } from "@/presentation/admin/write/persona-form";
-import { Prose, Section, TextLink } from "@/presentation/ui";
-
-export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation";
+import { legacyAdminRedirect } from "@/presentation/admin/legacy-admin-redirect";
 
 /**
- * 読者像を 1 つ作る画面。
+ * 旧 URL「読者像を作る」の殻。**転送だけを行う。**
  *
- * 書き手を作る画面と分けている。**決める順番も、決める人も違う**からで、
- * 書き手は「名乗れるか」の話、読者像は「何を比べたいか」の話である。
+ * この画面の中身は `/admin/sites/[site]/...` へ移った。
+ * ここを消さないのは、ブックマークや過去のリンクから来た人を
+ * 404 に落とさないためである。404 は「消えた」と読まれる。
+ *
+ * 行き先の組み立てをここに書かない。書くと、5 本の殻それぞれで
+ * 規則がずれた状態が作れる。作れるものはいつか作られる。
+ *
+ * 規範: docs/spec/feat-site-scoped-authoring-ia/redirect-contract.md
  */
-export default function NewAudiencePersonaPage() {
-  return (
-    <AdminShell
-      routeId="personas/audiences/new"
-      title="読者像を作る"
-      lead="誰に向けて書くか、何を比べたいかを決めます。"
-      actions={<TextLink href="/admin/personas/audiences">読者像の一覧へ戻る</TextLink>}
-    >
-      <Section title="決める">
-        <Prose>
-          「何で決めるか」に書いたものが、そのまま比較表の列になります。
-          ここが空のままだと、列の立たない比較表ができます。
-        </Prose>
-        <CreateAudiencePersonaForm />
-      </Section>
-    </AdminShell>
-  );
+export default async function LegacyNewAudiencePersonaPage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<Record<string, string | readonly string[] | undefined>>;
+}) {
+  redirect(await legacyAdminRedirect("/admin/personas/audiences/new", await searchParams));
 }

@@ -12,7 +12,7 @@ iteration: null
 title: "「手で書き換えない」と書いてある文書に手で書いても、内容が合っていれば緑になる"
 owners: ["daishiman"]
 created_at: "2026-08-18T13:20:00Z"
-updated_at: "2026-08-18T22:55:00Z"
+updated_at: "2026-09-08T07:33:30.351816Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "2026-08-18 に open-doors.md へ手で書いた事故か
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-generated-doc-handwrite.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-3pn","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

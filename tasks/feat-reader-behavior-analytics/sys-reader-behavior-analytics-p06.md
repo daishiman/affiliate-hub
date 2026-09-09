@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測のテスト実行と緑化"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:55:11.002035Z"
-status: "active"
+updated_at: "2026-09-04T10:31:09Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P05"]
 related_nodes: []
 resource_scope: ["tests/","docs/spec/feat-reader-behavior-analytics/test-run-report.md"]

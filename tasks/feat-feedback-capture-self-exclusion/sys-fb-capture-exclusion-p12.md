@@ -12,8 +12,8 @@ iteration: null
 title: "仕様書と運用手順の追補"
 owners: ["daishiman"]
 created_at: "2026-08-30T12:31:04Z"
-updated_at: "2026-08-30T13:34:02.200918Z"
-status: "active"
+updated_at: "2026-09-05T14:29:28Z"
+status: "closed"
 closed_at: null
 depends_on: ["SYS-FB-CAPTURE-EXCLUSION-P11"]
 related_nodes: []

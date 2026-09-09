@@ -12,8 +12,8 @@ iteration: null
 title: "AEO の非機能検査"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:33:51.680185Z"
-status: "active"
+updated_at: "2026-09-04T11:01:29Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P08"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-aeo-answer-optimization/quality-report.md","tests/"]

@@ -12,7 +12,7 @@ iteration: null
 title: "必須テスト種別を宣言する（データモデル 32 件）"
 owners: ["daishiman"]
 created_at: "2026-08-17T22:00:00Z"
-updated_at: "2026-08-17T22:00:00Z"
+updated_at: "2026-09-08T07:18:35.432334Z"
 status: "draft"
 depends_on: ["task-test-type-coverage"]
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "残課題 45（未宣言 228 件）を、着手できる
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-required-test-types-datamodel.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-wt6","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 診断と書き戻しの要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T02:58:33.077729Z"
-status: "active"
+updated_at: "2026-09-04T10:45:26Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-assessment-reflection/requirements-baseline.md","docs/spec/feat-seo-assessment-reflection/assessment-catalog.md","docs/spec/feat-seo-assessment-reflection/writeback-constraints.md"]

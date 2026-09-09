@@ -12,8 +12,8 @@ iteration: null
 title: "AEO のテスト実行と緑化"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:32:31.135907Z"
-status: "active"
+updated_at: "2026-09-04T11:01:23Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P05"]
 related_nodes: []
 resource_scope: ["tests/","docs/spec/feat-aeo-answer-optimization/test-run-report.md"]

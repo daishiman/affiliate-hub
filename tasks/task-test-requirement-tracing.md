@@ -12,7 +12,7 @@ iteration: null
 title: "由来不明のテスト 39 件を、要件から辿れる形にする"
 owners: ["daishiman"]
 created_at: "2026-08-17T12:00:00Z"
-updated_at: "2026-08-17T12:00:00Z"
+updated_at: "2026-09-08T07:17:42.061927Z"
 status: "draft"
 depends_on: ["task-mutation-property-testing"]
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "テストと要件の対応の実測から出た残課�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-test-requirement-tracing.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-8jh","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

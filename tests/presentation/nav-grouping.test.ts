@@ -46,10 +46,28 @@ describe("案内の分類", () => {
     expect(new Set(ADMIN_NAV_GROUPS.map((g) => g.label)).size).toBe(ADMIN_NAV_GROUPS.length);
   });
 
-  it("分類の外に置く項目は 1 つだけ（例外を増やさない）", () => {
-    // 例外が増えるほど「分類を見れば見当がつく」が崩れる。
-    // 増やすときは、なぜ分類に入れられないかを書いてからここを直す。
-    expect(UNGROUPED_NAV_HREFS).toStrictEqual(["/admin"]);
+  it("分類の外に置く項目は、ホームと補助領域だけ（例外を増やさない）", () => {
+    /*
+      例外が増えるほど「分類を見れば見当がつく」が崩れる。
+      増やすときは、なぜ分類に入れられないかを書いてからここを直す。
+
+      2026-09-08 (A5): 一段目を**作業の対象物** 5 つへ畳んだ。
+      設定・AI の利用と費用・道具・部品の見本は、運営者が
+      「これについて作業する」と言える対象物ではない。5 つに無理に混ぜると、
+      たとえば設定が「配信」の下に入り、ラベルから中身を言い当てられなくなる
+      (A6 と正面から衝突する)。だから分類の外の常設帯に置く。
+
+      **数ではなく顔ぶれで固定する。** 「5 件以内」と書くと、
+      分類に入れるべきものを 1 件ずつ外へ逃がせてしまう。
+      規範: docs/spec/feat-site-scoped-authoring-ia/entry-consolidation-contract.md §3
+    */
+    expect([...UNGROUPED_NAV_HREFS].sort()).toStrictEqual([
+      "/admin",
+      "/admin/ai-usage",
+      "/admin/settings",
+      "/admin/tools",
+      "/admin/ui-catalog",
+    ]);
   });
 
   it("持ち主には全分類が出て、項目の総数が案内と一致する", () => {

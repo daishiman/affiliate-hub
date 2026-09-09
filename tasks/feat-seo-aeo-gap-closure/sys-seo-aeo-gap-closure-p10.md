@@ -12,8 +12,8 @@ iteration: null
 title: "最終レビューと残課題の確定"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:26:37.844697Z"
-status: "active"
+updated_at: "2026-09-04T12:21:24Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/final-review.md"]

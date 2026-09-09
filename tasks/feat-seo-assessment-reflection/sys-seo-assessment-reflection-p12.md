@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 診断の運用手順と指針出典の説明"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T03:03:34.434745Z"
-status: "active"
+updated_at: "2026-09-04T10:45:47Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P10","SYS-SEO-ASSESSMENT-REFLECTION-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-assessment-reflection/operations-runbook.md","docs/spec/feat-seo-assessment-reflection/"]

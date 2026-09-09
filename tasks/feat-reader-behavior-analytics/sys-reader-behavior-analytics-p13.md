@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測のリリースと仕様書への書き戻し"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:58:08.439273Z"
-status: "active"
+updated_at: "2026-09-04T10:31:23Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P12"]
 related_nodes: []
 resource_scope: ["system-spec/frontend.md","system-spec/database.md","docs/spec/feat-reader-behavior-analytics/release-notes.md"]

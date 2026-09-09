@@ -12,7 +12,7 @@ iteration: null
 title: "SEO/AEO 充足度の解析とエディター差し戻し"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-04T00:00:00Z"
+updated_at: "2026-09-08T07:57:46.202662Z"
 status: "tombstoned"
 closed_at: "2026-09-04T00:00:00Z"
 depends_on: []
@@ -39,7 +39,7 @@ classification_reason: "撤回。実装コードと突き合わせた結果、�
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-seo-aeo-analysis-feedback.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-wnfn","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

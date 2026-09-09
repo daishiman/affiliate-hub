@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン接続の要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:35:59.415244Z"
-status: "active"
+updated_at: "2026-09-04T08:11:51Z"
+status: "closed"
 depends_on: []
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-custom-domain/requirements-baseline.md","docs/spec/feat-blog-custom-domain/domain-state-machine.md","docs/spec/feat-blog-custom-domain/screen-inventory.md"]

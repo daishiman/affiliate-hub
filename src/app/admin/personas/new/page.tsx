@@ -1,33 +1,22 @@
-import { AdminShell } from "@/presentation/admin/admin-shell";
-import { CreateAuthorPersonaForm } from "@/presentation/admin/write/persona-form";
-import { Prose, Section, TextLink } from "@/presentation/ui";
-
-export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation";
+import { legacyAdminRedirect } from "@/presentation/admin/legacy-admin-redirect";
 
 /**
- * 書き手を 1 人作る画面。
+ * 旧 URL「書き手を作る」の殻。**転送だけを行う。**
  *
- * **一覧と分けている。** 一覧は「誰がいるか」を見返す画面で、ここは
- * 「誰の立場で書かせるか」を決める画面である。決める作業は項目が多く、
- * 一覧に混ぜると見返しに来た人の前に長い入力欄が常に開く。
+ * この画面の中身は `/admin/sites/[site]/...` へ移った。
+ * ここを消さないのは、ブックマークや過去のリンクから来た人を
+ * 404 に落とさないためである。404 は「消えた」と読まれる。
  *
- * 実URLと脇の「書き手と読者像」という現在地はroute metadataから別々に解決する。
+ * 行き先の組み立てをここに書かない。書くと、5 本の殻それぞれで
+ * 規則がずれた状態が作れる。作れるものはいつか作られる。
+ *
+ * 規範: docs/spec/feat-site-scoped-authoring-ia/redirect-contract.md
  */
-export default function NewAuthorPersonaPage() {
-  return (
-    <AdminShell
-      routeId="personas/new"
-      title="書き手を作る"
-      lead="どの立場で、どこまでを事実として書けるかを決めます。"
-      actions={<TextLink href="/admin/personas">書き手の一覧へ戻る</TextLink>}
-    >
-      <Section title="決める">
-        <Prose>
-          ここで決めた「事実として書いてよい範囲」を越えた文章は、公開前の確認で止まります。
-          範囲を空のままにすると、実際に試した書き方が一切できない書き手になります。
-        </Prose>
-        <CreateAuthorPersonaForm />
-      </Section>
-    </AdminShell>
-  );
+export default async function LegacyNewPersonaPage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<Record<string, string | readonly string[] | undefined>>;
+}) {
+  redirect(await legacyAdminRedirect("/admin/personas/new", await searchParams));
 }

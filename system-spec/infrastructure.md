@@ -3,7 +3,7 @@ status: confirmed
 category: infrastructure
 aggregate: 確定
 spec_cells: [infrastructure.web, infrastructure.mobile, infrastructure.tablet, infrastructure.desktop-windows, infrastructure.desktop-linux, infrastructure.desktop-macos]
-serves_goals: [G2, G1, G3]
+serves_goals: [G1, G2, G3]
 ---
 
 # インフラ (infrastructure)
@@ -16,11 +16,11 @@ serves_goals: [G2, G1, G3]
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
 | Web (web) | 確定 | 確定質疑: qa-infrastructure-web-worker-image-upload-confirmed-20260906。裏付け質疑 (`qa_refs`): `qa-infra-web-custom-hostname`, `qa-infrastructure-web-wildcard-subdomain`, `qa-infra-web-migration-guard-v2`, `qa-infra-web-migration-guard`, `qa-infra-web-spec-intake`, `qa-infra-web`, `qa-infra-web-redirect` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
+| タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: Web 以外を対象外にした帰結として、ストア配信と端末向けビルド/配布パイプラインを構築対象から外す。配信経路は Cloudflare Workers とカスタムドメインの 1 系統のみで、記事画像も同じ経路上の R2 カスタムドメインから配る。 |
 
 ## 確定セルの記録 (正本 spec-state.json)
 
@@ -31,7 +31,7 @@ serves_goals: [G2, G1, G3]
 | セル | infrastructure × web |
 | 状態 | 確定 |
 | 確定質疑 (qa_ref) | `qa-infrastructure-web-worker-image-upload-confirmed-20260906` |
-| 資するゴール (serves_goals) | G2, G1, G3 |
+| 資するゴール (serves_goals) | G1, G2, G3 |
 | required-info | なし (この確定に block 指定の必須情報は登録されていない) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
@@ -363,6 +363,30 @@ group を環境ごとに切る前提なので、環境名を誤ると別環境�
 
 - 正本へ入れた理由: 章にだけ在り、qa_log にも reopen_log にも対応 entry が無い 4 件 (post-deploy-smoke / deploy-steps / branch-flow / schema-drift)。compile が退避棚へ引き継ぐだけで正本から再生成されず、章がバイト一致の床を永久に割っていた。内容は docs/spec/11-CI-CD・品質ゲート仕様.md に対応する実質的な運用規範で、捨てられない。確定セルを巻き戻さず消えようのない場所へ移す。
 
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+
+- **`decision-redirect-measurement-async` が本章に効く形**: 転送は必達、計測は
+  ベストエフォート (02 §7)。3 案とも転送は止めないので、差は**欠測をどこまで
+  減らすかとその値段**だった。`waitUntil` + 退避 + Cron 補完は無料枠のまま
+  成立する。Queues はいちばん堅いが有料プランが前提で、契約状態をこちらから
+  確かめられないため caveat に置き、必要になった時点で別の判断とする。
+  **採用理由が契約状態に依存していない**ことが、この選択の要点である。
+- **`dec-blog-domain-strategy` が本章に効く形**: ブログを別ドメインへ切り出さず
+  同一オリジンの経路として持つ。分けると評価が割れるうえ、認証境界と配信境界が
+  二重になり、無料枠の中で運用する前提が崩れる。
+- **`dec-aeo-analysis-trigger` の定期再解析が本章に落ちる形** (2026-09-04 確定):
+  再解析は Cron Trigger に乗る。Cron は**失敗しても画面に何も現れない**ため、
+  成否と最終実行時刻を記録し管理画面から読めるようにする。これが無いと
+  「再解析されていない」ことに永久に気づけない。実行そのものは
+  `decision-redirect-measurement-async` の Cron 補完と同じ土俵に乗るので、
+  無料枠の実行回数を両者の合計で見積もる。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -444,3 +468,14 @@ group を環境ごとに切る前提なので、環境名を誤ると別環境�
 | cloudflare-for-saas | 2026-04-29 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
 | cloudflare-r2-overview | 2026-08-07 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/ | 2026-09-03T12:55:14Z | 2026-09-03T12:55:14Z |
 | cloudflare-r2 | 2026-08-22 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/r2/api/s3/presigned-urls/ | 2026-09-05T00:57:28Z | 2026-09-05T00:57:28Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 6 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `serves_goals: [G2, G1, G3]`
+- `| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`

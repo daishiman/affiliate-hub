@@ -12,8 +12,8 @@ iteration: null
 title: "サイト網 CRUD・記事CRUD・固定ページ・配信部品のテスト設計"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:06:44.175917Z"
-status: "active"
+updated_at: "2026-09-08T00:14:05Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P03"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/test-design.md"]

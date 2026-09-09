@@ -12,8 +12,8 @@ iteration: null
 title: "AEO の最終レビュー"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:34:18.244627Z"
-status: "active"
+updated_at: "2026-09-04T11:01:31Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-aeo-answer-optimization/final-review.md"]

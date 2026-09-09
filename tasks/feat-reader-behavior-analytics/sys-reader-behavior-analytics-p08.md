@@ -12,8 +12,8 @@ iteration: null
 title: "既存イベント基盤との重複解消と移行"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:56:03.130117Z"
-status: "active"
+updated_at: "2026-09-04T10:31:13Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P05"]
 related_nodes: []
 resource_scope: ["src/application/analytics/ingest-reader-interactions.ts","src/application/analytics/reader-subject-request.ts","src/components/reader/behavior-probe.tsx","docs/spec/feat-reader-behavior-analytics/migration-notes.md"]

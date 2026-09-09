@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン機能の最終レビュー"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:39:56.318096Z"
-status: "active"
+updated_at: "2026-09-04T08:12:10Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-custom-domain/final-review.md"]

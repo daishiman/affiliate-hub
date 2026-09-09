@@ -12,8 +12,8 @@ iteration: null
 title: "管理画面の運用手順と読み方の説明"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:52:17.445744Z"
-status: "active"
+updated_at: "2026-09-04T11:19:06Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P10","SYS-BLOG-SCOPED-ADMIN-CONSOLE-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-scoped-admin-console/operations-runbook.md","docs/spec/feat-blog-scoped-admin-console/"]

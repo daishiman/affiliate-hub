@@ -12,7 +12,7 @@ iteration: null
 title: "書き込みの入口 20 件が操作の記録へ届いていない"
 owners: ["daishiman"]
 created_at: "2026-08-18T08:00:00Z"
-updated_at: "2026-08-18T08:00:00Z"
+updated_at: "2026-09-08T07:30:22.281286Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "既存の検査が出した実測一覧を塞ぐ作業�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-audit-log-write-path-coverage.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-hau","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

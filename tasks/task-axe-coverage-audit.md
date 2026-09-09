@@ -12,7 +12,7 @@ iteration: null
 title: "axe が見ていない領域を一度洗う（個別に塞ぐやり方が 3 回続いた）"
 owners: ["daishiman"]
 created_at: "2026-08-19T05:00:00Z"
-updated_at: "2026-08-19T05:00:00Z"
+updated_at: "2026-09-08T07:35:42.447176Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "2026-08-19 の TM 群の宣言作業で、表の見出�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-axe-coverage-audit.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-9pk","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

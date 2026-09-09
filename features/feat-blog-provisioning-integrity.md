@@ -12,7 +12,7 @@ iteration: null
 title: "ブログ作成の原子性と公開必須要素の充足 (作成済み表示と読者到達の一致)"
 owners: ["daishiman"]
 created_at: "2026-08-31T00:00:00Z"
-updated_at: "2026-09-07T15:54:17.944152Z"
+updated_at: "2026-09-08T07:54:43.004550Z"
 status: "active"
 depends_on: ["feat-site-builder","feat-blog-ops-crud"]
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview","feat-site-blueprint","feat-data-model"]
@@ -38,7 +38,7 @@ classification_reason: "利用者報告『13 問に答えてもブログが作�
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-provisioning-integrity.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-q6b2","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

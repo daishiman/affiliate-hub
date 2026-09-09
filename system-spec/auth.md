@@ -16,11 +16,11 @@ serves_goals: [G1, G2]
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
 | Web (web) | 確定 | 確定質疑: qa-auth-web-domain-analytics-authority。裏付け質疑 (`qa_refs`): `qa-auth-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。 |
+| タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。 |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。 |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。 |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末のセキュアストレージ・生体認証・OS のアカウント連携を認証経路に持たない。セッションはブラウザの Cookie に一本化し、端末固有のトークン保管とその失効設計を対象から外す。 |
 
 ## 確定セルの記録 (正本 spec-state.json)
 
@@ -32,7 +32,7 @@ serves_goals: [G1, G2]
 | 状態 | 確定 |
 | 確定質疑 (qa_ref) | `qa-auth-web-domain-analytics-authority` |
 | 資するゴール (serves_goals) | G1, G2 |
-| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web`) |
+| required-info | `auth-model` — missing_effect: block / 接地: 済 (`qa-auth-web-domain-analytics-authority`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
@@ -169,6 +169,23 @@ serves_goals: [G1, G2]
 
 - 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+
+本章に効くのは 1 件だけである。
+
+- **`decision-auth-method` の caveat**: ライブラリ更新の追従を maintenance-ops に
+  組み込むこと。採用は「費用ゼロ・ロックインなし」で得たので、追従を止めた時点で
+  その前提が消える。
+- **G3 (AEO/SEO) の 4 決定は本章を主担当としない。**構造化データの生成・解析・
+  基準の再確認・履歴保持は、いずれも認証の境界の内側で動く既存の管理画面経路に
+  乗る。認証方式そのものを動かす論点は含まれていない。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -245,3 +262,13 @@ serves_goals: [G1, G2]
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
 | better-auth | 1.7.3 | Better Auth (better-auth.com) | https://better-auth.com/docs/introduction | 2026-09-07T13:48:07Z | 2026-09-07T13:48:07Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 5 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`

@@ -12,7 +12,7 @@ iteration: null
 title: "readOnly という 1 つの旗が 3 つの決定を兼ねている（申告 / 測定対象 / WebMCP 掲載）"
 owners: ["daishiman"]
 created_at: "2026-08-18T12:40:00Z"
-updated_at: "2026-08-18T12:40:00Z"
+updated_at: "2026-09-08T07:33:03.144630Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-audit-actions-without-emitters"]
@@ -39,7 +39,7 @@ classification_reason: "残課題 69 の作業中、readOnly: false へ直した
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-readonly-flag-three-meanings.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-a4v","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

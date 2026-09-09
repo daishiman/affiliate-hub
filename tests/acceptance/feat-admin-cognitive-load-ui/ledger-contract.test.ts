@@ -425,7 +425,13 @@ describe("管理画面の情報台帳", () => {
         ).toBe(false);
       }
     }
-    expect(source("src/app/admin/personas/audiences/page.tsx")).toMatch(
+    /*
+      2026-09-08: 読者像の実体は `sites/[site]/audience/personas` へ移した。
+      旧 route は転送の殻なので `<Foldable` を持たない。**見る先を移すのであって、
+      この検査を消さない。** 消すと「summary に件数を出す」という約束だけが
+      静かに失われ、たたんだ中身の量が読めない見出しへ戻れてしまう。
+    */
+    expect(source("src/app/admin/sites/[site]/audience/personas/page.tsx")).toMatch(
       /summary=\{`[^`]*\$\{detailCount\}件[^`]*`\}/,
     );
     expect(source("src/app/admin/feedback/[report]/page.tsx")).toMatch(
@@ -435,7 +441,11 @@ describe("管理画面の情報台帳", () => {
 
   it("card主表現は主張1・主情報1・補助4以下・主操作1以下へ結線される", () => {
     const ledgerCardIds = ledger.routes
-      .filter((route) => route.representation.primary === "card")
+      .filter(
+        (route) =>
+          route.representation.primary === "card" &&
+          !REDIRECT_ONLY_ROUTE_IDS.has(route.routeId),
+      )
       .map((route) => route.routeId)
       .sort();
     expect([...ADMIN_CARD_ROUTE_IDS].sort()).toEqual(ledgerCardIds);

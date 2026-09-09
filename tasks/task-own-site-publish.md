@@ -12,7 +12,7 @@ iteration: null
 title: "自社サイトへの公開を本物にする（published_articles と own_site コネクタ）"
 owners: ["daishiman"]
 created_at: "2026-08-17T09:30:00Z"
-updated_at: "2026-08-17T10:35:31.680061Z"
+updated_at: "2026-09-08T07:15:28.656907Z"
 status: "done"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "docs/product/stub-ledger.md のスタブ解除を作業�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-own-site-publish.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-s26","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

@@ -9,6 +9,8 @@
  * @req REQ-S06, REQ-S07, REQ-S08, REQ-S09, REQ-S10
  * @types screen-states
  */
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { RENDERABLE_ROUTE_CASES, importPathOf, propsOf } from "./route-table";
 import { headingLevels, intoDom, renderRoute, textOf } from "../support/render";
@@ -104,12 +106,41 @@ vi.mock("@/infrastructure/composition", async (importOriginal) => {
   };
 });
 
+/**
+ * ブログを先に確かめてから中身を読む画面。
+ *
+ * この形の画面は、**ブログが 1 本も無い世界では空の一覧を出せない。**
+ * 出したら「そのブログのもの」という嘘になる。だから 404 を返す。
+ * 空の状態と同じ物差しで測らないのは、読者側を外しているのと同じ理由である。
+ *
+ * **一覧を手で書かない。** ソースに `resolveSiteOrNotFound` が
+ * 在るかどうかで決める。手で書くと、画面を足した人が
+ * ここに 1 行足し忘れた日に、原因の分からない 404 で落ちる。
+ */
+function resolvesSiteFirst(file: string): boolean {
+  const source = join(process.cwd(), "src/app", file);
+  return existsSync(source) && readFileSync(source, "utf-8").includes("resolveSiteOrNotFound");
+}
+
 /** 読者側は「そのブログが無い」ときに 404 を返す作りなので、同じ物差しでは測らない。 */
-const EMPTY_CASES = RENDERABLE_ROUTE_CASES.filter((r) => r.file.startsWith("admin/"));
+const EMPTY_CASES = RENDERABLE_ROUTE_CASES.filter(
+  (r) => r.file.startsWith("admin/") && !resolvesSiteFirst(r.file),
+);
 
 describe("対象の画面", () => {
   it("運営側の画面が並んでいる（絞り込みが効かなくなったら気づけるように）", () => {
     expect(EMPTY_CASES.length).toBeGreaterThan(10);
+  });
+
+  it("ブログを先に確かめる画面が、黙って 0 件へ落ちていない", () => {
+    /*
+      除外した側にも床を置く。0 件になると、除外の条件が壊れていても
+      この検査は緑のまま母集団だけが元に戻る。戻ったこと自体が見えなくなる。
+    */
+    const excluded = RENDERABLE_ROUTE_CASES.filter(
+      (r) => r.file.startsWith("admin/") && resolvesSiteFirst(r.file),
+    );
+    expect(excluded.length, "ブログを先に確かめる画面が 1 枚も見つかりません").toBeGreaterThanOrEqual(5);
   });
 });
 

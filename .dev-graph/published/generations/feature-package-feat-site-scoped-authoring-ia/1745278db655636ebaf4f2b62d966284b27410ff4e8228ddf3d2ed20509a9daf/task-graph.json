@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+  "parent_feature": "feat-site-scoped-authoring-ia",
+  "nodes": [
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P01"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P02"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P03"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P04"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P06"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P08"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+        "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+        "SYS-SITE-SCOPED-AUTHORING-IA-P11"
+      ]
+    },
+    {
+      "id": "SYS-SITE-SCOPED-AUTHORING-IA-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-site-scoped-authoring-ia",
+      "parent_feature": "feat-site-scoped-authoring-ia",
+      "depends_on": [
+        "SYS-SITE-SCOPED-AUTHORING-IA-P12"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P01",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P02"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P02",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P03"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P03",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P04"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P04",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P05"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P05",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P06"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P06",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P07"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P05",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P08"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P08",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P09"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P09",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P10"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P07",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P11"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P09",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P11"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P10",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P12"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P11",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P12"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-SITE-SCOPED-AUTHORING-IA-P12",
+      "to": "SYS-SITE-SCOPED-AUTHORING-IA-P13"
+    }
+  ]
+}

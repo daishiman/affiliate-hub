@@ -12,7 +12,7 @@ iteration: null
 title: "記事データからの機械可読要素生成"
 owners: ["daishiman"]
 created_at: "2026-09-04T00:00:00Z"
-updated_at: "2026-09-04T00:00:00Z"
+updated_at: "2026-09-08T07:57:19.825275Z"
 status: "tombstoned"
 closed_at: "2026-09-04T00:00:00Z"
 depends_on: []
@@ -39,7 +39,7 @@ classification_reason: "撤回。実装コードと突き合わせた結果、�
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-seo-aeo-machine-readable.md","confidence":0.96}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-pxmm","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

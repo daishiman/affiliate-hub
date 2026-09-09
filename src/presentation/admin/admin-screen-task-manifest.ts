@@ -82,10 +82,14 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
   seo: "記事ごとの差分を確認して反映し、同じページの観測値を確かめる",
   "improvement/dimensions": "試してよいもの / 変えないものを調べる (参照専用)",
   inbox: "成果リンクを受け取り、広告主と商品を決める",
-  personas: "書き手と読者像を決める",
-  "personas/new": "書き手を 1 人作る",
-  "personas/audiences": "誰に向けて書くかを決める",
-  "personas/audiences/new": "読者像を 1 つ作る",
+  /*
+    旧 5 本は転送の殻である。仕事そのものは site 配下へ移った。
+    欄を消さないのは、旧 URL から来た人がどこへ着くかをここでも言えるようにするため。
+  */
+  personas: "開いているブログの書き手の画面へ送る",
+  "personas/new": "開いているブログの「書き手を作る」へ送る",
+  "personas/audiences": "開いているブログの読者像の画面へ送る",
+  "personas/audiences/new": "開いているブログの「読者像を作る」へ送る",
   products: "商品をさがして詳細へ進む",
   "products/[product]": "1 商品の内容を確かめ、素材として残すか判断する",
   "products/[product]/edit": "登録済みの商品の値を直す",
@@ -133,13 +137,19 @@ const PRIMARY_TASK_BY_ROUTE_ID = {
   "sites/[site]/placements": "記事のどこに成果リンクを出しているかを確かめ、掲載の抜けを埋める",
   "sites/[site]/domains": "このブログの住所（独自ドメイン）を登録し、読者へ見せる 1 つを決める",
   "sites/[site]/audience": "どんな読者がどこを読んでいるかを確かめ、次に直す記事を決める",
+  "sites/[site]/audience/personas": "全ブログで使う読者像を、このブログの文脈で確かめる",
+  "sites/[site]/audience/personas/new": "全ブログで使う読者像を 1 つ作る",
+  "sites/[site]/authors": "全ブログで使う書き手を、このブログの文脈で確かめる",
+  "sites/[site]/authors/new": "全ブログで使う書き手を 1 人作る",
+  "sites/[site]/writing": "このブログの書き方の決めごとを調べる (参照専用)",
   "sites/[site]/revenue": "どの記事が稼いでいるかを確かめ、伸ばす記事と畳む記事を決める",
   "sites/[site]/seo": "検索から届かない原因を 1 つ選び、直しに行く",
   "sites/[site]/aeo": "回答エンジンに引用される形になっているかを確かめ、足りない答えを補う",
   "sites/new": "ブログを 1 本作る",
   tools: "AI から使える道具を調べる (参照専用)",
   "ui-catalog": "使える部品を探す (参照専用・見本帳)",
-  writing: "書き方の決めごとを調べる (参照専用)",
+  writing: "開いているブログの書き方の決めごとへ送る",
+  "writing/template": "全ブログが参照している書き方の雛形を調べる (参照専用)",
 } as const satisfies Record<AdminRouteId, string>;
 
 export const ADMIN_SCREEN_TASK_MANIFEST = ADMIN_ROUTE_METADATA.map((route) => ({
@@ -546,13 +556,13 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
   ),
   screenMutation(
     "persona.create-author",
-    "personas/new",
+    "sites/[site]/authors/new",
     edge("src/presentation/admin/write/persona-form.tsx", "CreateAuthorPersonaForm"),
     edge("src/presentation/admin/write/persona-form-action.ts", "createAuthorPersonaAction"),
   ),
   screenMutation(
     "persona.create-audience",
-    "personas/audiences/new",
+    "sites/[site]/audience/personas/new",
     edge("src/presentation/admin/write/persona-form.tsx", "CreateAudiencePersonaForm"),
     edge("src/presentation/admin/write/persona-form-action.ts", "createAudiencePersonaAction"),
   ),
@@ -753,7 +763,7 @@ export const ADMIN_SCREEN_RUNTIME_ENTRIES: readonly AdminScreenRuntimeEntry[] = 
   classifiedScreenEntry(
     "persona.check-fact-boundary",
     "read-only",
-    "personas",
+    "sites/[site]/authors",
     "文章を判定して結果を返すだけで業務状態を変更しない",
     edge("src/presentation/admin/write/fact-boundary-form.tsx", "FactBoundaryCheckForm"),
     edge("src/presentation/admin/write/fact-boundary-action.ts", "checkFactBoundaryAction"),

@@ -12,8 +12,8 @@ iteration: null
 title: "管理画面の受入10件の判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:34Z"
-updated_at: "2026-09-04T02:50:11.683948Z"
-status: "active"
+updated_at: "2026-09-04T11:18:56Z"
+status: "closed"
 depends_on: ["SYS-BLOG-SCOPED-ADMIN-CONSOLE-P06"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-scoped-admin-console/acceptance-report.md"]

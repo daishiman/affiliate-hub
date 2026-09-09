@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-site-scoped-authoring-ia",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "feature-package.json/task-graph.json/workstream-inventory.json/system-build-handoff.json の全13 task entry で parent_feature=feat-site-scoped-authoring-ia, feature_package_id=feature-package/feat-site-scoped-authoring-ia, source_feature_digest=sha256:887d7e9ab4115e01a83bf4e15f6b6e7062a808800c14952eddbe2595283c0f60 が一致し矛盾なし (source_feature_digest は features/feat-site-scoped-authoring-ia.context.json の独立 shasum 再計算値と完全一致することを確認済み)。全13 task spec の「スコープ外」節は feature.md の scope_out 8件 (新規指標作成/sites配下各画面の新設/記事画面の新設配置/ブログ作成削除/読者面デザイン/権限モデル新設/UX規則策定/提示順序規則策定) を同一文言で列挙し、いずれの task もこれらへ踏み込んでいない。特に本 feature 固有の境界指示である『記事画面そのものの新設・配置は feat-blog-scoped-admin-console が正本、本 feature は旧 /admin/content/* からの転送だけを担う』という文言が P01/P02/P03/P05/P08/P09 の本文・スコープ外節・成果物節に明示され、P05 の成果物節は src/app/admin/content/ について『転送先記事画面自体はfeat-blog-scoped-admin-console管轄』と書き分けている。同様に『管理画面の UX 規則そのものの策定は feat-reference-blog-admin-ux が正本、本 feature は適用のみ』という書き分けが全13 task の背景・スコープ外節に一貫する。write_scope はいずれも feature の resource_scope (src/app/admin/sites/[site]/, src/app/admin/content/, src/app/admin/personas/, src/app/admin/writing/, src/app/admin/layout.tsx, src/app/admin/page.tsx, src/components/admin/, system-spec, docs/spec/feat-site-scoped-authoring-ia/) の範囲内。ただし P02/P05/P08 の write_scope が feat-blog-scoped-admin-console の resource_scope とディレクトリレベルで同一の src/app/admin/sites/[site]/ を含む点を medium finding として記録した (両 feature とも本文で相手の担当範囲を明示的にスコープ外とし verdict を FAIL とするほどの逸脱ではない)。",
+      "evidence": [
+        "feature-package.json#source_feature_digest (features/feat-site-scoped-authoring-ia.context.json の独立 shasum 再計算値=887d7e9ab4115e01a83bf4e15f6b6e7062a808800c14952eddbe2595283c0f60 と一致することを確認)",
+        "task-specs/phase-01-requirements.md#背景",
+        "task-specs/phase-02-architecture.md#スコープ外",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-08-refactoring-migration.md#背景",
+        "task-specs/phase-02-architecture.md#スコープ外 (feat-blog-scoped-admin-console の resource_scope と突き合わせて越境なしを確認)",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "exact-13 (P01..P13)、13-entry workstream-inventory、13-node task-graph、必須 section が P01..P13 の全13件に存在し placeholder (TODO/TBD/FIXME) は0件。本 feature が宣言する上流 qa 要件 qa-uiux-web-site-scoped-authoring-ia (system-spec/ui-ux.md) と qa-frontend-web-site-scoped-route-ownership (system-spec/frontend.md) は system-spec/spec-state.json#qa_log に両方登録済みであり、matrix.ui-ux.web.qa_ref / matrix.frontend.web.qa_ref がそれぞれの id を指す。両 QA の確認済み回答見出し (①ブログ単位への所属替え=マクロ構造、②横断画面はブログ間比較のみ残す=外側ループ、③新しい指標や集計は作らない=スコープ分離、④情報は属する対象物のところに置く=情報配置原則、⑤入口数を対象物数まで畳む=束ね直し、⑥誤操作コストで確認要否を分岐=危険操作分離、⑦/admin/sites/[site]/を正本階層とする=内側ループ/URL階層、⑧既存入口を消さず転送で受ける=書き戻し・後方互換、⑨site未解決時notFoundと越境防止=既存保全) は goal-spec.json の purpose/goal/scope_in/scope_out/acceptance、feature.md の同項目、workstream-inventory.json の tasks[].acceptance へ意味として反映されている。P01..P13 全件への trace: マクロ構造(所属替え対象の確定)→P01(route-inventory.json)→P02(site-scoped-route-contract.md)→P05(所属替え実装)→P08(旧実装撤去)、外側ループ(横断画面の役割分離)→P02(entry-consolidation-contract.md)→P05(page.tsx束ね直し)→P09(A5検査)、内側ループ(URL階層・転送)→P01(redirect-map-draft.json)→P02(redirect-contract.md)→P05(転送シェル実装)→P07(A2/A3/A4判定)→P08(重複実装解消)、スコープ分離(新規指標禁止)→P02(既存指標のみ参照)→P05(A10)→P06(DB結合検証)、情報配置(共通雛形複製)→P02(template-clone-contract.md)→P05(A7)→P07(A7判定)、書き戻し→P13(system-spec/ui-ux.md・frontend.mdへのR4-reopen経由書き戻し)、既存保全(既存テスト回帰0件)→P04(test-design)→P06(test-run全量緑化)→P09(quality-report)。qa-ref-unregistered/qa-semantic-coverage/qa-task-trace のいずれの欠落も確認されなかった。加えて feature.md の acceptance 10 項目は全て workstream-inventory.json の P05 acceptance (A1-A10 として明示列挙) と P07/P08/P09 の acceptance 判定条件へ一意対応することを確認した。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#背景 (qa-uiux-web-site-scoped-authoring-ia / qa-frontend-web-site-scoped-route-ownership が system-spec/spec-state.json#qa_log に登録され、matrix.ui-ux.web.qa_ref・matrix.frontend.web.qa_ref から参照されていることを確認)",
+        "task-specs/phase-02-architecture.md#背景 (同上 qa_log 登録・matrix 参照を確認)",
+        "workstream-inventory.json#tasks[SYS-SITE-SCOPED-AUTHORING-IA-P05].acceptance (feature.md/goal-spec.json の acceptance 10 項目との一意対応=A1-A10 を確認)",
+        "task-specs/phase-02-architecture.md#成果物 (既存指標のみ参照する契約へのtrace)",
+        "task-specs/phase-13-release-deploy.md#成果物 (system-spec/ui-ux.md・frontend.md への書き戻しtrace)",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "全13 task の task_spec_paths (phase-01-requirements.md 〜 phase-13-release-deploy.md) は system-plan-phase-names.md の確定呼称 (requirements/architecture/design-review/test-design/implementation/test-run/acceptance/refactoring-migration/quality-assurance/final-review/evidence/documentation-operations/release-deploy) と1対1で一致する (機械検査済み)。graph_node_registration.file_path は tasks/feat-site-scoped-authoring-ia/sys-site-scoped-authoring-ia-p01.md 〜 p13.md の tasks/<parent_feature>/<小文字 task id>.md 規約に一致する。全13 task spec の Verification and evidence は `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-site-scoped-authoring-ia` の世代非依存形で統一されている。TODO/TBD/FIXME/角括弧 placeholder は0件 (走査対象17ファイル、[site] は既存動的ルート表記であり placeholder ではない)。workstream-inventory.json#repo_context.repo_identity=github:daishiman/affiliate-hub は .dev-graph/config.json#repository_id と完全一致する。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#参照情報 (Phase doc: system-plan-phase-names.md#P01 の確定呼称との対応を確認。P02..P13 の各 task spec も同様に #参照情報 で対応する phase_ref を明記)",
+        "staging-manifest.json#files (17ファイル、task-specs 13件を含む)",
+        "workstream-inventory.json#repo_context",
+        "workstream-inventory.json#tasks[].graph_node_registration.file_path",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.json の13 node を独立再計算した結果、全14 edgeが前方DAG (小さいphase_refから大きいphase_refへのみ、P01→P02→P03→P04→P05→P06→P07、P05→P08→P09→P10、P07とP09→P11、P10とP11→P12→P13) で循環・後方edge・feature外task参照 (SYS-SITE-SCOPED-AUTHORING-IA- 以外のprefix) は0件。P01以外の12 nodeは全て1件以上のincoming edgeを持ち、orphanは0件。system-build-handoff.json#execution_tasks[].depends_on は task-graph.json#nodes[].depends_on と完全一致する。source_lineage は system-spec/index.md・00-requirements-definition.md・ui-ux.md・frontend.md・architecture 3件へ接地しており、いずれも system-spec 側で確定 (confirmed) 済みである。identity.source_feature_digest はfeatures/feat-site-scoped-authoring-ia.context.jsonの独立再計算値と一致する。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "task-graph.json#edges",
+        "system-build-handoff.json#execution_tasks",
+        "system-build-handoff.json#identity",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        ".claude/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-site-scoped-authoring-ia"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf\",\n  \"feature_package_id\": \"feature-package/feat-site-scoped-authoring-ia\",\n  \"parent_feature\": \"feat-site-scoped-authoring-ia\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"violations\": []\n}",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "7340345f495aa1633605db5aaa7222e4cecbb97af794f85b3c175750d438f1c3"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "a0623e64e5600abd9cc1cf3ca62bcb499db3e3fe6f3d46b08204692e242227e2"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "8d6e0284bc170269f7866e6f23e78e27ee02d9f5977e8b1185c7a42cb3f30b23"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "5d00d47dc71f9c4e056b62b04abd54c77c68b783e29dcd1ac05395dbe4f75491"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "c4bd1afae3db1575f7605a4b29f24f4b6a8fd8d88c0ce24ec3636e94d31fca01"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "95fae43437a26aac03468655901c23611985ece2d75c7609b3fc01f90ce2d23b"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "d655216bc633af63ccd75300e96ade7f73e1a7f908e6fbd921eb07d2df08f9f2"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "b02aab450ef2f469f6bdf55c8a1fc3de21b388d38b4e8299d2dedf7bea1a207f"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "224313cd51ac148346d4722a1be45b956661a160d2adf46aaad84967d9769f31"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "0ffa63190214c289ae7fd1e053cdf4e27a0d105b78368c95b259cbf485064e3a"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "77a2e180c7355653ef743ae7a44214969ef85447bc0f64e15d7073b9d25547fe"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "5f5ded521ad95975cfb4c51739f7aeb13ca68921db1015957df4671021b1c542"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "f94d8a446f9d7e778db81a8a92bbed5b5da0209ceeb98644644d846c45e4b71f"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "cee52a0f95e4b8c67a6892ef3f4ea244d1007da341fe505aade47e1187514696"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "852a29544debe254cd23f7ded302e871473ac52621ecb3a43cfb97fc543c4d59"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "bbd7a7311899e1001fd33502e7e4fe3ef433787c580115a1f9c26364bd478846"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "e1ddb5cf4ebc2e65b1f5419d58df4e0cd250c48cc23760cb01b0b4e96ab6f27c"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "7e73126451cde9f9afe83937e329f30221894bd057437cead55b98c4d828d16c"
+    }
+  ],
+  "staleness_rule": "evaluated_digest は staging-manifest.json#canonical_digest (=sha256:1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf) に束縛される。staging 配下の17ファイル (feature-package.json/workstream-inventory.json/task-graph.json/system-build-handoff.json/task-specs 13件) のいずれか1件でも内容が変わり canonical_digest が再計算されて変化した場合、本 plan-findings.json は無効となり、新しい digest に対して評価をやり直す必要がある。source_feature_digest=sha256:887d7e9ab4115e01a83bf4e15f6b6e7062a808800c14952eddbe2595283c0f60 が変化した場合 (features/feat-site-scoped-authoring-ia.md および context.json の再確定) や system-spec/spec-state.json#qa_log[qa-uiux-web-site-scoped-authoring-ia|qa-frontend-web-site-scoped-route-ownership]/matrix.ui-ux.web.qa_ref/matrix.frontend.web.qa_ref が変化した場合、また依存4 feature (feat-blog-scoped-admin-console/feat-reference-blog-admin-ux/feat-blog-metrics-rollup/feat-blog-ops-crud) の confirmation_status/evaluation_status が変化した場合も同様に無効化し、system-dev-plan-architect による再生成からやり直す。",
+  "findings": [
+    {
+      "severity": "medium",
+      "bucket": "C1-scope-boundary",
+      "observation": "P02/P05/P08 の write_scope が src/app/admin/sites/[site]/ を含み、feat-blog-scoped-admin-console の resource_scope (src/app/admin/sites/[site]/, src/app/admin/blog/, src/app/admin/(cross)/ 等) と同一ディレクトリ階層で重なる。両 feature とも各 task spec 本文で『記事画面そのものの新設・配置は feat-blog-scoped-admin-console が正本、本 feature が記事について担うのは旧 /admin/content/* からの転送だけ』『/admin/sites/[site]/ 配下の各画面そのものの新設は feat-blog-scoped-admin-console』と明示的にスコープ外としているため verdict を FAIL とするほどの逸脱ではないが、両 feature の実装順序によっては同一ディレクトリ配下 (特に src/app/admin/sites/[site]/audience/personas/ や src/app/admin/sites/[site]/writing/ の新設パス) で編集競合・命名衝突が起きうる。P05 実行時に feat-blog-scoped-admin-console が既に配置した9サブルート (appearance/audience/domains/edit/placements/revenue/seo/aeo/documents) との命名衝突が0件であることを機械検査することを推奨する。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#成果物",
+        "task-specs/phase-05-implementation.md#成果物",
+        "task-specs/phase-08-refactoring-migration.md#成果物",
+        "features/feat-blog-scoped-admin-console.md#resource_scope"
+      ]
+    }
+  ]
+}

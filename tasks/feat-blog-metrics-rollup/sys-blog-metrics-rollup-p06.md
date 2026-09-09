@@ -12,8 +12,8 @@ iteration: null
 title: "日次ロールアップのテスト実行と緑化"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:43:38.679699Z"
-status: "active"
+updated_at: "2026-09-04T10:14:22Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P05"]
 related_nodes: []
 resource_scope: ["tests/","docs/spec/feat-blog-metrics-rollup/test-run-report.md"]

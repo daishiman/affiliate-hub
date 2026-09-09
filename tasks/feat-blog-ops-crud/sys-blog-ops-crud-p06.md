@@ -12,8 +12,8 @@ iteration: null
 title: "実装のテスト実行と緑化"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:07:35.402610Z"
-status: "active"
+updated_at: "2026-09-08T00:19:24Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P05"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/test-run-report.md"]

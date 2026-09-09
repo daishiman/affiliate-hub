@@ -12,8 +12,8 @@ iteration: null
 title: "設計レビューとブループリント検証規則 (BP/AT) 整合確認"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:06:18.004374Z"
-status: "active"
+updated_at: "2026-09-08T00:14:03Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/design-review.md"]

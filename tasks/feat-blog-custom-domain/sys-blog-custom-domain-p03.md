@@ -12,8 +12,8 @@ iteration: null
 title: "独自ドメイン設計の独立レビューと着手可否判定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:30Z"
-updated_at: "2026-09-04T02:36:53.868322Z"
-status: "active"
+updated_at: "2026-09-04T08:11:55Z"
+status: "closed"
 depends_on: ["SYS-BLOG-CUSTOM-DOMAIN-P02"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-custom-domain/design-review-findings.md","docs/spec/feat-blog-custom-domain/invariant-checklist.md"]

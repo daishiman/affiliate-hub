@@ -12,8 +12,8 @@ iteration: null
 title: "reader_interaction_events のデータモデルと計測契約の確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:53:31.403284Z"
-status: "active"
+updated_at: "2026-09-04T10:31:01Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-reader-behavior-analytics/data-model.md","docs/spec/feat-reader-behavior-analytics/ingest-contract.md","docs/spec/feat-reader-behavior-analytics/aggregation-design.md","docs/spec/feat-reader-behavior-analytics/subject-request-design.md"]

@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 側構造化データ経路との重複解消と移行"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T02:33:23.010371Z"
-status: "active"
+updated_at: "2026-09-04T11:01:27Z"
+status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P05"]
 related_nodes: []
 resource_scope: ["src/domain/aeo/","src/application/aeo/","docs/spec/feat-aeo-answer-optimization/migration-notes.md"]

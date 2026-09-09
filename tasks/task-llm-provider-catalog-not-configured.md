@@ -12,7 +12,7 @@ iteration: null
 title: "モデルの目録(LLM_PROVIDER_CATALOG)が未設定で、鍵を入れてもモデルが並ばない"
 owners: ["daishiman"]
 created_at: "2026-08-18T07:10:00Z"
-updated_at: "2026-08-18T07:10:00Z"
+updated_at: "2026-09-08T07:29:56.335340Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "設定が空のため、実装済みの経路が手元�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-llm-provider-catalog-not-configured.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-5dr","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

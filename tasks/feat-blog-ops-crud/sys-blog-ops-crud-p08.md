@@ -12,8 +12,8 @@ iteration: null
 title: "既存 articles スキーマ・admin/content 系画面との重複解消と移行"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-09-04T03:08:24.291007Z"
-status: "active"
+updated_at: "2026-09-08T00:24:37Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P05"]
 related_nodes: []
 resource_scope: ["src/db/schema.ts","drizzle/","src/app/admin/content/","src/app/admin/blog/articles/","docs/spec/feat-blog-ops-crud/migration-report.md"]

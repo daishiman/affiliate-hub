@@ -12,7 +12,7 @@ iteration: null
 title: "配信の予約を D1 へ保存する"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-17T08:00:15.303885Z"
+updated_at: "2026-09-08T07:14:07.516192Z"
 status: "done"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "docs/product/backlog.md の残課題を作業単位と�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-distribution-persistence.md","confidence":0.95}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-xr5","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

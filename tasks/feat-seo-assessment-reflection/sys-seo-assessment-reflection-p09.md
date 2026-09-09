@@ -12,8 +12,8 @@ iteration: null
 title: "SEO 診断の非機能検査"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T03:02:11.284048Z"
-status: "active"
+updated_at: "2026-09-04T10:45:42Z"
+status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P08"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-assessment-reflection/quality-report.md","tests/"]

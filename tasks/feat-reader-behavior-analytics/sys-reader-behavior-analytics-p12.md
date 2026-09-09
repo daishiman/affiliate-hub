@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測の運用手順と説明"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:57:42.734861Z"
-status: "active"
+updated_at: "2026-09-04T10:31:21Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P10","SYS-READER-BEHAVIOR-ANALYTICS-P11"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-reader-behavior-analytics/operations-runbook.md","docs/spec/feat-reader-behavior-analytics/"]

@@ -12,8 +12,8 @@ iteration: null
 title: "読者行動計測の最終レビュー"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:24Z"
-updated_at: "2026-09-04T02:56:52.938875Z"
-status: "active"
+updated_at: "2026-09-04T10:31:17Z"
+status: "closed"
 depends_on: ["SYS-READER-BEHAVIOR-ANALYTICS-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-reader-behavior-analytics/final-review.md"]

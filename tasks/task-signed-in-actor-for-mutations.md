@@ -12,7 +12,7 @@ iteration: null
 title: "変更を起こす操作 17 個が、身元を確かめずに見本へ落ちる"
 owners: ["daishiman"]
 created_at: "2026-08-18T06:30:00Z"
-updated_at: "2026-08-18T06:30:00Z"
+updated_at: "2026-09-08T07:29:03.573677Z"
 status: "draft"
 depends_on: []
 related_nodes: []
@@ -39,7 +39,7 @@ classification_reason: "入口の門を置いても、変更操作は独立し�
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-signed-in-actor-for-mutations.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-dao","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

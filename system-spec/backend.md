@@ -3,7 +3,7 @@ status: confirmed
 category: backend
 aggregate: 確定
 spec_cells: [backend.web, backend.mobile, backend.tablet, backend.desktop-windows, backend.desktop-linux, backend.desktop-macos]
-serves_goals: [G2, G1, G3]
+serves_goals: [G1, G2, G3]
 ---
 
 # バックエンド (backend)
@@ -15,12 +15,12 @@ serves_goals: [G2, G1, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-prose-verbatim`, `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4`, `qa-seo-approved-diff-20260906`, `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
+| タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
 
 ## 確定セルの記録 (正本 spec-state.json)
 
@@ -30,9 +30,9 @@ serves_goals: [G2, G1, G3]
 |---|---|
 | セル | backend × web |
 | 状態 | 確定 |
-| 確定質疑 (qa_ref) | `qa-seo-approved-diff-20260906` |
-| 資するゴール (serves_goals) | G2, G1, G3 |
-| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-spec-intake`) |
+| 確定質疑 (qa_ref) | `qa-backend-web-prose-verbatim` |
+| 資するゴール (serves_goals) | G1, G2, G3 |
+| required-info | `domain-model` — missing_effect: block / 接地: 済 (`qa-backend-web-domain-aeo-behavior`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
@@ -57,53 +57,35 @@ serves_goals: [G2, G1, G3]
 
 ## 確定内容 (質疑録)
 
-### qa-seo-approved-diff-20260906 (対応セル: web)
+### qa-backend-web-prose-verbatim (対応セル: web)
 
-**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
+**質問**: backend×web: 記事本文の保存について利用者は何を求めたか。保存形の受入条件を起草する前に、利用者が実際に発した言葉を逐語で記録する
 
-**回答**: つづけて
+**回答**: [追加要望 (2026-09-05)]
+「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
 
-### qa-neutral-search-method-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+[機能要望 (2026-09-05)]
+「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
 
-**質問**: 読者向けブログの検索はどの方式にしますか。Cloudflare Workers + D1 構成が前提です。(a) D1 の FTS5 全文検索 — 本文まで検索できる。外部サービスを増やさず D1 の中で完結する。日本語は形態素解析が使えず trigram の部分一致が上限なので検索精度に天井がある。索引のぶん保存量と書き込み費用が増える。(b) 題名・カテゴリの部分一致のみ — 実装が最も軽く、索引を持たないので保存量も書き込み費用も増えない。本文中の語では記事が見つからないため、題名に含まれない話題を探している読者は辿り着けない。(c) 外部検索サービスを足す — 日本語の形態素解析やあいまい検索など、精度の上限が最も高い。一方で鍵の管理・障害時の縮退・月額費用という運用が新たに3つ増え、Cloudflare の外に依存先ができる。（2026-09-03 AskUserQuestion『検索方式』。独立監査 C06 が qa-decision-search-method-v4 を『推奨バッジが片方にだけ付いた状態で提示されており、他の選択肢と対等に提示されていない疑いがある』と指摘したため、推奨表示を外し 3 案を対等に並べて再提示した。順序は前回と同一。利用者は前回と同じ案を選んだ）
+※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
 
-**回答**: D1 の FTS5 全文検索
+### qa-backend-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
-### qa-neutral-aio-policy-v7 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+**質問**: backend×web: カスタムドメインの接続・検証・証明書、読者行動の受け口、日次ロールアップ、SEO/AEO の評価と記事への反映は、どの処理単位でどう並べるか
 
-**質問**: AI 検索（AIO）へ向けて、記事の内容をどこまで出しますか。(a) 目次のみ（llms.txt）＋AI学習は許可 — 題名・URL・短い説明だけを出す。【利点】本文は自サイトへ読みに来てもらう形が保たれ、流入が維持される。出す情報が少ないので生成の経路も軽い。後から全文へ広げる余地が残る。【懸念】AI 検索面が本文を引用しにくく、被引用の機会は全文提供より減る。学習許可により自分の文章は学習に使われる。(b) 全文（llms-full.txt）まで出す — 【利点】AI 検索面が本文を引用しやすく、被引用の機会が最も多い。AI 経由の可視性が最大になる。【懸念】本文が自サイトの外で読めてしまうため流入は減りうる。一度出した本文は取り消せない。(c) 何も出さず AI 学習も拒否 — AI 向けの表現物を作らない。【利点】実装コストがゼロで、生成・更新・混入事故の面倒が一切生じない。自分の文章が学習にも引用にも使われず、著作物の管理が手元に完全に残る。読者は必ず自サイトへ来る。【懸念】AI 検索経由の可視性は得られない。今後 AI 検索の比重が上がった場合、後から方針を変えても失った期間は取り戻せない。（2026-09-04 AskUserQuestion『AIO方針』。独立監査 C06 が qa-neutral-aio-policy-v6 の質問文自体を『(a)(b) は「利点＋懸念」の対称構成なのに (c) だけ肯定的な言い回しが一切なく、実装コストがゼロ・学習データへの不使用というありうる利点が書かれていない。否定側の排除に類する機序として中立回答を妨げる疑いがある』と指摘したため、3 案とも「利点＋懸念」を揃えて再提示した。順序は前回と同一。利用者の選択は前回と同じ (b) で変わらなかった）
+**回答**: 4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない
 
-**回答**: (b) 全文まで出す
+### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
-### qa-neutral-ai-surface-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+**質問**: backend×web: 定期 SEO/AEO 再点検の対象 0 件成功、一部失敗、全件失敗、対象取得失敗をどう区別し、最終実行時刻をどの workspace の管理画面に表示するか (P13 書き戻し・v3)。
 
-**質問**: AI 検索への出し方はどの形にしますか。(a) llms-full.txt ＋ WebMCP の両方 — AI 検索に引用される経路と、AI エージェントに検索・記事取得を使わせる経路の両方を持つ。実装は 2 系統分増える。WebMCP はまだ新しい仕様で対応するエージェントが限られるため、効果が出るのは先になる。(b) llms-full.txt のみ — AI 検索への被引用を狙う目的に対してはこれだけで十分で、今すぐ効く。実装も静的ファイルの生成だけで済む。サイトを訪れた AI エージェントは、普通の人間と同じように画面を読むしかない。(c) WebMCP のみ — AI エージェントに対しては最も高度なことができる。ただし AI 検索のクローラは WebMCP を呼ばないので、『検索結果に引用される』という今回の目的には直接は効かない。（2026-09-03 AskUserQuestion『AIへの出し方』。利用者が qa-neutral-aio-policy-v6 の回答内で『webmcpとか使えばいい？』と逆質問したことへ、llms-full.txt は取りに来るクローラに読ませるもの・WebMCP は訪れたエージェントに操作させるもので狙う場面が別であると回答したうえで提示した）
+**回答**: 2026-09-04 時点の実装では、記事単位の点検結果と cron 自体の実行結果を別の状態として扱う。記事は未点検／全合格／要修正／取得不能、定期再点検は未実行／成功／一部失敗／失敗／状態取得不能を区別する。成功は失敗 0 件で対象 0 件も含み、一部失敗は保存の成功と失敗が混在、全件の保存失敗と対象取得失敗は失敗とする。固定 failure code で後ろ 2 つも区別し、自由文の例外は保存しない。
 
-**回答**: llms-full.txt ＋ WebMCP の両方
+scheduler は非停止 workspace を列挙した後、既存の古い順の全体バッチを 1 回だけ取得する。1 起動の上限 50 件は変えず、処理結果だけを workspace 別に集計する。対象取得自体が失敗したときも、列挙済みの各 workspace へ失敗と開始／完了時刻を残してから入口へ失敗を返す。run-state の保存失敗も成功に潰さない。Worker はジョブごとの独立 `waitUntil` と catch を維持し、失敗時は成功ログを出さず retry も要求しない。DB binding が無い場合は警告ログのみとする。
 
-### qa-neutral-auto-scope-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+管理画面は actor の `workspaceId` だけを読み口へ渡し、隣の workspace の状態や件数を表示しない。各最終状態に開始時刻と最終完了時刻、この回の対象／保存／失敗件数を表示する。対象 0 件は「この回で再点検した記事は無い」という事実だけを示し、未実行や失敗と混ぜない。
 
-**質問**: 自動反映で、機械が公開中の記事を書き換えてよい範囲はどこまでですか。いずれも事後通知と差分履歴・取り消しは共通で付けます。(a) 本文以外のみ（メタ情報系）— 題名タグ・説明文・構造化データ・alt テキスト・内部リンクだけを機械が直す。読者が目にする本文は変わらないので、書き手の文章が勝手に変わる事態が起きない。本文の問題 (見出しの欠落など) は提案のまま残る。(b) 本文の見出し・導入文まで — 見出し階層の欠落や導入文の不足という、検索への影響が大きい部分も機械が直せる。本文の骨格に機械が手を入れるため、書き手の文章の調子が変わることがある。(c) 制限なし（本文全体も含む）— 分析が示した箇所は本文全体を含めて機械が直す。所見が一つも放置されない一方で、推敲した表現や体験談が機械の都合で書き換えられうる。取り消せるが、検索側が変更後を取得した後ならその記録は戻らない。（2026-09-03 AskUserQuestion『自動の範囲』）
-
-**回答**: 次回以降の記事全般・文章・タイトル・画像など、記事を構成する全て
-
-### qa-neutral-citation-check-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: AI 検索で自サイトが引用されたかを調べるのに、どの問い合わせ先を使いますか。鍵はいずれも運営者が Cloudflare の画面から登録し、リポジトリには置きません。(a) 既に使っている AI 基盤の web 検索機能 — Claude / OpenAI / Gemini はすでにこの製品の取得対象一覧に入っており、新しい契約先を増やさない。引用 URL の返り方は各社で形が違うため、揃える処理を自分で書くことになる。(b) Perplexity Sonar API を足す — 引用した URL が最も構造化された形で返るため、被引用の記録を作る実装が一番素直になる。契約先と鍵が 1 つ増え、月額費用がかかる。(c) 両方を使う — AI 検索面はサービスごとに異なる結果を返すため、複数を見ないと『引用されていない』との判断が偏る。収集先が増えるぶん、実装量と月額費用の両方が増える。（2026-09-03 AskUserQuestion『被引用の確認先』。利用者は選択肢を選ばず費用の制約を述べたため、その制約に沿って (a) を採り、加えてモデルと実行頻度の選び方を回答内容から確定した）
-
-**回答**: コストをできるだけ抑えたい。最小限のllmのモデルでも良い
-
-### qa-answer-aeo-feasibility-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: 利用者が qa-decision-aeo-data-sources-v5 の回答末尾で『1、2、3を自作で行いたいなと思ってます。可能ですか？』と逆質問したことへの応答。3 系統 (サイト内静的解析 / Google Search Console 連携 / AI 検索での被引用チェック) を自作することは可能か。（独立監査 C06 が『利用者の疑問に対する応答が qa_log 上に残っていない』と指摘したため、応答を記録として残す）
-
-**回答**: 可能です。系統1 (サイト内静的解析) は自分の記事データを走査するだけなので外部依存が無く、Workers の中で完結します。系統2 (Google Search Console) は公式 API が公開されており、運営者が登録した認証情報で表示回数・クリック・掲載順位・クエリを取り込めます。系統3 (AI 検索での被引用) は AI 基盤の web 検索機能へ問い合わせ、返る引用 URL に自サイトが含まれるかを記録する形で作れます。ただし 3 系統は再現性が大きく異なるため、同じ『分析結果』として混ぜず、収集・保持・表示のすべての層で分けて持つ必要があります。
-
-### qa-decision-aeo-data-sources-v5 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: AEO/SEO の分析・解析はどのデータ源で行いますか。(1) サイト内の静的解析（自分の記事データから構造化データ・見出し階層・内部リンク・画像 alt などを走査して採点する。外部依存なし） (2) Google Search Console 連携（表示回数・クリック・掲載順位・クエリを取り込む。API 認証が要る） (3) AI 検索での被引用チェック（AI 検索面へ問い合わせ、自サイトが引用されたかを記録する）。どれを使いますか。（2026-09-03 AskUserQuestion『データ源』。qa-followup-aeo-data-sources-v5 と同一の問答を、裏付け entry へ要求される設計適用を伴う形で作り直したもの）
-
-**回答**: 1、2、3を自作で行いたいなと思ってます。可能ですか？
+HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上、1 起動 50 件、毎日 `0 17 * * *` の既存値は変えない。実 D1 での所要時間と記事 350 本超の挙動は引き続き未測定である。
 
 ### qa-backend-web-blog-creation-atomicity (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -174,36 +156,6 @@ serves_goals: [G2, G1, G3]
 
 **回答**: 利用者本人の回答を逐語主旨で記録する。「この UI、UX を整える際に必要な API があれば、それも併せて実行するような流れにしておいてください」。具体的には (1) 各管理対象 (商品・ブログ・SNS チャネル・記事等) の新規作成・削除を含む CRUD API。(2) 商品×ブログの多対多対応付けと、ブログごとのコンセプト管理 API。(3) コンセプトごとの文章生成・保存 API。(4) X・Facebook 等を抽象化した SNS チャネル登録・投稿状態参照 API (プロバイダ追加可能な構成)。(5) ブログごとの構成 (セクション並び・テンプレート・コンポーネントセット) を保存・取得する構成管理 API。ドメインモデルは既確定の qa-backend-web-spec-intake を基礎とし、ブログ構成とチャネルの 2 概念を拡張する。既存のバックエンドスタック (Cloudflare Workers/D1) を継続使用する。
 
-### qa-backend-web-prose-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: backend×web: 記事本文の保存について利用者は何を求めたか。保存形の受入条件を起草する前に、利用者が実際に発した言葉を逐語で記録する
-
-**回答**: [追加要望 (2026-09-05)]
-「これ以外にもコードブロックだったり、カードを生成したりとか、横に画像を並べたりとか、表形式を作成するだったりとか、色をつけたものを作るとか、そういうようないろんなものに対応できるように、記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです。」
-
-[機能要望 (2026-09-05)]
-「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
-
-※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
-
-### qa-backend-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: backend×web: カスタムドメインの接続・検証・証明書、読者行動の受け口、日次ロールアップ、SEO/AEO の評価と記事への反映は、どの処理単位でどう並べるか
-
-**回答**: 4 つのユースケース群に分ける。(1) ドメイン接続: connect-custom-domain が hostname を受け、所有権確認用のトークンを発行し、Cloudflare for SaaS のカスタムホスト名として登録する。verify-custom-domain は provider へ状態を問い、pending/verifying/active/failed を site_custom_domains へ書き戻す。証明書の発行と更新は provider 側の仕事で、こちらは状態を読むだけにする。切断 disconnect-custom-domain は provider から外し、行は revoked として残す (同じホスト名を別 workspace が即座に奪えないようにするため)。(2) 行動計測の受け口: ingest-reader-interactions は 1 リクエストで複数イベントを受け、同意が無ければ reader_key を null のまま保存する。書き込みは append のみで、読者側の描画を待たせない。(3) 集計: rollup-daily-metrics を日次で回し、reader_interaction_events と affiliate_conversions から site_daily_metrics / article_daily_metrics を作る。再実行しても同じ結果になるよう、対象日を丸ごと置き換える形で書く。(4) SEO/AEO: assess-article-seo が公開済み記事の見出し構造・内部リンク・構造化データ・回答単位を測って article_seo_assessments へ残し、apply-seo-recommendation が指摘を記事の下書きへ反映する。反映は自動で公開せず、既存の人間承認の経路に載せる。AEO の出力 (llms.txt・構造化データ・回答単位) は既に公開画面と同じデータから生成している経路を使い、生成ロジックを二重化しない
-
-### qa-backend-web-seo-audit-writeback-p13-v3 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: backend×web: 定期 SEO/AEO 再点検の対象 0 件成功、一部失敗、全件失敗、対象取得失敗をどう区別し、最終実行時刻をどの workspace の管理画面に表示するか (P13 書き戻し・v3)。
-
-**回答**: 2026-09-04 時点の実装では、記事単位の点検結果と cron 自体の実行結果を別の状態として扱う。記事は未点検／全合格／要修正／取得不能、定期再点検は未実行／成功／一部失敗／失敗／状態取得不能を区別する。成功は失敗 0 件で対象 0 件も含み、一部失敗は保存の成功と失敗が混在、全件の保存失敗と対象取得失敗は失敗とする。固定 failure code で後ろ 2 つも区別し、自由文の例外は保存しない。
-
-scheduler は非停止 workspace を列挙した後、既存の古い順の全体バッチを 1 回だけ取得する。1 起動の上限 50 件は変えず、処理結果だけを workspace 別に集計する。対象取得自体が失敗したときも、列挙済みの各 workspace へ失敗と開始／完了時刻を残してから入口へ失敗を返す。run-state の保存失敗も成功に潰さない。Worker はジョブごとの独立 `waitUntil` と catch を維持し、失敗時は成功ログを出さず retry も要求しない。DB binding が無い場合は警告ログのみとする。
-
-管理画面は actor の `workspaceId` だけを読み口へ渡し、隣の workspace の状態や件数を表示しない。各最終状態に開始時刻と最終完了時刻、この回の対象／保存／失敗件数を表示する。対象 0 件は「この回で再点検した記事は無い」という事実だけを示し、未実行や失敗と混ぜない。
-
-HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上、1 起動 50 件、毎日 `0 17 * * *` の既存値は変えない。実 D1 での所要時間と記事 350 本超の挙動は引き続き未測定である。
-
 ### qa-backend-web-aeo-analysis-pipeline-v4 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: backend×web: AEO/SEO の充足度を解析し、その結果をブログと記事エディターへ反映する仕組みをどこにどう置くか。API 契約はどうするか。2026-09-03 利用者ヒアリング。
@@ -226,6 +178,54 @@ HowTo/Speakable の導出、点検履歴 30 件、最終点検から 7 日以上
 SEO/AI 検索ガイドラインの出典 (発行元・URL・確認日・要約) をレジストリとして持ち、確認日から90日を超えたものを要再確認として管理画面へ出す。ガイドライン変更時は仕様セルを R4-reopen する運用とし、判定項目を勝手に書き換えない。
 
 - (注記: 正本 qa_log[qa-backend-web-aeo-analysis-pipeline-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+
+### qa-seo-approved-diff-20260906 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
+
+**回答**: つづけて
+
+### qa-neutral-search-method-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 読者向けブログの検索はどの方式にしますか。Cloudflare Workers + D1 構成が前提です。(a) D1 の FTS5 全文検索 — 本文まで検索できる。外部サービスを増やさず D1 の中で完結する。日本語は形態素解析が使えず trigram の部分一致が上限なので検索精度に天井がある。索引のぶん保存量と書き込み費用が増える。(b) 題名・カテゴリの部分一致のみ — 実装が最も軽く、索引を持たないので保存量も書き込み費用も増えない。本文中の語では記事が見つからないため、題名に含まれない話題を探している読者は辿り着けない。(c) 外部検索サービスを足す — 日本語の形態素解析やあいまい検索など、精度の上限が最も高い。一方で鍵の管理・障害時の縮退・月額費用という運用が新たに3つ増え、Cloudflare の外に依存先ができる。（2026-09-03 AskUserQuestion『検索方式』。独立監査 C06 が qa-decision-search-method-v4 を『推奨バッジが片方にだけ付いた状態で提示されており、他の選択肢と対等に提示されていない疑いがある』と指摘したため、推奨表示を外し 3 案を対等に並べて再提示した。順序は前回と同一。利用者は前回と同じ案を選んだ）
+
+**回答**: D1 の FTS5 全文検索
+
+### qa-neutral-aio-policy-v7 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: AI 検索（AIO）へ向けて、記事の内容をどこまで出しますか。(a) 目次のみ（llms.txt）＋AI学習は許可 — 題名・URL・短い説明だけを出す。【利点】本文は自サイトへ読みに来てもらう形が保たれ、流入が維持される。出す情報が少ないので生成の経路も軽い。後から全文へ広げる余地が残る。【懸念】AI 検索面が本文を引用しにくく、被引用の機会は全文提供より減る。学習許可により自分の文章は学習に使われる。(b) 全文（llms-full.txt）まで出す — 【利点】AI 検索面が本文を引用しやすく、被引用の機会が最も多い。AI 経由の可視性が最大になる。【懸念】本文が自サイトの外で読めてしまうため流入は減りうる。一度出した本文は取り消せない。(c) 何も出さず AI 学習も拒否 — AI 向けの表現物を作らない。【利点】実装コストがゼロで、生成・更新・混入事故の面倒が一切生じない。自分の文章が学習にも引用にも使われず、著作物の管理が手元に完全に残る。読者は必ず自サイトへ来る。【懸念】AI 検索経由の可視性は得られない。今後 AI 検索の比重が上がった場合、後から方針を変えても失った期間は取り戻せない。（2026-09-04 AskUserQuestion『AIO方針』。独立監査 C06 が qa-neutral-aio-policy-v6 の質問文自体を『(a)(b) は「利点＋懸念」の対称構成なのに (c) だけ肯定的な言い回しが一切なく、実装コストがゼロ・学習データへの不使用というありうる利点が書かれていない。否定側の排除に類する機序として中立回答を妨げる疑いがある』と指摘したため、3 案とも「利点＋懸念」を揃えて再提示した。順序は前回と同一。利用者の選択は前回と同じ (b) で変わらなかった）
+
+**回答**: (b) 全文まで出す
+
+### qa-neutral-ai-surface-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: AI 検索への出し方はどの形にしますか。(a) llms-full.txt ＋ WebMCP の両方 — AI 検索に引用される経路と、AI エージェントに検索・記事取得を使わせる経路の両方を持つ。実装は 2 系統分増える。WebMCP はまだ新しい仕様で対応するエージェントが限られるため、効果が出るのは先になる。(b) llms-full.txt のみ — AI 検索への被引用を狙う目的に対してはこれだけで十分で、今すぐ効く。実装も静的ファイルの生成だけで済む。サイトを訪れた AI エージェントは、普通の人間と同じように画面を読むしかない。(c) WebMCP のみ — AI エージェントに対しては最も高度なことができる。ただし AI 検索のクローラは WebMCP を呼ばないので、『検索結果に引用される』という今回の目的には直接は効かない。（2026-09-03 AskUserQuestion『AIへの出し方』。利用者が qa-neutral-aio-policy-v6 の回答内で『webmcpとか使えばいい？』と逆質問したことへ、llms-full.txt は取りに来るクローラに読ませるもの・WebMCP は訪れたエージェントに操作させるもので狙う場面が別であると回答したうえで提示した）
+
+**回答**: llms-full.txt ＋ WebMCP の両方
+
+### qa-neutral-auto-scope-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 自動反映で、機械が公開中の記事を書き換えてよい範囲はどこまでですか。いずれも事後通知と差分履歴・取り消しは共通で付けます。(a) 本文以外のみ（メタ情報系）— 題名タグ・説明文・構造化データ・alt テキスト・内部リンクだけを機械が直す。読者が目にする本文は変わらないので、書き手の文章が勝手に変わる事態が起きない。本文の問題 (見出しの欠落など) は提案のまま残る。(b) 本文の見出し・導入文まで — 見出し階層の欠落や導入文の不足という、検索への影響が大きい部分も機械が直せる。本文の骨格に機械が手を入れるため、書き手の文章の調子が変わることがある。(c) 制限なし（本文全体も含む）— 分析が示した箇所は本文全体を含めて機械が直す。所見が一つも放置されない一方で、推敲した表現や体験談が機械の都合で書き換えられうる。取り消せるが、検索側が変更後を取得した後ならその記録は戻らない。（2026-09-03 AskUserQuestion『自動の範囲』）
+
+**回答**: 次回以降の記事全般・文章・タイトル・画像など、記事を構成する全て
+
+### qa-neutral-citation-check-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: AI 検索で自サイトが引用されたかを調べるのに、どの問い合わせ先を使いますか。鍵はいずれも運営者が Cloudflare の画面から登録し、リポジトリには置きません。(a) 既に使っている AI 基盤の web 検索機能 — Claude / OpenAI / Gemini はすでにこの製品の取得対象一覧に入っており、新しい契約先を増やさない。引用 URL の返り方は各社で形が違うため、揃える処理を自分で書くことになる。(b) Perplexity Sonar API を足す — 引用した URL が最も構造化された形で返るため、被引用の記録を作る実装が一番素直になる。契約先と鍵が 1 つ増え、月額費用がかかる。(c) 両方を使う — AI 検索面はサービスごとに異なる結果を返すため、複数を見ないと『引用されていない』との判断が偏る。収集先が増えるぶん、実装量と月額費用の両方が増える。（2026-09-03 AskUserQuestion『被引用の確認先』。利用者は選択肢を選ばず費用の制約を述べたため、その制約に沿って (a) を採り、加えてモデルと実行頻度の選び方を回答内容から確定した）
+
+**回答**: コストをできるだけ抑えたい。最小限のllmのモデルでも良い
+
+### qa-answer-aeo-feasibility-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 利用者が qa-decision-aeo-data-sources-v5 の回答末尾で『1、2、3を自作で行いたいなと思ってます。可能ですか？』と逆質問したことへの応答。3 系統 (サイト内静的解析 / Google Search Console 連携 / AI 検索での被引用チェック) を自作することは可能か。（独立監査 C06 が『利用者の疑問に対する応答が qa_log 上に残っていない』と指摘したため、応答を記録として残す）
+
+**回答**: 可能です。系統1 (サイト内静的解析) は自分の記事データを走査するだけなので外部依存が無く、Workers の中で完結します。系統2 (Google Search Console) は公式 API が公開されており、運営者が登録した認証情報で表示回数・クリック・掲載順位・クエリを取り込めます。系統3 (AI 検索での被引用) は AI 基盤の web 検索機能へ問い合わせ、返る引用 URL に自サイトが含まれるかを記録する形で作れます。ただし 3 系統は再現性が大きく異なるため、同じ『分析結果』として混ぜず、収集・保持・表示のすべての層で分けて持つ必要があります。
+
+### qa-decision-aeo-data-sources-v5 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: AEO/SEO の分析・解析はどのデータ源で行いますか。(1) サイト内の静的解析（自分の記事データから構造化データ・見出し階層・内部リンク・画像 alt などを走査して採点する。外部依存なし） (2) Google Search Console 連携（表示回数・クリック・掲載順位・クエリを取り込む。API 認証が要る） (3) AI 検索での被引用チェック（AI 検索面へ問い合わせ、自サイトが引用されたかを記録する）。どれを使いますか。（2026-09-03 AskUserQuestion『データ源』。qa-followup-aeo-data-sources-v5 と同一の問答を、裏付け entry へ要求される設計適用を伴う形で作り直したもの）
+
+**回答**: 1、2、3を自作で行いたいなと思ってます。可能ですか？
 
 ## 章の注記 (chapter_notes)
 
@@ -451,6 +451,34 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 - 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+
+- **`decision-llm-provider` が本章に効く形**: 複数プロバイダを保つのは選択肢を
+  増やすためではなく、07 §0 GC-5 (レビュー系を執筆系から分離し、自作自演の検証に
+  しない) を**書き手と検査役に別モデルを当てる**ことで満たすためである。1 社固定に
+  するとこの分離が構成では表せなくなる。単価は `vars` に置き、値上げに気づける
+  状態を保つ。
+- **鍵の扱い**: API 鍵は利用者本人がブラウザまたは別端末で登録する。値も断片も
+  この作業場所には置かない。
+- **`dec-aeo-analysis-trigger` が本章に効く形** (2026-09-04 確定、
+  `opt-publish-gate-plus-scheduled`): 解析は公開操作の経路に置く。解くべき問題は
+  「欠落に気づく」ではなく**「欠落したまま公開される」**なので、検出を増やしても
+  公開経路の外に置く限り問題は残る。ゲートの強さは項目ごとに決める — 全項目を
+  必須にすると公開できない記事が滞留し、ゲートを迂回する運用が生まれて検出が
+  形骸化する。定期再解析は Cron に乗せ、**成否と最終実行時刻を管理画面から
+  読める**ようにする。定期実行の失敗は画面に何も現れないため、記録しなければ
+  「再解析されていないこと」に永久に気づけない。
+- **解析関数は生成関数と同じ入力を見る**。`dec-structured-data-emission` が
+  配信時導出を選んだのは、解析の判定と実際に出力される構造化データが食い違わない
+  ことを構造で保証するためである。解析側が独自にパースし直す実装にすると、この
+  保証が消える。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -617,3 +645,17 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 | google-search-console-api | 2026-08-11 | Google (developers.google.com) | https://developers.google.com/webmaster-tools/v1/searchanalytics/query | 2026-09-03T12:43:18Z | 2026-09-03T12:43:18Z |
 | anthropic-web-search-tool | web_search_20260318 | Anthropic (platform.claude.com) | https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool | 2026-09-03T20:57:54Z | 2026-09-03T21:02:59Z |
 | gemini-google-search-grounding | Gemini 3.8 Flash | Google (ai.google.dev) | https://ai.google.dev/gemini-api/docs/google-search.md.txt | 2026-09-03T20:57:55Z | 2026-09-03T20:57:55Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 9 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `serves_goals: [G2, G1, G3]`
+- `| Web (web) | 確定 | 確定質疑: qa-seo-approved-diff-20260906。裏付け質疑 (`qa_refs`): `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-prose-verbatim`, `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-aeo-analysis-pipeline-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `### qa-seo-approved-diff-20260906 (対応セル: web)`
+- `### qa-backend-web-prose-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)`

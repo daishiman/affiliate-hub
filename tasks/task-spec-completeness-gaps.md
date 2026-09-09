@@ -12,7 +12,7 @@ iteration: null
 title: "仕様の完全性評価が FAIL。gaps 9 件を C01 → C03 → C02 の順で片付ける"
 owners: ["daishiman"]
 created_at: "2026-08-19T08:40:00Z"
-updated_at: "2026-08-19T08:40:00Z"
+updated_at: "2026-09-08T07:38:19.504731Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-spec-gap-c01-spec-intake","task-spec-gap-c01-decisions","task-spec-gap-c01-qa-ref-scope","task-spec-gap-c03-doctrine-citation","task-spec-gap-c03-fence-repair","task-spec-gap-c03-nonnormative-note","task-spec-gap-c02-doc-refetch","task-spec-gap-harness-input-inventory","task-spec-gap-resume-receipt-invalid"]
@@ -39,7 +39,7 @@ classification_reason: "完全性評価（assign-system-spec-completeness-evalua
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-spec-completeness-gaps.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-670","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

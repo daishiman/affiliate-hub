@@ -16,11 +16,11 @@ serves_goals: [G1, G2, G3]
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
 | Web (web) | 確定 | 確定質疑: qa-security-web-worker-image-upload-confirmed-20260906。裏付け質疑 (`qa_refs`): `qa-security-web-domain-behavior-privacy`, `qa-security-web-spec-intake`, `qa-security-web` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
-| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
-| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |
+| モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。 |
+| タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。 |
+| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。 |
+| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。 |
+| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリの配布経路 (ストア審査・署名・改ざん検知・証明書ピンニング) を脅威モデルから外す。守る境界はブラウザと Worker と R2 の間だけに限られ、アップロードと描画の防御もその境界上に置く。 |
 
 ## 確定セルの記録 (正本 spec-state.json)
 
@@ -32,7 +32,7 @@ serves_goals: [G1, G2, G3]
 | 状態 | 確定 |
 | 確定質疑 (qa_ref) | `qa-security-web-worker-image-upload-confirmed-20260906` |
 | 資するゴール (serves_goals) | G1, G2, G3 |
-| required-info | `security-posture` — missing_effect: block / 接地: 済 (`qa-security-web-spec-intake`) |
+| required-info | `security-posture` — missing_effect: block / 接地: 済 (`qa-security-web-domain-behavior-privacy`) |
 | 出典 kind | user-dialogue |
 | 出典 path | — (対話に基づくため path/節/sha256 を持たない) |
 | 出典 節 | — |
@@ -235,6 +235,33 @@ serves_goals: [G1, G2, G3]
 
 - 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。分母を
+本文へ書くと、正本が増えたときに黙って嘘になる。
+
+- **本章を主担当とする decision は 0 件**である (2026-09-04 時点、正本 12 件に
+  対して)。これは security の論点が漏れているという意味ではなく、いずれの決定も
+  第一の適用先を security としないという意味である。security へ波及する条件を
+  持つのは `decision-auth-method` (認証方式そのもの) と `decision-llm-provider`
+  (API 鍵の預け先) の 2 件で、どちらも主担当章側で確定済み。
+- **`decision-llm-provider` の security 面の含意**: API 鍵は利用者本人がブラウザ
+  または別端末で登録する。**鍵の値も、その断片 (先頭数文字を含む) も、この作業
+  場所に置かない・受け取らない・要求しない。**これは §5 秘密情報の運用そのもの
+  である。
+- **G3 (AEO/SEO) の 4 決定が本章へ持ち込む条件**: 構造化データは配信時に記事
+  データから導出する (`dec-structured-data-emission`) ため、**外部から与えられた
+  文字列がそのまま JSON-LD へ流れる経路が生まれる**。JSON-LD は `<script>` 要素の
+  中に置かれるので、エスケープを誤ると本文経路とは別の注入面になる。導出関数の
+  出力を文字列連結で組まないこと。
+- ガイドライン参照の定期取得 (`dec-guideline-registry-recheck`) は外向きの HTTP を
+  定期的に発生させる。**取得先は決め打ちの公式 host に限り、取得内容を判定
+  ロジックとして評価しない** (データとしてのみ扱う)。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -308,3 +335,13 @@ serves_goals: [G1, G2, G3]
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
 | owasp-asvs | 5.0.0 | OWASP Foundation (owasp.org) | https://owasp.org/www-project-application-security-verification-standard/ | 2026-08-16T09:11:19Z | 2026-08-23T00:32:00Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 5 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| モバイル (mobile) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| タブレット (tablet) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (Linux) (desktop-linux) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`
+- `| デスクトップ (macOS) (desktop-macos) | 対象外 | 理由: 対象プラットフォームはWebのみ。モバイル・タブレットはレスポンシブWebとしてwebセルで扱い、ネイティブアプリ・デスクトップアプリはスコープ外 (利用者承認 approval-platform-web-only) |`

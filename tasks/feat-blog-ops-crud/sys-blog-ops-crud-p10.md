@@ -12,8 +12,8 @@ iteration: null
 title: "最終レビューと promotion 可否判定"
 owners: ["daishiman"]
 created_at: "2026-08-25T14:00:26Z"
-updated_at: "2026-08-26T15:05:58.431027Z"
-status: "active"
+updated_at: "2026-09-08T01:11:33Z"
+status: "closed"
 depends_on: ["SYS-BLOG-OPS-CRUD-P07","SYS-BLOG-OPS-CRUD-P09"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-blog-ops-crud/final-review.md"]

@@ -1,7 +1,13 @@
 {
   "schema_version": "1.0.0",
   "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "generation_id": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
   "published_path": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
   "published_digest": "sha256:d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
-  "receipt": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/atomic-promotion-receipt.json"
+  "receipt": ".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/atomic-promotion-receipt.json",
+  "supersedes": {
+    "published_path": ".dev-graph/published/generations/feature-package-feat-site-scoped-authoring-ia/1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
+    "published_digest": "sha256:1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf",
+    "receipt": ".dev-graph/published/generations/feature-package-feat-site-scoped-authoring-ia/1745278db655636ebaf4f2b62d966284b27410ff4e8228ddf3d2ed20509a9daf/atomic-promotion-receipt.json"
+  }
 }

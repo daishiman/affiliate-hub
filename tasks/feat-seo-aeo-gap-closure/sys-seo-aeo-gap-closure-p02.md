@@ -12,8 +12,8 @@ iteration: null
 title: "点検履歴の保持と定期再点検経路とJSON-LD導出の設計"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:23:52.753571Z"
-status: "active"
+updated_at: "2026-09-04T04:37:12Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P01"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/architecture.md","docs/spec/feat-seo-aeo-gap-closure/data-model.md","docs/spec/feat-seo-aeo-gap-closure/api-contract.md"]

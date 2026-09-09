@@ -12,8 +12,8 @@ iteration: null
 title: "日次ロールアップのリリースと仕様書への書き戻し"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T02:46:58.134930Z"
-status: "active"
+updated_at: "2026-09-04T10:14:37Z"
+status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P12"]
 related_nodes: []
 resource_scope: ["system-spec/backend.md","system-spec/database.md","docs/spec/feat-blog-metrics-rollup/release-notes.md"]

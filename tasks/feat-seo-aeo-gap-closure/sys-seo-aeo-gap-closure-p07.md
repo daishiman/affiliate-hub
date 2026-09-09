@@ -12,8 +12,8 @@ iteration: null
 title: "受入6件の受け入れ判定"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:25:38.640731Z"
-status: "active"
+updated_at: "2026-09-04T07:47:07Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P06"]
 related_nodes: []
 resource_scope: ["docs/spec/feat-seo-aeo-gap-closure/acceptance.md"]

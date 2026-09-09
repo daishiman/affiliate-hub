@@ -12,7 +12,7 @@ iteration: null
 title: "確定 8 章の意思決定表を、人の手ではなく compile に描かせる"
 owners: ["daishiman"]
 created_at: "2026-08-31T14:00:00Z"
-updated_at: "2026-08-31T14:00:00Z"
+updated_at: "2026-09-08T07:56:01.687370Z"
 status: "draft"
 depends_on: []
 related_nodes: ["task-seed-satisfies-public-entry"]
@@ -39,7 +39,7 @@ classification_reason: "章は status: confirmed なので C11 hook が Edit を
 classification_candidates: [{"artifact_kind":"task","candidate_path":"tasks/task-chapter-decisions-generated-by-compile.md","confidence":0.9}]
 issue_linkage: null
 tracker_binding: "beads"
-beads_linkage: null
+beads_linkage: {"bd_issue_id":"ah-lwmf","github_mirror":null,"linked_at":"2026-09-08T07:14:07Z","sync_state":"linked"}
 github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_aliases":[]}
 github_project_linkages: []
 pull_request_linkages: []

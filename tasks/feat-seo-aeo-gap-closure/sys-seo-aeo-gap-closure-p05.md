@@ -12,8 +12,8 @@ iteration: null
 title: "HowTo・Speakable 導出と点検履歴と定期再点検と管理画面一覧の実装"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:24:56.121974Z"
-status: "active"
+updated_at: "2026-09-04T07:44:01Z"
+status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P04"]
 related_nodes: []
 resource_scope: ["src/application/seo","src/domain/authoring","src/domain/seo","src/db/schema.ts","drizzle","src/infrastructure/persistence/d1","src/application/ports","src/application/usecases","src/app/admin","src/app/s","worker-entry.js","tests"]
