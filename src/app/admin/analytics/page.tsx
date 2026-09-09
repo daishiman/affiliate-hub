@@ -5,6 +5,7 @@ import { AdminShell } from "@/presentation/admin/admin-shell";
 import { analyticsNotice, analyticsUseCases, currentActor } from "@/presentation/composition";
 import {
   ActionNote,
+  BarChart,
   Callout,
   DataTable,
   EmptyView,
@@ -73,6 +74,28 @@ export default async function AnalyticsPage({
     ? metrics.value.rows.find((row) => row.key === key)?.valueLabel ?? "未計測"
     : "未計測";
 
+  /*
+   * 棒にできるのは「割合」の数字だけ。
+   *
+   * 数字の一覧には件数と割合が混ざっている。混ぜて 1 本の棒にすると、
+   * 「1200 件」と「12%」が同じ物差しで並び、棒の長さだけが比べられそうに見える。
+   * 割合かどうかの見分け方は domain 側の規則（key が `_rate` / `_ratio` で終わる）
+   * に合わせる。画面で判定を書き起こすと、軸を足した日にここだけ古くなる。
+   *
+   * 未計測（value が null）は棒から外す。0 の棒は「0%だった」に見えるが、
+   * 実際は「まだ数えていない」で、意味がまったく違う。
+   */
+  const ratioPoints = !metrics.ok
+    ? []
+    : metrics.value.rows
+        .filter((r) => (r.key.endsWith("_rate") || r.key.endsWith("_ratio")) && r.value !== null)
+        .map((r) => ({
+          key: r.key,
+          label: r.label,
+          value: r.value ?? 0,
+          valueLabel: r.valueLabel,
+        }));
+
   return (
     <AdminShell
       routeId="analytics"
@@ -118,6 +141,21 @@ export default async function AnalyticsPage({
                 },
               ]}
             />
+            {/*
+              **要約の 3 つと棒は役割が違う。**
+              上の 3 つは「探す・読む・次へ」の各段で今どうなっているかを言葉で示す。
+              棒は割合の数字を横に並べ、どれが目立って低いかを一目で掴ませる。
+              片方だけにすると、意味の説明か、比べやすさのどちらかが落ちる。
+            */}
+            {ratioPoints.length === 0 ? null : (
+              <BarChart
+                title="割合で見る数字"
+                unit="割合"
+                period="直近 30 日"
+                textSummary="件数の数字は混ぜていません。単位がそろっているものだけを並べています。"
+                pointValues={ratioPoints}
+              />
+            )}
             <Note>行動の記録に同意した読者が対象です。「未計測」は0ではありません。数字だけで改善の効果を断定せず、記事と導線を確かめます。</Note>
           </Section>
 

@@ -12,7 +12,7 @@ iteration: null
 title: "参照ブログ解析と低認知負荷の運用 UX"
 owners: ["daishiman"]
 created_at: "2026-08-29T14:36:00Z"
-updated_at: "2026-09-08T07:47:38.475745Z"
+updated_at: "2026-09-09T03:18:04.488664Z"
 status: "active"
 depends_on: ["feat-blog-ops-crud","feat-blog-ui-builder","feat-affiliate-inbox"]
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview","feat-affiliate-hub","feat-reader-surface"]
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"b510acf0dcaa4ac8731560386a1e2ab0fa3284fed594391394628aa5e19eb6fa","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-09T03:18:04.488664Z","origin_kind":"generated","source_digest":"d914bdc51b26c001641963d8cbe7f1059303396527f95b674016e359696d056b","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.98
 classification_reason: "今回の新規要望を、参照サイトの全URL台帳と画面型別詳細解析、非模倣の公開面ブループリント、低認知負荷の管理CRUD、アフィリエイト即時プレビュー/掲載先逆引きを一体の観測可能なenhancement featureにマクロ分解した。既存CRUD基盤は再定義せずdepends_onで再利用する"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-reference-blog-admin-ux.md","confidence":0.98}]

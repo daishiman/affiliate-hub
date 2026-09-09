@@ -45,7 +45,7 @@ pull_request_linkages: [{"base_branch":"dev","closing_reference_verified":false,
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"],"policy":"manual","reconciled_at":null,"source":"reconciliation","status":"open"}
 implementation_readiness: {"checked_at":"2026-08-21T12:00:00Z","missing_sections":[],"status":"complete"}
-acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:21b9f20d83a9cb354e162b08ac503f88265d2aede5b60644e7cf9498a75120df","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
+acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:8b1cce8f351873dafeb7eef18e05a9965f9f37eaf14ff691eca93ec30c6a44f1","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
 ---
 
 # 目的

@@ -9,11 +9,21 @@ export type AdminDisclosureContract =
       readonly targetRouteId: AdminRouteId;
     };
 
+/*
+  2026-09-09: dev との合流で、宣言と実態が両方向にずれていた。
+
+  `evidence` は「たたむ」と言い続けていたが、1 段辿っても `<Foldable>` が
+  1 つも無い。逆に `blog/articles/deleted` と `blog/articles/new` は実際に
+  たたんでいるのに宣言が無かった。**宣言だけが残るのも、実装だけが進むのも
+  同じ壊れ方をする** — 台帳と実物のどちらを見ても、もう片方が分からなくなる。
+  だから宣言は実測（`<Foldable` を描いているか）に合わせる。
+*/
 const FOLDABLE_ROUTES = new Set<AdminRouteId>([
   "analytics",
   "seo",
   "blog/articles/[article]",
-  "evidence",
+  "blog/articles/deleted",
+  "blog/articles/new",
   // 2026-09-08: `personas/audiences` は転送の殻になったため、たたむ中身を持つ
   // 実体である site 配下へ移した。転送だけの route を foldable と宣言し続けると、
   // 「たたんである」と台帳が言うのに開く物が無い状態になる。
