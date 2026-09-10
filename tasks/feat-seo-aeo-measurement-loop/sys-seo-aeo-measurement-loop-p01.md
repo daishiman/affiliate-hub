@@ -9,10 +9,10 @@ priority: null
 start_date: null
 target_date: null
 iteration: null
-title: "3データ源SEO/AEO計測ループの要件ベースライン (自動反映・可逆性・時間範囲限定の非機能要件を含む)"
+title: "3データ源SEO/AEO計測ループの要件ベースライン (自動反映・可逆性・対象範囲の非機能要件を含む)"
 owners: ["daishiman"]
 created_at: "2026-09-04T05:19:32Z"
-updated_at: "2026-09-04T05:19:32Z"
+updated_at: "2026-09-10T09:00:00Z"
 status: "active"
 depends_on: []
 related_nodes: ["arch-system-spec-overview","arch-two-layer-platform"]
@@ -20,7 +20,7 @@ resource_scope: ["docs/spec/feat-seo-aeo-measurement-loop/requirements.md"]
 purpose: "サイト内静的解析・Search Console連携・AI被引用チェックの3データ源とその自動反映ループについて、feature受入A1-A8と、system-spec由来の非機能要件NFR1-9を1件も欠落・改変させずに要件定義書へ確定し、以降全phaseの固定入力にする。"
 goal: "サイト内静的解析・Search Console連携・AI被引用チェックの3データ源とその自動反映ループについて、feature受入A1-A8と、system-spec由来の非機能要件NFR1-9を1件も欠落・改変させずに要件定義書へ確定し、以降全phaseの固定入力にする。"
 scope_in: ["Produced artifacts: docs/spec/feat-seo-aeo-measurement-loop/requirements.md","Consumed artifacts: features/feat-seo-aeo-measurement-loop.md, features/feat-seo-aeo-measurement-loop.context.json, system-spec/backend.md, system-spec/maintenance-ops.md, system-spec/database.md","Write scope/touches: docs/spec/feat-seo-aeo-measurement-loop/requirements.md"]
-scope_out: ["アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)","JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)","有料広告の効果測定、外部 SEO SaaS の利用","この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映","検索エンジンへの順位操作を目的とした手法"]
+scope_out: ["アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)","JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)","有料広告の効果測定、外部 SEO SaaS の利用","差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)","検索エンジンへの順位操作を目的とした手法"]
 acceptance: ["Automated commands: `python3 \"/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py\" --repo-root . --staging .dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop`","Required evidence:"]
 architecture_refs: ["arch-system-spec-overview","arch-two-layer-platform"]
 parent_feature: "feat-seo-aeo-measurement-loop"
@@ -47,7 +47,7 @@ completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"linked_pr
 implementation_readiness: {"checked_at":"2026-09-04T03:19:00Z","missing_sections":[],"status":"complete"}
 ---
 
-# System task overlay: 3データ源SEO/AEO計測ループの要件ベースライン (自動反映・可逆性・時間範囲限定の非機能要件を含む)
+# System task overlay: 3データ源SEO/AEO計測ループの要件ベースライン (自動反映・可逆性・対象範囲の非機能要件を含む)
 
 ## Machine-readable registration fields
 
@@ -123,7 +123,7 @@ SEO/AEOの良し悪しを推測ではなく自前の計測(サイト内静的解
 - アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)
 - JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)
 - 有料広告の効果測定、外部 SEO SaaS の利用
-- この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映
+- 差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)
 - 検索エンジンへの順位操作を目的とした手法
 
 ## テスト戦略
@@ -138,7 +138,7 @@ SEO/AEOの良し悪しを推測ではなく自前の計測(サイト内静的解
 - Automated commands: `python3 "/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py" --repo-root . --staging .dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop`
 - Required evidence:
   - docs/spec/feat-seo-aeo-measurement-loop/requirements.md
-- Acceptance state: P01: features/feat-seo-aeo-measurement-loop.md の受入 A1〜A8 (frontmatter canonical) と、system-spec/maintenance-ops.md qa-ops-web-aeo-auto-apply-v6 系および system-spec/backend.md qa-backend-web-aeo-analysis-pipeline-v6 由来の非機能要件 NFR1〜NFR9 (可逆性・時間範囲限定・事後通知・停止可能性・根拠系統限定・停止検出・効果判定遅延・秘密情報境界・費用上限) を1件も欠落・改変なく要件定義書へ転記し、以降のP02〜P13が参照する固定ベースラインとして確定する。
+- Acceptance state: P01: features/feat-seo-aeo-measurement-loop.md の受入 A1〜A8 (frontmatter canonical) と、system-spec/maintenance-ops.md qa-ops-web-aeo-auto-apply-v6 系および system-spec/backend.md qa-backend-web-aeo-analysis-pipeline-v6 由来の非機能要件 NFR1〜NFR9 (可逆性・対象範囲・事後通知・停止可能性・根拠系統限定・停止検出・効果判定遅延・秘密情報境界・費用上限) を1件も欠落・改変なく要件定義書へ転記し、以降のP02〜P13が参照する固定ベースラインとして確定する。
 
 ## Inner goal-seek execution loop
 
@@ -158,7 +158,7 @@ SEO/AEOの良し悪しを推測ではなく自前の計測(サイト内静的解
 
 - Executor: system build route。dev-graph登録とworktree claim後に実行する
 - Ready when: confirmed、evaluation pass、implementation readiness complete、promoted digest、dev-graph exact-13 registrationが揃う
-- Completion condition: P01: features/feat-seo-aeo-measurement-loop.md の受入 A1〜A8 (frontmatter canonical) と、system-spec/maintenance-ops.md qa-ops-web-aeo-auto-apply-v6 系および system-spec/backend.md qa-backend-web-aeo-analysis-pipeline-v6 由来の非機能要件 NFR1〜NFR9 (可逆性・時間範囲限定・事後通知・停止可能性・根拠系統限定・停止検出・効果判定遅延・秘密情報境界・費用上限) を1件も欠落・改変なく要件定義書へ転記し、以降のP02〜P13が参照する固定ベースラインとして確定する。
+- Completion condition: P01: features/feat-seo-aeo-measurement-loop.md の受入 A1〜A8 (frontmatter canonical) と、system-spec/maintenance-ops.md qa-ops-web-aeo-auto-apply-v6 系および system-spec/backend.md qa-backend-web-aeo-analysis-pipeline-v6 由来の非機能要件 NFR1〜NFR9 (可逆性・対象範囲・事後通知・停止可能性・根拠系統限定・停止検出・効果判定遅延・秘密情報境界・費用上限) を1件も欠落・改変なく要件定義書へ転記し、以降のP02〜P13が参照する固定ベースラインとして確定する。
 
 ## 参照情報
 
@@ -175,14 +175,14 @@ SEO/AEOの良し悪しを推測ではなく自前の計測(サイト内静的解
 - A3: Search Consoleの資格情報がサーバー環境変数からのみ読まれ、リポジトリ・管理画面・ログのいずれにも現れないことを機械検査で確認できる
 - A4: 被引用チェックの実行件数に上限を設定でき、上限到達時は記録して停止する
 - A5: 3データ源の結果が同じページ識別子で突合され、ページ別に一覧・推移表示できる
-- A6: 導入後に作成された記事へ改善が自動で反映され、反映の事実・変更前後の差分・時刻が記録されて運営者へ通知される。導入前から公開されている記事は自動反映されず所見として提示されるに留まる
+- A6: 作成日時を問わず全ての記事 (作成日時が不明な記事を含む) へ改善が機械により反映され、反映の事実・変更前後の差分・時刻が記録されて、反映と同じ確定単位で運営者へ通知される。反映前の関門は置かない。反映は記事 1 件を単位に、記事更新・変更前後の差分記録・所見の反映済みの印を同一確定単位で保存し、途中で失敗したら 1 つも変えない
 - A7: 自動反映が公開HTMLへ出たことを次回の静的解析で確認でき、記録された反映を1操作で取り消すと反映前の状態に戻る。自動反映は運営画面から停止でき、停止中も3データ源の収集と課題の提示は続く
 - A8: 定期実行が失敗したとき失敗した回と理由が記録され、次回の実行を妨げない
 
 ## 非機能要件対応表 (NFR1-9, system-spec由来)
 
 - NFR1 (可逆性): 自動反映は変更前の状態を必ず先に記録し、記録が取れなければ書き換えを実行しない。反映は差分として記録され1操作で元へ戻せる。この3つが揃わない反映経路を実装として持たない (system-spec/maintenance-ops.md 接地根拠 qa-neutral-application-mode-v6)。
-- NFR2 (時間範囲限定): 自動反映の対象はこの仕組みの導入後に作成された記事に限る。この境界は記事の作成時刻という機械が判定できる値で引き、運用の心がけに委ねない。範囲内では本文・題名・画像を含む全要素が対象で、要素の種類では線を引かない (system-spec/maintenance-ops.md 接地根拠 qa-neutral-auto-scope-v6)。
+- NFR2 (対象範囲): 自動反映の対象は作成日時を問わず全ての記事とし、作成日時が不明な記事も含める。時刻による境界は引かない。範囲で守らないぶん、記事 1 件を単位とした同一確定単位での保存と、読み出した版との一致検査が安全性の必須条件になる。本文・題名・画像を含む全要素が対象で、要素の種類では線を引かない (system-spec/maintenance-ops.md 接地根拠 qa-neutral-auto-scope-v6、qa-seo-apply-target-scope-20260910、qa-seo-apply-approval-mode-20260910)。
 - NFR3 (事後通知): 何をいつなぜ変えたかを運営者へ通知する。通知は可逆性の担保ではなく気づきの手段として扱い、通知を見逃しても後から変更の一覧を辿れる面を用意する。
 - NFR4 (停止可能性): 自動反映は運営画面から止められる。止めた状態でも所見の収集と提示は続く。止めた事実と再開した事実も記録に残し、止まっている状態を運営画面の入口に出し続ける。
 - NFR5 (根拠系統の限定): 自動反映の根拠にできるのは再現する系統①(サイト内静的解析)だけとし、系統②(Search Console)と系統③(AI検索被引用)は反映後に何が動いたかを見る材料に留める。人が事前に根拠の弱さを見て止める経路(旧qa-ops-web-aeo-proposal-review-v5)は差し替え済みで自動反映には止める人がいないため、型の側で限る (system-spec/backend.md qa-backend-web-aeo-analysis-pipeline-v6)。

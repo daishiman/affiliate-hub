@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-uiux-web-site-scoped-authoring-ia。裏付け質疑 (`qa_refs`): `qa-uiux-web-editor-verbatim`, `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope`, `qa-seo-approved-diff-20260906`, `qa-uiux-web-top-composition-v6`, `qa-request-thumbnail-coverage-v6`, `qa-neutral-ogp-fallback-v6` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-uiux-web-site-scoped-authoring-ia。裏付け質疑 (`qa_refs`): `qa-seo-apply-approval-mode-20260910`, `qa-seo-performance-presentation-20260910`, `qa-uiux-web-editor-verbatim`, `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope`, `qa-uiux-web-top-composition-v6`, `qa-request-thumbnail-coverage-v6`, `qa-neutral-ogp-fallback-v6` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、OS ごとの操作規約 (iOS HIG / Material / デスクトップのメニュー体系) へ合わせる画面分岐を持たない。タッチ操作と狭い画面幅はレスポンシブ Web の範囲で扱い、ブロックエディターの操作体系もブラウザ 1 系統だけを設計する。 |
@@ -59,6 +59,18 @@ serves_goals: [G1, G2, G3]
 **質問**: ui-ux×web: 記事・読者像・書き方の決め事を、いまの全体横断の管理からブログ単位の管理へ移すか。移す場合、横断画面には何を残し、いま 93 本ある管理画面で『どこで何をするか』をどう分かるようにするか
 
 **回答**: 移す。いま管理画面は記事ごとに管理する形で、サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理するべきところを、全体で構成する形になっている。そのため UI/UX の認知負荷が高い。認知負荷を下げるために、サイトごとに構成する。記事・読者像・書き方の決め事は、全ブログで共通の資産ではなくブログごとに異なるため、ブログに属するものとして扱う。全体で 1 つだけ持つと、書き手は『いま自分がどのブログの決め事を見ているのか』を画面の外で覚えておく必要があり、これが認知負荷の主因になる。横断画面はブログ間の比較と『どのブログに手を入れるべきか』だけを担い、記事単位の数字は出さない (既に確定済みの qa-uiux-web-blog-scoped-admin の役割分担を踏襲する)。記事ごと・サイトごとの結果一覧やグラフは在るほうが良いので残す。ただし今回作るのは『どの画面のどこに、どの順で出すか』という提示設計に限り、新しい指標や集計は作らない。指標の正本は既存の site_daily_metrics / article_daily_metrics のままとする。現在どこで何をするのか直感的に分からない点については、画面を『作業の対象物』(ブログ・記事・読者・商品・配信) で束ね、各入口には日本語の動詞で『ここで何ができるか』を書く。93 本ある管理ルートをこの束ね方で一段に畳み、入口の数を作業の対象物の数まで減らす。誤操作コストの高い操作 (ブログ設定・ドメイン・公開) は確認を挟み、低い操作 (下書きの編集) は直接編集にする
+
+### qa-seo-apply-approval-mode-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 検索最適化の分析結果を記事へ反映するとき、運営者の承認は必要ですか。(a) 自動反映＋事後通知 — 機械が反映し、あとから通知する。差分履歴を必ず残し、1 操作で元へ戻せることを条件にする。(b) 承認してから反映 — 運営者が差分を確認し、承認した対象だけ反映する。(c) 表示するだけ — 反映する仕組みを作らない。（2026-09-10 AskUserQuestion『反映の承認』。独立監査 C06 が qa-seo-approved-diff-20260906 を 5 論点の束ね質疑と指摘したため、論点を 1 つずつ分けて問い直した 5 件のうちの 1 件目。推奨は (a) を示したが、これは 2026-09-03 の対等提示で選ばれた決定と一致させるためであり、3 案は対等に並べた）
+
+**回答**: 自動反映＋事後通知（推奨）
+
+### qa-seo-performance-presentation-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 検索の実績（クリック数など）を画面でどう見せますか。(a) 時刻付きの推移として見せる — 選んだブログ・記事と同じページの観測時刻つきの推移につなぐ。クリック数が増減しただけで「この変更のおかげ／せい」とは書かない。(b) 変更の効果として見せる — 反映の前後でクリック数を比較し、効果として表示する。（2026-09-10 AskUserQuestion『実績の見せ方』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 5 件目）
+
+**回答**: 時刻付きの推移として見せる（推奨）
 
 ### qa-uiux-web-editor-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -273,12 +285,6 @@ serves_goals: [G1, G2, G3]
 
 **回答**: Webのみ。モバイル・タブレットはレスポンシブWebで対応し、ネイティブアプリ・デスクトップアプリは対象外とする。
 
-### qa-seo-approved-diff-20260906 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
-
-**回答**: つづけて
-
 ### qa-uiux-web-top-composition-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: ui-ux×web: 参照ブログを踏まえたトップページの情報設計と、記事一覧のサムネイル表示、および自動反映された変更を運営者が把握する面を、どう要件化するか。直前の qa-uiux-web-top-composition-v5 は AEO の反映を『提案を運営者が承認する画面』として要件化していたが、2026-09-03 の対等提示による再確認で反映方法が自動反映＋事後通知へ変わったため、承認画面を前提にした要件解釈を差し替える。あわせて利用者が新たに求めたサムネイルの全面表示を反映する
@@ -438,10 +444,6 @@ Callout は 1 画面につき 2 個まで (`tests/ui/uiux-spacing-and-copy.test.
 表示実装は `src/presentation/ui/templates/article-view.tsx` の `ArticleList`、検証根拠は `tests/blog-top-page/section-composition.spec.ts` の図版読み上げ除外ケース。表示と別に持つ図版の題名由来の代替文は `thumbnailAltText` で保持する。
 
 - 正本へ入れた理由: 認知負荷低減要望に基づき、生成図版の非空altという設計解釈をカードと単独表示の文脈で整理する。本人回答と過去の判断は改変しない。
-
-### SEOの現行承認契約（2026-09-06）
-
-同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-06）](database.md) を参照。本章にも同じ契約を適用する。
 
 ### Search Console検索語内訳の管理画面表示（2026-09-08実装確認）
 
@@ -714,6 +716,10 @@ AskUserQuestion で「2層を維持し、層をUIで見せる（推奨）」「�
 
 - 正本へ入れた理由: P13 書き戻し: 一段目5分類・動詞分類を捨てた理由・近道を旧入口で実現した理由・ラベル分割は実装しなければ決まらなかった内容で、章にしか居場所が無く compile で消える。利用者の逐語には足さない。
 
+### SEOの現行承認契約（2026-09-10 改定）
+
+同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-10 改定）](database.md) を参照。本章にも同じ契約を適用する。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -840,3 +846,9 @@ AskUserQuestion で「2層を維持し、層をUIで見せる（推奨）」「�
 |---|---|---|---|---|---|
 | apple-hig | 2026-06-08 | Apple (developer.apple.com) | https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json | 2026-09-02T21:40:54Z | 2026-09-02T21:40:54Z |
 | w3c-wai-aria | 1.2 (W3C Recommendation) | W3C (www.w3.org) | https://www.w3.org/TR/wai-aria-1.2/ | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-uiux-web-site-scoped-authoring-ia。裏付け質疑 (`qa_refs`): `qa-uiux-web-editor-verbatim`, `qa-uiux-web-blog-scoped-admin`, `qa-ui-ux-web-creation-completion-feedback`, `qa-uiux-web-cognitive-load-affiliate-visibility-v3`, `qa-uiux-web-seo-ai-search-v2`, `qa-uiux-web-blog-builder`, `qa-uiux-web-screen-priority`, `qa-uiux-web-spec-intake`, `qa-uiux-web`, `qa-uiux-web-overhaul-v2`, `qa-uiux-web-reader-experience-aeo-v4`, `qa-foundation-u1`, `qa-platform-scope`, `qa-seo-approved-diff-20260906`, `qa-uiux-web-top-composition-v6`, `qa-request-thumbnail-coverage-v6`, `qa-neutral-ogp-fallback-v6` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

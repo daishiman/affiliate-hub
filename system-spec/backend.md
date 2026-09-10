@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4`, `qa-seo-approved-diff-20260906`, `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-seo-apply-approval-mode-20260910`, `qa-seo-apply-target-scope-20260910`, `qa-seo-apply-atomicity-20260910`, `qa-seo-apply-concurrent-edit-20260910`, `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4`, `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリ向けの別 API 面と、古い端末アプリが残ることを前提とした版数互換を持たない。API の利用者は同一起源の Web のみで、後方互換の窓は配信と同時に閉じられる。 |
@@ -68,6 +68,30 @@ serves_goals: [G1, G2, G3]
 「ブログを作成するためのブログエディターが欲しいです。Notionのような管理画面の方でブログを編集できるようなブログエディターが欲しいです。その際に記述したら、もうその瞬間に表示されるようなコードブロックで表示されるような形ではなく、どのような形で表示されるかが見た目的にわかるようなコードエディターが欲しいです。ただし、編集したら見出し2が見出し1に変わるなど、Notionを改善するような形で構築できてほしいです。カードだったり画像を添付したりとか、そのようなところもしっかりと反映できるように、全ての今のブログを構成する情報が編集表示できるように、そのように整えてほしいです。今それが全然反映されていないです。」
 
 ※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-seo-apply-approval-mode-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 検索最適化の分析結果を記事へ反映するとき、運営者の承認は必要ですか。(a) 自動反映＋事後通知 — 機械が反映し、あとから通知する。差分履歴を必ず残し、1 操作で元へ戻せることを条件にする。(b) 承認してから反映 — 運営者が差分を確認し、承認した対象だけ反映する。(c) 表示するだけ — 反映する仕組みを作らない。（2026-09-10 AskUserQuestion『反映の承認』。独立監査 C06 が qa-seo-approved-diff-20260906 を 5 論点の束ね質疑と指摘したため、論点を 1 つずつ分けて問い直した 5 件のうちの 1 件目。推奨は (a) を示したが、これは 2026-09-03 の対等提示で選ばれた決定と一致させるためであり、3 案は対等に並べた）
+
+**回答**: 自動反映＋事後通知（推奨）
+
+### qa-seo-apply-target-scope-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 自動または承認による反映の対象は、どの記事にしますか。(a) 導入後に作った記事だけ — 元記事の作成日時で判定し、導入前の記事と作成日時が不明な記事は対象から外す。(b) 全ての記事 — 作成日時を問わず全記事を対象にする。（2026-09-10 AskUserQuestion『対象範囲』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 2 件目。推奨は (a) を示したが利用者は (b) を選んだ）
+
+**回答**: 全ての記事
+
+### qa-seo-apply-atomicity-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 反映の途中で失敗したとき、どう振る舞うべきですか。(a) 全体を元に戻す — 記事本文・変更前後の履歴・所見の反映済み印を、同じひとつのまとまりとして保存し、途中で失敗したら何ひとつ変えない。(b) できたところまで残す — 成功した部分だけ反映する。（2026-09-10 AskUserQuestion『途中失敗』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 3 件目）
+
+**回答**: 全体を元に戻す（推奨）
+
+### qa-seo-apply-concurrent-edit-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 機械が反映しようとした記事を、同じ頃に運営者が編集していたときどうしますか。(a) 上書きせずに止める — 読み出したときの版と今の版が違っていたら反映を止め、運営者に知らせる。取消のときも同じ。(b) 機械の反映を優先する — 後から書いた方が勝つ。（2026-09-10 AskUserQuestion『同時編集』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 4 件目）
+
+**回答**: 上書きせずに止める（推奨）
 
 ### qa-backend-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -179,12 +203,6 @@ SEO/AI 検索ガイドラインの出典 (発行元・URL・確認日・要約) 
 
 - (注記: 正本 qa_log[qa-backend-web-aeo-analysis-pipeline-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
 
-### qa-seo-approved-diff-20260906 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
-
-**回答**: つづけて
-
 ### qa-neutral-search-method-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: 読者向けブログの検索はどの方式にしますか。Cloudflare Workers + D1 構成が前提です。(a) D1 の FTS5 全文検索 — 本文まで検索できる。外部サービスを増やさず D1 の中で完結する。日本語は形態素解析が使えず trigram の部分一致が上限なので検索精度に天井がある。索引のぶん保存量と書き込み費用が増える。(b) 題名・カテゴリの部分一致のみ — 実装が最も軽く、索引を持たないので保存量も書き込み費用も増えない。本文中の語では記事が見つからないため、題名に含まれない話題を探している読者は辿り着けない。(c) 外部検索サービスを足す — 日本語の形態素解析やあいまい検索など、精度の上限が最も高い。一方で鍵の管理・障害時の縮退・月額費用という運用が新たに3つ増え、Cloudflare の外に依存先ができる。（2026-09-03 AskUserQuestion『検索方式』。独立監査 C06 が qa-decision-search-method-v4 を『推奨バッジが片方にだけ付いた状態で提示されており、他の選択肢と対等に提示されていない疑いがある』と指摘したため、推奨表示を外し 3 案を対等に並べて再提示した。順序は前回と同一。利用者は前回と同じ案を選んだ）
@@ -202,12 +220,6 @@ SEO/AI 検索ガイドラインの出典 (発行元・URL・確認日・要約) 
 **質問**: AI 検索への出し方はどの形にしますか。(a) llms-full.txt ＋ WebMCP の両方 — AI 検索に引用される経路と、AI エージェントに検索・記事取得を使わせる経路の両方を持つ。実装は 2 系統分増える。WebMCP はまだ新しい仕様で対応するエージェントが限られるため、効果が出るのは先になる。(b) llms-full.txt のみ — AI 検索への被引用を狙う目的に対してはこれだけで十分で、今すぐ効く。実装も静的ファイルの生成だけで済む。サイトを訪れた AI エージェントは、普通の人間と同じように画面を読むしかない。(c) WebMCP のみ — AI エージェントに対しては最も高度なことができる。ただし AI 検索のクローラは WebMCP を呼ばないので、『検索結果に引用される』という今回の目的には直接は効かない。（2026-09-03 AskUserQuestion『AIへの出し方』。利用者が qa-neutral-aio-policy-v6 の回答内で『webmcpとか使えばいい？』と逆質問したことへ、llms-full.txt は取りに来るクローラに読ませるもの・WebMCP は訪れたエージェントに操作させるもので狙う場面が別であると回答したうえで提示した）
 
 **回答**: llms-full.txt ＋ WebMCP の両方
-
-### qa-neutral-auto-scope-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: 自動反映で、機械が公開中の記事を書き換えてよい範囲はどこまでですか。いずれも事後通知と差分履歴・取り消しは共通で付けます。(a) 本文以外のみ（メタ情報系）— 題名タグ・説明文・構造化データ・alt テキスト・内部リンクだけを機械が直す。読者が目にする本文は変わらないので、書き手の文章が勝手に変わる事態が起きない。本文の問題 (見出しの欠落など) は提案のまま残る。(b) 本文の見出し・導入文まで — 見出し階層の欠落や導入文の不足という、検索への影響が大きい部分も機械が直せる。本文の骨格に機械が手を入れるため、書き手の文章の調子が変わることがある。(c) 制限なし（本文全体も含む）— 分析が示した箇所は本文全体を含めて機械が直す。所見が一つも放置されない一方で、推敲した表現や体験談が機械の都合で書き換えられうる。取り消せるが、検索側が変更後を取得した後ならその記録は戻らない。（2026-09-03 AskUserQuestion『自動の範囲』）
-
-**回答**: 次回以降の記事全般・文章・タイトル・画像など、記事を構成する全て
 
 ### qa-neutral-citation-check-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -268,10 +280,6 @@ is billed for each search query that the model decides to execute」と述べる
 達したかどうかを併せて残す。
 
 - 正本へ入れた理由: qa-neutral-citation-check-v6 の設計適用は『最小限のモデルでよい』を費用抑制の手として置いていたが、2026-09-04 に取得した公式出典 2 件により、検索回数の従量課金はモデルの大小と無関係であることが判明した。利用者の逐語 (answer) にも、対話経路として保護されている design_applications にも足せない事実であり、章の生成節へ書けば compile のたび消える。取得由来の事実が設計の前提を取り違えさせないよう、消えない場所へ置く。
-
-### SEOの現行承認契約（2026-09-06）
-
-同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-06）](database.md) を参照。本章にも同じ契約を適用する。
 
 ### Search Console検索語保存と取得範囲（2026-09-06実装確認）
 
@@ -481,6 +489,34 @@ C05 gaps[0] の「再生成して本文へ載せる」を採らず、本節は�
 
 - 正本へ入れた理由: BE-PROSE-01〜03 が AI 導出の受入条件であることは章に残す必要がある（利用者の逐語ではない）。加えて、確定に付いた条件「19 種すべてで parseProse(serializeProse(x)) === x」を章に残さないと、断片を増やすときに往復テストだけ置き去りになる。旧注記（保存形は未確定）は確定に追いついておらず retire 済み。
 
+### SEOの現行承認契約（2026-09-10 改定）
+
+同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-10 改定）](database.md) を参照。本章にも同じ契約を適用する。
+
+### SEO 反映の承認方法だけが置き換わった範囲（2026-09-10）
+
+`qa-backend-web-domain-aeo-behavior` の回答本文には
+**「反映は自動で公開せず、既存の人間承認の経路に載せる。」**という一文がある。
+この一文は現行契約ではない。
+
+- この問答は 4 つのユースケース群（(1) カスタムドメイン接続 (2) 行動計測の受け口
+  (3) 日次ロールアップ (4) SEO/AEO の評価と反映）を一度に決着させたもので、
+  **(1)〜(3) と、(4) のうち評価・保存・AEO 出力の重複禁止についての決着は現役である。**
+  この問答自体は取り下げていない（`superseded_by` を持たない）。
+- 置き換わったのは (4) の**反映の承認方法だけ**である。2026-09-10 に反映の承認方法を
+  1 論点として問い直した結果は「機械が反映し、事後に通知する（反映前の関門は置かない）」であり、
+  裏付けは `qa-seo-apply-approval-mode-20260910`。上位制約 `constraints[4]` も同日に改定し、
+  差分記録・1 操作での復元・同一確定単位での通知の 3 条件を満たす反映に限って
+  事前承認を免除した（`approval-foundation-seo-auto-apply-exemption-20260910`）。
+- したがって `apply-seo-recommendation` を「既存の人間承認の経路」に載せる実装は、
+  **この一文を根拠に書いてはならない。**免除の 3 条件を満たす自動反映として実装する。
+  新規記事の外部公開と予約投稿の承認必須は免除の対象外なので、そちらは従来どおり承認を要する。
+
+問答本文を書き換えずにここへ記録するのは、`answer` が利用者の発言の逐語記録であり、
+後から気づいた突き合わせを混ぜると利用者が言っていないことが利用者の声の顔で残るためである。
+
+- 正本へ入れた理由: 完成度評価 design_knowledge_reflection が high finding として、backend.md の接地根拠 qa-backend-web-domain-aeo-behavior の逐語『反映は自動で公開せず、既存の人間承認の経路に載せる』が 2026-09-10 の自動反映契約と正面から矛盾したまま現役で残っていると指摘した。問答本文は利用者の逐語記録なので書き換えず、置き換わった範囲がこの一文だけであること、残りの決着は現役であることを章の注記として記録する。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -647,3 +683,9 @@ consumerとproviderの独立変更を支える安定した契約を作り、再�
 | google-search-console-api | 2026-08-11 | Google (developers.google.com) | https://developers.google.com/webmaster-tools/v1/searchanalytics/query | 2026-09-03T12:43:18Z | 2026-09-03T12:43:18Z |
 | anthropic-web-search-tool | web_search_20260318 | Anthropic (platform.claude.com) | https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool | 2026-09-03T20:57:54Z | 2026-09-03T21:02:59Z |
 | gemini-google-search-grounding | Gemini 3.8 Flash | Google (ai.google.dev) | https://ai.google.dev/gemini-api/docs/google-search.md.txt | 2026-09-03T20:57:55Z | 2026-09-03T20:57:55Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-backend-web-prose-verbatim。裏付け質疑 (`qa_refs`): `qa-backend-web-domain-aeo-behavior`, `qa-backend-web-seo-audit-writeback-p13-v3`, `qa-backend-web-blog-creation-atomicity`, `qa-backend-web-spec-intake`, `qa-backend-web`, `qa-backend-web-analytics`, `qa-backend-web-overhaul-v2`, `qa-backend-web-aeo-analysis-pipeline-v4`, `qa-seo-approved-diff-20260906`, `qa-neutral-search-method-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

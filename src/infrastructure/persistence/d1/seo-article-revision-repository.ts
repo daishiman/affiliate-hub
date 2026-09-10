@@ -79,7 +79,7 @@ export function createD1SeoArticleRevisionRepository({ db, workspaceId }: { db: 
             finding.source !== "static_audit" || !appliedCodes.includes(finding.code) || (!Number.isFinite(Date.parse(finding.observedAt)) || Date.parse(finding.observedAt) % 1000 !== 0)) ||
           (after.title !== before.article.title) !== appliedCodes.includes("missing_title") ||
           (after.summary !== before.article.summary) !== appliedCodes.includes("missing_meta_description")) {
-        return err(validationError("承認した差分と現在の対象記事・根拠を確認できません。差分を開き直してください。"));
+        return err(validationError("反映する差分と現在の対象記事・根拠を確認できません。差分を作り直してください。"));
       }
       try {
         let source: SourceSnapshot | null = null;
@@ -127,7 +127,7 @@ export function createD1SeoArticleRevisionRepository({ db, workspaceId }: { db: 
         const [saved] = results[0] as (typeof seoAutoApplyLogs.$inferSelect)[];
         const log = toLogEntry(saved);
         return log ? ok(log) : err(validationError("反映履歴が読み取れません。"));
-      } catch (cause) { return isGuardFailure(cause) ? conflict() : storageFailure("承認した差分の反映", cause); }
+      } catch (cause) { return isGuardFailure(cause) ? conflict() : storageFailure("差分の反映", cause); }
     },
 
     async revert(input) {
@@ -162,7 +162,7 @@ export function createD1SeoArticleRevisionRepository({ db, workspaceId }: { db: 
         const [saved] = results[0] as (typeof seoAutoApplyLogs.$inferSelect)[];
         const reverted = toLogEntry(saved);
         return reverted ? ok(reverted) : err(validationError("取消履歴が読み取れません。"));
-      } catch (cause) { return isGuardFailure(cause) ? conflict() : storageFailure("承認した差分の取消", cause); }
+      } catch (cause) { return isGuardFailure(cause) ? conflict() : storageFailure("差分の取消", cause); }
     },
   };
 }

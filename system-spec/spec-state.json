@@ -762,6 +762,9 @@
         "qa_ref": "qa-database-web-article-image-verbatim",
         "qa_refs": [
           "qa-database-web-article-image-verbatim",
+          "qa-seo-apply-target-scope-20260910",
+          "qa-seo-apply-atomicity-20260910",
+          "qa-seo-apply-concurrent-edit-20260910",
           "qa-database-web-domain-aeo-behavior",
           "qa-database-web-audit-history-window-p13-v3",
           "qa-database-web-blog-provisioning-integrity",
@@ -770,7 +773,6 @@
           "qa-database-web",
           "qa-database-web-analytics",
           "qa-database-web-aeo-analysis-storage-v4",
-          "qa-seo-approved-diff-20260906",
           "qa-neutral-search-method-v6",
           "qa-answer-aeo-feasibility-v6",
           "qa-decision-aeo-data-sources-v5"
@@ -782,7 +784,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-05",
+            "checked_on": "2026-09-10",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -876,6 +878,8 @@
         "qa_ref": "qa-uiux-web-site-scoped-authoring-ia",
         "qa_refs": [
           "qa-uiux-web-site-scoped-authoring-ia",
+          "qa-seo-apply-approval-mode-20260910",
+          "qa-seo-performance-presentation-20260910",
           "qa-uiux-web-editor-verbatim",
           "qa-uiux-web-blog-scoped-admin",
           "qa-ui-ux-web-creation-completion-feedback",
@@ -889,7 +893,6 @@
           "qa-uiux-web-reader-experience-aeo-v4",
           "qa-foundation-u1",
           "qa-platform-scope",
-          "qa-seo-approved-diff-20260906",
           "qa-uiux-web-top-composition-v6",
           "qa-request-thumbnail-coverage-v6",
           "qa-neutral-ogp-fallback-v6"
@@ -921,7 +924,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-09",
+            "checked_on": "2026-09-10",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 3,
             "unmet_blocking_items": 0
@@ -1074,6 +1077,10 @@
         "qa_ref": "qa-backend-web-prose-verbatim",
         "qa_refs": [
           "qa-backend-web-prose-verbatim",
+          "qa-seo-apply-approval-mode-20260910",
+          "qa-seo-apply-target-scope-20260910",
+          "qa-seo-apply-atomicity-20260910",
+          "qa-seo-apply-concurrent-edit-20260910",
           "qa-backend-web-domain-aeo-behavior",
           "qa-backend-web-seo-audit-writeback-p13-v3",
           "qa-backend-web-blog-creation-atomicity",
@@ -1082,11 +1089,9 @@
           "qa-backend-web-analytics",
           "qa-backend-web-overhaul-v2",
           "qa-backend-web-aeo-analysis-pipeline-v4",
-          "qa-seo-approved-diff-20260906",
           "qa-neutral-search-method-v6",
           "qa-neutral-aio-policy-v7",
           "qa-neutral-ai-surface-v6",
-          "qa-neutral-auto-scope-v6",
           "qa-neutral-citation-check-v6",
           "qa-answer-aeo-feasibility-v6",
           "qa-decision-aeo-data-sources-v5"
@@ -1106,7 +1111,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-05",
+            "checked_on": "2026-09-10",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 1,
             "unmet_blocking_items": 0
@@ -1145,6 +1150,8 @@
         "qa_ref": "qa-frontend-web-site-scoped-route-ownership",
         "qa_refs": [
           "qa-frontend-web-site-scoped-route-ownership",
+          "qa-seo-apply-approval-mode-20260910",
+          "qa-seo-performance-presentation-20260910",
           "qa-frontend-web-editor-verbatim",
           "qa-frontend-web-blog-scoped-admin",
           "qa-frontend-web-blog-composition-visibility",
@@ -1157,7 +1164,6 @@
           "qa-frontend-web-analytics",
           "qa-frontend-web-overhaul-v2",
           "qa-frontend-web-aeo-emission-v4",
-          "qa-seo-approved-diff-20260906",
           "qa-frontend-web-fixed-header-seo-aio-v6",
           "qa-neutral-aio-policy-v7",
           "qa-neutral-ai-surface-v6",
@@ -1171,7 +1177,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-08",
+            "checked_on": "2026-09-10",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -1210,13 +1216,12 @@
         "qa_ref": "qa-maintenance-ops-web-orphan-image-verbatim",
         "qa_refs": [
           "qa-maintenance-ops-web-orphan-image-verbatim",
+          "qa-seo-apply-approval-mode-20260910",
           "qa-ops-web-domain-retention-seo-freshness",
           "qa-ops-web-migration-guard-v2",
           "qa-ops-web-migration-guard",
           "qa-ops-web-spec-intake",
           "qa-ops-web",
-          "qa-seo-approved-diff-20260906",
-          "qa-neutral-auto-scope-v6",
           "qa-neutral-citation-check-v6",
           "qa-decision-aeo-data-sources-v5"
         ],
@@ -1226,7 +1231,7 @@
         ],
         "required_info_checks": [
           {
-            "checked_on": "2026-09-05",
+            "checked_on": "2026-09-10",
             "checked_with": "record-required-info-check",
             "blocking_item_count": 0,
             "unmet_blocking_items": 0
@@ -4191,7 +4196,8 @@
             "対象範囲を記事の作成時刻で決めるため、導入直後は自動反映が働く記事が存在しない。仕組みが正しく動いているかを確かめる材料が最初は得られないので、反映を試せる下書き記事の経路を用意する"
           ]
         }
-      ]
+      ],
+      "superseded_by": "qa-seo-apply-target-scope-20260910"
     },
     {
       "id": "qa-neutral-citation-check-v6",
@@ -4795,7 +4801,8 @@
             "既存の観測データと保存経路を再利用し、観測値だけで効果を断定しない。"
           ]
         }
-      ]
+      ],
+      "superseded_by": "qa-seo-apply-approval-mode-20260910"
     },
     {
       "id": "qa-database-web-domain-aeo-behavior",
@@ -5772,6 +5779,184 @@
           "u": "U9"
         }
       ]
+    },
+    {
+      "id": "qa-seo-apply-approval-mode-20260910",
+      "question": "検索最適化の分析結果を記事へ反映するとき、運営者の承認は必要ですか。(a) 自動反映＋事後通知 — 機械が反映し、あとから通知する。差分履歴を必ず残し、1 操作で元へ戻せることを条件にする。(b) 承認してから反映 — 運営者が差分を確認し、承認した対象だけ反映する。(c) 表示するだけ — 反映する仕組みを作らない。（2026-09-10 AskUserQuestion『反映の承認』。独立監査 C06 が qa-seo-approved-diff-20260906 を 5 論点の束ね質疑と指摘したため、論点を 1 つずつ分けて問い直した 5 件のうちの 1 件目。推奨は (a) を示したが、これは 2026-09-03 の対等提示で選ばれた決定と一致させるためであり、3 案は対等に並べた）",
+      "answer": "自動反映＋事後通知（推奨）",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        },
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        },
+        {
+          "category": "frontend",
+          "platform": "web"
+        },
+        {
+          "category": "maintenance-ops",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:secure-by-design",
+          "principle": "権限の広さは、失われるものの取り返しのつかなさで区切る",
+          "applicability": "applied",
+          "rationale": "利用者は 3 案 (自動反映＋事後通知 / 承認してから反映 / 表示するだけ) を対等に並べた問いに対し、自動反映＋事後通知を選んだ。機械が運営者の確認を挟まずに公開中の記事本文を書き換える以上、与えている権限は広い。この広さを許せるのは、失うものを取り返せる場合に限る。よって本決定は「反映してよい」だけを意味しない — 反映のたびに変更前後の差分を記録として残し、1 操作で反映前の本文へ戻せる経路を同時に備えることが決定の一部である。差分の記録と復元の経路が無い実装は、この回答が許した範囲を超える。事後通知は運営者が戻す判断を下すための入力であり、通知が届かない経路 (通知の失敗を握り潰す実装) は決定の外側にある。この決定は 2026-09-06 の qa-seo-approved-diff-20260906 が 5 論点を 1 問へ束ねて「つづけて」の一語で取った承認に代わるものであり、論点を 1 つだけに絞って問い直した結果である。",
+          "tradeoffs": [
+            "機械が誤った反映をした場合、運営者が気づくのは反映後になる。気づくまでの間、誤った本文が読者と検索エンジンに露出する。露出時間を縮めるため通知は反映と同じ確定単位で送り、遅延させない",
+            "戻せることを前提に権限を広げているため、差分記録の欠損は決定の前提そのものを崩す。記録の書き込みに失敗したら反映自体を成立させない (qa-seo-apply-atomicity-20260910 の決定と同じ確定単位に入る)"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      }
+    },
+    {
+      "id": "qa-seo-apply-target-scope-20260910",
+      "question": "自動または承認による反映の対象は、どの記事にしますか。(a) 導入後に作った記事だけ — 元記事の作成日時で判定し、導入前の記事と作成日時が不明な記事は対象から外す。(b) 全ての記事 — 作成日時を問わず全記事を対象にする。（2026-09-10 AskUserQuestion『対象範囲』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 2 件目。推奨は (a) を示したが利用者は (b) を選んだ）",
+      "answer": "全ての記事",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        },
+        {
+          "category": "database",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:secure-by-design",
+          "principle": "権限の広さは、失われるものの取り返しのつかなさで区切る",
+          "applicability": "applied",
+          "rationale": "推奨として (a)『導入後に作った記事だけ』を先に示したにもかかわらず、利用者は (b)『全ての記事』を選んだ。推奨と逆の選択なので、提示の偏りに由来する回答ではない。この決定は先行する qa-neutral-auto-scope-v6 の『自動反映の対象は導入後に作成・公開される記事に限り、導入前の既存記事は提案の提示に留める』を正面から覆す。覆る理由は利用者の意思であって、qa-neutral-auto-scope-v6 が置いていた前提 — 既に検索エンジンと AI 検索面へ取り込まれた公開済み記事の書き換えは取り返しがつかない — が誤りだったからではない。取り返しのつかなさは残るので、権限の広さを支えるのは範囲の制限ではなく、qa-seo-apply-approval-mode-20260910 が要求する差分記録と 1 操作の復元、および qa-seo-apply-concurrent-edit-20260910 が要求する同時編集の非上書きの 2 つに全面的に移る。したがって記事の作成日時で対象を絞る条件は仕様から取り下げ、作成日時が不明な記事も対象に含める。作成日時の正本という論点自体が不要になる。",
+          "tradeoffs": [
+            "導入前の記事が自動反映の対象へ入るため、機械が誤ったときに影響する記事数が上限なく広がる。範囲で守れなくなったぶん、差分記録・復元・同時編集の検出はどれか 1 つでも欠ければ反映を成立させない必須条件になる",
+            "導入直後から既存記事全件が対象になるため、初回の反映量が大きくなりうる。一度に走る量を運営者が把握できるよう、反映の件数と対象を事後通知に含める"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      }
+    },
+    {
+      "id": "qa-seo-apply-atomicity-20260910",
+      "question": "反映の途中で失敗したとき、どう振る舞うべきですか。(a) 全体を元に戻す — 記事本文・変更前後の履歴・所見の反映済み印を、同じひとつのまとまりとして保存し、途中で失敗したら何ひとつ変えない。(b) できたところまで残す — 成功した部分だけ反映する。（2026-09-10 AskUserQuestion『途中失敗』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 3 件目）",
+      "answer": "全体を元に戻す（推奨）",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        },
+        {
+          "category": "database",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:ddd",
+          "principle": "同時に真でなければならないものを 1 つの境界に入れ、その境界を保存の単位にする",
+          "applicability": "applied",
+          "rationale": "利用者は (a)『全体を元に戻す』を選んだ。ここで同時に真でなければならないのは 3 つある — 記事の新しい本文、変更前後の差分記録、所見に付く『反映済み』の印である。どれか 1 つだけが残ると正本が嘘をつく: 本文だけ変わって差分が無ければ qa-seo-apply-approval-mode-20260910 が権限の広さの根拠に置いた復元が成立せず、印だけ立てば同じ所見が二度と反映されない。よってこの 3 つを 1 つの確定単位として保存し、途中で失敗したら 1 つも変えない。反映は記事 1 件を単位とし、複数記事の一括反映は記事ごとに独立した確定単位とする — 1 件の失敗で他の成功を巻き戻すと、巻き戻し自体が新たな書き換えになるためである。",
+          "tradeoffs": [
+            "確定単位を大きくするほど保持する時間が延び、同時編集とぶつかる確率が上がる。読み出しから書き込みまでを短く保ち、外部への問い合わせは確定単位の外で先に済ませる",
+            "記事ごとに独立させるため、一括反映の途中失敗では『どこまで済んだか』が運営者に見える形で残る必要がある。事後通知に成功件数と失敗件数を分けて含める"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      }
+    },
+    {
+      "id": "qa-seo-apply-concurrent-edit-20260910",
+      "question": "機械が反映しようとした記事を、同じ頃に運営者が編集していたときどうしますか。(a) 上書きせずに止める — 読み出したときの版と今の版が違っていたら反映を止め、運営者に知らせる。取消のときも同じ。(b) 機械の反映を優先する — 後から書いた方が勝つ。（2026-09-10 AskUserQuestion『同時編集』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 4 件目）",
+      "answer": "上書きせずに止める（推奨）",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "backend",
+          "platform": "web"
+        },
+        {
+          "category": "database",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:ddd",
+          "principle": "後から書いた方を勝たせないために、読み出した版を書き込みの条件にする",
+          "applicability": "applied",
+          "rationale": "利用者は (a)『上書きせずに止める』を選んだ。機械の反映は運営者の編集と同じ記事本文を書く。どちらが先に読んだかは決まらないので、時刻の新旧で勝敗を決めると運営者の手入力が黙って消える場合が出る。よって書き込みは『読み出したときの版と今の版が同じであること』を条件にし、違えば書かずに止め、その事実を運営者に知らせる。止めた反映は失敗ではなく保留として扱い、所見の『反映済み』の印を立てない (qa-seo-apply-atomicity-20260910 の確定単位に入るため、印だけが立つことは起こらない)。取消も同じ条件で行う — 反映後に運営者が追記していれば、取消はその追記ごと巻き戻すことになるので、同じく止める。",
+          "tradeoffs": [
+            "編集が重なると反映が進まないまま保留が溜まる。溜まった保留が見えないと放置されるので、所見の一覧に保留の状態を出して運営者が再実行を選べるようにする",
+            "版の一致を条件にするため、記事本文の保存経路すべてが同じ版の値を更新している必要がある。更新を経ない書き込み経路が 1 つでもあると条件が成立しなくなる"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      }
+    },
+    {
+      "id": "qa-seo-performance-presentation-20260910",
+      "question": "検索の実績（クリック数など）を画面でどう見せますか。(a) 時刻付きの推移として見せる — 選んだブログ・記事と同じページの観測時刻つきの推移につなぐ。クリック数が増減しただけで「この変更のおかげ／せい」とは書かない。(b) 変更の効果として見せる — 反映の前後でクリック数を比較し、効果として表示する。（2026-09-10 AskUserQuestion『実績の見せ方』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 5 件目）",
+      "answer": "時刻付きの推移として見せる（推奨）",
+      "source": {
+        "kind": "user-dialogue"
+      },
+      "asks_for": [
+        {
+          "category": "ui-ux",
+          "platform": "web"
+        },
+        {
+          "category": "frontend",
+          "platform": "web"
+        }
+      ],
+      "design_applications": [
+        {
+          "knowledge_ref": "ref-system-design-knowledge:information-design",
+          "principle": "外へ出す表現物ごとに、何を残し何を落とすかを決めてから生成の経路を作る",
+          "applicability": "applied",
+          "rationale": "利用者は (a)『時刻付きの推移として見せる』を選んだ。残すのは観測時刻とその時点の値であり、落とすのは『この変更のおかげでこうなった』という因果の言い切りである。落とす理由は、クリック数の増減には検索結果の並びの変化・季節・他サイトの動きなど観測していない要因が同時に効いており、反映の前後で比べただけでは変更の効果を分離できないからである。表示の場所は、選択中のブログ・記事と同じ画面に置く — 別の画面へ移すと、どの記事の数字かを読み手が自分で対応づけることになり、取り違えが起きる。反映の時点は推移の上へ印として重ね、読み手が自分で前後を見比べられるようにする。印を置くことと因果を書くことは別であり、前者だけを行う。",
+          "tradeoffs": [
+            "効果を言い切らないぶん、運営者は『やってよかったのか』の判断を自分で下すことになる。判断の材料として、反映の時点と観測時刻を同じ軸の上に置く",
+            "観測時刻付きで持つとデータ量が時間とともに増える。表示の粒度と保持期間の上限は別の決定 (qa-database-web-audit-history-window-p13-v3) が定めた保持窓に従う"
+          ]
+        }
+      ],
+      "design_application_provenance": {
+        "mode": "secondary_ref_attachment",
+        "writer": "attach-qa-design-applications"
+      }
     }
   ],
   "approval_log": [
@@ -5806,6 +5991,10 @@
     {
       "id": "approval-foundation-site-scoped-admin-20260908",
       "note": "2026-09-08 の利用者要望の逐語: 「現状、記事を作成するための管理画面は、記事ごとに管理する形になっています。サイトごとに記事を管理したり、情報を管理したり、読者像や書き方の決め事などを管理するべきところを、全体で構成する形になっています。そのため、UI/UXの認知負荷が高くなっています。認知負荷を下げるために、サイトごとに構成した方が良いと考えます。ただし、記事ごとやサイトごとの結果一覧やグラフなどはある方が良いと思います。現在、どこで何をするのか直感的にわからないため、この辺を整えてください。」加えて AskUserQuestion で 2 点を確認し、利用者が (1)「新規 feature を立てる」(2)「既存指標の見せ方だけ」を選択した。これにより U9 へ I9 を追加する。"
+    },
+    {
+      "id": "approval-foundation-seo-auto-apply-exemption-20260910",
+      "note": "2026-09-10 の AskUserQuestion『SEO の自動反映が、上位制約「外部公開・予約投稿等の重要操作は人間の承認を必須とする」と衝突しています。どちらに合わせますか？』に対し、利用者が「上位制約に例外を足す（推奨）」を選択した。提示した選択肢は 3 つで、(a) 例外を足す (b) 自動反映をやめて承認必須へ戻す (c) 機械による書き換え全般を承認免除にする、であり、利用者は最も狭い免除である (a) を選んだ。衝突の発端は同日の AskUserQuestion『反映の承認』で利用者が「機械が反映し、事後に通知する」を選んだこと (qa-seo-apply-approval-mode-20260910)。完成度評価の foundation_trace が high finding として、下位の確定が上位概念を追い越していると指摘したため、上位側を改定して整合させた。免除の 3 条件は qa-seo-apply-atomicity-20260910 (同一確定単位) と qa-seo-apply-approval-mode-20260910 (差分記録と 1 操作復元、反映と同じ単位での通知) が既に定めた内容であり、新たな権限を足していない。先行する approval-foundation-site-scoped-admin-20260908 は取り下げず、constraints[4] の本文だけを今回の承認で置き換える。"
     }
   ],
   "reopen_log": [
@@ -11500,6 +11689,322 @@
           }
         ]
       }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "独立監査 C06 が、この確定の裏付け qa-seo-approved-diff-20260906 を5 論点を 1 問へ束ねた誘導質問と判定した。回答は「つづけて」の一語で、論点ごとの逐語回答が存在しないため scope_notes / split-qa-bundle では解けない。2026-09-10 に 5 論点を 1 件ずつ分けて問い直した (qa-seo-apply-*-20260910 / qa-seo-performance-presentation-20260910)。その回答へ裏付けを差し替える。",
+      "from": "確定",
+      "qa_ref": "qa-backend-web-prose-verbatim",
+      "discarded": {
+        "qa_ref": "qa-backend-web-prose-verbatim",
+        "qa_refs": [
+          "qa-backend-web-prose-verbatim",
+          "qa-backend-web-domain-aeo-behavior",
+          "qa-backend-web-seo-audit-writeback-p13-v3",
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4",
+          "qa-seo-approved-diff-20260906",
+          "qa-neutral-search-method-v6",
+          "qa-neutral-aio-policy-v7",
+          "qa-neutral-ai-surface-v6",
+          "qa-neutral-auto-scope-v6",
+          "qa-neutral-citation-check-v6",
+          "qa-answer-aeo-feasibility-v6",
+          "qa-decision-aeo-data-sources-v5"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-domain-aeo-behavior"
+          }
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "database",
+      "platform": "web",
+      "reason": "独立監査 C06 が、この確定の裏付け qa-seo-approved-diff-20260906 を5 論点を 1 問へ束ねた誘導質問と判定した。回答は「つづけて」の一語で、論点ごとの逐語回答が存在しないため scope_notes / split-qa-bundle では解けない。2026-09-10 に 5 論点を 1 件ずつ分けて問い直した (qa-seo-apply-*-20260910 / qa-seo-performance-presentation-20260910)。その回答へ裏付けを差し替える。",
+      "from": "確定",
+      "qa_ref": "qa-database-web-article-image-verbatim",
+      "discarded": {
+        "qa_ref": "qa-database-web-article-image-verbatim",
+        "qa_refs": [
+          "qa-database-web-article-image-verbatim",
+          "qa-database-web-domain-aeo-behavior",
+          "qa-database-web-audit-history-window-p13-v3",
+          "qa-database-web-blog-provisioning-integrity",
+          "qa-database-web-blog-builder",
+          "qa-database-web-spec-intake",
+          "qa-database-web",
+          "qa-database-web-analytics",
+          "qa-database-web-aeo-analysis-storage-v4",
+          "qa-seo-approved-diff-20260906",
+          "qa-neutral-search-method-v6",
+          "qa-answer-aeo-feasibility-v6",
+          "qa-decision-aeo-data-sources-v5"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "ui-ux",
+      "platform": "web",
+      "reason": "独立監査 C06 が、この確定の裏付け qa-seo-approved-diff-20260906 を5 論点を 1 問へ束ねた誘導質問と判定した。回答は「つづけて」の一語で、論点ごとの逐語回答が存在しないため scope_notes / split-qa-bundle では解けない。2026-09-10 に 5 論点を 1 件ずつ分けて問い直した (qa-seo-apply-*-20260910 / qa-seo-performance-presentation-20260910)。その回答へ裏付けを差し替える。",
+      "from": "確定",
+      "qa_ref": "qa-uiux-web-site-scoped-authoring-ia",
+      "discarded": {
+        "qa_ref": "qa-uiux-web-site-scoped-authoring-ia",
+        "qa_refs": [
+          "qa-uiux-web-site-scoped-authoring-ia",
+          "qa-uiux-web-editor-verbatim",
+          "qa-uiux-web-blog-scoped-admin",
+          "qa-ui-ux-web-creation-completion-feedback",
+          "qa-uiux-web-cognitive-load-affiliate-visibility-v3",
+          "qa-uiux-web-seo-ai-search-v2",
+          "qa-uiux-web-blog-builder",
+          "qa-uiux-web-screen-priority",
+          "qa-uiux-web-spec-intake",
+          "qa-uiux-web",
+          "qa-uiux-web-overhaul-v2",
+          "qa-uiux-web-reader-experience-aeo-v4",
+          "qa-foundation-u1",
+          "qa-platform-scope",
+          "qa-seo-approved-diff-20260906",
+          "qa-uiux-web-top-composition-v6",
+          "qa-request-thumbnail-coverage-v6",
+          "qa-neutral-ogp-fallback-v6"
+        ],
+        "required_info": [
+          {
+            "item_id": "product-goal",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-foundation-u1"
+          },
+          {
+            "item_id": "screen-information-priority",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-uiux-web-blog-scoped-admin"
+          },
+          {
+            "item_id": "target-platforms",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-platform-scope"
+          }
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-09",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 3,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "frontend",
+      "platform": "web",
+      "reason": "独立監査 C06 が、この確定の裏付け qa-seo-approved-diff-20260906 を5 論点を 1 問へ束ねた誘導質問と判定した。回答は「つづけて」の一語で、論点ごとの逐語回答が存在しないため scope_notes / split-qa-bundle では解けない。2026-09-10 に 5 論点を 1 件ずつ分けて問い直した (qa-seo-apply-*-20260910 / qa-seo-performance-presentation-20260910)。その回答へ裏付けを差し替える。",
+      "from": "確定",
+      "qa_ref": "qa-frontend-web-site-scoped-route-ownership",
+      "discarded": {
+        "qa_ref": "qa-frontend-web-site-scoped-route-ownership",
+        "qa_refs": [
+          "qa-frontend-web-site-scoped-route-ownership",
+          "qa-frontend-web-editor-verbatim",
+          "qa-frontend-web-blog-scoped-admin",
+          "qa-frontend-web-blog-composition-visibility",
+          "qa-frontend-web-capture-self-occlusion",
+          "qa-frontend-web-affiliate-link-preview-v3",
+          "qa-frontend-web-seo-ai-search-v2",
+          "qa-frontend-web-blog-builder",
+          "qa-frontend-web-spec-intake",
+          "qa-frontend-web",
+          "qa-frontend-web-analytics",
+          "qa-frontend-web-overhaul-v2",
+          "qa-frontend-web-aeo-emission-v4",
+          "qa-seo-approved-diff-20260906",
+          "qa-frontend-web-fixed-header-seo-aio-v6",
+          "qa-neutral-aio-policy-v7",
+          "qa-neutral-ai-surface-v6",
+          "qa-neutral-ogp-fallback-v6",
+          "qa-request-thumbnail-coverage-v6"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-08",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "独立監査 C06 が、この確定の裏付け qa-seo-approved-diff-20260906 を5 論点を 1 問へ束ねた誘導質問と判定した。回答は「つづけて」の一語で、論点ごとの逐語回答が存在しないため scope_notes / split-qa-bundle では解けない。2026-09-10 に 5 論点を 1 件ずつ分けて問い直した (qa-seo-apply-*-20260910 / qa-seo-performance-presentation-20260910)。その回答へ裏付けを差し替える。",
+      "from": "確定",
+      "qa_ref": "qa-maintenance-ops-web-orphan-image-verbatim",
+      "discarded": {
+        "qa_ref": "qa-maintenance-ops-web-orphan-image-verbatim",
+        "qa_refs": [
+          "qa-maintenance-ops-web-orphan-image-verbatim",
+          "qa-ops-web-domain-retention-seo-freshness",
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web",
+          "qa-seo-approved-diff-20260906",
+          "qa-neutral-auto-scope-v6",
+          "qa-neutral-citation-check-v6",
+          "qa-decision-aeo-data-sources-v5"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-05",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "backend",
+      "platform": "web",
+      "reason": "qa-neutral-auto-scope-v6 は自動反映の対象を『導入後に作成・公開される記事』に限り、導入前の既存記事は提案の提示に留めると決めていた。2026-09-10 に対象範囲だけを1 論点として問い直したところ、利用者は推奨 (導入後の記事だけ) と逆の『全ての記事』を選んだ。両者は同時に真になりえないため、裏付けを新しい回答へ移す。",
+      "from": "確定",
+      "qa_ref": "qa-backend-web-prose-verbatim",
+      "discarded": {
+        "qa_ref": "qa-backend-web-prose-verbatim",
+        "qa_refs": [
+          "qa-backend-web-prose-verbatim",
+          "qa-seo-apply-approval-mode-20260910",
+          "qa-seo-apply-target-scope-20260910",
+          "qa-seo-apply-atomicity-20260910",
+          "qa-seo-apply-concurrent-edit-20260910",
+          "qa-backend-web-domain-aeo-behavior",
+          "qa-backend-web-seo-audit-writeback-p13-v3",
+          "qa-backend-web-blog-creation-atomicity",
+          "qa-backend-web-spec-intake",
+          "qa-backend-web",
+          "qa-backend-web-analytics",
+          "qa-backend-web-overhaul-v2",
+          "qa-backend-web-aeo-analysis-pipeline-v4",
+          "qa-neutral-search-method-v6",
+          "qa-neutral-aio-policy-v7",
+          "qa-neutral-ai-surface-v6",
+          "qa-neutral-auto-scope-v6",
+          "qa-neutral-citation-check-v6",
+          "qa-answer-aeo-feasibility-v6",
+          "qa-decision-aeo-data-sources-v5"
+        ],
+        "required_info": [
+          {
+            "item_id": "domain-model",
+            "missing_effect": "block",
+            "status": "grounded",
+            "grounded_by": "qa-backend-web-domain-aeo-behavior"
+          }
+        ],
+        "serves_goals": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-10",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 1,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
+    },
+    {
+      "category": "maintenance-ops",
+      "platform": "web",
+      "reason": "qa-neutral-auto-scope-v6 は自動反映の対象を『導入後に作成・公開される記事』に限り、導入前の既存記事は提案の提示に留めると決めていた。2026-09-10 に対象範囲だけを1 論点として問い直したところ、利用者は推奨 (導入後の記事だけ) と逆の『全ての記事』を選んだ。両者は同時に真になりえないため、裏付けを新しい回答へ移す。",
+      "from": "確定",
+      "qa_ref": "qa-maintenance-ops-web-orphan-image-verbatim",
+      "discarded": {
+        "qa_ref": "qa-maintenance-ops-web-orphan-image-verbatim",
+        "qa_refs": [
+          "qa-maintenance-ops-web-orphan-image-verbatim",
+          "qa-seo-apply-approval-mode-20260910",
+          "qa-ops-web-domain-retention-seo-freshness",
+          "qa-ops-web-migration-guard-v2",
+          "qa-ops-web-migration-guard",
+          "qa-ops-web-spec-intake",
+          "qa-ops-web",
+          "qa-neutral-auto-scope-v6",
+          "qa-neutral-citation-check-v6",
+          "qa-decision-aeo-data-sources-v5"
+        ],
+        "serves_goals": [
+          "G1",
+          "G2"
+        ],
+        "required_info_checks": [
+          {
+            "checked_on": "2026-09-10",
+            "checked_with": "record-required-info-check",
+            "blocking_item_count": 0,
+            "unmet_blocking_items": 0
+          }
+        ]
+      }
     }
   ],
   "category_aggregate": {
@@ -11711,7 +12216,7 @@
       "noteは一般公開の公式投稿APIがなく、出力・手動連携のみで設計する",
       "ASPのリンク・広告コード改変禁止 (original_urlを無改変で保持)",
       "景品表示法ステルスマーケティング規制への適合 (広告表記必須)",
-      "外部公開・予約投稿等の重要操作は人間の承認を必須とする",
+      "外部公開・予約投稿等の重要操作は人間の承認を必須とする。ただし、機械による反映が (1) 変更前後の差分を記録として残し (2) 1 操作で反映前の状態へ戻せ (3) 反映と同じ確定単位で運営者へ通知する の 3 つをすべて満たす場合に限り、事前承認を免除する (2026-09-10 承認 approval-foundation-seo-auto-apply-exemption-20260910)。免除は既に公開済みの記事本文への反映だけに及ぶ。新規記事の外部公開と予約投稿の承認必須は、この免除の対象外である。",
       "X APIは投稿作成に対応するが従量課金型で提供されるため、投稿件数だけでなくAPI利用コストもConnector側で監視する"
     ],
     "concrete_intents": [
@@ -11786,7 +12291,7 @@
       }
     ],
     "confirmed": true,
-    "approval_ref": "approval-foundation-site-scoped-admin-20260908",
+    "approval_ref": "approval-foundation-seo-auto-apply-exemption-20260910",
     "provenance": {
       "scope": {
         "source_qa_id": "qa-foundation-u7",
@@ -11968,7 +12473,7 @@
           "section": "§32 (L2441)",
           "quote": "一つのアフィリエイトURLを起点に、正しい商品情報、比較候補、根拠、書き手、読者、媒体、広告表示を統合し、目的の異なる高品質コンテンツを安全に作成・公開・改善できること。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -11979,7 +12484,7 @@
           "quote": "* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "note": "G2 は §32 (U3 の sha256 束縛済み原文) に対応記述が無い。§2.3 の 2 行へ分かれて在る。L110 の「* アフィリエイトリンクを一元管理できる」が「一元管理」側の対応。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -11989,7 +12494,7 @@
           "section": "§27.1",
           "quote": "根拠確認と人間承認を完了し、複数媒体へ展開されたコンテンツパッケージ数",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -11999,7 +12504,7 @@
           "section": "§27.1",
           "quote": "単なる生成数や投稿数を中心指標にしない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12009,7 +12514,7 @@
           "section": "§7.1 (L489)",
           "quote": "蓄積されたロールアップから「クリック率・成果に効いている要因」を定期的に抽出し",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12019,7 +12524,7 @@
           "section": "L475",
           "quote": "突合率(sub_id一致の割合)自体を運用KPIとし、sub_id非対応プログラムには「詳細分析不可」バッジを付ける",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12029,7 +12534,7 @@
           "section": "§30.8",
           "quote": "次の経路を双方向に追跡できる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12039,7 +12544,7 @@
           "section": "§30 (L2278)",
           "quote": "## 30.1 URL登録\n\n* アフィリエイトURLを元の状態で保存できる\n* 商品を識別できる\n* 不確実な場合は確認待ちになる\n* 情報源を確認できる\n* 危険なURLを拒否できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12049,7 +12554,7 @@
           "section": "L683",
           "quote": "| パフォーマンス概要 | 期間比較付きの主要KPI(PV/クリック/CTR/発生・承認CVR/承認・支払EPC/承認・支払報酬)。watermarkによる速報・確定・遅延を区別 |",
           "sha256": "5d84913a2422b9e697422b0656f90cf90633b0bd75adcebe0c6696e01fc9e45f",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12059,7 +12564,7 @@
           "section": "§2.2",
           "quote": "* 自分に合う商品か判断できる\n* 商品の長所だけでなく弱点も確認できる\n* 他の商品との違いが分かる\n* おすすめの根拠を確認できる\n* 広告・アフィリエイトであることを認識できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12069,7 +12574,7 @@
           "section": "§2.3",
           "quote": "* 商品調査を媒体ごとに繰り返さなくてよい\n* 一つの情報から複数媒体向けコンテンツを作れる\n* 自分らしい文章表現を維持できる\n* 読者層ごとに文章を変えられる\n* 複数ブログを一つの管理画面で運営できる\n* アフィリエイトリンクを一元管理できる\n* 公開済みコンテンツの古い情報を検出できる\n* どの商品、媒体、文章パターンが成果につながったか確認できる",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12079,7 +12584,7 @@
           "section": "§25 (L2006-2019)",
           "quote": "| Researcher         | 商品、比較、根拠        |\n| Writer             | 原稿、生成、修正        |\n| Reviewer           | 事実、表現、広告確認      |\n| Publisher          | 予約、公開、更新        |\n| Analyst            | 分析、レポート         |",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12089,7 +12594,7 @@
           "section": "§2.1 (L85)",
           "quote": "> 発信者が、一つの信頼できる商品・サービス情報を起点に、複数のブログやSNSへ、「誰が・誰に・何を・なぜ伝えるか」が一貫した高品質コンテンツを効率的に生成・公開・改善できる状態をつくり、読者の意思決定品質と発信者の継続的な収益性を同時に高める。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12099,7 +12604,7 @@
           "section": "§3.1 (L121)",
           "quote": "現在のコンテンツ運営では、次の情報が別々の場所で管理されやすい。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12109,7 +12614,7 @@
           "section": "§3.4 (L184)",
           "quote": "WordPress、X、Instagram、Threadsなどは公式APIによる投稿連携が可能だが、認証、権限、投稿形式、利用料金、審査条件が異なる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12119,7 +12624,7 @@
           "section": "§3.4 (L186)",
           "quote": "一方、noteは2026年8月16日時点で一般公開の公式投稿APIを提供していない。そのため、noteについては非公式APIやログイン自動操作を前提にせず、コピー用原稿、ファイル出力、WXR／MT形式のインポート支援として設計する。noteは公式にWXRまたはMT形式のインポートを案内している。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12129,7 +12634,7 @@
           "section": "§10.1 (L767)",
           "quote": "`original_url` は、成果計測に必要な情報を保持するため変更しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12139,7 +12644,7 @@
           "section": "§20 (L1614)",
           "quote": "日本では、広告であるにもかかわらず広告であることを判別しにくい表示が、景品表示法上のステルスマーケティング規制の対象となる。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12149,8 +12654,14 @@
           "section": "§5.5 (L326)",
           "quote": "外部公開、予約投稿、個人情報送信、アフィリエイトリンク挿入などの重要操作は、原則として人間の確認を経る。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
+        },
+        {
+          "field": "constraints[4]",
+          "kind": "user-dialogue",
+          "qa_id": "qa-seo-apply-approval-mode-20260910",
+          "note": "constraints[4] の 2026-09-10 追記分 (3 条件を満たす反映に限る事前承認免除) の出所。同日の AskUserQuestion『反映の承認』で利用者が選んだのは選択肢 (a)『自動反映＋事後通知』で、answer 本文は『自動反映＋事後通知（推奨）』の 1 行である。3 条件のうち (1) 変更前後の差分を記録として残す と (2) 1 操作で反映前へ戻せる は、その選択肢 (a) に付されていた条件文であり、利用者はこの条件付きの案を選んだ。(3) 反映と同じ確定単位で運営者へ通知する は、この問答の question にも answer にも無い。同日の qa-seo-apply-atomicity-20260910 が『記事本文・変更前後の履歴・所見の反映済み印を同じひとつのまとまりとして保存する』を確定させたのを受け、起草者が通知にも同じ単位を課した設計判断である。免除の適用範囲 (既に公開済みの記事本文への反映だけに及び、新規記事の外部公開と予約投稿は対象外) も、いずれの問答の逐語でもなく、上位制約へ例外を足す際に起草者が免除を最も狭く限定した設計判断である。利用者が承認したのは『上位制約に例外を足す』という 3 択のうち最も狭い選択肢そのものであり (approval-foundation-seo-auto-apply-exemption-20260910)、その承認 note が (3) と適用範囲を『既に定めた内容』と述べている部分は起草者の記述であって、利用者の逐語ではない。書面出典 (§5.5) が支えているのは同じ欄の前半 (重要操作は人間の承認を必須とする) だけである。"
         },
         {
           "field": "concrete_intents[0]",
@@ -12159,7 +12670,7 @@
           "section": "§1 (L38)",
           "quote": "同一商品・類似商品・比較候補を抽出",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12169,7 +12680,7 @@
           "section": "§1 (L44)",
           "quote": "ブログ・X・Instagram・Threads・note等の媒体別に文章を生成",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12179,7 +12690,7 @@
           "section": "§1 (L50)",
           "quote": "クリック・成果・反応を収集",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12189,7 +12700,7 @@
           "section": "§27.5 (L2174)",
           "quote": "商品の編集評価には自動反映しない。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12199,7 +12710,7 @@
           "section": "§21 (L1425)",
           "quote": "X APIは投稿作成に対応し、現在は従量課金型で提供されているため、投稿件数だけでなくAPI利用コストもConnector側で監視する。",
           "sha256": "b5fc60987cb79c08c30db4cd94b075a0bf89cd7acba7c8d1ffc8558af6439385",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12210,7 +12721,7 @@
           "quote": "利用者の指示: 「この共有しているブログよりも、UI/UX をさらに良くして」「見えない部分の情報も含めて、どのようにしたら SEO に強いか」「ブログ用のエディターの部分も改善」「SEO や AIO、AI の SEO のようなものに対しても対応できるように」「AEO,SEO 対策ができるように。で、それを分析、解析して、それをブログの方に反映できるように、そういうような仕組みを整えてほしい」。参考は makuring.jp から hitodeblog.com/blog-money-sikumi へ変更。",
           "note": "G3 の四要素 (UI/UX を良くする・SEO に強い構成・AEO 対応・解析して反映する仕組み) は、この一文で利用者自身が述べている",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12221,7 +12732,7 @@
           "quote": "公開済み記事1本ごとに、上記のうち検証可能な項目の充足を判定する純粋関数を置く。判定は記事の保存実体だけを入力とし、外部の順位データや推測を混ぜない。判定結果は項目名・該当箇所・不足理由を持ち、管理画面のエディターへそのまま差し戻せる形で返す。アーキテクチャテストで、この判定関数が読者向け描画と同じ投影を読んでいることを機械が確認する。",
           "note": "O3 前半『機械可読要素の充足を判定する』の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12232,7 +12743,7 @@
           "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
           "note": "O3 後半『欠落を公開前に検出する』の出所 (編集中に同じ画面へ出す、と述べている)",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12243,7 +12754,7 @@
           "quote": "公開済み記事の保存実体を入力に、検証可能な項目の充足を判定する純粋関数をドメイン層に置く。判定項目は index 可否 (noindex/robots)・canonical の有無・JSON-LD の型と必須プロパティ・見出し階層の妥当性 (本文外見出しの混入なし)・画像の alt 被覆と width/height・広告リンクの rel・最終更新日の表示・結論/FAQ/手順/出典ブロックの有無・最終更新からの経過日数。各項目は充足/不足/対象外の3値と、不足時の該当箇所を返す。順位・流入・引用率のような外部由来の推定値は判定に含めない。含めると、確かめられない数字を根拠に記事を書き換えることになる。",
           "note": "測る対象の列挙。O3.measure の項目はこの一文の判定項目と一対一で対応する",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12254,7 +12765,7 @@
           "quote": "(a) 画像 alt の被覆率を100%にする。alt が空の画像は公開前に欠落として名指しで提示し、装飾画像は明示的に装飾と宣言したときだけ空 alt を許す。参考サイトは83枚中8枚しか無く、読み上げでも画像検索でも情報が落ちている。\n(b) 目次は1記事につき1つの見出しリストだけを支援技術へ露出する。追従表示 (サイドバー) と本文内表示を両方出す場合でも、同じ見出しを2度読み上げさせない。参考サイトはここが二重になっている。\n(c) 本文外の導線 (関連記事・SNS・広告) に h2 を使わず、本文の見出し階層を汚さない。参考サイトは本文外 h2 が13個あり主題がぼやけている。\n(d) 構造化データは Article/BlogPosting・Person (著者)・Organization・BreadcrumbList に加え、FAQ ブロックから FAQPage、手順ブロックから HowTo、結論ブロックから Speakable を出す。参考サイトはこの3種が無く、設問に答える形の引用元になりにくい。",
           "note": "参考サイト実測に対して上回る 4 点 (alt 被覆・目次の重複・本文外見出し・構造化データ種別) の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12265,7 +12776,7 @@
           "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
           "note": "公開前にエディター上で名指しし、その場で直せる、という形の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12276,7 +12787,7 @@
           "quote": "左サイドバーに、検索窓・カテゴリー・タグ・ブランドから探す導線を置き、分類ごとにアイコンを添える。アイコンは既存の共通アイコン層 (lucide 由来の役割名) の語彙で表し、分類ごとに独自 SVG を増やさない。目次はスクロール追従し、現在読んでいる節を示す。広告と本文は視覚的に区別し、広告リンクは rel を機械にも読者にも明示する。狭い画面では追従目次を折りたたみ、本文の可読幅を優先する。",
           "note": "I5 の読者向け画面 (検索窓・分類導線・アイコン・追従目次・広告の区別) の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12287,7 +12798,7 @@
           "quote": "(a) 画像 alt の被覆率を100%にする。alt が空の画像は公開前に欠落として名指しで提示し、装飾画像は明示的に装飾と宣言したときだけ空 alt を許す。参考サイトは83枚中8枚しか無く、読み上げでも画像検索でも情報が落ちている。\n(b) 目次は1記事につき1つの見出しリストだけを支援技術へ露出する。追従表示 (サイドバー) と本文内表示を両方出す場合でも、同じ見出しを2度読み上げさせない。参考サイトはここが二重になっている。\n(c) 本文外の導線 (関連記事・SNS・広告) に h2 を使わず、本文の見出し階層を汚さない。参考サイトは本文外 h2 が13個あり主題がぼやけている。",
           "note": "I5 の『参考サイトの弱点を繰り返さない』が指す 3 点の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12298,7 +12809,7 @@
           "quote": "機械可読要素は記事の保存実体から導出する。人手で別途書き足す前提の欄を作らない。書き足しが要るのは『元データが無い情報』(著者の経歴・出典 URL・FAQ の設問文) だけで、それ以外 (見出し階層・パンくず・公開日・更新日・画像寸法) は保存実体から計算する。読者面と管理画面プレビューは同じ public-site-projection を通し、描画経路を二重に持たない。",
           "note": "I6 の『人手で書き足す前提にしない』の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12309,7 +12820,7 @@
           "quote": "(1) JSON-LD: Article/BlogPosting・Person (著者)・Organization・BreadcrumbList を常時、FAQ ブロックがあれば FAQPage、手順ブロックがあれば HowTo、結論ブロックがあれば Speakable を出す。schema.org の型と必須プロパティを検証する純粋関数を置き、テストで妥当性を確認する。ブロックが無い記事に空の構造化データを出さない。\n(2) head: canonical、og:type/title/url/description/image/site_name、twitter:card=summary_large_image、robots に max-image-preview:large を出す。\n(3) 画像: width/height を必ず出して読み込み中の版面ずれを防ぎ、本文外の画像は遅延読み込み、ヒーロー画像は先読みする。alt は保存実体の値をそのまま出し、空を許すのは装飾宣言済みのときだけ。\n(4) 見出し: 本文の見出しだけを h2/h3 として出し、関連記事・SNS・広告の見出しは本文階層に混ぜない。\n(5) 目次: 追従表示と本文内表示のどちらを出しても、支援技術へ露出する見出しリストは1つに保つ。\n(6) リンク: 広告・アフィリエイトリンクには rel に sponsored (必要に応じ nofollow) を機械的に付ける。付け忘れを手作業に委ねない。",
           "note": "I6 が列挙する機械可読要素の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12320,7 +12831,7 @@
           "quote": "解析結果は2つの経路で反映する。(a) 管理画面の記事エディターへ、不足項目を名指しで差し戻す。書き手はその場で直せる。(b) 記事一覧に充足度を出し、どの記事から直すべきかを判断できるようにする。自動で本文を書き換えない。自動書き換えは、書き手が読んでいない文章が公開される状態を作る。",
           "note": "I7 の『不足を名指しで管理画面へ差し戻す』の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -12331,7 +12842,7 @@
           "quote": "記事エディターは単一用途の画面とし、既存の画面別情報優先度 (qa-uiux-web-screen-priority) と全面改善 (qa-uiux-web-overhaul-v2) の方針を継承する。標準ブロックとして結論ブロック・要点リスト・比較表・FAQ ブロック・手順ブロック・出典ブロック・最終更新日表示を既定配置し、AI が引用しやすい構造を書きながら作れるようにする。画像を挿入した時点で alt の入力を促し、未入力のまま公開させない。見出しは階層 (h2/h3) を選ぶ形にし、見た目の大きさで選ばせない。AEO/SEO 充足度は編集中に同じ画面へ表示し、不足を項目名と該当箇所で名指しし、その場へ移動できるようにする。数値目標 (順位・引用率) は業者推定値であり受入条件に置かず、検証可能な項目 (index 可能・JSON-LD 妥当・alt 被覆・見出し階層・更新日表示) だけを条件にする。",
           "note": "I8 のエディター改善 (ブロック既定配置・alt 入力の促し・見出し階層・充足度表示) の出所",
           "sha256": "b4c0ae98e92f5cd642d0d8380d9407c5f667a06070cd1439cefeffeb69deaf4d",
-          "sealed_on": "2026-09-08",
+          "sealed_on": "2026-09-10",
           "sealed_with": "seal-foundation-sources"
         },
         {
@@ -14171,7 +14682,7 @@
   ],
   "knowledge_candidates": [],
   "hearing_progress": {
-    "loop_count": 4,
+    "loop_count": 5,
     "next_question": null,
     "complete": true,
     "max_loops": 5,
@@ -14250,12 +14761,6 @@
         "heading": "被引用チェックの費用が比例する量",
         "body": "被引用チェック (AEO 系統3) の費用は、**モデルを小さくしても下がらない部分がある。**\n2026-09-04 に公式出典を取得して確かめた事実を、設計が前提を取り違えないようここへ置く。\n\n利用者は費用について『コストをできるだけ抑えたい。最小限のllmのモデルでも良い』と述べた\n(`qa-neutral-citation-check-v6`)。この意図のうち **実際に効くのはトークン単価の側だけである。**\n\nAnthropic の出典は逐語でこう述べる — 「per 1,000 searches, plus standard token costs for\nsearch-generated content. Web search results retrieved throughout a conversation are counted\nas input tokens, in search iterations executed during a single turn and in subsequent\nconversation turns.」\n(出典: `system-spec/retrieval-evidence/anthropic-web-search-tool.json`)\n\nここから 3 つが従う。\n\n1. **検索回数の従量とトークン課金は別建てである。**モデルを小さくしても検索 1,000 件あたりの\n   課金は下がらない。費用の主たる量は検索回数のほうである。\n2. **実効的な制御点は 1 リクエストあたりの検索回数上限である。**同出典は逐語で「max_uses to cap\n   the number of searches for each request」と述べる。実装はこの上限を必ず指定する。\n3. **検索結果は以後の会話ターンでも入力トークンに数え続けられる。**よって被引用チェックは会話を\n   継続させず、1 回の問い合わせで完結させる。判定は「自サイトの URL が引用一覧に含まれるか」と\n   いう文字列の照合であり、追加の問い直しを要さないため、この制約で失うものは無い。\n\n問い合わせ先を将来 Gemini へ替える場合、**課金の単位が違う。**Gemini の出典は逐語で「your project\nis billed for each search query that the model decides to execute」と述べる\n(出典: `system-spec/retrieval-evidence/gemini-google-search-grounding.json`)。Anthropic は\n「検索 1,000 件あたり」、Gemini は「モデルが実行を決めた検索クエリごと」であり、見積り式が別になる。\n\nしたがって **運営者へ見せる費用の上限は「月あたりの検索回数」という単位にする。**これがどちらの社の\n課金単位にも翻訳できる唯一の量である。金額を単位にすると、社を替えたときに設定値の意味が変わる。\n\n**取りこぼしを被引用の不在と読み違えないこと。**max_uses で検索回数を絞ると、自サイトを引用しうる\n問い合わせを取りこぼす。取りこぼしは「引用されていない」と区別がつかないため、記録には検索回数上限に\n達したかどうかを併せて残す。",
         "reason": "qa-neutral-citation-check-v6 の設計適用は『最小限のモデルでよい』を費用抑制の手として置いていたが、2026-09-04 に取得した公式出典 2 件により、検索回数の従量課金はモデルの大小と無関係であることが判明した。利用者の逐語 (answer) にも、対話経路として保護されている design_applications にも足せない事実であり、章の生成節へ書けば compile のたび消える。取得由来の事実が設計の前提を取り違えさせないよう、消えない場所へ置く。",
-        "recorded_with": "set-chapter-note"
-      },
-      {
-        "heading": "SEOの現行承認契約（2026-09-06）",
-        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
-        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
         "recorded_with": "set-chapter-note"
       },
       {
@@ -14341,6 +14846,18 @@
         "body": "この章の BE-PROSE-01〜03 / BE-PRODUCT-01 / BE-IMAGE-01 は、利用者の逐語（`qa-backend-web-prose-verbatim`）から **AI が導いた受入条件** であり、利用者が逐語で述べた要求そのものではない。導出の対応は次のとおり。\n\n- 利用者の逐語: 「記事を作成する上で必要な情報を全て盛りだくさんに入れておいてほしいです」\n- そこから導いた条件: 編集面が扱える断片が、保存形への直列化と保存形からの解析を往復しても失われないこと（BE-PROSE-01〜03）\n\n**BE-PROSE-01 が前提とする保存形は確定している。** `decisions.dec-article-body-storage-format` は 2026-09-05T10:21:16Z に `opt-extended-markdown-string`（拡張 Markdown 文字列のまま広げる）で確定した。利用者は 3 択（拡張 Markdown 文字列のまま / 構造化 JSON ツリーへ移す / 折衷案）を提示されたうえで明示的に選んでいる。選択理由として述べられていたのは、既存の公開記事に移行が発生せずデータが壊れる危険が生じないこと、DB を直接見て本文が読めることと AI が文字列として本文を書けることを保てること。\n\nしたがって BE-PROSE-01 の往復は **拡張 Markdown 上で起きる**。これは前提ではなく確定した設計である。記法の衝突検査（BE-PROSE-02）の対象も拡張 Markdown の予約記法に固定される。\n\n**確定に付いた条件を落とさないこと。** 利用者の選択には「19 種すべてで `parseProse(serializeProse(x)) === x` の往復テストを課す」という条件が付いている。この往復テストが 19 種を網羅しないまま実装を進めると、利用者が受け入れた前提が満たされないまま保存形だけが既成事実になる。断片カタログを増やすときは、同じ便で往復テストも増やすこと。\n\n- 2026-09-09 追記の経緯: 本節はもともと「保存形は未確定である」と述べ、実装前に二択を利用者へ提示するよう求めていた。その求めは 2026-09-05 に果たされている（利用者が 3 択から明示選択）。しかし確定後も注記が更新されず、同じ章の後段（「保存形は拡張 Markdown 文字列のままにする」）と矛盾したまま残っていた。独立監査 C06 がこの並立を検出したため、旧注記を `retired_chapter_notes` へ移し、確定後の事実として本節を立て直した。**決定そのものは何も変えていない。章の記述が決定に追いついていなかった。**",
         "reason": "BE-PROSE-01〜03 が AI 導出の受入条件であることは章に残す必要がある（利用者の逐語ではない）。加えて、確定に付いた条件「19 種すべてで parseProse(serializeProse(x)) === x」を章に残さないと、断片を増やすときに往復テストだけ置き去りになる。旧注記（保存形は未確定）は確定に追いついておらず retire 済み。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-10 改定）",
+        "body": "**2026-09-10 に論点ごとへ問い直した 5 件の回答が、SEO の反映方法に関する現在の正規契約である。**\n\n裏付けは `qa-seo-apply-approval-mode-20260910` / `qa-seo-apply-target-scope-20260910` /\n`qa-seo-apply-atomicity-20260910` / `qa-seo-apply-concurrent-edit-20260910` /\n`qa-seo-performance-presentation-20260910` の 5 件である。\n\n- **反映の承認**: 機械が反映し、事後に通知する。反映前の関門は置かない。これを許せるのは、反映のたびに変更前後の差分を記録として残し、1 操作で反映前の本文へ戻せる場合に限る。差分の記録と復元の経路を欠く実装は、この契約の外にある。通知は反映と同じ確定単位で送り、遅延させない。\n- **対象範囲**: 全ての記事を対象とする。元記事の作成日時では絞らない。作成日時が不明な記事も対象に含める。範囲で守らないぶん、下の 2 項 (確定単位と版の一致) はどれか 1 つでも欠ければ反映を成立させない必須条件になる。\n- **途中失敗**: 記事本文・変更前後の差分記録・所見の「反映済み」の印を同一の確定単位で保存し、途中で失敗したら 1 つも変えない。反映は記事 1 件を単位とし、複数記事の一括反映は記事ごとに独立した確定単位とする。\n- **同時編集**: 書き込みは「読み出したときの版と今の版が同じであること」を条件にし、違えば書かずに止めて運営者へ知らせる。止めた反映は保留として扱い、「反映済み」の印を立てない。取消も同じ条件で行う。\n- **実績の見せ方**: 選択中のブログ・記事と同じ画面で、観測時刻付きの推移として見せる。反映の時点は推移の上へ印として重ねる。順位・クリック・被引用の変化を、その変更の因果効果と呼ばない。\n\n**2026-09-06 の `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` は、\n現行契約ではない。**独立監査 C06 が、これを 5 論点を 1 問へ束ねた誘導質問と判定した。\n回答は「つづけて」の一語で、論点ごとの逐語回答が存在しない。承認記録の note 自身が\n「これは提示内容の要約で、利用者の逐語回答ではない」と書いている。そこで 2026-09-10 に\n5 論点を 1 件ずつ分けて問い直し、確定 5 セル (backend / database / frontend / ui-ux /\nmaintenance-ops × web) の裏付けを新しい回答へ差し替えた。旧 entry は履歴として qa_log に残り、\n`superseded_by` で後継を名乗る。\n\nそのため、旧契約が定めていた次の 2 点は**維持してはならない**。\n\n- 「運営者が承認した対象だけを反映する」 — 問い直した結果は自動反映＋事後通知である。\n- 「対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事を除外する」 —\n  問い直した結果は全記事である。同じ理由で `qa-neutral-auto-scope-v6`\n  (自動反映を導入後の記事に限る決定) も裏付けから外し、後継を\n  `qa-seo-apply-target-scope-20260910` として申告した。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。\n  実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、\n  件数上限だけの場合は「最新N観測」と表示する。未観測を 0 にしない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。\n- SEO 以外のブログトップ・検索・AI 向け表現物など、変更していない決定は引き続き有効である。",
+        "reason": "2026-09-06 の束ね承認を独立監査 C06 が誘導質問と判定したため、2026-09-10 に 5 論点を分けて問い直し、確定 5 セルの裏付けを新しい回答へ差し替えた。章の散文にも現行契約を明記し、旧契約との優先関係と、旧契約のどの条項を維持してはならないかを示す。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEO 反映の承認方法だけが置き換わった範囲（2026-09-10）",
+        "body": "`qa-backend-web-domain-aeo-behavior` の回答本文には\n**「反映は自動で公開せず、既存の人間承認の経路に載せる。」**という一文がある。\nこの一文は現行契約ではない。\n\n- この問答は 4 つのユースケース群（(1) カスタムドメイン接続 (2) 行動計測の受け口\n  (3) 日次ロールアップ (4) SEO/AEO の評価と反映）を一度に決着させたもので、\n  **(1)〜(3) と、(4) のうち評価・保存・AEO 出力の重複禁止についての決着は現役である。**\n  この問答自体は取り下げていない（`superseded_by` を持たない）。\n- 置き換わったのは (4) の**反映の承認方法だけ**である。2026-09-10 に反映の承認方法を\n  1 論点として問い直した結果は「機械が反映し、事後に通知する（反映前の関門は置かない）」であり、\n  裏付けは `qa-seo-apply-approval-mode-20260910`。上位制約 `constraints[4]` も同日に改定し、\n  差分記録・1 操作での復元・同一確定単位での通知の 3 条件を満たす反映に限って\n  事前承認を免除した（`approval-foundation-seo-auto-apply-exemption-20260910`）。\n- したがって `apply-seo-recommendation` を「既存の人間承認の経路」に載せる実装は、\n  **この一文を根拠に書いてはならない。**免除の 3 条件を満たす自動反映として実装する。\n  新規記事の外部公開と予約投稿の承認必須は免除の対象外なので、そちらは従来どおり承認を要する。\n\n問答本文を書き換えずにここへ記録するのは、`answer` が利用者の発言の逐語記録であり、\n後から気づいた突き合わせを混ぜると利用者が言っていないことが利用者の声の顔で残るためである。",
+        "reason": "完成度評価 design_knowledge_reflection が high finding として、backend.md の接地根拠 qa-backend-web-domain-aeo-behavior の逐語『反映は自動で公開せず、既存の人間承認の経路に載せる』が 2026-09-10 の自動反映契約と正面から矛盾したまま現役で残っていると指摘した。問答本文は利用者の逐語記録なので書き換えず、置き換わった範囲がこの一文だけであること、残りの決着は現役であることを章の注記として記録する。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "database": [
@@ -14360,12 +14877,6 @@
         "heading": "書き込みが操作の記録に届かない状態を解消 — feat-blog-ui-builder リリース (P13、2026-08-31)",
         "body": "同章の「実装確定の書き戻し — feat-blog-ui-builder (P13、2026-08-30)」§4.3 で\n⚠️ として記録した「書き込みが操作の記録に届かない」は、**本リリース commit で解消した。**\n前の記録は消さずに残す。消すと「一度この状態で出そうとしていた」という事実が引けなくなる。\n\n### 解消した内容\n\n`createManageBlogAppearanceUseCase`（見せ方の選択・ブログ既定の配色・ページ上書きの\n保存と取り消しの 4 操作）と `createReviewBlogPlacementsUseCase`（掲載の足し引き）が、\n書き込みのたびに `audit_log` へ 1 行残すようにした。\n`pnpm run verify` の「つなぎ目の呼び出し」検査は\n**届いていない 0（上限 0）・判定できない 0（上限 0）** で緑になっている。\n\n足した語は 3 つである。\n\n| 語 | 残すもの |\n|---|---|\n| `blog_appearance.changed` | 見せ方と配色の 4 操作。差は `targetType` と `after` に出す |\n| `blog_placement.changed` | 記事のどこに成果リンクを載せたか |\n| `blog_placement.removed` | 記事のどこから外したか |\n\n### なぜ掲載だけ「足す」と「外す」を分けたか\n\n台帳 `blog_affiliate_placement` の行は**外すと物理削除される**（所在の記録であって\n履歴ではない、という表そのものの設計である）。つまり\n**外した事実が残る場所は `audit_log` しかない。**\n1 語にまとめると「掲載が消えている」を差分から読むことになるが、\n消えた行の差分は消えているので読めない。\n\n外した内容は `before` ではなく `after` に平文で並べている。台帳から引き直せない以上、\n記録の側が「どの記事のどの位置から、どのコードの掲載が消えたか」を単独で言えるべきである。\n\n### 見た目の変更にも記録が要ると判断を変えた理由\n\n`manage-blog-appearance.ts` は当初「配色とテンプレートは読者の目に映るだけで、\n法令上の主張を 1 つも含まない」として記録を書いていなかった。**この理由は誤りではないが、\n足りなかった。**記録が要るのは法令上の主張があるときだけではない。\n\n見た目は**上書きで消える設定**である。誰かが配色を変えた翌日に「読みにくくなった」と\n言われても、変える前の値はどこにも残っていない。枠の並び (`blog_layout.changed`) は\n残していて配色だけ残さないのは一貫していなかった——後から読む人にとって問いは同じ\n（「そのとき読者に何がどう見えていたか」）である。\n\n### 記録が書けなかったときは「変えました」で終わらせない\n\n保存は済んだが `audit_log` へ書けなかったとき、**保存を取り消さない。**\n取り消すと、押した人には「効かなかった」と見えるのに保存先には残っている、という\n別の食い違いを新しく 1 つ作ることになる。返すのは\n`auditWriteFailure`（済んだことと、残っていないことを両方その場で書く断り）である。\n\n### ポートの名前を 1 つ変えた\n\n`BlogAppearancePort.selectTemplate` を `saveTemplate` へ改名した。\n`scripts/port-wiring.mjs` が読み書きを判定できずに止まったためで、\n語彙表へ `select` を足して黙らせることもできたが、**それをすると将来の読み取り手続きが\n黙って書き込み扱いになる**（SQL の `SELECT` は読みの語である）。名前の側を直した。\n\n### 残る 🔴 は §4.2 のみ\n\n§4.2（`legal_page` を 2 系統の語彙が触っている / 18 経路中 12 経路が 404）は\n**開いたままである。**本番 (`main`) へ進める前に閉じること。",
         "reason": "同章 §4.3 が ⚠️『配色の保存と掲載の増減が操作の記録に届かない』と記録した状態を本リリース commit で解消したため、正本を現状に一致させる。前の記録は消さず差分として足す。",
-        "recorded_with": "set-chapter-note"
-      },
-      {
-        "heading": "SEOの現行承認契約（2026-09-06）",
-        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
-        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
         "recorded_with": "set-chapter-note"
       },
       {
@@ -14445,6 +14956,12 @@
         "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。\n\n- **`decision-editorial-commercial-split` が本章に効く形**: 「報酬額をランキングの\n  入力にしない」という禁止を、コードの中ではなく **D1 を 2 本に分ける**位置で\n  担保する。越えるには設定を書き換えるしかなくなり、越えた事実が差分に残る。\n- **`dec-analysis-history-retention` が本章に効く形** (2026-09-04 確定、\n  `opt-append-with-window`): 解析結果は上書きせず追記する。上書きすると「施策の\n  前後で何が変わったか」が原理的に取れず、AEO/SEO の改善が効いたのかを判定する\n  手段が消える。無制限に貯めないのは D1 の無料枠が有限だからで、**保持件数・\n  保持期間の具体値は本決定では確定しない** — 施策の効果が現れるまでの期間を\n  決めてから設定する。\n- **各行に解析ロジックのバージョンを記録する。**これが無いと、判定基準を変えた\n  前後の行が同じ土俵に並び、実際にはロジックが変わっただけの差を「改善」と\n  読み違える。刈り取り (retention) は、この列を持つ行を古い順に消す形で実装する。\n- **編集用と商用の分離は解析履歴にも及ぶ。**解析結果は編集判断の入力なので、\n  報酬データと同じ本に置かない。",
         "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
         "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-10 改定）",
+        "body": "**2026-09-10 に論点ごとへ問い直した 5 件の回答が、SEO の反映方法に関する現在の正規契約である。**\n\n裏付けは `qa-seo-apply-approval-mode-20260910` / `qa-seo-apply-target-scope-20260910` /\n`qa-seo-apply-atomicity-20260910` / `qa-seo-apply-concurrent-edit-20260910` /\n`qa-seo-performance-presentation-20260910` の 5 件である。\n\n- **反映の承認**: 機械が反映し、事後に通知する。反映前の関門は置かない。これを許せるのは、反映のたびに変更前後の差分を記録として残し、1 操作で反映前の本文へ戻せる場合に限る。差分の記録と復元の経路を欠く実装は、この契約の外にある。通知は反映と同じ確定単位で送り、遅延させない。\n- **対象範囲**: 全ての記事を対象とする。元記事の作成日時では絞らない。作成日時が不明な記事も対象に含める。範囲で守らないぶん、下の 2 項 (確定単位と版の一致) はどれか 1 つでも欠ければ反映を成立させない必須条件になる。\n- **途中失敗**: 記事本文・変更前後の差分記録・所見の「反映済み」の印を同一の確定単位で保存し、途中で失敗したら 1 つも変えない。反映は記事 1 件を単位とし、複数記事の一括反映は記事ごとに独立した確定単位とする。\n- **同時編集**: 書き込みは「読み出したときの版と今の版が同じであること」を条件にし、違えば書かずに止めて運営者へ知らせる。止めた反映は保留として扱い、「反映済み」の印を立てない。取消も同じ条件で行う。\n- **実績の見せ方**: 選択中のブログ・記事と同じ画面で、観測時刻付きの推移として見せる。反映の時点は推移の上へ印として重ねる。順位・クリック・被引用の変化を、その変更の因果効果と呼ばない。\n\n**2026-09-06 の `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` は、\n現行契約ではない。**独立監査 C06 が、これを 5 論点を 1 問へ束ねた誘導質問と判定した。\n回答は「つづけて」の一語で、論点ごとの逐語回答が存在しない。承認記録の note 自身が\n「これは提示内容の要約で、利用者の逐語回答ではない」と書いている。そこで 2026-09-10 に\n5 論点を 1 件ずつ分けて問い直し、確定 5 セル (backend / database / frontend / ui-ux /\nmaintenance-ops × web) の裏付けを新しい回答へ差し替えた。旧 entry は履歴として qa_log に残り、\n`superseded_by` で後継を名乗る。\n\nそのため、旧契約が定めていた次の 2 点は**維持してはならない**。\n\n- 「運営者が承認した対象だけを反映する」 — 問い直した結果は自動反映＋事後通知である。\n- 「対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事を除外する」 —\n  問い直した結果は全記事である。同じ理由で `qa-neutral-auto-scope-v6`\n  (自動反映を導入後の記事に限る決定) も裏付けから外し、後継を\n  `qa-seo-apply-target-scope-20260910` として申告した。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。\n  実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、\n  件数上限だけの場合は「最新N観測」と表示する。未観測を 0 にしない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。\n- SEO 以外のブログトップ・検索・AI 向け表現物など、変更していない決定は引き続き有効である。",
+        "reason": "2026-09-06 の束ね承認を独立監査 C06 が誘導質問と判定したため、2026-09-10 に 5 論点を分けて問い直し、確定 5 セルの裏付けを新しい回答へ差し替えた。章の散文にも現行契約を明記し、旧契約との優先関係と、旧契約のどの条項を維持してはならないかを示す。",
+        "recorded_with": "set-chapter-note"
       }
     ],
     "frontend": [
@@ -14458,12 +14975,6 @@
         "heading": "記事カードの図版と題名リンクの読み上げ契約（2026-09-06）",
         "body": "2026-09-06 の利用者要望「認知負荷をできるだけ下げて、ユーザーが直感的に操作できる」を、記事カードの読み上げへ適用する設計注記。`qa-neutral-ogp-fallback-v6` の本人回答は「自動生成のOGP画像で埋める」であり、非空altの指定は設計側の解釈である。画像不在時の生成表示・固定寸法・外部共有の方針と、本人回答・過去の設計解釈は保持する。\n\n- 同じ記事へ移動する題名リンクが隣接し、自動生成図版がその題名を繰り返すカードでは、題名リンクを一度だけ読み上げる。図版は空 `alt`、図版側の重複リンクは `aria-hidden` と `tabIndex=-1` とし、読み上げとTab移動の重複を避ける。\n- 題名リンクを伴わない単独の自動生成図版では、記事の題名を含む代替文を付ける。画像一般や本文中の説明図へ空altを一律適用する規則ではない。\n- このカード文脈では、本注記を `qa-neutral-ogp-fallback-v6` の「altには記事の題名を入れ、空altにしない」という設計解釈より優先する。読者向けのトップ・一覧・検索・関連記事は同じカード契約を共有する。\n\n表示実装は `src/presentation/ui/templates/article-view.tsx` の `ArticleList`、検証根拠は `tests/blog-top-page/section-composition.spec.ts` の図版読み上げ除外ケース。表示と別に持つ図版の題名由来の代替文は `thumbnailAltText` で保持する。",
         "reason": "認知負荷低減要望に基づき、生成図版の非空altという設計解釈をカードと単独表示の文脈で整理する。本人回答と過去の判断は改変しない。",
-        "recorded_with": "set-chapter-note"
-      },
-      {
-        "heading": "SEOの現行承認契約（2026-09-06）",
-        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
-        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
         "recorded_with": "set-chapter-note"
       },
       {
@@ -14518,6 +15029,12 @@
         "heading": "実装で確定した URL 階層・転送規則・雛形複製経路 (feat-site-scoped-authoring-ia)",
         "body": "**以下は利用者の回答ではない。** `feat-site-scoped-authoring-ia` の実装 (2026-09-08) で\n確定した URL 階層と転送規則を、章にしか居場所が無いまま消えないよう正本へ移したものである。\n上の質疑録と混ぜて読まないために区切ってある。\n\n`qa-frontend-web-site-scoped-route-ownership` で利用者は「ブログ単位へ移す画面の URL 階層」と\n「横断 URL を転送で受ける」方針を決めた。**どの住所をどこへ送るか、送らない住所はどれかは、\n受け皿の有無で決まる。**実装で確定した対応を残す。\n\n### 所属替えした 6 route\n\n| 新しい住所 | 何の画面か |\n|---|---|\n| `/admin/sites/[site]/authors` | 書き手 |\n| `/admin/sites/[site]/authors/new` | 書き手を作る |\n| `/admin/sites/[site]/audience/personas` | 読者像 |\n| `/admin/sites/[site]/audience/personas/new` | 読者像を作る |\n| `/admin/sites/[site]/writing` | 書き方の決めごと (ブログの型で重み付けした複製) |\n| `/admin/writing/template` | 共通の雛形そのもの (横断に残す 1 枚) |\n\n管理 route は 93 本から 99 本になった。**畳んだのは入口の段であって route の本数ではない。**\n\n### データ層は動かしていない\n\n**site 配下へ移ったのは画面 (住所) だけで、データはワークスペース単位のままである。**\n書き手も読者像も `workspaceId` で引く。\n\nこの境界は意図的である。データを site 単位へ割ると既存ブログ全部に移行が要り、\n新規ブログを足すたびに初期データの作成が要る。住所だけを移せば、新しいブログを\n足した瞬間から書き手も読者像も配下に見える。ブログ固有の書き手が要るという要望が\n出たときに初めてデータ層を割る。\n\nその代わり **site 配下の画面は中身を読む前に必ず `resolveSiteOrNotFound(site)` を通す。**\n順番が逆だと、存在しないブログの住所でも一覧が出る。`getSite` が失敗したときは\n理由を言い分けずに `notFound()` を返す。「権限がありません」と「ありません」を\n出し分けると、住所を打つだけで他ワークスペースのブログの存否が読み取れる。\n受け先の `not-found.tsx` は `AppShell` を import も描画もしないので、\nサイドバーにブログ名が並ぶこともない。\n\n### 転送規則\n\n転送する 5 本 (`legacyAdminRedirect` だけを呼ぶ殻。DOM を持たず `redirectOnly: true`):\n`/admin/personas`, `/admin/personas/new`, `/admin/personas/audiences`,\n`/admin/personas/audiences/new`, `/admin/writing`。\n\nブログを特定できないとき (cookie 無し / 一覧が引けない / `?site=` が配列 /\n対応表に無い住所) は、どの不調でも `/admin/sites` (ブログ選択) へ出す。\n外の世界が期待どおり返らなかったことを利用者の画面に例外として見せない。\n\n**`/admin/content/*` は転送していない。**転送先の `/admin/sites/[site]/articles` が\n存在しない (正本は `feat-blog-scoped-admin-console`) ためで、存在しない住所へ\n転送する殻を先に置くと旧 URL が今より確実に壊れる。**移設は、受け皿が立ってから\nでなければ移設ではなく破壊である。**受け皿が入れば対応表 `LEGACY_SITE_SCOPED_ROUTES` に\n1 行足すだけで他の 5 本と同じ形になる。未転送の理由は\n`docs/spec/feat-site-scoped-authoring-ia/redirect-map-draft.json` の `not_redirected` に\n理由付きで載っており、黙って落としてはいない。\n\n### 雛形の複製経路 — 複製するのは重みだけ\n\n`/admin/sites/[site]/writing` は `cloneWritingMethodForSite(共通雛形, そのブログの型)` を呼ぶ。\n**節も文体の決まりも共通のままで、変わるのは「このブログの型で特に外せない節に印が付く」\nことだけである。**\n\n決めごとを丸ごと複製すると 10 本のブログで 10 通りの決まりができ、公開前の検査が\nどれを見るか決まらなくなる。この画面と公開前の検査は、コードの中の同じ 1 つの定義を読む。\n手引きを別文書として書けば、どちらかが必ず古くなり「手引きどおりに書いたのに検査で落ちる」が起きる。\n\n### route を 1 本足すと同時に整合が要求される表\n\n`admin-route-metadata.ts` (route の正本) / `ADMIN_NAV_GROUPS` / `screen-information-ledger.json` /\n`admin-disclosure-contract.ts` / `tests/ui/route-cases.ts`。\n\n**後ろの 4 つは手書きの一覧ではなく正本からの射影である。**\n`tests/ui/route-cases.ts` の管理画面ケースが `ADMIN_ROUTE_METADATA.map(...)` である結果、\nroute を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + best-practice、違反 0 が条件) の\n対象になる。「画面は足したが検査の一覧に足し忘れた」という抜け方ができない。",
         "reason": "P13 書き戻し: 所属替えした6route・データ層を動かさない境界・転送5本と未転送/admin/content/*の理由・複製するのは重みだけ、は実装で確定した内容で章にしか居場所が無い。利用者の逐語には足さない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-10 改定）",
+        "body": "**2026-09-10 に論点ごとへ問い直した 5 件の回答が、SEO の反映方法に関する現在の正規契約である。**\n\n裏付けは `qa-seo-apply-approval-mode-20260910` / `qa-seo-apply-target-scope-20260910` /\n`qa-seo-apply-atomicity-20260910` / `qa-seo-apply-concurrent-edit-20260910` /\n`qa-seo-performance-presentation-20260910` の 5 件である。\n\n- **反映の承認**: 機械が反映し、事後に通知する。反映前の関門は置かない。これを許せるのは、反映のたびに変更前後の差分を記録として残し、1 操作で反映前の本文へ戻せる場合に限る。差分の記録と復元の経路を欠く実装は、この契約の外にある。通知は反映と同じ確定単位で送り、遅延させない。\n- **対象範囲**: 全ての記事を対象とする。元記事の作成日時では絞らない。作成日時が不明な記事も対象に含める。範囲で守らないぶん、下の 2 項 (確定単位と版の一致) はどれか 1 つでも欠ければ反映を成立させない必須条件になる。\n- **途中失敗**: 記事本文・変更前後の差分記録・所見の「反映済み」の印を同一の確定単位で保存し、途中で失敗したら 1 つも変えない。反映は記事 1 件を単位とし、複数記事の一括反映は記事ごとに独立した確定単位とする。\n- **同時編集**: 書き込みは「読み出したときの版と今の版が同じであること」を条件にし、違えば書かずに止めて運営者へ知らせる。止めた反映は保留として扱い、「反映済み」の印を立てない。取消も同じ条件で行う。\n- **実績の見せ方**: 選択中のブログ・記事と同じ画面で、観測時刻付きの推移として見せる。反映の時点は推移の上へ印として重ねる。順位・クリック・被引用の変化を、その変更の因果効果と呼ばない。\n\n**2026-09-06 の `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` は、\n現行契約ではない。**独立監査 C06 が、これを 5 論点を 1 問へ束ねた誘導質問と判定した。\n回答は「つづけて」の一語で、論点ごとの逐語回答が存在しない。承認記録の note 自身が\n「これは提示内容の要約で、利用者の逐語回答ではない」と書いている。そこで 2026-09-10 に\n5 論点を 1 件ずつ分けて問い直し、確定 5 セル (backend / database / frontend / ui-ux /\nmaintenance-ops × web) の裏付けを新しい回答へ差し替えた。旧 entry は履歴として qa_log に残り、\n`superseded_by` で後継を名乗る。\n\nそのため、旧契約が定めていた次の 2 点は**維持してはならない**。\n\n- 「運営者が承認した対象だけを反映する」 — 問い直した結果は自動反映＋事後通知である。\n- 「対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事を除外する」 —\n  問い直した結果は全記事である。同じ理由で `qa-neutral-auto-scope-v6`\n  (自動反映を導入後の記事に限る決定) も裏付けから外し、後継を\n  `qa-seo-apply-target-scope-20260910` として申告した。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。\n  実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、\n  件数上限だけの場合は「最新N観測」と表示する。未観測を 0 にしない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。\n- SEO 以外のブログトップ・検索・AI 向け表現物など、変更していない決定は引き続き有効である。",
+        "reason": "2026-09-06 の束ね承認を独立監査 C06 が誘導質問と判定したため、2026-09-10 に 5 論点を分けて問い直し、確定 5 セルの裏付けを新しい回答へ差し替えた。章の散文にも現行契約を明記し、旧契約との優先関係と、旧契約のどの条項を維持してはならないかを示す。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -14579,12 +15096,6 @@
     ],
     "maintenance-ops": [
       {
-        "heading": "SEOの現行承認契約（2026-09-06）",
-        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
-        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
-        "recorded_with": "set-chapter-note"
-      },
-      {
         "heading": "意思決定が本章に効く形",
         "body": "- **`decision-test-ci-tooling` の結論は「現行のまま」だが、「Playwright は不要」という判断ではない。** 10 の 7 種のうち**見た目の回帰だけは現行で測れておらず、その穴は実在する**。足さない理由は必要性ではなく走らせ方にある。11 §8-2 の 3 段 (手動・止めない) は 2026-08-18 に定例をやめており、いま基準を足しても回す場所が無い。穴があることを消さずに残すのが本項の要点である。\n- **確定の出どころ**: 利用者本人が 2 つの選択肢から直接選び、回答原文は「現行のままで確定」(`user_decision.verbatim`、2026-08-20)。AI の推奨を昇格させたものでも、オーケストレーターが代理で決めたものでもない。\n- **注意**: `system-spec/completeness-report.json` の gaps[3] は本項を `recommended_pending_confirmation` として未確定扱いしているが、これは **2026-08-16 時点の評価**である。正本ではすでに `confirmed`。C05 を再評価すれば消える。",
         "reason": "手書きの「意思決定 (decisions)」節に在った章固有の注釈。表と件数は正本から生成するようにしたため節ごと置き換わるが、注釈は正本から導けないので移した(2026-09-08 / ah-lwmf)。",
@@ -14630,6 +15141,12 @@
         "heading": "意思決定が本章に効く形",
         "body": "正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。\n**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで\n「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。\n\n- **`decision-test-ci-tooling` の結論は「現行のまま」だが、「Playwright は不要」\n  という判断ではない。** 10 の 7 種のうち**見た目の回帰だけは現行で測れておらず、\n  その穴は実在する**。足さない理由は必要性ではなく走らせ方にある。11 §8-2 の\n  3 段 (手動・止めない) は 2026-08-18 に定例をやめており、いま基準を足しても\n  回す場所が無い。穴があることを消さずに残すのが本項の要点である。\n- **確定の出どころ**: 利用者本人が 2 つの選択肢から直接選び、回答原文は\n  「現行のままで確定」(`user_decision.verbatim`、2026-08-20)。AI の推奨を\n  昇格させたものでも、オーケストレーターが代理で決めたものでもない。\n- **`decision-auth-method` から引き継ぐ宿題**: 認証ライブラリの更新追従を本章の\n  運用へ組み込む。採用理由が「費用ゼロ・ロックインなし」なので、追従を止めた\n  時点でその前提が消える。\n- **`dec-guideline-registry-recheck` が本章に効く形** (2026-09-04 確定、\n  `opt-fixed-interval-with-staleness-flag`): AEO/SEO の判定根拠 (検索セントラル・\n  schema.org・WAI-ARIA) は固定間隔で再取得し、**鮮度切れを画面に出す**。\n  判定基準そのものが古びる — 基準が古いまま緑になる状態がいちばん危ない。\n  - **間隔の具体値は本決定では確定しない。**参照先の実際の更新頻度を見てから\n    決める。頻度を先に決めると、根拠のない数字が仕様に固定される。\n  - **取得の失敗を「変更なし」として扱わない。**失敗と無変更を同じ扱いにすると、\n    取得が壊れている期間がまるごと「最新」と表示される。",
         "reason": "各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-10 改定）",
+        "body": "**2026-09-10 に論点ごとへ問い直した 5 件の回答が、SEO の反映方法に関する現在の正規契約である。**\n\n裏付けは `qa-seo-apply-approval-mode-20260910` / `qa-seo-apply-target-scope-20260910` /\n`qa-seo-apply-atomicity-20260910` / `qa-seo-apply-concurrent-edit-20260910` /\n`qa-seo-performance-presentation-20260910` の 5 件である。\n\n- **反映の承認**: 機械が反映し、事後に通知する。反映前の関門は置かない。これを許せるのは、反映のたびに変更前後の差分を記録として残し、1 操作で反映前の本文へ戻せる場合に限る。差分の記録と復元の経路を欠く実装は、この契約の外にある。通知は反映と同じ確定単位で送り、遅延させない。\n- **対象範囲**: 全ての記事を対象とする。元記事の作成日時では絞らない。作成日時が不明な記事も対象に含める。範囲で守らないぶん、下の 2 項 (確定単位と版の一致) はどれか 1 つでも欠ければ反映を成立させない必須条件になる。\n- **途中失敗**: 記事本文・変更前後の差分記録・所見の「反映済み」の印を同一の確定単位で保存し、途中で失敗したら 1 つも変えない。反映は記事 1 件を単位とし、複数記事の一括反映は記事ごとに独立した確定単位とする。\n- **同時編集**: 書き込みは「読み出したときの版と今の版が同じであること」を条件にし、違えば書かずに止めて運営者へ知らせる。止めた反映は保留として扱い、「反映済み」の印を立てない。取消も同じ条件で行う。\n- **実績の見せ方**: 選択中のブログ・記事と同じ画面で、観測時刻付きの推移として見せる。反映の時点は推移の上へ印として重ねる。順位・クリック・被引用の変化を、その変更の因果効果と呼ばない。\n\n**2026-09-06 の `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` は、\n現行契約ではない。**独立監査 C06 が、これを 5 論点を 1 問へ束ねた誘導質問と判定した。\n回答は「つづけて」の一語で、論点ごとの逐語回答が存在しない。承認記録の note 自身が\n「これは提示内容の要約で、利用者の逐語回答ではない」と書いている。そこで 2026-09-10 に\n5 論点を 1 件ずつ分けて問い直し、確定 5 セル (backend / database / frontend / ui-ux /\nmaintenance-ops × web) の裏付けを新しい回答へ差し替えた。旧 entry は履歴として qa_log に残り、\n`superseded_by` で後継を名乗る。\n\nそのため、旧契約が定めていた次の 2 点は**維持してはならない**。\n\n- 「運営者が承認した対象だけを反映する」 — 問い直した結果は自動反映＋事後通知である。\n- 「対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事を除外する」 —\n  問い直した結果は全記事である。同じ理由で `qa-neutral-auto-scope-v6`\n  (自動反映を導入後の記事に限る決定) も裏付けから外し、後継を\n  `qa-seo-apply-target-scope-20260910` として申告した。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。\n  実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、\n  件数上限だけの場合は「最新N観測」と表示する。未観測を 0 にしない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。\n- SEO 以外のブログトップ・検索・AI 向け表現物など、変更していない決定は引き続き有効である。",
+        "reason": "2026-09-06 の束ね承認を独立監査 C06 が誘導質問と判定したため、2026-09-10 に 5 論点を分けて問い直し、確定 5 セルの裏付けを新しい回答へ差し替えた。章の散文にも現行契約を明記し、旧契約との優先関係と、旧契約のどの条項を維持してはならないかを示す。",
         "recorded_with": "set-chapter-note"
       }
     ],
@@ -14703,12 +15220,6 @@
         "recorded_with": "set-chapter-note"
       },
       {
-        "heading": "SEOの現行承認契約（2026-09-06）",
-        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
-        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
-        "recorded_with": "set-chapter-note"
-      },
-      {
         "heading": "Search Console検索語内訳の管理画面表示（2026-09-08実装確認）",
         "body": "同じ現行UX契約の全文と記録理由は [Search Console検索語内訳の管理画面表示（2026-09-08実装確認）](database.md) を参照。UI/UXにも同じ状態区別と認知負荷の契約を適用する。",
         "reason": "GSC検索語の完成snapshot・再取得状態・上限と選択記事UIを同じ意味へ同期する。旧QA・公開履歴・feature評価と全163仕様のSTALEを保持する。",
@@ -14760,6 +15271,12 @@
         "heading": "実装で確定した入口の畳み方と近道の選定基準 (feat-site-scoped-authoring-ia)",
         "body": "**以下は利用者の回答ではない。** `feat-site-scoped-authoring-ia` の実装 (2026-09-08) で\n確定した内容を、章にしか居場所が無いまま消えないよう正本へ移したものである。\n上の質疑録と混ぜて読まないために区切ってある。\n\n`qa-uiux-web-site-scoped-authoring-ia` で利用者は「記事・読者像・書き方の決め事を\nブログ単位の管理へ移す」「横断画面には何を残すか」を決めた。**何をどう畳んだかの\n具体形は、実装しなければ決まらなかった。**その決まった形をここに残す。\n\n### 一段目は「作業の対象物」5 つに畳んだ\n\n畳んだ結果は ブログ / 記事 / 読者 / 商品 / 配信 の 5 つである。正本は\n`src/presentation/ui/admin-route-metadata.ts` の `ADMIN_NAV_GROUP_LABELS` 1 箇所で、\nサイドバーもホームのボードもパンくずもここからの射影であり、第 2 の表を持たない。\n\n**動詞 (素材/書く/出す/稼ぐ/見る/整える) で切る案を捨てた理由**を残す。動詞で切ると\n1 つの対象物についての作業が複数の見出しに散った。「商品」は *素材* (登録する) と\n*稼ぐ* (提携と成果) の両方にあり、運営者はどちらを開くか決められず両方開いていた。\n対象物で切ると「これについて作業する」と言えるものが 1 か所に集まる。\n\n設定・AI の利用と費用・道具・画面部品の見本は 5 つに入れず `nav.group = null` で\n分類の外へ置いた。対象物と言えないものを無理に混ぜると、ラベルから中身が\n言い当てられなくなる。\n\n### 近道の選定基準 — 旧入口をそのまま近道にする\n\n所属替えで 5 画面が `/admin/sites/[site]/...` へ移った。移った先は「ブログ群 →\n1 本のブログ → その画面」なので、そのままでは 1 クリックが 2 クリックになる。\n\n**サイドバーに新しい近道帯を足さなかった。**既にある一段目の入口を消さずに残し、\n行き先を転送の殻にしてある。押すとそのときのブログの配下へ着く。\n\nサイドバーに出るのは `route.nav !== null && route.label !== null` を満たすものだけで、\n子 (`child()`) は `nav: null` が固定である。したがって近道になるのは\n`/admin/personas` (書き手)、`/admin/writing` (書き方の決めごと)、`/admin/content` (記事)\nの 3 本で、`/admin/personas/audiences` (読者像) は畳む前からサイドバーに出ていない。\n\n**別の解決規則を書かないための形である。**近道用にブログ解決をもう一度呼ぶ設計にすると、\nサイドバーを描いた時刻と押した時刻の間に選択ブログが変わったとき、ラベルの下の URL と\n実際に開くブログが食い違う。href を旧 URL のままにすれば、解決は押した瞬間に 1 回だけ起きる。\n\n### ラベルは 2 つの対象物を束ねない\n\n「書き手と読者像」というラベルを「書き手」に分けた。書き手は読者ではないので\n`reader` には置けず、記事を書く人なので `article` に置いた。2 つの対象物を 1 つの\nラベルに束ねたままだと、開くまで何の画面か分からない。\n\n### 保守規則と手順の正本\n\n規則: `docs/spec/feat-site-scoped-authoring-ia/ia-rules.md`\n手順: `docs/spec/feat-site-scoped-authoring-ia/operations.md`\n\n各規則は対応する検査を 1 つずつ持つ。検査を書けない規則は規則ではなく心構えとして\n扱い、この章にも規則としては載せない。",
         "reason": "P13 書き戻し: 一段目5分類・動詞分類を捨てた理由・近道を旧入口で実現した理由・ラベル分割は実装しなければ決まらなかった内容で、章にしか居場所が無く compile で消える。利用者の逐語には足さない。",
+        "recorded_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-10 改定）",
+        "body": "**2026-09-10 に論点ごとへ問い直した 5 件の回答が、SEO の反映方法に関する現在の正規契約である。**\n\n裏付けは `qa-seo-apply-approval-mode-20260910` / `qa-seo-apply-target-scope-20260910` /\n`qa-seo-apply-atomicity-20260910` / `qa-seo-apply-concurrent-edit-20260910` /\n`qa-seo-performance-presentation-20260910` の 5 件である。\n\n- **反映の承認**: 機械が反映し、事後に通知する。反映前の関門は置かない。これを許せるのは、反映のたびに変更前後の差分を記録として残し、1 操作で反映前の本文へ戻せる場合に限る。差分の記録と復元の経路を欠く実装は、この契約の外にある。通知は反映と同じ確定単位で送り、遅延させない。\n- **対象範囲**: 全ての記事を対象とする。元記事の作成日時では絞らない。作成日時が不明な記事も対象に含める。範囲で守らないぶん、下の 2 項 (確定単位と版の一致) はどれか 1 つでも欠ければ反映を成立させない必須条件になる。\n- **途中失敗**: 記事本文・変更前後の差分記録・所見の「反映済み」の印を同一の確定単位で保存し、途中で失敗したら 1 つも変えない。反映は記事 1 件を単位とし、複数記事の一括反映は記事ごとに独立した確定単位とする。\n- **同時編集**: 書き込みは「読み出したときの版と今の版が同じであること」を条件にし、違えば書かずに止めて運営者へ知らせる。止めた反映は保留として扱い、「反映済み」の印を立てない。取消も同じ条件で行う。\n- **実績の見せ方**: 選択中のブログ・記事と同じ画面で、観測時刻付きの推移として見せる。反映の時点は推移の上へ印として重ねる。順位・クリック・被引用の変化を、その変更の因果効果と呼ばない。\n\n**2026-09-06 の `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` は、\n現行契約ではない。**独立監査 C06 が、これを 5 論点を 1 問へ束ねた誘導質問と判定した。\n回答は「つづけて」の一語で、論点ごとの逐語回答が存在しない。承認記録の note 自身が\n「これは提示内容の要約で、利用者の逐語回答ではない」と書いている。そこで 2026-09-10 に\n5 論点を 1 件ずつ分けて問い直し、確定 5 セル (backend / database / frontend / ui-ux /\nmaintenance-ops × web) の裏付けを新しい回答へ差し替えた。旧 entry は履歴として qa_log に残り、\n`superseded_by` で後継を名乗る。\n\nそのため、旧契約が定めていた次の 2 点は**維持してはならない**。\n\n- 「運営者が承認した対象だけを反映する」 — 問い直した結果は自動反映＋事後通知である。\n- 「対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事を除外する」 —\n  問い直した結果は全記事である。同じ理由で `qa-neutral-auto-scope-v6`\n  (自動反映を導入後の記事に限る決定) も裏付けから外し、後継を\n  `qa-seo-apply-target-scope-20260910` として申告した。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。\n  実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、\n  件数上限だけの場合は「最新N観測」と表示する。未観測を 0 にしない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。\n- SEO 以外のブログトップ・検索・AI 向け表現物など、変更していない決定は引き続き有効である。",
+        "reason": "2026-09-06 の束ね承認を独立監査 C06 が誘導質問と判定したため、2026-09-10 に 5 論点を分けて問い直し、確定 5 セルの裏付けを新しい回答へ差し替えた。章の散文にも現行契約を明記し、旧契約との優先関係と、旧契約のどの条項を維持してはならないかを示す。",
         "recorded_with": "set-chapter-note"
       }
     ]
@@ -14840,6 +15357,14 @@
         "recorded_with": "set-chapter-note",
         "retired_reason": "残余節の見出し。棚そのものを正本化する向きなので、正本に置いてはならない",
         "retired_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-06）",
+        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
+        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
+        "recorded_with": "set-chapter-note",
+        "retired_reason": "本文が定める『運営者が承認した対象だけを反映する』『対象範囲は作成日時で判定し導入前を除外する』の 2 点が、2026-09-10 の問い直し（自動反映＋事後通知 / 全記事）と正面から矛盾する。後継の見出し『SEOの現行承認契約（2026-09-10 改定）』へ引き継いだため描画対象から外す。本文は retired_chapter_notes に履歴として残る。",
+        "retired_with": "retire-chapter-note"
       }
     ],
     "frontend": [
@@ -14906,6 +15431,14 @@
         "recorded_with": "set-chapter-note",
         "retired_reason": "残余節の見出し。棚そのものを正本化する向きなので、正本に置いてはならない",
         "retired_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-06）",
+        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
+        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
+        "recorded_with": "set-chapter-note",
+        "retired_reason": "本文が定める『運営者が承認した対象だけを反映する』『対象範囲は作成日時で判定し導入前を除外する』の 2 点が、2026-09-10 の問い直し（自動反映＋事後通知 / 全記事）と正面から矛盾する。後継の見出し『SEOの現行承認契約（2026-09-10 改定）』へ引き継いだため描画対象から外す。本文は retired_chapter_notes に履歴として残る。",
+        "retired_with": "retire-chapter-note"
       }
     ],
     "database": [
@@ -14924,6 +15457,14 @@
         "recorded_with": "set-chapter-note",
         "retired_reason": "残余節の見出し。棚そのものを正本化する向きなので、正本に置いてはならない",
         "retired_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-06）",
+        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
+        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
+        "recorded_with": "set-chapter-note",
+        "retired_reason": "本文が定める『運営者が承認した対象だけを反映する』『対象範囲は作成日時で判定し導入前を除外する』の 2 点が、2026-09-10 の問い直し（自動反映＋事後通知 / 全記事）と正面から矛盾する。後継の見出し『SEOの現行承認契約（2026-09-10 改定）』へ引き継いだため描画対象から外す。本文は retired_chapter_notes に履歴として残る。",
+        "retired_with": "retire-chapter-note"
       }
     ],
     "backend": [
@@ -14949,6 +15490,14 @@
         "reason": "C05 round3 の指摘: BE-PROSE-01 が status=recommended_pending_confirmation の決定に依拠しているのに、規範表にその印が無い。章の手書きでは compile のたび消えるため正本へ置く。",
         "recorded_with": "set-chapter-note",
         "retired_reason": "2026-09-05T10:21:16Z に dec-article-body-storage-format が opt-extended-markdown-string で確定したのに、本注記は「まだ利用者の確認を受けていない」と主張したまま更新されず、同じ章の後段（保存形は拡張 Markdown 文字列のままにする）と矛盾して並立していた。独立監査 C06 が検出。確定後の事実として立て直した後継注記へ差し替える。",
+        "retired_with": "retire-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-06）",
+        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
+        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
+        "recorded_with": "set-chapter-note",
+        "retired_reason": "本文が定める『運営者が承認した対象だけを反映する』『対象範囲は作成日時で判定し導入前を除外する』の 2 点が、2026-09-10 の問い直し（自動反映＋事後通知 / 全記事）と正面から矛盾する。後継の見出し『SEOの現行承認契約（2026-09-10 改定）』へ引き継いだため描画対象から外す。本文は retired_chapter_notes に履歴として残る。",
         "retired_with": "retire-chapter-note"
       }
     ],
@@ -15016,6 +15565,14 @@
         "recorded_with": "set-chapter-note",
         "retired_reason": "残余節の見出し。棚そのものを正本化する向きなので、正本に置いてはならない",
         "retired_with": "set-chapter-note"
+      },
+      {
+        "heading": "SEOの現行承認契約（2026-09-06）",
+        "body": "**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**\n\n記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。\n\n前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。\n\n- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。\n- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。\n- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。\n- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。\n- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。\n- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。",
+        "reason": "利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。",
+        "recorded_with": "set-chapter-note",
+        "retired_reason": "本文が定める『運営者が承認した対象だけを反映する』『対象範囲は作成日時で判定し導入前を除外する』の 2 点が、2026-09-10 の問い直し（自動反映＋事後通知 / 全記事）と正面から矛盾する。後継の見出し『SEOの現行承認契約（2026-09-10 改定）』へ引き継いだため描画対象から外す。本文は retired_chapter_notes に履歴として残る。",
+        "retired_with": "retire-chapter-note"
       }
     ],
     "auth": [

@@ -5,285 +5,11 @@
     "context": "fork"
   },
   "spec_dir": "system-spec",
-  "verdict": "PASS",
-  "audit_delegations": [
-    {
-      "aspect": "matrix_coverage",
-      "role": "primary",
-      "auditor": "system-spec-matrix-auditor",
-      "component": "C07",
-      "dispatch": {
-        "tool": "Agent",
-        "subagent_type": "system-spec-matrix-auditor",
-        "session_id": "e091b379-93c8-449c-af3c-89d9199aef54",
-        "agent_id": "ab105b6dd3c9caa85",
-        "tool_use_id": "toolu_019VCfbskktqrZauhFeRjDnN",
-        "prompt_sha256": "7ec24d3b1d8024568ecc6ec45d6241ea13de66235c9b2e8821e5b95f5e80c3d6",
-        "response_sha256": "496c80610837452777585534b6abfe4df45cabda91f754670344ea203920515a",
-        "resolved_at": "2026-09-09T12:00:35Z"
-      },
-      "verdict": "PASS",
-      "evidence": [
-        "validate-coverage-matrix.py を loop / full (--require-complete --require-foundation --require-counted-required-info --require-catalog-domain-coverage --require-grounded-design-applications --require-declared-qa-supersession) 両モードで exit 0、VIOLATION 0 件",
-        "全 48 セル (8 カテゴリ × 6 canonical platform) 走査で未収集 0 / 対象外 40 件の理由は全件具体 / 確定 8 セルの qa_refs 65 件に dangling 0 件",
-        "category_aggregate 8 件を真理値表から再導出して宣言値と完全一致、canonical platform 行の欠落 0 件",
-        "required-info-catalog.json の sha256 先頭 12 桁をゲート出力と自前計算で突合し同一物であることを確認"
-      ]
-    },
-    {
-      "aspect": "matrix_coverage",
-      "role": "sub_input",
-      "auditor": "system-spec-hearing-auditor",
-      "component": "C06",
-      "dispatch": {
-        "tool": "Agent",
-        "subagent_type": "system-spec-hearing-auditor",
-        "session_id": "e091b379-93c8-449c-af3c-89d9199aef54",
-        "agent_id": "abca4dfa16fad8208",
-        "tool_use_id": "toolu_01KJNVMwJBUeeHJ2TanUxApb",
-        "prompt_sha256": "f48b98044b0158a2db3119cb0a7ff57ef4882000f4b7545309372654cdef5345",
-        "response_sha256": "8e3b8814424be2262855a979089962a8a7f06e94b4629be12171b79cc9619a3d",
-        "resolved_at": "2026-09-09T12:03:24Z"
-      },
-      "verdict": "PASS",
-      "evidence": [
-        "ヒアリング品質 5 軸すべて検出 0 件 (聞き漏れ / 誘導質問 / 早期停止 / トレーサビリティ / foundation 利用者根拠)",
-        "確定 8 セルの根拠 qa_log 77 件を精査し、旧版の片側推奨は中立再提示版へ置換済みで確定セルから未参照であることを確認",
-        "hearing_progress は loop_count=4 < max_loops=5 / complete=true / next_question=null で早期停止に該当せず",
-        "U1-U9 の canonical 根拠と field_sources 36 件について quote の逐語実在と sha256 再計算一致を確認"
-      ]
-    },
-    {
-      "aspect": "doc_freshness",
-      "role": "primary",
-      "auditor": "system-spec-doc-freshness-auditor",
-      "component": "C08",
-      "dispatch": {
-        "tool": "Agent",
-        "subagent_type": "system-spec-doc-freshness-auditor",
-        "session_id": "e091b379-93c8-449c-af3c-89d9199aef54",
-        "agent_id": "a72f0973450dfc717",
-        "tool_use_id": "toolu_01QzSkCka751dMeLt8zTeUcz",
-        "prompt_sha256": "54b16d3f6c813183e91a3818be8be57ee4fecaba32f795014b814892017512f8",
-        "response_sha256": "948794468ef963d73f1fd8758b2818b0d62930847a7b0321b3c4d1e114d6af59",
-        "resolved_at": "2026-09-09T11:35:19Z"
-      },
-      "verdict": "PASS",
-      "evidence": [
-        "validate-evidence-transcription.py exit 0 (29 件の evidence_ref / sha256 / version / last_updated / source_url / retrieved_at が retrieval-evidence の実体と逐語一致、転記違反 0 件)",
-        "validate-source-citation.py exit 0 (全件対応・必須フィールド・公式 host・時刻・取得証跡一致)",
-        "targets 29 件すべてを WebSearch/WebFetch で公式サイト現行版へ再照合し、非公式 host 0 件・version/更新日の乖離 0 件・到達不能 0 件",
-        "判定できなかった軸を明示 (github-actions の版セレクタ UI 再現 / sqlite-fts5 の本文末尾更新表明の再現) し、いずれも鮮度未確認には計上しない理由を述べている"
-      ]
-    }
-  ],
-  "aspects": {
-    "foundation_trace": {
-      "verdict": "PASS",
-      "auditor": "assign-system-spec-completeness-evaluator",
-      "component": "C05",
-      "summary": "上位概念 U1-U9 が確定済み (confirmed=true / approval_ref=approval-foundation-site-scoped-admin-20260908) で、scope は qa-foundation-u7 へ、各フィールドは field_sources 36 件へ接地する。index.md が U1/U3 を明示し、8 章すべてが serves_goals (G1/G2/G3) でゴールへ anchor する。決定論ゲート --require-foundation が exit 0。",
-      "evidence": [
-        "G-matrix-foundation exit 0 (loop+foundation(上位概念トレース))",
-        "requirements_foundation.provenance に scope (in 24 項目 / out 13 項目の covers 全数対応) と field_sources を保持",
-        "index.md の章一覧表が 8 章すべてに『資するゴール』列を持ち、applied/*.md の frontmatter も serves_goals を持つ",
-        "objectives_note / success_criteria_note が『根拠のない数値を確定しない』『受入証拠に含めるべき事象』を明文化している"
-      ]
-    },
-    "decision_guidance": {
-      "verdict": "PASS",
-      "auditor": "assign-system-spec-completeness-evaluator",
-      "component": "C05",
-      "summary": "decisions[] 15 件がすべて status=confirmed。各件が 2-3 の選択肢を cost_model / free_tier_limits / goal_fit / security_fit / pros / cons / risks / lock_in / ops_burden / evidence_refs の同一軸で比較し、recommendation に rationale と caveats、user_decision に確定日時・決定者・確定様式 (逐語 / 推奨への一任) を記録している。",
-      "evidence": [
-        "15 件すべてに serves_goals があり G1/G2/G3 のいずれかへ接続",
-        "decision-test-ci-tooling は利用者の逐語『現行のままで確定』と provenance を持ち、AI 推奨の自動昇格でないことを明記",
-        "dec-guideline-registry-recheck / dec-analysis-history-retention は『本決定では数値を確定しない』と留保を残しており、未確定を確定に見せていない",
-        "推奨への一任で確定した 5 件は confirmation_mode を明示し、逐語選択と区別できる"
-      ]
-    },
-    "matrix_coverage": {
-      "verdict": "PASS",
-      "auditor": "system-spec-matrix-auditor",
-      "component": "C07",
-      "summary": "C07 が決定論ゲート両モード exit 0 を一次根拠に、未収集 0 / 対象外理由の具体性 / 確定 qa_ref のトレーサビリティ / 集約真理値表整合 / canonical platform 行の全存在を全数検査し PASS。C16 (必須情報カタログ) は --require-counted-required-info と validate-knowledge-graph --profile required-info の exit 0 で接地。sub-input の C06 もヒアリング品質 5 軸すべて検出 0 件で PASS。",
-      "evidence": [
-        "G-matrix exit 0 / G-matrix-foundation exit 0 / G-knowledge-graph の required-info profile exit 0",
-        "C07: 48 セル中 未収集 0・対象外 40 (理由要改善 0)・確定 8 (qa_ref 要確認 0)・platform 欠落 0・集約不一致 0",
-        "C06: 聞き漏れ 0 / 誘導質問 0 / 早期停止 0 / トレース欠落 0 / foundation 根拠欠落 0"
-      ]
-    },
-    "design_knowledge_reflection": {
-      "verdict": "PASS",
-      "auditor": "assign-system-spec-completeness-evaluator",
-      "component": "C05",
-      "summary": "8 章すべてが deep knowledge card と doctrine anchor (OWASP ASVS / Clean Architecture / DDD / Apple HIG / Google SRE) を持ち、applied/*.md に 94 件の確定内容・接地根拠ブロックと 180 件の原則適用が『章固有の根拠』と『トレードオフ』つきで書かれている。ポインタの存在ではなく確定セル要件への具体適用を根拠に PASS とした。設計解釈の記録経路は dialogue 88 / secondary_ref_attachment 6 で、unrecorded と legacy_backfill は 0 件。",
-      "evidence": [
-        "G-knowledge-graph の 4 profile (knowledge / doctrine / required-info / cross) がすべて exit 0",
-        "applied/auth.md: 『権限は失敗したときの被害の大きさで区切る』を、ドメイン切断を公開停止と同じ段へ置き確認入力を挟む要件として具体適用",
-        "applied/ui-ux.md: information-design の 3 原則を、93 本の管理ルートを対象物単位へ畳む・確認の有無を取り返しにくさで分ける等の確定要件へ具体適用",
-        "設計解釈の記録経路の内訳 (dialogue 88 / secondary_ref_attachment 6 / unrecorded 0 / legacy_backfill 0)"
-      ]
-    },
-    "doc_freshness": {
-      "verdict": "PASS",
-      "auditor": "system-spec-doc-freshness-auditor",
-      "component": "C08",
-      "summary": "C08 が形式層 (validate-source-citation.py exit 0) と転記層 (validate-evidence-transcription.py exit 0) に加え、targets 29 件すべてを公式サイトへ再照合し、非公式 host 0 / version・更新日の乖離 0 / 確認時刻欠落 0 / 到達不能 0 で PASS。判定できなかった 2 軸を隠さず明示している。",
-      "evidence": [
-        "G-source-citation exit 0",
-        "29 件の npm latest / 公式ページ現行版との突合 (nextjs 16.3.4 / vitest 5.0.0 / drizzle-orm 0.45.2 / stryker 10.0.0 / better-auth 1.7.3 ほか)",
-        "未確認軸 (github-actions の版セレクタ UI / sqlite-fts5 の末尾更新表明) を明示し、鮮度未確認へ計上しない理由を述べている"
-      ]
-    },
-    "prompt_quality": {
-      "verdict": "PASS",
-      "auditor": "assign-system-spec-completeness-evaluator",
-      "component": "C05",
-      "summary": "plugin 同梱の 18 prompt すべてが validate-prompt.py と verify-completeness.py (7 層網羅 + Layer 5 ゴールシーク契約) の両方を通過した。",
-      "evidence": [
-        "G-prompt-validate 18/18 PASS",
-        "G-prompt-verify 18/18 PASS",
-        "R2-delegate は監査 fork の帰属条件 (schema 1.3 の起動行 + agent_id 一致解決行の畳み込み) と供給中立の停止条件を条文として持つ"
-      ]
-    }
-  },
-  "gate_results": [
-    {
-      "id": "G-matrix",
-      "name": "validate-coverage-matrix --require-complete",
-      "conditions": [
-        "matrix_coverage"
-      ],
-      "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (final(未収集0)) を満たす"
-    },
-    {
-      "id": "G-matrix-foundation",
-      "name": "validate-coverage-matrix --require-foundation",
-      "conditions": [
-        "foundation_trace"
-      ],
-      "exit_code": 0,
-      "stdout": "OK: 収集マトリクス網羅性 (loop+foundation(上位概念トレース)) を満たす"
-    },
-    {
-      "id": "G-source-citation",
-      "name": "validate-source-citation / validate-evidence-transcription",
-      "conditions": [
-        "doc_freshness"
-      ],
-      "exit_code": 0,
-      "stdout": "OK: 出典記録が全件対応・必須フィールド・公式 host・確認時刻・取得証跡の一致を満たす"
-    },
-    {
-      "id": "G-knowledge-graph",
-      "name": "validate-knowledge-graph (knowledge / doctrine / required-info / cross)",
-      "conditions": [
-        "design_knowledge_reflection",
-        "matrix_coverage"
-      ],
-      "exit_code": 0,
-      "stdout": "4 profile すべて exit 0 (ungrounded_blocking_items=[])"
-    },
-    {
-      "id": "G-prompt-validate",
-      "name": "validate-prompt.py (plugin 同梱 18 prompt)",
-      "conditions": [
-        "prompt_quality"
-      ],
-      "exit_code": 0,
-      "stdout": "18/18 PASS"
-    },
-    {
-      "id": "G-prompt-verify",
-      "name": "verify-completeness.py (plugin 同梱 18 prompt)",
-      "conditions": [
-        "prompt_quality"
-      ],
-      "exit_code": 0,
-      "stdout": "18/18 PASS"
-    }
-  ],
-  "findings": [
-    {
-      "severity": "low",
-      "bucket": "design_knowledge_reflection",
-      "observation": "applied/*.md の原則適用 180 件がすべて 採否=`applied` で、`rejected` の記録が 1 件も無い。個々の適用には章固有の根拠が書かれており形骸化は認められないが、採否欄が実質単一値しか取らないため、非適用条件を検討した痕跡が残らない。",
-      "suggested_fix": "次回の compile/elicit で、deep knowledge card の非適用条件に該当して見送った原則を 採否=`rejected` として記録し、採否欄が判断の記録として機能していることを示す。",
-      "evidence": [
-        "system-spec/applied/*.md: 採否 `applied` 180 件 / `rejected` 0 件"
-      ]
-    },
-    {
-      "severity": "low",
-      "bucket": "doc_freshness",
-      "observation": "『compile が保てなかった行』が 8 章合計 79 行あり、frontend.md と ui-ux.md には origin/dev マージ由来の衝突マーカー行がそのまま列挙されている。現行の章本文と spec-state.json に生きた衝突マーカーは残っておらず、落ちた確定セル行は compile が再生成した節に同内容が存在する (qa-frontend-web-editor-verbatim は frontend.md に 10 箇所実在) ため内容欠落は確認されなかったが、判断待ちの行が滞留している。",
-      "suggested_fix": "次回 compile 前にこの節を通読し、正本へ接続する行と正しく消える行 (衝突マーカー・旧版マトリクス行) を仕分ける。",
-      "evidence": [
-        "frontend.md dropped=17 / ui-ux.md dropped=18 / backend.md dropped=9 / database.md dropped=8 / maintenance-ops.md dropped=8 / infrastructure.md dropped=6 / auth.md dropped=5 / security.md dropped=5",
-        "grep '^<<<<<<<' system-spec/*.md system-spec/applied/*.md = 0 件、spec-state.json も 0 件"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "matrix_coverage",
-      "observation": "C07 (primary) が決定論ゲートを opt-in フラグ全種で走らせて exit 0 を得たうえで 48 セル全数を意味層で検査し、C06 (sub_input) がヒアリング品質 5 軸を検出 0 件で確認した。いずれも spec-state.json への書込を行っていない。",
-      "evidence": [
-        "C07 の loop / full 両モード exit 0",
-        "C06 の 5 軸すべて検出 0 件"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "doc_freshness",
-      "observation": "C08 が形式層・転記層・内容鮮度層の 3 層で 29 件を確認し、判定できなかった 2 軸 (github-actions の版セレクタ UI / sqlite-fts5 の本文末尾更新表明) を隠さず明示したうえで、鮮度未確認へ計上する根拠が無いことを述べている。",
-      "evidence": [
-        "validate-evidence-transcription.py exit 0 / validate-source-citation.py exit 0",
-        "到達不能 0 件・鮮度未確認 0 件"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "foundation_trace",
-      "observation": "上位概念 U1-U9 が利用者一次入力 (written-requirements 36 件 + user-dialogue) へ逐語で接地し、8 章すべてが serves_goals でゴールへ anchor する。requirements_foundation は confirmed=true かつ approval_log 実在の approval_ref を持つ。",
-      "evidence": [
-        "G-matrix-foundation exit 0",
-        "index.md の章一覧表 8 行すべてに『資するゴール』が入っている",
-        "approval_ref = approval-foundation-site-scoped-admin-20260908"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "decision_guidance",
-      "observation": "decisions[] 15 件がすべて confirmed で、選択肢の比較軸・推奨理由・caveats・利用者の確定様式 (逐語選択 / 推奨への一任) が揃っている。数値を確定できない論点は『本決定では数値を確定しない』と留保が明示されている。",
-      "evidence": [
-        "decision-test-ci-tooling の逐語『現行のままで確定』と provenance",
-        "dec-guideline-registry-recheck / dec-analysis-history-retention の留保記述"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "prompt_quality",
-      "observation": "plugin 同梱 18 prompt が validate-prompt.py と verify-completeness.py の両方を通過した。",
-      "evidence": [
-        "18/18 PASS × 2 種"
-      ]
-    },
-    {
-      "severity": "info",
-      "bucket": "attribution",
-      "observation": "監査 3 fork はいずれも供給中立ゲート (supply_neutrality.py) exit 0 の prompt で起動し、fork 台帳に起動行と agent_id 一致の解決行が並んで畳み込みが成立した receipt だけを audit_delegations[] に記録した。先に name 付きで起動した 3 件は解決行が来ず pending のままなので receipt に使っていない。",
-      "evidence": [
-        "supply_neutrality.py --prompt-file <3 件> がいずれも exit 0",
-        "台帳の resolution 行 3 件 (matrix / hearing / doc-freshness) がすべて verdict_state=resolved"
-      ]
-    }
-  ],
-  "gaps": [],
+  "verdict": "FAIL",
   "inputs": {
-    "sha256": "eddeaafcd597c529bb75ed77ec7ac1dc8ee7d82b50714fbc8dfa8bbf68213b4e",
     "file_count": 340,
+    "sha256": "38ee1ff67b7cf696eb49906abf94e3dea341d8f17ff21d75c98516e19c7e0f64",
+    "pinned_at": "2026-09-10T10:58:00Z",
     "files": [
       {
         "path": "docs/spec/00-README.md",
@@ -1102,8 +828,8 @@
       },
       {
         "path": "docs/spec/feat-blog-top-page-composition/evidence-index.md",
-        "sha256": "1a2de1ef063943d685fe001d9cb93049d3ad049b55c6fe5a75ec538e15a62bbb",
-        "mtime": 1788873907
+        "sha256": "d289233b698bdd107ecf6b2d3956bd915ba8dd643533f8c5b1476720dc17e9d8",
+        "mtime": 1789015953
       },
       {
         "path": "docs/spec/feat-blog-top-page-composition/final-review.md",
@@ -1122,13 +848,13 @@
       },
       {
         "path": "docs/spec/feat-blog-top-page-composition/release-report.md",
-        "sha256": "500b6a252e835630a76095e40fc4aefc57b1c693a7d9e4ffc7769fac41a73b18",
-        "mtime": 1788873541
+        "sha256": "f174bcf29efce1a429c55d44c0a812fb56d60939e0c5813987cd568f301f5a95",
+        "mtime": 1789015963
       },
       {
         "path": "docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md",
-        "sha256": "9ca3a489441fcb8160f35e73352c314656765328f714512a4e86b140d2bf8c5f",
-        "mtime": 1788875361
+        "sha256": "12efd1c2e3a2a9a2033b616ee476083047ac45f22a859b4cf0d19d1a5dbcbf89",
+        "mtime": 1789037179
       },
       {
         "path": "docs/spec/feat-blog-ui-builder/acceptance-report.md",
@@ -1788,7 +1514,7 @@
       {
         "path": "docs/spec/feat-uiux-overhaul/acceptance-report.md",
         "sha256": "52502859b4261b607f32487b03405e3e133915b9ba1b19546f086ee0f7709335",
-        "mtime": 1788925428
+        "mtime": 1788966268
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/admin-api-contract.md",
@@ -1818,7 +1544,7 @@
       {
         "path": "docs/spec/feat-uiux-overhaul/final-review.md",
         "sha256": "37198c4ad2b0d19e50208fc842d7053239994eb58289ea9fb51e1b659ccdff1e",
-        "mtime": 1788925428
+        "mtime": 1788966268
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/migration-report.md",
@@ -1838,7 +1564,7 @@
       {
         "path": "docs/spec/feat-uiux-overhaul/release-report.md",
         "sha256": "2071eb5bbd79ccdc9508af179dcabfdfbdca4d20ef2c6a68748fe201413cbe16",
-        "mtime": 1788925428
+        "mtime": 1788966268
       },
       {
         "path": "docs/spec/feat-uiux-overhaul/requirements-baseline.md",
@@ -1882,8 +1608,8 @@
       },
       {
         "path": "system-spec/00-requirements-definition.md",
-        "sha256": "03e917523475834144c0bb88173f85f476b4af72dd483b0580d5902800121908",
-        "mtime": 1788943742
+        "sha256": "d34077d2ce68eaa507723220e89ead2c67da62f9a43613424d30ce9b42a63319",
+        "mtime": 1789037065
       },
       {
         "path": "system-spec/applied/auth.md",
@@ -1892,18 +1618,18 @@
       },
       {
         "path": "system-spec/applied/backend.md",
-        "sha256": "d92ae3138384019ca09e11eb35103bb7341ba4e518ed991ddbfd5796e2e37269",
-        "mtime": 1788943742
+        "sha256": "82bb305f364854568068e05f1d037dfaf05329ee4859bc98880021c1901e0cd7",
+        "mtime": 1789034333
       },
       {
         "path": "system-spec/applied/database.md",
-        "sha256": "808fdcdb1e539f380acf239599fe2a551f72c635f5fda5c21a7b46624ca3f2dd",
-        "mtime": 1788943742
+        "sha256": "cc0c181d09dbd04ad457514e0ba8db72a2b8b92016a5822828b2bec027082cf4",
+        "mtime": 1789024668
       },
       {
         "path": "system-spec/applied/frontend.md",
-        "sha256": "b5270b6146f9c4a4af173e49b1cf0164b2abcc3ffd65bd3aa5bd843b39e087b4",
-        "mtime": 1788943742
+        "sha256": "179cf34dbe668033629bc5fb6fe9bb15ba956953b60127d4da4909afbc9722ca",
+        "mtime": 1789024668
       },
       {
         "path": "system-spec/applied/infrastructure.md",
@@ -1912,8 +1638,8 @@
       },
       {
         "path": "system-spec/applied/maintenance-ops.md",
-        "sha256": "89097aec8fe13c72bfe81be754204c219361a46b7d3e1d8f78358f7424dbf87a",
-        "mtime": 1788943742
+        "sha256": "247bd49e44e28f483874038975329420a95a56e9d250546966ed5d9709d15902",
+        "mtime": 1789024668
       },
       {
         "path": "system-spec/applied/security.md",
@@ -1922,28 +1648,28 @@
       },
       {
         "path": "system-spec/applied/ui-ux.md",
-        "sha256": "37e5ce43bc707eb882c3f545a04144785bc39ca699b3b6540631670ffbea2096",
-        "mtime": 1788943742
+        "sha256": "7bad5756bf66ee6c21c75aa717b476c178ba42b1c2bd2c32c56df20b14bc0f0a",
+        "mtime": 1789024668
       },
       {
         "path": "system-spec/auth.md",
         "sha256": "c4239c92d32c8f840330e43d1957b7ca2c7b8f8c5fad9042eceefe09cce1f5a3",
-        "mtime": 1788943742
+        "mtime": 1789025970
       },
       {
         "path": "system-spec/backend.md",
-        "sha256": "8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624",
-        "mtime": 1788954260
+        "sha256": "5558b6b7c2755c22bc05ff51bb51da6654692f08f86dfe5c199ea8b7cff7c1a7",
+        "mtime": 1789034333
       },
       {
         "path": "system-spec/database.md",
-        "sha256": "8d62e1cc7dddc18a17d2502dfdcc000fb3023b68cded68061436ffe71f554694",
-        "mtime": 1788943742
+        "sha256": "51d4246f0a8b6243f0a426dac47e88da08af884903a078a52f8a9bb5351d003f",
+        "mtime": 1789020808
       },
       {
         "path": "system-spec/frontend.md",
-        "sha256": "22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd",
-        "mtime": 1788943742
+        "sha256": "a9bd6ceeeea4a4564c67c185b7bdc30e19d41843cc1573728b1f7a06301c746f",
+        "mtime": 1789020952
       },
       {
         "path": "system-spec/gate-tests/gate-change-log.md",
@@ -1962,8 +1688,8 @@
       },
       {
         "path": "system-spec/maintenance-ops.md",
-        "sha256": "bb3ed164435a7400aa63e5c606c68d9abc8a8e9412ab3e41c75e11ae7b200a16",
-        "mtime": 1788943742
+        "sha256": "74c7f35736e7e5b993dca1e7d131e59bcc9a844b5621620aecf5c98a1086143b",
+        "mtime": 1789020808
       },
       {
         "path": "system-spec/retrieval-evidence/kajetblog-top-analysis.md",
@@ -1977,15 +1703,323 @@
       },
       {
         "path": "system-spec/spec-state.json",
-        "sha256": "2923dd32bcb0d4aab1190d65116412f74360e4c790a33699fe177f809e528d9c",
-        "mtime": 1788954704
+        "sha256": "80ba8ab6f86b77cc147bfd5d74b4d6d4ff9def7beb379f88e10e282cbf83f12a",
+        "mtime": 1789036956
       },
       {
         "path": "system-spec/ui-ux.md",
-        "sha256": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
-        "mtime": 1788943742
+        "sha256": "7da3487b5a53e0eea613c8a5e2d43764c29ac86079737978945f03d036a7d21f",
+        "mtime": 1789020808
       }
-    ],
-    "pinned_at": "2026-09-09T12:10:58.242Z"
-  }
+    ]
+  },
+  "aspects": {
+    "foundation_trace": {
+      "verdict": "FAIL",
+      "auditor": "assign-system-spec-completeness-evaluator",
+      "component": "C05",
+      "score": 72,
+      "summary": "provenance note の訂正により『利用者の選択』と『起草者の設計判断』は書き分けられたが、書き分けた結果として constraints[4] の条件(3)『反映と同じ確定単位で運営者へ通知する』と免除の範囲限定文が利用者一次入力へ遡れないことが明示された。独立監査 (C06) も同じ欄を根拠なしと判定しており、foundation の U 欄に利用者根拠を欠く箇所が残る。",
+      "evidence": [
+        "system-spec/spec-state.json#requirements_foundation.provenance.field_sources[constraints[4]]",
+        "system-spec/spec-state.json#qa_log.qa-seo-apply-approval-mode-20260910",
+        "system-spec/spec-state.json#approval_log.approval-foundation-seo-auto-apply-exemption-20260910",
+        "system-spec/00-requirements-definition.md#compile が保てなかった行 (要判断)"
+      ]
+    },
+    "decision_guidance": {
+      "verdict": "PASS",
+      "auditor": "assign-system-spec-completeness-evaluator",
+      "component": "C05",
+      "score": 100,
+      "summary": "decisions[] 15 件すべてが options[]・recommendation・user_decision を備え、採択と非採択の理由が対で残っている。未確定 decision は 0 件。",
+      "evidence": [
+        "system-spec/spec-state.json#decisions"
+      ]
+    },
+    "matrix_coverage": {
+      "verdict": "FAIL",
+      "auditor": "system-spec-matrix-auditor",
+      "component": "C07",
+      "score": 78,
+      "summary": "一次監査 C07 は 48 セル (8 カテゴリ x 6 プラットフォーム) の未収集 0・対象外理由の妥当性・5 軸すべてで PASS を返した。しかし宣言済み sub_input である C06 (ヒアリング監査) が FAIL のため、観点としては receipt を額面どおり採らず FAIL へ降格する。",
+      "evidence": [
+        "system-spec/spec-state.json#matrix",
+        "system-spec/spec-state.json#hearing_progress"
+      ],
+      "verdict_downgrade": {
+        "from": "PASS",
+        "reason": "sub_input_fail",
+        "detail": "sub_input receipt (system-spec-hearing-auditor / C06) の verdict が FAIL。C06 は foundation の利用者根拠軸で U8 constraints[4] を根拠なしと判定しており、この欄は matrix の確定セル群が依拠する上位前提であるため、マトリクス側の PASS をそのまま観点判定にできない。"
+      }
+    },
+    "design_knowledge_reflection": {
+      "verdict": "PASS",
+      "auditor": "assign-system-spec-completeness-evaluator",
+      "component": "C05",
+      "score": 84,
+      "summary": "applied 章の『章固有の根拠』ブロックは 182 件・うち相異なる本文 164 件で、決定論ゲート G-kg-knowledge / G-kg-doctrine / G-kg-required-info / G-kg-cross はいずれも exit 0。ただし本文の重複と、根拠文の言い回しが 4 章で揃ってしまう箇所が残るため、medium/low の指摘つきで PASS とする。",
+      "evidence": [
+        "system-spec/applied/backend.md",
+        "system-spec/applied/frontend.md",
+        "system-spec/applied/ui-ux.md",
+        "system-spec/applied/maintenance-ops.md"
+      ]
+    },
+    "doc_freshness": {
+      "verdict": "PASS",
+      "auditor": "system-spec-doc-freshness-auditor",
+      "component": "C08",
+      "score": 100,
+      "summary": "一次監査 C08 が references 29 件すべてに層0 (逐語転記)・層1 (形式と取得証跡)・層2 (公式サイト再照合) を適用し、検出 0 件・鮮度未確認 0 件で PASS。今回訂正した better-auth も npm registry の dist-tags を直接引いて 1.6.31 が現行であることが確認されている。",
+      "evidence": [
+        "system-spec/fetched-references.json",
+        "system-spec/retrieval-evidence/better-auth.json"
+      ]
+    },
+    "prompt_quality": {
+      "verdict": "PASS",
+      "auditor": "assign-system-spec-completeness-evaluator",
+      "component": "C05",
+      "score": 100,
+      "summary": "責務プロンプト 18 本が構造検査 (--phase prompt) と内容完全性検査 (lint-agent-prompt-content.py --mode prompt) の双方を exit 0 で通過。",
+      "evidence": [
+        ".claude/plugins/system-spec-harness/skills"
+      ]
+    }
+  },
+  "audit_delegations": [
+    {
+      "aspect": "matrix_coverage",
+      "role": "primary",
+      "auditor": "system-spec-matrix-auditor",
+      "component": "C07",
+      "dispatch": {
+        "tool": "Agent",
+        "tool_use_id": "toolu_01QZxtU9wfKEj2RCB9NFAKEN",
+        "subagent_type": "system-spec-matrix-auditor",
+        "session_id": "e091b379-93c8-449c-af3c-89d9199aef54",
+        "response_sha256": "ee5aa3600e78b30467326ca4c9c82446f5e30fbccb200f55c68ec96278db2618"
+      },
+      "verdict": "PASS",
+      "evidence": [
+        "48 セル中 未収集 0 / 確定 8 / 対象外 40。対象外理由はいずれも platform 除外の一次根拠へ接地。",
+        "5 軸 (未収集放置・対象外妥当性・カテゴリ被覆・プラットフォーム被覆・完了宣言の整合) すべて検出 0。"
+      ]
+    },
+    {
+      "aspect": "matrix_coverage",
+      "role": "sub_input",
+      "auditor": "system-spec-hearing-auditor",
+      "component": "C06",
+      "dispatch": {
+        "tool": "Agent",
+        "tool_use_id": "toolu_01NcMLVdvbefCq2kkT1tfo4r",
+        "subagent_type": "system-spec-hearing-auditor",
+        "session_id": "e091b379-93c8-449c-af3c-89d9199aef54",
+        "response_sha256": "272a1bed6936053686c6469b27524539e8b81531a6ef6fabec202727e95a5c99"
+      },
+      "verdict": "FAIL",
+      "evidence": [
+        "聞き漏れ 0 / 誘導質問 0 / 早期停止 0 / トレース欠落 0。qa_refs 80 件と qa_log 121 件の突合で dangling 0。",
+        "foundation 利用者根拠軸で 1 件検出: U8 constraints[4] の条件(3) と免除の範囲限定文が利用者一次入力へ遡れず、補助根拠 (承認ログ要約・起草者判断) しか無い。"
+      ]
+    },
+    {
+      "aspect": "doc_freshness",
+      "role": "primary",
+      "auditor": "system-spec-doc-freshness-auditor",
+      "component": "C08",
+      "dispatch": {
+        "tool": "Agent",
+        "tool_use_id": "toolu_016fK5DqYwUT5hTWsDwk7AjV",
+        "subagent_type": "system-spec-doc-freshness-auditor",
+        "session_id": "e091b379-93c8-449c-af3c-89d9199aef54",
+        "response_sha256": "3a49910fbfacb8fc3f9a04c2a2011b2ee444ba47e3f7bdc0d08403eaa95404fc"
+      },
+      "verdict": "PASS",
+      "evidence": [
+        "references 29 件 = targets 29 件で集合一致。対象一覧の欠落 0・非公式 host 0・古い version/更新日 0・確認時刻や出典の欠落 0・鮮度未確認 0。",
+        "better-auth は npm registry の dist-tags.latest を直接照合して 1.6.31 が現行であることを確認 (訂正内容と一致)。"
+      ]
+    }
+  ],
+  "gate_results": [
+    {
+      "id": "G-matrix-loop",
+      "name": "収集マトリクス網羅性 (loop)",
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "id": "G-matrix-final",
+      "name": "収集マトリクス網羅性 (final + 5 条件)",
+      "conditions": [
+        "--require-complete",
+        "--require-foundation",
+        "--require-counted-required-info",
+        "--require-catalog-domain-coverage",
+        "--require-grounded-design-applications",
+        "--require-declared-qa-supersession"
+      ],
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/validate-coverage-matrix.py",
+        "--matrix",
+        "system-spec/spec-state.json",
+        "--require-complete",
+        "--require-foundation",
+        "--require-counted-required-info",
+        "--require-catalog-domain-coverage",
+        "--require-grounded-design-applications",
+        "--require-declared-qa-supersession"
+      ],
+      "exit_code": 0
+    },
+    {
+      "id": "G-source-citation",
+      "name": "出典形式・取得証跡",
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/validate-source-citation.py",
+        "--targets",
+        "system-spec/spec-state.json",
+        "--references",
+        "system-spec/fetched-references.json",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0
+    },
+    {
+      "id": "G-evidence-transcription",
+      "name": "証跡逐語転記",
+      "command": [
+        "python3",
+        ".claude/plugins/system-spec-harness/scripts/validate-evidence-transcription.py",
+        "--references",
+        "system-spec/fetched-references.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "id": "G-kg-knowledge",
+      "name": "知識グラフ (knowledge profile)",
+      "exit_code": 0
+    },
+    {
+      "id": "G-kg-doctrine",
+      "name": "知識グラフ (doctrine profile)",
+      "exit_code": 0
+    },
+    {
+      "id": "G-kg-required-info",
+      "name": "知識グラフ (required-info profile)",
+      "exit_code": 0
+    },
+    {
+      "id": "G-kg-cross",
+      "name": "知識グラフ (cross profile)",
+      "exit_code": 0
+    },
+    {
+      "id": "G-prompt-validate",
+      "name": "責務プロンプト構造検査 18 本",
+      "exit_code": 0
+    },
+    {
+      "id": "G-prompt-completeness",
+      "name": "責務プロンプト完全性検査 18 本",
+      "exit_code": 0
+    }
+  ],
+  "findings": [
+    {
+      "severity": "high",
+      "bucket": "foundation_trace",
+      "observation": "constraints[4] の免除条件(3)『反映と同じ確定単位で運営者へ通知する』と、免除の範囲を『既に公開済みの記事本文への反映』に限る 2 文は、qa-seo-apply-approval-mode-20260910 の question にも answer にも逐語で現れない。訂正後の provenance note 自身がこれを起草者の設計判断と明記しており、利用者一次入力へ遡れないことが確定した。独立監査 C06 も同じ欄を『根拠なし』と判定している。",
+      "suggested_fix": "当該 2 点を利用者へ改めて提示して確定させる (elicit へ差し戻し)。確定するまでは constraints[4] から起草者判断部分を外すか、foundation とは別の『起草者が置いた既定値』欄へ移し、承認記録側の『既に定めた内容』という要約も実態に合わせて訂正する。",
+      "evidence": [
+        "system-spec/spec-state.json#requirements_foundation.provenance.field_sources[constraints[4]]",
+        "system-spec/spec-state.json#qa_log.qa-seo-apply-approval-mode-20260910",
+        "system-spec/spec-state.json#approval_log.approval-foundation-seo-auto-apply-exemption-20260910"
+      ]
+    },
+    {
+      "severity": "medium",
+      "bucket": "design_knowledge_reflection",
+      "observation": "『対等に並べた問い』という同一の言い回しが backend / frontend / maintenance-ops / ui-ux の 4 章の根拠文へ 1 件ずつ現れる。章ごとの固有性を名乗る欄が章をまたいで同文になっており、根拠の章固有性が形骸化しかけている。",
+      "suggested_fix": "各章の根拠文を、その章の設計判断に固有の事実 (どの決定が、その章のどの構造を規定したか) へ書き換える。",
+      "evidence": [
+        "system-spec/applied/backend.md",
+        "system-spec/applied/frontend.md",
+        "system-spec/applied/maintenance-ops.md",
+        "system-spec/applied/ui-ux.md"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "design_knowledge_reflection",
+      "observation": "applied 章の『章固有の根拠』ブロック 182 件のうち、13 種の本文が計 29 箇所で重複している (相異なる本文は 164 件)。",
+      "suggested_fix": "重複本文を章固有の内容へ差し替えるか、共通前提として 1 箇所へ集約して参照する形にする。",
+      "evidence": [
+        "system-spec/applied"
+      ]
+    },
+    {
+      "severity": "low",
+      "bucket": "foundation_trace",
+      "observation": "00-requirements-definition.md に『## compile が保てなかった行 (要判断)』節が残り、改定前の constraints[4] 本文『外部公開・予約投稿等の重要操作は人間の承認を必須とする』が孤立行として置かれたままになっている。改定後の本文との関係が文書上で解決されていない。",
+      "suggested_fix": "改定後の constraints[4] に統合されたことを明記して当該節を解消するか、未解決であれば要判断事項として elicit へ戻す。",
+      "evidence": [
+        "system-spec/00-requirements-definition.md#compile が保てなかった行 (要判断)"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "correction_verification",
+      "observation": "今回の再評価の起点となった 2 件の訂正はいずれも実在し、内容も一次記録と整合することを確認した。(1) constraints[4] の provenance note が『利用者が選んだ回答本文』と『起草者の設計判断』を書き分ける記述へ書き換えられている。(2) better-auth の記録版が 1.7.3 から 1.6.31 へ訂正され、出典が npm registry の dist-tags 実測 (2026-09-10 取得) に差し替えられている。",
+      "evidence": [
+        "system-spec/spec-state.json",
+        "system-spec/retrieval-evidence/better-auth.json"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "deterministic_gates",
+      "observation": "決定論ゲート 10 種 (G-matrix-loop / G-matrix-final の 6 条件 / G-source-citation / G-evidence-transcription / 知識グラフ 4 profile / 責務プロンプト 2 種 18 本) をすべて再実行し、いずれも exit 0。今回の FAIL は決定論ゲートではなく独立監査と C05 自己評価の指摘に由来する。",
+      "evidence": [
+        "system-spec/spec-state.json",
+        "system-spec/fetched-references.json"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "inputs",
+      "observation": "入力棚卸しは 340 ファイル・指紋 38ee1ff67b7cf696eb49906abf94e3dea341d8f17ff21d75c98516e19c7e0f64。既存の resume-receipt.json が名乗る指紋 (eddeaafc...) とも前回レポートの指紋 (68feea92...) とも異なるため、過去の PASS は再利用できない。",
+      "evidence": [
+        "system-spec/resume-receipt.json"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "matrix_coverage",
+      "observation": "2026-09-10 の SEO 5 問は回答本文へ『（推奨）』表記が付く形で記録されている。C06 は question 側に推奨表記が無いこと、qa-seo-apply-target-scope-20260910 では利用者が推奨に反する選択肢を選んでいることから誘導とは判定していない。過去に中立形で問い直した 2 件 (qa-neutral-aio-policy-v6 / qa-neutral-application-mode-v6) で選択が反転した履歴があるため、記録として残す。",
+      "evidence": [
+        "system-spec/spec-state.json#qa_log"
+      ]
+    }
+  ],
+  "gaps": [
+    "constraints[4] の免除条件(3)『反映と同じ確定単位で運営者へ通知する』について、利用者本人の確定を取り直す (現状は起草者の設計判断であり foundation の U 欄根拠を満たさない)。",
+    "constraints[4] の免除範囲を『既に公開済みの記事本文への反映』に限る 2 文について、利用者本人の確定を取り直す。",
+    "approval-foundation-seo-auto-apply-exemption-20260910 の『既に定めた内容であり、新たな権限を足していない』という要約を、実際に利用者が確定した範囲へ合わせて訂正する。",
+    "00-requirements-definition.md の『compile が保てなかった行 (要判断)』に残る改定前 constraints[4] 本文の扱いを決着させる。",
+    "applied 章の根拠文のうち、4 章で同文になっている『対等に並べた問い』と、13 種 29 箇所の重複本文を章固有の内容へ書き換える。"
+  ]
 }

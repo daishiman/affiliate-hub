@@ -1,5 +1,5 @@
 {
-  "graph_revision": 1064,
+  "graph_revision": 1082,
   "nodes": [
     {
       "acceptance": [],
@@ -22126,8 +22126,8 @@
         "Search Console の資格情報がサーバー環境変数からのみ読まれ、リポジトリ・管理画面・ログのいずれにも現れないことを機械検査で確認できる",
         "被引用チェックの実行件数に上限を設定でき、上限到達時は記録して停止する",
         "同じworkspace・ブログ・ページの3データ源を系統別に突合し、観測時刻付きの実績推移を表示する。未観測と0、期間絞り込みと最新N件を区別し、クリック・順位・被引用の変化を因果効果と呼ばない。",
-        "記事と変更前後の差分を承認するまで公開内容は変わらず、承認した対象だけを保存する。対象は元記事の作成日時で導入後と確認できる記事に限り、導入前・日時不明は理由を示して除外する。記事更新・変更履歴・所見状態は一括確定し、失敗/同時編集時は全体不変。",
-        "反映を次回の静的解析で確認できる。取消は現在版が当該反映後の版と一致する場合だけ記事復元と取消記録を一括確定し、追加編集を上書きしない。反映停止中も収集は継続し、通常公開・編集の版保護も回帰しない。",
+        "機械が反映し、反映と同じ確定単位で運営者へ通知する。反映前の関門は置かない。対象は作成日時を問わず全ての記事とし、作成日時が不明な記事も含める。反映は記事 1 件を単位に、記事更新・変更前後の差分記録・所見の反映済みの印を同一確定単位で保存し、途中で失敗したら 1 つも変えない。",
+        "反映を次回の静的解析で確認できる。書き込みは読み出した版と現在の版が一致する場合だけ行い、違えば書かずに止めて運営者へ知らせる (止めた反映は保留として扱い、反映済みの印を立てない)。取消も同じ条件で、記事復元と取消記録を一括確定し、追加編集を上書きしない。反映停止中も収集は継続し、通常公開・編集の版保護も回帰しない。",
         "定期実行は観測と所見提示だけを行い、改稿を起動しない。失敗した回と理由を記録し、他系統の結果と次回の実行を保持する。"
       ],
       "architecture_refs": [
@@ -22183,7 +22183,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
-      "goal": "3つのデータ源を定期観測し、同じブログ・ページの課題と実績推移を確認できる。元記事の作成日時で対象と判定した記事について、運営者が承認した変更差分だけを版比較と一括保存で反映し、安全に取り消せる。夜間処理は観測のみとする。",
+      "goal": "3つのデータ源を定期観測し、同じブログ・ページの課題と実績推移を確認できる。作成日時を問わず全ての記事について、機械が改善差分を反映し、変更前後の差分記録と事後通知を同一確定単位で残す。読み出した版と一致する場合だけ書き込み、1 操作で反映前へ戻せる。夜間処理は観測のみとする。",
       "graph_node_id": "feat-seo-aeo-measurement-loop",
       "implementation_readiness": {
         "checked_at": "2026-09-04T00:00:00Z",
@@ -22215,16 +22215,16 @@
         "データ源②Google Search Console 連携: Search Analytics API から クエリ・ページ・表示回数・クリック・平均掲載順位 を取得して保存する。資格情報はサーバー環境変数からのみ読み、リポジトリ・管理画面・ログに保存しない",
         "データ源③AI 検索での被引用チェック: 自前の質問セットを AI 検索へ投げ、自サイトが引用されたか・どの URL が引用されたかを記録する。費用が件数に比例するため実行上限と頻度を設定できる (system-spec/backend.md 「被引用チェックの費用が比例する量」)",
         "3 データ源を同じページ識別子へ突合する解析基盤と履歴保持・保持期間",
-        "課題から改善案の導出: 静的解析の所見を根拠に差分を作り、記事と変更前後を運営者が確認する。Search ConsoleとAI被引用の観測は同じページの推移を理解する材料であり、未承認の改稿や因果効果の断定に用いない。",
-        "管理画面のSEO/AEOダッシュボード: ブログ・記事の選択、課題一覧、観測時刻付き実績推移、変更前後の差分承認、反映履歴、版競合を保護した取消、反映の停止/再開。",
-        "承認した差分の安全な反映: 元記事の作成日時が導入時刻より後と確認できる記事だけを対象にする。記事更新・変更前後の履歴・所見状態を同一確定単位で保存し、失敗時は全体不変。承認対象と読取版を照合し、同時編集や取消前の追加編集を上書きしない。公開日を作成日に代用せず、日時不明も除外して理由を示す。",
+        "課題から改善案の導出: 静的解析の所見を根拠に差分を作る。反映の前後は記録として残し、運営者は事後に確認する。Search ConsoleとAI被引用の観測は同じページの推移を理解する材料であり、因果効果の断定に用いない。",
+        "管理画面のSEO/AEOダッシュボード: ブログ・記事の選択、課題一覧、観測時刻付き実績推移、変更前後の差分と反映履歴、版競合を保護した取消、反映の停止/再開。反映の時点は推移の上へ印として重ねる。",
+        "反映の安全な実行: 対象は作成日時を問わず全ての記事とし、作成日時が不明な記事も含める。反映は記事 1 件を単位とし、記事更新・変更前後の差分記録・所見の反映済みの印を同一確定単位で保存し、失敗時は全体不変。書き込みは読み出した版と一致する場合だけ行い、違えば書かずに止めて運営者へ知らせる。反映と同じ確定単位で運営者へ通知し、1 操作で反映前へ戻せる。取消前の追加編集を上書きしない。",
         "定期実行（Cron Trigger）は3データ源の観測と所見提示のみ。失敗と系統別最終収集時刻を記録し、次回の実行を妨げない。夜間処理から改稿を自動起動せず、反映停止中も収集を継続する。"
       ],
       "scope_out": [
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "未承認の自動反映、夜間の改稿、導入前または作成日時不明の記事へのこの経路からの反映、版競合時の上書き、一部のみ保存される反映/取消、観測値だけによる施策の因果効果の断定。",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、夜間の改稿、版競合時の上書き、一部のみ保存される反映/取消、観測値だけによる施策の因果効果の断定。新規記事の外部公開と予約投稿はこの経路の承認免除の対象外であり、従来どおり人間の承認を要する。",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -22251,7 +22251,7 @@
       "template_version": "1.0.0",
       "title": "SEO/AEO の自前計測と反映ループ (静的解析・Search Console・AI 被引用の 3 データ源)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-09T11:46:23Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -25564,7 +25564,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -25585,9 +25585,9 @@
       "target_date": null,
       "template_id": "task",
       "template_version": "1.0.0",
-      "title": "3データ源SEO/AEO計測ループの要件ベースライン (自動反映・可逆性・時間範囲限定の非機能要件を含む)",
+      "title": "3データ源SEO/AEO計測ループの要件ベースライン (自動反映・可逆性・対象範囲の非機能要件を含む)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -25679,7 +25679,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -25702,7 +25702,7 @@
       "template_version": "1.0.0",
       "title": "3データ源収集・突合・自動反映アーキテクチャ設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -25760,7 +25760,7 @@
         "mode": "local_only",
         "project_aliases": []
       },
-      "goal": "P02設計をNFR1-9全項目と照合する独立レビューを行い、可逆性・時間範囲限定・根拠系統限定・秘密情報境界に単一障害点が無いことを確認する。",
+      "goal": "P02設計をNFR1-9全項目と照合する独立レビューを行い、可逆性・対象範囲・根拠系統限定・秘密情報境界に単一障害点が無いことを確認する。",
       "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
       "implementation_readiness": {
         "checked_at": "2026-09-04T03:19:00Z",
@@ -25777,7 +25777,7 @@
       "priority": null,
       "project_id": "feature-package-feat-seo-aeo-measurement-loop",
       "pull_request_linkages": [],
-      "purpose": "P02設計をNFR1-9全項目と照合する独立レビューを行い、可逆性・時間範囲限定・根拠系統限定・秘密情報境界に単一障害点が無いことを確認する。",
+      "purpose": "P02設計をNFR1-9全項目と照合する独立レビューを行い、可逆性・対象範囲・根拠系統限定・秘密情報境界に単一障害点が無いことを確認する。",
       "related_nodes": [
         "arch-system-spec-overview",
         "arch-two-layer-platform"
@@ -25794,7 +25794,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -25817,7 +25817,7 @@
       "template_version": "1.0.0",
       "title": "自動反映アーキテクチャの独立設計レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -25910,7 +25910,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -25933,7 +25933,7 @@
       "template_version": "1.0.0",
       "title": "A1-A8とNFR1-9のテスト設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26032,7 +26032,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26055,7 +26055,7 @@
       "template_version": "1.0.0",
       "title": "3データ源収集器・突合・自動反映エンジンの実装",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26149,7 +26149,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26172,7 +26172,7 @@
       "template_version": "1.0.0",
       "title": "テスト実行と証跡記録",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26265,7 +26265,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26288,7 +26288,7 @@
       "template_version": "1.0.0",
       "title": "feature受入 A1-A8 の検証",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26382,7 +26382,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26405,7 +26405,7 @@
       "template_version": "1.0.0",
       "title": "永続化スキーマの移行 (所見・反映ログ・系統別最終収集時刻)",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26500,7 +26500,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26523,7 +26523,7 @@
       "template_version": "1.0.0",
       "title": "品質・セキュリティ・運用保証",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26615,7 +26615,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26638,7 +26638,7 @@
       "template_version": "1.0.0",
       "title": "独立最終レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26732,7 +26732,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26755,7 +26755,7 @@
       "template_version": "1.0.0",
       "title": "再現可能な証跡の確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26848,7 +26848,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26871,7 +26871,7 @@
       "template_version": "1.0.0",
       "title": "運用文書・runbook整備",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -26964,7 +26964,7 @@
         "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
         "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
         "有料広告の効果測定、外部 SEO SaaS の利用",
-        "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+        "差分記録・1 操作での復元・同一確定単位での通知のいずれかを欠く反映、版競合時の上書き (読み出した版と現在の版が違うときは書かずに保留する)、新規記事の外部公開と予約投稿の承認省略 (この経路の承認免除の対象外)",
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
@@ -26987,7 +26987,7 @@
       "template_version": "1.0.0",
       "title": "リリース・デプロイとclose-out",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-04T05:19:32Z"
+      "updated_at": "2026-09-10T09:00:00Z"
     },
     {
       "acceptance": [
@@ -27017,12 +27017,15 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-top-page-compositionのP01 lifecycle責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-10T04:53:30Z",
+        "evidence_refs": [
+          "docs/spec/feat-blog-top-page-composition/evidence-index.md",
+          "docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-10T04:53:30Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
@@ -27096,7 +27099,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p01",
         "feat-blog-top-page-composition"
@@ -27106,7 +27109,7 @@
       "template_version": "1.0.0",
       "title": "トップページ区画構成・カード規約・追従ヘッダー機能予算・非模倣ゲートの要求ベースライン確定",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-06T00:38:27.754531Z"
+      "updated_at": "2026-09-10T04:53:30Z"
     },
     {
       "acceptance": [
@@ -27136,12 +27139,15 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-top-page-compositionのP02 lifecycle責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-10T04:53:30Z",
+        "evidence_refs": [
+          "docs/spec/feat-blog-top-page-composition/evidence-index.md",
+          "docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-10T04:53:30Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
@@ -27215,7 +27221,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p02",
         "feat-blog-top-page-composition"
@@ -27225,7 +27231,7 @@
       "template_version": "1.0.0",
       "title": "トップページ構成コンポーネント・URL契約・JSON-LD契約・非模倣静的検査のアーキテクチャ設計",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-06T00:38:28.282752Z"
+      "updated_at": "2026-09-10T04:53:30Z"
     },
     {
       "acceptance": [
@@ -27255,12 +27261,15 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-top-page-compositionのP03 lifecycle責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-10T04:53:30Z",
+        "evidence_refs": [
+          "docs/spec/feat-blog-top-page-composition/evidence-index.md",
+          "docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-10T04:53:30Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
@@ -27331,7 +27340,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p03",
         "feat-blog-top-page-composition"
@@ -27341,7 +27350,7 @@
       "template_version": "1.0.0",
       "title": "トップページ設計の独立レビュー",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-06T00:38:28.777097Z"
+      "updated_at": "2026-09-10T04:53:30Z"
     },
     {
       "acceptance": [
@@ -27371,12 +27380,15 @@
       "classification_confidence": 1.0,
       "classification_reason": "feat-blog-top-page-compositionのP04 lifecycle責務への確定写像",
       "completion_evidence": {
-        "completed_at": null,
-        "evidence_refs": [],
+        "completed_at": "2026-09-10T04:53:30Z",
+        "evidence_refs": [
+          "docs/spec/feat-blog-top-page-composition/evidence-index.md",
+          "docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md"
+        ],
         "policy": "manual",
-        "reconciled_at": null,
-        "source": null,
-        "status": "in_progress"
+        "reconciled_at": "2026-09-10T04:53:30Z",
+        "source": "reconciliation",
+        "status": "done"
       },
       "confirmation_evidence": {
         "evaluated_digest": "d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
@@ -27457,7 +27469,7 @@
         "source_version": "0.1.0"
       },
       "start_date": null,
-      "status": "active",
+      "status": "closed",
       "tags": [
         "p04",
         "feat-blog-top-page-composition"
@@ -27467,7 +27479,7 @@
       "template_version": "1.0.0",
       "title": "テストファースト: 区画構成・追従ヘッダー・JS無効到達性・非模倣・JSON-LDの受入テスト契約",
       "tracker_binding": "beads",
-      "updated_at": "2026-09-06T00:38:29.285905Z"
+      "updated_at": "2026-09-10T04:53:30Z"
     },
     {
       "acceptance": [

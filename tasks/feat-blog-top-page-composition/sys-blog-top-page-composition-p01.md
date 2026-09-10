@@ -12,8 +12,8 @@ iteration: null
 title: "トップページ区画構成・カード規約・追従ヘッダー機能予算・非模倣ゲートの要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-06T00:30:33Z"
-updated_at: "2026-09-06T00:38:27.754531Z"
-status: "active"
+updated_at: "2026-09-10T04:53:30Z"
+status: "closed"
 depends_on: []
 related_nodes: ["spec-system-spec-index","arch-system-spec-overview"]
 resource_scope: ["docs/spec/feat-blog-top-page-composition/requirements-baseline.md","docs/spec/feat-blog-top-page-composition/as-is-acceptance-baseline.json","docs/spec/feat-blog-top-page-composition/section-composition-inventory.md","docs/spec/feat-blog-top-page-composition/sticky-header-function-budget.md","docs/spec/feat-blog-top-page-composition/non-imitation-gate-definition.md","docs/spec/feat-blog-top-page-composition/acceptance-traceability.json"]
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-10T04:53:30Z","evidence_refs":["docs/spec/feat-blog-top-page-composition/evidence-index.md","docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md"],"policy":"manual","reconciled_at":"2026-09-10T04:53:30Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-04T03:19:00Z","missing_sections":[],"status":"complete"}
 ---
 

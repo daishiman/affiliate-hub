@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4`, `qa-seo-approved-diff-20260906`, `qa-neutral-search-method-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-seo-apply-target-scope-20260910`, `qa-seo-apply-atomicity-20260910`, `qa-seo-apply-concurrent-edit-20260910`, `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4`, `qa-neutral-search-method-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末側にローカル DB を置かない。オフライン時の書込みキュー・端末間の競合解決・端末側スキーマ移行を設計対象から外し、永続化は D1 を単一の正本とする。記事画像の参照状態もここだけが持つ。 |
@@ -65,6 +65,24 @@ serves_goals: [G1, G2, G3]
 「Cloudflare R2 へ直接アップロード（推奨）」
 
 ※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
+
+### qa-seo-apply-target-scope-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 自動または承認による反映の対象は、どの記事にしますか。(a) 導入後に作った記事だけ — 元記事の作成日時で判定し、導入前の記事と作成日時が不明な記事は対象から外す。(b) 全ての記事 — 作成日時を問わず全記事を対象にする。（2026-09-10 AskUserQuestion『対象範囲』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 2 件目。推奨は (a) を示したが利用者は (b) を選んだ）
+
+**回答**: 全ての記事
+
+### qa-seo-apply-atomicity-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 反映の途中で失敗したとき、どう振る舞うべきですか。(a) 全体を元に戻す — 記事本文・変更前後の履歴・所見の反映済み印を、同じひとつのまとまりとして保存し、途中で失敗したら何ひとつ変えない。(b) できたところまで残す — 成功した部分だけ反映する。（2026-09-10 AskUserQuestion『途中失敗』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 3 件目）
+
+**回答**: 全体を元に戻す（推奨）
+
+### qa-seo-apply-concurrent-edit-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 機械が反映しようとした記事を、同じ頃に運営者が編集していたときどうしますか。(a) 上書きせずに止める — 読み出したときの版と今の版が違っていたら反映を止め、運営者に知らせる。取消のときも同じ。(b) 機械の反映を優先する — 後から書いた方が勝つ。（2026-09-10 AskUserQuestion『同時編集』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 4 件目）
+
+**回答**: 上書きせずに止める（推奨）
 
 ### qa-database-web-domain-aeo-behavior (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -181,12 +199,6 @@ metric_rollup:
 解析結果とレジストリはワークスペースで区切る。読者向けの読み取り (記事一覧・本文・検索・カテゴリー・人物) はサイト単位で区切る既存の方針を維持し、解析結果を読者経路から読まない。
 
 - (注記: 正本 qa_log[qa-database-web-aeo-analysis-storage-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
-
-### qa-seo-approved-diff-20260906 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
-
-**回答**: つづけて
 
 ### qa-neutral-search-method-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -435,23 +447,6 @@ guard 表は `CREATE TABLE IF NOT EXISTS` + 先頭の `DELETE` なので、
 - (注記: chapter_notes 本文の見出しを本注記の下へ押し下げた。文字は変えていない)
 
 - 正本へ入れた理由: 同章 §4.3 が ⚠️『配色の保存と掲載の増減が操作の記録に届かない』と記録した状態を本リリース commit で解消したため、正本を現状に一致させる。前の記録は消さず差分として足す。
-
-### SEOの現行承認契約（2026-09-06）
-
-**2026-09-06 の利用者承認 `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` が、SEOの反映方法に関する現在の正規契約である。**
-
-記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
-
-前掲の旧QAの逐語回答・旧設計適用、および2026-09-04の公開済み計画packageは、その時点の判断の履歴として残す。そこでの「機械が自動で反映し事後通知」「承認の関門が無い」は、今回承認されたSEO反映には適用しない。SEO以外のブログトップ・検索・AI向け表現物など、変更していない決定は引き続き有効である。
-
-- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。
-- 差分承認は記事・変更内容・読取版へ束縛する。承認後に内容を再生成して別の差分を保存しない。未承認記事や競合記事をまとめて上書きしない。
-- 取消も現在版が当該反映後の版に一致するときだけ成功させ、記事復元と取消記録を同時に確定する。失敗・競合・重複実行で一部だけ変わる経路を持たない。
-- 作成日時の正本は編集側の元記事であり、公開日/更新日を代用しない。導入前・不明は理由を示して所見提示に留める。
-- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、件数上限だけの場合は「最新N観測」と表示する。未観測を0にせず、順位・クリック・被引用の変化を施策の因果効果と呼ばない。
-- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。
-
-- 正本へ入れた理由: 利用者が直前のSEO変更提案へ続行を指示し承認済み。旧QAを改変せず現行契約と履歴の優先関係を明示する。
 
 ### Search Console検索語保存と取得範囲（2026-09-06実装確認）
 
@@ -717,6 +712,45 @@ AskUserQuestion で「Cloudflare R2 へ直接アップロード（推奨）」�
 
 - 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
 
+### SEOの現行承認契約（2026-09-10 改定）
+
+**2026-09-10 に論点ごとへ問い直した 5 件の回答が、SEO の反映方法に関する現在の正規契約である。**
+
+裏付けは `qa-seo-apply-approval-mode-20260910` / `qa-seo-apply-target-scope-20260910` /
+`qa-seo-apply-atomicity-20260910` / `qa-seo-apply-concurrent-edit-20260910` /
+`qa-seo-performance-presentation-20260910` の 5 件である。
+
+- **反映の承認**: 機械が反映し、事後に通知する。反映前の関門は置かない。これを許せるのは、反映のたびに変更前後の差分を記録として残し、1 操作で反映前の本文へ戻せる場合に限る。差分の記録と復元の経路を欠く実装は、この契約の外にある。通知は反映と同じ確定単位で送り、遅延させない。
+- **対象範囲**: 全ての記事を対象とする。元記事の作成日時では絞らない。作成日時が不明な記事も対象に含める。範囲で守らないぶん、下の 2 項 (確定単位と版の一致) はどれか 1 つでも欠ければ反映を成立させない必須条件になる。
+- **途中失敗**: 記事本文・変更前後の差分記録・所見の「反映済み」の印を同一の確定単位で保存し、途中で失敗したら 1 つも変えない。反映は記事 1 件を単位とし、複数記事の一括反映は記事ごとに独立した確定単位とする。
+- **同時編集**: 書き込みは「読み出したときの版と今の版が同じであること」を条件にし、違えば書かずに止めて運営者へ知らせる。止めた反映は保留として扱い、「反映済み」の印を立てない。取消も同じ条件で行う。
+- **実績の見せ方**: 選択中のブログ・記事と同じ画面で、観測時刻付きの推移として見せる。反映の時点は推移の上へ印として重ねる。順位・クリック・被引用の変化を、その変更の因果効果と呼ばない。
+
+**2026-09-06 の `approval-seo-approved-diff-20260906` / `qa-seo-approved-diff-20260906` は、
+現行契約ではない。**独立監査 C06 が、これを 5 論点を 1 問へ束ねた誘導質問と判定した。
+回答は「つづけて」の一語で、論点ごとの逐語回答が存在しない。承認記録の note 自身が
+「これは提示内容の要約で、利用者の逐語回答ではない」と書いている。そこで 2026-09-10 に
+5 論点を 1 件ずつ分けて問い直し、確定 5 セル (backend / database / frontend / ui-ux /
+maintenance-ops × web) の裏付けを新しい回答へ差し替えた。旧 entry は履歴として qa_log に残り、
+`superseded_by` で後継を名乗る。
+
+そのため、旧契約が定めていた次の 2 点は**維持してはならない**。
+
+- 「運営者が承認した対象だけを反映する」 — 問い直した結果は自動反映＋事後通知である。
+- 「対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事を除外する」 —
+  問い直した結果は全記事である。同じ理由で `qa-neutral-auto-scope-v6`
+  (自動反映を導入後の記事に限る決定) も裏付けから外し、後継を
+  `qa-seo-apply-target-scope-20260910` として申告した。
+
+- 正規の現行受入: `features/feat-seo-aeo-measurement-loop.md#frontmatter.acceptance`。
+  実装要件: `docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md`。
+- 観測データはサイト/ページ/系統/観測時刻を保つ。期間指定は実際の期間絞り込みと一致させ、
+  件数上限だけの場合は「最新N観測」と表示する。未観測を 0 にしない。
+- 通常公開・編集も同じ永続化正本と版比較を使い、夜間収集から改稿を起動しない。
+- SEO 以外のブログトップ・検索・AI 向け表現物など、変更していない決定は引き続き有効である。
+
+- 正本へ入れた理由: 2026-09-06 の束ね承認を独立監査 C06 が誘導質問と判定したため、2026-09-10 に 5 論点を分けて問い直し、確定 5 セルの裏付けを新しい回答へ差し替えた。章の散文にも現行契約を明記し、旧契約との優先関係と、旧契約のどの条項を維持してはならないかを示す。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -796,3 +830,9 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 | cloudflare-d1 | 2026-04-30 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/ | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |
 | cloudflare-d1-use-indexes | 2026-08-10 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/best-practices/use-indexes/ | 2026-09-03T00:00:00Z | 2026-09-03T00:00:00Z |
 | sqlite-fts5 | 2026-08-01 | SQLite (www.sqlite.org) | https://www.sqlite.org/fts5.html | 2026-09-08T12:32:03Z | 2026-09-08T12:32:03Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4`, `qa-seo-approved-diff-20260906`, `qa-neutral-search-method-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

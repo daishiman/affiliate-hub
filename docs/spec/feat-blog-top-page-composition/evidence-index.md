@@ -12,6 +12,24 @@
 | 型付き factory | 対象15テストファイルを `pnpm vitest run` | 138 passed |
 | matrix 完全性 | `validate-coverage-matrix.py` の全6 opt-in | PASS |
 
+## 2026-09-10 に取り直した全段の結果
+
+9/8 は対象を絞ったテストだけを回していた。9/10 は全段を通しで走らせている。
+
+| 対象 | 再実行方法 | 2026-09-10 の結果 |
+|---|---|---|
+| 全段の門 | `pnpm run verify` | 16 件 OK / 733 秒（依存の脆弱性のみ警告） |
+| テストとカバレッジ | `node scripts/run-tests.mjs --coverage` | 573 files / 12743 tests PASS |
+| 層別の記録 | `node scripts/coverage-report.mjs` | 全 5 層が下限充足（全体 行91.3 / 分岐81.4 / 関数90.3 / 文88.7） |
+| 全体ミューテーション | `node scripts/mutation.mjs` | 70.39%（下限 65%）/ 36分51秒 |
+| 見た目の回帰 | `pnpm run visual` | 陽性対照 + 5 枚 PASS |
+| CI (push) | run `34419785216` | PASS |
+| CI (pull_request) | run `34419783219` | PASS |
+
+見た目の見本は Chrome 152 で撮り直した（`tests/visual/baseline/darwin-arm64-chrome152/`）。
+Chrome のメジャー版が環境タグに入るため、151 のままでは比較材料が無く赤になる。
+撮り直しの理由は 1 枚ずつ `tests/visual/baseline-updates.jsonl` に残してある。
+
 ## 未取得の証跡
 
 - axe-core のブラウザ結果
@@ -20,3 +38,4 @@
 - development 環境の smoke / rollback
 
 これらが無いため、本索引は feature 完了証明ではなく、draft PR の再現手順である。
+9/10 の全段実行でも、この 4 つは埋まっていない。

@@ -27,5 +27,202 @@
     "status": "open",
     "reason": "A4, A7, A8 and development deployment evidence are incomplete; exact-13 atomic promotion is also blocked by the C08 producer/manifest readiness check; the pull request remains draft."
   },
-  "human_receipt": "docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md"
+  "human_receipt": "docs/spec/feat-blog-top-page-composition/spec-writeback-receipt.md",
+  "amendments": [
+    {
+      "recorded_at": "2026-09-10T00:40:00Z",
+      "scope": "Commits 1338e8b2 (next 16.3.1 -> 16.3.4) and 8668b4cf (record synchronization) added after the 2026-09-08 receipt.",
+      "product_spec_impact": {
+        "status": "none",
+        "reason": "The framework bump is a patch-level upgrade with no API contract change, and the second commit only re-derives digests, regenerates reports, and adds visual baselines for a new Chrome major. Neither adds behavior, external API, authorization boundary, persistence owner, or reader-surface scope, so A1-A8 are untouched."
+      },
+      "spec_governance_impact": {
+        "status": "none",
+        "reason": "system-spec chapters were realigned to the same point in time rather than changed in content; no confirmed chapter was rewritten and spec-state.json was not transitioned. The change is record synchronization, not a specification decision."
+      },
+      "gates": {
+        "verify_full": "PASS: 16 checks, 573 test files / 12743 tests green, all coverage floors met",
+        "mutation_full": "PASS: 70.39% against a 65% break threshold",
+        "visual_regression": "PASS: positive control plus 5 baselines on darwin-arm64-chrome152",
+        "ci_push": "PASS: run 34419785216",
+        "ci_pull_request": "PASS: run 34419783219 (first green PR run since 2026-09-08; the prior failure was the spec-report freshness check)"
+      },
+      "thresholds_touched": "none"
+    },
+    {
+      "recorded_at": "2026-09-10T09:00:00Z",
+      "scope": "Specification-of-record repair for the SEO auto-apply contract, plus the two evaluator findings that remain open.",
+      "product_spec_impact": {
+        "status": "changed",
+        "reason": "Independent audit C06 判定により、確定 5 セル (backend/database/frontend/ui-ux/maintenance-ops x web) の裏付け qa-seo-approved-diff-20260906 が 5 論点を 1 問へ束ねた誘導質問であったため、2026-09-10 に論点ごとへ問い直し、その回答へ裏付けを差し替えた。反映の承認方法が「承認した対象だけ反映」から「機械が反映し事後に通知」へ、対象範囲が「導入後の記事だけ」から「全ての記事」へ変わった。"
+      },
+      "spec_governance_impact": {
+        "status": "changed",
+        "reason": "上位制約 constraints[4] へ、差分記録・1 操作での復元・同一確定単位での通知の 3 条件を満たす反映に限る事前承認免除を追記した (approval-foundation-seo-auto-apply-exemption-20260910)。追記分の来歴を provenance.field_sources へ user-dialogue として足し、seal-foundation-sources で封をし直した (書面 36 件の指紋は全て不変)。書込はすべて apply-spec-transition.py 経由で、確定章は C03 compile で再生成した。"
+      },
+      "gates": {
+        "coverage_matrix": "PASS: final + counted-required-info + catalog-domain-coverage + foundation + grounded-design-applications + declared-qa-supersession",
+        "completeness_evaluator": "FAIL (verdict retained as-is; not rewritten to go green)"
+      },
+      "open_findings": [
+        {
+          "id": "doc_freshness",
+          "severity": "high",
+          "state": "open",
+          "detail": "github-actions と sqlite-fts5 の 2 件で鮮度を再現できず、許容上限 1 件を超えている。本セッションでは解消できない: docs.github.com は日付宣言を持たず (2026-09-10 にWebFetch で再確認)、sqlite.org/fts5.html は本文が長く WebFetch の応答が末尾の更新日表明へ届かない。curl 等の直接取得は external-mutation guard が塞ぐ。MAX_UNVERIFIED_FRESHNESS を引き上げて緑にすることはしていない。"
+        },
+        {
+          "id": "matrix_coverage",
+          "severity": "high",
+          "state": "open",
+          "detail": "2026-09-10 の SEO バッチ 5 問がいずれも片側の選択肢にだけ推奨ラベルを付けて提示され、5 問中 4 問で推奨側が選ばれた。同じ spec-state.json の reopen_log が「推奨表示を外したら選択が反転した」実例を持つため、疑いではなく検出として扱われている。根本解決には推奨ラベル無しでの再質問が要る。利用者の時間を使うため本 PR では実施せず、事実として残す。"
+        }
+      ],
+      "resolved_findings": [
+        {
+          "id": "foundation_trace",
+          "detail": "constraints[4] の 2026-09-10 追記分に user-dialogue 由来の来歴を付け、concrete_intents[8] と扱いを揃えた。"
+        },
+        {
+          "id": "design_knowledge_reflection",
+          "detail": "qa-backend-web-domain-aeo-behavior の逐語「反映は自動で公開せず、既存の人間承認の経路に載せる」が現行契約でないことを、問答本文を書き換えずに backend の chapter_note「SEO 反映の承認方法だけが置き換わった範囲（2026-09-10）」へ記録した。"
+        }
+      ],
+      "thresholds_touched": "none"
+    },
+    {
+      "recorded_at": "2026-09-10T12:00:00Z",
+      "scope": "Re-evaluation (r6) outcome, two truthfulness corrections it surfaced, and the downstream document alignment.",
+      "product_spec_impact": {
+        "status": "changed",
+        "reason": "system-spec の SEO 反映契約に合わせて、下流の正本を同じ契約へ揃えた: features/feat-seo-aeo-measurement-loop.md (goal/scope_in/scope_out/受入 A6・A7 と本文の承認節)、同 .context.json、dev-graph の feature node、tasks/feat-seo-aeo-measurement-loop/*.md 13 件 (受入 A6、NFR2 を「時間範囲限定」から「対象範囲」へ、scope_out の旧文言) と対応する task node 13 件、docs/requirements/...-implementation-requirements.md の反映契約節、docs/product/traceability.md の REQ-SEO14。src/infrastructure/persistence/d1/seo-article-revision-repository.ts は利用者に出る文言 3 か所だけを直し、振る舞いは変えていない (実装の適合は P05/P11 の責務)。"
+      },
+      "spec_governance_impact": {
+        "status": "changed",
+        "reason": "再評価が foundation_trace を『来歴が無い』から『実在しない逐語を利用者の声として名乗る来歴』へ入れ替えて high のまま残した。指摘は正しい: qa-seo-apply-approval-mode-20260910 の answer は『自動反映＋事後通知（推奨）』の1 行で、免除の 3 条件のうち (3) 同一確定単位での通知と、免除の適用範囲はそこに無い。provenance の note を、どこまでが利用者の選択でどこからが起草者の設計判断かを分けた記述へ書き直し、封をし直した (書面 36 件の指紋は不変)。approval_log は追記専用ログなので触らず、その note の該当箇所が起草者の記述であることを provenance 側で名指しした。"
+      },
+      "gates": {
+        "coverage_matrix": "PASS (final + foundation + declared-qa-supersession を再実行)",
+        "source_citation": "PASS",
+        "evidence_transcription": "PASS (取得記録 29 件が証跡と逐語一致)",
+        "typecheck": "PASS (tsc --noEmit)",
+        "completeness_evaluator": "FAIL (verdict retained as-is; not rewritten to go green)"
+      },
+      "open_findings": [
+        {
+          "id": "doc_freshness",
+          "severity": "high",
+          "state": "open",
+          "detail": "再評価で未確認 target が入れ替わった。github-actions は解消。better-auth は本セッションで訂正した (下記 resolved)。残る sqlite-fts5 は本文が長く WebFetch の応答が末尾の更新日表明へ届かず、直接取得は external-mutation guard が塞ぐため、この環境では再現できない。MAX_UNVERIFIED_FRESHNESS を引き上げて緑にすることはしていない。"
+        },
+        {
+          "id": "matrix_coverage",
+          "severity": "high",
+          "state": "open",
+          "detail": "C07 (matrix auditor) 自体は PASS になったが、C06 (hearing auditor) の FAIL による降格で観点としては FAIL のまま。2026-09-10 の SEO バッチ 5 問が片側の選択肢にだけ推奨ラベルを付けて提示された点は残っている。根本解決には推奨ラベル無しでの再質問が要る。利用者の時間を使うため本 PR では実施せず、事実として残す。"
+        },
+        {
+          "id": "chapter_rationale_wording",
+          "severity": "medium",
+          "state": "open",
+          "detail": "applied 側の章固有根拠が『3 案を対等に並べた問い』と述べる一方、正本の question には推奨ラベルが付いている。次に当該セルを触るときに合わせる。"
+        },
+        {
+          "id": "dependency_version_mismatch",
+          "severity": "medium",
+          "state": "open",
+          "detail": "package.json が better-auth ^1.7.0 を要求しているが、npm の dist-tags では 1.7 系は beta/rc のみで安定版 latest は 1.6.31 (2026-09-10 実測)。依存の指定と実際に入る版の突き合わせが要る。本 PR の範囲外として残す。"
+        }
+      ],
+      "resolved_findings": [
+        {
+          "id": "design_knowledge_reflection",
+          "detail": "backend の章注記による修復を再評価が確認し PASS になった。"
+        },
+        {
+          "id": "doc_freshness:better-auth",
+          "detail": "2026-09-07 の記録は『npm registry の最新版 1.7.3』としていたが、2026-09-10 に registry の dist-tags を直接取得したところ latest は 1.6.31 で、1.7.3 はどのチャネルにも存在しなかった。WebSearch の要約を版の根拠に使ったことが誤りの出所。証跡と取得記録を実測値へ訂正し、何がどう違ったかを note に残した。"
+        },
+        {
+          "id": "doc_freshness:github-actions",
+          "detail": "再評価で未確認から外れた。"
+        }
+      ],
+      "thresholds_touched": "none"
+    },
+    {
+      "recorded_at": "2026-09-10T15:00:00Z",
+      "scope": "Re-evaluation (r7) after the provenance-note and better-auth corrections. Verdict remains FAIL and is recorded verbatim; no gate threshold was moved.",
+      "product_spec_impact": {
+        "status": "unchanged",
+        "reason": "この回では system-spec の仕様書本文を 1 文字も変更していない。評価レポート 1 本だけを更新した。"
+      },
+      "spec_governance_impact": {
+        "status": "changed",
+        "reason": "訂正の効き方が前回と入れ替わった。doc_freshness は PASS へ回復し、鮮度未確認は 0 件(better-auth を npm registry の dist-tags で直接照合、references 29 件すべてで層0/層1/層2 検出 0 件)。一方 foundation_trace は FAIL のままで、これが総合 FAIL の主因になった。provenance note の訂正そのものは『実在し、記述も一次記録と整合』と確認されたが、利用者の選択と起草者の設計判断を書き分けた結果として、免除条件 (3)『反映と同じ確定単位で運営者へ通知する』と免除の範囲限定 2 文が利用者の一次入力へ遡れないことが露出した。独立監査 C06 も同じ欄を独立に『根拠なし』(U8 constraints[4]) と判定している。つまり訂正は正しく、訂正によって隠れていた欠落が見えるようになった。"
+      },
+      "gates": {
+        "coverage_matrix": "PASS",
+        "source_citation": "PASS",
+        "evidence_transcription": "PASS",
+        "typecheck": "PASS",
+        "deterministic_gates": "10 種すべて exit 0",
+        "completeness_evaluator": "FAIL (verdict retained verbatim; thresholds untouched)",
+        "spec_freshness": "FRESH (入力 340 件 / 指紋 38ee1ff67b7cf696…)"
+      },
+      "perspectives": {
+        "foundation_trace": "FAIL",
+        "decision_guidance": "PASS",
+        "matrix_coverage": "FAIL (C07 auditor は PASS。C06 の FAIL による verdict_downgrade=sub_input_fail)",
+        "design_knowledge_reflection": "PASS",
+        "doc_freshness": "PASS",
+        "prompt_quality": "PASS"
+      },
+      "open_findings": [
+        {
+          "id": "foundation_trace:exemption_condition_3",
+          "severity": "high",
+          "state": "open",
+          "detail": "constraints[4] の免除条件 (3)『反映と同じ確定単位で運営者へ通知する』は起草者の設計判断であり、利用者本人の確定が無い。取り直しには利用者への再質問が要るため本 PR では実施せず、事実として残す。"
+        },
+        {
+          "id": "foundation_trace:exemption_scope",
+          "severity": "high",
+          "state": "open",
+          "detail": "免除範囲を『既に公開済みの記事本文への反映』に限る 2 文についても、利用者本人の確定が無い。同上。"
+        },
+        {
+          "id": "approval_note_overclaim",
+          "severity": "high",
+          "state": "open",
+          "detail": "approval-foundation-seo-auto-apply-exemption-20260910 の note が『既に定めた内容であり、新たな権限を足していない』と要約しているが、実際に利用者が確定した範囲より広い。approval_log は追記専用ログで書換 op が存在しないため、provenance 側で『この部分は起草者の記述である』と名指しするに留めた。正式な訂正には追記による打ち消しが要る。"
+        },
+        {
+          "id": "matrix_coverage",
+          "severity": "high",
+          "state": "open",
+          "detail": "C07 (matrix auditor) は 48 セル未収集 0・5 軸検出 0 で PASS。C06 (hearing auditor) の FAIL による降格で観点としては FAIL。降格は緩める向きではなく締める向きの操作である。"
+        },
+        {
+          "id": "compile_unpreserved_lines",
+          "severity": "medium",
+          "state": "open",
+          "detail": "00-requirements-definition.md の『compile が保てなかった行 (要判断)』に改定前 constraints[4] の本文が残っている。起草者の判断では改定により正しく消えた行だが、その決着が機械可読な形で記録されていない。"
+        },
+        {
+          "id": "chapter_rationale_duplication",
+          "severity": "medium",
+          "state": "open",
+          "detail": "applied 章の根拠文が 4 章で同文 1 種、加えて 13 種 29 箇所で重複している。章固有の内容への書き換えは compile の根拠生成の範囲。"
+        }
+      ],
+      "resolved_findings": [
+        {
+          "id": "doc_freshness",
+          "detail": "観点として PASS へ回復し、鮮度未確認 0 件。better-auth は npm registry の dist-tags.latest を直接照合して 1.6.31 が現行であることを確認。前回残っていた sqlite-fts5 と github-actions も未確認から外れた。MAX_UNVERIFIED_FRESHNESS は一度も動かしていない。"
+        }
+      ],
+      "thresholds_touched": "none"
+    }
+  ]
 }

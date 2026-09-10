@@ -15,7 +15,7 @@ serves_goals: [G1, G2]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-maintenance-ops-web-orphan-image-verbatim。裏付け質疑 (`qa_refs`): `qa-ops-web-domain-retention-seo-freshness`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web`, `qa-seo-approved-diff-20260906`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-maintenance-ops-web-orphan-image-verbatim。裏付け質疑 (`qa_refs`): `qa-seo-apply-approval-mode-20260910`, `qa-ops-web-domain-retention-seo-freshness`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、端末アプリの版数追跡・強制更新・クラッシュ収集を運用対象から外す。運用の観測点は Workers のログと D1 に限られ、孤児画像の掃除ジョブもその中で回す。 |
@@ -66,6 +66,12 @@ serves_goals: [G1, G2]
 
 ※ この answer は利用者の逐語のみで構成する。ここから導いた受入条件・要件 ID は design_applications と chapter_notes に置く (harness doctrine: 利用者の逐語へ後から気づいた突き合わせを足さない)。
 
+### qa-seo-apply-approval-mode-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 検索最適化の分析結果を記事へ反映するとき、運営者の承認は必要ですか。(a) 自動反映＋事後通知 — 機械が反映し、あとから通知する。差分履歴を必ず残し、1 操作で元へ戻せることを条件にする。(b) 承認してから反映 — 運営者が差分を確認し、承認した対象だけ反映する。(c) 表示するだけ — 反映する仕組みを作らない。（2026-09-10 AskUserQuestion『反映の承認』。独立監査 C06 が qa-seo-approved-diff-20260906 を 5 論点の束ね質疑と指摘したため、論点を 1 つずつ分けて問い直した 5 件のうちの 1 件目。推奨は (a) を示したが、これは 2026-09-03 の対等提示で選ばれた決定と一致させるためであり、3 案は対等に並べた）
+
+**回答**: 自動反映＋事後通知（推奨）
+
 ### qa-ops-web-domain-retention-seo-freshness (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: maintenance-ops×web: 接続したドメインが切れかけていることに、どうやって気づくか。座標データはいつまで持つか。SEO/AEO の評価はいつ作り直すか
@@ -104,18 +110,6 @@ serves_goals: [G1, G2]
 | 障害時 | リダイレクトはresolver storeで転送先を解決し、計測eventをQueueへ非同期配送する。SLOと劣化モードは`03` §1を正とする |
 | 検索 | 記事・商品・リンクの横断全文検索。テナント別インデックス(26.4章と整合) |
 
-### qa-seo-approved-diff-20260906 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
-
-**回答**: つづけて
-
-### qa-neutral-auto-scope-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: 自動反映で、機械が公開中の記事を書き換えてよい範囲はどこまでですか。いずれも事後通知と差分履歴・取り消しは共通で付けます。(a) 本文以外のみ（メタ情報系）— 題名タグ・説明文・構造化データ・alt テキスト・内部リンクだけを機械が直す。読者が目にする本文は変わらないので、書き手の文章が勝手に変わる事態が起きない。本文の問題 (見出しの欠落など) は提案のまま残る。(b) 本文の見出し・導入文まで — 見出し階層の欠落や導入文の不足という、検索への影響が大きい部分も機械が直せる。本文の骨格に機械が手を入れるため、書き手の文章の調子が変わることがある。(c) 制限なし（本文全体も含む）— 分析が示した箇所は本文全体を含めて機械が直す。所見が一つも放置されない一方で、推敲した表現や体験談が機械の都合で書き換えられうる。取り消せるが、検索側が変更後を取得した後ならその記録は戻らない。（2026-09-03 AskUserQuestion『自動の範囲』）
-
-**回答**: 次回以降の記事全般・文章・タイトル・画像など、記事を構成する全て
-
 ### qa-neutral-citation-check-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
 **質問**: AI 検索で自サイトが引用されたかを調べるのに、どの問い合わせ先を使いますか。鍵はいずれも運営者が Cloudflare の画面から登録し、リポジトリには置きません。(a) 既に使っている AI 基盤の web 検索機能 — Claude / OpenAI / Gemini はすでにこの製品の取得対象一覧に入っており、新しい契約先を増やさない。引用 URL の返り方は各社で形が違うため、揃える処理を自分で書くことになる。(b) Perplexity Sonar API を足す — 引用した URL が最も構造化された形で返るため、被引用の記録を作る実装が一番素直になる。契約先と鍵が 1 つ増え、月額費用がかかる。(c) 両方を使う — AI 検索面はサービスごとに異なる結果を返すため、複数を見ないと『引用されていない』との判断が偏る。収集先が増えるぶん、実装量と月額費用の両方が増える。（2026-09-03 AskUserQuestion『被引用の確認先』。利用者は選択肢を選ばず費用の制約を述べたため、その制約に沿って (a) を採り、加えてモデルと実行頻度の選び方を回答内容から確定した）
@@ -131,10 +125,6 @@ serves_goals: [G1, G2]
 ## 章の注記 (chapter_notes)
 
 > 正本 `spec-state.json` の `chapter_notes` を描く。**利用者の回答ではない。**確定内容 (質疑録) と混ぜて読まないために節を分けてある。
-
-### SEOの現行承認契約（2026-09-06）
-
-同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-06）](database.md) を参照。本章にも同じ契約を適用する。
 
 ### 意思決定が本章に効く形
 
@@ -346,6 +336,10 @@ serves_goals: [G1, G2]
 
 - 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
 
+### SEOの現行承認契約（2026-09-10 改定）
+
+同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-10 改定）](database.md) を参照。本章にも同じ契約を適用する。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -422,3 +416,9 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 | vitest | 5.0.0 | Vitest (vitest.dev) | https://vitest.dev/guide/ | 2026-09-03T23:21:10Z | 2026-09-03T23:21:10Z |
 | github-actions | free-pro-team@latest | GitHub (docs.github.com) | https://docs.github.com/en/actions | 2026-08-22T15:05:16Z | 2026-08-22T15:05:16Z |
 | stryker-mutator | 10.0.0 | Stryker Mutator (stryker-mutator.io) | https://stryker-mutator.io/docs/stryker-js/introduction/ | 2026-08-22T21:18:38Z | 2026-08-22T21:19:48Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-maintenance-ops-web-orphan-image-verbatim。裏付け質疑 (`qa_refs`): `qa-ops-web-domain-retention-seo-freshness`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web`, `qa-seo-approved-diff-20260906`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

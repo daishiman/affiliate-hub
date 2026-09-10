@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-site-scoped-route-ownership。裏付け質疑 (`qa_refs`): `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4`, `qa-seo-approved-diff-20260906`, `qa-frontend-web-fixed-header-seo-aio-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-ogp-fallback-v6`, `qa-request-thumbnail-coverage-v6` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-site-scoped-route-ownership。裏付け質疑 (`qa_refs`): `qa-seo-apply-approval-mode-20260910`, `qa-seo-performance-presentation-20260910`, `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4`, `qa-frontend-web-fixed-header-seo-aio-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-ogp-fallback-v6`, `qa-request-thumbnail-coverage-v6` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
@@ -59,6 +59,18 @@ serves_goals: [G1, G2, G3]
 **質問**: frontend×web: ブログ単位へ移す画面の URL 階層をどう決め、いまの横断 URL (/admin/content/*, /admin/blog/*) からの移行をどう扱うか
 
 **回答**: /admin/sites/[site]/ を正本の階層とし、記事・読者像・書き方の決め事もこの配下へ置く。ブログを特定しない画面 (ブログ一覧・ブログ間比較) だけが /admin/sites とその上位に残る。既存の /admin/content/* と /admin/blog/* は消さずに転送で受け、ブログが特定できる場合は対応する /admin/sites/[site]/... へ、特定できない場合はブログ選択へ送る。既存の入口を突然消すと、書き手が覚えている経路と保存済みのリンクが一斉に死ぬためである。site セグメントが解決できないときは notFound とし、他ブログの内容を出さない。画面には『いまどのブログを見ているか』を常に出し、ブログの切替は同じ画面のまま別ブログへ移れる形にする
+
+### qa-seo-apply-approval-mode-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 検索最適化の分析結果を記事へ反映するとき、運営者の承認は必要ですか。(a) 自動反映＋事後通知 — 機械が反映し、あとから通知する。差分履歴を必ず残し、1 操作で元へ戻せることを条件にする。(b) 承認してから反映 — 運営者が差分を確認し、承認した対象だけ反映する。(c) 表示するだけ — 反映する仕組みを作らない。（2026-09-10 AskUserQuestion『反映の承認』。独立監査 C06 が qa-seo-approved-diff-20260906 を 5 論点の束ね質疑と指摘したため、論点を 1 つずつ分けて問い直した 5 件のうちの 1 件目。推奨は (a) を示したが、これは 2026-09-03 の対等提示で選ばれた決定と一致させるためであり、3 案は対等に並べた）
+
+**回答**: 自動反映＋事後通知（推奨）
+
+### qa-seo-performance-presentation-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 検索の実績（クリック数など）を画面でどう見せますか。(a) 時刻付きの推移として見せる — 選んだブログ・記事と同じページの観測時刻つきの推移につなぐ。クリック数が増減しただけで「この変更のおかげ／せい」とは書かない。(b) 変更の効果として見せる — 反映の前後でクリック数を比較し、効果として表示する。（2026-09-10 AskUserQuestion『実績の見せ方』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 5 件目）
+
+**回答**: 時刻付きの推移として見せる（推奨）
 
 ### qa-frontend-web-editor-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -201,12 +213,6 @@ serves_goals: [G1, G2, G3]
 公開済み記事1本ごとに、上記のうち検証可能な項目の充足を判定する純粋関数を置く。判定は記事の保存実体だけを入力とし、外部の順位データや推測を混ぜない。判定結果は項目名・該当箇所・不足理由を持ち、管理画面のエディターへそのまま差し戻せる形で返す。アーキテクチャテストで、この判定関数が読者向け描画と同じ投影を読んでいることを機械が確認する。
 
 - (注記: 正本 qa_log[qa-frontend-web-aeo-emission-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
-
-### qa-seo-approved-diff-20260906 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
-
-**質問**: 2026-09-06、提示済み eval-log/affiliate-hub/current-worktree/elegant-review/20260906/seo-change-proposal.md への続行確認。承認対象は次の変更提案全体（これは提示内容の要約で、利用者の逐語回答ではない）: 記事と変更前後の差分を運営者が確認し、承認した対象だけを反映する。夜間処理は観測だけを行う。記事更新・変更前後の履歴・所見の反映済み状態を同一の確定単位で保存し、途中失敗時は全体を変更しない。反映と取消は読み出した版との一致を確認し、同時編集や取消前の追加編集を上書きしない。対象範囲は元記事の作成日時で判定し、導入前の記事と作成日時不明の記事はこの反映経路から除外する。SEO実績は選択したブログ・記事と同じページの観測時刻付き推移へ接続し、クリック数だけで因果効果を断定しない。
-
-**回答**: つづけて
 
 ### qa-frontend-web-fixed-header-seo-aio-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -384,10 +390,6 @@ site_blueprint.theme（設計図の既定）
 ### 記事カードの図版と題名リンクの読み上げ契約（2026-09-06）
 
 同じ現行契約の全文と記録理由は [記事カードの図版と題名リンクの読み上げ契約（2026-09-06）](ui-ux.md) を参照。本章にも同じ契約を適用する。
-
-### SEOの現行承認契約（2026-09-06）
-
-同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-06）](database.md) を参照。本章にも同じ契約を適用する。
 
 ### Search Console検索語内訳の管理画面表示（2026-09-08実装確認）
 
@@ -663,6 +665,10 @@ route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + 
 
 - 正本へ入れた理由: P13 書き戻し: 所属替えした6route・データ層を動かさない境界・転送5本と未転送/admin/content/*の理由・複製するのは重みだけ、は実装で確定した内容で章にしか居場所が無い。利用者の逐語には足さない。
 
+### SEOの現行承認契約（2026-09-10 改定）
+
+同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-10 改定）](database.md) を参照。本章にも同じ契約を適用する。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -740,7 +746,14 @@ route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + 
 | nextjs | 16.3.4 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-09-02T09:14:35Z | 2026-09-02T09:14:35Z |
 | mdn-light-dark | 2026-04-18 | Mozilla (developer.mozilla.org) | https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark | 2026-08-22T15:05:07Z | 2026-08-22T15:05:07Z |
 | llms-txt | 2026-08-10 | Jeremy Howard (Answer.AI) (llmstxt.org) | https://llmstxt.org/ | 2026-09-03T12:43:18Z | 2026-09-03T12:43:18Z |
-| webmcp | 2026-09-04 | W3C Web Machine Learning Community Group (webmachinelearning.github.io) | https://webmachinelearning.github.io/webmcp/ | 2026-09-08T12:32:03Z | 2026-09-08T12:32:03Z |
+| webmcp | 2026-09-09 | W3C Web Machine Learning Community Group (webmachinelearning.github.io) | https://webmachinelearning.github.io/webmcp/ | 2026-09-10T00:00:00Z | 2026-09-10T00:00:00Z |
 | google-search-central | 2025-12-10 | Google (developers.google.com) | https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | schema-org | 30.0 | Schema.org Community Group (W3C) (schema.org) | https://schema.org/docs/releases.html | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | web-dev-core-web-vitals | 2024-10-31 | Google (web.dev) | https://web.dev/articles/vitals | 2026-09-03T23:21:19Z | 2026-09-03T23:21:19Z |
+
+## compile が保てなかった行 (要判断)
+
+> 正本から導出できず、節・小節の引き継ぎでも守れなかった 2 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
+
+- `| Web (web) | 確定 | 確定質疑: qa-frontend-web-site-scoped-route-ownership。裏付け質疑 (`qa_refs`): `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4`, `qa-seo-approved-diff-20260906`, `qa-frontend-web-fixed-header-seo-aio-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-ogp-fallback-v6`, `qa-request-thumbnail-coverage-v6` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`
+- `| webmcp | 2026-09-04 | W3C Web Machine Learning Community Group (webmachinelearning.github.io) | https://webmachinelearning.github.io/webmcp/ | 2026-09-08T12:32:03Z | 2026-09-08T12:32:03Z |`
