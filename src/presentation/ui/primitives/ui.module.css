@@ -904,10 +904,32 @@
     padding: var(--space-3);
   }
 
+  /*
+   * 狭い画面では折り返さず、横へ流して送る。
+   *
+   * **寄せ方をここで先頭へ戻す。**`.headerActions` の既定は `flex-end` で、
+   * あれは「折り返した行の右端を揃える」ための指定である。折り返さない
+   * この形で `flex-end` のままにすると、**溢れた分は左（先頭）側へ出る。**
+   * 左へ出た分はどうやっても送れない——`scrollWidth` は左の溢れを数えないので
+   * `overflow-x: auto` があっても器は「送る余地なし」のままになる。
+   *
+   * 2026-09-05 の実測（幅 375px、`/admin/evidence`）:
+   *
+   *   .headerActions   left 12   right 363   scrollWidth 351 = clientWidth 351
+   *   その中の <a>     left -212 right -88   ← 画面の外。送っても出てこない
+   *
+   * これで `根拠を登録する`（/admin/evidence）、`このブログを直す`・`固定ページ`
+   * (/admin/sites/[site])、`登録したリンク`（/admin/affiliate）が
+   * 狭い画面で 1 つも押せなくなっていた。**その画面の主な入口である。**
+   *
+   * 先頭から並べれば溢れは右へ出る。右の溢れは `scrollWidth` に乗るので、
+   * `overflow-x: auto` が本来の仕事をする。
+   */
   .breadcrumb,
   .headerActions {
     overflow-x: auto;
     flex-wrap: nowrap;
+    justify-content: flex-start;
   }
 
   .headerActions a {

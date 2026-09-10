@@ -1,4 +1,5 @@
 import type { ArticleOffer } from "@/application/read-models/article-offer";
+import type { ArticleBrowsePage, ArticleBrowseRequest } from "@/application/read-models/article-discovery";
 import type {
   ArticleSummary,
   PublishedArticle,
@@ -39,6 +40,7 @@ export type SiteRepositoryPort = {
 };
 
 export type PublishedContentPort = {
+  browse(siteSlug: string, request: ArticleBrowseRequest): PortResult<ArticleBrowsePage>;
   /** トップに出す新着。 */
   listRecent(siteSlug: string, limit: number): PortResult<readonly ArticleSummary[]>;
   /** カテゴリー内の記事。カテゴリーが空でも失敗にしない（空一覧を返す）。 */
@@ -173,13 +175,13 @@ export type SiteDocumentRepositoryPort = {
 export type PublishedArticleAdminPort = {
   list(
     workspaceId: WorkspaceId,
-  ): PortResult<readonly { readonly article: PublishedArticle; readonly archivedAt: string | null }[]>;
+  ): PortResult<readonly { readonly article: PublishedArticle; readonly archivedAt: string | null; readonly revision: number }[]>;
   find(
     workspaceId: WorkspaceId,
     siteSlug: string,
     slug: string,
-  ): PortResult<{ readonly article: PublishedArticle; readonly archivedAt: string | null } | null>;
-  replace(workspaceId: WorkspaceId, article: PublishedArticle): PortResult<boolean>;
+  ): PortResult<{ readonly article: PublishedArticle; readonly archivedAt: string | null; readonly revision: number } | null>;
+  replace(workspaceId: WorkspaceId, article: PublishedArticle, expectedRevision: number): PortResult<boolean>;
   archive(
     workspaceId: WorkspaceId,
     siteSlug: string,

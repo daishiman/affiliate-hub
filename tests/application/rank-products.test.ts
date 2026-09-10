@@ -101,7 +101,7 @@ function depsOf(setup: Setup = {}) {
     },
     list: notUsed,
     save: notUsed,
-  }) as unknown as EditorialRankingModelRepositoryPort;
+  }) satisfies EditorialRankingModelRepositoryPort;
 
   const scoreCards = markEditorial({
     async listByModel(
@@ -116,7 +116,7 @@ function depsOf(setup: Setup = {}) {
       return ok(setup.cards ?? [aCard("p-1", { measured_performance: 0.9, usability: 0.8 })]);
     },
     save: notUsed,
-  }) as unknown as EditorialScoreCardRepositoryPort;
+  }) satisfies EditorialScoreCardRepositoryPort;
 
   return { deps: { rankingModels, scoreCards }, listByModelCalls };
 }

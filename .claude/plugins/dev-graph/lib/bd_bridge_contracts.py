@@ -75,7 +75,12 @@ UPDATE_FIELDS: tuple[tuple[str, str], ...] = (
     ("priority", "--priority"),
     ("assignee", "--assignee"),
     ("labels", "--set-labels"),
+    ("issue_type", "--type"),
 )
+# bd の issue type 語彙 (`bd update --type` のヘルプが公開している exact-set)。
+# 別名 (`enhancement` / `feat`) は受けない。bd 側が畳んだ結果を receipt が持たないと、
+# 「何を書いたか」と「何が入ったか」が食い違う。
+ISSUE_TYPES = ("bug", "feature", "task", "epic", "chore", "decision")
 PRIORITY_ALIASES = {
     "critical": "0",
     "high": "1",
@@ -190,10 +195,41 @@ def normalize_labels(value: str) -> str:
     return ",".join(labels)
 
 
+def normalize_issue_type(value: str) -> str:
+    """`--issue-type` を bd の語彙へ縛る。値域外は書込前に落とす。"""
+    normalized = value.strip().lower()
+    if normalized not in ISSUE_TYPES:
+        raise ContractError(f"issue type must be one of: {'|'.join(ISSUE_TYPES)}")
+    return normalized
+
+
+def validate_issue_type_transition(current: str | None, requested: str) -> None:
+    """`epic` から出る向きの変更だけを拒む。
+
+    close 時の rollup ゲート (`--feature-rollup-manifest`) は、その時点の `issue_type` が
+    `epic` かどうかで発火する。つまり **epic → task は「子が全部閉じたことを機械が確かめる」
+    工程をそのまま外す操作**であり、親だけ閉じて完了に見せる道がここに開く。
+
+    逆向き (task → epic) は塞がない。この経路が要る動機がまさにそれで、feature の投影が
+    誤って task で作られている issue を epic へ直す作業だからである。直した結果は
+    ゲートが**増える**側にしか動かない。緩む向きだけを拒み、締まる向きは通す。
+
+    epic を降格する正当な必要が出たら、それは「投影の作り直し」であって field の
+    書き換えではない。専用 operation を根拠付きで足す。
+    """
+    if current == "epic" and requested != "epic":
+        raise ContractError(
+            "issue_type cannot be changed away from epic: "
+            "epic の close は --feature-rollup-manifest を要求するため、"
+            "降格はそのゲートの迂回になる",
+        )
+
+
 # 転送前に値を畳む field。ここに無い field は生値をそのまま bd へ渡す。
 UPDATE_FIELD_NORMALIZERS = {
     "priority": normalize_priority,
     "labels": normalize_labels,
+    "issue_type": normalize_issue_type,
 }
 
 

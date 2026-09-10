@@ -124,8 +124,13 @@ def _schema_fallback(value: Any, schema: Any, root: dict[str, Any], path: str = 
         findings.extend(_schema_fallback(value, target, root, path))
     for child in schema.get("allOf", []):
         findings.extend(_schema_fallback(value, child, root, path))
-    if "if" in schema and not _schema_fallback(value, schema["if"], root, path) and "then" in schema:
-        findings.extend(_schema_fallback(value, schema["then"], root, path))
+    if "if" in schema:
+        condition_matches = not _schema_fallback(value, schema["if"], root, path)
+        branch = schema.get("then") if condition_matches else schema.get("else")
+        if branch is not None:
+            findings.extend(_schema_fallback(value, branch, root, path))
+    if "not" in schema and not _schema_fallback(value, schema["not"], root, path):
+        findings.append((path, "not constraint is satisfied"))
     expected = schema.get("type")
     if expected is not None:
         choices = expected if isinstance(expected, list) else [expected]

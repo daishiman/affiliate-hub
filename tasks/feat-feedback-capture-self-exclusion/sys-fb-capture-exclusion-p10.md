@@ -12,7 +12,7 @@ iteration: null
 title: "最終レビューと反映漏れの判定"
 owners: ["daishiman"]
 created_at: "2026-08-30T12:31:04Z"
-updated_at: "2026-09-05T14:27:57Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 closed_at: null
 depends_on: ["SYS-FB-CAPTURE-EXCLUSION-P09"]
@@ -44,7 +44,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":["dev-graph:SYS-FB-CAPTURE-EXCLUSION-P09"],"policy":"manual","reconciled_at":"2026-08-30T13:20:30Z","source":"reconciliation","status":"blocked"}
+completion_evidence: {"completed_at":"2026-09-05T14:27:57Z","evidence_refs":["beads:ah-0d2q.10","dev-graph:SYS-FB-CAPTURE-EXCLUSION-P09"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-08-30T03:45:47Z","missing_sections":[],"status":"complete"}
 ---
 

@@ -547,6 +547,7 @@ describe("配信を進めてよい順序", () => {
   const passed: GateResult = { ok: true, failures: [], skipped: [] };
   const failed: GateResult = {
     ok: false,
+    // 判定結果の形をわざと痩せさせて渡す表明。実装がここで断るかを見る。
     failures: [{ ruleId: "disclosure", message: "広告表記がありません。" } as never],
     skipped: [],
   };

@@ -486,14 +486,6 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
         `ALTER` も `DROP` も無い。足すだけなので、流す前後で
         いま動いている読み書きの意味は変わらない。観測の生の行は
         90 日で消える側（AD-4）なので、増え続ける表は入っていない。
-
-        日次集計の 2 表が持つ `sample_count` は、**足りない観測から示唆を出さない**
-        ための足切り（`MIN_EVIDENCE_SAMPLES = 30`）に使う。
-
-        当初 0044〜0046 の 3 本に分けていたが、dev が先に 0044/0045 を使っており
-        番号が衝突した。まだどこにも流していないので、dev の 2 本を正として
-        `drizzle-kit generate` で 1 本に作り直した（snapshot の prevId を
-        手で繋ぎ直すと、間違えても流すまで気づけない）。
       */
       "0046_blog_operations_console",
       "0047_article_image",
@@ -507,9 +499,72 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
       "0049_article_image_check_rotation",
       // 画像の不可逆回収claim・保存trigger・R2孤児の永続巡回位置。
       "0050_article_image_lifecycle",
+      /*
+        **2026-09-08: ここから下は 0044〜0054 だったものを 0051〜0061 へ振り直した。**
+
+        ブログトップ画面の枝と dev が、同じ 0044〜0050 の 7 つの番号を
+        別々の中身で使っていた。番号は「流す順番」そのものなので、
+        同じ番号が 2 通りの中身を指すと、どちらを流したかで DB の形が変わる。
+        dev は既に共有の枝に載っていたので、まだ載っていないこちら側を後ろへ
+        送った（dev が 0046 で同じ衝突を解いたときと同じ向き）。
+
+        両者が触る表は 1 つも重ならない（作る表・索引・trigger の名前に交差なし、
+        `ALTER` の対象も別）。だから後ろへ回しても、流し終わった形は変わらない。
+      */
+      /*
+        公開記事の全文検索。trigram の仮想表と、それを本体へ追従させる trigger。
+        本文は `search_text` 列に置き、既存記事は節の本文だけを埋め戻す。
+      */
+      "0051_published_article_search",
+      /*
+        SEO / AEO の計測ループ。所見は (ページ, 規則) を鍵に上書き、
+        反映ログは取り消しても消さずに積む。変更前を必ず携える。
+      */
+      "0052_seo_aeo_measurement_loop",
+      /*
+        記事ごとに 1 枚だけ持つサムネイル（運営者が上げた原本）の在り処。
+        R2 の鍵をそのまま保存する。材料から組み直さないのは、記事の URL 名を
+        変えたあとに組み直すと置いたときと違う鍵になり、古い世代を消しに
+        行っても空振りするため（`domain/blogops/thumbnail-asset.ts`）。
+      */
+      "0053_blog_article_thumbnail",
+      /*
+        トップのおすすめ記事。公開記事の複製ではなく、
+        URL 名と並び順の選定意図を tenant/site ごとに保存する。
+        非公開中も意図を残し、同じ URL 名の再公開で復帰させる。
+      */
+      "0054_blog_home_featured",
+      "0055_seo_approved_article_revisions",
+      "0056_seo_page_observations",
+      "0057_persistent_publication_revisions",
+      "0058_search_console_query_metrics",
+      "0059_ai_citation_monthly_budget",
+      // 公開ページ監査の世代と対象別観測。既存の履歴を改名せず末尾へ追加する。
+      "0060_seo_static_audit_scans",
+      // 表示中の完了検索語と、その完了時刻・API上限状態を同じsnapshotへ固定する。
+      "0061_seo_query_snapshot_state",
+      /*
+        **上の振り直しが `meta/` まで届いていなかったのを、ここで畳む。**
+
+        番号を 0044〜0054 から 0051〜0061 へ送ったとき、動いたのは `*.sql` だけで、
+        `meta/*_snapshot.json` の親子（`prevId` の鎖）は元のままだった。
+        結果、`0044` と `0057` が同じ `0043` を親に持つ二股になり、
+        `drizzle-kit generate` が collision で止まっていた。**新しい migration を
+        誰も作れない状態**で、止まっていたおかげで壊れた SQL は出ていない。
+
+        直し方は 2 つ。`0057` の親を `0050` へ付け替えて鎖を一本に戻すのと、
+        末尾に**いまの `schema.ts` そのままの snapshot** を 1 枚積むこと。
+        前者だけでは足りない。`0057` の中身は 0043 時点の姿で、
+        `0044`〜`0050` が足した 12 表を知らないままだからで、
+        次の `generate` がその 12 表を「まだ無い」と読んで作り直そうとする。
+
+        だからこの回の `*.sql` は**空**にしてある。実体にはもう全部あるので、
+        流すものが無い。進めるのは snapshot の側だけ。
+      */
+      "0062_realign_snapshot_lineage",
     ];
     const journal = JSON.parse(read("drizzle/meta/_journal.json")) as {
-      entries: Array<{ tag: string }>;
+      entries: Array<{ tag: string; idx: number; when: number }>;
     };
     const sqlFiles = readdirSync(join(ROOT, "drizzle"))
       .filter((name) => name.endsWith(".sql"))
@@ -518,6 +573,11 @@ describe("手元と機械で同じ検査が走る（REQ-CI01 / REQ-CI03）", () 
 
     expect(journal.entries.map(({ tag }) => tag)).toEqual(appliedHistory);
     expect(sqlFiles).toEqual(appliedHistory);
+    // 適用済みの時刻を修正せず、新しい末尾だけが直前の履歴より後であることを確認する。
+    const previous = journal.entries.at(-2)!;
+    const latest = journal.entries.at(-1)!;
+    expect(latest.idx).toBe(previous.idx + 1);
+    expect(latest.when).toBeGreaterThan(previous.when);
   });
 });
 
@@ -918,12 +978,65 @@ describe("重い検査の置き場所（REQ-CI09 / REQ-CI10 / REQ-CI11）", () =
     const configSource = read("vitest.config.mts");
     expect(configSource).toContain("projects: createTestProjects(NORMAL_MAX_WORKERS)");
     expect(configSource).not.toMatch(/^ {4}include:/m);
-    expect(normal?.test?.include).toEqual(["tests/**/*.test.ts", "tests/**/*.test.tsx"]);
+    /*
+      normal が集める範囲は「既定の 2 つ + ここに明記した例外」だけ。
+
+      例外を許すのは、promoted された機能パッケージが受け入れ証跡を
+      **ファイル名で名指ししている**場合がある（`Required evidence:` の行）ためである。
+      パッケージは digest 固定なので、こちら側の都合で名前を変えると、
+      仕様書が指す証跡と実物が食い違う。
+
+      とはいえ、ここを素通りにすると「どこに置けば走るのか」が置き場所ごとに散り、
+      **走っていないテストに誰も気づけなくなる。** だから例外は 1 件ずつ、
+      理由と、その理由がまだ生きていることの確かめ方を添えて並べる。
+    */
+    const normalExtraIncludes = [
+      {
+        pattern: "tests/blog-top-page/*.spec.ts",
+        // 実物が在ることを見る。0 件になった例外は、役目を終えているのに残っている。
+        dir: "tests/blog-top-page",
+        suffix: ".spec.ts",
+        why: "feature-package-feat-blog-top-page-composition が P04/P05 の Required evidence として `.spec.ts` を名指ししている",
+      },
+    ];
+
+    expect(normal?.test?.include).toEqual([
+      "tests/**/*.test.ts",
+      "tests/**/*.test.tsx",
+      ...normalExtraIncludes.map((extra) => extra.pattern),
+    ]);
+    for (const extra of normalExtraIncludes) {
+      const matched = readdirSync(join(ROOT, extra.dir)).filter((name) =>
+        name.endsWith(extra.suffix),
+      );
+      expect(
+        matched.length,
+        `${extra.pattern} に当たるファイルがありません。例外の理由（${extra.why}）が生きているか確かめてください`,
+      ).toBeGreaterThan(0);
+    }
     expect(workerRuntime?.test?.include).toEqual([
       "tests/integration/d1-*.test.ts",
       "tests/integration/local-seed-idempotency.test.ts",
       "tests/integration/r2-feedback-capture.test.ts",
+      "tests/integration/workerd-*.test.ts",
     ]);
+    /*
+      `workerd-*` を名指しではなく前方一致にしてあるのは、**置き場所を
+      間違えたら落ちる**ようにするためである。`HTMLRewriter` のように
+      Workers にしか無いものを使う検査を Node 側へ置くと、
+      「実行環境に無い」で落ちる。前方一致にしておけば、名前を
+      `workerd-` で始めた時点で正しい側へ入る。
+
+      とはいえ 0 件になった前方一致は、役目を終えているのに残っている。
+      実物が在ることをここで見る。
+    */
+    const workerdFiles = readdirSync(join(ROOT, "tests/integration")).filter(
+      (name) => name.startsWith("workerd-") && name.endsWith(".test.ts"),
+    );
+    expect(
+      workerdFiles.length,
+      "tests/integration/workerd-*.test.ts に当たるファイルがありません",
+    ).toBeGreaterThan(0);
     expect(normal?.test?.exclude).toEqual(
       expect.arrayContaining([
         ...(a11y?.test?.include ?? []),

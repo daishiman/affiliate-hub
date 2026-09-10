@@ -1,0 +1,219 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-thumbnail-visual-system",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "1.0.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "13本のtask-spec、feature-package.json、workstream-inventory.json、task-graph.json、system-build-handoff.jsonを相互に突き合わせ、矛盾を検出しなかった。1周目medium指摘 (`system-spec/frontend.md §20`という実在しないセクション参照) は本周でもgrep '§20'が0件であることを確認 (features/feat-thumbnail-visual-system.md/.context.jsonを含む検索範囲、gate:C1-scope-boundary-citation-checkで実測)。境界表現『記事本文中の画像を含む画面全体の表示品質・アクセシビリティ規約 (feat-reader-surfaceが所有)。本featureはサムネイル・代替図版・アイコンだけを対象とする』はP01〜P13の『スコープ外』見出し全13本で文言が一字一句一致する。scope_in/scope_out間、8画面表示範囲とwrite_scopeの対応、各task specの『目的』『背景』『前提条件』間、13本のP13 spec/architecture writeback記述 (P01〜P12はN/A: P13が所有する、P13はrequired) にも矛盾は無い。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#scope_out_boundary_feat-reader-surface-owned",
+        "task-specs/phase-13-release-deploy.md#spec_architecture_writeback_required",
+        "gate:C1-scope-boundary-citation-check",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "2周目medium指摘 (確定qa qa-request-thumbnail-coverage-v6のdesign_applications.tradeoffs第2項『管理画面一覧は読者向けより行を小さくし、サムネイル表示を折りたためるようにする』がP02止まりでP04/P05/P07/P09に運ばれていない) は解消を確認した。grep '畳\\|折りたた\\|行高'を13本のtask-spec全件とworkstream-inventory.jsonへ実行した結果、P02(目的)・P04(Acceptance state/Completion condition)・P05(同)・P07(同)・P09(同)およびworkstream-inventory.jsonのP04/P05/P07/P09のacceptanceに一致した (計6ファイル、gate:C2-qa-design-tradeoff-propagation-checkで実測)。P04は『読者向け一覧と管理画面一覧が別の寸法型を取ること、管理画面一覧でサムネイル表示の折りたたみが機能すること、面ごとの個別寸法の書き分けが0件であることを検証するケースを一意IDで定義する』というテスト設計、P05は『管理画面一覧のサムネイル行は読者向け一覧より低い行高で表示され、サムネイル表示の折りたたみ操作を持つ。寸法は面ごとに書き分けず、P02が定めた少数の型を1か所から読む』という実装完了条件、P07は『管理画面一覧のサムネイル行高が読者向け一覧より低いこと、折りたたみ操作でサムネイル列を畳めることも同じreportに手順・expected・actualで記録する』という受入検証、P09は『読者向け一覧と管理画面一覧で寸法の型が使い分けられていること(面ごとの個別寸法の書き分け0件)と管理画面一覧の折りたたみが操作可能であること』という独立QA証跡を、それぞれAcceptance state=Completion conditionの両方で定義している。各task specの当該記述とworkstream-inventory.json中の対応taskのacceptance配列は文言が完全一致する (P04/P05/P07/P09それぞれ3箇所ずつ一致を確認、diffなし)。他の確定qa design_applications (代替図版決定論性、R2派生命名/cache、CLS実装規約、OGP/Twitter Card、独自SVGアイコン、失敗時代替表示) についてもP01〜P13全件をgrepし、P01(要求ベースライン)→P02(契約設計)→P03(独立レビュー)→P04(テスト設計)→P05(実装)→P06(緑化)→P07(受入)→P08(重複解消)→P09(QA)→P10(最終レビュー)→P11(証跡集約)→P12(運用文書)→P13(展開/書き戻し)の全phaseに対応する実行・検証手段があり、宣言されたが実行/検証されない要件は検出されなかった。",
+      "evidence": [
+        "task-specs/phase-02-architecture.md#目的",
+        "task-specs/phase-04-test-design.md#Acceptance_state_Completion_condition",
+        "task-specs/phase-05-implementation.md#Acceptance_state_Completion_condition",
+        "task-specs/phase-07-acceptance.md#Acceptance_state_Completion_condition",
+        "task-specs/phase-09-quality-assurance.md#Acceptance_state_Completion_condition",
+        "workstream-inventory.json#tasks[phase_ref=P04].acceptance[0]",
+        "workstream-inventory.json#tasks[phase_ref=P05].acceptance[0]",
+        "workstream-inventory.json#tasks[phase_ref=P07].acceptance[0]",
+        "workstream-inventory.json#tasks[phase_ref=P09].acceptance[0]",
+        "gate:C2-qa-design-tradeoff-propagation-check"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "staging-manifest.json#filesに列挙された17ファイル全件のsha256を独立に再計算し、manifest記載値と完全一致することを確認した (改変なし)。P01〜P13全13本が必須の`## `見出し16件を持つ (validate-system-plan.py REQUIRED_TASK_SPEC_SECTIONS準拠、gate:deterministic-validationでexit0)。feature_package_id='feature-package/feat-thumbnail-visual-system'とparent_feature='feat-thumbnail-visual-system'は、feature-package.json/workstream-inventory.json/task-graph.json/system-build-handoff.json/staging-manifest.json/13本のtask-specs machine-readable fields全ファイルで完全一致する。P05/P08のwrite_scope pathはworkstream-inventory.json上に一貫して記載されている。source_feature_digestはfeature-package.jsonとsystem-build-handoff.json#identityの双方でsha256:0354d1e645527a9212b8695ea3f471dfb05610068657b36bf5f590b1de47d4a5に一致する。canonical_digest (staging-manifest.json) はgate:deterministic-validationのvalidated_digestおよび本findingsのevaluated_digestとsha256:3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109dで一致する。goal-spec.json/features配下2ファイル/system-spec/spec-state.jsonはstaging-manifest.json#filesのdigestハッシュ対象外であり、本条件のstaging内部エビデンスとしては引用しない (evaluated_inputsの許容集合外のため)。",
+      "evidence": [
+        "staging-manifest.json#canonical_digest",
+        "staging-manifest.json#files",
+        "feature-package.json#source_feature_digest",
+        "system-build-handoff.json#identity.source_feature_digest",
+        "workstream-inventory.json#tasks[phase_ref=P05].write_scope",
+        "workstream-inventory.json#tasks[phase_ref=P08].write_scope",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "task-graph.jsonは13 node (SYS-THUMBNAIL-VISUAL-SYSTEM-P01..P13) と16 edgeを持ち、node集合はP01..P13と1:1対応する。edgeは全てdepends_on型でfrom<to (P01→P02→P03→P04→P05→{P06,P08}、P06→P07、{P07,P08}→P09、P09→P10、{P07,P09,P10}→P11、{P10,P11}→P12、P12→P13) の非循環な後方依存のみで構成され、逆流エッジや自己ループは無い。phase順序 (P01要件→P02設計→P03設計レビュー→P04テスト設計→P05実装→P06テスト実行→P07受入→P08リファクタ/移行→P09品質保証→P10最終レビュー→P11エビデンス→P12ドキュメント/運用→P13リリース) とtask-graphのdepends_on方向が整合する。system-build-handoff.json#execution_tasks[].depends_onはtask-graph.json#nodes[].depends_onと完全一致する (13task全件を突合)。",
+      "evidence": [
+        "task-graph.json#nodes",
+        "task-graph.json#edges",
+        "system-build-handoff.json#execution_tasks",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-thumbnail-visual-system"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\"schema_version\": \"1.0.0\", \"status\": \"pass\", \"validated_digest\": \"sha256:3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d\", \"feature_package_id\": \"feature-package/feat-thumbnail-visual-system\", \"parent_feature\": \"feat-thumbnail-visual-system\", \"phase_refs\": [\"P01\",\"P02\",\"P03\",\"P04\",\"P05\",\"P06\",\"P07\",\"P08\",\"P09\",\"P10\",\"P11\",\"P12\",\"P13\"], \"violations\": []}",
+      "stderr": ""
+    },
+    {
+      "id": "C1-scope-boundary-citation-check",
+      "name": "grep-section20-residual-count",
+      "command": [
+        "bash",
+        "-c",
+        "grep -rl \"§20\" --exclude=plan-findings.json .dev-graph/staging/feature-package-feat-thumbnail-visual-system features/feat-thumbnail-visual-system.md features/feat-thumbnail-visual-system.context.json 2>/dev/null | wc -l | tr -d ' ' | grep -qx 0"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1"
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "C2-qa-design-tradeoff-propagation-check",
+      "name": "python3-p04-p05-p07-p09-inventory-tradeoff-keyword-check",
+      "command": [
+        "bash",
+        "-c",
+        "python3 -c \"\nimport re\nfiles = ['task-specs/phase-04-test-design.md','task-specs/phase-05-implementation.md','task-specs/phase-07-acceptance.md','task-specs/phase-09-quality-assurance.md','workstream-inventory.json']\nbase='.dev-graph/staging/feature-package-feat-thumbnail-visual-system/'\npat=re.compile(r'畳|折りたた|行高')\nmissing=[f for f in files if not pat.search(open(base+f,encoding='utf-8').read())]\nimport sys\nsys.exit(0 if not missing else 1)\n\""
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C2"
+      ],
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "e03aacf9f48bb20059a8db8ce206da08d2083a8187ea2b8340996539d17e50dc"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "3e50e979ac886dee00a1d571df60e6204d1d1a073c67d210b58e0b63add2ced8"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "5c7af265960580c660caab51320c51cff4324f601cf786b9f6c0bccaec1783f7"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "1a9f94c31a6a1fe1306416f77bb8a65d3b9d0b430802e3b3c42c276c6bd4a092"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "1e8b342aa4da87fc8ae20a7e2b280cf43a242f239c4be332e5135527b55d6259"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "eef79b21a2c8de454a73af6ee74a0b8045ff7d7ec4eb46548b18438c2b4c878f"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "9407270bbe65e039138bc61898a7553ab19a076c108a98c5f986cc8bf3f06c4e"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "e0a7a9d560abdee75618f10f7bf3906382565838463a5787f7a633b02682f1de"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "37b2c7ff0348046acf8b71b388a1cae6d4f8f73a850e5fe1f1c43d64e691c7b5"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "b084392e9ff0c5525fa34d8945194e33200ddaceeeeec858c8234dd46cc801ec"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "31cd6fa43c0505a21d1223ab9a2223418fb6e6e1108b75a44312a7513d0666cf"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "f4a1bf045b11ed730a8b4db5c17bad43de19bd5932c7ab03e85d749c2870a38f"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "f43f601f42c3fb38297ef1712bf6559a8255f192be05e06026da52d3493d80fc"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "f8261162df016a29491ccd7dd5dd0435afe649da024025a64dc2d0d208c27301"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "faae125b7e17229455b7ffd216573dc137a89de154a5e49a25bcbb64528d202a"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "f3f1f7535f1984a79e2f9139f737ccd89679244297052ae75f41ed7ac6758aab"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "e3531a4bbf429d7a06ae15f85f6841593f78f5884cbd8321f969c02544f9df45"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "5f1c5ebf64921e468323712022be776efff487ac9fedb614aad9f1838431e634"
+    }
+  ],
+  "staleness_rule": "evaluated_digest は staging-manifest.json#canonical_digest と完全一致する場合のみ有効。plan_dir 配下の staged ファイルが1バイトでも変更され canonical_digest が再計算されて変わった場合、本 findings は無効 (stale) とみなし、C11 promotion は新しい digest に対する新しい plan-findings.json を要求する。goal-spec.json は canonical_digest のハッシュ対象ファイル集合 (BASE_DIGEST_FILES) に含まれず、evaluated_inputs (staging-manifest.json#files の集合) にも含まれない。features/feat-thumbnail-visual-system.md・.context.json・system-spec/spec-state.json は staging 外のファイルであり、同様に evaluated_inputs や conditions[*].evidence の直接参照対象にはしない。これらの外部ファイルから得た事実は、その内容を実際に読んだ gate (gate:C1-scope-boundary-citation-check は features 配下2ファイルを検索範囲に含む) を介してのみ間接的に根拠付けている。本 findings は 3 周目の独立評価であり、1周目・2周目の verdict (1周目 medium: C1-scope-boundary-citation-integrity、2周目 medium: C2-qa-design-tradeoff-trace-gap) は前提とせずゼロから再診断した結果である。gate:deterministic-validation の conditions は C11 promote-system-plan.py の契約 (id/name/command構造/conditions=全4件) に従う定型ゲートであり、C1/C2の追加的な意味的根拠は gate:C1-scope-boundary-citation-check と gate:C2-qa-design-tradeoff-propagation-check の実測コマンド、および conditions.C1/C2.evidence に置く。",
+  "findings": [
+    {
+      "severity": "info",
+      "bucket": "C1-scope-boundary-citation-integrity-resolved",
+      "observation": "1周目medium指摘 (存在しない `system-spec/frontend.md §20` 参照) は3周目時点でも解消が維持されていることを確認した。§20の文字列は本packageおよびfeatures配下の2ファイルに0件で、境界表現は所有者名だけの一致した文言 (feat-reader-surfaceが所有) に統一されている。参考記録として残す。",
+      "evidence": [
+        "features/feat-thumbnail-visual-system.md#scope_out",
+        "features/feat-thumbnail-visual-system.context.json#scope_out",
+        "gate:C1-scope-boundary-citation-check"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "C2-qa-design-tradeoff-trace-gap-resolved",
+      "observation": "2周目medium指摘 (qa-request-thumbnail-coverage-v6のtradeoff『管理画面一覧は行を小さく・折りたためるようにする』がP02止まりでP04/P05/P07/P09に運ばれていない) は解消を確認した。P04のAcceptance state/Completion conditionにテストケース定義、P05の同箇所に実装完了条件、P07の同箇所に受入検証、P09の同箇所に独立QA証跡が追加され、いずれもworkstream-inventory.jsonの対応taskのacceptance配列と文言が完全一致している (task specとinventoryの二重管理箇所で乖離なし)。参考記録として残す。",
+      "evidence": [
+        "task-specs/phase-04-test-design.md#Acceptance_state_Completion_condition",
+        "task-specs/phase-05-implementation.md#Acceptance_state_Completion_condition",
+        "task-specs/phase-07-acceptance.md#Acceptance_state_Completion_condition",
+        "task-specs/phase-09-quality-assurance.md#Acceptance_state_Completion_condition",
+        "workstream-inventory.json#tasks",
+        "gate:C2-qa-design-tradeoff-propagation-check"
+      ]
+    }
+  ]
+}

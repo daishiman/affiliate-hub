@@ -155,6 +155,79 @@ def test_reopen_log_discard_counts_as_a_declaration():
     assert VCM._validate_declared_qa_supersession(state) == []
 
 
+def _state_with_applications(**matrix) -> dict:
+    """設計適用を持つ質疑 2 件。`qa-old` を引退させる形を作るための土台。"""
+    application = [
+        {
+            "knowledge_ref": "ref:k",
+            "principle": "p",
+            "applicability": "applied",
+            "rationale": "r",
+            "tradeoffs": ["t"],
+        }
+    ]
+    return {
+        "matrix": matrix,
+        "qa_log": [
+            {"id": "qa-old", "question": "q", "answer": "a", "design_applications": application},
+            {"id": "qa-new", "question": "q", "answer": "a", "design_applications": application},
+        ],
+    }
+
+
+def test_an_orphan_application_with_no_successor_still_falls():
+    """後継を名乗らない孤立は、従来どおり落ちる。
+
+    この門が元々捕まえていた事故 (2026-08-24: 集めた質疑がどのセルからも引かれず、
+    それでもマトリクスは緑) を、引退の例外を足したあとも取り逃がさないこと。
+    """
+    state = _state_with_applications(ui={"web": {"state": "確定", "qa_ref": "qa-new"}})
+    findings = VCM._validate_grounded_design_applications(state)
+    assert any("qa-old" in f for f in findings)
+
+
+def test_a_retired_application_is_exempt_when_its_successor_is_cited():
+    """引退を名乗り、後継が実際にセルから引かれているなら、適用先は在る。
+
+    引退した質疑の設計適用は writer が消せない (`design_applications は非空配列必須`)。
+    後継が確定セルの根拠になっているなら、その主張の適用先は後継の側に在る。
+    """
+    state = _state_with_applications(ui={"web": {"state": "確定", "qa_ref": "qa-new"}})
+    stm.supersede_qa(state, "qa-old", "qa-new")
+    assert VCM._validate_grounded_design_applications(state) == []
+
+
+def test_a_retirement_into_an_uncited_successor_is_refused():
+    """後継もどこからも引かれていないなら、鎖の先が空。逃がし口にさせない。"""
+    state = _state_with_applications(ui={"web": {"state": "確定", "qa_ref": "qa-other"}})
+    state["qa_log"].append({"id": "qa-other", "question": "q", "answer": "a"})
+    stm.supersede_qa(state, "qa-old", "qa-new")
+    findings = VCM._validate_grounded_design_applications(state)
+    assert any("qa-old" in f for f in findings)
+
+
+def test_a_retirement_into_a_nonexistent_successor_is_refused():
+    """実在しない後継への逃がしを、この門の側でも通さない。"""
+    state = _state_with_applications(ui={"web": {"state": "確定", "qa_ref": "qa-new"}})
+    state["qa_log"][0]["superseded_by"] = "qa-ghost"
+    findings = VCM._validate_grounded_design_applications(state)
+    assert any("qa-old" in f for f in findings)
+
+
+def test_a_reopen_log_discard_alone_does_not_exempt_an_application():
+    """手放し記録だけでは免れない。**ここが緩めてはいけない一点。**
+
+    `_validate_declared_qa_supersession` は `reopen_log[].discarded` を参照として
+    数えるが、この門で同じ数え方をすると、2026-08-24 の事故 (手放したまま再確定が
+    通らず孤立した 7 件) がそのまま緑になる。手放しは「置いた」記録であって
+    「適用先が在る」証明ではない。
+    """
+    state = _state_with_applications(ui={"web": {"state": "確定", "qa_ref": "qa-new"}})
+    state["reopen_log"] = [{"category": "ui", "platform": "web", "discarded": {"qa_ref": "qa-old"}}]
+    findings = VCM._validate_grounded_design_applications(state)
+    assert any("qa-old" in f for f in findings)
+
+
 def test_foundation_grounding_counts_as_being_referenced():
     """foundation を裏付ける質疑はセルからは引かれない。経路を数えず全域を見る。"""
     state = {

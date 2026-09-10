@@ -25,12 +25,21 @@ export function ArticleStructuredData({
   siteName,
   origin,
   basePath,
+  parent,
   speakableSelectors,
 }: {
   readonly article: PublishedArticle;
   readonly siteName: string;
   readonly origin: string;
   readonly basePath: string;
+  /**
+   * パンくずの**中段**（記事一覧）。画面に出ている段をそのまま受け取る。
+   *
+   * 呼ぶ側が持っている段を渡す形にしてあるのは、ここで記事タイプから
+   * 組み直すと、画面側の並べ方を変えた日に**片方だけが古くなる**ため。
+   * 中段の無い置き場（あれば）は `undefined` を渡し、二段のまま出す。
+   */
+  readonly parent?: { readonly name: string; readonly url: string };
   readonly speakableSelectors: SpeakableSelectors;
 }) {
   const site = { siteName, origin, basePath } satisfies SiteJsonLdInput;
@@ -41,6 +50,13 @@ export function ArticleStructuredData({
         buildBlogPosting(article, site),
         buildBreadcrumbList([
           { name: site.siteName, url: `${site.origin}${site.basePath}` },
+          /*
+            画面のパンくずと**同じ段数**を機械にも渡す。
+            画面には出ている親を構造化データから落とすと、検索結果と
+            AI 検索には「トップの直下に記事がある」構造で伝わり、
+            読者が見ている階層と食い違う。
+          */
+          ...(parent === undefined ? [] : [parent]),
           {
             name: article.title,
             url: `${site.origin}${site.basePath}${articleHref(article)}`,

@@ -358,6 +358,90 @@
       "when": 1788689271690,
       "tag": "0050_article_image_lifecycle",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "6",
+      "when": 1788689271691,
+      "tag": "0051_published_article_search",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "6",
+      "when": 1788789271691,
+      "tag": "0052_seo_aeo_measurement_loop",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "6",
+      "when": 1788889271691,
+      "tag": "0053_blog_article_thumbnail",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "6",
+      "when": 1788989271691,
+      "tag": "0054_blog_home_featured",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "6",
+      "when": 1789089271691,
+      "tag": "0055_seo_approved_article_revisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "6",
+      "when": 1789189271691,
+      "tag": "0056_seo_page_observations",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "6",
+      "when": 1789289271691,
+      "tag": "0057_persistent_publication_revisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "6",
+      "when": 1789389271691,
+      "tag": "0058_search_console_query_metrics",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "6",
+      "when": 1789489271691,
+      "tag": "0059_ai_citation_monthly_budget",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "6",
+      "when": 1789589271691,
+      "tag": "0060_seo_static_audit_scans",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "6",
+      "when": 1789689271691,
+      "tag": "0061_seo_query_snapshot_state",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "6",
+      "when": 1789689271692,
+      "tag": "0062_realign_snapshot_lineage",
+      "breakpoints": true
     }
   ]
 }

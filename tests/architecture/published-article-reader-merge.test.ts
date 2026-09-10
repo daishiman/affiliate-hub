@@ -33,8 +33,13 @@ const topBandsSource = readFileSync(
   join(process.cwd(), "src/presentation/site/blog-top-bands.tsx"),
   "utf8",
 );
-const adminSource = source.slice(
-  source.indexOf("export function createD1PublishedArticleAdminRepository"),
+const homeContentSource = readFileSync(
+  join(process.cwd(), "src/presentation/site/home-content.tsx"),
+  "utf8",
+);
+const siteViewModelSource = readFileSync(
+  join(process.cwd(), "src/presentation/site/view-model.ts"),
+  "utf8",
 );
 describe("公開済み記事 reader の live/sample 境界", () => {
   it("D1 adapter が sample repository を import・fallbackしない", () => {
@@ -44,10 +49,9 @@ describe("公開済み記事 reader の live/sample 境界", () => {
     expect(source).not.toContain("mergeBySlug");
   });
 
-  it("カテゴリ・検索・書き手の SQL 条件はそれぞれの reader に残す", () => {
+  it("カテゴリ・書き手の SQL 条件はそれぞれの reader に残す", () => {
     expect(source).toContain("eq(publishedArticles.categorySlug, categorySlug)");
-    expect(source).toContain("like(publishedArticles.title, `%${trimmed}%`)");
-    expect(source).toContain("like(publishedArticles.summary, `%${trimmed}%`)");
+    // 検索の記号・公開条件はD1実行テストで確認する。SQL文字列の写しは保持しない。
     expect(source).toContain("eq(publishedArticles.authorSlug, personSlug)");
   });
 
@@ -57,10 +61,26 @@ describe("公開済み記事 reader の live/sample 境界", () => {
     expect(publicBlogAdapter).toContain("publishedContent.listRecent");
   });
 
-  it("公開一覧・トップ帯は articleHref を唯一の URL 組み立てに使う", () => {
-    expect(blogIndexSource).toContain("articleHref(a)");
-    expect(topBandsSource).toContain("articleHref(a)");
+  it("公開一覧と canonical home だけが articleHref 経由で記事 URL を持つ", () => {
+    // 公開一覧は共通の一覧へ委譲し、記事URLを直接組み立てない。
+    expect(blogIndexSource).toContain("ArticleIndexPage");
+    const indexSource = readFileSync(join(process.cwd(), "src/presentation/site/article-index-page.tsx"), "utf8");
+    expect(indexSource).toContain("toArticleCards(");
     expect(blogIndexSource).not.toContain("`/blog/${a.slug}`");
+
+    /*
+      トップは `toSiteHomeView` から共通の記事カード変換へ渡し、
+      その変換が `articleHref` を使う。トップで slug から直接
+      URL を作ると、記事種別ごとの正規経路とずれる。
+    */
+    expect(homeContentSource).toContain("recentArticles: toArticleCards(siteSlug, ordered");
+    expect(siteViewModelSource).toContain(
+      "href: siteHref(siteSlug, articleHref(summary))",
+    );
+
+    // 旧の新着帯は canonical 記事区画と重複するため、URL を再所有しない。
+    expect(topBandsSource).not.toContain("articleHref");
+    expect(topBandsSource).not.toContain("projection.articles");
     expect(topBandsSource).not.toContain("`/blog/${a.slug}`");
   });
 
@@ -83,9 +103,7 @@ describe("公開済み記事 reader の live/sample 境界", () => {
     expect(blogOpsSource).not.toMatch(/\.(insert|update|delete)\(publishedArticles\)/);
   });
 
-  it("AI公開の管理口はBlogOps由来projectionを一覧・訂正・archive対象にしない", () => {
-    expect(
-      adminSource.match(/isNull\(publishedArticles\.sourceArticleId\)/g),
-    ).toHaveLength(4);
-  });
+  // sourceの隔離はd1-published-article.test.tsで実D1のlist/find/replace/archiveを
+  // 直接実行して検証する。述語の出現回数は、CAS不一致の存在照会など安全な変更でも
+  // 増えるため、隔離が守られることの証明には使わない。
 });

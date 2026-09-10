@@ -40,7 +40,7 @@ test.describe("記事編集の迷わない導線", () => {
     await suggestion.getByText("差分を確認", { exact: true }).click();
     await expect(suggestion.getByText(/追加: 空の「執筆者・監修者」/)).toBeVisible();
     await suggestion.getByRole("button", { name: "この1件を適用" }).click();
-    await expect(page.getByText("改善を反映しました")).toBeVisible();
+    await expect(page.getByText("版面の直しを反映しました")).toBeVisible();
     await page.getByRole("button", { name: "元に戻す" }).click();
     await expect(suggestion.getByRole("button", { name: "この1件を適用" })).toBeVisible();
   });
@@ -314,6 +314,20 @@ test.describe("キーボードと200%相当の再レイアウト", () => {
     await expect(submit).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/state=disabled/);
+  });
+
+  test("Tabの1回目で近道に焦点が当たりEnterで本文へ着く", async ({ page }) => {
+    await page.goto("/admin/affiliate/links");
+    // 近道は画面外へ退避しているだけで、焦点の順序には残っている
+    // (ui.module.css の .skipLink は display:none ではなく transform で逃がす)。
+    // **1画面に1つだけ**であること自体が受入条件。2つ目を置くと、押しても
+    // 行き先が同じなので2回目のTabが何の情報も持たない。
+    await expect(page.getByRole("link", { name: "本文へ移動" })).toHaveCount(1);
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("link", { name: "本文へ移動" })).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#admin-main-content$/);
+    await expect(page.locator("#admin-main-content")).toBeVisible();
   });
 
   test("1280pxを200%で見た相当幅でも主操作が欠けず横スクロールを強制しない", async (

@@ -1,0 +1,49 @@
+{"entries": [
+  {"requirement_id": "A1",
+   "requirement": "区画4種を定めた順で描画し各区画に空状態を出す",
+   "confirmed_sources": ["feature:A1", "context:A1", "ui_ux:qa-uiux-web-top-composition-v6", "frontend:qa-frontend-web-blog-builder", "retrieval_evidence:kajetblog-top-analysis.md#2"],
+   "system_tasks": ["P01", "P02", "P04", "P05", "P06", "P07", "P08", "P11"],
+   "handoff_fields": ["requirements_document#traceability.A1", "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P08|P11]", "lineage_closure", "promoted_generation"]},
+
+  {"requirement_id": "A2",
+   "requirement": "最新/人気の切替がJS無効でもURLで到達でき選択側が判別できる",
+   "confirmed_sources": ["feature:A2", "context:A2", "goal_spec:quality_constraints.progressive-enhancement", "task_spec:P02#url-contract"],
+   "system_tasks": ["P01", "P02", "P04", "P05", "P06", "P07", "P11"],
+   "handoff_fields": ["requirements_document#traceability.A2", "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]", "lineage_closure", "promoted_generation"]},
+
+  {"requirement_id": "A3",
+   "requirement": "追従ヘッダーを3機能に限り畳み復帰と見出し自己遮蔽回避を満たす",
+   "confirmed_sources": ["feature:A3", "context:A3", "ui_ux:qa-uiux-web-top-composition-v6", "frontend:qa-frontend-web-fixed-header-seo-aio-v6", "goal_spec:quality_constraints.sticky-header-occupancy-budget", "retrieval_evidence:kajetblog-top-analysis.md#1"],
+   "system_tasks": ["P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09", "P11", "P12"],
+   "handoff_fields": ["requirements_document#traceability.A3", "tasks[phase_ref=P01|P02|P03|P04|P05|P06|P07|P08|P09|P11|P12]", "lineage_closure", "promoted_generation"]},
+
+  {"requirement_id": "A4",
+   "requirement": "フッターから運営者情報・法務・問い合わせ・RSS等7導線へ到達できる",
+   "confirmed_sources": ["feature:A4", "context:A4", "frontend:qa-frontend-web-blog-builder", "task_spec:P01#成果物"],
+   "system_tasks": ["P01", "P02", "P04", "P05", "P06", "P07", "P08", "P11"],
+   "handoff_fields": ["requirements_document#traceability.A4", "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P08|P11]", "lineage_closure", "promoted_generation"]},
+
+  {"requirement_id": "A5",
+   "requirement": "WebSite+SearchAction+ItemListのJSON-LDをサーバー側で含め単体検証する",
+   "confirmed_sources": ["feature:A5", "context:A5", "frontend:qa-frontend-web-fixed-header-seo-aio-v6", "frontend:qa-frontend-web-seo-ai-search-v2", "retrieval_evidence:kajetblog-top-analysis.md#5", "retrieval_evidence:kajetblog-top-analysis.md#7"],
+   "system_tasks": ["P01", "P02", "P04", "P05", "P06", "P07", "P11", "P13"],
+   "handoff_fields": ["requirements_document#traceability.A5", "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11|P13]", "lineage_closure", "promoted_generation"]},
+
+  {"requirement_id": "A6",
+   "requirement": "参照元の文章・画像・ロゴ・固有名・色値の非存在を機械検査で確認する",
+   "confirmed_sources": ["feature:A6", "context:A6", "goal_spec:quality_constraints.non-imitation", "task_spec:P02#non-imitation-scan-design", "retrieval_evidence:kajetblog-top-analysis.md"],
+   "system_tasks": ["P01", "P02", "P03", "P04", "P06", "P09", "P10", "P11", "P12"],
+   "handoff_fields": ["requirements_document#traceability.A6", "tasks[phase_ref=P01|P02|P03|P04|P06|P09|P10|P11|P12]", "lineage_closure", "promoted_generation"]},
+
+  {"requirement_id": "A7",
+   "requirement": "axe-core重大違反0件でlight/dark双方の本文コントラストを満たす",
+   "confirmed_sources": ["feature:A7", "context:A7", "ui_ux:qa-uiux-web-top-composition-v6", "task_spec:P09#acceptance-state"],
+   "system_tasks": ["P04", "P06", "P09", "P11"],
+   "handoff_fields": ["requirements_document#traceability.A7", "tasks[phase_ref=P04|P06|P09|P11]", "lineage_closure", "promoted_generation"]},
+
+  {"requirement_id": "A8",
+   "requirement": "カードが固有寸法を持ちCLS0.1未満でOGP fallbackにより空スロットが生じない",
+   "confirmed_sources": ["feature:A8", "context:A8", "ui_ux:qa-neutral-ogp-fallback-v6", "ui_ux:qa-request-thumbnail-coverage-v6", "frontend:qa-neutral-ogp-fallback-v6", "frontend:qa-request-thumbnail-coverage-v6", "goal_spec:quality_constraints.no-empty-thumbnail-slot", "goal_spec:quality_constraints.thumbnail-coverage-on-every-surface", "retrieval_evidence:kajetblog-top-analysis.md#3", "retrieval_evidence:kajetblog-top-analysis.md#4"],
+   "system_tasks": ["P01", "P02", "P04", "P05", "P06", "P07", "P09", "P11"],
+   "handoff_fields": ["requirements_document#traceability.A8", "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P09|P11]", "lineage_closure", "promoted_generation"]}
+]}

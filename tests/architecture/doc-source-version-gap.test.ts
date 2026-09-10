@@ -107,9 +107,49 @@ type Row = {
  * 日付であること自体は誤りではない。`cloudflare-d1=2026-04-30` のように、
  * 版を公表しない対象が公式表明の更新日を版の欄に持つのは正しい状態である。
  * 誤りは「確かめた値が無いので取得日を書いた」ことだけである。
+ *
+ * ── 取得日と一致しても誤りでない場合がある（2026-09-08）──────────
+ *
+ * 上流が**取得したその日に更新した**なら、正しく写した版日付が取得日と一致する。
+ * `webmcp` がこれで、Community Group の rolling draft を更新当日に取った。
+ * 日付の一致だけで数えると、この正しい行を誤りとして挙げてしまう。
+ *
+ * そこで第 2 引数に「その値が**ページ本文に逐語で在った**という裏付け」を取る。
+ * `freshness_source` の自己申告だけを見ると名乗るだけで通る抜け道になるので、
+ * 裏付けの判定 (`declaredOnPage`) は取得証跡の `found_in` にその値が
+ * literal で現れることまで要求する。**確かめた値が無いのに取得日を書いた**行は、
+ * その日付が本文の逐語に現れようがないので、これまで通り挙がる。
+ *
+ * 既定は `false`。裏付けを渡さなければ判定は元のままである。
  */
-function isRetrievalDate(row: Row): boolean {
+function isRetrievalDate(row: Row, backedByPageText = false): boolean {
+  if (backedByPageText) return false;
   return looksLikeDate(row.version) && row.version.trim() === row.retrievedAt.slice(0, 10);
+}
+
+/**
+ * その対象の取得証跡が、章の書いた値を**ページ本文の逐語**で裏付けているか。
+ *
+ * 証跡が無い・`found_in` が空・値が逐語のどこにも現れない、のいずれでも `false`。
+ * 裏付けが取れないものを裏付けありに倒さない (fail-closed)。
+ */
+function declaredOnPage(target: string, value: string): boolean {
+  let raw: string;
+  try {
+    raw = readFileSync(join(ROOT, `${SPEC_DIR}/retrieval-evidence/${target}.json`), "utf8");
+  } catch {
+    return false;
+  }
+  const extraction = (JSON.parse(raw) as {
+    freshness_extraction?: { freshness_source?: string; found_in?: unknown };
+  }).freshness_extraction;
+  if (extraction === undefined) return false;
+  // 取得した機械が付けた値 (取得日) ではなく、上流が表明した値であること。
+  if (extraction.freshness_source !== "page-declared" && extraction.freshness_source !== "http-last-modified") {
+    return false;
+  }
+  const quotes = Array.isArray(extraction.found_in) ? extraction.found_in : [];
+  return quotes.some((q) => typeof q === "string" && q.includes(value.trim()));
 }
 
 /**
@@ -165,7 +205,9 @@ function references(): Reference[] {
  * **判定の中身は 1 つも変えていない。**渡す先を実ファイル固定から引数へ移しただけである。
  */
 function retrievalDated(rows: readonly Row[]): string[] {
-  return rows.filter(isRetrievalDate).map((r) => `${r.target}=${r.version}`);
+  return rows
+    .filter((r) => isRetrievalDate(r, declaredOnPage(r.target, r.version)))
+    .map((r) => `${r.target}=${r.version}`);
 }
 
 /** 章 md と `fetched-references.json` の食い違い。名指しで返す。 */
@@ -321,6 +363,45 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
       expect(isRetrievalDate(at("2026-08-16", "2026-08-16T09:11:20Z"))).toBe(true);
     });
 
+    /**
+     * 裏付けの有無で結論が分かれること自体を示す。**同じ行**を両方に通す。
+     * 片方だけ書くと「常に true を返す」「常に false を返す」実装でも通ってしまう。
+     */
+    it("同じ取得日一致でも、ページ本文の裏付けが在れば数えない", () => {
+      const row = at("2026-08-16", "2026-08-16T09:11:20Z");
+      expect(isRetrievalDate(row, false)).toBe(true);
+      expect(isRetrievalDate(row, true)).toBe(false);
+    });
+
+    it("裏付けの判定は、証跡が無い対象を裏付けありに倒さない", () => {
+      expect(declaredOnPage("存在しない対象", "2026-08-16")).toBe(false);
+    });
+
+    /**
+     * 実物の証跡で裏付けが取れること。**この 1 件が false になったら
+     * 上の除外は根拠を失う**ので、判定の実装ではなく現物で確かめる。
+     *
+     * ── 2026-09-09、見る対象を webmcp から apple-hig へ移した ──────
+     *
+     * webmcp を選んだのは、上流が更新したその日に取ったので版と取得日が
+     * 一致し、除外がまさに効く行だったからである。2026-09-08 に取り直した
+     * 結果、上流の版は 2026-09-04・取得は 2026-09-08 になり、**版が取得日と
+     * 一致する行は全章で 0 件**になった。除外が効く現物が今は無い。
+     *
+     * それでも判定そのものは生きている必要がある。**true を返す道が 1 本も
+     * 無い検査は、実装が常に false を返しても緑になる**——このファイルの
+     * 冒頭 1. が 2 日間そうなっていた形である。だから逐語裏付けが現に取れて
+     * いる対象へ移し、true と false の両側を現物で押さえ続ける。
+     *
+     * 緩めてはいない。移したのは**見る対象**であって、判定の条件ではない。
+     */
+    it("裏付けの判定は、本文の逐語に在る値だけを裏付けありとする", () => {
+      // `found_in` に `alert-date = "2026-06-08"` が逐語で在る。
+      expect(declaredOnPage("apple-hig", "2026-06-08")).toBe(true);
+      // 1 日ずらすと、本文のどこにも現れないので裏付けにならない。
+      expect(declaredOnPage("apple-hig", "2026-06-09")).toBe(false);
+    });
+
     it("同じ日付でも、取得日と違えば数えられない（公表された更新日を誤検出しない）", () => {
       expect(isRetrievalDate(at("2026-08-16", "2026-08-19T15:30:39Z"))).toBe(false);
       expect(isRetrievalDate(at("2026-04-30", "2026-08-19T15:30:39Z"))).toBe(false);
@@ -333,15 +414,23 @@ describe("最新ドキュメント出典の欄が欄名どおりの値を持っ�
 
     /**
      * **行数を前提にしないことを、行数で示す。**
-     * 旧版はここで throw していた。今の版は 4 行の章を 4 行として数える。
+     * 旧版はここで throw していた。今の版は複数行の章を全行として数える。
+     *
+     * ── 期待値を床から引く（2026-09-08）────────────────────────
+     *
+     * 以前はここに名前を 4 つ書き写していた。**同じ事実が 2 か所にある**状態で、
+     * 出典が増えたとき床（`spec-source-inventory.ts`）だけが動き、この行は
+     * 古い件数を主張し続けた。実際 dev 合流で backend の出典が 4 → 7 になり、
+     * 章の読取が正しくなったことによってこの試験が赤くなった。
+     *
+     * 床は章 md ではなく `spec-state.json` の取得対象宣言から作った独立の相手なので、
+     * ここから引いても「章の読取結果を期待値に流用する」自明化にはならない。
+     * 添えた `length > 1` は、床が将来 1 件に縮んだとき
+     * **「複数行を読む」という実証そのものが黙って消える**のを防ぐためのもの。
      */
     it("複数行の章を、行を落とさずに読み取る", () => {
-      expect(sourceRows("backend").map((r) => r.target)).toEqual([
-        "drizzle-orm",
-        "anthropic-claude",
-        "openai-platform",
-        "google-gemini",
-      ]);
+      expect(SOURCE_TARGET_FLOOR.backend.length).toBeGreaterThan(1);
+      expect(sourceRows("backend").map((r) => r.target)).toEqual([...SOURCE_TARGET_FLOOR.backend]);
     });
 
     it("出典表を持たない名前でも throw せず空を返す（収集時に試験ごと沈黙させない）", () => {

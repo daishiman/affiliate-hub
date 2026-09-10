@@ -39,6 +39,7 @@ function form(entries: Record<string, string | readonly string[]>): FormData {
 
 function updateForm(): FormData {
   return form({
+    expectedRevision: "7",
     siteSlug: "video-editing-gear",
     slug: "quiet laptop/2026",
     title: "静かなノートパソコン",
@@ -78,6 +79,7 @@ describe("公開済み記事を訂正するサーバー操作", () => {
     const state = await updatePublishedArticleAction(IDLE, updateForm());
 
     expect(mocks.update).toHaveBeenCalledWith(SAMPLE_ACTOR, {
+      expectedRevision: 7,
       siteSlug: "video-editing-gear",
       slug: "quiet laptop/2026",
       title: "静かなノートパソコン",
@@ -99,7 +101,16 @@ describe("公開済み記事を訂正するサーバー操作", () => {
     expect(state).toEqual({
       status: "done",
       message: "訂正を保存しました。公開画面の更新日にも反映されます。",
+      revision: 8,
     });
+  });
+
+  it.each(["", "0", "1.5", "not-a-version"])("版が不正な%sの要求は保存へ渡さない", async (raw) => {
+    const data = updateForm(); data.set("expectedRevision", raw);
+    const result = await updatePublishedArticleAction(IDLE, data);
+    expect(result.status).toBe("failed");
+    expect(result.message).toContain("開き直し");
+    expect(mocks.update).not.toHaveBeenCalled();
   });
 
   it("保存先の指摘は次の操作と欄を失わず返す", async () => {

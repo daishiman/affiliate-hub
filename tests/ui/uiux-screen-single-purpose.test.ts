@@ -448,6 +448,17 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       `PageThemeOverrideForm`）を `reachableInFile` が辿るようになった。
       申告は前から正しく、discovery が届いていなかった側である。
     */
+    // ── この枝（ブログトップ画面）で数えた分 ──
+    // 2026-09-04: 65 → 68。「検索とAIからの見え方」の 3 操作
+    // （直す・取り消す・止める／再開する）が入った。
+    // 2026-09-05: 68 → 69。記事の表紙（サムネイル）を登録する・外す操作が入った。
+    // 一覧・トップ・SNS の写しに出るのはこの 1 枚で、本文とは別に差し替わる。
+    // 2026-09-05: 69 → 70。公開トップのおすすめ記事を、最大 3 件の
+    // 順序付き選択として登録・解除する操作が版面画面に入った。
+    // 2026-09-08: 70 → 71。SEO画面の月次AI検索上限を保存する
+    // SeoCitationMonthlyLimitForm → setSeoCitationMonthlyLimitAction が実在する。
+    //
+    // ── dev で数えた分 ──
     /*
       2026-09-04: 65 → 68。ブログ運営コンソールの住所層と改善層を足した。
       増えた action は 3 本（`manageBlogDomainAction`・`manageBlogSeoAction`・
@@ -460,16 +471,22 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       読む画面の中に置いた唯一の保存操作で、1 form 1 action なので
       下の意味 entry も同じく 1 件だけ増える。
     */
-    expect(discovered).toHaveLength(69);
+    /*
+      2026-09-08: dev との合流。**両側の増分を足す。**どちらかの数を採ると、
+      採らなかった側の画面が「追跡から漏れた操作」として静かに消える。
+      下の 2 つの履歴はそれぞれの枝で数え上げた実物なので、両方残す。
+    */
+    expect(discovered).toHaveLength(75);
     expect(declared, "未申告または実在しないexecution siteがあります").toEqual(discovered);
+    // 同じ追加により、異なる業務mutation actionも67 → 68。
     expect(new Set(
       ADMIN_SCREEN_RUNTIME_ENTRIES
         .filter((entry) => entry.classification === "business-mutation")
         .map((entry) => edgeKey(entry.action)),
-    ).size).toBe(66);
+    ).size).toBe(72);
   });
 
-  it("同じactionの複数route・複数form用途を畳まず、意味entry 81件を床固定する", () => {
+  it("同じactionの複数route・複数form用途を畳まず、意味entry 89件を床固定する", () => {
     const discovered = DISCOVERED_SCREEN_EXECUTION_SITES;
     const declared = ADMIN_SCREEN_RUNTIME_ENTRIES
       .filter((entry) => entry.scope === "screen")
@@ -487,16 +504,33 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
     // 2026-08-30: 79 → 81。公開済み記事の訂正と取り下げが合流した。
     // 同じ form が 2 つの action を持つが、後戻りの仕方が違うので畳まない。
     // 2026-08-31: 81 → 83。上の 63 → 65 と同じ 2 件。画面ではなく discovery が増えた。
+    // ── この枝 ──
+    // 2026-09-04: 83 → 86。上の 65 → 68 と同じ 3 件。
+    // 2026-09-05: 86 → 87。上の 68 → 69 と同じ 1 件（記事の表紙）。
+    // 2026-09-05: 87 → 88。上の 69 → 70 と同じ 1 件（おすすめ記事）。
+    // 2026-09-08: 88 → 89。SEO画面の月次AI検索上限の1操作。
+    //
+    // ── dev ──
     // 2026-09-04: 83 → 89。住所層 2 件（登録する欄と、登録済み 1 件を操作する行）と
     // 改善層 4 件（SEO の診断・指摘の処理、AEO の構えの保存・引用単位の取り出し）。
     // 改善層は読者に出ているものを 1 つも変えない (AD-3) が、押した結果が保存される
     // 操作なので数える。数えないと「押しても何も起きない画面」として追跡から漏れる。
     // 2026-09-04: 89 → 90。観測層の日次集計やり直し口。読む画面の中の唯一の保存操作。
-    expect(discovered).toHaveLength(90);
+    /*
+      2026-09-08: dev との合流。**両側の増分を足す。**どちらかの数を採ると、
+      採らなかった側の画面が「追跡から漏れた操作」として静かに消える。
+      下の 2 つの履歴はそれぞれの枝で数え上げた実物なので、両方残す。
+    */
+    expect(discovered).toHaveLength(96);
     // 2026-08-31: 82 → 84。manifest は dev の合流で先に 84 件になっていたが、
     // ここの床だけが古い数のまま残っていた（申告漏れではなく数え漏れ）。
-    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(91);
-    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(91);
+    // 2026-09-04: 84 → 87。「検索とAIからの見え方」の 3 操作。
+    // 2026-09-05: 87 → 88。記事の表紙（サムネイル）の 1 操作。
+    // 2026-09-05: 88 → 89。公開トップのおすすめ記事の 1 操作。
+    // 2026-09-08: 89 → 90。同じ月次上限操作の登録。既存route/formは減らさない。
+    // 2026-09-08: 90 → 97。dev の 7 件（住所層 2・改善層 4・日次集計やり直し 1）。
+    expect(ADMIN_SCREEN_RUNTIME_ENTRIES).toHaveLength(97);
+    expect(new Set(ADMIN_SCREEN_RUNTIME_ENTRIES.map((entry) => entry.id)).size).toBe(97);
   });
 
   it("screen意味entryはどの1件を削ってもdiscoveryとの差分になる", () => {
@@ -511,7 +545,8 @@ describe("A1 §2 全business mutationを単一のprimary taskへ所属させる"
       }))
       .sort();
 
-    expect(new Set(declared).size).toBe(90);
+    // 2026-09-08: 月次AI検索上限の1操作を含むこの枝の 89 件に、dev の 7 件を足した。
+    expect(new Set(declared).size).toBe(96);
     for (let index = 0; index < declared.length; index += 1) {
       expect(declared.filter((_, candidate) => candidate !== index)).not.toEqual(discovered);
     }

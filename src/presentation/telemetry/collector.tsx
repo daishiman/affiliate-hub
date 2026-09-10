@@ -34,6 +34,12 @@ type QueuedEvent = {
   payload: Record<string, unknown>;
 };
 
+export type SearchResultObservation = {
+  /** 表示の識別用だけに使い、送信・永続化しない。 */
+  readonly resultId: string;
+  readonly resultCount: number;
+};
+
 export type CollectorProps = {
   readonly siteSlug: string;
   readonly path: string;
@@ -41,6 +47,7 @@ export type CollectorProps = {
   /** サーバー側で決まった同意の結論。ここで判定し直さない。 */
   readonly allowBehaviour: boolean;
   readonly suppressAll: boolean;
+  readonly searchResult?: SearchResultObservation;
 };
 
 /** 参照元の粗い区分。URL 全体は持たない。 */
@@ -91,12 +98,15 @@ export function TelemetryCollector({
   endpoint = "/api/telemetry",
   allowBehaviour,
   suppressAll,
+  searchResult,
 }: CollectorProps) {
+  const resultId = searchResult?.resultId;
+  const resultCount = searchResult?.resultCount;
   useEffect(() => {
     if (suppressAll) return;
 
     const queue: QueuedEvent[] = [];
-    const base = { path, siteSlug };
+    const base = { path: path.split(/[?#]/, 1)[0] ?? "/", siteSlug };
     const key = readerKey(allowBehaviour);
     let maxPercent = 0;
     const startedAt = Date.now();
@@ -143,6 +153,11 @@ export function TelemetryCollector({
     // --- ページを開いた（同意が無くても数える） ---
     push("page_view", { ...base, referrerKind: referrerKind() });
 
+    if (allowBehaviour && resultId !== undefined && resultCount !== undefined &&
+        Number.isInteger(resultCount) && resultCount >= 0) {
+      push("search_performed", { siteSlug, resultCount });
+    }
+
     // --- ここから下は同意が要る ---
     const listeners: (() => void)[] = [];
 
@@ -174,7 +189,11 @@ export function TelemetryCollector({
         return;
       }
       if (kind === "internal_link") {
-        push("internal_link_click", { ...base, toPath: id, placement });
+        push("internal_link_click", { ...base, toPath: id.split(/[?#]/, 1)[0] ?? "", placement });
+        return;
+      }
+      if (kind === "filter_control" && /^home-sort:(latest|popular)$/.test(id)) {
+        push("filter_changed", { ...base, axis: "article_sort", value: id.slice("home-sort:".length) });
         return;
       }
       push("element_click", { ...base, elementKind: kind, elementId: id, label });
@@ -265,7 +284,7 @@ export function TelemetryCollector({
       for (const off of listeners) off();
       flush(true);
     };
-  }, [siteSlug, path, endpoint, allowBehaviour, suppressAll]);
+  }, [siteSlug, path, endpoint, allowBehaviour, suppressAll, resultId, resultCount]);
 
   // 表示は持たない。置いた場所によって見た目が変わらないようにするため。
   return null;

@@ -281,10 +281,14 @@ export function AppShell({
       <a className={styles.skipLink} href="#admin-main-content">
         本文へ移動
       </a>
+      {/*
+        近道はここに 1 つだけ置く。**案内の中にも同じものを置かない。**
+        置くと Tab のたびに同じ行き先が 2 回読み上がり、どちらを押しても
+        同じ場所なので 2 つ目は情報を持たない。重なり監査
+        (tests/e2e/app-routes.spec.ts) も「同じ操作が 2 つある」と報告する。
+        近道は Tab の 1 回目に来る必要があるので、残すのは案内より前に在る側。
+      */}
       <nav className={styles.sidebar} aria-label="主な案内">
-        <a className={styles.skipLink} href="#admin-main-content">
-          本文へ移動
-        </a>
         <div className={styles.sidebarHead}>
           <div className={styles.brandBlock}>
             <Link href="/admin" className={styles.brandName}>

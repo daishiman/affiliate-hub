@@ -28,6 +28,7 @@ import {
 import { domainError, err, markEditorial, ok } from "@/domain/shared";
 import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
+import { aSiteBlueprint } from "../support/factories";
 import { recordingAuditLog } from "../support/doubles";
 
 const SITE = "sample-site";
@@ -81,9 +82,9 @@ function contactPort(records: readonly ContactRecord[] = []) {
 
 function sitesPort(): EditorialSiteRepositoryPort {
   const entries = [
-    { slug: SITE, blueprint: { workspaceId: WORKSPACE } },
-    { slug: "second-owned-site", blueprint: { workspaceId: WORKSPACE } },
-    { slug: "other-site", blueprint: { workspaceId: OTHER_WORKSPACE } },
+    { slug: SITE, blueprint: aSiteBlueprint({ workspaceId: WORKSPACE }) },
+    { slug: "second-owned-site", blueprint: aSiteBlueprint({ workspaceId: WORKSPACE }) },
+    { slug: "other-site", blueprint: aSiteBlueprint({ workspaceId: OTHER_WORKSPACE }) },
   ];
   return markEditorial({
     async findBySlug(slug: string) {
@@ -92,7 +93,7 @@ function sitesPort(): EditorialSiteRepositoryPort {
     async list() {
       return ok(entries);
     },
-  }) as unknown as EditorialSiteRepositoryPort;
+  });
 }
 
 function deps(

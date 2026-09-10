@@ -6,7 +6,11 @@ import type {
   EditorialScoreCardRepositoryPort,
   EditorialTestRunRepositoryPort,
 } from "./ports";
-import type { BlogOpsRepositoryPort, PublicBlogPort } from "./ports/blog-ops";
+import type {
+  ArticleThumbnailStoragePort,
+  BlogOpsRepositoryPort,
+  PublicBlogPort,
+} from "./ports/blog-ops";
 import type { AiSearchAuditHistoryPort, AiSearchReauditRunPort } from "./ports/seo";
 import type {
   EditorialContentPackageRepositoryPort,
@@ -143,6 +147,17 @@ export type AppDeps = {
    * 「画面ではできるが AI からはできない」を作れない。
    */
   readonly blogOps: BlogOpsRepositoryPort;
+  /**
+   * 記事の表紙（サムネイル）の**置き場**。台帳（`blogOps`）とは別の口である。
+   *
+   * 分けてあるのは、鍵が作業場所ではなく**サイトと記事の URL 名**で決まるため。
+   * それは読者へ配る住所でもあり、`blogOps` の他のメソッドのように
+   * `workspaceId` を先頭に取る形にならない。
+   *
+   * 置き場（R2）と台帳（D1）は**別々に無くなり得る**。片方の有無で
+   * もう片方を「つながっているつもり」にしないよう、判定も別にする。
+   */
+  readonly articleThumbnails: ArticleThumbnailStoragePort;
   /** 管理表示と作成判定も使う、読者面と同じ fail-closed 公開読み口。 */
   readonly publicBlog: PublicBlogPort;
   readonly publicBlogSource: "live" | "sample";

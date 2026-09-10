@@ -118,6 +118,14 @@ serves_goals: [G1]
 
 **回答**: PostgreSQL 16 を全プラットフォーム共通で採用
 
+## 意思決定 (decisions)
+
+> **本章を主担当とする論点だけ**を載せる。全 1 件の一覧・候補比較・推奨根拠は [`00-requirements-definition.md`](./00-requirements-definition.md) にある。
+
+- **本章を主担当とする decision は 0 件**である (分母 = 正本 `decisions[]` 全 1 件)。これは本章の論点が漏れているという意味ではなく、いずれも第一の適用先を本章としないという意味である。
+
+- **主担当章が未宣言の decision が 1 件ある** (`D1`)。宣言が無いものはどの章の表にも出ないため、ここで名前だけ挙げてある。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -187,12 +195,8 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 
 #### 本章での適用
 
-##### 確定内容 qa-database (対応セル: web, mobile, tablet, desktop-windows, desktop-linux, desktop-macos)
-
-- 確定要件: PostgreSQL 16 を全プラットフォーム共通で採用
-- 設計解釈の記録経路: `unrecorded`
-- 設計原則の採否根拠: 未記録。この質疑に `design_applications` が無いため、章はこの質疑を根拠に設計原則の採否を主張しない
-- 資するゴール: G1
+- 本章固有の原則採否 (確定内容・接地根拠ごとの `採否` / 根拠 / トレードオフ) は [`applied/database.md`](applied/database.md) にある。
+- 章本文と別ファイルにしてあるのは、適用メモが確定セルの数だけ積み上がり、章の分量の見積もりを押し上げるためである (内容は 1 行も落としていない)。
 
 ## 最新ドキュメント出典
 

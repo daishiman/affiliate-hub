@@ -295,13 +295,19 @@ describe("作ったブログ", () => {
 
 // --- ここから下は、つなぎ目を差し替えて 1 段階ずつ確かめる ------------------
 
-import type { SiteDraft } from "@/domain/authoring";
+import type { SiteDraft, SiteWizardStep } from "@/domain/authoring";
+import type { SaveSiteDraftStepInput } from "@/application/usecases/site/build-site";
 import {
   SITE_PROVISIONING_REQUIRED_COUNTS,
   createSiteDraft,
   evaluateSiteComposition,
 } from "@/domain/authoring";
-import type { SiteProvisionRequest } from "@/application/ports/authoring";
+import type {
+  SiteDraftRepositoryPort,
+  SiteProvisionOutcome,
+  SiteProvisionRequest,
+} from "@/application/ports/authoring";
+import { markEditorial } from "@/domain/shared";
 import { defaultLayoutSlotSeeds } from "@/domain/blogops";
 import {
   STEP_FIELDS,
@@ -332,16 +338,28 @@ function memoryDrafts(seed: readonly SiteDraft[] = []) {
   for (const d of seed) rows.set(String(d.id), d);
   const published: string[] = [];
   const creationAudits: SiteProvisionRequest["audit"][] = [];
-  const port = {
-    find: async (_ws: unknown, id: unknown) => ok(rows.get(String(id)) ?? null),
+  /*
+    口は正本の `SiteDraftRepositoryPort` をそのまま満たす。以前は `find` と
+    `publishBlueprint` の引数を `unknown` にした痩せた形で、そのままでは
+    代入できないので全体を `as unknown as` で名乗らせていた。設計図の型が
+    変わっても、この保存先は何も言わない状態だった。
+  */
+  const removed: string[] = [];
+  const port = markEditorial<SiteDraftRepositoryPort>({
+    find: async (_ws, id) => ok(rows.get(String(id)) ?? null),
     list: async () => ok([...rows.values()]),
-    save: async (d: SiteDraft) => {
+    save: async (d) => {
       rows.set(String(d.id), d);
       return ok(d);
     },
-    publishBlueprint: async (slug: string, bp: unknown) => {
+    publishBlueprint: async (slug, bp) => {
       published.push(slug);
       return ok(bp);
+    },
+    // 口を揃えて初めて、この保存先に取り消しの口が無いことが型検査に出た。
+    removeBlueprint: async (_ws, slug) => {
+      removed.push(slug);
+      return ok(true as const);
     },
     provisionSite: async (request: SiteProvisionRequest) => {
       published.push(request.slug);
@@ -359,8 +377,8 @@ function memoryDrafts(seed: readonly SiteDraft[] = []) {
         ),
       });
     },
-  } as unknown as BuildSiteDeps["drafts"];
-  return { port, rows, published, creationAudits };
+  });
+  return { port, rows, published, creationAudits, removed };
 }
 
 /**
@@ -420,15 +438,20 @@ function filledDraft(over: Partial<SiteDraft> = {}): SiteDraft {
   } as SiteDraft;
 }
 
+/*
+  段階の名前は正本の語彙をそのまま受ける。以前は `step: string` で受けて
+  `as never` で押し込んでいたので、`SITE_WIZARD_STEPS` に無い綴りを渡しても
+  型では止まらなかった。`extra` も同様に、正本の入力に**ある欄**だけを許す。
+*/
 async function save(
   drafts: BuildSiteDeps["drafts"],
-  step: string,
+  step: SiteWizardStep,
   answers: Record<string, string>,
-  extra: Record<string, unknown> = {},
+  extra: Omit<Partial<SaveSiteDraftStepInput>, "draftId" | "step" | "answers"> = {},
 ) {
   return createSaveSiteDraftStepUseCase(buildDeps(drafts)).execute(owner, {
     draftId: String(DRAFT_ID),
-    step: step as never,
+    step,
     answers,
     ...extra,
   });
@@ -460,10 +483,8 @@ describe("作りかけの一覧", () => {
   });
 
   it("読み取れないときは、空の一覧として返さない", async () => {
-    const drafts = { ...memoryDrafts().port, list: async () => failing("読めません。") };
-    const result = await createListSiteDraftsUseCase(
-      buildDeps(drafts as BuildSiteDeps["drafts"]),
-    ).execute(owner, {});
+    const drafts = markEditorial({ ...memoryDrafts().port, list: async () => failing<readonly SiteDraft[]>("読めません。") });
+    const result = await createListSiteDraftsUseCase(buildDeps(drafts)).execute(owner, {});
     expect(result.ok).toBe(false);
   });
 });
@@ -479,10 +500,10 @@ describe("下書きを開く", () => {
   });
 
   it("読み取りに失敗したときは、無いことにしない", async () => {
-    const drafts = { ...memoryDrafts().port, find: async () => failing("読めません。") };
-    const result = await createGetSiteDraftUseCase(
-      buildDeps(drafts as BuildSiteDeps["drafts"]),
-    ).execute(owner, { draftId: String(DRAFT_ID) });
+    const drafts = markEditorial({ ...memoryDrafts().port, find: async () => failing<SiteDraft | null>("読めません。") });
+    const result = await createGetSiteDraftUseCase(buildDeps(drafts)).execute(owner, {
+      draftId: String(DRAFT_ID),
+    });
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.code).not.toBe("NOT_FOUND");
@@ -511,10 +532,8 @@ describe("下書きを開く", () => {
 
 describe("始める", () => {
   it("保存に失敗したら、始められたことにしない", async () => {
-    const drafts = { ...memoryDrafts().port, save: async () => failing("保存できません。") };
-    const result = await createStartSiteDraftUseCase(
-      buildDeps(drafts as BuildSiteDeps["drafts"]),
-    ).execute(owner, {});
+    const drafts = markEditorial({ ...memoryDrafts().port, save: async () => failing<SiteDraft>("保存できません。") });
+    const result = await createStartSiteDraftUseCase(buildDeps(drafts)).execute(owner, {});
     expect(result.ok).toBe(false);
   });
 });
@@ -650,11 +669,11 @@ describe("住所の段階", () => {
   });
 
   it("保存に失敗したら、次の段階へ進めない", async () => {
-    const drafts = {
+    const drafts = markEditorial({
       ...memoryDrafts([filledDraft()]).port,
-      save: async () => failing("保存できません。"),
-    };
-    const result = await save(drafts as BuildSiteDeps["drafts"], "purpose", { purpose: "目的" });
+      save: async () => failing<SiteDraft>("保存できません。"),
+    });
+    const result = await save(drafts, "purpose", { purpose: "目的" });
     expect(result.ok).toBe(false);
   });
 
@@ -789,24 +808,24 @@ describe("ブログを作る（つなぎ目を差し替えて）", () => {
   });
 
   it("登録に失敗したら、作れたことにしない", async () => {
-    const drafts = {
+    const drafts = markEditorial({
       ...memoryDrafts([filledDraft()]).port,
-      provisionSite: async () => failing("登録できません。"),
-    };
-    const result = await createCreateSiteFromDraftUseCase(
-      buildDeps(drafts as BuildSiteDeps["drafts"]),
-    ).execute(owner, { draftId: String(DRAFT_ID) });
+      provisionSite: async () => failing<SiteProvisionOutcome>("登録できません。"),
+    });
+    const result = await createCreateSiteFromDraftUseCase(buildDeps(drafts)).execute(owner, {
+      draftId: String(DRAFT_ID),
+    });
     expect(result.ok).toBe(false);
   });
 
   it("下書き更新を含む一括保存が失敗したら、成功として返さない", async () => {
-    const drafts = {
+    const drafts = markEditorial({
       ...memoryDrafts([filledDraft()]).port,
-      provisionSite: async () => failing("下書きを更新できません。"),
-    };
-    const result = await createCreateSiteFromDraftUseCase(
-      buildDeps(drafts as BuildSiteDeps["drafts"]),
-    ).execute(owner, { draftId: String(DRAFT_ID) });
+      provisionSite: async () => failing<SiteProvisionOutcome>("下書きを更新できません。"),
+    });
+    const result = await createCreateSiteFromDraftUseCase(buildDeps(drafts)).execute(owner, {
+      draftId: String(DRAFT_ID),
+    });
     expect(result.ok).toBe(false);
   });
 
@@ -859,10 +878,10 @@ describe("ブログを作ったことの記録", () => {
 
   it("記録を残せなかったときは、作れたこととして返さない", async () => {
     const base = memoryDrafts([filledDraft()]);
-    const drafts = {
+    const drafts = markEditorial({
       ...base.port,
-      provisionSite: async () => failing("操作の記録を保存できません。"),
-    } as BuildSiteDeps["drafts"];
+      provisionSite: async () => failing<SiteProvisionOutcome>("操作の記録を保存できません。"),
+    });
     const deps = buildDeps(drafts);
     const done = await createCreateSiteFromDraftUseCase(deps).execute(owner, {
       draftId: String(DRAFT_ID),
@@ -978,13 +997,13 @@ describe("作れたと言えるのは、原子的な一括保存が完了した�
 
   it("一括保存が失敗したら、下書きを完了にせず成功も返さない", async () => {
     const base = memoryDrafts([filledDraft()]);
-    const drafts = {
+    const drafts = markEditorial({
       ...base.port,
-      provisionSite: async () => failing("ブログの作成を完了できません。"),
-    } as BuildSiteDeps["drafts"];
-    const result = await createCreateSiteFromDraftUseCase(
-      buildDeps(drafts),
-    ).execute(owner, { draftId: String(DRAFT_ID) });
+      provisionSite: async () => failing<SiteProvisionOutcome>("ブログの作成を完了できません。"),
+    });
+    const result = await createCreateSiteFromDraftUseCase(buildDeps(drafts)).execute(owner, {
+      draftId: String(DRAFT_ID),
+    });
 
     expect(result.ok).toBe(false);
     expect(base.rows.get(String(DRAFT_ID))?.createdSiteSlug).toBeNull();

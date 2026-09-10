@@ -1,8 +1,10 @@
 # 受入報告 (P07)
 
-更新日: 2026-08-27  
+更新日: 2026-09-08  
 execution status: **revalidation_pending (A1〜A14 全体)**  
-targeted execution status: **A1 public lifecycle revalidated (2026-08-27)**
+targeted execution status: **A1 public lifecycle revalidated (2026-08-27)**  
+**本文は 2026-08-26 の写真である。最新の判定は末尾の「2026-09-08 の再確認」を読むこと** —
+本文の「検査だけが足りないもの」8 項目のうち 4 項目は既に塞がっており、A4 は分類が誤っている。
 
 - canonical acceptance registry: `features/feat-blog-ops-crud.md#frontmatter.acceptance`
 - acceptance source digest: `sha256:7d03855a6d54fdd216e92734e92d4ff5e6baf89dd094c6a4fcd9904c515603e5`
@@ -324,6 +326,10 @@ P09 (qa-report) と P10 (final-review) が判断できる唯一の材料であ�
 A4 の符号照合と監査 1 件ずつ、A7 の legal-nav/footer 反映、A10 の並べ替え・絞り込み、
 A12 の TTL、A13 の名前側、A14 の 6 画面の数え。
 
+> **2026-09-08 追記 — 上の「検査だけが足りないもの」は 8 項目のうち 4 項目が古い。**
+> 消さずに残すが、**そのまま P09 の是正対象・P10 の判断材料にしないこと。**
+> 実測し直した結果は下の「## 2026-09-08 の再確認」にある。
+
 A1 の公開ライフサイクル部分は、主要4公開URLについて active→hidden→active→論理削除→復元の
 HTTP status と表示内容をfresh previewで2回連続機械検査済み。これはA1のtargeted再検証であり、
 A1〜A14全体のexecution statusは引き続き `revalidation_pending` である。feed/sitemap/llms.txtを含む
@@ -331,3 +337,83 @@ A1〜A14全体のexecution statusは引き続き `revalidation_pending` であ�
 
 この一覧をそのまま P09 (qa-report) の是正対象と P10 (final-review) の判断材料にする。
 **「概ね満たした」と書いて 14 行を平らにしない。**
+
+---
+
+## 2026-09-08 の再確認 — 「足りない検査」の一覧を 1 件ずつ当て直した
+
+2026-08-27 の一覧は 8 項目を「検査だけが足りない」として挙げていた。
+**その 8 項目を、名前ではなく実在する検査ファイルの中身で当て直した。**
+結果は 8 項目のうち **4 項目が既に塞がっており、1 項目は分類そのものが誤り**だった。
+
+| 項目 | 2026-08-27 の判定 | 2026-09-08 の実測 | 根拠 |
+|---|---|---|---|
+| A2 描画順序 | 見張りが無い | **塞がっている** | `tests/ui/blog-top-bands.test.tsx:104`「保存された位置の順に並べる」。見える文字列の前後で当てている |
+| A3 2 件比較 | 見張りが無い | **この回で塞いだ** | `tests/acceptance/feat-blog-ops-crud/subsite-shared-header.test.ts` (3 件) |
+| A4 符号照合 | 見張りが無い | **分類が誤り。実装が無い** | 下の節 |
+| A7 legal-nav/footer | 見張りが無い | **塞がっている** | `tests/ui/public-site-projection.test.ts` / `tests/integration/d1-blog-ops-tenancy.test.ts`。本節本文にも既に「機械が見ている」と書いてあり、まとめ行だけが古かった |
+| A10 並べ替え・絞り込み | 見張りが無い | **塞がっている** | `selectOperationalRows` (`src/domain/blogops/operational-health.ts`) と `tests/domain/blogops/operational-health.test.ts`「要確認だけを先に絞り、同値は名前で安定させる」 |
+| A12 TTL | 見張りが無い | **依然として無い**（機構が条文と違う） | 下の節 |
+| A13 名前側 | 見張りが無い | **依然として無い**（構造的に置けない） | A13 の節のまま |
+| A14 6 画面の数え | 見張りが無い | **塞がっている** | `tests/ui/blog-ops-a11y-floor.test.tsx` の `A14_SUBJECTS` と `expect(A14_SUBJECTS).toHaveLength(6)` |
+
+### A4 — 「検査が足りない」ではなく「実装が無い」
+
+条文 A4 は検証エラーを **`AT-01..05` / `BP-01..06` の符号で返せ**と書いている。
+
+**この符号は `src/` にも `tests/` にも 1 件も無い。** 存在するのは仕様・タスク・
+`docs/spec/06-サイトブループリント-記事構成テンプレート.md` の規則表だけである。
+実装が返しているのは「断り」と「欠けた部品の名前」であって、符号ではない。
+
+**なぜ無いかには理由がある。** 符号が指す規則の定義そのものは本 feature の scope_out に
+書いてある —「Blueprint の複製規則・article_template の**検証規則そのものの定義**
+(feat-site-blueprint)」。そして `feat-site-blueprint` は `status: active` /
+`readiness: complete` を名乗っているが、**domain の実装が無い**
+(`src/domain/blueprint*` は存在しない)。
+
+つまり A4 は「本 feature が検査を書き忘れた」のではなく、
+**符号の正本を持つ feature がまだ建っていないので、返しようがない**状態である。
+
+**したがって「実装が条文に達していないもの: 無し」は誤りである。**
+A4 は達していない。この行を訂正する。検査を足しても緑にはならない。
+
+### A12 — 条文が指定した機構を使っていない
+
+実装は `revalidatePath()` による明示の失効で、TTL の満了を待たない。
+**条文の「10 分以内」より速い側に外れている**が、条文が名指しした機構ではない。
+「10 分」という数字を見る検査は無く、**入れる先が無い**（数字がコードのどこにも無い）。
+これは検査の欠落ではなく、条文と実装の機構が違うまま揃えていないことである。
+P10 はここを「速いから良い」で畳まず、条文を直すか実装を寄せるかを決めること。
+
+### 訂正後のまとめ
+
+| 段 | 条文 |
+|---|---|
+| 機械 | A2, A3, A5, A6, A7, A8, A10, A11, A14 |
+| 部分 | A1, A9, A13 |
+| **実装が条文に達していない** | **A4** |
+| **条文と機構が食い違っている** | **A12** |
+
+**残っている検査の穴は 2 つだけである**: A13 の名前側（禁止したい固有名を
+リポジトリに書けないため、`.reference-ban.local` を秘匿のまま渡す経路が要る)と、
+A11 の公開面 HTML を直接見る側。どちらも「書き忘れ」ではなく、
+**置き場所そのものが要る**類のものである。
+
+execution status は引き続き `revalidation_pending` を動かさない。
+上の再確認は**検査ファイルの実在と中身**を当て直したものであって、
+A1〜A14 の通し再実行ではない。
+
+### 追記 — A11 の「見張りが弱い」も成立しない
+
+A11 の節は「画面の HTML に伏せた一言が出ないことを直接見る検査は無い」と書いている。
+**直接見る検査が要らない形になっている**ので、この指摘を取り下げる。
+
+公開面が呼ぶのは `summarizeRating` だけで (`src/presentation/site/article-page.tsx:172`)、
+その返り値 `RatingSummary` は `{ count, average }` の 2 つしか持たない
+(`src/domain/blogops/reader-rating.ts:37`)。**一言を運ぶ場所が型に無い。**
+伏せた票の除外も `summarizeRatings` の 1 行 (`votes.filter((v) => !v.hidden)`) で、
+`tests/domain/blog-ops.test.ts:422`「伏せた票は平均にも件数にも入らない」が当てている。
+
+HTML を見に行く検査を足しても、**足りない何かを埋めることにはならない。**
+一言を公開面へ出すには、まず型に欄を足す必要がある。その日に落ちるものが要るなら、
+置く場所は HTML ではなく型の側である。

@@ -52,7 +52,7 @@
 こちらへ回る。**消す予定は無いので、この件数は減らない。**
 何で動いているかは、必ず画面に文字で出す（黙って控えへ落ちない）。
 
-件数: 22
+件数: 23
 
 | 識別子 | 何の控えか | つなぎ目 | 本物の置き場所 |
 |---|---|---|---|
@@ -77,6 +77,7 @@
 | `reader:contact-sink` | 問い合わせの受け取り（保存先が無い環境では断る） | ContactPort | `src/infrastructure/persistence/d1/contact-repository.ts` |
 | `reader:shortlist-memory` | 気になる商品の保存（処理中のメモリ） | ShortlistPort | `src/infrastructure/persistence/d1/reader-shortlist-repository.ts` |
 | `reader:tools-sample` | 診断・計算の道具（作り付けの 1 つだけ） | ReaderToolPort | `src/infrastructure/persistence/d1/reader-tool-repository.ts` |
+| `storage:blog-article-thumbnail-no-bucket` | 記事サムネイルの置き場（つながっていない） | 記事サムネイルの置き場 | `src/infrastructure/platform/blog-thumbnail-r2.ts` |
 | `storage:feedback-capture-memory` | 画面の写し（この実行中だけ覚える仮置き） | 画面の写しの置き場 | `src/infrastructure/platform/feedback-capture-r2.ts` |
 
 ## 実際の鍵で 1 度も呼んでいない提供元
@@ -118,4 +119,4 @@
 **Google Gemini の注意**: `responseSchema` は JSON Schema の一部しか解釈しない。
 受け付けられない形は 400 で返る（黙って自由文には落とさない）。
 実際の鍵で呼ぶとき、最初に踏むのはたいていここである。
-<!-- 生成物の指紋 sha256:966f0c8d8eb5b831fed081bd93898a899871be077225acf08385d78c4e3c24d3 -->
+<!-- 生成物の指紋 sha256:278954c70057ec943523454eec91ae60d4965dabea82e6eabec1ba8951a6f974 -->

@@ -441,8 +441,8 @@ describe("断片ごとの欄", () => {
           {
             kind: "image-row",
             images: [
-              { src: "/media/a.png", alt: "あ" },
-              { src: "/media/b.png", alt: "い" },
+              { src: "/media/a.png", alt: "あ", width: null, height: null },
+              { src: "/media/b.png", alt: "い", width: null, height: null },
             ],
           },
         ])}
@@ -582,7 +582,7 @@ describe("商品カードは選んで挿す", () => {
  */
 describe("画像は送って挿す", () => {
   it("送れない画面では、URL を打つ欄を出さずに挿せないと言う", () => {
-    render(<Harness initial={serializeProse([{ kind: "image", src: "", alt: "" }])} />);
+    render(<Harness initial={serializeProse([{ kind: "image", src: "", alt: "", width: null, height: null }])} />);
 
     expect(screen.queryByLabelText("画像の場所")).toBeNull();
     expect(
@@ -593,7 +593,7 @@ describe("画像は送って挿す", () => {
   it("ファイルを選ぶと、返ってきた場所が本文に乗る", async () => {
     render(
       <Harness
-        initial={serializeProse([{ kind: "image", src: "", alt: "" }])}
+        initial={serializeProse([{ kind: "image", src: "", alt: "", width: null, height: null }])}
         onUploadImage={async () => "/media/a.png"}
       />,
     );
@@ -611,13 +611,92 @@ describe("画像は送って挿す", () => {
     });
 
     expect(document.querySelector("img")?.getAttribute("alt")).toBe("棚の写真");
-    expect(savedNodes()).toEqual([{ kind: "image", src: "/media/a.png", alt: "棚の写真" }]);
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/a.png", alt: "棚の写真", width: null, height: null },
+    ]);
+  });
+
+  it("下絵が読めたら実寸を書き取る", () => {
+    /*
+      **測り直しに 2 度目の取得を使わない。**下絵は既に読み込まれているので、
+      届いた寸法をそのまま書き取る。`new Image()` で測ると、同じ絵を
+      運営者の回線でもう一度取りに行くことになる。
+    */
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "/media/a.png", alt: "棚", width: null, height: null },
+        ])}
+        onUploadImage={async () => "/media/a.png"}
+      />,
+    );
+
+    const img = document.querySelector("img") as HTMLImageElement;
+    Object.defineProperty(img, "naturalWidth", { value: 1200, configurable: true });
+    Object.defineProperty(img, "naturalHeight", { value: 800, configurable: true });
+    fireEvent.load(img);
+
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/a.png", alt: "棚", width: 1200, height: 800 },
+    ]);
+  });
+
+  it("絵を外すと、寸法も一緒に外れる", () => {
+    /*
+      **前の絵の寸法を次の絵へ持ち越さない。**持ち越すと、場所だけ空けて
+      中身が合わない箱ができる。外した時点で測り直しの前へ戻す。
+    */
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "/media/a.png", alt: "棚", width: 1200, height: 800 },
+        ])}
+        onUploadImage={async () => "/media/a.png"}
+      />,
+    );
+
+    expect(savedValue()).toContain("1200x800");
+
+    fireEvent.click(screen.getByLabelText("画像を外す"));
+
+    /*
+      場所が空になった画像は断片として保存されない（`parseProse` が拾わない）ので、
+      **残った寸法が無いこと**と、ファイルを選び直す欄へ戻っていることを当てる。
+      寸法だけが文字列に残ると、次に選んだ絵へ前の箱の形が持ち越される。
+    */
+    expect(savedValue()).not.toContain("1200x800");
+    expect(document.querySelector("img")).toBeNull();
+    expect(screen.getByLabelText("画像に使うファイル")).not.toBeNull();
+  });
+
+  it("測れない絵でも保存は落ちない（寸法は無いまま残る）", () => {
+    /*
+      読み込みに失敗した絵は `naturalWidth` が 0 のまま来る。**測れないことは
+      書けないことではない。**貼った直後に保存を押しても通ること自体を当てている。
+    */
+    render(
+      <Harness
+        initial={serializeProse([
+          { kind: "image", src: "/media/x.png", alt: "外", width: null, height: null },
+        ])}
+        onUploadImage={async () => "/media/x.png"}
+      />,
+    );
+
+    const img = document.querySelector("img") as HTMLImageElement;
+    Object.defineProperty(img, "naturalWidth", { value: 0, configurable: true });
+    Object.defineProperty(img, "naturalHeight", { value: 0, configurable: true });
+    fireEvent.load(img);
+
+    expect(savedNodes()).toEqual([
+      { kind: "image", src: "/media/x.png", alt: "外", width: null, height: null },
+    ]);
   });
 
   it("送れなかった理由を一般文へ潰さず、そのまま画面に出す", async () => {
     render(
       <Harness
-        initial={serializeProse([{ kind: "image", src: "", alt: "" }])}
+        initial={serializeProse([{ kind: "image", src: "", alt: "", width: null, height: null }])}
         onUploadImage={async () => {
           throw new Error("画像は 8 MiB 以下にしてください。");
         }}
@@ -643,7 +722,7 @@ describe("読み上げと操作", () => {
           { kind: "bullet-list", items: ["あ", "い"] },
           { kind: "callout", tone: "tip", title: "こつ", text: "中身" },
           { kind: "comparison-table", headers: ["型", "値"], rows: [["A", "1"]] },
-          { kind: "image", src: "/media/a.png", alt: "棚の写真" },
+          { kind: "image", src: "/media/a.png", alt: "棚の写真", width: null, height: null },
           { kind: "checklist", items: [{ text: "買う", checked: false }] },
           { kind: "toggle", title: "ひらく", text: "なかみ" },
           { kind: "divider" },

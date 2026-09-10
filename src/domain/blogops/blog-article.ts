@@ -1,6 +1,7 @@
 import { type DomainError, type Result, err, ok, validationError } from "../shared";
 import type { ArticleType } from "../authoring";
 import { type ArticleBlockKind } from "./blueprint-parts";
+import type { ThumbnailCandidates } from "./thumbnail";
 
 /**
  * ブログ記事 (§4)。
@@ -73,6 +74,16 @@ export type BlogArticle = {
   readonly updatedAt: Date;
   /** 同時編集の古い保存を断る版番。legacy fixture は未指定=1と読む。 */
   readonly revision?: number;
+  /**
+   * サムネイルの候補。**どれを使うかはここでは決めない**
+   * （決めるのは `resolveThumbnail` 1 本だけ）。
+   *
+   * 一覧を引くときだけ入る。1 本引き（`findArticle`）では、記事の中身を
+   * 全部持っているので、その場でブロックから同じ候補を作れる。
+   * 常に埋めることにすると、記事を 1 本保存するたびに
+   * 「候補も一緒に更新したか」を全経路で気にすることになる。
+   */
+  readonly thumbnail?: ThumbnailCandidates;
 };
 
 /** 0042より前の公開記事でカテゴリを持たなかった事実を、架空カテゴリにせず表す。 */

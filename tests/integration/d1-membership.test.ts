@@ -11,6 +11,7 @@ import { createD1MembershipRepository } from "@/infrastructure/persistence/d1/me
 import { recordingAuditLog } from "../support/doubles";
 import { WORKSPACE, anOwner } from "../support/actors";
 import { migrationStatements } from "../support/migrations";
+import { asUserId } from "@/domain/shared";
 
 /**
  * 担当者の登録を、**本物の D1 と本物のマイグレーション**で一周させる結合テスト。
@@ -128,14 +129,14 @@ describe("招待から参加まで", () => {
 
     // 招待しただけの段階では、権限は引けない。
     const reader = createD1MembershipReader(db);
-    const before = await reader.findByUser(WORKSPACE, "u_miwa" as never);
+    const before = await reader.findByUser(WORKSPACE, asUserId("u_miwa"));
     expect(before.ok && before.value).toBeNull();
 
     // Google の確認を通って初めて入る。大文字で返ってきても同じ行に当たる。
     const issued = await createD1SessionIssuer(db).issue("u_miwa", "Miwa@Example.com", NOW);
     expect(issued.kind).toBe("issued");
 
-    const after = await reader.findByUser(WORKSPACE, "u_miwa" as never);
+    const after = await reader.findByUser(WORKSPACE, asUserId("u_miwa"));
     expect(after.ok).toBe(true);
     if (!after.ok || after.value === null) throw new Error("権限を引けません");
     expect(after.value.roles).toEqual(["reviewer"]);
@@ -175,7 +176,7 @@ describe("参加したあとに変える", () => {
     expect(changed.ok).toBe(true);
 
     const reader = createD1MembershipReader(db);
-    const after = await reader.findByUser(WORKSPACE, "u_miwa" as never);
+    const after = await reader.findByUser(WORKSPACE, asUserId("u_miwa"));
     if (!after.ok || after.value === null) throw new Error("権限を引けません");
     // ここが空に戻ると、役割を変えられた人が次のログインまで入れなくなる。
     expect(after.value.roles).toEqual(["publisher"]);

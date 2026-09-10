@@ -77,7 +77,7 @@ const EXPECTED: Readonly<Record<TelemetryEventKey, Spec>> = {
   },
   search_performed: {
     consentFree: false,
-    required: ["siteSlug", "query", "resultCount"],
+    required: ["siteSlug", "resultCount"],
     numbers: ["resultCount"],
   },
   filter_changed: { consentFree: false, required: ["path", "siteSlug", "axis", "value"] },
@@ -316,4 +316,12 @@ describe("読者の仮の目印は、ブログをまたがない", () => {
       readerKeyScope("demo", new Date("2026-08-17T23:59:59.999Z")),
     );
   });
+});
+
+
+it("検索結果の記録は入力語なしで受け付け、旧データの入力語も互換を保つ", () => {
+  for (const payload of [{ siteSlug: "demo", resultCount: 0 }, { siteSlug: "demo", resultCount: 1, query: "旧データ" }]) {
+    const result = buildTelemetryEvent({ key: "search_performed", occurredAt: AT, readerKey: null, payload });
+    expect(result.ok).toBe(true);
+  }
 });

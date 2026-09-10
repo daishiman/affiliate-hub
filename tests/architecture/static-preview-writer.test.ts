@@ -19,6 +19,7 @@ import {
   articleHref,
 } from "@/application/read-models/published-article";
 import { createSampleContentRepository } from "@/infrastructure/persistence/sample/content-sample-repository";
+import { sampleFeaturedArticleSlugs } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
 import { sampleSites } from "@/infrastructure/persistence/sample/site-sample-repository";
 import { SiteHomeContent, toSiteHomeView } from "@/presentation/site/home-content";
 import { siteHref } from "@/presentation/site/view-model";
@@ -46,13 +47,13 @@ const COMPLETE = {
   bodyHtml: '<div class="navLink">商品</div>',
   htmlAttributes: { lang: "ja" },
   generatedAt: "2026-08-19",
-} as const;
+};
 
 type Input = Parameters<typeof buildDocument>[0];
 
 describe("静止した写しの組み立て", () => {
   it("そろった入力なら CSS・中身・静止中の説明を 1 枚に焼ける", () => {
-    const html = buildDocument(COMPLETE as unknown as Input);
+    const html = buildDocument(COMPLETE);
 
     expect(html.startsWith("<!doctype html>")).toBe(true);
     expect(html).toContain('<html lang="ja">');
@@ -66,7 +67,7 @@ describe("静止した写しの組み立て", () => {
 
   it("冊子の案内だけは押せる場所に残す", () => {
     const html = buildDocument({
-      ...(COMPLETE as unknown as Input),
+      ...COMPLETE,
       title: "ある記事",
       navHtml: '<a href="index.html">目次</a>',
     });
@@ -78,7 +79,7 @@ describe("静止した写しの組み立て", () => {
   });
 
   it("題も案内も渡さない 1 枚ものは、従来の題だけを使う", () => {
-    const html = buildDocument(COMPLETE as unknown as Input);
+    const html = buildDocument(COMPLETE);
 
     expect(html).toContain("<title>静止した写し");
     expect(html).not.toContain('<nav class="static-nav">');
@@ -94,7 +95,7 @@ describe("静止した写しの組み立て", () => {
 
   for (const [name, hole] of missing) {
     it(`${name}なら焼かずに投げる`, () => {
-      expect(() => buildDocument({ ...(COMPLETE as unknown as Input), ...hole })).toThrow();
+      expect(() => buildDocument({ ...COMPLETE, ...hole })).toThrow();
     });
   }
 
@@ -235,9 +236,18 @@ describe("実際に書き出した静止冊子", () => {
     for (const { slug, blueprint } of sampleSites()) {
       const recent = await content.listRecent(slug, 200);
       if (!recent.ok) throw new Error(`記事一覧を検査用に読めませんでした: ${slug}`);
+      const selectedSlugs = sampleFeaturedArticleSlugs(slug);
+      const bySlug = new Map(recent.value.map((article) => [article.slug, article] as const));
+      const featuredArticles = selectedSlugs.flatMap((articleSlug) => {
+        const article = bySlug.get(articleSlug);
+        return article === undefined ? [] : [article];
+      });
       const sharedBody = renderToStaticMarkup(
         createElement(SiteHomeContent, {
-          view: toSiteHomeView(slug, blueprint, recent.value),
+          view: toSiteHomeView(slug, blueprint, recent.value, {
+            featuredArticles,
+            featuredSelectedCount: selectedSlugs.length,
+          }),
         }),
       );
       const generated = readFileSync(join(PREVIEW_DIR, "sites", `${slug}.html`), "utf8");

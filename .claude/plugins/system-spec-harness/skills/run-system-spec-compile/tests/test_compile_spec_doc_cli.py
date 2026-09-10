@@ -241,3 +241,51 @@ def test_write_docset_rejects_unknown_mode(tmp_path):
         assert "refuse" in str(exc)
     else:
         raise AssertionError("知らない扱い方が通った")
+
+
+def test_preserved_cell_transcript_tracks_current_canonical_state(tmp_path):
+    old = GENERATED + "\n## 確定セルの記録 (正本 spec-state.json)\n\n| セル | database × web |\n| 状態 | 確定 |\n| 確定質疑 (qa_ref) | `old` |\n| 資するゴール (serves_goals) | G1 |\n| required-info | 不正な転記 |\n\n手書きの歴史は保持する。\n"
+    (tmp_path / "database.md").write_text(old)
+    state = {"matrix": {"database": {"web": {"state": "確定", "qa_ref": "new", "serves_goals": ["G2", "G1"]}}}}
+    mod.write_docset({"database.md": GENERATED}, tmp_path, on_handwritten="preserve", canonical_state=state)
+    out = (tmp_path / "database.md").read_text()
+    assert "| 確定質疑 (qa_ref) | `new` |" in out
+    assert "| 資するゴール (serves_goals) | G2, G1 |" in out
+    assert "手書きの歴史は保持する。" in out
+    assert "`old`" not in out
+
+
+def test_identical_cross_chapter_notes_render_once_with_explicit_reference():
+    note = {"heading": "共通契約", "body": "同じ確定した説明。", "reason": "承認済み"}
+    state = {"categories": [{"id": "backend"}, {"id": "frontend"}], "chapter_notes": {"backend": [note], "frontend": [note]}}
+    assert "同じ確定した説明。" in mod.render_chapter_notes(state, "backend")
+    other = mod.render_chapter_notes(state, "frontend")
+    assert "backend.md" in other
+    assert "共通契約" in other
+    assert "同じ確定した説明。" not in other
+    state["chapter_notes"]["frontend"] = [{**note, "body": "別の説明。"}]
+    assert "別の説明。" in mod.render_chapter_notes(state, "frontend")
+
+
+def test_shared_note_reference_is_not_reported_as_loss_but_unrecorded_text_is(tmp_path):
+    note = {"heading": "共通契約", "body": "同じ確定した説明。", "reason": "承認済み"}
+    state = {"categories": [{"id": "backend"}, {"id": "frontend"}], "chapter_notes": {"backend": [note], "frontend": [note]}}
+    old = GENERATED + "\n" + mod.render_chapter_notes({**state, "categories": [{"id": "frontend"}]}, "frontend") + "\n独自に付け足した記録。\n"
+    (tmp_path / "frontend.md").write_text(old)
+    generated = GENERATED + "\n" + mod.render_chapter_notes(state, "frontend")
+    losses = []
+    mod.write_docset({"frontend.md": generated}, tmp_path, on_handwritten="preserve", canonical_state=state, loss_report=losses)
+    assert losses == [("frontend.md", ["独自に付け足した記録。"])]
+    assert (tmp_path / "frontend.md").read_text().count("同じ確定した説明。") == 0
+
+
+def test_repeated_preservation_reports_keep_both_historical_bodies(tmp_path):
+    heading = mod.CARRIED_HEADING
+    old = GENERATED + f"\n{heading}\n\n### 第一の旧QA\n\n元の回答その一。\n\n{heading}\n\n### 第二の旧QA\n\n元の回答その二。\n"
+    (tmp_path / "database.md").write_text(old)
+    mod.write_docset({"database.md": GENERATED}, tmp_path, on_handwritten="preserve")
+    out = (tmp_path / "database.md").read_text()
+    assert out.count(heading) == 1
+    assert "元の回答その一。" in out
+    assert "元の回答その二。" in out
+    assert mod.RESIDUE_HEADING not in out

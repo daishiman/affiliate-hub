@@ -82,7 +82,7 @@ describe("本文の断片 — 保存の往復", () => {
 
     for (const alt of alts) {
       for (const src of sources) {
-        const image = { alt, src };
+        const image = { alt, src, width: null, height: null };
         expect(roundTrip([{ kind: "image", ...image }]), `${alt} / ${src}`).toStrictEqual([
           { kind: "image", ...image },
         ]);
@@ -190,6 +190,8 @@ describe("本文の断片 — 記法とぶつかる文章", () => {
         kind: "image",
         alt: "図]左",
         src: "https://example.com/image(size(compact)).png",
+        width: null,
+        height: null,
       },
     ]);
   });
@@ -230,6 +232,35 @@ describe("本文の断片 — 記法とぶつかる文章", () => {
     const parsed = parseProse(":::callout tone=info title=\"題\"\n本文が続く");
     expect(parsed.some((n) => n.kind === "callout")).toBe(false);
     expect(serializeProse(parsed)).toContain("本文が続く");
+  });
+
+  it("寸法を持たない古い画像は、書き出しても寸法が付かない", () => {
+    /*
+      **既に保存されている記事が 1 文字も動かないことを当てている。**
+      ここが崩れると、運営者が触っていない記事まで保存のたびに差分を出す。
+    */
+    const parsed = parseProse("![机](/media/a.png)");
+    expect(parsed).toStrictEqual([
+      { kind: "image", src: "/media/a.png", alt: "机", width: null, height: null },
+    ]);
+    expect(serializeProse(parsed)).toBe("![机](/media/a.png)");
+  });
+
+  it("寸法として読むのは `640x360` の形だけで、ほかの題名は場所ごと残す", () => {
+    /*
+      **知らない書き方を落とさない。**題名を捨てる実装だと、保存を押しただけで
+      運営者の書いたものが消える。読めないものは、読めないまま残すほうが直せる。
+    */
+    const parsed = parseProse('![机](/media/a.png "撮影 2026 年")');
+    expect(parsed).toStrictEqual([
+      {
+        kind: "image",
+        src: '/media/a.png "撮影 2026 年"',
+        alt: "机",
+        width: null,
+        height: null,
+      },
+    ]);
   });
 
   it("知らない種類の囲みを捨てず、見える形で残す", () => {

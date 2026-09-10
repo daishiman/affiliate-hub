@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/run-20260908-final-review-blog-top",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.11",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:a3ead33cd3c445dbd86ac6bb7b301323862bd442b445d6160e30036b75f9f680",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "トップページ限定の責務と他featureの所有境界がgoal、feature、13 taskで矛盾しない。",
+      "evidence": ["goal-spec.json", "task-specs/phase-01-requirements.md", "task-specs/phase-13-release-deploy.md"]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "P01-P13のexact set、必須section、A1-A8と確定QAの追跡に漏れがない。",
+      "evidence": ["workstream-inventory.json", "task-specs/phase-01-requirements.md", "task-specs/phase-11-evidence.md"]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "package、parent、task ID、phase、path、repo identityがinventory、graph、handoff間で一致する。",
+      "evidence": ["feature-package.json", "workstream-inventory.json", "system-build-handoff.json"]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "13 node、12 edgeのP01からP13への前方DAGで、循環・後方・dangling・cross-feature edgeがない。",
+      "evidence": ["task-graph.json"]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/.codex/plugins/cache/harness-dev/system-dev-planner/0.1.11/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/run-20260908-final-review-blog-top"
+      ],
+      "exit_code": 0,
+      "conditions": ["C1", "C2", "C3", "C4"],
+      "stdout": "status=pass; validated_digest=sha256:a3ead33cd3c445dbd86ac6bb7b301323862bd442b445d6160e30036b75f9f680; violations=[]",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {"path": "feature-package.json", "sha256": "c0961c3504679bd5d0997ac1dc3376c9b31516defe2345e6445b6ab0761f6446"},
+    {"path": "goal-spec.json", "sha256": "0c3cd2c0f74a25a081d7221f6647d49ed78b182b26f660fcf4d3c8a631434727"},
+    {"path": "staging-manifest.json", "sha256": "237b442b6a34949acecf0e219c4c150be713f5c8566f146db9427d4bb7f2974b"},
+    {"path": "system-build-handoff.json", "sha256": "2f18ce393ee4840aa8f77fca0c90e11b439e8190dc19203c9a73f7b72f0ad6e5"},
+    {"path": "task-graph.json", "sha256": "85ebc9354d0e73da6b8443acd31e82ed9dacd7371b7bc35cca00cefc5e5e0b41"},
+    {"path": "workstream-inventory.json", "sha256": "56c37d1eafb130d34ab118bd1cb0256c29808713e52b64c57f57373a4da8530b"}
+  ],
+  "staleness_rule": "The verdict is valid only while the staging canonical digest remains sha256:a3ead33cd3c445dbd86ac6bb7b301323862bd442b445d6160e30036b75f9f680; any artifact change requires revalidation and a new independent evaluation.",
+  "findings": [
+    {
+      "severity": "low",
+      "bucket": "provenance-metadata-drift",
+      "observation": "goal-spec run_id and the feature-document snapshot retain an older generation label, while the source context SHA, scope and acceptance remain current. Regenerate that metadata before atomic promotion.",
+      "evidence": ["goal-spec.json", "task-specs/phase-01-requirements.md"]
+    }
+  ]
+}

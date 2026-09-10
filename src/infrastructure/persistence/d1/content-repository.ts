@@ -48,6 +48,7 @@ function toVariant(row: ContentVariantRow): ContentVariant {
   return {
     id: taggedString<"ContentVariantId">(row.id) as ContentVariantId,
     workspaceId: taggedString<"WorkspaceId">(row.workspaceId) as WorkspaceId,
+    createdAt: row.createdAt,
     contentPackageId: taggedString<"ContentPackageId">(row.contentPackageId) as ContentPackageId,
     channel: row.channel,
     format: row.format,
@@ -84,7 +85,7 @@ function toVariant(row: ContentVariantRow): ContentVariant {
  * 現在地は業務の形が持っていないので、**別に受け取る**。
  * ここで既定値を決め打ちにすると、本文を直しただけで進行が巻き戻る。
  */
-function toRow(item: ContentVariant, state: ContentState, revision: number): ContentVariantRow {
+function toRow(item: ContentVariant, state: ContentState, revision: number): Omit<ContentVariantRow, "createdAt"> {
   return {
     id: String(item.id),
     workspaceId: String(item.workspaceId),
@@ -324,15 +325,20 @@ export function createD1ContentVariantRepository(
               : current.revision + 1
             : stored[0].revision + 1;
         const row = toRow(variant, current?.state ?? "GENERATED", initialRevision);
-        await db.insert(contentVariants).values(row).onConflictDoUpdate({
+        // 新規記事の最初の保存だけが実作成時刻を確定する。
+        // 既存行や見本の実体化では、未記録を現在時刻で埋めない。
+        const createdAt = current === undefined ? new Date() : current.variant.createdAt ?? null;
+        const [saved] = await db.insert(contentVariants).values({ ...row, createdAt }).onConflictDoUpdate({
           target: contentVariants.id,
           set: {
             ...row,
             // 読み取り後に別保存が入っても、DBの現在値から単調に進める。
             revision: sql`${contentVariants.revision} + 1`,
           },
-        });
-        return ok(variant);
+        }).returning();
+        if (saved === undefined) throw new Error("保存した記事を取得できませんでした。");
+        // 競合時も、入力の日時ではなくDBが保持した実際の日時を返す。
+        return ok(toVariant(saved));
       } catch (cause) {
         return storageFailure("記事の保存", cause);
       }
@@ -359,7 +365,7 @@ export function createD1ContentVariantRepository(
           );
         }
         const row = toRow(current.variant, state, current.revision);
-        await db.insert(contentVariants).values(row).onConflictDoUpdate({
+        await db.insert(contentVariants).values({ ...row, createdAt: current.variant.createdAt ?? null }).onConflictDoUpdate({
           target: contentVariants.id,
           // 進行の現在地は本文の内容ではないため、本文版を進めない。
           set: { state },

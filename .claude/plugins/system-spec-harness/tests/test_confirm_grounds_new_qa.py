@@ -103,7 +103,7 @@ def _confirm(state: dict, qa_ref: str, **over) -> None:
 def _reopen(state: dict, reason: str = "新しい要望が来た") -> None:
     stm.apply_cell_op(
         state,
-        {"action": "reopen", "category": "database", "platform": "web", "reason": reason},
+        {"action": "reopen", "category": "database", "platform": "web", "reason": reason, "qa_ref": OLD_A},
     )
 
 

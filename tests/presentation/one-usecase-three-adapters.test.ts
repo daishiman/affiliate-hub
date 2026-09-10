@@ -64,17 +64,20 @@ const cards: EditorialScoreCard[] = [
 
 // 差し替えたいのは順位まわりの 2 つだけ。残りは既定の組み立てをそのまま使う。
 // ここで全ポートを手で書き並べると、ポートを 1 つ足すたびにテストが壊れる。
+const sampleDeps = createDeps();
 const catalog = buildToolCatalog({
-  ...createDeps(),
+  ...sampleDeps,
   rankingModels: markEditorial({
+    ...sampleDeps.rankingModels,
     findById: async () => ok(model),
     list: async () => ok({ items: [], nextCursor: null }),
-    save: async (m: RankingModel) => ok(m),
-  }) as unknown as EditorialRankingModelRepositoryPort,
+    save: async (m) => ok(m),
+  }),
   scoreCards: markEditorial({
+    ...sampleDeps.scoreCards,
     listByModel: async () => ok(cards),
-    save: async (c: EditorialScoreCard) => ok(c),
-  }) as unknown as EditorialScoreCardRepositoryPort,
+    save: async (_ws, _modelId, card) => ok(card),
+  }),
 });
 
 const actor: ActorContext = {

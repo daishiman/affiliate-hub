@@ -26,11 +26,12 @@ import {
   createSaveScoreCardUseCase,
 } from "@/application/usecases/ranking/manage-rankings";
 import type { EditorialScoreCard, RankingModel } from "@/domain/ranking";
-import { markEditorial, ok, taggedString } from "@/domain/shared";
+import { asCategoryId, asProductId, asWorkspaceId, markEditorial, ok, taggedString } from "@/domain/shared";
 import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { SAMPLE_RANKING_MODELS } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner, aWriter } from "../support/actors";
 import { recordingAuditLog } from "../support/doubles";
+import { aProduct, anEvidence } from "../support/factories";
 
 const MODEL = SAMPLE_RANKING_MODELS[0];
 
@@ -45,61 +46,60 @@ function fakes(
   const savedModels: RankingModel[] = [];
   const savedCards: { modelId: string; card: EditorialScoreCard }[] = [];
 
-  const rankingModels = markEditorial({
-    findById: async (_ws: unknown, id: unknown) =>
-      ok(String(id) === String(MODEL.id) ? MODEL : null),
+  const rankingModels: EditorialRankingModelRepositoryPort = markEditorial({
+    findById: async (_ws, id) => ok(String(id) === String(MODEL.id) ? MODEL : null),
     list: async () => ok({ items: [MODEL], nextCursor: null }),
-    save: async (model: RankingModel) => {
+    save: async (model) => {
       savedModels.push(model);
       return ok(model);
     },
-  }) as unknown as EditorialRankingModelRepositoryPort;
+  });
 
-  const scoreCards = markEditorial({
+  const scoreCards: EditorialScoreCardRepositoryPort = markEditorial({
     listByModel: async () => ok([]),
-    save: async (_ws: unknown, modelId: unknown, card: EditorialScoreCard) => {
+    save: async (_ws, modelId, card) => {
       savedCards.push({ modelId: String(modelId), card });
       return ok(card);
     },
-  }) as unknown as EditorialScoreCardRepositoryPort;
+  });
 
-  const products = markEditorial({
-    findById: async (_ws: unknown, id: unknown) =>
+  const products: EditorialProductRepositoryPort = markEditorial({
+    findById: async (_ws, id) =>
       ok(
         owners.product === null
           ? null
-          : ({ id, workspaceId: owners.product ?? WORKSPACE } as never),
+          : aProduct({ id, workspaceId: asWorkspaceId(owners.product ?? WORKSPACE) }),
       ),
     findByIdentityKey: async () => ok(null),
-    search: async (_ws: unknown, query: { categoryId?: string }) =>
+    search: async (_ws, query) =>
       ok({
         items:
           owners.category === null
             ? []
             : [
-                {
-                  id: "p_category_basis",
-                  workspaceId: owners.category ?? WORKSPACE,
-                  categoryId: query.categoryId,
-                },
+                aProduct({
+                  id: asProductId("p_category_basis"),
+                  workspaceId: asWorkspaceId(owners.category ?? WORKSPACE),
+                  categoryId: asCategoryId(query.categoryId ?? "cat_laptop"),
+                }),
               ],
         nextCursor: null,
       }),
-    save: async (product: unknown) => ok(product),
+    save: async (product) => ok(product),
     remove: async () => ok(true),
-  }) as unknown as EditorialProductRepositoryPort;
+  });
 
-  const evidence = markEditorial({
-    findById: async (_ws: unknown, id: unknown) =>
+  const evidence: EditorialEvidenceRepositoryPort = markEditorial({
+    findById: async (_ws, id) =>
       ok(
         owners.evidence === null
           ? null
-          : ({ id, workspaceId: owners.evidence ?? WORKSPACE } as never),
+          : anEvidence({ id, workspaceId: asWorkspaceId(owners.evidence ?? WORKSPACE) }),
       ),
     listByIds: async () => ok([]),
     search: async () => ok({ items: [], nextCursor: null }),
-    save: async (item: unknown) => ok(item),
-  }) as unknown as EditorialEvidenceRepositoryPort;
+    save: async (item) => ok(item),
+  });
 
   const audit = recordingAuditLog();
 

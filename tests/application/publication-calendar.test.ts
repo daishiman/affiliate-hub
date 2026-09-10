@@ -289,10 +289,16 @@ import {
   createReschedulePublicationUseCase,
 } from "@/application/usecases/distribution/publication-calendar";
 import type { PublicationCalendarDeps } from "@/application/usecases/distribution/publication-calendar";
-import type { PublicationState } from "@/domain/distribution";
+import type { Publication, PublicationState } from "@/domain/distribution";
+import type { PublicationRepositoryPort } from "@/application/ports/distribution";
 import { ok } from "@/domain/shared/result";
-import { markEditorial } from "@/domain/shared";
-import { aChannelConnection, aPublication } from "../support/factories";
+import { asBrandId, asChannelConnectionId, asContentPackageId, asContentVariantId, asPublicationId, markEditorial } from "@/domain/shared";
+import {
+  aChannelConnection,
+  aContentPackage,
+  aContentVariant,
+  aPublication,
+} from "../support/factories";
 import { OTHER_WORKSPACE, aPublisher, aWriter } from "../support/actors";
 import { failing, recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
 
@@ -317,18 +323,24 @@ function calendarDeps(over: Partial<PublicationCalendarDeps> = {}): PublicationC
   };
 }
 
-/** 配信の保存先を、渡した並びだけを持つものに差し替える。 */
-function withPublications(rows: readonly ReturnType<typeof aPublication>[]) {
+/**
+ * 配信の保存先を、渡した並びだけを持つものに差し替える。
+ *
+ * 以前はここに `save` を生やし、全体を `as PublicationCalendarDeps["publications"]`
+ * で締めていた。だが正本の `PublicationRepositoryPort` に `save` は**無い**——
+ * 配信の更新は `compareAndSwap` 一本に集約されている。存在しない口を差し替えても
+ * 誰も呼ばないので、それを見張っていた検査は永久に緑だった。
+ * 口を揃えれば、差し替えられるのは実在する書き込み境界だけになる。
+ */
+function withPublications(rows: readonly ReturnType<typeof aPublication>[]): PublicationRepositoryPort {
   const base = testDeps();
   return {
     ...base.publications,
     listRecent: async () => ok(rows),
     listForCalendar: async () => ok(rows),
-    findById: async (_ws: unknown, id: unknown) =>
-      ok(rows.find((r) => String(r.id) === String(id)) ?? null),
-    save: async (p: unknown) => ok(p),
-    compareAndSwap: async (_before: unknown, next: unknown) => ok(next),
-  } as PublicationCalendarDeps["publications"];
+    findById: async (_ws, id) => ok(rows.find((r) => String(r.id) === String(id)) ?? null),
+    compareAndSwap: async (_before, next) => ok(next),
+  };
 }
 
 const publisherActor = aPublisher();
@@ -358,12 +370,12 @@ function brandOwnership(
       ) =>
         ok(
           Object.hasOwn(brandByVariant, String(variantId))
-            ? ({
+            ? aContentVariant({
                 workspaceId: publisherActor.workspaceId,
-                contentPackageId: `pkg-${String(variantId)}`,
+                contentPackageId: asContentPackageId(`pkg-${String(variantId)}`),
                 status: "approved",
                 title: String(variantId),
-              } as never)
+              })
             : null,
         ),
     }),
@@ -377,7 +389,11 @@ function brandOwnership(
         return ok(
           brandId == null
             ? null
-            : ({ workspaceId: publisherActor.workspaceId, brandId, campaignId: null } as never),
+            : aContentPackage({
+                workspaceId: publisherActor.workspaceId,
+                brandId,
+                campaignId: null,
+              }),
         );
       },
     }),
@@ -385,17 +401,17 @@ function brandOwnership(
 }
 
 describe("ブランド限定担当者の投稿カレンダー境界", () => {
-  const limited = aPublisher({ scopedBrandIds: ["brand-allowed" as never] });
+  const limited = aPublisher({ scopedBrandIds: [asBrandId("brand-allowed")] });
 
   it("カレンダーは担当ブランドの配信だけを載せる", async () => {
     const allowed = aPublication({
-      id: "pub-allowed" as never,
-      variantId: "cv-allowed" as never,
+      id: asPublicationId("pub-allowed"),
+      variantId: asContentVariantId("cv-allowed"),
       scheduledAt: new Date("2026-08-20T01:00:00Z"),
     });
     const outside = aPublication({
-      id: "pub-outside" as never,
-      variantId: "cv-outside" as never,
+      id: asPublicationId("pub-outside"),
+      variantId: asContentVariantId("cv-outside"),
       scheduledAt: new Date("2026-08-20T02:00:00Z"),
     });
     const view = await viewOf(
@@ -417,14 +433,14 @@ describe("ブランド限定担当者の投稿カレンダー境界", () => {
   it("先頭200件が担当外でも、DB側brand-scope後の担当配信をカレンダーへ載せる", async () => {
     const outside = Array.from({ length: 200 }, (_unused, index) =>
       aPublication({
-        id: `pub-outside-${index}` as never,
-        variantId: `cv-outside-${index}` as never,
+        id: asPublicationId(`pub-outside-${index}`),
+        variantId: asContentVariantId(`cv-outside-${index}`),
         scheduledAt: new Date("2026-08-20T01:00:00Z"),
       }),
     );
     const allowed = aPublication({
-      id: "pub-allowed-after-limit" as never,
-      variantId: "cv-allowed-after-limit" as never,
+      id: asPublicationId("pub-allowed-after-limit"),
+      variantId: asContentVariantId("cv-allowed-after-limit"),
       scheduledAt: new Date("2026-08-20T02:00:00Z"),
     });
     const rows = [...outside, allowed];
@@ -461,12 +477,12 @@ describe("ブランド限定担当者の投稿カレンダー境界", () => {
 
   it("限定担当者のカレンダーはworkspace共通接続を読まず、アカウント名も開示しない", async () => {
     const connection = aChannelConnection({
-      id: "conn-brandless" as never,
+      id: asChannelConnectionId("conn-brandless"),
       accountLabel: "@workspace-secret-account",
     });
     const allowed = aPublication({
-      id: "pub-allowed" as never,
-      variantId: "cv-allowed" as never,
+      id: asPublicationId("pub-allowed"),
+      variantId: asContentVariantId("cv-allowed"),
       channelKind: "x",
       connectionId: connection.id,
       scheduledAt: new Date("2026-08-20T01:00:00Z"),
@@ -496,8 +512,8 @@ describe("ブランド限定担当者の投稿カレンダー境界", () => {
   it("同じ担当ブランドの月内配信が201件を超えても固定上限で欠落させない", async () => {
     const rows = Array.from({ length: 201 }, (_unused, index) =>
       aPublication({
-        id: `pub-allowed-${index}` as never,
-        variantId: `cv-allowed-${index}` as never,
+        id: asPublicationId(`pub-allowed-${index}`),
+        variantId: asContentVariantId(`cv-allowed-${index}`),
         scheduledAt: new Date("2026-08-20T01:00:00Z"),
       }),
     );
@@ -523,18 +539,22 @@ describe("ブランド限定担当者の投稿カレンダー境界", () => {
 
   it("担当外ブランドの配信は予定変更せず、存在も推測させない", async () => {
     const outside = aPublication({
-      id: "pub-outside" as never,
-      variantId: "cv-outside" as never,
+      id: asPublicationId("pub-outside"),
+      variantId: asContentVariantId("cv-outside"),
       state: "QUEUED",
     });
-    const saved: unknown[] = [];
-    const publications = {
+    /*
+      書き込みが起きたかは、正本にある唯一の更新境界 `compareAndSwap` で見る。
+      以前はここで存在しない `save` を見張っており、**何をしても 0 件**だった。
+    */
+    const saved: Publication[] = [];
+    const publications: PublicationRepositoryPort = {
       ...withPublications([outside]),
-      save: async (publication: unknown) => {
-        saved.push(publication);
-        return ok(publication as never);
+      compareAndSwap: async (_before, next) => {
+        saved.push(next);
+        return ok(next);
       },
-    } as PublicationCalendarDeps["publications"];
+    };
     const got = await createReschedulePublicationUseCase(
       calendarDeps({
         publications,
@@ -604,28 +624,32 @@ describe("予定日を変えたあとの状態", () => {
 
   it.each(targets)("$from から変えると $to になる", async (c) => {
     const p = aPublication({ state: c.from, scheduledAt: new Date("2026-08-20T01:00:00Z") });
-    const saved: unknown[] = [];
+    /*
+      貯め先を `unknown[]` にしておくと、取り出すたびに形を名乗り直す必要が出る。
+      正本の `Publication` で受ければ、`retryAt` のような欄は最初からそこにある。
+    */
+    const saved: Publication[] = [];
     const deps = calendarDeps({
       publications: {
         ...withPublications([p]),
-        compareAndSwap: async (_before: unknown, row: unknown) => {
+        compareAndSwap: async (_before, row) => {
           saved.push(row);
           return ok(row);
         },
-      } as PublicationCalendarDeps["publications"],
+      },
     });
     const result = await createReschedulePublicationUseCase(deps).execute(publisherActor, {
       publicationId: String(p.id),
       scheduledAt: FUTURE,
     });
     expect(result.ok, result.ok ? "" : result.error.message).toBe(true);
-    const stored = saved[0] as { state: PublicationState; scheduledAt: Date };
+    const stored = saved[0];
+    expect(stored).toBeDefined();
+    if (!stored) return;
     expect(stored.state).toBe(c.to);
-    expect(stored.scheduledAt.getUTCFullYear()).toBe(2099);
+    expect(stored.scheduledAt?.getUTCFullYear()).toBe(2099);
     if (c.to === "RETRY_SCHEDULED") {
-      expect((stored as unknown as { retryAt: Date }).retryAt.getTime()).toBe(
-        stored.scheduledAt.getTime(),
-      );
+      expect(stored.retryAt?.getTime()).toBe(stored.scheduledAt?.getTime());
     }
   });
 

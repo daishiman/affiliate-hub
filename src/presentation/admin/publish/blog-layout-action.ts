@@ -109,6 +109,38 @@ export async function manageBlogLayoutAction(
 }
 
 /**
+ * トップのおすすめ記事を、画面で確認した順のまま一括置換する。
+ *
+ * 個別の「上へ」「外す」はブラウザ内の下書きで、ここへ届く書き込みは 1 回だけ。
+ * 途中の順を保存しないため、公開面が半端な並びを読む時間を作らない。
+ */
+export async function manageBlogFeaturedArticlesAction(
+  _prev: BlogOpsState,
+  formData: FormData,
+): Promise<BlogOpsState> {
+  const actor = await signedInActor();
+  if (actor === null) return notSignedInFailure("トップのおすすめ記事の設定");
+
+  const entry = await blogOpsEntry();
+  if (!entry.ready) return { status: "failed", message: entry.reason };
+
+  const siteSlug = String(formData.get("siteSlug") ?? "").trim();
+  const articleSlugs = formData
+    .getAll("articleSlugs")
+    .map((value) => String(value).trim())
+    .filter((value) => value !== "");
+  const result = await entry.replaceHomeFeaturedArticles.execute(actor, {
+    siteSlug,
+    articleSlugs,
+  });
+  if (!result.ok) return failureFromDomainError(result.error);
+
+  revalidatePath(LAYOUT_PATH);
+  revalidatePath(siteBasePathBySlug(siteSlug));
+  return { status: "done", message: "おすすめ記事の並びを保存しました。" };
+}
+
+/**
  * 配信部品（feed・sitemap・AI 向けの案内など）の出し入れ。
  *
  * 版面と口を分けてあるのは、**触る相手が違う**からである。

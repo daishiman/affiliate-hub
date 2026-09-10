@@ -14,6 +14,7 @@ import {
 import type { PublicationId } from "@/domain/shared";
 import { aChannelConnection, aPublication } from "../support/factories";
 import { migrationStatements } from "../support/migrations";
+import { asChannelConnectionId } from "@/domain/shared";
 
 type TestEnv = { readonly DB: D1Database };
 type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
@@ -47,12 +48,12 @@ beforeEach(async () => {
 describe("provider identityのD1一意・直列化境界", () => {
   it("同じDIDの並行登録とaudit再試行を1行へ収束させる", async () => {
     const left = aChannelConnection({
-      id: "conn_provider_left" as never,
+      id: asChannelConnectionId("conn_provider_left"),
       kind: "bluesky",
       providerIdentity: "did:plc:publisher",
       credentialRef: "channel/publisher/credentials",
     });
-    const right = { ...left, id: "conn_provider_right" as never };
+    const right = { ...left, id: asChannelConnectionId("conn_provider_right") };
 
     const results = await Promise.all([
       connections.createIfAbsent(left),
@@ -76,7 +77,7 @@ describe("provider identityのD1一意・直列化境界", () => {
 
   it("同じDIDへの別secret参照と、同じsecret参照への別DIDを既存行へ返す", async () => {
     const original = aChannelConnection({
-      id: "conn_provider_original" as never,
+      id: asChannelConnectionId("conn_provider_original"),
       kind: "bluesky",
       providerIdentity: "did:plc:publisher",
       credentialRef: "channel/publisher/credentials",
@@ -85,12 +86,12 @@ describe("provider identityのD1一意・直列化境界", () => {
 
     const sameIdentity = await connections.createIfAbsent({
       ...original,
-      id: "conn_provider_same_identity" as never,
+      id: asChannelConnectionId("conn_provider_same_identity"),
       credentialRef: "channel/other/credentials",
     });
     const sameReference = await connections.createIfAbsent({
       ...original,
-      id: "conn_provider_same_reference" as never,
+      id: asChannelConnectionId("conn_provider_same_reference"),
       providerIdentity: "did:plc:other",
     });
 

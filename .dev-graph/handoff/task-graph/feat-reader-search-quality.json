@@ -1,0 +1,207 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "emitted_at": "2026-09-04T13:00:00Z",
+  "feature_id": "feat-reader-search-quality",
+  "feature_package_id": "feature-package/feat-reader-search-quality",
+  "graph_revision": 463,
+  "graph_snapshot_digest": "sha256:c6a9b3c405b1c23842659b80e914c70979f381e221267a16ad8551055cdfe341",
+  "scope_digest": "sha256:67ce36d05a3b268cb34752a2c45e82e96b723eaf9128af375a68dee6ccf07baf",
+  "handoff_target": "task-graph",
+  "requirements_quality": "detailed",
+  "requirements_document": "docs/requirements/feat-reader-search-quality-implementation-requirements.md",
+  "requirements_document_sha256": "09b5c90901cbb0064403905278e6f3b40358e7131c7362314bfdd36b50442462",
+  "implementation_code_generated": 0,
+  "promoted_generation": ".dev-graph/published/feature-package-feat-reader-search-quality",
+  "lineage_closure": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "feat-reader-search-quality",
+    "SYS-READER-SEARCH-QUALITY-P01",
+    "SYS-READER-SEARCH-QUALITY-P02",
+    "SYS-READER-SEARCH-QUALITY-P03",
+    "SYS-READER-SEARCH-QUALITY-P04",
+    "SYS-READER-SEARCH-QUALITY-P05",
+    "SYS-READER-SEARCH-QUALITY-P06",
+    "SYS-READER-SEARCH-QUALITY-P07",
+    "SYS-READER-SEARCH-QUALITY-P08",
+    "SYS-READER-SEARCH-QUALITY-P09",
+    "SYS-READER-SEARCH-QUALITY-P10",
+    "SYS-READER-SEARCH-QUALITY-P11",
+    "SYS-READER-SEARCH-QUALITY-P12",
+    "SYS-READER-SEARCH-QUALITY-P13"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "requirements_quality_source": "user-explicit",
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "source_digest": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-source-digest.py --repo-root . --registered <13-task-node-ids>",
+      "exit": 0,
+      "checked": 13,
+      "registered_mismatch": 0
+    },
+    "C02_saved_state": {
+      "checked": 14,
+      "confirmed_pass_complete": 14,
+      "missing_sections": []
+    },
+    "validate_system_plan": {
+      "command": "python3 /Users/dm/dev/dev/個人開発/harness/plugins/system-dev-planner/scripts/validate-system-plan.py --staging .dev-graph/published/feature-package-feat-reader-search-quality",
+      "exit": 0,
+      "status": "pass",
+      "schema_version": "1.0.0",
+      "validated_digest": "sha256:b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+      "phase_refs": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "violations": 0
+    },
+    "C08_implementation_readiness": {
+      "command": "python3 /Users/dm/dev/dev/個人開発/harness/plugins/system-dev-planner/scripts/check-implementation-readiness.py --repo-root .",
+      "exit": 0
+    }
+  },
+  "tasks": [
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P01",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p01.md",
+      "tracker_binding": "beads",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P02",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p02.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P03",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p03.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P04",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p04.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P05",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p05.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P06",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p06.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P07",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p07.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P08",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p08.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P09",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p09.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P10",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p10.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P11",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p11.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P09",
+        "SYS-READER-SEARCH-QUALITY-P10"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P12",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p12.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P10",
+        "SYS-READER-SEARCH-QUALITY-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P13",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p13.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P12"
+      ]
+    }
+  ],
+  "trace_plan_digest": "sha256:9407dfc760e40500b462f184963dfff0d8e989ddb9314b32abffb506163c169f"
+}

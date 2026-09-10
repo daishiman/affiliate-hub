@@ -192,7 +192,15 @@ function ProseNodeView({
     }
 
     case "image":
-      return <ProseImage alt={node.alt} className={styles.proseImage} src={node.src} />;
+      return (
+        <ProseImage
+          alt={node.alt}
+          className={styles.proseImage}
+          height={node.height}
+          src={node.src}
+          width={node.width}
+        />
+      );
 
     case "divider":
       return <hr className={styles.proseDivider} />;
@@ -219,9 +227,11 @@ function ProseNodeView({
             <ProseImage
               alt={image.alt}
               className={styles.proseImageRowItem}
+              height={image.height}
               // biome-ignore lint/suspicious/noArrayIndexKey: 枚は順序が同一性
               key={i}
               src={image.src}
+              width={image.width}
             />
           ))}
         </div>
@@ -318,21 +328,46 @@ function ProseNodeView({
  * 通せない場所を指していたら**何も描かない**。ここだけは文字を残せない
  * ——画像に代わる文字が `alt` しか無く、`alt` だけを地の文に置くと
  * 読者には意味の分からない一行になる。
+ *
+ * **寸法があれば属性で出す。**ブラウザは `width`/`height` の比だけを見て
+ * 場所を先に空けるので、絵が遅れて届いても下の文章が動かない。
+ * 表示の大きさは CSS (`max-width:100%; height:auto`) が決めるため、
+ * 実寸をそのまま入れても絵が実寸で出るわけではない。
+ *
+ * **寸法が無い絵は、比を仮に置いて場所だけ空ける** (`proseImageUnsized`)。
+ * 既存の記事には寸法が無く、あとから測る手段も無い (workerd に画像
+ * デコーダは無い)。何もしなければ読者は読んでいる行を飛ばされる。
+ * 仮の比では縦長の絵が小さく出るが、**それは運営者が編集画面を一度
+ * 開けば実寸が入って解消する**。読者の側で毎回起きる飛びのほうが重い。
  */
 function ProseImage({
   src,
   alt,
   className,
+  width,
+  height,
 }: {
   readonly src: string;
   readonly alt: string;
   readonly className: string;
+  readonly width: number | null;
+  readonly height: number | null;
 }) {
   const safe = safeImageSrc(src);
   if (safe === null) return null;
+  const sized = width !== null && height !== null;
   // 運営者入力の URL は寸法も許可ホストも事前確定できないため、最適化 API を経由しない。
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img alt={alt} className={className} src={safe} loading="lazy" />;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      alt={alt}
+      className={sized ? className : `${className} ${styles.proseImageUnsized}`}
+      height={height ?? undefined}
+      loading="lazy"
+      src={safe}
+      width={width ?? undefined}
+    />
+  );
 }
 
 /**

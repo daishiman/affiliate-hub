@@ -121,6 +121,10 @@ def test_the_canonical_source_still_contains_the_shallow_headings_we_guard() -> 
     ]
     # 見出しを持たない新規 QA の追加で母数を固定しない。守る実体は下の
     # 40 見出し / 18 回答であり、全 QA は ANSWERS から漏れなく走査する。
+    #
+    # 2026-09-08 の dev 合流で `qa_log` は 89 → 113 件になったが、増えた 24 件は
+    # 浅い見出しを 1 行も持ち込んでいない。**40 / 18 / 45 は合流後に取り直しても同値**で、
+    # この構えが「件数が動いた」ではなく「守る対象が動いた」だけを赤にすることを裏づけた。
     assert len(shallow) == 40, f"`## ` 以浅の見出し行が 40 行から動いた: {len(shallow)}"
     assert len(WITH_HEADINGS) == 18
 

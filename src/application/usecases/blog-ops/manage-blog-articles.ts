@@ -14,6 +14,9 @@ import {
   FRESHNESS_LABEL,
   type Freshness,
   type OperationalHealth,
+  THUMBNAIL_SOURCE_LABEL,
+  type ThumbnailSource,
+  resolveThumbnail,
   freshnessOf,
   deliveryHealth,
   deliveryOperationalState,
@@ -22,6 +25,7 @@ import {
   validateArticleRestore,
   validateArticleSlug,
 } from "@/domain/blogops";
+import { DEFAULT_THEME } from "@/domain/authoring/site-blueprint";
 import { requireCapability } from "@/domain/identity";
 import {
   type ActorContext,
@@ -83,6 +87,22 @@ export type BlogArticleRow = {
   readonly freshness: Freshness;
   readonly freshnessLabel: string;
   readonly health: OperationalHealth;
+  /**
+   * 一覧に出す絵。**実画像があるときだけ URL が入る。**
+   *
+   * 代替図版（自動生成の SVG）をここで組み立てない。図版の配色は
+   * サイトごとの `BrandTheme` で決まるのに、この一覧は
+   * サイトを横断して並ぶので、ここで配色を選ぶと
+   * **管理画面だけ読者と違う絵**になる。食い違った絵は
+   * 「差し替えたのに反映されない」という誤った報告を生む。
+   *
+   * 代わりに出どころの名前（`thumbnailSourceLabel`）を渡す。
+   * この画面が決めるのは「次にどの記事へ手を入れるか」なので、
+   * **実画像がまだ無い記事が分かること**が、絵そのものより役に立つ。
+   */
+  readonly thumbnailUrl: string | null;
+  readonly thumbnailSource: ThumbnailSource;
+  readonly thumbnailSourceLabel: string;
 };
 
 export type ListBlogArticlesInput = { readonly siteSlug?: string | null };
@@ -137,6 +157,25 @@ export function createListBlogArticlesUseCase(
             snapshots.value.filter((snapshot) => snapshot.siteSlug === a.siteSlug),
           ).map((row) => row.state),
         );
+        /*
+          優先順位（アップロード → アイキャッチ → 本文先頭 → 代替図版）は
+          `resolveThumbnail` だけが持つ。ここで並べ直さない。
+
+          `brandTheme` は代替図版の配色にしか使われず、この画面は
+          その図版を描かない（`BlogArticleRow.thumbnailUrl` の説明を参照）。
+          既定値を渡すのは、`resolveThumbnail` に「配色は未指定」という
+          抜け道を作らないためで、値そのものはここでは捨てられる。
+        */
+        const thumbnail = resolveThumbnail(
+          {
+            siteSlug: a.siteSlug,
+            slug: a.slug,
+            title: a.title,
+            categorySlug: a.categorySlug ?? "",
+            brandTheme: DEFAULT_THEME.brandTheme,
+          },
+          a.thumbnail ?? {},
+        );
         return {
           articleId: a.id,
           siteSlug: a.siteSlug,
@@ -156,6 +195,9 @@ export function createListBlogArticlesUseCase(
             delivery: deliveryState,
             freshness,
           },
+          thumbnailUrl: thumbnail.kind === "image" ? thumbnail.url : null,
+          thumbnailSource: thumbnail.source,
+          thumbnailSourceLabel: THUMBNAIL_SOURCE_LABEL[thumbnail.source],
         };
       });
 

@@ -270,7 +270,7 @@ function personaDeps(over: RepoOverrides = {}): ManagePersonasDeps {
     async saveAudience(p: AudiencePersona) {
       return ok(p);
     },
-  }) as unknown as EditorialPersonaRepositoryPort;
+  }) satisfies EditorialPersonaRepositoryPort;
   return { personas };
 }
 
@@ -604,7 +604,7 @@ function recordingDeps(
       savedAudiences.push(p);
       return ok(p);
     },
-  }) as unknown as EditorialPersonaRepositoryPort;
+  }) satisfies EditorialPersonaRepositoryPort;
   return {
     deps: { personas, ids, auditLog, now: () => new Date("2026-08-27T00:00:00.000Z") },
     savedAuthors,

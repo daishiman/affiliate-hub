@@ -1,0 +1,205 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-reader-search-quality",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "1.0.0",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "矛盾なし。scope 境界の引用 (feat-blog-top-page-composition が WebSite+SearchAction+ItemList JSON-LD を所有、feat-blog-composition-visibility/feat-webmcp-surface への depends_on) は全て実在ファイルへ解決し、全13 task-spec のスコープ外節が feature 定義と同一文言で一致する。P01-P13の背景文・アーキテクチャ参照も相互に矛盾しない。",
+      "evidence": [
+        "gate:c1-scope-boundary-real-refs",
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-03-design-review.md",
+        "task-specs/phase-10-final-review.md"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "漏れなし。上流 qa (qa-neutral-search-method-v6 の tradeoff: 索引列を題名・要約・本文の3列に限定/検索空振り時のカテゴリー・人気記事フォールバック、および qa-backend-web-site-search-llms-txt-v4b の tradeoff: 2文字以下フォールバック・検索語 literal 化によるFTS構文注入防止) の設計判断が P01(要求)・P02(設計)・P04(テスト設計)・P05(実装)・P07(受入)・P09(QA)へ具体的な実行内容として反映されている。A1-A8 の各見出し(索引追従・日本語部分一致・サムネイル等・JS無効完走・画面/WebMCP同一結果・0件時代替・URL契約・自動追従)は goal・acceptanceの両方および13 task-spec 全件の目的/背景/受入節に意味として反映される。",
+      "evidence": [
+        "gate:c2-qa-tradeoff-coverage",
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-02-architecture.md",
+        "task-specs/phase-05-implementation.md",
+        "task-specs/phase-07-acceptance.md"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "整合性あり。acceptance 文言 (A1-A8 相当8件) は feature.md frontmatter・feature.md本文の受入チェックリスト・(planner投影である) 本 staging package の task-spec/P07 acceptance 記述の3箇所で分裂なく一致する。digest 連鎖は deterministic-validation ゲートが evaluated_digest と validated_digest の完全一致を実測で確認しており、task-graph/workstream-inventory/feature-package 間の phase_ref・task_node_id・depends_on も相互に一致する。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "feature-package.json",
+        "task-specs/phase-07-acceptance.md",
+        "task-graph.json"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "依存関係整合。task_count=13, phase_refs=P01..P13, task_node_ids=SYS-READER-SEARCH-QUALITY-P01..P13 が exact-13 を満たし、task-graph.json の16 edgeは全て低番号phaseから高番号phaseへの前方 edge のみで循環が無い (P01→P02→...→P13 の直列鎖に加えP05→P08、P07/P08→P09、P07/P09/P10→P11、P10/P11→P12の分岐合流のみ)。workstream-inventory.json の depends_on は task-graph.json のnode定義と完全一致する。",
+      "evidence": [
+        "gate:deterministic-validation",
+        "task-graph.json",
+        "workstream-inventory.json"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-reader-search-quality"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a\",\n  \"feature_package_id\": \"feature-package/feat-reader-search-quality\",\n  \"parent_feature\": \"feat-reader-search-quality\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"violations\": []\n}",
+      "stderr": ""
+    },
+    {
+      "id": "c1-scope-boundary-real-refs",
+      "name": "verify-scope-boundary-references",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; test -f \"features/feat-blog-top-page-composition.md\"; test -f \"features/feat-blog-composition-visibility.md\"; test -f \"features/feat-webmcp-surface.md\"; test -f \"system-spec/retrieval-evidence/kajetblog-top-analysis.md\"; grep -q \"WebSite + SearchAction + ItemList\" \"features/feat-blog-top-page-composition.md\"; echo C1_SCOPE_BOUNDARY_REFERENCES_VERIFIED_REAL"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1"
+      ],
+      "stdout": "C1_SCOPE_BOUNDARY_REFERENCES_VERIFIED_REAL",
+      "stderr": ""
+    },
+    {
+      "id": "c2-qa-tradeoff-coverage",
+      "name": "grep-qa-tradeoff-terms-in-task-specs",
+      "command": [
+        "bash",
+        "-c",
+        "set -e; for term in \"2文字以下\" \"literal\" \"サムネイル\" \"trigram\" \"JavaScript無効\" \"searchArticles\" \"0件\" \"代替提案\"; do n=$(grep -rl -- \"$term\" task-specs/ | wc -l | tr -d ' '); test \"$n\" -ge 1; done; echo C2_QA_TRADEOFF_TERMS_COVERED_IN_TASK_SPECS"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C2"
+      ],
+      "stdout": "C2_QA_TRADEOFF_TERMS_COVERED_IN_TASK_SPECS",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "3cb9702e117833a9c59e6074cd1e5be216b2a205ea6ed092b63fd5c873e60030"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "c6e1c00c44170f707a02de3b7b10a0afaf8c89057c963eb44b6d0932ec5f3732"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "19a93609613e9a327241a5a9409ddb79c95486a121dc4d77b6058e2e5169e70c"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "f2ca6c7ae79573a468fb3a101b74c7ec157a891b3002241dfca270cf5af6b91a"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "fb9a138d34d06628df084506dd16b16e580bb59cfd2b17c60a6cc63ad45e6dd3"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "f30f226d1751547af6c4ba6a9838f289fc44743b64408bfe958d98de2f0e9edc"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "3389dd8b697dee2abee5a61eac7b58b007930bf5f474fc7ce64f756db3f40872"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "34ca92bc955295d4b95f86366e21aa214d502642236188c14121d391e08f4c90"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "e0cedce93cc4744f59475cb91a55edca9c6ae638abbdaa97a33286b326315a36"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "ee20c6f182b86ed5daea1f8864a0521ff1f253f8f66649894d17efaabdc42730"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "efe98608f7c3611f2e7991aed80b93fb011b589df4ef0f145e77029deca17838"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "57228b5f5d09db7ec16d1f1316a1c5df542a68d32e5a82c1174b4f3a6016eafd"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "8d722cd81f3edc1b65300685fa6943fd3ac7b3a3297fdcc9615c29be8c0f2f87"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "26f3e69ea2da34bcc827cdb7fc822416d94b2d150c4bb558a9120877491a2877"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "93c3aba677b62dfac37758e4dab78a021b33305f6cfac875cea1e7f1a897e7da"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "c061cda7f5eaff18c2c5cf2a0008fc3fa3daa2d5161b484b5e8299c9b9483d1c"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "70693e86d2d8467639e62a836088435ca286eb8422aa301d5d0b4ef6fa370ad6"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "fe5f9dda80250ff56f48f45da14ccd6e29d6c09829256e983a8ee256bd1d7ab4"
+    }
+  ],
+  "staleness_rule": "evaluated_inputs の各 path/sha256 は staging-manifest.json['files'] ∪ {staging-manifest.json} と完全一致する現在の staging バイト集合に対してのみ有効であり、いずれか1ファイルでも書き換わった場合はこの plan-findings.json を無効として再評価しなければならない。",
+  "findings": [
+    {
+      "severity": "medium",
+      "bucket": "verification-command-generation-mismatch",
+      "observation": "P01〜P13 全 task-spec の Verification and evidence 節にある Automated command が `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-reader-search-quality` を指しており、これはリポジトリ内蔵の別世代 fork の plugin パスと `--feature-package` フラグを使う契約になっている。本評価が使用した marketplace 側 plugin (`--staging` フラグ) とは異なる世代であり、実行時にフラグ不整合や異なる検証意味論を招くおそれがある。plan の生成・promotion 自体は marketplace 側 validate-system-plan.py で digest 一致 PASS を確認できているため C1-C4 の判定自体をブロックしないが、後続 phase 実行時の自動検証コマンドとして採用する前に、どちらの世代を正とするか (marketplace への統一、または repo-plugin 側の `--staging` 対応) を明確にすべきである。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-13-release-deploy.md"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "upstream-spec-state-qa-orphan",
+      "observation": "system-spec/backend.md は `qa-backend-web-site-search-llms-txt-v4b` の質疑・確定内容セクションを『正本 spec-state.json の qa_ref/qa_refs/required_info[].grounded_by のいずれからも導けない』章固有の未接続記述として明示的に記録している (backend.md の『章にしか無い記述 (正本へ未接続)』節)。当該 qa が持つ実質的な設計判断 (2文字以下フォールバック、検索語の literal 化によるFTS構文非解釈、公開判定の一貫適用) は本 staging package の P01/P02/P04/P05/P09 に正しく反映されており feature package 自体の欠落ではないが、上流 system-spec 側の qa_ref 接続漏れという技術的負債は解消されていない。system-spec/backend.md の該当箇所を正本へ接続するか、不要と確認して削除する作業は本 feature package のスコープ外 (staging を書き換えない評価) であるため、別途対応が必要。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-05-implementation.md"
+      ]
+    }
+  ]
+}

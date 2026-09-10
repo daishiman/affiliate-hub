@@ -11,7 +11,7 @@
  *             画面に出していないものは返らないこと
  */
 import { describe, expect, it } from "vitest";
-import { createToolCatalog, readerActor } from "@/presentation/composition";
+import { createToolCatalog, readerActor, siteUseCases } from "@/presentation/composition";
 import { findTool } from "@/presentation/tools/catalog";
 import { invokeTool } from "@/presentation/tools/tool-definition";
 import { PAGE_TOOLS } from "@/presentation/tools/webmcp-policy";
@@ -249,4 +249,21 @@ describe("管理用の読み取りは、読者の身元では引き続き断ら�
       expect(result.ok, `${name} が読者の身元で通ってしまいました。`).toBe(false);
     },
   );
+});
+
+
+describe("検索の道具と画面の入力・結果契約", () => {
+  it.each([
+    { siteSlug: SAMPLE_SITE_SLUG, query: "椅子", limit: 1, offset: 1 },
+    { siteSlug: SAMPLE_SITE_SLUG, query: "", tag: "north", limit: 100, offset: 0 },
+    { siteSlug: SAMPLE_SITE_SLUG, query: "椅子", tag: "north", offset: 20 },
+  ])("同じ条件 %j を落とさず同じ結果を返す", async (input) => {
+    const expected = await (await siteUseCases()).search.execute(reader, input);
+    const actual = await callAsReader("search_articles", input);
+    expect(actual).toEqual(expected);
+  });
+  it("検索語とタグが両方空なら同じ入力エラーを返す", async () => {
+    const result = await callAsReader("search_articles", { siteSlug: SAMPLE_SITE_SLUG, query: "" });
+    expect(result.ok).toBe(false);
+  });
 });

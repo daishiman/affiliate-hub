@@ -149,9 +149,11 @@ export function NodeEditor({
         <ImageField
           alt={node.alt}
           ariaPrefix="画像"
+          height={node.height}
           onChange={(image) => onChange((current) => current.kind === "image" ? { ...current, ...image } : current)}
           onUpload={onUploadImage}
           src={node.src}
+          width={node.width}
         />
       );
 

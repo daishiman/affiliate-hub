@@ -20,12 +20,19 @@ import { ADMIN_ROUTE_METADATA } from "@/presentation/ui";
  */
 
 /**
- * 本 feature 着手時点 (2026-09-08) の `drizzle/*.sql` の本数。
+ * 本 feature 着手時点の `drizzle/*.sql` の本数。
  *
  * 実行時に数え直すと自分自身と比べることになり、何本増えても緑になる。
  * A10 が見ているのは「増えていないこと」なので、比べる相手は固定値でなければならない。
+ *
+ * 2026-09-09: 51 だった。この検査は dev 側で書かれ、そこでの着手時点が 51 本だった。
+ * 本ブランチは合流の前から 0051..0062 の 12 本
+ * (検索・SEO/AEO 計測・サムネイル・ブログトップの注目記事) を持っており、
+ * **着手時点という基準そのものが合流で動いた**。数えている対象が変わったのではなく、
+ * 比べる相手の起点が変わったので、起点を実測へ置き直す。
+ * 等値比較なので緩まない — ここから 1 本でも増えれば、やはり落ちる。
  */
-const MIGRATION_COUNT_BASELINE = 51;
+const MIGRATION_COUNT_BASELINE = 63;
 
 const SPEC_DIR = join(process.cwd(), "docs/spec/feat-site-scoped-authoring-ia");
 const APP_ADMIN = join(process.cwd(), "src/app/admin");

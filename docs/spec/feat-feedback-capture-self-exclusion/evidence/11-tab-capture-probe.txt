@@ -1,0 +1,64 @@
+tab-capture pixel probe (A1 の観測限界を破れるかの再挑戦)
+date: 2026-09-05 JST
+script: scripts/probe-tab-capture.mjs
+environment: Playwright 1.62.1 同梱 Chromium / macOS 25.3.0
+
+## 結果: 破れた
+
+実 capture の 1 フレームを canvas へ描き、画素を読み出せた。
+
+  {"ok": true, "size": [3200, 1800],
+   "center": [0, 127, 255], "corner": [255, 1, 0]}
+
+敷いた rgb(0,128,255) と rgb(255,0,0) に一致する（色差の間引きで ±1 ずれる）。
+
+## 何が詰まっていたか
+
+**`--use-fake-ui-for-media-stream` が原因だった。**
+
+このフラグは getUserMedia（カメラ・マイク）の許可ダイアログを自動承諾する
+ためのもので、display capture では「不正な source を選んだことにして承諾する」
+ため、開始できない stream を掴んで必ず `NotReadableError: Could not start
+video source` になる。evidence/10 と、本ファイルの前の版で記録した失敗は
+すべてこのフラグが入ったままの計測だった。
+
+正しい組み合わせは:
+
+  起動引数  --auto-accept-this-tab-capture
+  呼び出し  getDisplayMedia({ video: true, preferCurrentTab: true })
+
+これはアプリ本体（src/presentation/ui/patterns/feedback-button.tsx の
+captureScreen）が既に使っている経路と同一である。探りのために別経路を
+作ったのではなく、本番と同じ道を自動承諾で通しただけ。
+
+## 前の版の診断は誤りだった
+
+前の版は「macOS の画面収録許可（TCC）が要る」と結論していた。**これは誤り。**
+自タブ取得は Chromium の内部で完結し、OS の画面収録許可を経由しない。
+許可を足さずに上記の結果が出ている。
+
+切り分けの過程で試して同じ `NotReadableError` になったもの（すべてフラグが
+入ったままだったため、いずれも原因の切り分けには寄与していない）:
+
+  headless / headed / channel=chrome（システム Chrome）/
+  --auto-select-desktop-capture-source=Entire screen /
+  --auto-select-tab-capture-source-by-title /
+  open(1) で launchd 起動 + connectOverCDP
+
+## 環境の制約（残る 1 つ）
+
+同梱 Chromium の **headless では `NotSupportedError: Not supported`** になる。
+display capture の実装が無い。`headless: false` が要る。
+つまり画面を持つ実行環境でしか走らない。
+
+## A1 の扱い
+
+観測限界は解けた。実画素で判定する検査を
+`tests/e2e/capture-pixel-exclusion.spec.ts` に置き、
+`pnpm test:e2e:capture-pixel` で呼ぶ（既定の E2E からは外してある。
+起動引数が隣の検査の前提と両立せず、headless でも走らないため）。
+
+判定は色を当てずに、撮る直前へ目印を 2 つ置いて数える:
+  - 浮遊要素（[data-floating-overlay]）に magenta … 写しに 0 画素であること
+  - 浮遊でない固定要素に cyan … 写しに在ること（走査が効いていることの対照）
+対照が無いと「走査が壊れていて何も見つからない」場合も 0 件で緑になる。

@@ -100,7 +100,11 @@ describe("管理画面route metadataの正本", () => {
     // 2026-09-08: 93 → 99。書き手・読者像・書き方の決めごとを site 配下へ移し
     // （5 枚）、全ブログ共通の雛形（`writing/template`）を 1 枚足した。
     // 旧 5 枚は転送の殻として残っているので、差は +6 になる。
-    expect(ADMIN_ROUTE_METADATA).toHaveLength(99);
+    // 2026-09-09: 99 → 100。dev との合流。**また両側が別々に足していた。**
+    // dev が上の +6、こちらが「検索とAIからの見え方」の +1。片側の数を採ると
+    // 実物とずれたまま緑になるので、`ADMIN_ROUTE_METADATA.length` を実測して
+    // 100 と確かめた（93 + 6 + 1 と一致する）。
+    expect(ADMIN_ROUTE_METADATA).toHaveLength(100);
 
     const navRoutes = ADMIN_ROUTE_METADATA.filter((route) => route.nav !== null);
     expect(ADMIN_NAV.map((item) => item.href)).toEqual(navRoutes.map((route) => route.pattern));

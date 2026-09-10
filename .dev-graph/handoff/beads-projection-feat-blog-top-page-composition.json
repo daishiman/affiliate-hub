@@ -1,0 +1,138 @@
+{
+  "source_digest": "sha256:d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+  "feature": {
+    "graph_node_id": "feat-blog-top-page-composition",
+    "title": "ブログトップページの構成 (参照ブログの情報階層を非模倣で抽象化)",
+    "description": "読者がトップページに来た瞬間に「何のブログで、何が読めて、次にどこへ行けばよいか」を迷わず掴めるようにし、参照ブログの情報階層だけを抽象化して独自の構成へ翻訳する\n\nsource: features/feat-blog-top-page-composition.md\n\ngraph_node_id: feat-blog-top-page-composition"
+  },
+  "children": [
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+      "phase_ref": "P01",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [],
+      "title": "トップページ区画構成・カード規約・追従ヘッダー機能予算・非模倣ゲートの要求ベースライン確定",
+      "description": "おすすめ記事→最新/人気切替→カテゴリーから探す→記事一覧導線の区画順・件数・空状態、記事カードの16:9規約とサムネイル欠落時のOGP自動生成fallback、追従ヘッダーへ置く機能をサイト名/検索起動/カテゴリへの移動の3つに限定する予算、フッター導線集約(運営者情報/全カテゴリー/サイトポリシー/プライバシーポリシー/特定商取引法に基づく表記/お問い合わせ/RSS/SNS)、JavaScript無効時のURL到達性、WebSite+SearchAction+ItemListの構造化データ、参照元(kajetblog.com)の非模倣ゲートの検査対象を、同じacceptance IDで確定する。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p01.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P01"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+      "phase_ref": "P02",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P01"
+      ],
+      "title": "トップページ構成コンポーネント・URL契約・JSON-LD契約・非模倣静的検査のアーキテクチャ設計",
+      "description": "P01の要求ベースラインを、既存のブログトップルート(src/app/s/[site]/page.tsx)とfeat-blog-ui-builderが提供するsticky header/footer部品を消費する側のコンポーネント設計、最新/人気切替のURLパラメータ契約、WebSite+SearchAction+ItemListのJSON-LD生成契約、非模倣静的検査(参照元の文章・画像・ロゴ・固有名・色値の混入検知)のCI組込み設計へ変換する。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p02.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P02"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+      "phase_ref": "P03",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P02"
+      ],
+      "title": "トップページ設計の独立レビュー",
+      "description": "P02のアーキテクチャ設計をP01の受入条件・非模倣制約・feature間scope境界(feat-blog-ui-builder/feat-thumbnail-visual-system/feat-reader-search-quality/feat-reader-surfaceとの責務分離)に対して、設計を行った当事者から独立した観点でレビューする。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p03.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P03"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+      "phase_ref": "P04",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P03"
+      ],
+      "title": "テストファースト: 区画構成・追従ヘッダー・JS無効到達性・非模倣・JSON-LDの受入テスト契約",
+      "description": "実装(P05)に先立ち、区画順序と空状態、記事カードのCLS 0.1未満とOGP fallback、追従ヘッダーの3機能限定・小画面での畳み/復帰・アンカー自己遮蔽回避、JavaScript無効時のURLでの最新/人気到達性、WebSite+SearchAction+ItemListのJSON-LDのスキーマ整合、axe-core重大違反0件と light/dark 双方のコントラスト、非模倣静的検査のfail-closed動作を検証するテストを先に書く。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p04.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P04"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+      "phase_ref": "P05",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P04"
+      ],
+      "title": "トップページ区画構成・記事カード・追従ヘッダー配置・URL段階的強化・JSON-LDの実装",
+      "description": "P04のテストをPASSさせる実装として、ブログトップ(src/app/s/[site]/page.tsx)をおすすめ記事→最新/人気切替→カテゴリーから探す→記事一覧導線の順に構成し、記事カードへ16:9のサムネイル(または自動生成OGP画像)・カテゴリ・公開日時を表示し、feat-blog-ui-builderのsticky header部品をサイト名/検索起動/カテゴリへの移動の3機能だけで配置し、小画面での下方向スクロール中の畳みと上方向での復帰、アンカー移動時の見出しscroll-margin、フッター7導線配置、?sort=latest|popularのURLパラメータによる段階的強化、WebSite+SearchAction+ItemListのJSON-LD出力を実装する。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p05.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+      "phase_ref": "P06",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+      ],
+      "title": "単体・結合・境界値・回帰・a11y・no-jsテストの実行",
+      "description": "P05の実装に対してP04が用意した単体・結合・境界値・回帰テスト、axe-coreによるアクセシビリティスキャン、JavaScript無効時のe2e、非模倣静的検査を実行し、結果をreportへ残す。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p06.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P06"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+      "phase_ref": "P07",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P06"
+      ],
+      "title": "feature acceptance A1-A8の充足判定",
+      "description": "feature acceptance A1(区画順序と空状態)、A2(最新/人気のJavaScript無効到達性)、A3(追従ヘッダー3機能とその挙動)、A4(フッター導線)、A5(JSON-LD)、A6(非模倣機械検査)、A7(axe-core/コントラスト)、A8(カードwidth/height固有とCLS/OGP fallback)を、P06のtest-run reportを根拠に1件ずつ充足判定する。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p07.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P07"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+      "phase_ref": "P08",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P07"
+      ],
+      "title": "既存トップページ実装のリファクタリングと3機能予算への移行",
+      "description": "既存のsrc/presentation/site/home-content.tsxおよびsrc/presentation/site/blog-top-bands.tsxが持つ区画構成・ヘッダー関連ロジックを、P05で確定した区画順序・追従ヘッダー3機能予算・フッター導線集約へ後方互換を保ちながら移行し、重複ロジックを整理する。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p08.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P08"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+      "phase_ref": "P09",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P08"
+      ],
+      "title": "品質・セキュリティ・運用readinessの保証",
+      "description": "P07/P08の成果に対し、axe-core重大違反0件・light/dark双方のコントラスト基準・CLS 0.1未満・非模倣静的検査のCI組込み・secretの非混入・運用readiness(監視対象・ロールバック手順)を保証する。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p09.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P09"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+      "phase_ref": "P10",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P09"
+      ],
+      "title": "独立最終レビュー",
+      "description": "P01-P09の全成果物に対し、実装を行った当事者から独立した最終レビューを行い、A1-A8の充足・非模倣ゲートの実効性・scope境界遵守を最終確認する。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p10.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P10"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+      "phase_ref": "P11",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P10"
+      ],
+      "title": "再現可能な証跡の確定",
+      "description": "A1-A8それぞれについて、第三者が同じ手順で再実行し同じ結果を得られる再現可能な証跡(テスト結果・axe-coreレポート・CLS測定・非模倣静的検査ログ・JSON-LDスキーマ検証結果)を確定する。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p11.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P11"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+      "phase_ref": "P12",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P11"
+      ],
+      "title": "ドキュメント・runbook・引き継ぎの確定",
+      "description": "トップページの区画構成・追従ヘッダー機能予算・非模倣ゲートの運用手順・障害時対応(非模倣検査fail時の切り戻し、追従ヘッダーの表示不具合時の対応)をrunbookとして確定し、次phase(P13)と運用担当者へ引き継ぐ。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p12.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P12"
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P13",
+      "phase_ref": "P13",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P12"
+      ],
+      "title": "development deployment・rollback確認・仕様書への書き戻し",
+      "description": "feature flagでdevelopmentへ段階展開し、smoke/telemetry/rollbackを確認したうえで、実行結果・判断・改善点をsystem-spec/ui-ux.md・system-spec/frontend.md・architecture/system-spec-overview.mdへ正規reopen経由で書き戻す。\n\nsource: tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p13.md\n\ngraph_node_id: SYS-BLOG-TOP-PAGE-COMPOSITION-P13"
+    }
+  ]
+}

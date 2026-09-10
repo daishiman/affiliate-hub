@@ -127,9 +127,11 @@ describe("評価セットの構成", () => {
 
 describe("網羅に穴が無いこと", () => {
   it("記事タイプを全部使っている", () => {
-    const used = new Set(EVAL_CASES.map((c) => c.input.articleType));
+    // 貯め先を `Set<string>` にする。以前は `has(type as never)` で押し込んでおり、
+    // **語彙の綴りが変わっても何も言わない**状態だった。
+    const used = new Set<string>(EVAL_CASES.map((c) => c.input.articleType));
     for (const type of ARTICLE_TYPES) {
-      expect(used.has(type as never), `記事タイプ ${type} の評価がありません`).toBe(true);
+      expect(used.has(type), `記事タイプ ${type} の評価がありません`).toBe(true);
     }
   });
 
@@ -141,9 +143,9 @@ describe("網羅に穴が無いこと", () => {
   });
 
   it("出し先を全部使っている", () => {
-    const used = new Set(EVAL_CASES.map((c) => c.input.channel));
+    const used = new Set<string>(EVAL_CASES.map((c) => c.input.channel));
     for (const channel of CHANNEL_KINDS) {
-      expect(used.has(channel as never), `出し先 ${channel} の評価がありません`).toBe(true);
+      expect(used.has(channel), `出し先 ${channel} の評価がありません`).toBe(true);
     }
   });
 

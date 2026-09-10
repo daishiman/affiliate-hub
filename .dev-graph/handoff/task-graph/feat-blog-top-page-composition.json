@@ -1,0 +1,207 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "emitted_at": "2026-09-04T13:00:00Z",
+  "feature_id": "feat-blog-top-page-composition",
+  "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "graph_revision": 463,
+  "graph_snapshot_digest": "sha256:c6a9b3c405b1c23842659b80e914c70979f381e221267a16ad8551055cdfe341",
+  "scope_digest": "sha256:d691c400be6cd842edffc9ff11f6b5c5e48ee7dce7b76433c229d6030c64c684",
+  "handoff_target": "task-graph",
+  "requirements_quality": "detailed",
+  "requirements_document": "docs/requirements/feat-blog-top-page-composition-implementation-requirements.md",
+  "requirements_document_sha256": "31af75c3f73c44f1c79c3f83c6b83f076b4ae9bd271d64f378e882946b8c736d",
+  "implementation_code_generated": 0,
+  "promoted_generation": ".dev-graph/published/feature-package-feat-blog-top-page-composition",
+  "lineage_closure": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "feat-blog-top-page-composition",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P13"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "requirements_quality_source": "user-explicit",
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "source_digest": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-source-digest.py --repo-root . --registered <13-task-node-ids>",
+      "exit": 0,
+      "checked": 13,
+      "registered_mismatch": 0
+    },
+    "C02_saved_state": {
+      "checked": 14,
+      "confirmed_pass_complete": 14,
+      "missing_sections": []
+    },
+    "validate_system_plan": {
+      "command": "python3 /Users/dm/dev/dev/個人開発/harness/plugins/system-dev-planner/scripts/validate-system-plan.py --staging .dev-graph/published/feature-package-feat-blog-top-page-composition",
+      "exit": 0,
+      "status": "pass",
+      "schema_version": "1.0.0",
+      "validated_digest": "sha256:527391117e2989ab2cdfba1fe6e95b526a8246a10561987153453687d101333c",
+      "phase_refs": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "violations": 0
+    },
+    "C08_implementation_readiness": {
+      "command": "python3 /Users/dm/dev/dev/個人開発/harness/plugins/system-dev-planner/scripts/check-implementation-readiness.py --repo-root .",
+      "exit": 0
+    }
+  },
+  "tasks": [
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p01.md",
+      "tracker_binding": "beads",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p02.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p03.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p04.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p05.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p06.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p07.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p08.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p09.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p10.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p11.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P10"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p12.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P13",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p13.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P12"
+      ]
+    }
+  ],
+  "trace_plan_digest": "sha256:8b1b63973d7101c3409f529aed06b557a3f8c289df454c8e06dc858eb5001056"
+}

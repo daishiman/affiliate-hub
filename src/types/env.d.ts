@@ -14,6 +14,20 @@ declare global {
     TURNSTILE_HOSTNAMES?: string;
     /** 問い合わせフォームへ描画する公開 site key。 */
     TURNSTILE_SITE_KEY?: string;
+    /**
+     * 公開サイトの起点（`https://example.com`）。
+     *
+     * 画面からの要求なら Host から作れるが、**定時実行には要求が無い。**
+     * 未設定のときは推測せず、収集を見送って理由を返す。
+     */
+    PUBLIC_SITE_ORIGIN?: string;
+    /**
+     * Google Search Console のサービスアカウント JSON（秘密鍵を含む）。
+     * Cloudflare の画面から登録する。リポジトリには置かない。
+     */
+    GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT?: string;
+    /** AI 検索での被引用チェックに使う Anthropic の API キー。 */
+    AEO_CITATION_API_KEY?: string;
   }
 }
 

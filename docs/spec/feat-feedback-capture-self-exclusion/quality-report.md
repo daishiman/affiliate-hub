@@ -66,3 +66,44 @@ architecture test 5 件を含む全体 Vitest 411 files / 9907 tests もすべ�
 `tests/ui/floating-overlay-declaration.test.ts` は
 `tests/architecture/form2-population-floor.test.ts` の指摘を受けて
 **母集団の床を同じ `it` の中へ移した**（上限は上げていない）。
+
+## 2026-09-05 再検証（P08 の受入時に全件を走らせ直した）
+
+上の表は 2026-09-03 時点の値である。**消さずに残してある。**当時 E2E は
+`capture-self-exclusion.spec.ts` の 4 件しか走らせておらず、
+`pnpm run test:e2e`（全件）は赤かった。その赤の中身は本 feature の欠陥ではなく、
+別 3 件の指摘（浮いたボタンの重なり／目次リンクの 0×0／管理画面の 404）だった。
+**それを「関係ないので緑とみなす」とはせず、3 件とも直してから数え直した。**
+
+| 検査 | 2026-09-03 | 2026-09-05 |
+|---|---|---|
+| `npx tsc --noEmit` | エラー 0 | エラー 0 |
+| `pnpm run lint` | 指摘 0 | 指摘 0 |
+| `npx vitest run` | 411 files / 9907 passed | **493 files / 10981 passed / 0 failed** |
+| `pnpm run test:e2e`（全件） | 未通過 | **508 passed / 2 skipped / 0 failed（342s）** |
+| `validate-system-plan.py` | — | `violations: []` |
+| `acceptance:reconcile` | PASS（196 evidence） | PASS（10 IDs / **209 evidence**、`sha256:8831e0c9…`） |
+
+### 数え直しの過程で直した 3 件（いずれも本 feature の外）
+
+1. **浮いたボタンが操作を覆う（ah-od20）** — 監査側の誤りと製品側の欠陥が半々。
+   `.tableWrap`（`overflow: auto`）の中の行は切り取られる前の座標を名乗るので、
+   見えていない位置を「覆われている」と数えていた（8 件）。残る 3 件は本物で、
+   `.headerActions` が `flex-wrap: nowrap` になったのに `justify-content: flex-end`
+   のままで、溢れが **`scrollWidth` が数えない左側**へ押し出されていた。
+2. **目次リンクが 0×0（ah-g4ev）** — 目次は 2 つあり CSS が必ず片方を
+   `display: none` にする。出ていない側の `<a>` は宣言だけ 44px を名乗り実寸 0×0 を返す。
+   `getClientRects()` が空、すなわち**組版されていない**ものだけを外した。
+   組版された上での 0×0 は従来どおり赤い。
+3. **管理画面の 404（ah-t8jr）** — 見本のアイキャッチ説明文がそのまま `<img src>`
+   になっていた。`safeImageUrl` を deny-list から allow-list へ反転した。
+
+**閾値・免除表・除外表・母集団の床は 1 つも動かしていない。**
+`KNOWN_STALE_MAX` も上げていない（`pnpm run generate` で生成物の側を合わせた）。
+
+### 本 feature 自身の回帰
+
+`data-floating-overlay` の単一手掛かり化は上の 3 件のどれにも触れていない。
+重なり監査（`app-routes.spec.ts`）は同じ属性を読み続けており、
+`tests/ui/floating-overlay-declaration.test.ts` の双方向の検査（名乗り忘れ／名乗りすぎ）も
+母集団の床つきで緑のままである。除外は `skipLink` の 1 件だけで増えていない。

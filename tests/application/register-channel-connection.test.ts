@@ -3,9 +3,10 @@ import { describe, expect, it } from "vitest";
 import type { ManageDistributionDeps } from "@/application/usecases/distribution/manage-distribution";
 import { createRegisterChannelConnectionUseCase } from "@/application/usecases/distribution/manage-distribution";
 import type { ChannelConnection } from "@/domain/distribution";
-import { domainError, err, ok } from "@/domain/shared";
+import { asBrandId, domainError, err, ok } from "@/domain/shared";
 import { anOwner, aWriter } from "../support/actors";
 import { recordingAuditLog, testDeps } from "../support/doubles";
+import { anAuditLogEntry } from "../support/factories";
 
 function setup(over: Partial<ManageDistributionDeps> = {}) {
   const base = testDeps();
@@ -61,7 +62,7 @@ describe("外部媒体との接続登録", () => {
   it("publisher・ブランド限定owner・AI ownerにはworkspace共通接続を登録させない", async () => {
     for (const actor of [
       aWriter(),
-      anOwner({ scopedBrandIds: ["brand_limited" as never] }),
+      anOwner({ scopedBrandIds: [asBrandId("brand_limited")] }),
       anOwner({ isAiServiceAccount: true }),
     ]) {
       const scenario = setup();
@@ -390,7 +391,7 @@ describe("外部媒体との接続登録", () => {
           ok(
             base.audit.entries().length === 0
               ? []
-              : [{ action: "connector.connected", targetType, targetId } as never],
+              : [anAuditLogEntry({ action: "connector.connected", targetType, targetId })],
           ),
         append: async (entry) => {
           await base.audit.port.append(entry);

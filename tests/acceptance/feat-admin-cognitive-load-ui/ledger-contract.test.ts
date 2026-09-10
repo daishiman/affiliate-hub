@@ -393,7 +393,7 @@ describe("管理画面の情報台帳", () => {
     expect(ADMIN_DISCLOSURE_CONTRACTS.length).toBeGreaterThan(80);
     const declaredFoldable = [...ledger.detailDisclosureBinding.foldableRouteIds].sort();
     const actualFoldable = ledger.routes
-      .filter((route) => /<Foldable\b/.test(source(route.file)))
+      .filter((route) => /<Foldable\b/.test(renderedSource(route.file)))
       .map((route) => route.routeId)
       .sort();
     expect(actualFoldable).toEqual(declaredFoldable);
@@ -415,7 +415,7 @@ describe("管理画面の情報台帳", () => {
     expect(foldableSource).not.toMatch(/<details[^>]*\sopen(?:=|\s|>)/);
     for (const routeId of declaredFoldable) {
       const route = ledger.routes.find((candidate) => candidate.routeId === routeId);
-      const summaries = [...source(route!.file).matchAll(/summary=(?:"([^"]+)"|\{`([^`]+)`\})/g)]
+      const summaries = [...renderedSource(route!.file).matchAll(/summary=(?:"([^"]+)"|\{`([^`]+)`\})/g)]
         .map((match) => match[1] ?? match[2] ?? "");
       expect(summaries.length, `${routeId} のFoldable種類`).toBeGreaterThan(0);
       for (const summary of summaries) {

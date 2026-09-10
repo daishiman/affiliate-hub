@@ -1,0 +1,1220 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+  "promotion_receipt": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+  "parent_feature": "feat-thumbnail-visual-system",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P01": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P02": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P03": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P04": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P05": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P06": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P07": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P08": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P09": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P10": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P11": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P12": "beads",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "サムネイル適用8画面・登録経路・観測factの要求ベースライン確定",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/requirements-baseline.md",
+        "docs/spec/feat-thumbnail-visual-system/screen-application-inventory.md",
+        "docs/spec/feat-thumbnail-visual-system/registration-priority-analysis.md",
+        "docs/spec/feat-thumbnail-visual-system/cls-observed-fact.md",
+        "docs/spec/feat-thumbnail-visual-system/acceptance-traceability.json"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p01.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP01 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p01.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "登録優先順位・決定論的代替図版・R2派生・CLS/OGP規約の設計",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P01"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/data-model.md",
+        "docs/spec/feat-thumbnail-visual-system/api-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/deterministic-placeholder-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/r2-derivative-naming-cache-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/component-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/icon-set-contract.md"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p02.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP02 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p02.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "設計の独立レビューと外部接続なし・決定論性・境界不可侵ゲート",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P02"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/design-review.md"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p03.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP03 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p03.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "A1-A7・CLS・決定論性・OGPのテスト設計",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P03"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/test-design.md",
+        "tests/fixtures/thumbnail-visual-system/"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p04.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP04 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p04.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "サムネイル登録・代替図版生成・R2配信・全画面表示・SVGアイコンの実装",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "frontend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P04"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src/domain/blogops/",
+        "src/domain/shared/",
+        "src/application/ports/",
+        "src/application/usecases/blog-ops/",
+        "src/application/read-models/",
+        "src/application/seo/",
+        "src/infrastructure/persistence/d1/",
+        "src/infrastructure/platform/storage-r2.ts",
+        "src/presentation/ui/primitives/",
+        "src/presentation/ui/patterns/",
+        "src/presentation/ui/tokens/",
+        "src/presentation/site/",
+        "src/presentation/admin/",
+        "src/app/s/[site]/",
+        "src/app/admin/blog/",
+        "src/app/admin/content/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "tests/"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p05.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP05 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p05.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "単体・結合・CLS・決定論性・OGPテストの実行と緑化",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P05"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/test-run-report.md",
+        "test-results/thumbnail-visual-system/"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p06.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP06 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p06.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "A1-A7のfeature受入",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P06"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/acceptance-report.md"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p07.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP07 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p07.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存記事一覧・関連記事コンポーネントとの重複解消と移行",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "data",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P05"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/domain/blogops/",
+        "src/application/usecases/blog-ops/",
+        "src/infrastructure/persistence/d1/",
+        "src/presentation/site/",
+        "src/presentation/admin/",
+        "docs/spec/feat-thumbnail-visual-system/migration-report.md"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p08.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP08 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p08.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "CLS・決定論性・外部接続なし・非侵犯境界の独立QA",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P08"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/qa-report.md",
+        "test-results/thumbnail-visual-system/qa/"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p09.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP09 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p09.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "目的・受入・品質証跡の独立最終レビュー",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P09"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/final-review.md"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p10.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP10 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p10.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "サムネイル・代替図版・アイコン証跡の再現可能な集約",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P10"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/evidence/"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p11.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP11 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p11.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "管理者ガイド・派生再生成runbook・障害対応の確定",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P11"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/admin-guide.md",
+        "docs/spec/feat-thumbnail-visual-system/thumbnail-regeneration-runbook.md",
+        "docs/spec/feat-thumbnail-visual-system/icon-asset-runbook.md",
+        "docs/spec/feat-thumbnail-visual-system/operations.md",
+        "docs/spec/feat-thumbnail-visual-system/api-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/data-model.md"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p12.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP12 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p12.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "development段階展開・rollback確認・仕様書への書き戻し",
+      "project_id": "feature-package-feat-thumbnail-visual-system",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-thumbnail-visual-system"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:16:11Z",
+      "updated_at": "2026-09-04T04:16:11Z",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P12"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-thumbnail-visual-system/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "parent_feature": "feat-thumbnail-visual-system",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p13.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/plan-findings.json",
+        "evaluated_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-thumbnail-visual-system/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "3495330b8d67c78fac526b7468ec270cb6f15e6e8c07d88d6e80dd526d37109d",
+        "imported_at": "2026-09-04T04:16:11Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-thumbnail-visual-systemのP13 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p13.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    }
+  ]
+}

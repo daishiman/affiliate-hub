@@ -46,7 +46,13 @@ import {
   type SiteDocumentStorageKind,
 } from "@/domain/authoring";
 import type { SiteDocument } from "@/application/ports/site";
-import { BLOG_OPS_SAMPLE_ROUTE_IDS } from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
+import {
+  BLOG_OPS_SAMPLE_ROUTE_IDS,
+  sampleFeaturedArticleSlugs,
+} from "@/infrastructure/persistence/sample/blog-ops-sample-repository";
+import { SAMPLE_ARTICLES } from "@/infrastructure/persistence/sample/content-sample-data";
+import { searchableTextOf } from "@/application/read-models/searchable-text";
+import { projectBlogArticle } from "@/application/read-models/published-article";
 import { buildBlogOperationsSeedSql } from "./blog-operations-seed";
 import { q, seconds } from "./sql";
 import {
@@ -901,6 +907,29 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
   const seedLinkIds = SEED_AFFILIATE_LINKS.map((row) => q(row.id)).join(", ");
   const seedProgramIds = SEED_AFFILIATE_PROGRAMS.map((row) => q(row.id)).join(", ");
   const seedAccountIds = SEED_AFFILIATE_ACCOUNTS.map((row) => q(row.id)).join(", ");
+  /*
+   * 消す対象は**この seed が入れ直す公開記事の URL 全部**。
+   *
+   * 2 系統ある。見本 (`SAMPLE_ARTICLES`) の写しと、下書き
+   * (`SEED_ARTICLES` の公開中) の写しで、後者は 2026-09-05 まで
+   * 作られていなかった。片方だけを消す形にすると、記事の URL 名を
+   * 変えた日に古い写しが残り、消したはずの記事が読者に出続ける。
+   */
+  const seedPublishedArticles = [
+    ...SAMPLE_ARTICLES.map((article) => ({
+      siteSlug: article.siteSlug,
+      slug: article.slug,
+    })),
+    ...SEED_ARTICLES.filter((article) => article.status === "published").map((article) => ({
+      siteSlug: seedSiteSlug(article.site ?? "hub"),
+      slug: article.slug,
+    })),
+  ]
+    .map((article) => `(site_slug = ${q(article.siteSlug)} AND slug = ${q(article.slug)})`)
+    .join(" OR ");
+  const seedFeaturedSiteSlugs = sampleSites()
+    .map((site) => q(site.slug))
+    .join(", ");
   const seedLegalPageIds = SEED_SITE_KEYS.flatMap((siteKey) => [
     ...FIXED_PAGE_KINDS.map((kind) => q(`lp_seed_${siteKey}_${kind}`)),
     ...SITE_DOCUMENT_ONLY_STORAGE_KINDS.map((kind) =>
@@ -913,9 +942,27 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
     `DELETE FROM affiliate_links WHERE workspace_id = ${ws} AND id IN (${seedLinkIds});`,
     `DELETE FROM affiliate_programs WHERE workspace_id = ${ws} AND id IN (${seedProgramIds});`,
     `DELETE FROM affiliate_accounts WHERE workspace_id = ${ws} AND id IN (${seedAccountIds});`,
+    // 選定は公開記事を論理参照する。先に外し、その後で公開投影を作り直す。
+    `DELETE FROM blog_home_featured_article WHERE workspace_id = ${ws} AND site_slug IN (${seedFeaturedSiteSlugs});`,
+    // 手入力の公開記事まで消さず、この seed が再投入する見本 URL だけを対象にする。
+    `DELETE FROM published_articles WHERE workspace_id = ${ws} AND (${seedPublishedArticles});`,
     `DELETE FROM blog_article_rating WHERE article_id IN (SELECT id FROM articles WHERE workspace_id = ${ws});`,
     `DELETE FROM blog_article_tag WHERE article_id IN (SELECT id FROM articles WHERE workspace_id = ${ws});`,
     `DELETE FROM blog_article_block WHERE article_id IN (SELECT id FROM articles WHERE workspace_id = ${ws});`,
+    /*
+      下書きへ紐付いた写しを、下書きより先に外す。
+
+      `published_articles.source_article_id` は `articles.id` への外部キーである。
+      すぐ下の `DELETE FROM articles` は workspace ごとまとめて消すので、
+      **この seed が知らない写し**（E2E の fixture が作ったもの等）が残っていると
+      そこで `FOREIGN KEY constraint failed` になり、seed 全体が落ちる。
+
+      上の URL 名を並べた DELETE では足りない。あれは「この seed が入れ直す分」
+      しか見ておらず、他所が入れた写しは対象外だからである。
+      ここは名前ではなく**参照そのもの**を条件にする。
+      `source_article_id` が NULL の写し（AI 公開の分）は参照を持たないので残る。
+    */
+    `DELETE FROM published_articles WHERE source_article_id IN (SELECT id FROM articles WHERE workspace_id = ${ws});`,
     `DELETE FROM articles WHERE workspace_id = ${ws};`,
     `DELETE FROM blog_tag WHERE workspace_id = ${ws};`,
     `DELETE FROM blog_layout_slot WHERE workspace_id = ${ws};`,
@@ -1059,7 +1106,100 @@ export function buildSeedSql(nowSeconds: number): readonly string[] {
            VALUES (${q(`br_${article.id}_${index}`)}, ${ws}, ${q(article.id)}, ${q(`reader_seed_${index}`)}, ${score}, NULL, ${at});`,
       );
     });
+
+    /*
+     * 下書きが「公開中」なら、**その写しも同時に作る。**
+     *
+     * `published_articles` は `articles` の参照ではなく写しなので、
+     * 下書き側を published にしただけでは読者に何も出ない（下の
+     * SAMPLE_ARTICLES の説明）。そこは 2026-09-05 に直したが、
+     * **直したのは見本 (`SAMPLE_ARTICLES`) の側だけだった。**
+     * `articles` に公開中が 8 本あるのに写しは 1 本も無い、という
+     * 食い違いがそのまま残り、`/s/<ブログ>/blog/starter-kit-2026` は
+     * 404 のままだった。E2E の「公開済みの記事は読めて、点を付けられる」は
+     * `h1` が見えることを見ているが、**Next.js の 404 画面にも `h1` はある**
+     * ので、そこは通り抜けて次の行（評価 UI）で時間切れになっていた。
+     * 「記事が描けている」ように見えて、実は 404 を読んでいた。
+     *
+     * `source_article_id` にはこの下書きの id を入れる。
+     * **これが無いと記事は読めても点が付けられない。**
+     * `article-page.tsx` は元の記事が辿れないとき評価の節ごと出さず、
+     * 点は `articles` 側に貯まる（`blog_article_rating.article_id`）ためで、
+     * 身元の無い写しに点を付ける先は無い。
+     *
+     * 逆に、見本由来の 22 本は `source_article_id` が NULL のままでよい。
+     * 下書きを持たない公開（AI 公開）は実装が正式に認めている形で
+     * （`published-article-repository.ts` が `null` を渡す経路）、
+     * ここを揃えて埋めると「下書きから公開した」と「そうでない」の
+     * 区別が消える。
+     *
+     * 値は `projectBlogArticle`——本番の公開経路
+     * （`blog-ops-repository.ts`）が使うのと同じ変換——から作る。
+     * 手で JSON を組むと、変換を直した日に seed だけ古い形のまま残る。
+     */
+    if (record.status === "published" && record.publishedAt !== null) {
+      const projected = projectBlogArticle({
+        id: record.id,
+        siteSlug: record.siteSlug,
+        slug: record.slug,
+        type: ARTICLE_TYPE_BY_TEMPLATE[record.template],
+        title: record.title,
+        lead: record.lead,
+        authorName: record.authorName,
+        publishedAt: record.publishedAt,
+        updatedAt: record.updatedAt,
+        categorySlug: record.categorySlug ?? "",
+        blocks: seedArticleBlocks(article),
+      });
+      out.push(
+        `INSERT INTO published_articles (site_slug, slug, workspace_id, source_article_id, type, title, summary, category_slug, author_slug, author_name, published_at, updated_at, archived_at, article_json, search_text)
+           VALUES (${q(projected.siteSlug)}, ${q(projected.slug)}, ${ws}, ${q(record.id)}, ${q(projected.type)}, ${q(projected.title)}, ${q(projected.summary)}, ${q(projected.categorySlug)}, ${q(projected.author.slug)}, ${q(projected.author.name)}, ${q(projected.publishedAt)}, ${q(projected.updatedAt)}, NULL, ${q(JSON.stringify(projected))}, ${q(searchableTextOf(projected))});`,
+      );
+    }
   });
+
+  /*
+   * 読者が読む記事。**`articles` に「公開中」と書いただけでは読者に出ない。**
+   *
+   * `published_articles` は `articles` の参照ではなく**写し**である
+   * (`src/db/schema.ts` の説明)。公開の瞬間に本文ごと確定させるので、
+   * あとで人物名やカテゴリー名を直しても、読者が既に読んだ記事は変わらない。
+   * その代わり、写しを作る手順を踏まないと `articles.status='published'` が
+   * 8 本あっても `/s/<ブログ>/...` は全部 404 になる。
+   *
+   * 2026-09-05 まで seed はこの表を 1 行も書いていなかった。開発機の D1 で
+   * `select count(*) from published_articles` は **0** で、`articles` には
+   * 公開中が 8 本あった。E2E の 14 件（`/s/.../blog|best|reviews|compare|
+   * guides|authors|experts` × desktop/mobile）はこれで落ちていた。
+   * `article-page.tsx` の `stopIfMissing` は正しく動いており、
+   * **読む先が空だった**。
+   *
+   * 値は見本 (`SAMPLE_ARTICLES`) をそのまま JSON にする。**写さない。**
+   * 写せば、見本に記事を 1 本足した日に seed だけ古いままになり、
+   * vitest（見本の上で描く）は緑・本物の通信だけが 404 という、
+   * 一番見つけにくい形へ戻る。`site_blueprints` で 2026-08-30 に
+   * 起きたのと同じ事故である（上の説明）。
+   *
+   * 書き手・監修者のページ（`/authors/<名前>`・`/experts/<名前>`）に
+   * 専用の表は無い。`author_slug` と `article_json` の `$.reviewedBy.slug`
+   * から引く。**記事を入れれば人物も同時に埋まる。**
+   */
+  for (const article of SAMPLE_ARTICLES) {
+    out.push(
+      `INSERT INTO published_articles (site_slug, slug, workspace_id, source_article_id, type, title, summary, category_slug, author_slug, author_name, published_at, updated_at, archived_at, article_json, search_text)
+         VALUES (${q(article.siteSlug)}, ${q(article.slug)}, ${ws}, NULL, ${q(article.type)}, ${q(article.title)}, ${q(article.summary)}, ${q(article.categorySlug)}, ${q(article.author.slug)}, ${q(article.author.name)}, ${q(article.publishedAt)}, ${q(article.updatedAt)}, NULL, ${q(JSON.stringify(article))}, ${q(searchableTextOf(article))});`,
+    );
+  }
+
+  // おすすめも見本の明示選定と共有する。最新順から推測すると、更新だけで選定が変わる。
+  for (const { slug: siteSlug } of sampleSites()) {
+    sampleFeaturedArticleSlugs(siteSlug).forEach((articleSlug, position) => {
+      out.push(
+        `INSERT INTO blog_home_featured_article (workspace_id, site_slug, article_slug, position)
+           VALUES (${ws}, ${q(siteSlug)}, ${q(articleSlug)}, ${position});`,
+      );
+    });
+  }
 
   // 固定ページも両方のブログに。子だけ法務の入口が無い状態は、そのままだと審査で落ちる。
   for (const siteKey of SEED_SITE_KEYS) {

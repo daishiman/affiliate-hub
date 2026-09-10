@@ -133,16 +133,23 @@ export function ProductPicker({
  * 選んだファイルはブラウザから直に置き場へ送られ、返ってきた場所だけを
  * 本文が持つ。よそのサイトの絵を指せないので、相手が消した日に
  * 記事から絵が消えることがない。
+ *
+ * `width`/`height` は**絵の実寸**を持ち回るだけで、欄には出さない。
+ * 運営者が打つものではなく、下の下絵が読み込まれた瞬間に書き取る。
  */
 export function ImageField({
   src,
   alt,
+  width,
+  height,
   ariaPrefix,
   onChange,
   onUpload,
 }: {
   readonly src: string;
   readonly alt: string;
+  readonly width: number | null;
+  readonly height: number | null;
   readonly ariaPrefix: string;
   readonly onChange: (image: ProseImage) => void;
   readonly onUpload?: (file: File) => Promise<string>;
@@ -173,7 +180,8 @@ export function ImageField({
               setBusy(true);
               setError(null);
               onUpload(file)
-                .then((url) => { if (mounted.current) latest.current.onChange({ src: url, alt: latest.current.alt }); })
+                /* 新しい絵の実寸はまだ分からない。下の下絵が届いた時点で書き取る。 */
+                .then((url) => { if (mounted.current) latest.current.onChange({ src: url, alt: latest.current.alt, width: null, height: null }); })
                 .catch((cause: unknown) =>
                   setError(
                     cause instanceof Error && cause.message.trim() !== ""
@@ -189,18 +197,31 @@ export function ImageField({
       ) : (
         <>
           {/* 運営者入力の URL は寸法も許可ホストも事前確定できないため、最適化 API を経由しない。 */}
+          {/*
+            **下絵の読み込みそのものを物差しに使う。**`new Image()` で測り直すと
+            同じ絵を 2 度取りに行くことになる。ここに出ている絵は既に
+            読み込まれているので、届いた寸法をそのまま書き取る。
+
+            読み込みに失敗した絵は `onLoad` が呼ばれず、寸法は `null` のまま
+            残る。**保存は落ちない。**測れないことは、書けないことではない。
+          */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {safeImageSrc(src) !== null ? <img alt={alt} className={styles.proseImage} src={safeImageSrc(src)!} /> : <p className={styles.hint}>この画像は表示できません。画像を外して選び直してください。</p>}
+          {safeImageSrc(src) !== null ? <img alt={alt} className={styles.proseImage} onLoad={(e) => {
+            const { naturalWidth, naturalHeight } = e.currentTarget;
+            if (naturalWidth === 0 || naturalHeight === 0) return;
+            if (width === naturalWidth && height === naturalHeight) return;
+            onChange({ src, alt, width: naturalWidth, height: naturalHeight });
+          }} src={safeImageSrc(src)!} /> : <p className={styles.hint}>この画像は表示できません。画像を外して選び直してください。</p>}
           <IconButton
             icon="removeItem"
             label={`${ariaPrefix}を外す`}
-            onClick={() => onChange({ src: "", alt })}
+            onClick={() => onChange({ src: "", alt, width: null, height: null })}
           />
         </>
       )}
       <PlainField
         ariaLabel={`${ariaPrefix}の説明（見えない人へ伝わる言葉）`}
-        onValueChange={(next) => onChange({ src, alt: next })}
+        onValueChange={(next) => onChange({ src, alt: next, width, height })}
         placeholder="この絵に何が写っているか"
         value={alt}
       />
@@ -225,6 +246,7 @@ export function ImageRowEditor({
           <ImageField
             alt={image.alt}
             ariaPrefix={`${i + 1} 枚目`}
+            height={image.height}
             // biome-ignore lint/suspicious/noArrayIndexKey: 枚は順序が同一性
             key={i}
             onChange={(next) =>
@@ -232,6 +254,7 @@ export function ImageRowEditor({
             }
             onUpload={onUpload}
             src={image.src}
+            width={image.width}
           />
         ))}
       </div>
@@ -240,7 +263,7 @@ export function ImageRowEditor({
           disabled={images.length >= IMAGE_ROW_MAX}
           icon="addItem"
           label="並べる絵を 1 枚足す"
-          onClick={() => onImagesChange((current) => [...current, { src: "", alt: "" }])}
+          onClick={() => onImagesChange((current) => [...current, { src: "", alt: "", width: null, height: null }])}
         />
         <IconButton
           disabled={images.length <= IMAGE_ROW_MIN}

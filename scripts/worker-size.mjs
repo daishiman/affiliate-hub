@@ -3,8 +3,9 @@
  * 公開する Worker の大きさを、配る前に測って見せる。
  *
  * --- なぜ要るのか（2026-08-30 に起きたこと） ---
- * Cloudflare Workers には **1 Worker あたり 3 MiB（gzip 後）** という上限がある。
- * この日の公開は gzip 3065 KiB で超過し、13 分ビルドしたあとの最後の一手で落ちた。
+ * 当時は Free の上限が 3 MiB（gzip 後）で、この日の公開は gzip 3065 KiB まで
+ * 膨らみ、13 分ビルドしたあとの最後の一手で落ちた。2026-09-04 以降の上限は
+ * 全プラン共通の **64 MiB（非圧縮）**。gzip 値は参考表示であり判定には使わない。
  *
  * 問題は落ちたことではなく、**落ちるまで誰も数字を知らなかった**ことである。
  * `wrangler` はアップロード時に "Total Upload: … / gzip: …" を出しているが、
@@ -38,18 +39,16 @@ import { appendFileSync, existsSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** 無料プランの上限（gzip 後）。有料プランは 10 MiB。 */
-export const LIMIT_KIB = 3 * 1024;
+/** 2026-09-04 から全プラン共通になった非圧縮 Worker 上限。 */
+export const UNCOMPRESSED_LIMIT_KIB = 64 * 1024;
 
 /**
  * ここを割ったら鳴らす余白。
  *
- * 200 KiB は「画面を数枚足したくらいでは割らないが、割ったら次の数 PR で
- * 上限に当たる」量。2026-08-31 の実測で、cron の二重取り込みを外して
- * 得られた余白がちょうど 134 KiB だった——**つまり、いまは鳴っている状態**である。
- * 鳴り続けるのは正しい。余白がこの幅に戻るまで、削る話は終わっていない。
+ * 8 MiB は現行上限の 12.5%。gzip 率に依存せず、複数回の通常変更をまたいで
+ * 削減や Worker 分割を判断できるだけの余白を先に知らせる。
  */
-export const WARN_MARGIN_KIB = 200;
+export const WARN_MARGIN_KIB = 8 * 1024;
 
 /**
  * `wrangler` の "Total Upload: 15574.34 KiB / gzip: 2937.80 KiB" を読む。
@@ -72,9 +71,13 @@ export function parseUploadSize(output) {
  * 境目は上限**ちょうどで超過扱い**（`>=`）。Cloudflare 側が同じ数で弾くので、
  * ここだけ 1 KiB 甘くすると「手元は緑・本番は赤」という一番たちの悪い形になる。
  */
-export function judgeSize({ gzipKib }, limitKib = LIMIT_KIB, warnMarginKib = WARN_MARGIN_KIB) {
-  const marginKib = limitKib - gzipKib;
-  if (gzipKib >= limitKib) return { verdict: "over", marginKib };
+export function judgeSize(
+  { rawKib },
+  limitKib = UNCOMPRESSED_LIMIT_KIB,
+  warnMarginKib = WARN_MARGIN_KIB,
+) {
+  const marginKib = limitKib - rawKib;
+  if (rawKib >= limitKib) return { verdict: "over", marginKib };
   if (marginKib < warnMarginKib) return { verdict: "thin", marginKib };
   return { verdict: "ok", marginKib };
 }
@@ -86,22 +89,26 @@ export function environmentFrom(argv) {
   return argv[index + 1] ?? null;
 }
 
-export function formatHeadline({ rawKib, gzipKib }, marginKib, limitKib = LIMIT_KIB) {
-  const percent = ((gzipKib / limitKib) * 100).toFixed(1);
+export function formatHeadline(
+  { rawKib, gzipKib },
+  marginKib,
+  limitKib = UNCOMPRESSED_LIMIT_KIB,
+) {
+  const percent = ((rawKib / limitKib) * 100).toFixed(1);
   return (
-    `Worker の大きさ: gzip ${gzipKib.toFixed(0)} KiB / 上限 ${limitKib} KiB` +
-    `（${percent}%、残り ${marginKib.toFixed(0)} KiB。束ねる前は ${rawKib.toFixed(0)} KiB）`
+    `Worker の大きさ: 非圧縮 ${rawKib.toFixed(0)} KiB / 上限 ${limitKib} KiB` +
+    `（${percent}%、残り ${marginKib.toFixed(0)} KiB。gzip 参考値 ${gzipKib.toFixed(0)} KiB）`
   );
 }
 
 const OVER_HINT =
-  "上限を超えているので、この先の公開は Cloudflare 側で必ず落ちます。削る手掛かり:\n" +
+  "非圧縮64 MiB上限を超えているので、この先の公開は Cloudflare 側で落ちます。削る手掛かり:\n" +
   "  1. Worker の入口が引く TypeScript が増えていないか\n" +
   "     （`tests/architecture/worker-entry-weight.test.ts` が数えます。画面と API は\n" +
   "       別に束ねられているので、入口が引いた分は Worker の中にもう 1 部増えます）\n" +
   "  2. かたまりの重複が寄っているか（`scripts/dedupe-server-chunks.mjs` の出力）\n" +
   "  3. 画面（ルート）が増えていないか。127 ルートが 1 つの Worker に入っています\n" +
-  "  4. どうしても削れないなら Workers の有料プラン（上限 10 MiB）\n";
+  "  4. 独立した仕事を Service Binding で別 Worker へ分けられないか\n";
 
 function main(argv) {
   const targetEnv = environmentFrom(argv);

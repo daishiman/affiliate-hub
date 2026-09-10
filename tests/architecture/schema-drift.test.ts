@@ -35,7 +35,9 @@ const expected = [
   trigger("widget_guard", "widget"),
 ];
 
-const verdictOf = (actual: unknown[]) => judge(diffSchema(expected, actual as never), "dev");
+// 比べる相手は**同じ形の行の並び**。以前は `unknown[]` で受けて `as never` で
+// 押し込んでいたので、行の欄が変わってもこの検査は気づかなかった。
+const verdictOf = (actual: typeof expected) => judge(diffSchema(expected, actual), "dev");
 
 describe("D1 schema drift の定義比較", () => {
   it("同じ最終形なら通す", () => {

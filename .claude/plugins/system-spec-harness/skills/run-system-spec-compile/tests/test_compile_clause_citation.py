@@ -67,7 +67,9 @@ def test_every_chapter_states_whether_clauses_can_be_cited():
     """可否を書かない章を許さない。未判定のまま引用されるのを防ぐ。"""
     docset = mod.compile_docset(_spec(), _refs())
     for name, text in docset.items():
-        if name in ("index.md", "00-requirements-definition.md"):
+        # `applied/<cat>.md` は章から切り出した適用メモで、章そのものではない。条項引用の
+        # 可否は章が 1 度だけ宣言するものなので、ここで二重に求めない (章側は依然必須)。
+        if name in ("index.md", "00-requirements-definition.md") or name.startswith("applied/"):
             continue
         assert "### 条項引用の可否 (clause citation)" in text, name
         assert "(未判定)" not in text, f"{name} に未判定の concern がある"

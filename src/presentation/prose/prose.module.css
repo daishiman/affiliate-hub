@@ -85,6 +85,16 @@
   border-radius: var(--radius-sm);
 }
 
+/* 寸法を持たない絵。比を仮に置いて場所を先に空け、読んでいる行が飛ぶのを止める。
+   `contain` は絵を切らない — 縦長なら左右に余白が出るだけで、写っているものは
+   全部見える。**切るより余らせる。**切ると、運営者が写した意図が消える。
+   編集画面を一度開けば実寸が入り、この既定は外れる。 */
+.proseImageUnsized {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+}
+
 .proseDivider {
   border: 0;
   border-top: var(--border-width-default) solid var(--color-border-subtle);

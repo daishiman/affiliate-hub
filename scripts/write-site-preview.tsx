@@ -125,9 +125,22 @@ function seedPublicBlogPort(): PublicBlogPort {
         async listPublished(limit: number) {
           return ok(published.slice(0, limit).map((article) => toSummary(toPublished(article))));
         },
+        async listFeaturedArticles() {
+          const selected = published.slice(0, 3);
+          return ok({
+            selectedCount: selected.length,
+            articles: selected.map((article) => toSummary(toPublished(article))),
+          });
+        },
         async findSourceArticleId(slug: string) {
           const found = published.find((article) => article.slug === slug);
           return ok(found === undefined ? null : seedArticleRecord(found, NOW).id);
+        },
+        async summarizeReaderRatings(slugs: readonly string[]) {
+          /* 見本は票を持たない。渡した slug は必ずキーに現れる、という約束だけ守る。 */
+          return ok(
+            Object.fromEntries(slugs.map((slug) => [slug, { count: 0, average: null }])),
+          );
         },
         async listLayoutSlots() {
           return ok(seedLayoutSlots(siteKey));

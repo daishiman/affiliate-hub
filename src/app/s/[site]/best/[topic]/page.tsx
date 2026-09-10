@@ -22,8 +22,7 @@ export default async function RankingArticlePage({
     <ArticlePage
       siteSlug={site}
       slug={topic}
-      pathPrefix="/best"
-      routeLabel="おすすめ順位"
+      type="ranking"
     />
   );
 }

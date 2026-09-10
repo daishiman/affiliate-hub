@@ -1,5 +1,7 @@
 import type {
   ArticleRatingPort,
+  ArticleThumbnailRecord,
+  ArticleThumbnailStoragePort,
   BlogDeliveryPartRecord,
   BlogDeliverySnapshotRecord,
   BlogLayoutBandRecord,
@@ -23,11 +25,18 @@ import { SITE_DOCUMENT_KEYS } from "@/domain/authoring/site-routes";
 import { resolveSampleSiteDocument } from "./content-sample-data";
 import type { WorkspaceId } from "@/domain/shared";
 import { domainError, err, notFound, ok, validationError } from "@/domain/shared";
-import { registerStub } from "../../stub-registry";
+import { registerStub, stubCall } from "../../stub-registry";
 // 住所と作業場は `sample-identity` から取る。**保存先からは借りない。**
 // 借りると `site-draft` → ここ → `site-sample` → `site-draft` の輪ができ、
 // この module の種データが組み上がる時点で住所がまだ `undefined` になる。
-import { SAMPLE_SITE_SLUG, SAMPLE_WORKSPACE_ID, SECOND_SITE_SLUG } from "./sample-identity";
+import {
+  FIFTH_SITE_SLUG,
+  FOURTH_SITE_SLUG,
+  SAMPLE_SITE_SLUG,
+  SAMPLE_WORKSPACE_ID,
+  SECOND_SITE_SLUG,
+  THIRD_SITE_SLUG,
+} from "./sample-identity";
 // これは既定の引数の中でだけ呼ぶ（module が読まれる時点では動かない）ので、
 // 輪になっても値を掴み損ねない。
 import { createSampleSiteRepository } from "./site-sample-repository";
@@ -122,6 +131,36 @@ export const BLOG_OPS_SAMPLE_ROUTE_IDS = {
   /** `/admin/site-network/[node]` — ハブの節点。 */
   node: "snn_sample_hub",
 } as const;
+
+/**
+ * 見本のおすすめ選定。
+ *
+ * `listRecent(...).slice(0, 3)` にしない。更新日が変わっただけで
+ * 運営者の選定が変わるのは、本物の保存モデルと異なるからである。
+ */
+const SAMPLE_FEATURED_ARTICLE_SLUGS: Readonly<Record<string, readonly string[]>> = {
+  [SAMPLE_SITE_SLUG]: ["chairs-for-long-hours", "ergo-one-pro", "flexseat-2"],
+  [SECOND_SITE_SLUG]: ["rice-cookers-for-60cm", "compact-ovens-ranking", "compact-oven-x"],
+  [THIRD_SITE_SLUG]: ["camera-terms-first", "entry-mirrorless-compare", "first-lens"],
+  [FOURTH_SITE_SLUG]: ["training-shoes-ranking", "shoe-cushionrun-5", "gps-watch-accuracy"],
+  [FIFTH_SITE_SLUG]: ["plans-under-3000", "how-to-check-data-usage", "pocket-router-a"],
+};
+
+function featuredScopeKey(workspaceId: WorkspaceId | string, siteSlug: string): string {
+  return `${String(workspaceId)}\u0000${siteSlug}`;
+}
+
+const featuredArticleSlugs = new Map<string, readonly string[]>(
+  Object.entries(SAMPLE_FEATURED_ARTICLE_SLUGS).map(([siteSlug, slugs]) => [
+    featuredScopeKey(SAMPLE_WORKSPACE_ID, siteSlug),
+    [...slugs],
+  ]),
+);
+
+/** static preview もアプリと同じ明示選定を使うための読み口。 */
+export function sampleFeaturedArticleSlugs(siteSlug: string): readonly string[] {
+  return [...(featuredArticleSlugs.get(featuredScopeKey(SAMPLE_WORKSPACE_ID, siteSlug)) ?? [])];
+}
 
 const NOW = new Date("2026-08-01T00:00:00.000Z");
 
@@ -597,6 +636,20 @@ export function createSamplePublicBlogPort(
         async listPublished(limit) {
           return publishedContent.listRecent(scoped.siteSlug, limit);
         },
+        async listFeaturedArticles() {
+          const selectedSlugs =
+            featuredArticleSlugs.get(featuredScopeKey(scoped.workspaceId, scoped.siteSlug)) ?? [];
+          const published = await publishedContent.listRecent(scoped.siteSlug, 100);
+          if (!published.ok) return err(published.error);
+          const bySlug = new Map(published.value.map((article) => [article.slug, article] as const));
+          return ok({
+            selectedCount: selectedSlugs.length,
+            articles: selectedSlugs.flatMap((slug) => {
+              const article = bySlug.get(slug);
+              return article === undefined ? [] : [article];
+            }),
+          });
+        },
         async findSourceArticleId(slug) {
           const found = ARTICLES.find(
             (article) =>
@@ -606,6 +659,25 @@ export function createSamplePublicBlogPort(
               article.article.status === "published",
           );
           return ok(found?.article.id ?? null);
+        },
+        async summarizeReaderRatings(slugs) {
+          const out: Record<string, RatingSummary> = {};
+          for (const slug of slugs) {
+            const found = ARTICLES.find(
+              (article) =>
+                owns(articleOwners, article.article.id, scoped.workspaceId) &&
+                article.siteSlug === scoped.siteSlug &&
+                article.article.slug === slug &&
+                article.article.status === "published",
+            );
+            // 渡した slug は必ずキーに残す。落とすと呼ぶ側が
+            // 「票が無い」と「読めなかった」を区別できなくなる。
+            out[slug] =
+              found === undefined
+                ? { count: 0, average: null }
+                : summarizeRatings(votesOf(found.article.id));
+          }
+          return ok(out);
         },
         async listLayoutSlots() {
           return ok(layoutSlots().filter((slot) => slot.enabled));
@@ -682,6 +754,8 @@ export function createSampleArticleRatingPort(): ArticleRatingPort {
 const SNAPSHOTS: BlogDeliverySnapshotRecord[] = [];
 const DELETED_NETWORK: DeletedSiteNetworkRecord[] = [];
 const DELETED_ARTICLES: DeletedBlogArticleRecord[] = [];
+/** 記事 1 本につき 1 枚のサムネイル。鍵は記事 ID。 */
+const THUMBNAILS = new Map<string, ArticleThumbnailRecord>();
 const snapshotOwners = initialOwners(SNAPSHOTS);
 
 /** id が同じ行を差し替える。無ければ足す。本物の `onConflictDoUpdate` と同じ振る舞い。 */
@@ -780,6 +854,16 @@ export function createSampleBlogOpsRepository(): BlogOpsRepositoryPort {
       }
       upsert(BANDS, { ...input });
       bandOwners.set(input.id, String(workspaceId));
+      return ok(true);
+    },
+    async findBlogHomeFeaturedArticles(workspaceId, siteSlug) {
+      const saved = featuredArticleSlugs.get(featuredScopeKey(workspaceId, siteSlug));
+      return ok(saved === undefined ? null : { siteSlug, articleSlugs: [...saved] });
+    },
+    async replaceBlogHomeFeaturedArticles(workspaceId, input) {
+      featuredArticleSlugs.set(featuredScopeKey(workspaceId, input.siteSlug), [
+        ...input.articleSlugs,
+      ]);
       return ok(true);
     },
 
@@ -1002,6 +1086,59 @@ export function createSampleBlogOpsRepository(): BlogOpsRepositoryPort {
         return ok(true);
       }
       return err(notFound("評価", ratingId));
+    },
+
+    async findArticleThumbnail(workspaceId, articleId) {
+      if (!owns(articleOwners, articleId, workspaceId)) return ok(null);
+      return ok(THUMBNAILS.get(articleId) ?? null);
+    },
+    async saveArticleThumbnail(workspaceId, input) {
+      if (!owns(articleOwners, input.articleId, workspaceId)) {
+        return err(notFound("ブログ記事", input.articleId));
+      }
+      // 記事 1 本につき 1 行。本物の主キーが `article_id` なので、積まない。
+      THUMBNAILS.set(input.articleId, input);
+      return ok(true);
+    },
+    async deleteArticleThumbnail(workspaceId, articleId) {
+      if (!owns(articleOwners, articleId, workspaceId)) {
+        return err(notFound("ブログ記事", articleId));
+      }
+      THUMBNAILS.delete(articleId);
+      return ok(true);
+    },
+  };
+}
+
+const thumbnailStoreStub = registerStub({
+  id: "storage:blog-article-thumbnail-no-bucket",
+  port: "記事サムネイルの置き場",
+  label: "記事サムネイルの置き場（つながっていない）",
+  blockedBy:
+    "R2（BUCKET）が無い環境。ほかの見本と違って**この実行中だけ覚える控えを作らない**",
+  fallbackFor: "src/infrastructure/platform/blog-thumbnail-r2.ts",
+});
+
+/**
+ * 置き場が無い環境での記事サムネイル。**覚えずに断る。**
+ *
+ * 画面の写し（`createSampleFeedbackCaptureStore`）は覚える側に倒してあるが、
+ * あちらは運営者が後から開く控えで、置けたことにしても誰も困らない。
+ * こちらは**読者に配る絵**で、配る口（`/api/blog-thumbnails/<鍵>`）は
+ * R2 だけを引く。覚えて `ok` を返すと、管理画面には「登録できました」と出て、
+ * 記事の一覧には 404 を指す `img` が並ぶ。**「保存できていない」のか
+ * 「表示できない」のかが分からない状態**を作らないために、ここで断る。
+ *
+ * 断ると台帳（D1）にも 1 行も書かれない（登録は置き場 → 台帳の順なので、
+ * 置けなければ先へ進まない）。これで「参照されているのに絵が無い」も起きない。
+ */
+export function createSampleArticleThumbnailStore(): ArticleThumbnailStoragePort {
+  return {
+    async putGeneration() {
+      return stubCall(thumbnailStoreStub, "サムネイルの保存");
+    },
+    async deleteGeneration() {
+      return stubCall(thumbnailStoreStub, "サムネイルの削除");
     },
   };
 }

@@ -472,12 +472,29 @@ describe("検査の一覧", () => {
     ).toBeLessThan(source.indexOf("for (const check of CHECKS)"));
   });
 
+  /**
+   * 陽性対照で使う「1 件の検査」の土台。正本の検査が持つ欄をすべて埋めてある。
+   * 正本に必須の欄が増えた日、この土台が型検査で落ちる——それが狙いである。
+   */
+  const syntheticCheck = {
+    id: "synthetic",
+    cost: "static",
+    label: "合成の検査",
+    command: ["true"],
+    blocking: true,
+    tier: 1,
+    why: "並びの判定が効いているかを見るための合成例。実際には走らせない。",
+  };
+
   it("重い検査の後ろへ静的な検査を移すと検出する（合成例による陽性対照）", () => {
     // 落ちない検査は、無い検査と見分けが付かない。
     // 実際に違反を作って、上の検査が本当に反応することを確かめる。
-    const heavy = { id: "heavy-example", cost: "heavy" as const };
-    const cheap = { id: "cheap-example", cost: "static" as const };
-    const broken = [heavy, cheap] as unknown as typeof CHECKS;
+    // 合成例でも**正本の検査 1 件と同じ欄をすべて埋める**。以前はここを
+    // `id` と `cost` だけにして `as unknown as typeof CHECKS` で押し込んでいたが、
+    // その形だと正本の検査に欄が 1 つ増えても、この対照は何も言わない。
+    const heavy = { ...syntheticCheck, id: "heavy-example", cost: "heavy" };
+    const cheap = { ...syntheticCheck, id: "cheap-example", cost: "static" };
+    const broken = [heavy, cheap];
 
     const violations = orderViolations(broken);
     expect(violations.length, "重い検査の後ろの静的検査を見逃しています").toBeGreaterThan(0);
@@ -488,9 +505,14 @@ describe("検査の一覧", () => {
   it("成果物を要る検査は、重い検査の後ろに居てよい", () => {
     // coverage-report は coverage/coverage-summary.json を読む。
     // 前に出すと読むものが無くて落ちる。**規則が現実を壊さない**ことを確かめる。
-    const heavy = { id: "heavy-example", cost: "heavy" as const, produces: ["artifact"] };
-    const consumer = { id: "consumer-example", cost: "static" as const, needs: ["artifact"] };
-    const legit = [heavy, consumer] as unknown as typeof CHECKS;
+    const heavy = { ...syntheticCheck, id: "heavy-example", cost: "heavy", produces: ["artifact"] };
+    const consumer = {
+      ...syntheticCheck,
+      id: "consumer-example",
+      cost: "static",
+      needs: ["artifact"],
+    };
+    const legit = [heavy, consumer];
 
     expect(orderViolations(legit)).toEqual([]);
   });

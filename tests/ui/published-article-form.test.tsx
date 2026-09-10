@@ -9,10 +9,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PublishedArticle } from "@/application/read-models/published-article";
 
 let updateResult: unknown = { status: "idle", message: "" };
+const submitted: FormData[] = [];
 let archiveResult: unknown = { status: "idle", message: "" };
 
 vi.mock("@/presentation/admin/publish/published-article-action", () => ({
-  updatePublishedArticleAction: async () => updateResult,
+  updatePublishedArticleAction: async (_previous: unknown, data: FormData) => { submitted.push(data); return updateResult; },
   archivePublishedArticleAction: async () => archiveResult,
 }));
 
@@ -42,7 +43,7 @@ const ARTICLE: PublishedArticle = {
 };
 
 const DRAFT_KEY =
-  "affiliate-hub:published-article:video-editing-gear:quiet-laptop:2026-08-28:v1";
+  "affiliate-hub:published-article:video-editing-gear:quiet-laptop:7:v2";
 
 afterEach(() => {
   cleanup();
@@ -51,6 +52,7 @@ afterEach(() => {
 
 beforeEach(() => {
   window.localStorage.clear();
+  submitted.length = 0;
   updateResult = { status: "idle", message: "" };
   archiveResult = { status: "idle", message: "" };
 });
@@ -62,8 +64,24 @@ async function submit(form: HTMLFormElement): Promise<void> {
 }
 
 describe("公開済み記事の編集フォーム", () => {
+  it.each(["訂正", "非表示"] as const)("%sの送信中は、同じ記事への別操作を始められない", async (operation) => {
+    let finish!: (value: unknown) => void;
+    const pending = new Promise((resolve) => { finish = resolve; });
+    if (operation === "訂正") updateResult = pending;
+    else archiveResult = pending;
+    const { container } = render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt={null} />);
+    const other = screen.getByRole("button", { name: operation === "訂正" ? "記事を非表示にする" : "訂正を保存" });
+    await submit(container.querySelectorAll("form")[operation === "訂正" ? 0 : 1]!);
+    try {
+      expect((other as HTMLButtonElement).disabled).toBe(true);
+      expect((screen.getByRole("textbox", { name: "タイトル" }) as HTMLInputElement).disabled).toBe(true);
+    } finally { await act(async () => finish({ status: "failed", message: "時間をおいて再試行してください。" })); }
+    expect((other as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByText("時間をおいて再試行してください。")).toBeTruthy();
+  });
+
   it("本文・書き手・節を同じ画面で直し、入力途中を自動保存する", async () => {
-    render(<PublishedArticleForm article={ARTICLE} archivedAt={null} />);
+    render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt={null} />);
 
     fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
       target: { value: "静音ノートの選び方" },
@@ -91,6 +109,7 @@ describe("公開済み記事の編集フォーム", () => {
       JSON.stringify({
         at: Date.now(),
         data: {
+          expectedRevision: 7,
           title: "入力途中のタイトル",
           summary: "途中の要約",
           authorName: "中田 涼",
@@ -106,7 +125,7 @@ describe("公開済み記事の編集フォーム", () => {
       }),
     );
 
-    render(<PublishedArticleForm article={ARTICLE} archivedAt={null} />);
+    render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt={null} />);
 
     await waitFor(() => expect(screen.getByDisplayValue("入力途中のタイトル")).toBeTruthy());
     expect(screen.getByText("入力途中の下書きを復元しました")).toBeTruthy();
@@ -118,7 +137,7 @@ describe("公開済み記事の編集フォーム", () => {
   it("訂正の欄別エラーと、非表示化の理由エラーを操作位置に出す", async () => {
     updateResult = { status: "failed", message: "結論が分かる名前にしてください。", field: "title" };
     archiveResult = { status: "failed", message: "理由を入力してください。", field: "reason" };
-    const { container } = render(<PublishedArticleForm article={ARTICLE} archivedAt={null} />);
+    const { container } = render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt={null} />);
     const forms = [...container.querySelectorAll("form")];
 
     await submit(forms[0]);
@@ -134,24 +153,56 @@ describe("公開済み記事の編集フォーム", () => {
   });
 
   it("非表示の記事では状態を説明し、重ねて非表示にする操作を出さない", () => {
-    render(<PublishedArticleForm article={ARTICLE} archivedAt="2026-08-28T09:00:00.000Z" />);
+    render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt="2026-08-28T09:00:00.000Z" />);
 
     expect(screen.getByText("この記事は非表示です")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "記事を非表示にする" })).toBeNull();
   });
 
+  it("外部更新が届いても入力中の下書きに新しい版を付けず、競合を示す", async () => {
+    updateResult = { status: "failed", message: "別の編集があります。", errorCode: "CONFLICT" };
+    const view = render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt={null} />);
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), { target: { value: "入力中のタイトル" } });
+    view.rerender(<PublishedArticleForm article={{ ...ARTICLE, title: "SEOで補完したタイトル" }} revision={8} archivedAt={null} />);
+    await submit(view.container.querySelector("form")!);
+    expect(submitted[0]?.get("expectedRevision")).toBe("7");
+    expect(screen.getByDisplayValue("入力中のタイトル")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "最新の記事を別タブで開く" }).getAttribute("target")).toBe("_blank");
+  });
+
+  it("最新の記事を開き直した画面へ、古い版の下書きを自動復元しない", async () => {
+    const first = render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt={null} />);
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), { target: { value: "古い版の下書き" } });
+    await waitFor(() => expect(window.localStorage.getItem(DRAFT_KEY)).toContain("古い版の下書き"));
+    first.unmount();
+    const latest = render(<PublishedArticleForm article={{ ...ARTICLE, title: "SEOで補完したタイトル" }} revision={8} archivedAt={null} />);
+    expect(screen.getByDisplayValue("SEOで補完したタイトル")).toBeTruthy();
+    expect(latest.container.querySelector<HTMLInputElement>('input[name="expectedRevision"]')?.value).toBe("8");
+    expect(window.localStorage.getItem(DRAFT_KEY)).toContain("古い版の下書き");
+  });
+
+  it("保存できた版を次の訂正へ引き継ぐ", async () => {
+    updateResult = { status: "done", message: "訂正を保存しました。", revision: 8 };
+    const { container } = render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt={null} />);
+    await submit(container.querySelector("form")!);
+    fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), { target: { value: "続けて直したタイトル" } });
+    await submit(container.querySelector("form")!);
+    expect(submitted.map((data) => data.get("expectedRevision"))).toEqual(["7", "8"]);
+    expect(submitted[1]?.get("title")).toBe("続けて直したタイトル");
+  });
+
   it("訂正成功後は自動保存した下書きを消す", async () => {
-    const { container } = render(<PublishedArticleForm article={ARTICLE} archivedAt={null} />);
+    const { container } = render(<PublishedArticleForm article={ARTICLE} revision={7} archivedAt={null} />);
     fireEvent.change(screen.getByRole("textbox", { name: "タイトル" }), {
       target: { value: "保存前のタイトル" },
     });
     await waitFor(() => expect(window.localStorage.getItem(DRAFT_KEY)).not.toBeNull());
 
-    updateResult = { status: "done", message: "訂正を保存しました。" };
+    updateResult = { status: "done", message: "訂正を保存しました。", revision: 8 };
     await submit(container.querySelector("form") as HTMLFormElement);
 
     await waitFor(() => expect(window.localStorage.getItem(DRAFT_KEY)).toBeNull());
-    expect(screen.getByDisplayValue(ARTICLE.title)).toBeTruthy();
+    expect(screen.getByDisplayValue("保存前のタイトル")).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain("訂正を保存しました");
   });
 });

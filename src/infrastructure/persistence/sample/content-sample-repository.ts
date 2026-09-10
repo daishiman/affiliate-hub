@@ -1,3 +1,6 @@
+import { articleSearchSnippet, type ArticleBrowseRequest } from "@/application/read-models/article-discovery";
+import { searchableTextOf, TRIGRAM_MIN_LENGTH } from "@/application/read-models/searchable-text";
+import { toSummary } from "@/application/read-models/published-article";
 import type { TrackingCoveragePort } from "@/application/ports/analytics";
 import type {
   EditorialPublishedArticleAdminPort,
@@ -93,7 +96,7 @@ export function createSamplePublishedArticleAdminRepository(): EditorialPublishe
     async list(workspaceId) {
       return ok(
         workspaceId === SAMPLE_WORKSPACE_ID
-          ? SAMPLE_ARTICLES.map((article) => ({ article, archivedAt: null }))
+          ? SAMPLE_ARTICLES.map((article) => ({ article, archivedAt: null, revision: 1 }))
           : [],
       );
     },
@@ -102,7 +105,7 @@ export function createSamplePublishedArticleAdminRepository(): EditorialPublishe
       const article = SAMPLE_ARTICLES.find(
         (item) => item.siteSlug === siteSlug && item.slug === slug,
       );
-      return ok(article === undefined ? null : { article, archivedAt: null });
+      return ok(article === undefined ? null : { article, archivedAt: null, revision: 1 });
     },
     async replace() {
       return stubCall<boolean>(CONTENT_SAMPLE_STUB, "公開済み記事の訂正");
@@ -114,7 +117,25 @@ export function createSamplePublishedArticleAdminRepository(): EditorialPublishe
 }
 
 export function createSampleContentRepository(): EditorialPublishedContentPort {
+  async function browse(siteSlug: string, request: ArticleBrowseRequest) {
+    const query = request.query?.trim().toLowerCase() ?? "";
+    // 公開サンプルにはタグ関連が無い。本文の同名語で関連を捏造しない。
+    const matches = request.tag === undefined ? sampleArticlesBySite(siteSlug).filter((article) =>
+      (request.type === undefined || article.type === request.type) &&
+      (query === "" || [article.title, article.summary,
+        ...(query.length >= TRIGRAM_MIN_LENGTH ? [searchableTextOf(article)] : []),
+      ].some((text) => text.toLowerCase().includes(query))),
+    ).sort((a, b) => {
+      const score = (article: typeof a) => query === "" ? 0 : article.title.toLowerCase().includes(query) ? 2 : article.summary.toLowerCase().includes(query) ? 1 : 0;
+      return score(b) - score(a) || b.updatedAt.localeCompare(a.updatedAt) || a.slug.localeCompare(b.slug);
+    }) : [];
+    const articles = matches.slice(request.offset, request.offset + request.limit).map((article) => ({
+      ...toSummary(article), ...(query === "" ? {} : { snippet: articleSearchSnippet(article, query) }),
+    }));
+    return ok({ articles, hasMore: matches.length > request.offset + request.limit });
+  }
   return markEditorial({
+    browse,
     async listRecent(siteSlug: string, limit: number) {
       const sorted = [...sampleArticlesBySite(siteSlug)].sort((a, b) =>
         b.updatedAt.localeCompare(a.updatedAt),
@@ -132,12 +153,9 @@ export function createSampleContentRepository(): EditorialPublishedContentPort {
       return ok(sampleArticlesBySite(siteSlug).find((a) => a.slug === slug) ?? null);
     },
     async search(siteSlug: string, query: string, limit: number) {
-      // 見本なので単純な部分一致。全文検索は保存先ができてから差し替える。
-      const q = query.toLowerCase();
-      const hit = sampleArticlesBySite(siteSlug).filter(
-        (a) => a.title.toLowerCase().includes(q) || a.summary.toLowerCase().includes(q),
-      );
-      return ok(sampleArticleSummaries(hit.slice(0, limit)));
+      if (query.trim() === "") return ok([]);
+      const page = await browse(siteSlug, { query, limit, offset: 0 });
+      return ok(page.value.articles);
     },
     async listBrands(siteSlug: string) {
       // 数え方は D1 と同じ関数を通す。片方だけ直して並びがずれるのを防ぐ。

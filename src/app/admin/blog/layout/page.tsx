@@ -1,3 +1,6 @@
+import { LAYOUT_SLOT_LABEL, MAX_FEATURED_ARTICLES } from "@/domain/blogops";
+import { BlogFeaturedArticlesForm } from "@/presentation/admin/publish/blog-featured-articles-form";
+import { siteBasePathBySlug } from "@/domain/authoring/site";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   BlogLayoutBandForm,
@@ -71,16 +74,38 @@ export default async function BlogLayoutPage({
   }
 
   const actor = await currentActor();
-  const layout = await entry.readLayout.execute(actor, { siteSlug });
+  const [layout, featured] = await Promise.all([
+    entry.readLayout.execute(actor, { siteSlug }),
+    entry.readHomeFeaturedArticles.execute(actor, { siteSlug }),
+  ]);
 
   return (
     <AdminShell
       routeId="blog/layout"
       title="版面の枠と帯"
       lead="ヘッダー・サイドバー・帯に何を出すか決めます。"
-      actions={<TextLink href="/admin/blog">ブログの版面へ戻る</TextLink>}
+      actions={<TextLink href={siteBasePathBySlug(siteSlug)}>公開ブログで確認する</TextLink>}
     >
       <BlogSiteSwitch basePath="/admin/blog/layout" current={siteSlug} options={sites.options} />
+
+      {!featured.ok ? (
+        <ErrorView
+          title="おすすめ記事を読めませんでした"
+          body={featured.error.message}
+          suggestedAction={featured.error.suggestedAction ?? null}
+        />
+      ) : (
+        <Section
+          title="おすすめ記事"
+          lead={`トップで最初に読んでほしい公開記事を、${MAX_FEATURED_ARTICLES}件まで順番に選びます。`}
+        >
+          <BlogFeaturedArticlesForm
+            siteSlug={siteSlug}
+            selectedArticles={featured.value.selectedArticles}
+            candidateArticles={featured.value.candidateArticles}
+          />
+        </Section>
+      )}
 
       {!layout.ok ? (
         <ErrorView
@@ -94,13 +119,13 @@ export default async function BlogLayoutPage({
             tone={layout.value.untouchedCount === 0 ? "info" : "warn"}
             title={
               layout.value.untouchedCount === 0
-                ? "すべての枠に、出す / 出さないの判断が入っています"
-                : `${layout.value.untouchedCount} 個の枠が、一度も触られていません`
+                ? "この画面の枠と補助帯は、すべて設定済みです"
+                : `未設定の枠・補助帯が ${layout.value.untouchedCount} 件あります`
             }
             reason={
               layout.value.untouchedCount === 0
-                ? "読者の画面に出るものは、すべて誰かが決めた結果です。"
-                : "触られていない枠は出ません。出すつもりだった枠が混ざっていないか確認してください。"
+                ? "公開ブログを開いて、設定した内容を確認できます。"
+                : "未設定の枠・補助帯は表示されません。使いたいものだけ設定してください。"
             }
           />
 
@@ -114,7 +139,7 @@ export default async function BlogLayoutPage({
             {layout.value.slots.map((slot) => (
               <SubSection
                 key={`${slot.region}:${slot.slotKey}`}
-                title={`${slot.regionLabel} / ${slot.slotKey}`}
+                title={`${slot.regionLabel} / ${LAYOUT_SLOT_LABEL[slot.slotKey] ?? slot.slotKey}`}
                 lead={slot.untouched ? "まだ一度も触られていません。" : undefined}
               >
                 <BlogLayoutSlotForm
@@ -130,7 +155,10 @@ export default async function BlogLayoutPage({
             ))}
           </Section>
 
-          <Section title="トップの帯" lead="トップページに縦に並ぶ、記事のまとまりです。">
+          <Section title="トップの補助帯" lead="記事を読んだ後に、関連ブログやブランドへ進む入口を設定します。">
+            <Prose>
+              最新・人気の記事とカテゴリーは、公開記事から自動で表示されます。ここでは、その後ろに置く補助帯を設定します。
+            </Prose>
             {layout.value.bands.map((band) => (
               <SubSection
                 key={band.band}

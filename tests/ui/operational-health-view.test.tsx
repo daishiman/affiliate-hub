@@ -19,6 +19,7 @@
  * 2. **絞っていることが文で出る。**絞った状態のまま別の日に開いた人が、
  *    件数が少ない理由を「データが無い」と読まないための 1 文である。
  */
+import type { ComponentProps } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import {
@@ -60,12 +61,15 @@ describe("URL から絞り込みを読む", () => {
 });
 
 describe("絞っていることを文で出す", () => {
-  function summaryOf(query: { health: string; sort: string }): string {
+  /*
+    絞り込みの形は部品そのものから引く。以前は `{ health: string; sort: string }` と
+    広げたうえで `as never` で渡していたので、語彙に無い綴りを書いても気づけなかった。
+  */
+  type HealthQuery = ComponentProps<typeof OperationalHealthControls>["query"];
+
+  function summaryOf(query: HealthQuery): string {
     return renderToStaticMarkup(
-      <OperationalHealthControls
-        action="/admin/blog/evaluate"
-        query={query as never}
-      />,
+      <OperationalHealthControls action="/admin/blog/evaluate" query={query} />,
     );
   }
 

@@ -6,11 +6,14 @@ import {
   articleHref,
   outboundHref,
 } from "@/application/read-models/published-article";
+import { fallbackCoverDataUri } from "@/application/seo/fallback-cover";
 import { expressionBlocksOf } from "@/application/seo/expression-blocks";
 import type { PublicSiteBlueprint } from "@/application/usecases/site/read-site";
 import type { ArticleType } from "@/domain/authoring/article-structure";
+import { DEFAULT_THEME } from "@/domain/authoring/site-blueprint";
 import { buildPath, footerRoutes, routesFor, type SiteRoute } from "@/domain/authoring/site-routes";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
+import { resolveThumbnail, thumbnailAltText } from "@/domain/blogops/thumbnail";
 import type {
   ArticleCardView,
   ArticleViewModel,
@@ -86,6 +89,7 @@ export function toChrome(
   const routes = routesFor(blueprint);
   const home = routes.find((r) => r.key === "home");
   const search = routes.find((r) => r.key === "search");
+  const blog = routes.find((r) => r.key === "blog");
   const editorialPolicy = routes.find((r) => r.key === "editorial-policy");
 
   const categoryNav = blueprint.categories.map((c) => ({
@@ -109,23 +113,12 @@ export function toChrome(
     label: route.label,
   }));
   const savedFooter = projection?.chrome.footerSlots ?? [];
-  const projectedFooter =
-    savedFooter.length === 0
-      ? defaultFooter
-      : [
-          ...(savedFooter.some((slot) => slot.slotKey === "footer-logo-nav")
-            ? defaultFooter
-            : []),
-          ...(savedFooter.some((slot) => slot.slotKey === "footer-category-tree")
-            ? blueprint.categories.map((category) => ({
-                href: siteHref(siteSlug, `/categories/${category.slug}`),
-                label: category.name,
-              }))
-            : []),
-        ];
-  const footer = projectedFooter.filter(
-    (item, index, all) => all.findIndex((candidate) => candidate.href === item.href) === index,
-  );
+  const footer = savedFooter.length === 0 || savedFooter.some((slot) => slot.slotKey === "footer-logo-nav")
+    ? defaultFooter
+    : [];
+  const footerCategories = savedFooter.length === 0 || savedFooter.some((slot) => slot.slotKey === "footer-category-tree")
+    ? categoryNav
+    : [];
 
   return {
     siteName: headerBrand?.title.trim() || blueprint.name,
@@ -136,30 +129,83 @@ export function toChrome(
     homeHref: home === undefined ? siteBasePathBySlug(siteSlug) : siteRouteHref(siteSlug, home),
     searchHref:
       search === undefined ? `${siteBasePathBySlug(siteSlug)}/search` : siteRouteHref(siteSlug, search),
+    allArticlesHref:
+      blog === undefined ? `${siteBasePathBySlug(siteSlug)}/blog` : siteRouteHref(siteSlug, blog),
     aboutHref:
       editorialPolicy === undefined
         ? siteBasePathBySlug(siteSlug)
         : siteRouteHref(siteSlug, editorialPolicy),
     footer,
+    footerCategories,
+    /*
+      購読の口。`SITE_ROUTES` に無いのは、これが読者に見せる画面ではなく
+      機械が読む配信物だからである。住所の作り方だけここに置く。
+    */
+    feedHref: `${siteBasePathBySlug(siteSlug)}/feed.xml`,
   };
 }
 
-export function toArticleCard(siteSlug: string, summary: ArticleSummary): ArticleCardView {
+/**
+ * カードの図版を作るのに要る、記事の外側の事情。
+ *
+ * 記事そのものは自分の配色を知らない（同じ記事が別テーマのブログに
+ * 移る可能性がある）。だから配色とカテゴリー名は**外から渡す**。
+ * 省いたときは既定テーマで組み立てる——図版を出さない選択にすると、
+ * 渡し忘れた画面だけカードの高さが変わって一覧が段違いになる。
+ */
+export type ThumbnailContext = {
+  readonly brandTheme?: string;
+  /** カテゴリー slug → 表示名。図版とカードの肩書きに使う。 */
+  readonly categoryNames?: ReadonlyMap<string, string>;
+};
+
+/** 設計図からサムネイルの文脈を作る。画面側で組み立て直さない。 */
+export function thumbnailContextOf(blueprint: PublicSiteBlueprint): ThumbnailContext {
+  return {
+    brandTheme: blueprint.theme.brandTheme,
+    categoryNames: new Map(blueprint.categories.map((c) => [c.slug, c.name])),
+  };
+}
+
+export function toArticleCard(
+  siteSlug: string,
+  summary: ArticleSummary,
+  context: ThumbnailContext = {},
+): ArticleCardView {
+  const categoryLabel = context.categoryNames?.get(summary.categorySlug) ?? "";
+  const resolved = resolveThumbnail(
+    {
+      siteSlug,
+      slug: summary.slug,
+      title: summary.title,
+      categorySlug: summary.categorySlug,
+      categoryName: categoryLabel,
+      brandTheme: context.brandTheme ?? DEFAULT_THEME.brandTheme,
+    },
+    summary.thumbnail ?? {},
+  );
   return {
     slug: summary.slug,
     href: siteHref(siteSlug, articleHref(summary)),
     title: summary.title,
     summary: summary.summary,
     updatedAt: summary.updatedAt,
+    publishedAt: summary.publishedAt,
     authorName: summary.authorName,
+    thumbnailUrl: resolved.kind === "image" ? resolved.url : fallbackCoverDataUri(resolved.seed),
+    thumbnailAlt: thumbnailAltText(resolved, summary.title),
+    thumbnailIsGenerated: resolved.kind === "generated",
+    categoryLabel,
+    categoryHref: siteHref(siteSlug, `/categories/${summary.categorySlug}`),
   };
 }
 
 export function toArticleCards(
   siteSlug: string,
   summaries: readonly ArticleSummary[],
+  context: ThumbnailContext = {},
 ): readonly ArticleCardView[] {
-  return summaries.map((s) => toArticleCard(siteSlug, s));
+  return summaries.map((s) => toArticleCard(siteSlug, s, context));
 }
 
 /** 保存データ由来の値を、表示側が安全に運べる形へ正規化する。 */

@@ -139,6 +139,7 @@ describe("いま何で絞っているかを言葉で出す", () => {
   it("知らない軸の指定は黙って捨てる（絞ったことにしない）", async () => {
     const actor = await currentActor();
     const result = await (await analyticsUseCases()).filterMetrics.execute(actor, {
+      // 一覧に無い軸名を**わざと**渡す表明。黙って捨てることをここで見る。
       axes: { not_an_axis: "x" } as unknown as Partial<Record<AnalyticsAxisKey, string>>,
     });
     expect(result.ok).toBe(true);

@@ -7,6 +7,20 @@ export type BrowserRoute = {
   readonly file: string;
   readonly params?: Readonly<Record<string, string>>;
   readonly searchParams?: Readonly<Record<string, string | readonly string[]>>;
+  /**
+   * 移すだけの入口の、**行き先**。`route-cases.ts` の `redirectTo` をそのまま運ぶ。
+   *
+   * **2026-09-05 まで、この型がここだけ `redirectTo` を落としていた。**表は
+   * 最初から行き先を宣言していたのに（`RouteCase.redirectTo`）、E2E へ渡る
+   * 途中で消えるので、宣言済みの転送が「知らない転送」に見えていた。
+   * 到達判定 5 件と `Execution context was destroyed` 2 件は同じ 1 つの欠落である。
+   *
+   * **印だけ（`isRedirect: true`）にしない。**行き先を持たないと
+   * 「移しはするが、どこへ移すかは誰も見ていない」検査になる。
+   * 行き先を名乗らせるので、黙って転送が増えた日も、宣言した転送が
+   * 消えた日も、どちらも赤くなる。
+   */
+  readonly redirectTo?: string;
 };
 
 interface SourceObject {
@@ -235,6 +249,17 @@ export function urlOf(route: BrowserRoute): string {
   }
   const suffix = query.toString();
   return suffix === "" ? pathname : `${pathname}?${suffix}`;
+}
+
+/**
+ * その入口を開いたとき、**最後に居るはずの path**。
+ *
+ * 転送を宣言していない入口は、開いた path にそのまま留まる。
+ * 宣言している入口は、宣言した行き先に着く。どちらも固い検査で、
+ * 「転送先でも可」ではない。
+ */
+export function finalPathOf(route: BrowserRoute): string {
+  return route.redirectTo ?? urlOf(route).split("?")[0];
 }
 
 /** 名指し保留一覧も既存テストが正本。selector を二重管理しない。 */

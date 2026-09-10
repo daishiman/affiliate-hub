@@ -71,7 +71,7 @@
 | `/admin/affiliate/programs/new` | 提携条件を登録する | 提携条件（広告主と報酬の決め方）を 1 つ登録する / **入力した提携条件を登録する** | card (summary) | `affiliate.read_revenue` |
 | `/admin/affiliate/links` | 登録したリンク | 読者に出ているリンクのうち、表記が古くなったものを止める / **表記が古くなったリンクを見つけて止める** | table (summary) → **board 予定** | `affiliate.read_revenue` |
 | `/admin/inbox` | 成果リンクの受信箱 | 成果リンクを受け取り、広告主と商品を決める / **受け取ったリンクに広告主と商品を割り当てる** | table (summary) → **board 予定** | `affiliate.read_revenue` |
-| `/admin/analytics` | 数字 | どこに手を入れるべきかを決める / **数字の伸び縮みから手を入れる先を決める** | graph (summary, table) | `analytics.read` |
+| `/admin/analytics` | 数字 | どこに手を入れるべきかを決める / **探す・読む・次へ進むの実測から記事と導線の見直しへ進む** | summary (table, listは補助) | `analytics.read` |
 | `/admin/ai-usage` | AI の利用と費用 | AI の利用量と費用を確かめる / **期間ごとの利用量と費用を確かめる** | graph (summary, table) | `analytics.read` |
 | `/admin/improvement` | 改善の状況 | 試している比較の結果を見て、次の試作を決める / **比較の結果を読み、次の試作を決める** | graph (summary, table) | `analytics.read` |
 | `/admin/improvement/dimensions` | 改善の観点 | 試してよいもの / 変えないものを調べる（参照専用） / **試してよい範囲を引き、改善の状況へ進む** | table (summary) | `analytics.read` |
@@ -105,3 +105,5 @@
 - `keyboardAction` は384px CSS viewport（768pxの200%相当）で完了する主要操作を `role` / `accessibleName` / 同名時の `occurrence` / `completion` で固定する。`viewportCondition` はこの測定条件そのもので、route ごとの観測日時ではない（実測は tests/e2e/app-routes.spec.ts が 384x450 で毎回行う）。全86 routeで実Tab照合後にEnter・入力・scrollの結果まで確認し、対象への到達だけを成功扱いにしない。
 
 JSON 正本: [`screen-information-ledger.json`](./screen-information-ledger.json)
+
+2026-09-06: 数字画面の主目的を読者行動の現在値から次の改善先を選ぶことへ具体化した。主表現はsummary、全指標と集計方法はclosed Foldableに変更。時系列を示さない割合の棒グラフを主表現とする旧宣言を置き換えた。

@@ -251,11 +251,15 @@ describe("A11 配信物に載る記事", () => {
    * sitemap の行は `FeedItem.path` をそのまま使う。
    * ここで道を組み立て直すと、記事の種類が増えた日に
    * この関数だけ古い写し方のまま残る。
+   *
+   * この `getSite` は `routes: []`（＝入口を 1 つも出さないブログ）を返すので、
+   * ここに残るのは記事の行だけになる。入口の載せ方そのものは
+   * `tests/application/seo/sitemap.test.ts` が持つ。
    */
   it("sitemap の行は、読み取りが決めた道をそのまま使う", async () => {
     const loaded = await loadSeoSite(request, "gadget", SEO_ARTICLE_POLICY.completeIndex);
     if (!loaded.ok) throw new Error("読めるはず");
-    expect(sitemapEntries(loaded.value.items)).toEqual([
+    expect(sitemapEntries(loaded.value.routes, loaded.value.items)).toEqual([
       { path: "/reviews/quiet-desk", updatedAt: "2026-08-20" },
       { path: "/best/laptops", updatedAt: "2026-08-10" },
     ]);

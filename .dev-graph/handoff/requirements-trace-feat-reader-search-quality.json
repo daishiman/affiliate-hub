@@ -1,0 +1,250 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-reader-search-quality",
+  "scope_digest": "sha256:67ce36d05a3b268cb34752a2c45e82e96b723eaf9128af375a68dee6ccf07baf",
+  "verdict": "PASS",
+  "entry_count": 8,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "公開・更新・非公開化に索引が追従し非公開記事が出ない",
+      "confirmed_sources": [
+        "feature:A1",
+        "context:A1",
+        "database:qa-database-web-fts5-trigram-index-v4b",
+        "backend:qa-backend-web-site-search-llms-txt-v4b",
+        "database:published_articles"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P02|P03|P04|P05|P06|P07|P08|P09|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "日本語の部分一致で結果が返り無関係な語では0件になる",
+      "confirmed_sources": [
+        "feature:A2",
+        "context:A2",
+        "database:qa-database-web-fts5-trigram-index-v4b",
+        "database:qa-neutral-search-method-v6",
+        "backend:qa-backend-web-site-search-llms-txt-v4b"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "検索結果にサムネイル・カテゴリー・公開日・抜粋を表示する",
+      "confirmed_sources": [
+        "feature:A3",
+        "context:A3",
+        "ui_ux:qa-request-thumbnail-coverage-v6",
+        "frontend:qa-frontend-web-fixed-header-seo-aio-v6",
+        "database:published_articles"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "JavaScript を無効にした状態でも検索が完了する",
+      "confirmed_sources": [
+        "feature:A4",
+        "context:A4",
+        "backend:qa-backend-web-site-search-llms-txt-v4b",
+        "ui_ux:qa-uiux-web-top-composition-v6"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "画面の検索と WebMCP の searchArticles が同一結果を返す",
+      "confirmed_sources": [
+        "feature:A5",
+        "context:A5",
+        "frontend:qa-frontend-web-fixed-header-seo-aio-v6",
+        "architecture:arch-two-layer-platform"
+      ],
+      "system_tasks": [
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P02|P04|P05|P06|P07|P09|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "0件時にカテゴリーまたは人気記事の代替提案を出す",
+      "confirmed_sources": [
+        "feature:A6",
+        "context:A6",
+        "backend:qa-backend-web-site-search-llms-txt-v4b",
+        "database:qa-database-web-fts5-trigram-index-v4b"
+      ],
+      "system_tasks": [
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "検索URL契約とSearchAction targetの一致を機械検査できる",
+      "confirmed_sources": [
+        "feature:A7",
+        "context:A7",
+        "backend:qa-backend-web-site-search-llms-txt-v4b",
+        "retrieval-evidence:kajetblog-top-analysis.md#5"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P10",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P01|P02|P03|P04|P05|P06|P07|P09|P10|P12]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "索引更新が公開処理の中で完結し手動再構築を要しない",
+      "confirmed_sources": [
+        "feature:A8",
+        "context:A8",
+        "database:qa-database-web-fts5-trigram-index-v4b",
+        "database:published_articles"
+      ],
+      "system_tasks": [
+        "P02",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A8",
+        "tasks[phase_ref=P02|P05|P06|P07|P08|P12]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    }
+  ],
+  "common_handoff_fields": [
+    "lineage_closure",
+    "promoted_generation",
+    "feature_package_id",
+    "tasks"
+  ],
+  "source_aliases": {
+    "architecture": [
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "backend": "system-spec/backend.md",
+    "context": "features/feat-reader-search-quality.context.json",
+    "database": "system-spec/database.md",
+    "feature": "features/feat-reader-search-quality.md",
+    "frontend": "system-spec/frontend.md",
+    "retrieval-evidence": "system-spec/retrieval-evidence",
+    "ui_ux": "system-spec/ui-ux.md"
+  },
+  "implementation_code_planned": 0,
+  "trace_plan_digest": "sha256:9407dfc760e40500b462f184963dfff0d8e989ddb9314b32abffb506163c169f",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)"
+}

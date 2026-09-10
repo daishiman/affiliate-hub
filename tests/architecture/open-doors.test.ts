@@ -314,6 +314,15 @@ const ROUTE_INTENT: Readonly<Record<string, { readonly intent: Gate; readonly wh
     intent: "誰でも",
     what: "読者の画面から届く計測（未ログインの読者が送るので、門は置けない）",
   },
+  "src/app/api/blog-thumbnails/[...key]/route.ts": {
+    // 読者に配る絵。記事そのものが公開されている以上、その表紙を閉じる意味は
+    // 無く、門を置くと未ログインの読者＝ほぼ全員の一覧が空箱で埋まる。
+    // 代わりに `isDeliverableThumbnailKey` が鍵の形だけを見る門になっていて、
+    // **R2 を引く前**に通す（同じバケットの `feedback-captures/` を
+    // 総当たりで試せる口にしないため）。
+    intent: "誰でも",
+    what: "記事サムネイルの配信（読者の画面に出る絵。鍵の形だけを門にする）",
+  },
   "src/app/api/reader-events/route.ts": {
     // 読者行動の観測（観測層の入口）。送るのは公開ブログを読んでいる
     // 未ログインの読者なので、門を置くと **観測できる読者がログイン済みの
@@ -370,6 +379,36 @@ const ACTION_INTENT: Readonly<
   previewAffiliateUrlAction: {
     intent: "ログイン",
     what: "成果リンクを保存する前に、安全な接続先から取得できる情報だけを確認する（保存はしない）",
+    reversible: "つく",
+  },
+  /*
+    検索と AI からの見え方。
+
+    `applySeoRevisionAction` は**公開済みの記事の本文を書き換える**ので、
+    `publishArticleAction` と同じ「外へ出る」側に見える。それでも「つく」と
+    書いたのは、書き換えの前の姿を控えとして残し、`revertSeoAutoApplyAction`
+    が 1 操作で戻せるようにしてあるからである（NFR5）。
+    **控えを残さない実装に変えた日は、ここを「つかない」へ直すこと。**
+  */
+  applySeoRevisionAction: {
+    intent: "ログイン",
+    what: "記事と変更前後の差分を確認し、その内容だけを反映する",
+    reversible: "つく",
+  },
+  revertSeoAutoApplyAction: {
+    intent: "ログイン",
+    what: "機械が書き換えた記事を、書き換える前の本文へ戻す",
+    reversible: "つく",
+  },
+  setSeoAutoApplyPausedAction: {
+    intent: "ログイン",
+    what: "記事の自動の書き換えを止める・再開する（観測は止まらない）",
+    reversible: "つく",
+  },
+  setSeoCitationMonthlyLimitAction: {
+    intent: "ログイン",
+    what: "AI被引用チェックの月次検索上限を変更する（使用済み・未確認の回数は戻さない）",
+    // 保存する上限値は変更し直せる。この操作自体は有料検索を実行しない。
     reversible: "つく",
   },
   manageBlogSeoAction: {
@@ -766,6 +805,27 @@ const ACTION_INTENT: Readonly<
     intent: "ログイン",
     what: "タグを作る・直す・消す（消したタグの説明は残らない）",
     reversible: "つかない",
+  },
+  /*
+    表紙の絵は**この仕組みの中に控えが残らない**。外すと置き場（R2）の実体まで
+    消える（台帳の参照を外してから消す順で、消し残りは掃除が拾う）。
+    差し替えたときも同じで、前の世代は参照が外れた時点で掃除の対象になる。
+    元に戻せるのは運営者の手元に原本が残っている場合だけなので「つかない」。
+  */
+  manageArticleThumbnailAction: {
+    intent: "ログイン",
+    what: "記事の表紙の絵を登録する・外す（外すと絵の実体まで消える）",
+    reversible: "つかない",
+  },
+  /*
+    おすすめを外しても記事は消えず、公開中なら同じ画面からもう一度
+    選べる。順序も再保存で戻せるので、公開トップの表示は変わるが
+    「取り返しがつかない」操作ではない。
+  */
+  manageBlogFeaturedArticlesAction: {
+    intent: "ログイン",
+    what: "おすすめ記事を最大3件、順序付きで登録・解除する（公開トップの表示が変わる）",
+    reversible: "つく",
   },
   manageBlogLayoutAction: {
     intent: "ログイン",

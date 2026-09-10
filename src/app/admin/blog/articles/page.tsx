@@ -1,4 +1,7 @@
+import { Fragment } from "react";
 import { AdminShell } from "@/presentation/admin/admin-shell";
+import { seoObservationHref } from "@/presentation/admin/observe/seo-review-href";
+import { ArticleThumbnailCell } from "@/presentation/admin/publish/article-thumbnail-cell";
 import { blogSiteOptions, pickSiteSlug } from "@/presentation/admin/publish/blog-site-options";
 import { BlogSiteSwitch } from "@/presentation/admin/publish/blog-site-switch";
 import { blogOpsEntry, currentActor } from "@/presentation/composition";
@@ -126,6 +129,7 @@ export default async function BlogArticlesPage({
             <DataTable
               caption="ブログ記事"
               columns={[
+                { key: "thumbnail", label: "絵" },
                 { key: "title", label: "見出し" },
                 { key: "template", label: "版面" },
                 { key: "status", label: "状態" },
@@ -136,12 +140,21 @@ export default async function BlogArticlesPage({
               rows={shownRows.map((row) => ({
                 key: row.articleId,
                 cells: [
-                  <TextLink
-                    key="title"
-                    href={`/admin/blog/articles/${encodeURIComponent(row.articleId)}`}
-                  >
-                    {row.title}
-                  </TextLink>,
+                  <ArticleThumbnailCell
+                    key="thumbnail"
+                    url={row.thumbnailUrl}
+                    sourceLabel={row.thumbnailSourceLabel}
+                    title={row.title}
+                  />,
+                  <Fragment key="title">
+                    <TextLink href={`/admin/blog/articles/${encodeURIComponent(row.articleId)}`}>
+                      {row.title}
+                    </TextLink>
+                    <br />
+                    {row.status === "published" ? (
+                      <TextLink href={seoObservationHref(row.siteSlug, row.slug)}>検索での見え方</TextLink>
+                    ) : <span>検索での見え方は公開後に確認できます</span>}
+                  </Fragment>,
                   row.templateLabel,
                   row.statusLabel,
                   row.authorName === "" ? "（未記入）" : row.authorName,

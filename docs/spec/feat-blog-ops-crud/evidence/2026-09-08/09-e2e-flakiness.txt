@@ -1,0 +1,23 @@
+$ for i in 1 2 3 4; do npx playwright test tests/e2e/blog-ops-crud.spec.ts; done
+# 同じコード・同じコマンドを 4 回。flaky かどうかは 1 回では分からない。
+
+=== 回 1 ===
+
+  1 failed
+    [desktop] › tests/e2e/blog-ops-crud.spec.ts:71:7 › 管理側: 記事の CRUD › 下書きを作れて、一覧に出る ───────────────
+  15 passed (43.7s)
+=== 回 2 ===
+  ✓  15 [mobile] › tests/e2e/blog-ops-crud.spec.ts:173:7 › 読者側 › 公開済みの記事は読めて、点を付けられる (519ms)
+  ✓  16 [mobile] › tests/e2e/blog-ops-crud.spec.ts:184:7 › 読者側 › 点を選ばずに送ると断られる (311ms)
+
+  16 passed (38.9s)
+=== 回 3 ===
+  ✓  15 [desktop] › tests/e2e/blog-ops-crud.spec.ts:173:7 › 読者側 › 公開済みの記事は読めて、点を付けられる (448ms)
+  ✓  16 [desktop] › tests/e2e/blog-ops-crud.spec.ts:184:7 › 読者側 › 点を選ばずに送ると断られる (346ms)
+
+  16 passed (38.4s)
+=== 回 4 ===
+  ✓  14 [desktop] › tests/e2e/blog-ops-crud.spec.ts:173:7 › 読者側 › 公開済みの記事は読めて、点を付けられる (579ms)
+  ✓  16 [desktop] › tests/e2e/blog-ops-crud.spec.ts:184:7 › 読者側 › 点を選ばずに送ると断られる (321ms)
+
+  16 passed (37.3s)

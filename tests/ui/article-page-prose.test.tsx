@@ -12,6 +12,12 @@ import {
   projectBlogArticle,
 } from "@/application/read-models/published-article";
 import { serializeProse } from "@/domain/blogops";
+import type { SiteContext } from "@/presentation/site/page-frame";
+import {
+  aPublicSiteBlueprint,
+  aPublicSiteProjection,
+  aSiteChrome,
+} from "../support/factories";
 import { renderMarkup } from "../support/render";
 
 const state = vi.hoisted(() => ({ article: null as PublishedArticle | null }));
@@ -38,14 +44,27 @@ vi.mock("@/presentation/http/request-origin", () => ({
 }));
 
 vi.mock("@/presentation/site/page-frame", () => ({
-  SiteFrame: async ({ children }: { readonly children: (context: unknown) => ReactNode | Promise<ReactNode> }) =>
+  /*
+    **`context` を `unknown` で受けない。**`vi.mock` の factory が返す値には
+    型検査が効かないので、ここが痩せていても実装が必須項目を足したことに
+    気づけない。実際 2026-09-08 に `blueprint` を `name` だけで組んでいて、
+    関連記事のカードが `theme` を読んだところで画面ごと落ち、この検査の主題
+    (Prose の描画) を測る前に終わっていた。
+
+    `SiteContext` で受けると、その日にここがコンパイルエラーになる。
+    中身は `tests/support/factories.ts` の雛形が正本から組む——
+    **この検査は設計図の中身に関心が無い**ので、値をここで選ばない。
+  */
+  SiteFrame: async ({
+    children,
+  }: {
+    readonly children: (context: SiteContext) => ReactNode | Promise<ReactNode>;
+  }) =>
     children({
-      blueprint: { name: "机まわり研究室" },
-      projection: {
-        reader: {
-          findSourceArticleId: async () => ({ ok: true as const, value: null }),
-        },
-      },
+      siteSlug: "kizukai",
+      blueprint: aPublicSiteBlueprint(),
+      chrome: aSiteChrome(),
+      projection: aPublicSiteProjection(),
     }),
   ReadFailureBody: () => <p>記事を表示できません。</p>,
   stopIfMissing: () => undefined,
@@ -90,8 +109,9 @@ function renderArticlePage() {
     ArticlePage({
       siteSlug: "desk",
       slug: "quiet-keyboard",
-      pathPrefix: "/guides",
-      routeLabel: "選び方",
+      // `pathPrefix` と `routeLabel` の 2 引数は `type` 1 つへ畳まれた。
+      // 2 つあると「選び方」を押して `/compare` へ行く形が型を通ってしまう。
+      type: "guide",
     }),
   );
 }

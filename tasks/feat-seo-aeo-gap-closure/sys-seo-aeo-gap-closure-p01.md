@@ -12,7 +12,7 @@ iteration: null
 title: "SEO/AEO 未実装差分の要求ベースライン確定"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T04:28:55Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: []
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-04T04:28:55Z","evidence_refs":["beads:ah-f60p.1"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-04T02:17:16Z","missing_sections":[],"status":"complete"}
 ---
 

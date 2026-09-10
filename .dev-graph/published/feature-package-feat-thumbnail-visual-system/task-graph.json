@@ -1,0 +1,208 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+  "parent_feature": "feat-thumbnail-visual-system",
+  "nodes": [
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P01"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P02"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P03"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P04"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P05"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P06"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P05"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P08"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P09"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P10"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P11"
+      ]
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P12"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P01",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P02",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P03",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P04",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P05",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P06",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P05",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P08",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-THUMBNAIL-VISUAL-SYSTEM-P12",
+      "to": "SYS-THUMBNAIL-VISUAL-SYSTEM-P13",
+      "type": "depends_on"
+    }
+  ]
+}

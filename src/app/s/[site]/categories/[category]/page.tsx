@@ -1,6 +1,6 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "@/presentation/site/page-frame";
-import { siteHref, toArticleCards } from "@/presentation/site/view-model";
+import { siteHref, thumbnailContextOf, toArticleCards } from "@/presentation/site/view-model";
 import { ArticleList, SitePage, UI_COPY } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
@@ -30,11 +30,11 @@ export default async function CategoryPage({
       pageKind="category"
       sidebar
     >
-      {() =>
+      {({ blueprint }) =>
         result.ok ? (
           <SitePage title={result.value.category.name} lead={result.value.category.oneLine} wide>
             <ArticleList
-              articles={toArticleCards(site, result.value.articles)}
+              articles={toArticleCards(site, result.value.articles, thumbnailContextOf(blueprint))}
               emptyTitle={UI_COPY.article.emptyListTitle}
               emptyBody={UI_COPY.article.emptyListBody}
             />

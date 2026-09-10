@@ -283,7 +283,7 @@ def test_reopen_requires_reason():
 
 def test_reopen_then_reconfirm_allowed():
     state = _confirmed_state()
-    mod.apply_cell_op(state, {"action": "reopen", "category": "database", "platform": "web", "reason": "追加要件が判明"})
+    mod.apply_cell_op(state, {"action": "reopen", "category": "database", "platform": "web", "reason": "追加要件が判明", "qa_ref": "qa-001"})
     assert state["matrix"]["database"]["web"]["state"] == "未収集"
     assert state["reopen_log"][-1]["reason"] == "追加要件が判明"
     mod.apply_cell_op(state, {"action": "confirm", "category": "database", "platform": "web", "qa_ref": "qa-002"})
@@ -386,7 +386,7 @@ def test_cli_init_chunk_apply_aggregate(tmp_path):
     assert mod.main(["init", "--taxonomy", str(TAXONOMY), "--out", str(state_path)]) == 0
     assert mod.main(["chunk", "--state", str(state_path), "--turns", str(turns_path), "--max-loops", "5"]) == 0
     assert json.loads(state_path.read_text(encoding="utf-8"))["hearing_progress"]["complete"] is False
-    reopen = json.dumps({"action": "reopen", "category": "database", "platform": "web", "reason": "再確認"})
+    reopen = json.dumps({"action": "reopen", "category": "database", "platform": "web", "reason": "再確認", "qa_ref": "qa-001"})
     assert mod.main(["apply", "--state", str(state_path), "--op", reopen]) == 0
     assert mod.main(["aggregate", "--state", str(state_path)]) == 0
 

@@ -89,6 +89,7 @@ def test_reopen_preserves_discarded_trace_and_resyncs_progress() -> None:
                     "category": "database",
                     "platform": "web",
                     "reason": "要件を再確認",
+                    "qa_ref": "qa-001",
                 }
             ]
         },
@@ -114,6 +115,7 @@ def test_reopen_preserves_optional_serves_intents_when_present() -> None:
                     "category": "database",
                     "platform": "web",
                     "reason": "intent を再確認",
+                    "qa_ref": "qa-001",
                 }
             ]
         },
@@ -142,3 +144,14 @@ def test_run_chunk_persists_actual_max_loops() -> None:
     state = mod.init_state(_taxonomy())
     mod.run_chunk(state, [], max_loops=2)
     assert state["hearing_progress"]["max_loops"] == 2
+
+
+def test_reopen_preserves_approval_and_existing_writer_can_restore_it():
+    state = _complete_state()
+    state["approval_log"] = [{"id": "approved-revision"}]
+    mod.apply_cell_op(state, {"action": "set-approval", "category": "database", "platform": "web", "approval_ref": "approved-revision"})
+    mod.apply_cell_op(state, {"action": "reopen", "category": "database", "platform": "web", "reason": "要件改定", "qa_ref": "qa-001"})
+    assert state["reopen_log"][-1]["discarded"]["approval_ref"] == "approved-revision"
+    mod.apply_cell_op(state, {"action": "confirm", "category": "database", "platform": "web", "qa_ref": "qa-001", "serves_goals": ["G1"], "reaffirm": True})
+    mod.apply_cell_op(state, {"action": "set-approval", "category": "database", "platform": "web", "approval_ref": "approved-revision"})
+    assert state["matrix"]["database"]["web"]["approval_ref"] == "approved-revision"

@@ -1,14 +1,32 @@
-export const TEST_FILES = ["tests/**/*.test.ts", "tests/**/*.test.tsx"];
+/*
+  `tests/blog-top-page/` だけ `.spec.ts` を拾う。
+
+  この repo の Vitest は `*.test.ts(x)` しか集めず、`*.spec.ts` は Playwright の
+  `tests/e2e/` が使っている。トップ画面の受け入れ条件が求める証跡は
+  `tests/blog-top-page/*.spec.ts` という名前で指定されているので、
+  **名前を変えるのではなく、その 1 ディレクトリだけを集める側へ足す。**
+
+  tests 配下の spec を丸ごと拾う書き方にしないのは、そうすると Playwright の 6 本が
+  Vitest 側にも入って、ブラウザ前提の検査が Node で落ちるため。
+*/
+export const TEST_FILES = [
+  "tests/**/*.test.ts",
+  "tests/**/*.test.tsx",
+  "tests/blog-top-page/*.spec.ts",
+];
 
 export const WORKER_RUNTIME_TEST_FILES = [
   "tests/integration/d1-*.test.ts",
   "tests/integration/local-seed-idempotency.test.ts",
   "tests/integration/r2-feedback-capture.test.ts",
+  // HTMLRewriter は Node に無い。本物の workerd を Miniflare で立てて確かめる。
+  "tests/integration/workerd-*.test.ts",
 ];
 
 export const A11Y_TEST_FILES = [
   "tests/ui/affiliate-preview-card.test.tsx",
   "tests/ui/ai-usage-page.test.tsx",
+  "tests/ui/article-thumbnail-form.test.tsx",
   "tests/ui/axe-blind-spots.test.ts",
   "tests/ui/axe-rule-coverage.test.ts",
   "tests/ui/blog-metrics-pages.test.tsx",

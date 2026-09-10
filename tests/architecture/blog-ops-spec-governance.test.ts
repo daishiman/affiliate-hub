@@ -123,17 +123,29 @@ describe("feat-blog-ops-crud specification governance", () => {
     }
   });
 
-  it("does not present an in-progress execution as promoted or released", () => {
+  it("does not present an unpromoted execution as promoted or released", () => {
+    // 「まだ promotion していない」と言える状態は 1 つではない。実行の途中 (in_progress) と、
+    // 判定を下し終えて止めている状態 (judgment_recorded) の 2 つがある。
+    // 特定の 1 語を床にすると、状態が正当に進んだ日に、主張が変わっていないのに赤くなる。
+    // ここで守りたいのは「promoted / released として見せていないこと」なので、
+    // 語は許可集合で受け、promotion を開いた主張が無いことを別に見る。
+    const unpromotedStatuses = ["in_progress", "judgment_recorded"];
+    const declaresUnpromotedStatus = (decision: string, label: string) => {
+      const match = decision.match(/execution status: \*\*([a-z_]+)[^*]*\*\*/);
+      expect(match?.[1], `${label} に execution status の宣言が無い`).toBeDefined();
+      expect(unpromotedStatuses, label).toContain(match?.[1]);
+    };
+
     const finalReview = read(FINAL_REVIEW_PATH);
     const releaseReport = read(RELEASE_REPORT_PATH);
     const currentFinalDecision = finalReview.split("## Historical snapshot")[0];
     const currentReleaseDecision = releaseReport.split("## Historical snapshot")[0];
 
-    expect(currentFinalDecision).toContain("execution status: **in_progress**");
+    declaresUnpromotedStatus(currentFinalDecision, "final-review.md");
+    declaresUnpromotedStatus(currentReleaseDecision, "release-report.md");
     expect(currentFinalDecision).toContain("promotion: **blocked**");
     expect(currentFinalDecision).not.toContain("FAIL 0 件");
     expect(currentFinalDecision).not.toContain("readiness = complete");
-    expect(currentReleaseDecision).toContain("execution status: **in_progress**");
     expect(currentReleaseDecision).not.toContain("前提は満たしている");
   });
 

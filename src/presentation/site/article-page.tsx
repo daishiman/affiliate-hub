@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import type { ArticleType } from "@/domain/authoring/article-structure";
+import { articleIndexRoute } from "@/domain/authoring/site-routes";
 import { siteBasePathBySlug } from "@/domain/authoring/site";
 import {
   publicArticleBlockOrder,
@@ -19,7 +21,7 @@ import { renderCanonicalSectionBody } from "./canonical-section-body";
 import { ShortlistSaveButton } from "./shortlist-buttons";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
 import { ReaderRatingForm } from "./reader-rating-form";
-import { siteHref, toArticleCards, toArticleView } from "./view-model";
+import { siteHref, thumbnailContextOf, toArticleCards, toArticleView } from "./view-model";
 
 /**
  * 記事 1 本の画面。
@@ -32,17 +34,21 @@ import { siteHref, toArticleCards, toArticleView } from "./view-model";
  * ルートごとの違いは URL の前半だけで、画面の中身は 1 つ。
  */
 /**
- * URL の前半から、ページの種類を決める。
+ * 記事タイプから、ページの種類を決める。
  *
  * 画面は 1 つでも、読者がそこでやりたいことはルートごとに違う。
  * 比較のページに順位の説明の道具を渡しても、説明する順位がそこに無い。
+ *
+ * `satisfies Record<ArticleType, …>` にしてあるので、記事タイプが増えた日に
+ * ここが型で赤くなる（既定へ黙って落ちない）。
  */
-const PAGE_KIND_BY_PREFIX: Readonly<Record<string, PageKind>> = {
-  "/best": "ranking",
-  "/compare": "comparison",
-  "/reviews": "product",
-  "/guides": "article",
-};
+const PAGE_KIND_BY_TYPE = {
+  ranking: "ranking",
+  comparison: "comparison",
+  review: "product",
+  guide: "article",
+  tool: "article",
+} as const satisfies Readonly<Record<ArticleType, PageKind>>;
 
 // 既存のimport元を保ちつつ、実体は副作用のないleaf moduleに一つだけ置く。
 export { renderCanonicalSectionBody } from "./canonical-section-body";
@@ -50,17 +56,21 @@ export { renderCanonicalSectionBody } from "./canonical-section-body";
 export async function ArticlePage({
   siteSlug,
   slug,
-  pathPrefix,
-  routeLabel,
+  type,
   interactiveSlot,
   whenArticleMissing,
   fallbackTitle,
 }: {
   readonly siteSlug: string;
   readonly slug: string;
-  /** `/best` など。パンくずと現在地の表示に使う。 */
-  readonly pathPrefix: string;
-  readonly routeLabel: string;
+  /**
+   * 記事タイプ。**URL の前半も、パンくずの親の名札も、これ 1 つから出す。**
+   *
+   * 以前は `pathPrefix="/best"` と `routeLabel="おすすめ順位"` を画面側が
+   * 別々に渡していた。2 つあれば片方だけずらせる——「おすすめ順位」を押すと
+   * `/compare` へ行く、が型を通ってしまう。1 つにすれば作れない。
+   */
+  readonly type: ArticleType;
   /**
    * 本文の前に差し込む、読者が操作できる部分（`/tools` の入力欄と結果）。
    *
@@ -84,6 +94,12 @@ export async function ArticlePage({
    */
   readonly fallbackTitle?: string;
 }) {
+  /*
+    URL の前半と、パンくずの親の名札。**どちらもルート表 1 か所から出す。**
+    ここで文字列を組み立てないので、索引の見出しと親のリンク文字は必ず一致する。
+  */
+  const indexRoute = articleIndexRoute(type);
+  const pathPrefix = indexRoute.path;
   const useCases = await siteUseCases();
   const actor = readerActor();
   const [result, recent, blockOrder] = await Promise.all([
@@ -109,14 +125,16 @@ export async function ArticlePage({
   if (!result.ok && whenArticleMissing === undefined) stopIfMissing(result.error);
 
   const path = `${pathPrefix}/${slug}`;
-  const relatedArticles = recent.ok
-    ? toArticleCards(
-        siteSlug,
-        recent.value.filter((candidate) => candidate.slug !== slug).slice(0, 3),
-      )
-    : undefined;
+  /*
+    関連記事は「どの記事か」だけをここで決め、カードにするのは描画の中でする。
+    カードの図版はブログの配色から作るので、設計図が手に入る場所まで
+    変換を遅らせないと、関連記事だけ既定色の図版が並ぶ。
+  */
+  const relatedSummaries = recent.ok
+    ? recent.value.filter((candidate) => candidate.slug !== slug).slice(0, 3)
+    : null;
   const article = result.ok
-    ? toArticleView(siteSlug, result.value, relatedArticles, blockOrder ?? undefined)
+    ? toArticleView(siteSlug, result.value, undefined, blockOrder ?? undefined)
     : null;
 
   /*
@@ -133,10 +151,15 @@ export async function ArticlePage({
       currentPath={siteHref(siteSlug, path)}
       articleSlug={slug}
       trail={[
-        { label: routeLabel },
+        /*
+          真ん中の一段には**行き先を付ける**（残課題 ah-milz）。
+          2026-09-05 まで `path` が無く、「おすすめ順位」は押せない文字だった。
+          押せると思って押す文字は、置かないより悪い。
+        */
+        { label: indexRoute.label, path: pathPrefix },
         { label: result.ok ? result.value.title : (fallbackTitle ?? "記事") },
       ]}
-      pageKind={PAGE_KIND_BY_PREFIX[pathPrefix] ?? "article"}
+      pageKind={PAGE_KIND_BY_TYPE[type]}
       sidebar
       asideSlot={
         article === null ? undefined : (
@@ -164,6 +187,7 @@ export async function ArticlePage({
                 siteName={blueprint.name}
                 origin={origin}
                 basePath={basePath}
+                parent={{ name: indexRoute.label, url: `${origin}${basePath}${pathPrefix}` }}
                 speakableSelectors={ARTICLE_SPEAKABLE_SELECTORS}
               />
             )}
@@ -182,6 +206,10 @@ export async function ArticlePage({
               <ArticleView
                 article={{
                   ...article,
+                  relatedArticles:
+                    relatedSummaries === null
+                      ? undefined
+                      : toArticleCards(siteSlug, relatedSummaries, thumbnailContextOf(blueprint)),
                   productCards: article.productCards?.map((card) =>
                     card.productId === undefined
                       ? card

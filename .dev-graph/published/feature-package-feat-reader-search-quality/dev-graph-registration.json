@@ -1,0 +1,1207 @@
+{
+  "schema_version": "1.0.0",
+  "source_digest": "sha256:b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+  "promotion_receipt": ".dev-graph/published/feature-package-feat-reader-search-quality/atomic-promotion-receipt.json",
+  "feature_package_id": "feature-package/feat-reader-search-quality",
+  "parent_feature": "feat-reader-search-quality",
+  "expected_count": 13,
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "binding_intents": {
+    "SYS-READER-SEARCH-QUALITY-P01": "beads",
+    "SYS-READER-SEARCH-QUALITY-P02": "beads",
+    "SYS-READER-SEARCH-QUALITY-P03": "beads",
+    "SYS-READER-SEARCH-QUALITY-P04": "beads",
+    "SYS-READER-SEARCH-QUALITY-P05": "beads",
+    "SYS-READER-SEARCH-QUALITY-P06": "beads",
+    "SYS-READER-SEARCH-QUALITY-P07": "beads",
+    "SYS-READER-SEARCH-QUALITY-P08": "beads",
+    "SYS-READER-SEARCH-QUALITY-P09": "beads",
+    "SYS-READER-SEARCH-QUALITY-P10": "beads",
+    "SYS-READER-SEARCH-QUALITY-P11": "beads",
+    "SYS-READER-SEARCH-QUALITY-P12": "beads",
+    "SYS-READER-SEARCH-QUALITY-P13": "beads"
+  },
+  "nodes": [
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P01",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "検索入口2経路・FTS5索引スコープ・URL契約の要求ベースライン確定",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/requirements-baseline.md",
+        "docs/spec/feat-reader-search-quality/search-entry-inventory.md",
+        "docs/spec/feat-reader-search-quality/fts5-index-scope-analysis.md",
+        "docs/spec/feat-reader-search-quality/url-contract-observed-fact.md",
+        "docs/spec/feat-reader-search-quality/acceptance-traceability.json"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p01.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-01-requirements.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP01 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p01.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P02",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "FTS5 trigram索引・順位付け・URL契約・画面/WebMCP同一ユースケースの設計",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P01"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/data-model.md",
+        "docs/spec/feat-reader-search-quality/api-contract.md",
+        "docs/spec/feat-reader-search-quality/ranking-contract.md",
+        "docs/spec/feat-reader-search-quality/url-contract.md",
+        "docs/spec/feat-reader-search-quality/progressive-enhancement-contract.md",
+        "docs/spec/feat-reader-search-quality/webmcp-parity-contract.md"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p02.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-02-architecture.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP02 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p02.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P03",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "設計の独立レビューと外部SaaS非依存・非公開流出防止・境界不可侵ゲート",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P02"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/design-review.md"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p03.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-03-design-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP03 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p03.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P04",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "A1-A8・索引追従・日本語部分一致・JavaScript無効完走のテスト設計",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P03"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/test-design.md",
+        "tests/fixtures/feat-reader-search-quality/"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p04.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-04-test-design.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP04 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p04.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P05",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "FTS5索引・日本語部分一致検索・検索結果面・二経路入口・WebMCP同一ユースケースの実装",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "backend",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P04"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src/domain/blogops/",
+        "src/domain/shared/",
+        "src/application/ports/site.ts",
+        "src/application/usecases/site/read-site.ts",
+        "src/infrastructure/persistence/d1/",
+        "src/presentation/site/search-box.tsx",
+        "src/presentation/site/",
+        "src/app/s/[site]/search/",
+        "src/presentation/tools/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "tests/"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p05.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-05-implementation.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP05 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p05.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P06",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "単体・結合・E2E・JavaScript無効・WebMCP契約テストの実行と緑化",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/test-run-report.md",
+        "test-results/feat-reader-search-quality/"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p06.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-06-test-run.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP06 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p06.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P07",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "A1-A8のfeature受入",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P06"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/acceptance-report.md"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p07.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-07-acceptance.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP07 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p07.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P08",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "既存LIKE検索からFTS5索引への移行とbackfill",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "data",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/infrastructure/persistence/d1/",
+        "docs/spec/feat-reader-search-quality/migration-report.md"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p08.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-08-refactoring-migration.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP08 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p08.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P09",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "非公開流出防止・FTS構文注入防止・境界動作・非侵犯境界の独立QA",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P08"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/qa-report.md",
+        "test-results/feat-reader-search-quality/qa/"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p09.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-09-quality-assurance.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP09 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p09.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P10",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "目的・受入・品質証跡の独立最終レビュー",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "quality",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P09"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/final-review.md"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p10.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-10-final-review.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP10 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p10.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P11",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "FTS5索引・日本語部分一致・順位付け・WebMCP同一結果証跡の再現可能な集約",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P09",
+        "SYS-READER-SEARCH-QUALITY-P10"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/evidence/"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p11.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-11-evidence.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP11 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p11.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P12",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "索引再構築runbook・負荷超過時fallback・URL/API契約の確定",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "documentation",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P10",
+        "SYS-READER-SEARCH-QUALITY-P11"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/index-rebuild-runbook.md",
+        "docs/spec/feat-reader-search-quality/operations.md",
+        "docs/spec/feat-reader-search-quality/api-contract.md",
+        "docs/spec/feat-reader-search-quality/url-contract.md",
+        "docs/spec/feat-reader-search-quality/data-model.md"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p12.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-12-documentation-operations.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP12 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p12.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    },
+    {
+      "graph_node_id": "SYS-READER-SEARCH-QUALITY-P13",
+      "artifact_kind": "task",
+      "artifact_subtypes": [],
+      "title": "development段階展開・rollback確認・仕様書への書き戻し",
+      "project_id": "feature-package-feat-reader-search-quality",
+      "domain": "operations",
+      "status": "active",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-reader-search-quality"
+      ],
+      "priority": null,
+      "start_date": null,
+      "target_date": null,
+      "iteration": null,
+      "created_at": "2026-09-04T04:37:54Z",
+      "updated_at": "2026-09-04T04:37:54Z",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P12"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "resource_scope": [
+        "docs/spec/feat-reader-search-quality/release-report.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/frontend.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "parent_feature": "feat-reader-search-quality",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p13.md",
+      "template_id": "task",
+      "template_version": "1.0.0",
+      "confirmation_status": "confirmed",
+      "evaluation_status": "pass",
+      "confirmation_evidence": {
+        "evaluator": "system-dev-plan-evaluator",
+        "evidence_ref": ".dev-graph/published/feature-package-feat-reader-search-quality/plan-findings.json",
+        "evaluated_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a"
+      },
+      "source_lineage": {
+        "origin_kind": "system-dev-planner",
+        "source_plugin": "system-dev-planner",
+        "source_path": ".dev-graph/published/feature-package-feat-reader-search-quality/task-specs/phase-13-release-deploy.md",
+        "source_version": "0.1.0",
+        "source_digest": "b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+        "imported_at": "2026-09-04T04:37:54Z"
+      },
+      "classification_confidence": 1.0,
+      "classification_reason": "feat-reader-search-qualityのP13 lifecycle責務への確定写像",
+      "classification_candidates": [
+        {
+          "artifact_kind": "task",
+          "confidence": 1.0,
+          "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p13.md"
+        }
+      ],
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "issue_linkage": null,
+      "tracker_binding": "repo-config-default",
+      "beads_linkage": null,
+      "github_project_linkages": [],
+      "pull_request_linkages": [],
+      "execution_contexts": [],
+      "completion_evidence": {
+        "policy": "linked_pr_merged_all",
+        "status": "in_progress",
+        "source": null,
+        "completed_at": null,
+        "reconciled_at": null,
+        "evidence_refs": []
+      },
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      }
+    }
+  ]
+}

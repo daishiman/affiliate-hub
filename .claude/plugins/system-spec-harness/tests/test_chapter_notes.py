@@ -19,8 +19,13 @@ sys.path.insert(0, str(ROOT / "lib"))
 sys.path.insert(0, str(ROOT / "skills" / "run-system-spec-elicit" / "scripts"))
 
 import spec_docset_chapters as chs  # noqa: E402
+import spec_docset_foundation as fnd  # noqa: E402
 from state_transition_common import TransitionError  # noqa: E402
-from state_transition_matrix import set_chapter_note  # noqa: E402
+from state_transition_matrix import (  # noqa: E402
+    RESIDUE_PEN_HEADINGS,
+    retire_chapter_note,
+    set_chapter_note,
+)
 
 
 def _state() -> dict:
@@ -116,3 +121,75 @@ def test_chapter_without_notes_gains_no_blank_section():
     state = _state()
     set_chapter_note(state, "ui-ux", "食い違い", "本文", "理由")
     assert "章の注記" not in chs.render_chapter_notes(state, "database")
+
+
+# --- 残余の棚を正本化させない -------------------------------------------------
+
+
+def test_the_residue_pen_headings_match_the_renderer_that_owns_them():
+    """写しが本家からずれたら落とす。ずれた瞬間、下の門は素通りになる。"""
+    assert {f"## {h}" for h in RESIDUE_PEN_HEADINGS} == {
+        fnd.CARRIED_HEADING,
+        fnd.RESIDUE_HEADING,
+    }
+
+
+@pytest.mark.parametrize("heading", sorted(RESIDUE_PEN_HEADINGS))
+def test_writing_the_residue_pen_itself_into_the_canon_is_refused(heading):
+    """棚ごと写すと、正本に接続できていない行が「接続済み」の顔で残る。"""
+    with pytest.raises(TransitionError, match="残余節そのものを正本へ入れることはできない"):
+        set_chapter_note(_state(), "ui-ux", heading, "本文", "理由")
+
+
+# --- 誤って入れた注記を退ける (消さない) --------------------------------------
+
+
+def test_retiring_moves_the_note_out_of_the_canon_without_losing_it():
+    state = _state()
+    set_chapter_note(state, "ui-ux", "As-Is", "本文", "理由")
+    retire_chapter_note(state, "ui-ux", "As-Is", "`##` 節として章に在り preserve が守れていた")
+    assert state["chapter_notes"]["ui-ux"] == []
+    assert state["retired_chapter_notes"]["ui-ux"] == [
+        {
+            "heading": "As-Is",
+            "body": "本文",
+            "reason": "理由",
+            "recorded_with": "set-chapter-note",
+            "retired_reason": "`##` 節として章に在り preserve が守れていた",
+            "retired_with": "retire-chapter-note",
+        }
+    ]
+
+
+def test_the_retired_note_no_longer_renders_into_the_chapter():
+    """描画対象から外れることが目的。残っていたら二重出力が続く。"""
+    state = _state()
+    set_chapter_note(state, "ui-ux", "As-Is", "本文", "理由")
+    retire_chapter_note(state, "ui-ux", "As-Is", "理由")
+    assert chs.render_chapter_notes(state, "ui-ux") == ""
+
+
+def test_retiring_twice_is_a_no_op():
+    state = _state()
+    set_chapter_note(state, "ui-ux", "As-Is", "本文", "理由")
+    retire_chapter_note(state, "ui-ux", "As-Is", "理由")
+    retire_chapter_note(state, "ui-ux", "As-Is", "理由")
+    assert len(state["retired_chapter_notes"]["ui-ux"]) == 1
+
+
+def test_retiring_a_heading_that_is_not_there_is_refused():
+    """綴り違いを通すと、正本に残ったままの注記を「退けた」と報告することになる。"""
+    state = _state()
+    set_chapter_note(state, "ui-ux", "As-Is", "本文", "理由")
+    with pytest.raises(TransitionError, match="chapter_notes.ui-ux に見出しが無い"):
+        retire_chapter_note(state, "ui-ux", "As Is", "理由")
+
+
+@pytest.mark.parametrize("field", ["category", "heading", "reason"])
+def test_retiring_without_a_reason_is_refused(field):
+    args = {"category": "ui-ux", "heading": "As-Is", "reason": "理由"}
+    args[field] = "   "
+    state = _state()
+    set_chapter_note(state, "ui-ux", "As-Is", "本文", "理由")
+    with pytest.raises(TransitionError, match="非空文字列必須"):
+        retire_chapter_note(state, args["category"], args["heading"], args["reason"])
