@@ -261,4 +261,4 @@ serves_goals: [G1, G2]
 
 | 対象 | バージョン | 公式発行元 | 出典URL | 取得 | 最新確認 |
 |---|---|---|---|---|---|
-| better-auth | 1.7.3 | Better Auth (better-auth.com) | https://better-auth.com/docs/introduction | 2026-09-07T13:48:07Z | 2026-09-07T13:48:07Z |
+| better-auth | 1.6.31 | Better Auth (better-auth.com) | https://better-auth.com/docs/introduction | 2026-09-07T13:48:07Z | 2026-09-10T00:00:00Z |

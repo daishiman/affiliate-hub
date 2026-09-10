@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"059da125465a760315ed45e96f6f233e2c608b7c76c56d7cb0e16cfb673f5a26","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-09T10:19:49Z","origin_kind":"system-spec-harness","source_digest":"03e917523475834144c0bb88173f85f476b4af72dd483b0580d5902800121908","source_path":"system-spec/00-requirements-definition.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-11T00:00:00Z","origin_kind":"system-spec-harness","source_digest":"944275f45bd5f62c369c96422477032df38311209cce4a85bb562278e2598fa0","source_path":"system-spec/00-requirements-definition.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 1.0
 classification_reason: "system-spec-harness が確定した architecture context の import。"
 classification_candidates: [{"artifact_kind":"architecture","candidate_path":"architecture/system-spec-overview.md","confidence":1.0}]

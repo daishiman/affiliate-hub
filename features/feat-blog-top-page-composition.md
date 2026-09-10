@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-blog-top-page-composition/d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-09T10:24:59Z","origin_kind":"generated","source_digest":"6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-11T00:00:00Z","origin_kind":"generated","source_digest":"333a4d77c9fdf9c9950d125c8f167fadab3eabadb7cc0c64c69597db5139042b","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望「kajetblog.com のトップページを参考に、ヘッダー・フッター・アイコン・画像を含め直感的に見やすいブログを構成する」を C14 macro 分解で 1 feature 化。sticky ヘッダー部品と配色は feat-blog-ui-builder、参照サイト解析は feat-reference-blog-admin-ux が既に所有しているため、本 feature はトップページという 1 画面の情報設計に限定して二重化を避ける。system-spec/ui-ux.md qa-uiux-web-kajetblog-top-composition-v4 に接地"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-top-page-composition.md","confidence":0.95}]

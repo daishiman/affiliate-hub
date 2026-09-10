@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"204c5f243190c0390fb314569247aed82722b6c22c1819780993421c77364646","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/feature-package-feat-seo-aeo-gap-closure/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-09T11:46:23Z","origin_kind":"generated","source_digest":"8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-11T00:00:00Z","origin_kind":"generated","source_digest":"eb427b5714d9dc3468ee31bfa770702b1f1bb76c34964947c6b151519f573dfe","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "撤回した feat-seo-aeo-machine-readable / feat-seo-aeo-analysis-feedback のうち、src/ への grep が 0 件だった 3 項目だけを残した差分 feature"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-seo-aeo-gap-closure.md","confidence":0.95}]

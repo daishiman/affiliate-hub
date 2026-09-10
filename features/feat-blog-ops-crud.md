@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"6ffac8f3a50c77499d310c4be14b89f27ba91cba627b0267c23e3e686c093dee","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-09T10:21:15Z","origin_kind":"generated","source_digest":"22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-11T00:00:00Z","origin_kind":"generated","source_digest":"1516f482855cab4d6b45e7735b700ee2e1ac03fa1aa3296dd0d7c461027fc5cb","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "利用者要望 (ブログ運用ページの完全 CRUD + 参考ブログ全体構成の抽象再現) を C14 macro 分解で 1 feature 化。確定章 qa-*-web-site-blueprint と docs/spec/13 v1.1 を lineage 参照し、細分は system-dev-planner の P01..P13 に委譲"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-blog-ops-crud.md","confidence":0.95}]

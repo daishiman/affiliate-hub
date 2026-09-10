@@ -36,8 +36,7 @@
   {
    "claim": "パスワード再設定や決済のような高価値機能を道具として露出すると、それ自体が悪意ある agent の新たな標的になる。露出する道具は読み取りに限り、書き込み系を露出しない設計上の理由になる",
    "verbatim": "Websites have high-value functionality (e.g., password resets, transactions) through their UI. When websites additionally expose such functionality via WebMCP tools, they create another potential target for malicious agents.",
-   "used_by": "qa-backend-web-aeo-analysis-pipeline-v6",
-   "source_section": "6.3.1.3 Tool Implementation as Attack Targets"
+   "used_by": "qa-backend-web-aeo-analysis-pipeline-v6"
   }
  ],
  "not_found_in_source": [

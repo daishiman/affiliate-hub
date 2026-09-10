@@ -257,7 +257,7 @@
    "freshness_source": "page-declared",
    "latest_checked_at": "2026-09-10T00:00:00Z",
    "evidence_ref": "system-spec/retrieval-evidence/webmcp.json",
-   "evidence_sha256": "7f0628e2d7eea4ccc340e743b86261d752597ca42e42b78607e8ebaba90d9833",
+   "evidence_sha256": "33bde7eae23b04b5f2b6a2d35b4f9f2c58932abe0aecd704b8f6cc03fdcd597a",
    "summary": "WebMCP の一次仕様 (2026-09-09 版 Draft Community Group Report)。W3C 標準ではなく標準化トラック上にもない。SecureContext の Document.modelContext を接点とし、registerTool に加えて getTools・executeTool と tool annotation を記述する。高価値機能を道具として露出すると新たな攻撃対象になると明記しているため、採用時は読み取り限定・明示確認・版追従を前提にする。rolling draft なので版が短い周期で進む。"
   },
   {

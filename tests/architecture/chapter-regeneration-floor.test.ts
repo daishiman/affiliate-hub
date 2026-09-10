@@ -436,8 +436,16 @@ const CHAPTERS: readonly Chapter[] = [
       `#### 本章での適用` の伸びで、いずれも**章へ直接書いた散文ではなく**
       正本 `spec-state.json` の確定が生成節として載ったものである。
       **床 292 も余裕 41 行も動かさない。**同じ 41 行を置き直す (638 + 41 = 679)。
+
+      2026-09-11: 2026-09-06 の `qa-seo-approved-diff-20260906` が誘導質問と判定され、
+      5 論点へ分けて問い直した結果 (`qa-seo-apply-approval-mode-20260910` /
+      `-target-scope-` / `-atomicity-` / `-concurrent-edit-`) が正本へ入った。
+      本章に載ったのはその 4 件の接地根拠節で、**章へ直接書いた散文ではない**。
+      同じ便で古い版の残骸節を `--acknowledge-prior-residue` で落としてある。
+      正規投影は 685 行。**床 292 も余裕 41 行も変えない。**同じ 41 行を
+      置き直して 685 + 41 = 726 とする。通るところまで上げたのではない。
     */
-    ceiling: 679,
+    ceiling: 726,
     headings: 35,
     principles: 2,
     answers: [1, 111], // 2026-08-23: 0 件だったが 1 件載ったので、張れるようになった。
@@ -517,8 +525,16 @@ const CHAPTERS: readonly Chapter[] = [
       衝突マーカー文字列）を `--acknowledge-prior-residue` で落としてある。
       **床 219・逐語の床・固定余裕は変えない。**直前の天井 794 へ実増 23 だけを
       加えて 817 とする。通るところまで上げたのではなく、増えた分だけ置き直した。
+
+      2026-09-11: 問い直した `qa-seo-apply-target-scope-20260910` /
+      `-atomicity-` / `-concurrent-edit-` の 3 件の接地根拠節が正本から本章へ載り、
+      正規投影は 798 → 832 行（実増 34 行）になった。旧契約
+      (`qa-seo-approved-diff-20260906` / `qa-neutral-auto-scope-v6`) を裏付けから
+      外した残骸節は `--acknowledge-prior-residue` で落としてある。
+      **床 219・逐語の床・固定余裕 19 行は変えない。**直前の天井 817 へ実増 34 を
+      加えて 851 とする（832 + 19 = 851 で余裕は同量）。
     */
-    ceiling: 817,
+    ceiling: 851,
     headings: 21,
     principles: 2,
     answers: [2, 102],

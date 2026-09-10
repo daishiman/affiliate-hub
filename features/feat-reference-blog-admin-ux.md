@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-reference-blog-admin-ux/a052d177cdedc029acbb2fd747bce579c0626bed5f6b64f9a94504ed6a2e75bd/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-09T10:21:52Z","origin_kind":"generated","source_digest":"22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-11T00:00:00Z","origin_kind":"generated","source_digest":"1516f482855cab4d6b45e7735b700ee2e1ac03fa1aa3296dd0d7c461027fc5cb","source_path":"system-spec/frontend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.98
 classification_reason: "今回の新規要望を、参照サイトの全URL台帳と画面型別詳細解析、非模倣の公開面ブループリント、低認知負荷の管理CRUD、アフィリエイト即時プレビュー/掲載先逆引きを一体の観測可能なenhancement featureにマクロ分解した。既存CRUD基盤は再定義せずdepends_onで再利用する"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-reference-blog-admin-ux.md","confidence":0.98}]

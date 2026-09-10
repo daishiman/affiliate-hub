@@ -416,9 +416,3 @@ codeを、次の変更者が意図・制約・failureを短時間で理解し、
 | vitest | 5.0.0 | Vitest (vitest.dev) | https://vitest.dev/guide/ | 2026-09-03T23:21:10Z | 2026-09-03T23:21:10Z |
 | github-actions | free-pro-team@latest | GitHub (docs.github.com) | https://docs.github.com/en/actions | 2026-08-22T15:05:16Z | 2026-08-22T15:05:16Z |
 | stryker-mutator | 10.0.0 | Stryker Mutator (stryker-mutator.io) | https://stryker-mutator.io/docs/stryker-js/introduction/ | 2026-08-22T21:18:38Z | 2026-08-22T21:19:48Z |
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `| Web (web) | 確定 | 確定質疑: qa-maintenance-ops-web-orphan-image-verbatim。裏付け質疑 (`qa_refs`): `qa-ops-web-domain-retention-seo-freshness`, `qa-ops-web-migration-guard-v2`, `qa-ops-web-migration-guard`, `qa-ops-web-spec-intake`, `qa-ops-web`, `qa-seo-approved-diff-20260906`, `qa-neutral-auto-scope-v6`, `qa-neutral-citation-check-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

@@ -33,7 +33,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-09T10:22:27Z","origin_kind":"system-spec-harness","source_digest":"22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd","source_path":"system-spec/frontend.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-11T00:00:00Z","origin_kind":"system-spec-harness","source_digest":"1516f482855cab4d6b45e7735b700ee2e1ac03fa1aa3296dd0d7c461027fc5cb","source_path":"system-spec/frontend.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "system-spec frontend×web 確定質疑 qa-frontend-web-capture-self-occlusion を作業単位として登録"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-feedback-capture-self-exclusion.md","confidence":0.95}]

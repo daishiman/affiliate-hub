@@ -830,9 +830,3 @@ businessの重要なruleと用語をmodel/code/会話で一致させ、複雑性
 | cloudflare-d1 | 2026-04-30 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/ | 2026-08-19T15:30:39Z | 2026-08-19T15:30:39Z |
 | cloudflare-d1-use-indexes | 2026-08-10 | Cloudflare (developers.cloudflare.com) | https://developers.cloudflare.com/d1/best-practices/use-indexes/ | 2026-09-03T00:00:00Z | 2026-09-03T00:00:00Z |
 | sqlite-fts5 | 2026-08-01 | SQLite (www.sqlite.org) | https://www.sqlite.org/fts5.html | 2026-09-08T12:32:03Z | 2026-09-08T12:32:03Z |
-
-## compile が保てなかった行 (要判断)
-
-> 正本から導出できず、節・小節の引き継ぎでも守れなかった 1 行。版の更新のように**正しく消える行**も混ざる。正本へ接続するか、不要と確かめて消すこと。この節は compile のたびに作り直す。
-
-- `| Web (web) | 確定 | 確定質疑: qa-database-web-article-image-verbatim。裏付け質疑 (`qa_refs`): `qa-database-web-domain-aeo-behavior`, `qa-database-web-audit-history-window-p13-v3`, `qa-database-web-blog-provisioning-integrity`, `qa-database-web-blog-builder`, `qa-database-web-spec-intake`, `qa-database-web`, `qa-database-web-analytics`, `qa-database-web-aeo-analysis-storage-v4`, `qa-seo-approved-diff-20260906`, `qa-neutral-search-method-v6`, `qa-answer-aeo-feasibility-v6`, `qa-decision-aeo-data-sources-v5` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |`

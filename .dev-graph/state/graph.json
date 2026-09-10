@@ -1,5 +1,5 @@
 {
-  "graph_revision": 1082,
+  "graph_revision": 1094,
   "nodes": [
     {
       "acceptance": [],
@@ -872,9 +872,9 @@
         "confirmed artifacts are not rewritten by this adapter"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T10:19:49Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "03e917523475834144c0bb88173f85f476b4af72dd483b0580d5902800121908",
+        "source_digest": "944275f45bd5f62c369c96422477032df38311209cce4a85bb562278e2598fa0",
         "source_path": "system-spec/00-requirements-definition.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -14477,9 +14477,9 @@
         "独自ドメイン・DNS 運用、テーマの外部販売"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T09:56:11Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
+        "source_digest": "333a4d77c9fdf9c9950d125c8f167fadab3eabadb7cc0c64c69597db5139042b",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -16095,9 +16095,9 @@
         "独自ドメイン・DNS 運用"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T10:21:15Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd",
+        "source_digest": "1516f482855cab4d6b45e7735b700ee2e1ac03fa1aa3296dd0d7c461027fc5cb",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -17712,9 +17712,9 @@
         "この段階での本番公開、全記事の再編集、既存データの一括破壊的移行"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T10:21:52Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd",
+        "source_digest": "1516f482855cab4d6b45e7735b700ee2e1ac03fa1aa3296dd0d7c461027fc5cb",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -19403,9 +19403,9 @@
         "写し以外の添付手段の追加"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T10:22:27Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "22fc1c6043b5bbee37787b36fa8898b08058a9baed9cdf2880a27a864cf5e9cd",
+        "source_digest": "1516f482855cab4d6b45e7735b700ee2e1ac03fa1aa3296dd0d7c461027fc5cb",
         "source_path": "system-spec/frontend.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
@@ -21964,9 +21964,9 @@
         "画像の著作権処理・素材調達の運用"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T10:23:04Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
+        "source_digest": "333a4d77c9fdf9c9950d125c8f167fadab3eabadb7cc0c64c69597db5139042b",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -22095,9 +22095,9 @@
         "管理画面内の記事検索。読者向け公開面だけを対象とし、管理画面側の検索は本 feature の範囲外とする"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T11:46:23Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624",
+        "source_digest": "eb427b5714d9dc3468ee31bfa770702b1f1bb76c34964947c6b151519f573dfe",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -22228,9 +22228,9 @@
         "検索エンジンへの順位操作を目的とした手法"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T11:46:23Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624",
+        "source_digest": "eb427b5714d9dc3468ee31bfa770702b1f1bb76c34964947c6b151519f573dfe",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -22364,9 +22364,9 @@
         "SNS導線の新規要件化。現時点では公開URL・表示データ・正本acceptanceが無いため必須scopeへ含めず、情報源とroute契約を持つ別feature判断に委ねる"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T10:24:59Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
+        "source_digest": "333a4d77c9fdf9c9950d125c8f167fadab3eabadb7cc0c64c69597db5139042b",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -31240,9 +31240,9 @@
         "読者向け公開面 (feat-reader-surface)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T10:25:38Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
+        "source_digest": "333a4d77c9fdf9c9950d125c8f167fadab3eabadb7cc0c64c69597db5139042b",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -31366,9 +31366,9 @@
         "参考ブログ水準の読者導線・目次・サイドバー配置 (feat-reference-blog-admin-ux)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T11:46:23Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "generated",
-        "source_digest": "8a33d295c855596f91ba6c974b4b44e7ca1a5e06872a2c24d9b8af4457713624",
+        "source_digest": "eb427b5714d9dc3468ee31bfa770702b1f1bb76c34964947c6b151519f573dfe",
         "source_path": "system-spec/backend.md",
         "source_plugin": "dev-graph",
         "source_version": "0.1.0"
@@ -32968,9 +32968,9 @@
         "商品データそのものの取込・更新 (feat-blog-ui-builder が持つ)"
       ],
       "source_lineage": {
-        "imported_at": "2026-09-09T10:26:50Z",
+        "imported_at": "2026-09-11T00:00:00Z",
         "origin_kind": "system-spec-harness",
-        "source_digest": "6a51617375a14c504c7a21d11399f93fc6c40134177953b1e503ee8ade933f2f",
+        "source_digest": "333a4d77c9fdf9c9950d125c8f167fadab3eabadb7cc0c64c69597db5139042b",
         "source_path": "system-spec/ui-ux.md",
         "source_plugin": "system-spec-harness",
         "source_version": "0.1.0"
