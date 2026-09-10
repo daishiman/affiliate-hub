@@ -162,7 +162,7 @@ def test_the_grounding_body_is_a_pointer_not_a_second_copy() -> None:
 def test_the_grounding_design_applications_are_rendered_in_full() -> None:
     """裏付けの `design_applications` は実体で描く。**ここが唯一の出口である。**
 
-    質疑録の側には問答しか出ない。ポインタだけで済ませると、裏付け側の原則・章固有の
+    質疑録の側には問答しか出ない。ポインタだけで済ませると、裏付け側の原則・採否の
     根拠・トレードオフが章から丸ごと落ちる。
     """
     spec = _spec()
@@ -179,7 +179,7 @@ def test_the_grounding_design_applications_are_rendered_in_full() -> None:
             ]
     text = "\n".join(chapters._render_chapter_application(spec, "infrastructure"))
     assert "- 原則: 前の原則 (`ref-x`)" in text
-    assert "  - 章固有の根拠: 前の根拠" in text
+    assert "  - 採否の根拠 (この質疑が確定した全セルに共通): 前の根拠" in text
     assert "    - 前の代償" in text
 
 

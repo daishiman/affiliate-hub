@@ -820,6 +820,17 @@ def _render_application_entry(
         )
     else:
         lines.append("- 設計解釈の記録経路: `dialogue`")
+    # **ラベルは「章固有」を名乗らない。**`design_applications` は qa entry に 1 つ
+    # ぶら下がる配列で、章を指す欄を持たない (`designApplication` は
+    # `additionalProperties: false`)。よって `asks_for` が n セルに跨る質疑では、
+    # 同じ rationale が n 章へそのまま出る。これは記入者の手抜きではなく構造の帰結で、
+    # データをどう直しても消えない。
+    #
+    # かつてここは「章固有の根拠」と名乗っていた。そのため C05 が
+    # 「4 章で同文になっており章固有性が形骸化しかけている」を毎回 finding に挙げ、
+    # 誰も閉じられない指摘が溜まった (2026-09-11 の completeness-report がこの型)。
+    # **名乗りを実態へ合わせる。**章ごとに違う根拠が要るなら、要るのは欄であって
+    # 書き分けの努力ではない。欄を足す判断をした日に、この注記ごと書き換えること。
     for application in applications:
         if not isinstance(application, dict):
             continue
@@ -828,7 +839,8 @@ def _render_application_entry(
                 f"- 原則: {application.get('principle', '(未記入)')} "
                 f"(`{application.get('knowledge_ref', '-')}`)",
                 f"  - 採否: `{application.get('applicability', '-')}`",
-                f"  - 章固有の根拠: {application.get('rationale', '(未記入)')}",
+                f"  - 採否の根拠 (この質疑が確定した全セルに共通): "
+                f"{application.get('rationale', '(未記入)')}",
                 "  - トレードオフ:",
             ]
         )

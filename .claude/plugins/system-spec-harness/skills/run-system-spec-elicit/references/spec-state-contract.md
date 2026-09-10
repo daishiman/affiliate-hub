@@ -267,7 +267,11 @@ python3 scripts/apply-spec-transition.py set-knowledge-candidate \
 - `knowledge_ref`: deep card path + section、または doctrine concern/authority を指す非空文字列。
 - `principle`: 採否を判断した具体原則名。単なる「設計知識」「上記原則」は不可。
 - `applicability`: `applied` / `not_applicable`。非適用も隠さず、理由を残す。
-- `rationale`: 確定回答に即した章固有の採否理由。全章同一の定型文は禁止。
+- `rationale`: 確定回答に即した採否理由。**質疑ごとに 1 つで、章ごとには持てない**
+  (`designApplication` は章を指す欄を持たない)。よって `asks_for` が n セルに跨る質疑では
+  同じ理由が n 章へ出る。これは構造の帰結であり、書き分けでは解消しない。
+  禁じているのは「どの質疑にも使い回せる定型文」であって、**1 つの論点が複数章へ効くこと
+  そのものではない**。章ごとに違う理由が必要になったら、足すべきは欄である。
 - `tradeoffs`: 採用費用、非採用時の損失、再評価条件などを最低1件持つ非空文字列配列。
 
 writer は上記形状を検証して qa entry に保存する。新規 state は `schema_version: "1.1"` と `design_application_contract_version: "1.0"` を持ち、`validate-coverage-matrix.py --require-complete` が確定セルから参照される全 qa entry の非空・形状と provenance の完全一致を fail-closed に再検査する。marker の無い旧 `schema_version: "1.0"` state は読み取りだけ可能で、writer の更新操作は fail-closed に拒否する。再開時は R1 の `init --state` を明示実行し、matrix を未収集へ戻して 1.1 へ移行する。この schema 境界が legacy 免除の終了条件であり、1.1 以降で marker 欠落を許さない。移行済み state に一時的な `legacy_exempt: true` と非空 `legacy_exempt_reason` が残った場合に限り、`set-qa-design-applications` が既存の question / answer / source を維持したまま検証済み `design_applications` を追記し、`design_application_provenance={"mode":"legacy_backfill","writer":"set-qa-design-applications"}` を残して旧免除 metadata を除去する。provenance の無い既存解釈は対話経路として保護し、legacy 表示の後付けを拒否する。完了済み legacy backfill の同一 payload 再適用のみ冪等に受け入れ、異なる既存解釈または provenance の上書きは拒否する。C03 は `unrecorded` (解釈欠落) / `dialogue` (対話時解釈) / `legacy_backfill` (事後補完) の3経路を描画し、C05 は unrecorded を未記録 finding とし、backfill は対話時解釈と区別して回答との適合を再照合する。存在確認だけで `design_knowledge_reflection` を緑化させない。
