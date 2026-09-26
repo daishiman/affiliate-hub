@@ -96,8 +96,17 @@
       "name": "affiliate-hub-dev",
       "compatibility_date": "2026-08-16",
       "compatibility_flags": ["nodejs_compat"],
+      // 開発環境だけ定期実行を外している (2026-09-26)。
+      // Workers Free の cron は**アカウント全体で 5 本まで**で、同じアカウントの
+      // youtube-analytics へ 1 本を譲った。公開済みの affiliate-hub-dev では
+      // 定期メンテナンス (写しの掃除・予約配信・集計など) が走らない。
+      // 試すときは手元の preview で /cdn-cgi/handler/scheduled を開く。
+      //
+      // 空の配列は「登録を消す」の意味になる。triggers ごと消すと
+      // Cloudflare 側の前の登録が残り、枠は空かない。
+      // 外してよい理由は tests/architecture/worker-entry.test.ts の例外表に置く。
       "triggers": {
-        "crons": ["0 17 * * *"]
+        "crons": []
       },
       "assets": {
         "directory": ".open-next/assets",
