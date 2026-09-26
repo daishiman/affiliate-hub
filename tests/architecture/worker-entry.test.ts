@@ -18,8 +18,9 @@ import { describe, expect, it } from "vitest";
  *   3. 入口が掃除を呼ばなくなる（包むだけになる）
  *
  * 3 つとも、公開しても成功する。だからここで見る。
+ * 意図して外す環境は、2 の書き忘れと区別するため例外表（CRON_EXEMPTIONS）に理由付きで載せる。
  *
- * 規範: docs/spec/10-テスト戦略仕様.md §2-7（契約検査）
+ * 規範: docs/spec/10-テスト戦略仕様.md §3-7（契約・境界の機械検査）
  */
 
 const ROOT = process.cwd();
@@ -106,6 +107,24 @@ function sections(): readonly (readonly [string, WranglerSection])[] {
     ["（既定）", config] as const,
     ...Object.entries(config.env ?? {}).map(([name, section]) => [name, section] as const),
   ];
+}
+
+/**
+ * 定期実行を外してよい環境と、その理由。
+ *
+ * 下の「置き場・DB のある環境には定期実行がある」は、ここに載った環境を飛ばす。
+ * 理由を書かずに外せないよう、この表そのものも検査する
+ * （docs/spec/10-テスト戦略仕様.md §12-1「除外には理由を書く」と同じ考え方）。
+ * 載せてよいのは env の中の環境だけで、既定の節と本番は載せられない。
+ */
+const CRON_EXEMPTIONS: Readonly<Record<string, string>> = {
+  dev:
+    "Workers Free の cron はアカウント全体で 5 本まで。同じアカウントの youtube-analytics へ 1 本を譲った（2026-09-26）。" +
+    "公開済みの dev では定期メンテナンスが走らない。試すときは手元の preview で /cdn-cgi/handler/scheduled を開く",
+};
+
+function requiresCron(name: string): boolean {
+  return !Object.hasOwn(CRON_EXEMPTIONS, name);
 }
 
 /**
@@ -199,7 +218,7 @@ describe("Worker の入口と定期実行の配線", () => {
   it("画面の写しの置き場がある環境には、掃除の定期実行がある", () => {
     for (const [name, section] of sections()) {
       const hasBucket = (section.r2_buckets ?? []).some((b) => b.binding === "BUCKET");
-      if (!hasBucket) continue;
+      if (!hasBucket || !requiresCron(name)) continue;
       // 置き場があるのに掃除が無いと、「180 日で消えます」だけが嘘になる。
       const crons = section.triggers?.crons ?? [];
       expect(crons.length, `${name}: 置き場はあるのに定期実行がありません`).toBeGreaterThan(0);
@@ -209,15 +228,18 @@ describe("Worker の入口と定期実行の配線", () => {
   it("見ている環境が 1 つも無い、ということが起きていない", () => {
     // 上の検査は「置き場のある環境」だけを見る。binding の名前を変えると
     // 対象が 0 件になり、何も確かめずに緑になる。それを潰す。
-    const covered = sections().filter(([, s]) =>
-      (s.r2_buckets ?? []).some((b) => b.binding === "BUCKET"),
+    // 例外の環境は数えない。全部を例外にしても緑、にならないように。
+    const covered = sections().filter(
+      ([name, s]) => requiresCron(name) && (s.r2_buckets ?? []).some((b) => b.binding === "BUCKET"),
     );
     expect(covered.length, "置き場のある環境が 1 つも見つかりませんでした").toBeGreaterThan(0);
   });
 
   it("技術診断の保存先がある環境にも、削除の定期実行がある", () => {
-    const covered = sections().filter(([, section]) =>
-      (section.d1_databases ?? []).some((database) => database.binding === "DB"),
+    const covered = sections().filter(
+      ([name, section]) =>
+        requiresCron(name) &&
+        (section.d1_databases ?? []).some((database) => database.binding === "DB"),
     );
     expect(covered.length, "DB のある環境が 1 つも見つかりませんでした").toBeGreaterThan(0);
     for (const [name, section] of covered) {
@@ -225,6 +247,21 @@ describe("Worker の入口と定期実行の配線", () => {
         section.triggers?.crons?.length ?? 0,
         `${name}: DB はあるのに技術診断を消す定期実行がありません`,
       ).toBeGreaterThan(0);
+    }
+  });
+
+  it("定期実行を外す例外は、理由付きで、登録を空の配列で消している", () => {
+    const envs = config.env ?? {};
+    for (const [name, reason] of Object.entries(CRON_EXEMPTIONS)) {
+      expect(name, "本番の定期実行は外せません").not.toBe("production");
+      // 消えた環境の例外が残ると、同じ名前で作り直したときに黙って外れる。
+      expect(Object.hasOwn(envs, name), `${name}: 例外表にあるのに環境がありません`).toBe(true);
+      expect(reason.trim().length, `${name}: 外す理由が空です`).toBeGreaterThan(0);
+      // triggers ごと消すと Cloudflare 側の前の登録が残り、枠が空かない。
+      // cron を戻したときは、ここで落ちて例外表の消し忘れに気づける。
+      expect(envs[name]?.triggers?.crons, `${name}: crons を空の配列で明示してください`).toEqual(
+        [],
+      );
     }
   });
 
