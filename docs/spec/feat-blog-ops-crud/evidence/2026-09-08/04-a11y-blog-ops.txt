@@ -1,0 +1,10 @@
+$ npx vitest run tests/ui/blog-ops-a11y-floor.test.tsx
+
+ RUN  v4.1.10 /Users/dm/orca/workspaces/affiliate-hub/ブログトップ画面変更
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  09:58:10
+   Duration  5.85s (transform 1.53s, setup 28ms, import 805ms, tests 4.92s, environment 0ms)
+

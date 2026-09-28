@@ -403,6 +403,94 @@ describe("表記のきまりを変える", () => {
     expect(result.ok).toBe(false);
   });
 
+  /*
+   * 既存のきまりを**直す**経路。新しく足すのと違い、直す側は「いま止めて
+   * あるか」を引き継ぐ必要がある。引き継がずに毎回 true で保存すると、
+   * 分野外として止めたきまりが、文言を直しただけで黙って復活する。
+   */
+  it("直したきまりは、止めてあった状態を引き継ぐ", async () => {
+    const rules = memoryPolicyRules();
+    const audit = recordingAuditLog();
+    const uc = createEditPolicyRuleUseCase(deps({ auditLog: audit.port, policyRules: rules }));
+    const list = await createListPolicyRulesUseCase({ policyRules: rules }).execute(analyst, {});
+    if (!list.ok) throw new Error("一覧を読めませんでした");
+    const target = list.value.rows[0];
+
+    const stopped = await uc.execute(owner, {
+      action: "set_enabled",
+      ruleId: target.ruleId,
+      enabled: false,
+      reason: "この分野は扱わないため。",
+    });
+    expect(stopped.ok).toBe(true);
+
+    const saved = await uc.execute(owner, {
+      action: "save",
+      ruleId: target.ruleId,
+      name: "文言だけ直したきまり",
+      domainScope: "general",
+      channelScope: "any",
+      severity: "warn",
+      pattern: "日本一",
+      basis: "景品表示法 第5条",
+      suggestion: "比較の範囲を書く",
+    });
+
+    expect(saved.ok).toBe(true);
+    const after = rules.saved().find((r) => String(r.id) === target.ruleId);
+    expect(after?.enabled).toBe(false);
+    // 「前」が無い記録は、いつからその条件だったかに答えられない。
+    const changed = audit.entries().filter((e) => e.action === "policy_rule.changed");
+    expect(changed.at(-1)?.before).not.toBeNull();
+    expect(String(changed.at(-1)?.after?.name)).toBe("文言だけ直したきまり");
+  });
+
+  it("知らない id を直そうとしたら、新しいきまりとして作らずに断る", async () => {
+    const rules = memoryPolicyRules();
+    const uc = createEditPolicyRuleUseCase(deps({ policyRules: rules }));
+
+    const result = await uc.execute(owner, {
+      action: "save",
+      ruleId: "pol_nosuch",
+      name: "知らない行を直そうとした",
+      domainScope: "general",
+      channelScope: "any",
+      severity: "warn",
+      pattern: "日本一",
+      basis: "景品表示法 第5条",
+      suggestion: "比較の範囲を書く",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("NOT_FOUND");
+    expect(result.error.field).toBe("ruleId");
+    // 黙って新規として作ると、直したつもりの人が二重のきまりを増やす。
+    expect(rules.saved()).toHaveLength(0);
+  });
+
+  it("直す前の姿を読めなければ、保存へ進まない", async () => {
+    const rules = memoryPolicyRules();
+    const uc = createEditPolicyRuleUseCase(
+      deps({ policyRules: { ...rules, findById: async () => failing() } }),
+    );
+
+    const result = await uc.execute(owner, {
+      action: "save",
+      ruleId: "pol_any",
+      name: "読めない行",
+      domainScope: "general",
+      channelScope: "any",
+      severity: "warn",
+      pattern: "日本一",
+      basis: "景品表示法 第5条",
+      suggestion: "比較の範囲を書く",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(rules.saved()).toHaveLength(0);
+  });
+
   it("効いているきまりが 0 件のときは「これから」ではなく「確認されていない」と伝える", async () => {
     const empty: PolicyRuleRepositoryPort = {
       findById: async () => ok(null),

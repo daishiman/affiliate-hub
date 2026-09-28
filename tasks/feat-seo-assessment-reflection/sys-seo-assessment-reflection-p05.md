@@ -12,7 +12,7 @@ iteration: null
 title: "SEO 診断と推奨書き戻しの実装"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:47:29Z"
-updated_at: "2026-09-04T10:45:34Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-SEO-ASSESSMENT-REFLECTION-P04"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-04T10:45:34Z","evidence_refs":["beads:ah-ji7d.5"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-04T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

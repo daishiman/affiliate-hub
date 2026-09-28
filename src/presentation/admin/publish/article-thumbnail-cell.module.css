@@ -1,0 +1,38 @@
+/*
+  一覧の絵の枠。**幅ではなく縦横比を固定する。**
+
+  幅だけ決めて高さを画像任せにすると、縦長の写真が入った行だけ背が伸びて
+  表が段違いになる。読者面のカードと同じ 16:9 に切り抜き、
+  どの記事も同じ高さで並ぶようにする。
+*/
+.frame {
+  display: block;
+  inline-size: var(--layout-thumbnail-width);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+
+.image {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+/*
+  実画像がまだ無いときの枠。**代替図版そのものは描かない。**
+  理由は `BlogArticleRow.thumbnailUrl` の説明にある（配色が読者面と食い違う）。
+  ここが伝えるのは「実画像がまだ無い」という事実だけなので、
+  写真と見間違えない、地の色のままの枠に言葉を置く。
+*/
+.placeholder {
+  display: grid;
+  place-items: center;
+  padding: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.2;
+  text-align: center;
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-reader-search-quality.md",
+  "package_current_pointer": null,
+  "promoted_generation": ".dev-graph/published/feature-package-feat-reader-search-quality",
+  "selected_feature": "feat-reader-search-quality",
+  "feature_package_id": "feature-package/feat-reader-search-quality",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform"
+  ],
+  "task_ids": [
+    "SYS-READER-SEARCH-QUALITY-P01",
+    "SYS-READER-SEARCH-QUALITY-P02",
+    "SYS-READER-SEARCH-QUALITY-P03",
+    "SYS-READER-SEARCH-QUALITY-P04",
+    "SYS-READER-SEARCH-QUALITY-P05",
+    "SYS-READER-SEARCH-QUALITY-P06",
+    "SYS-READER-SEARCH-QUALITY-P07",
+    "SYS-READER-SEARCH-QUALITY-P08",
+    "SYS-READER-SEARCH-QUALITY-P09",
+    "SYS-READER-SEARCH-QUALITY-P10",
+    "SYS-READER-SEARCH-QUALITY-P11",
+    "SYS-READER-SEARCH-QUALITY-P12",
+    "SYS-READER-SEARCH-QUALITY-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-reader-search-quality-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-reader-search-quality.json"
+  ],
+  "scope_digest": "sha256:67ce36d05a3b268cb34752a2c45e82e96b723eaf9128af375a68dee6ccf07baf"
+}

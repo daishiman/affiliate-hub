@@ -12,7 +12,7 @@ iteration: null
 title: "開発環境へのリリースとsystem-specへの書き戻し"
 owners: ["daishiman"]
 created_at: "2026-09-08T04:15:58Z"
-updated_at: "2026-09-08T05:48:11.039081Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "active"
 depends_on: ["SYS-SITE-SCOPED-AUTHORING-IA-P12"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-08T19:52:17Z","evidence_refs":["beads:ah-ro3w.13"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-08T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

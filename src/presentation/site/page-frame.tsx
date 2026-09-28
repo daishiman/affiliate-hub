@@ -17,8 +17,8 @@ import {
   WebMcpProvider,
   type SiteChrome,
 } from "@/presentation/ui";
+import { TelemetryCollector, type SearchResultObservation } from "@/presentation/telemetry/collector";
 import { ReaderBehaviorProbe } from "@/presentation/reader/behavior-probe";
-import { TelemetryCollector } from "@/presentation/telemetry/collector";
 import { readConsentDecision, readConsentChoice } from "@/presentation/telemetry/consent-server";
 import { blogSidebar } from "./blog-sidebar";
 import { readPublicSiteProjection, type PublicSiteProjection } from "./public-site-projection";
@@ -50,6 +50,7 @@ export type SiteContext = {
 export async function SiteFrame({
   siteSlug,
   currentPath,
+  searchResult,
   trail = [],
   pageKind = "article",
   sidebar = false,
@@ -60,6 +61,7 @@ export async function SiteFrame({
   readonly siteSlug: string;
   /** 現在地。ヘッダーの現在地表示に使う。 */
   readonly currentPath: string;
+  readonly searchResult?: SearchResultObservation;
   /**
    * いま読まれている記事の名前。**観測を記事単位で束ねるためだけに使う。**
    *
@@ -199,6 +201,7 @@ export async function SiteFrame({
           <TelemetryCollector
             siteSlug={siteSlug}
             path={currentPath}
+            searchResult={searchResult}
             allowBehaviour={decision.allowBehaviour}
             suppressAll={decision.suppressAll}
           />

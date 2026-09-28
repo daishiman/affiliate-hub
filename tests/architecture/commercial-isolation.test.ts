@@ -7,11 +7,12 @@ import { describe, expect, it } from "vitest";
 import { createRankProductsUseCase } from "@/application/usecases/ranking/rank-products";
 import type {
   EditorialRankingModelRepositoryPort,
-  EditorialScoreCardRepositoryPort,
+  RankingModelRepositoryPort,
+  ScoreCardRepositoryPort,
 } from "@/application/ports/ranking";
 import { createListConversionsUseCase } from "@/application/usecases/monetization/manage-affiliate";
 import { createDeps } from "@/infrastructure/composition";
-import { markCommercial, markEditorial, readDataClass } from "@/domain/shared";
+import { markCommercial, markEditorial, ok, readDataClass } from "@/domain/shared";
 
 /**
  * 「ランキングに報酬を入れられない」ことを、型と実行時の 2 段で確認する。
@@ -20,22 +21,29 @@ import { markCommercial, markEditorial, readDataClass } from "@/domain/shared";
  * 両方あって初めて「仕組みで守られている」と言える。
  */
 
-const stubModels = {
-  findById: async () => ({ ok: true as const, value: null }),
-  list: async () => ({ ok: true as const, value: { items: [], nextCursor: null } }),
-  save: async (m: never) => ({ ok: true as const, value: m }),
+/*
+  つなぎ目は正本の口をそのまま満たす。以前は `save` の引数を `never` にした
+  痩せた形で、そのままでは代入できないので `as unknown as` で名乗らせていた。
+  すると**印以外の理由**でも組み立てが落ちうる形になり、この検査が見ている
+  「印で落ちたのか」が読めなくなる。口を揃えておけば、型を外す必要があるのは
+  「印を偽る」場面だけになり、そこに残るキャストが検査の主題そのものになる。
+*/
+const stubModels: RankingModelRepositoryPort = {
+  findById: async () => ok(null),
+  list: async () => ok({ items: [], nextCursor: null }),
+  save: async (model) => ok(model),
 };
 
-const stubCards = {
-  listByModel: async () => ({ ok: true as const, value: [] }),
-  save: async (c: never) => ({ ok: true as const, value: c }),
+const stubCards: ScoreCardRepositoryPort = {
+  listByModel: async () => ok([]),
+  save: async (_workspaceId, _modelId, card) => ok(card),
 };
 
 describe("Editorial / Commercial の遮断", () => {
   it("Editorial 印のポートは受け付ける", () => {
     const deps = {
-      rankingModels: markEditorial({ ...stubModels }) as unknown as EditorialRankingModelRepositoryPort,
-      scoreCards: markEditorial({ ...stubCards }) as unknown as EditorialScoreCardRepositoryPort,
+      rankingModels: markEditorial({ ...stubModels }),
+      scoreCards: markEditorial({ ...stubCards }),
     };
     expect(() => createRankProductsUseCase(deps)).not.toThrow();
   });
@@ -45,7 +53,7 @@ describe("Editorial / Commercial の遮断", () => {
     const commercialPort = markCommercial({ ...stubModels });
     const deps = {
       rankingModels: commercialPort as unknown as EditorialRankingModelRepositoryPort,
-      scoreCards: markEditorial({ ...stubCards }) as unknown as EditorialScoreCardRepositoryPort,
+      scoreCards: markEditorial({ ...stubCards }),
     };
     expect(() => createRankProductsUseCase(deps)).toThrow(/商業データ/);
   });
@@ -55,7 +63,7 @@ describe("Editorial / Commercial の遮断", () => {
     // 捕まえるために置いてある。印無しを通すと、二段目が無い状態になる。
     const deps = {
       rankingModels: { ...stubModels } as unknown as EditorialRankingModelRepositoryPort,
-      scoreCards: markEditorial({ ...stubCards }) as unknown as EditorialScoreCardRepositoryPort,
+      scoreCards: markEditorial({ ...stubCards }),
     };
     expect(() => createRankProductsUseCase(deps)).toThrow(/編集データの印/);
     expect(() => createRankProductsUseCase(deps)).toThrow(/rankingModels/);
@@ -118,8 +126,10 @@ describe("Editorial / Commercial の遮断", () => {
     const 組み立てる = () => {
       if (渡し先 === "順位づけ") {
         createRankProductsUseCase({
+          // 表として印を振る以上、commercial と印無しの回は型の上では渡せない。
+          // 型を外すこと自体が、この表が測っている「抜け道」そのもの。
           rankingModels: 付ける({ ...stubModels }) as unknown as EditorialRankingModelRepositoryPort,
-          scoreCards: markEditorial({ ...stubCards }) as unknown as EditorialScoreCardRepositoryPort,
+          scoreCards: markEditorial({ ...stubCards }),
         });
         return;
       }

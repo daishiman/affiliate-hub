@@ -58,6 +58,7 @@ afterAll(async () => {
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
   await proxy.env.DB.prepare("DELETE FROM published_articles").run();
+  await proxy.env.DB.prepare("DELETE FROM published_article_revision_counter").run();
   await proxy.env.DB.prepare("DELETE FROM blog_article_rating").run();
   await proxy.env.DB.prepare("DELETE FROM blog_article_tag").run();
   await proxy.env.DB.prepare("DELETE FROM blog_article_block").run();

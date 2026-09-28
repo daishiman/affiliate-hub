@@ -33,12 +33,35 @@ import path from "node:path";
 /** 移行 SQL が置いてある場所。**`process.cwd()` はリポジトリ根である前提。** */
 const MIGRATIONS_DIR = () => path.resolve(process.cwd(), "drizzle");
 
-/** 1 本の SQL を、D1 が 1 度に受け取れる単位へ割る。 */
+/**
+ * 1 本の SQL を、D1 が 1 度に受け取れる単位へ割る。
+ *
+ * **中身がコメントだけの断片は落とす。**D1 は `SQL code did not contain a
+ * statement.` で拒む——「流すものが無い」は「流せない」ではないのに、
+ * ここが渡してしまうと移行の適用そのものが止まる。
+ *
+ * 実際に 2026-09-08 の `0062_realign_snapshot_lineage` がその形だった。
+ * snapshot の系譜だけを進めて実体は動かさない回で、**中身が無いことに
+ * 意味がある**。空文と同じ扱いにするのが正しい。
+ *
+ * 落とすのは「実行される字が 1 つも無い」ときだけ。行頭コメントを
+ * 携えた実文は、コメントごとそのまま渡す（D1 は読み飛ばす）。
+ */
 export function splitStatements(sql: string): readonly string[] {
   return sql
     .split("--> statement-breakpoint")
     .map((statement) => statement.trim())
-    .filter((statement) => statement !== "");
+    .filter((statement) => statement !== "" && executablePartOf(statement) !== "");
+}
+
+/** 行コメントと空行を落とした残り。空なら「流すものが無い」断片。 */
+function executablePartOf(statement: string): string {
+  return statement
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line !== "" && !line.startsWith("--"))
+    .join("\n")
+    .trim();
 }
 
 /**

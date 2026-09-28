@@ -1,0 +1,125 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-20260904-feat-thumbnail-visual-system",
+  "session_owner": "claude-e091b379-thumbnail",
+  "generated_at": "2026-09-04T03:19:00Z",
+  "feature_id": "feat-thumbnail-visual-system",
+  "graph_node_id": "feat-thumbnail-visual-system",
+  "artifact_kind": "feature",
+  "purpose": "記事・ブログ・管理画面のどの一覧でも内容を一目で識別できるサムネイルが必ず表示され、画像が無いことによる空白や版面のずれが起きないようにする",
+  "goal": "記事とブログにサムネイルを登録・自動生成でき、R2 に保存された画像が 16:9 の固有寸法と srcset/sizes つきで配信され、トップページ・記事一覧・カテゴリー・検索結果・関連記事・管理画面の各一覧でサムネイルが表示され、画像が無い場合も版面が崩れない代替表示が出る状態になっている",
+  "scope_in": [
+    "サムネイル登録経路の優先順位: 記事編集での明示アップロード / アイキャッチ指定 / 本文先頭画像からの自動採用",
+    "画像が無いときの代替図版の決定論的生成: タイトル・カテゴリー・ブログ配色トークンから組み立て、外部サービスへ接続しない",
+    "R2 への保存と配信: オリジナル保持と表示用派生 (16:9 crop・複数幅) の生成・命名規約・キャッシュ・再生成の抑止",
+    "全画面での表示適用: トップページ / 記事一覧 / カテゴリー / タグ / 検索結果 / 関連記事 / 管理画面のブログ一覧・記事一覧・プレビュー。読者向けの一覧と管理画面の一覧は求められるものが違うため、読者側は記事内容を想像させる大きさ、管理側は多数の行を見渡せる小さい行高とサムネイル表示の折りたたみを持たせ、寸法は面ごとに書き分けず少数の型として 1 か所で定める (確定 qa qa-request-thumbnail-coverage-v6 の design_applications と tradeoffs)",
+    "サムネイル・代替図版・アイコンに限った CLS 抑制の実装規約: 固有 width/height、srcset と sizes、decoding=async、初期表示外は loading=lazy (観測 fact system-spec/retrieval-evidence/kajetblog-top-analysis.md §4 で参照サイトが 54/54 の寸法保持を達成していることを確認済み)。記事本文中の画像を含む画面全体の表示品質規約は所有しない",
+    "OGP / Twitter Card (summary_large_image) 画像としてのサムネイル再利用",
+    "アイコン素材: グローバルナビ・SNS・状態表示のアイコンを独自 SVG セットとして定義し、サムネイルと同じ配色トークンに従わせる",
+    "画像取得・生成に失敗したときの代替表示と、失敗の記録"
+  ],
+  "scope_out": [
+    "記事本文および本文中図解の AI 生成 (feat-ai-content-studio)",
+    "トップページの区画構成と表示順 (feat-blog-top-page-composition)",
+    "外部 EC からの商品画像取得・再配信 (feat-affiliate-inbox / feat-product-intelligence)",
+    "テンプレート・配色の選択 UI そのもの (feat-blog-ui-builder)",
+    "記事本文中の画像を含む画面全体の表示品質・アクセシビリティ規約 (feat-reader-surface が所有)。本 feature はサムネイル・代替図版・アイコンだけを対象とする",
+    "画像の著作権処理・素材調達の運用"
+  ],
+  "acceptance": [
+    "記事にサムネイルを登録でき、未登録でも本文先頭画像かタイトル由来の代替図版が必ず表示される",
+    "代替図版が外部サービスへ接続せずに生成され、同じ入力からは同じ画像が得られる",
+    "トップページ・記事一覧・カテゴリー・検索結果・関連記事・管理画面の各一覧すべてでサムネイルが表示される",
+    "サムネイル・代替図版・アイコンの全ての img が固有の width/height を持ち srcset と sizes が付き、サムネイルを含む画面の CLS が 0.1 未満である",
+    "R2 に保存された派生画像がキャッシュされ、同一画像の派生が二度生成されない",
+    "OGP と Twitter Card (summary_large_image) の画像がサムネイルから生成される",
+    "画像の取得・生成に失敗しても版面が崩れず、代替表示と理由が出る"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "system-spec/index.md",
+    "system-spec/00-requirements-definition.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "system-spec/database.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-thumbnail-visual-system.context.json",
+      "source_plugin": "dev-graph",
+      "source_digest": "sha256:0354d1e645527a9212b8695ea3f471dfb05610068657b36bf5f590b1de47d4a5",
+      "updated_at": "2026-09-04T00:00:00Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-thumbnail-visual-system.md",
+      "confirmation_status": "draft",
+      "evaluation_status": "pending",
+      "note": "C14 macro 分解で 2026-09-04 に新規登録した feature。exact-13 の生成をもって implementation_readiness を complete へ進める"
+    },
+    "system_spec_sources": [
+      {
+        "source_path": "architecture/system-spec-overview.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "architecture/arch-two-layer-platform.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/index.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/00-requirements-definition.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/ui-ux.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/frontend.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/backend.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/database.md",
+        "verdict": "confirmed"
+      }
+    ],
+    "completeness_evaluation": {
+      "source_path": "system-spec/completeness-report.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "verdict": "PASS"
+    }
+  },
+  "quality_constraints": [
+    {
+      "id": "semantic-coverage-not-tag-only",
+      "requirements": [
+        "サムネイル全画面表示",
+        "代替図版の決定論的生成",
+        "外部接続なし",
+        "R2 保存と 16:9 派生",
+        "CLS 0.1 未満",
+        "OGP/summary_large_image 再利用",
+        "独自 SVG アイコンセット",
+        "失敗時の代替表示"
+      ]
+    },
+    {
+      "id": "no-external-image-service",
+      "rule": "代替図版の生成で外部サービスへ接続しない。決定論的に同一入力から同一画像を得る"
+    },
+    {
+      "id": "scope-boundary",
+      "rule": "サムネイル・代替図版・アイコンだけを対象とし、記事本文中の画像を含む画面全体の表示品質規約は feat-reader-surface の所有として侵さない"
+    }
+  ]
+}

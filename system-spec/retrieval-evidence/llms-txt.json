@@ -1,0 +1,41 @@
+{
+ "target_id": "llms-txt",
+ "source_url": "https://llmstxt.org/",
+ "retrieved_at": "2026-09-03T12:43:18Z",
+ "http_status": 200,
+ "content_bytes": 52340,
+ "content_sha256": "d54db9828ca79e0aa40a4696a4d0d48043c37466e866eef98e7ce585847c914d",
+ "page_title": "The /llms.txt file",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-08-10",
+  "found_in": [
+   "本文の著者・日付表示: Jeremy Howard / 公開 September 3, 2024 / 最終更新 August 10, 2026"
+  ],
+  "http_last_modified": "Mon, 31 Aug 2026 06:40:30 GMT",
+  "note": "HTTP Last-Modified (2026-08-31) は静的サイトの再生成時刻で本文の更新日と一致しない。本文が自ら表明している更新日を採る。"
+ },
+ "quoted_for_design": [
+  {
+   "claim": "llms.txt はサイト側が LLM 向けの内容を提供するために置く markdown ファイルの提案である",
+   "verbatim": "We propose adding a `/llms.txt` markdown file to websites to provide LLM-friendly content.",
+   "used_by": "qa-neutral-aio-policy-v6"
+  },
+  {
+   "claim": "形式は順序が定まっている。必須は H1 ただ 1 つで、H2 で区切られた節が「file lists」として詳細への URL を並べる",
+   "verbatim": "A file following the spec contains the following sections as markdown, in the specific order: An optional byte-order mark (BOM); An H1 with the name of the project or site. This is the only required section; A blockquote with a short summary of the project, containing key information necessary for understanding the rest of the file; Zero or more markdown sections (e.g. paragraphs, lists, etc) of any type except headings, containing more detailed information about the project and how to interpret the provided files; Zero or more markdown sections delimited by H2 headers, containing \"file lists\" of URLs where further detail is available",
+   "used_by": "qa-frontend-web-fixed-header-seo-aio-v6"
+  }
+ ],
+ "not_found_in_source": [
+  {
+   "looked_for": "llms-full.txt",
+   "result": "この語は本文に現れない。全文を 1 ファイルにまとめて出す運用は提唱元の仕様が定めるものではなく、実装側の慣行である。仕様書では『標準が定める』と書かず、慣行として採る旨と、標準が定めるのは llms.txt の側だけである旨を明記すること。",
+   "affects": [
+    "qa-neutral-aio-policy-v6",
+    "qa-neutral-ai-surface-v6",
+    "qa-frontend-web-fixed-header-seo-aio-v6"
+   ]
+  }
+ ]
+}

@@ -148,6 +148,52 @@ describe("マイグレーションそのもの", () => {
 });
 
 describe("記事本文の版", () => {
+  it("新規記事は初回保存の実時刻を返し、再保存で作成日時を変えない", async () => {
+    const sample = await deps.variants.findById(editor.workspaceId, IN_FACT_CHECK as ContentVariantId);
+    if (!sample.ok || sample.value === null) throw new Error("見本記事がありません");
+    const started = Math.floor(Date.now() / 1000) * 1000;
+    const saved = await deps.variants.save({
+      ...sample.value,
+      id: taggedString<"ContentVariantId">("cv-created-now") as ContentVariantId,
+      createdAt: new Date("2000-01-01T00:00:00Z"),
+    });
+    if (!saved.ok) throw saved.error;
+    expect(saved.value.createdAt).toBeInstanceOf(Date);
+    expect(saved.value.createdAt!.getTime()).toBeGreaterThanOrEqual(started);
+    expect(saved.value.createdAt!.getTime()).toBeLessThanOrEqual(Date.now());
+
+    const updated = await deps.variants.save({
+      ...saved.value,
+      body: `${saved.value.body}\n再保存した本文`,
+      createdAt: new Date("2099-01-01T00:00:00Z"),
+    });
+    if (!updated.ok) throw updated.error;
+    expect(updated.value.createdAt).toEqual(saved.value.createdAt);
+    const reread = await deps.variants.findById(editor.workspaceId, saved.value.id);
+    expect(reread.ok && reread.value?.createdAt).toEqual(saved.value.createdAt);
+  });
+
+  it("既存の日時不明記事と見本の初回実体化に作成日時を捏造しない", async () => {
+    const sample = await deps.variants.findById(editor.workspaceId, IN_FACT_CHECK as ContentVariantId);
+    if (!sample.ok || sample.value === null) throw new Error("見本記事がありません");
+    const materialized = await deps.variants.save({ ...sample.value, createdAt: new Date() });
+    expect(materialized.ok && materialized.value.createdAt).toBeNull();
+
+    const stateSaved = await deps.variants.saveState(editor.workspaceId, IN_COMPLIANCE as ContentVariantId, "APPROVED");
+    expect(stateSaved.ok).toBe(true);
+    const stateMaterialized = await deps.variants.findById(editor.workspaceId, IN_COMPLIANCE as ContentVariantId);
+    expect(stateMaterialized.ok && stateMaterialized.value?.createdAt).toBeNull();
+
+    const legacy = await deps.variants.save({ ...sample.value, id: taggedString<"ContentVariantId">("cv-legacy-null") as ContentVariantId });
+    if (!legacy.ok) throw legacy.error;
+    await proxy.env.DB.prepare("UPDATE content_variants SET created_at = NULL WHERE id = ?")
+      .bind(String(legacy.value.id)).run();
+    const updated = await deps.variants.save({ ...legacy.value, createdAt: new Date() });
+    expect(updated.ok && updated.value.createdAt).toBeNull();
+    const reread = await deps.variants.findById(editor.workspaceId, legacy.value.id);
+    expect(reread.ok && reread.value?.createdAt).toBeNull();
+  });
+
   it("本文保存は版を単調増加し、進行状態だけの保存は版を変えない", async () => {
     const id = taggedString<"ContentVariantId">(IN_FACT_CHECK) as ContentVariantId;
     const initial = await deps.variants.findVersionedById(editor.workspaceId, id);

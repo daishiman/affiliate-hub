@@ -27,6 +27,7 @@ import { SAMPLE_SITE_SLUG } from "@/infrastructure/persistence/sample/site-sampl
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { aNobody, anOwner } from "../support/actors";
 import { failing, testDeps } from "../support/doubles";
+import { anArticleSummary } from "../support/factories";
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;
 const owner = anOwner({ workspaceId: WS });
@@ -63,7 +64,12 @@ function deps(over: Partial<EditSitesDeps> = {}, saved?: Saved): EditSitesDeps {
   };
 }
 
-const anArticle = { slug: "a", title: "残っている記事" } as unknown as ArticleSummary;
+/*
+  一覧に出す形は見本のファクトリから引く。以前は `slug` と `title` の 2 欄だけを
+  並べ `as unknown as ArticleSummary` で締めていた——`siteSlug` も `type` も
+  `updatedAt` も無い形が正本を名乗っていた。
+*/
+const anArticle = anArticleSummary({ slug: "a", title: "残っている記事" });
 
 describe("ブログの設定を直す", () => {
   it("その権限が無い人には断る", async () => {
@@ -286,6 +292,8 @@ describe("ブログを取り下げる", () => {
 
 describe("ブログの編集に報酬のデータを混ぜない", () => {
   it("商業のポートが渡されたら、組み立ての時点で止まる", () => {
+    // 報酬の印が付いた口を、型を外して編集側へ流し込む表明。
+    // **このキャストがこの検査の主題**——外されたときに実行時の印が捕まえるかを見る。
     const mixed = { ...deps(), affiliate: markCommercial({}) } as unknown as EditSitesDeps;
 
     // 実行時ではなく組み立て時に落とす。実行時だと、混ざったまま動く経路が残る。

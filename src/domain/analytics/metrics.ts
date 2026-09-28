@@ -22,6 +22,11 @@ export type MetricCategory =
 export type MetricKey =
   // reader
   | "page_views"
+  | "search_result_count"
+  | "search_no_result_rate"
+  | "internal_navigation_count"
+  | "toc_navigation_count"
+  | "article_sort_count"
   | "unique_readers"
   | "read_completion_rate"
   | "scroll_depth_p50"
@@ -85,6 +90,11 @@ export const METRIC_DEFINITIONS: readonly MetricDefinition[] = [
   // 計測から導く指標 (metrics-from-telemetry.ts) は、畳み方まで含めて書く。
   // 導き方を変えたらここも直す。ここだけ古いと、数字の読み方を誤る。
   M("page_views", "表示回数", "reader", "公開ページの表示を 1 件として数える"),
+  M("search_result_count", "検索結果の表示回数", "reader", "同意がある検索結果1ページ目の成功表示を数える。再表示を含み、送信試行や次ページは含めない"),
+  M("search_no_result_rate", "検索で見つからなかった割合", "reader", "同意がある検索結果1ページ目の成功表示のうち、結果が0件だった表示の割合。検索語は保存しない"),
+  M("internal_navigation_count", "サイト内の移動クリック数", "reader", "同意がある記事・カテゴリーなどのサイト内リンククリックを数える。人数や回遊率ではない"),
+  M("toc_navigation_count", "目次の利用回数", "reader", "同意がある目次リンクのクリックを数える"),
+  M("article_sort_count", "記事の並べ替え回数", "reader", "同意があるトップ記事の並べ替えリンクのクリックを数える"),
   M("unique_readers", "読者数", "reader", "同一端末の 24 時間以内の再訪を 1 と数える"),
   M("read_completion_rate", "読了率", "reader", "最終見出しまで到達した表示の割合"),
   M(

@@ -413,12 +413,14 @@ describe("上流指針の条項が要件文へ引かれていない (塞げて�
     references: EvidenceReference[];
   }).references;
 
-  it("全取得対象の証跡がそろっている（既知 22 対象の欠落・重複・同数置換を止める）", () => {
+  it("全取得対象の証跡がそろっている（既知 29 対象の欠落・重複・同数置換を止める）", () => {
     // 2026-09-04 に 15 → 19。**増えた 4 件は実在する取得証跡である**
     // (`google-search-central` / `schema-org` / `w3c-wai-aria` /
     // `web-dev-core-web-vitals`。G3 の AEO/SEO 決定を裏取りするために取った)。
     // 2026-09-05 の dev 合流で 19 → 21。こちら側が独自ドメインと画像の保管を
     // 裏取りするために取った `cloudflare-for-saas` / `cloudflare-r2` が加わった。
+    // 2026-09-08 の dev 合流で 22 → 29。**両枝が 7 件ずつ、重なりなく**足していた
+    // ため和集合になる（内訳は `spec-source-inventory.ts` の床に書いてある）。
     // **この数を減らす向きに触らないこと。**減らせば母数が縮み、下の
     // 「節名を持っていない」が 0 件で緑になる。増える向きの更新だけが正しい。
     const targetIds = declaredSourceTargets(ROOT).map((target) => target.target_id);

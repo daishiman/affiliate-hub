@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "status": "completed",
+  "staging": ".dev-graph/staging/feature-package-feat-seo-aeo-measurement-loop",
+  "destination": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop",
+  "digest": "sha256:46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+  "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+  "receipt": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/atomic-promotion-receipt.json",
+  "completed_at": "2026-09-04T05:19:32Z"
+}

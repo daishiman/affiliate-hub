@@ -1,6 +1,7 @@
 /** @tier 1 */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorContext } from "@/domain/shared";
+import type { FeedbackSubmission } from "@/presentation/ui";
 import { SAMPLE_ACTOR } from "@/infrastructure/identity/sample-actor";
 
 /**
@@ -137,7 +138,12 @@ beforeEach(() => {
 });
 
 /** 送る側から来る 1 件分。画像だけを差し替えたい試験があるので関数にしてある。 */
-function submission(capture: Record<string, unknown> | null) {
+/*
+  送信の形は正本（`FeedbackSubmission`）から引く。以前は写しの欄を
+  `Record<string, unknown>` で受けて `as never` で押し込んでいたので、
+  正本の写しに欄が増えても、この検査は古い形を送り続けられた。
+*/
+function submission(capture: FeedbackSubmission["capture"]): FeedbackSubmission {
   return {
     kind: "hard_to_use" as const,
     body: "絞り込みを外すボタンが、どこにあるのか分かりませんでした。",
@@ -156,7 +162,7 @@ function submission(capture: Record<string, unknown> | null) {
       recentActions: ["絞り込みを開いた"],
       redactedCount: 0,
     },
-    capture: capture as never,
+    capture,
   };
 }
 

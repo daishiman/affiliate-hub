@@ -28,7 +28,7 @@
   },
   "qa_log": [{"id": "qa-001", "question": "...", "answer": "...", "source": {"kind": "user-dialogue"}, "design_applications": [{"knowledge_ref": "ddd.md#Bounded Context", "principle": "Bounded Context", "applicability": "applied", "rationale": "...", "tradeoffs": ["..."]}]}],
   "approval_log": [{"id": "appr-001", "note": "..."}],
-  "reopen_log": [{"category": "database", "platform": "web", "reason": "...", "from": "確定", "discarded": {"qa_ref": "qa-001", "approval_ref": "approval-001", "serves_goals": ["G1"]}}],
+  "reopen_log": [{"category": "database", "platform": "web", "reason": "...", "qa_ref": "qa-002", "from": "確定", "discarded": {"qa_ref": "qa-001", "approval_ref": "approval-001", "serves_goals": ["G1"]}}],
   "category_aggregate": {"<category_id>": "確定|収集中|未着手|対象外"},
   "targets": [{"target_id": "react"}],
   "requirements_foundation": {
@@ -59,6 +59,8 @@
 | `未収集` | なし、または `reopened_from` / `reopen_reason` | 未ヒアリング。最終時は0にする。付帯 field は `reopen` で確定から戻したセルだけに付く。 |
 | `対象外` | `reason` か `approval_ref` | 当該カテゴリ×platform は対象外 (理由必須)。 |
 | `確定` | `qa_ref` (qa_log 参照) | 要件が確定。質疑ログ entry を参照。 |
+
+`reopen` は `reason` (人が読む文) と `qa_ref` (`qa_log` に実在する id) の両方を要求する。**自由文だけで確定を外せると、確定する側より外す側の門が軽くなる。**既存 entry を遡って埋めることはしない (当時名乗られなかった事実の方が記録として正しい)。
 
 `reopen` は確定セルを未収集へ置換する前に、存在する `qa_ref` / `serves_goals` / `serves_intents` を `reopen_log[].discarded` へ退避する。これにより、再確認中も以前の根拠と上位概念トレースを追跡できる。
 
@@ -159,6 +161,7 @@ python3 scripts/apply-spec-transition.py init --taxonomy taxonomy.json --state s
 - `recommendation`: 推奨を提示した状態では `option_id` / `rationale` / `comparison_basis` / `caveats` / `confidence` / `latest_checked_at` が必須。`comparison_basis` は `goal_fit` / `tco` / `security` / `operations` / `lock_in` の全軸を持つ。`caveats` は非空配列、`latest_checked_at` は RFC3339、`option_id` は options 内を指す。
 - `serves_goals`: 非空で実在する U3 goal id を指す。
 - `user_decision`: `confirmed` のときだけ必須。`{"option_id":"...","confirmed_at":"<RFC3339>"[,"note":"..."]}`。AI推奨 (`recommended_pending_confirmation`) はユーザー確認ではない。
+- `owner_category`: 任意。この論点の**第一の適用先**となるカテゴリ id。C03 の章生成 (`render_chapter_decisions`) が「本章を主担当とする decision」表の絞り込みに使う。**全件表は `00-requirements-definition.md` 側が持つ**ので、この欄は章へ全件を複製するためのものではない。未宣言の record はどの章の表にも現れないため、章側が件数付きで名前を挙げて可視化する (黙って落とさない)。
 
 ```json
 {
@@ -264,7 +267,11 @@ python3 scripts/apply-spec-transition.py set-knowledge-candidate \
 - `knowledge_ref`: deep card path + section、または doctrine concern/authority を指す非空文字列。
 - `principle`: 採否を判断した具体原則名。単なる「設計知識」「上記原則」は不可。
 - `applicability`: `applied` / `not_applicable`。非適用も隠さず、理由を残す。
-- `rationale`: 確定回答に即した章固有の採否理由。全章同一の定型文は禁止。
+- `rationale`: 確定回答に即した採否理由。**質疑ごとに 1 つで、章ごとには持てない**
+  (`designApplication` は章を指す欄を持たない)。よって `asks_for` が n セルに跨る質疑では
+  同じ理由が n 章へ出る。これは構造の帰結であり、書き分けでは解消しない。
+  禁じているのは「どの質疑にも使い回せる定型文」であって、**1 つの論点が複数章へ効くこと
+  そのものではない**。章ごとに違う理由が必要になったら、足すべきは欄である。
 - `tradeoffs`: 採用費用、非採用時の損失、再評価条件などを最低1件持つ非空文字列配列。
 
 writer は上記形状を検証して qa entry に保存する。新規 state は `schema_version: "1.1"` と `design_application_contract_version: "1.0"` を持ち、`validate-coverage-matrix.py --require-complete` が確定セルから参照される全 qa entry の非空・形状と provenance の完全一致を fail-closed に再検査する。marker の無い旧 `schema_version: "1.0"` state は読み取りだけ可能で、writer の更新操作は fail-closed に拒否する。再開時は R1 の `init --state` を明示実行し、matrix を未収集へ戻して 1.1 へ移行する。この schema 境界が legacy 免除の終了条件であり、1.1 以降で marker 欠落を許さない。移行済み state に一時的な `legacy_exempt: true` と非空 `legacy_exempt_reason` が残った場合に限り、`set-qa-design-applications` が既存の question / answer / source を維持したまま検証済み `design_applications` を追記し、`design_application_provenance={"mode":"legacy_backfill","writer":"set-qa-design-applications"}` を残して旧免除 metadata を除去する。provenance の無い既存解釈は対話経路として保護し、legacy 表示の後付けを拒否する。完了済み legacy backfill の同一 payload 再適用のみ冪等に受け入れ、異なる既存解釈または provenance の上書きは拒否する。C03 は `unrecorded` (解釈欠落) / `dialogue` (対話時解釈) / `legacy_backfill` (事後補完) の3経路を描画し、C05 は unrecorded を未記録 finding とし、backfill は対話時解釈と区別して回答との適合を再照合する。存在確認だけで `design_knowledge_reflection` を緑化させない。
@@ -310,7 +317,7 @@ python3 scripts/apply-spec-transition.py retract-invalid-qa \
 `scripts/apply-spec-transition.py` のみが matrix / logs / aggregate / hearing_progress / targets / requirements_foundation を書き換える。
 
 - **確定巻き戻し拒否**: `確定` セルへの `confirm` / `exclude` は `TransitionError`。Bash/script 経由でも拒否。
-- **R4-reopen 経由のみ確定変更**: `確定` を動かせるのは `reopen` (要 reason) だけ。`未収集` へ戻し `reopen_log` に根拠を残す。
+- **R4-reopen 経由のみ確定変更**: `確定` を動かせるのは `reopen` (要 reason + `qa_log` 実在の `qa_ref`) だけ。`未収集` へ戻し `reopen_log` に根拠を残す。
 - **goal-seek chunk**: `chunk` は 1 invocation で最大 `max_loops` turn を適用し、その実値を `hearing_progress.max_loops` に保存する。未収集が残れば `complete=false`・`next_question` 非 null、未収集0なら `complete=true` とする。後続の `reopen` / `add-category` / `apply` も同じ不変則へ再同期する。
 - **set-targets**: `targets[]` の唯一の書込経路 (上記「targets と set-targets op」)。
 - **set-foundation / set-serves / set-approval / set-decision / set-knowledge-candidate / set-qa-design-applications**: `requirements_foundation`、確定セルの `serves_goals`、確定セルの `approval_ref`、`decisions[]`、`knowledge_candidates[]`、既存 qa の設計解釈の唯一の書込経路。`set-serves` / `set-approval` は確定セル限定、`set-qa-design-applications` は既存 qa 限定の additive annotation で、いずれも確定セルの `state` や Q&A 原文を変えない。

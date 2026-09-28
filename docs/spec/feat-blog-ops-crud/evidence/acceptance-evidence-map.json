@@ -1,0 +1,200 @@
+{
+  "$comment": "受入条文 A1-A14 と証跡の対応表 (P11 成果物)。人が読む索引は index.md、判定の理由は ../acceptance-report.md にある。ここは『どの条文を、何が、どこまで見ているか』だけを機械可読で持つ。",
+  "feature": "feat-blog-ops-crud",
+  "canonical_acceptance_registry": "features/feat-blog-ops-crud.md#frontmatter.acceptance",
+  "acceptance_source_digest": "sha256:7d03855a6d54fdd216e92734e92d4ff5e6baf89dd094c6a4fcd9904c515603e5",
+  "compiled_at": "2026-09-08",
+  "coverage_levels": {
+    "machine": "機械が毎回見ている。壊れた日に赤くなる",
+    "partial": "一部を機械が見ている。条文の述語のうち見えていない部分が明記されている",
+    "unimplemented": "実装が条文に達していない。検査を足しても緑にならない",
+    "spec_mismatch": "条文と実装機構が食い違っている。どちらを直すかは仕様側の判断"
+  },
+  "summary": {
+    "machine": 9,
+    "partial": 3,
+    "unimplemented": 1,
+    "spec_mismatch": 1,
+    "total": 14,
+    "promotion": "blocked",
+    "promotion_blockers": ["A4", "e2e-flakiness"]
+  },
+  "clauses": [
+    {
+      "id": "A1",
+      "predicate": "サイト網 (ハブ1+サブ2+ミニ1) の作成・一覧・編集・論理削除、削除後 404、復元で同 URL 再公開",
+      "coverage": "partial",
+      "evidence": [
+        "tests/e2e/public-site-lifecycle.spec.ts",
+        "tests/e2e/blog-ops-crud.spec.ts",
+        "docs/spec/feat-blog-ops-crud/evidence/2026-09-08/08-e2e.txt"
+      ],
+      "not_covered": "『404 になる』を実画素で確かめていない。HTTP 応答と描画結果までは見ているが、読者の画面に実際どう出るかは別。利用者が実画素で確かめる方針を選択済み",
+      "gap_owner": null
+    },
+    {
+      "id": "A2",
+      "predicate": "ハブトップの 5 帯が blog_hero_config の順序どおり、sister-sites-band が max_items 以下",
+      "coverage": "machine",
+      "evidence": [
+        "tests/ui/blog-top-bands.test.tsx:104",
+        "tests/ui/blog-top-bands.test.tsx:198"
+      ],
+      "not_covered": null,
+      "clause_naming_drift": "条文が名指しする blog_hero_config と max_items は実装に 1 件も存在しない。実体は blog_layout_band の position 列と item_limit 列である。振る舞い (保存順どおりに並ぶ / 上限に従う / 上限 0 は 1 件も出さない) は検査されているので被覆は落ちないが、条文の語と機構の語が食い違っている。A12 と同じ形の軽い版",
+      "gap_owner": "spec"
+    },
+    {
+      "id": "A3",
+      "predicate": "サブサイトは独自のカテゴリ木・feed・サイドバー・運営者情報を持ち、ヘッダー/フッターのカテゴリ木は網で共有 (サブ 2 件で同一ヘッダー / 異なるサイドバー)",
+      "coverage": "machine",
+      "evidence": [
+        "tests/acceptance/feat-blog-ops-crud/subsite-shared-header.test.ts",
+        "tests/ui/uiux-blog-scaffold.test.ts"
+      ],
+      "not_covered": null,
+      "note": "2026-09-08 に subsite-shared-header.test.ts (3 件) を新設して塞いだ。それまで機械が見ていたのは『共通部品にブログ名の分岐が無い』だけで、条文が名指しする『2 件並べて比べる』側は見ていなかった",
+      "gap_owner": null
+    },
+    {
+      "id": "A4",
+      "predicate": "T1-T4 の article_template、題名規則違反と必須部品欠落が保存時に検証エラー (AT-01..05 / BP-01..06) として返る、下書き→公開→論理削除→復元が監査に 1 件ずつ",
+      "coverage": "unimplemented",
+      "evidence": ["tests/integration/d1-blog-ops-tenancy.test.ts"],
+      "not_covered": "AT-01..05 / BP-01..06 の検証ロジックが src/ にも tests/ にも 1 件も存在しない。符号の規則は docs/spec/06-サイトブループリント-記事構成テンプレート.md にあるが、実装は feat-site-blueprint へ scope_out されており、そちらは readiness:complete を宣言しながら src/domain/blueprint* が無い。監査イベント側 (遷移 4 種) は塞がっている",
+      "gap_owner": "feat-site-blueprint",
+      "blocks_promotion": true
+    },
+    {
+      "id": "A5",
+      "predicate": "T1 記事ページの部品列が順序どおり、product-card が 3 箇所に再掲、hierarchical-toc が h2/h3 の階層を反映",
+      "coverage": "machine",
+      "evidence": [
+        "tests/ui/blog-article-view.test.tsx",
+        "src/domain/blogops/article-outline.ts"
+      ],
+      "not_covered": null,
+      "note": "部品列・カード再掲・目次の階層は article-outline.ts の 2 表が正本で、画面は表どおりに描く。表を書き換えると検査が赤くなる",
+      "gap_owner": null
+    },
+    {
+      "id": "A6",
+      "predicate": "サイドバーが通常 8 部品 + 追従 2 部品、custom-html-slot は許可タグ以外を除去して描画、狭幅で折りたたみ",
+      "coverage": "machine",
+      "evidence": [
+        "tests/ui/blog-sidebar.test.tsx",
+        "tests/domain/custom-html-sanitize.test.ts"
+      ],
+      "not_covered": null,
+      "gap_owner": null
+    },
+    {
+      "id": "A7",
+      "predicate": "固定ページ 8 種の作成・編集・公開、公開したものだけが legal-nav と footer に自動反映",
+      "coverage": "machine",
+      "evidence": [
+        "tests/ui/public-site-projection.test.ts",
+        "tests/integration/d1-blog-ops-tenancy.test.ts"
+      ],
+      "not_covered": null,
+      "gap_owner": null
+    },
+    {
+      "id": "A8",
+      "predicate": "タグに kind=brand を付与でき、タグ一覧と brand-tag-cloud に反映、非ブランドタグはクラウドに出ない",
+      "coverage": "machine",
+      "evidence": [
+        "tests/ui/blog-sidebar.test.tsx",
+        "tests/domain/blog-ops.test.ts"
+      ],
+      "not_covered": null,
+      "gap_owner": null
+    },
+    {
+      "id": "A9",
+      "predicate": "canonical / OG・Twitter meta / JSON-LD / RSS / sitemap / llms.txt / robots を出力し、生成結果が delivery_snapshots に記録されて欠落 0 件で一覧表示",
+      "coverage": "partial",
+      "evidence": [
+        "tests/application/blog-ops-usecases.test.ts",
+        "tests/integration/d1-blog-ops-tenancy.test.ts"
+      ],
+      "not_covered": "点検の深さが部品によって違う。『組み立てられること』までしか見ない部品と、中身の欠落まで見る部品がある。一覧と記録 (blog_delivery_snapshot への履歴追記) は満たしているが、点検そのものの網羅性は未達",
+      "gap_owner": null
+    },
+    {
+      "id": "A10",
+      "predicate": "記事一覧とサイト一覧にブループリント適合・配信健全性・鮮度の評価列があり、各列で並べ替えと絞り込みができる",
+      "coverage": "machine",
+      "evidence": [
+        "tests/domain/blogops/operational-health.test.ts",
+        "src/domain/blogops/operational-health.ts"
+      ],
+      "not_covered": null,
+      "note": "並べ替えと絞り込みは selectOperationalRows が単一の実装で、/admin/blog/articles と /admin/site-network の両画面がこれを呼ぶ。片方の画面だけで挙動がずれることが構造的に起きない",
+      "gap_owner": null
+    },
+    {
+      "id": "A11",
+      "predicate": "閲覧者が評価を送信でき、管理側で確認・非表示にでき、非表示にした評価は公開面に出ない",
+      "coverage": "machine",
+      "evidence": [
+        "src/domain/blogops/reader-rating.ts:68",
+        "src/presentation/site/article-page.tsx:172",
+        "tests/domain/blog-ops.test.ts"
+      ],
+      "not_covered": null,
+      "note": "公開面が呼ぶのは summarizeRating だけで、その返り値 RatingSummary は { count, average } の 2 つしか持たない。一言を運ぶ場所が型に無いので、コメント本文が公開面へ漏れることは構造上起きない",
+      "gap_owner": null
+    },
+    {
+      "id": "A12",
+      "predicate": "全操作が監査イベントに記録され、公開面の反映が edge cache TTL 10 分以内に完了する",
+      "coverage": "spec_mismatch",
+      "evidence": ["tests/integration/d1-blog-ops-tenancy.test.ts"],
+      "not_covered": "監査イベント側は塞がっている。TTL 側は条文と機構が食い違う — 条文は『edge cache TTL 10 分以内』と言うが、実装は revalidatePath による明示的な無効化で、TTL による自然失効を待つ設計ではない。条文を機構に合わせるか機構を条文に合わせるかは仕様側の判断",
+      "gap_owner": "spec"
+    },
+    {
+      "id": "A13",
+      "predicate": "参考サイト固有の文章・画像・固有名・色値・テーマ/プラグイン名が 0 件であることを CI の grep ゲートが検査し PASS する",
+      "coverage": "partial",
+      "evidence": [
+        "scripts/check-reference-site-reuse.mjs",
+        "docs/spec/feat-blog-ops-crud/evidence/2026-09-08/05-reference-reuse-gate.txt"
+      ],
+      "not_covered": "ゲートは 2 段ある。構造で見る検査 (137 ファイル / 疑い 0) は実行済み。名前で見る検査は .reference-ban.local から禁止語の実リストを読むが、このファイルはリポジトリに入れない設計 (入れた瞬間に禁止したい固有名がリポジトリ内へ文字列として残るため)。手元にファイルを置いた人だけが回せるので、この環境では一度も照合されていない",
+      "gap_owner": null
+    },
+    {
+      "id": "A14",
+      "predicate": "主要 6 画面 (サイト網一覧 / トップ構成 / レイアウト / 記事編集 / 固定ページ / 評価一覧) が axe-core の重大違反 0 件",
+      "coverage": "machine",
+      "evidence": [
+        "tests/ui/blog-ops-a11y-floor.test.tsx",
+        "docs/spec/feat-blog-ops-crud/evidence/2026-09-08/04-a11y-blog-ops.txt"
+      ],
+      "not_covered": null,
+      "note": "7 件目の検査は画面そのものを見ていない。『条文の 6 つが総当たりの対象表から落ちていないこと』を見ている。総当たりの a11y 検査は消えたものを教えないので、名指しの床でそこを塞いでいる",
+      "gap_owner": null
+    }
+  ],
+  "cross_cutting_findings": [
+    {
+      "id": "e2e-flakiness",
+      "summary": "受入 E2E が flaky。tests/e2e/blog-ops-crud.spec.ts を 4 回走らせて 1 回落ちた (2026-09-08)。2026-08-30 の同種測定でも 4 回中 2 回落ちており、8 日を隔てた別測定で同じ形が再現している",
+      "detail": "落ちるのは書き込みを伴う検査だけで、読み取りのみの検査は一度も落ちていない。playwright.config.ts は workers:2 / fullyParallel:false で、同じ spec の desktop と mobile が同時に同じローカル D1 へ書く",
+      "evidence": ["docs/spec/feat-blog-ops-crud/evidence/2026-09-08/09-e2e-flakiness.txt"],
+      "why_it_matters": "走るたび結果が変わる spec がある限り、1 度の緑は completion の証明に使えない。この回の全体 E2E 542 件緑も根拠に使わない",
+      "owner": "e2e 全体の並行度設計 (本 feature の範囲を超える)",
+      "blocks_promotion": true
+    },
+    {
+      "id": "feat-site-blueprint-readiness-drift",
+      "summary": "feat-site-blueprint が readiness:complete を宣言しながら src/domain/blueprint* を持たない",
+      "detail": "A4 が要求する AT/BP 符号の実装先がこの feature。宣言と実態の食い違いが A4 の未達を隠していた",
+      "evidence": ["features/feat-site-blueprint.md"],
+      "owner": "feat-site-blueprint",
+      "blocks_promotion": false
+    }
+  ]
+}

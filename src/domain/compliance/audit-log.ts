@@ -412,6 +412,18 @@ export type AuditAction =
   | "blog_article.changed"
   | "blog_article.deleted"
   | "blog_article.restored"
+  /**
+   * 記事の表紙（サムネイル）を登録した／外した。
+   *
+   * `blog_article.changed` に混ぜていない。あちらは本文と版面の変更で、
+   * **読者に出る絵の差し替えは本文を 1 文字も変えずに起きる。** 1 語にすると、
+   * 「本文は変えていないのに一覧の見え方が変わった」を後から辿れない。
+   *
+   * 記録するのは置き場の鍵（`objectKey`）だけで、絵そのものは持たない。
+   * 鍵は原本の中身の指紋を含むので、**絵が変わったかどうかは鍵の差で分かる。**
+   */
+  | "blog_article_thumbnail.set"
+  | "blog_article_thumbnail.removed"
   /** ブランドタグを保存した／消した。 */
   | "blog_tag.changed"
   | "blog_tag.deleted"

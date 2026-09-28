@@ -2608,7 +2608,27 @@ export const OPEN_DOORS_MIN_IRREVERSIBLE_MARKED = 8;
 //   (3) **配った後に閉じられる。** 公開バケットや署名付き URL ではなく自前の口なので、
 //       公開取り下げと認可変更を反映できる。private, no-store で共有キャッシュへ残さない。
 // 管理側の入口は 1 つも増えていない。実測どおり 1 件だけ床を更新する。
-export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 43;
+// 2026-09-04: 記事サムネイルの配信口 `src/app/api/blog-thumbnails/[...key]/route.ts` を
+// 1 本追加した。**これは読者の道である。** 読者の画面に出る絵をそのまま返す
+// 読み取り専用の口で、変更操作は無い。門を置くと未ログインの読者＝ほぼ全員の
+// 一覧が空箱で埋まるため、閉じられない。無害にしているのは鍵の形の門で、
+// `isDeliverableThumbnailKey` が **R2 を引く前**に走り、同じバケットの
+// `feedback-captures/` へ手が伸びない (`tests/infrastructure/blog-thumbnail-r2.test.ts`)。
+// 管理画面や変更操作を公開宣言へ逃がした増加ではないため、実測どおり 1 件だけ床を更新する。
+// 2026-09-05: 記事タイプの索引を 5 本追加した（残課題 ah-milz）。
+// `s/[site]/{best,reviews,compare,guides,tools}/page.tsx` の 5 枚で、
+// **5 枚とも `ArticleIndexPage` 1 つを呼ぶだけの読み取り専用の画面である。**
+// 並べるのは `SiteFrame` が既に読んでいる公開済み記事だけで、読み取り口も
+// 変更操作も 1 つも増えていない（新しい use case を足していない）。
+// 足した理由は数ではなく穴で、`/best/{topic}` の親 `/best` に画面が無く、
+// 記事のパンくずの真ん中が押せない文字になっていた。門を置けないのは
+// 記事一覧と同じ理由——読者はほぼ全員が未ログインである。
+// 管理画面や変更操作を公開宣言へ逃がした増加ではないため、実測どおり 5 件だけ床を更新する。
+// マージ (2026-09-08): dev の +3 (reader-events / internal-cron / article-images) と
+// 本枝の +6 (blog-thumbnails / 記事タイプの索引 5 枚) は別々の口であり重複しない。
+// 基準 40 に両方を足した 49 を床とする。**実測を上回る値を置いていないことは
+// open-doors gate が数え直して確かめる。**合わなければ値ではなく口の側を見る。
+export const OPEN_DOORS_MAX_PUBLIC_BY_DECLARATION = 49;
 
 /**
  * **画面を 1 枚取り込んで描く検査の待ち時間。**

@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import type { BlogLayoutSlotRecord, BlogTagRecord } from "@/application/ports/blog-ops";
 import { blogSidebar } from "@/presentation/site/blog-sidebar";
 import type { PublicSiteProjection } from "@/presentation/site/public-site-projection";
+import { aPublicSiteProjection } from "../support/factories";
 
 function slot(over: Partial<BlogLayoutSlotRecord> = {}): BlogLayoutSlotRecord {
   return {
@@ -49,12 +50,18 @@ function tag(over: Partial<BlogTagRecord> = {}): BlogTagRecord {
 /*
   この部品が読むのは `slots` と `tags` だけである。読み口や記事まで
   本物を組み立てると、検査しているのが「脇の枠」ではなく「模造の出来」になる。
+
+  **だからといって型を外さない。**以前は `{ slots, tags } as unknown as
+  PublicSiteProjection` と書いていたが、それは「2 項目しか無い別の型」を
+  投影と名乗らせる形で、この部品が 3 つめの項目を読み始めた日に
+  **落ちるのは実行時**になる。雛形の既定（空だが正しい）を土台に、
+  この検査が関心を持つ 2 項目だけを上書きする。
 */
 function projection(
   slots: readonly BlogLayoutSlotRecord[],
   tags: readonly BlogTagRecord[] = [],
 ): PublicSiteProjection {
-  return { slots, tags } as unknown as PublicSiteProjection;
+  return aPublicSiteProjection({ slots, tags });
 }
 
 function render(

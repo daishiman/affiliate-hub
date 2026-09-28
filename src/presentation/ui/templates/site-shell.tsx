@@ -6,8 +6,8 @@ import type { ConsentAnswer } from "../consent";
 import { AppearancePicker } from "../patterns/appearance-picker";
 import { ConsentBanner } from "../patterns/consent-banner";
 import type { SelectOption } from "../primitives/select";
+import { telemetryAttrs } from "../telemetry-attrs";
 import uiStyles from "../primitives/ui.module.css";
-import { ArticleList, type ArticleCardView } from "./article-view";
 import styles from "./site.module.css";
 
 /**
@@ -58,10 +58,22 @@ export type SiteChrome = {
   readonly homeHref: string;
   /** 共通検索フォームの送信先。 */
   readonly searchHref: string;
+  /** 公開中の記事を通しで見る一覧。検索フォームとは別の入口。 */
+  readonly allArticlesHref: string;
   /** ブログの運営方針。フッター配列の並びに依存させない。 */
   readonly aboutHref: string;
   /** 足元の案内。方針・訂正・問い合わせ。 */
   readonly footer: readonly SiteNavItem[];
+  /**
+   * 足元に出す全カテゴリー。
+   *
+   * ヘッダーの `categoryNav` と同じ中身だが**別の項目にしてある**。
+   * ヘッダーは巻いても付いてくる場所なので、いつか件数を絞る日が来る。
+   * 同じ配列を共有していると、その日に足元の一覧まで黙って減る。
+   */
+  readonly footerCategories: readonly SiteNavItem[];
+  /** 購読の口（RSS）。読者が読み手の道具を選べる唯一の導線。 */
+  readonly feedHref: string;
 };
 
 export function SiteShell({
@@ -152,13 +164,21 @@ export function SiteShell({
       <a className={styles.skipLink} href="#site-main-content">
         本文へ移動
       </a>
+      {/*
+        追従ヘッダーが持つのは **3 つだけ**: ブログの入口（サイト名）、
+        探す（検索）、移動する（カテゴリー）。
+
+        キャッチコピーと SNS の並びをここへ置かないのは、巻いても消えない
+        場所は画面のうち一番高い土地であり、**読む邪魔を常時するから**である。
+        キャッチコピーはフッターと、トップの主役（`SiteHomeHero`）にある。
+        1 度読めば足りるものを、全画面・全スクロール位置で見せる理由が無い。
+      */}
       <header className={styles.siteHeader}>
         <div className={styles.siteHeaderInner}>
           <div className={styles.siteIdentity}>
             <Link href={chrome.homeHref} className={styles.siteName}>
               {chrome.siteName}
             </Link>
-            <span className={styles.siteTagline}>{chrome.tagline}</span>
           </div>
           <SiteSearch
             action={chrome.searchHref}
@@ -167,18 +187,33 @@ export function SiteShell({
             compact
           />
         </div>
+        {/*
+          カテゴリーの並びは畳める。**`<details>` で作る。**
+
+          高さを CSS で切る手は既に一度失敗している（`site.module.css` の
+          `.siteHeader` 上の註）。切られたナビは見えなくなるだけで矩形は残り、
+          本文と重なったまま誰も気づかなかった。畳むなら、畳んだことが
+          `<details>` の開閉状態として画面にも読み上げにも残る形にする。
+
+          `open` を初期値にしてあるのは、画面幅で初期状態を変える手が
+          JavaScript 無しでは無いため。広い画面では下の CSS が `summary` を
+          隠すので、畳む取っ手は狭い画面にだけ現れる。
+        */}
         <div className={styles.siteNavBar}>
-          <nav className={styles.siteNav} aria-label="このブログの案内">
-            {chrome.nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={currentPath === item.href ? "page" : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <details className={styles.siteNavDisclosure} open>
+            <summary className={styles.siteNavSummary}>カテゴリー</summary>
+            <nav className={styles.siteNav} aria-label="このブログの案内">
+              {chrome.nav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={currentPath === item.href ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </details>
         </div>
       </header>
 
@@ -210,15 +245,52 @@ export function SiteShell({
             </Link>
             <p>{chrome.tagline}</p>
           </div>
-          <nav aria-label="方針と問い合わせ">
-            <ul className={styles.footerLinks}>
-              {chrome.footer.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href}>{item.label}</Link>
+          {/*
+            足元の導線。ヘッダーから外した分の行き先が**全部ここに揃う**。
+            運営者情報・全カテゴリー・各方針・特定商取引法に基づく表記・
+            問い合わせ・購読（RSS）。3 つの `nav` に名前を付けて分けてあるのは、
+            読み上げの目印一覧から目的の束へ直接飛べるようにするため。
+            1 つの長い `ul` にすると、方針を探す人がカテゴリー全件を通る。
+          */}
+          <div className={styles.footerNavGroups}>
+            <nav aria-label="方針と問い合わせ">
+              <h2 className={styles.footerNavTitle}>このブログについて</h2>
+              <ul className={styles.footerLinks}>
+                {chrome.footer.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} {...telemetryAttrs({ kind: "internal_link", id: item.href, placement: "フッターの方針と問い合わせ" })}>{item.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            {chrome.footerCategories.length > 0 && (
+              <nav aria-label="全カテゴリー">
+                <h2 className={styles.footerNavTitle}>カテゴリー</h2>
+                <ul className={styles.footerLinks}>
+                  {chrome.footerCategories.map((item) => (
+                    <li key={item.href}>
+                      <Link href={item.href} {...telemetryAttrs({ kind: "internal_link", id: item.href, placement: "フッターのカテゴリー" })}>{item.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
+            <nav aria-label="購読">
+              <h2 className={styles.footerNavTitle}>受け取る</h2>
+              <ul className={styles.footerLinks}>
+                <li>
+                  {/*
+                    RSS は Next の `Link` を使わない。行き先は画面ではなく
+                    XML で、先読みしても読者の画面には何も起きない。
+                  */}
+                  <a href={chrome.feedHref}>RSS で新着を受け取る</a>
                 </li>
-              ))}
-            </ul>
-          </nav>
+                <li>
+                  <Link href={chrome.allArticlesHref}>公開中の記事をすべて見る</Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
           <p className={styles.footerNote}>{UI_COPY.disclosure.footerNote}</p>
           {consent !== undefined && (
             <ConsentBanner current={consent.current} detailHref={consent.detailHref} />
@@ -243,16 +315,22 @@ export function SiteShell({
   );
 }
 
-function SiteSearch({
+export function SiteSearch({
   action,
   inputId,
   landmarkLabel,
   compact = false,
+  initialQuery = "",
+  tag,
+  toolName,
 }: {
   readonly action: string;
   readonly inputId: string;
   readonly landmarkLabel: string;
   readonly compact?: boolean;
+  readonly initialQuery?: string;
+  readonly tag?: string;
+  readonly toolName?: string;
 }) {
   return (
     <form
@@ -266,17 +344,23 @@ function SiteSearch({
       method="get"
       role="search"
       aria-label={landmarkLabel}
+      toolname={toolName}
+      tooldescription={toolName ? "このブログの公開記事を言葉で探す" : undefined}
       className={[styles.siteSearch, compact ? styles.siteSearchCompact : null]
         .filter(Boolean)
         .join(" ")}
     >
+      {tag && <input type="hidden" name="tag" value={tag} />}
       <label htmlFor={inputId} className={styles.srOnly}>
         記事をキーワードで探す
       </label>
       <input
+        key={initialQuery}
         id={inputId}
+        defaultValue={initialQuery}
         type="search"
         name="q"
+        toolparamdescription={toolName ? "探したい言葉。商品名でも用途でもよい" : undefined}
         placeholder="記事を検索"
       />
       <button type="submit">検索</button>
@@ -314,45 +398,6 @@ export function SiteSection({
   );
 }
 
-export type CategoryArticleGroupView = CategoryDirectoryItem & {
-  readonly articles: readonly ArticleCardView[];
-};
-
-/** カテゴリーごとの代表記事と、そのカテゴリー全体への出口。 */
-export function CategoryArticleGroups({
-  groups,
-}: {
-  readonly groups: readonly CategoryArticleGroupView[];
-}) {
-  return (
-    <ul className={styles.categoryArticleGroups}>
-      {groups.map((group) => (
-        <li key={group.href}>
-          <header className={styles.categoryArticleGroupHead}>
-            <div>
-              <h3 className={styles.categoryArticleGroupTitle}>{group.label}</h3>
-              <p>{group.description}</p>
-            </div>
-            <Link href={group.href}>このカテゴリーをすべて見る</Link>
-          </header>
-          {group.articles.length > 0 ? (
-            <ArticleList
-              articles={group.articles}
-              emptyTitle=""
-              emptyBody=""
-              headingLevel="h4"
-            />
-          ) : (
-            <p className={styles.categoryArticleGroupEmpty}>
-              代表記事は準備中です。<Link href={group.href}>カテゴリーの案内を見る</Link>
-            </p>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 /** ホームの主役。ブログの対象と探し始める場所を 1 画面内に置く。 */
 export function SiteHomeHero({
   name,
@@ -383,7 +428,7 @@ export function CategoryDirectory({ items }: { readonly items: readonly Category
     <ul className={styles.categoryDirectory}>
       {items.map((item) => (
         <li key={item.href}>
-          <Link href={item.href}>{item.label}</Link>
+          <Link href={item.href} {...telemetryAttrs({ kind: "internal_link", id: item.href, placement: "カテゴリー索引" })}>{item.label}</Link>
           <p>{item.description}</p>
         </li>
       ))}

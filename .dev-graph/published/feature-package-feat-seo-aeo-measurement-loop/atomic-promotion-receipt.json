@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "status": "promoted",
+  "promoted_at": "2026-09-04T05:19:32Z",
+  "repo_identity": "github:daishiman/affiliate-hub",
+  "staging_digest": "sha256:46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+  "evaluated_digest": "sha256:46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+  "published_digest": "sha256:46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+  "implementation_readiness": "complete",
+  "quality_conditions": {
+    "no_contradiction": "PASS",
+    "no_missing": "PASS",
+    "consistent": "PASS",
+    "dependency_integrity": "PASS"
+  },
+  "promotion_method": "same-filesystem-atomic-rename",
+  "registration_manifest": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop/dev-graph-registration.json"
+}

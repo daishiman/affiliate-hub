@@ -20,7 +20,7 @@ import { createSamplePublicationDeliveryAuditOutbox } from "@/infrastructure/per
 import type { ContentVariant } from "@/domain/authoring";
 import type { ChannelConnection, Publication } from "@/domain/distribution";
 import { MAX_SEND_ATTEMPTS, samePublicationVersion } from "@/domain/distribution";
-import { ok } from "@/domain/shared";
+import { asAudiencePersonaId, asAuthorPersonaId, asClaimId, asEvidenceId, ok } from "@/domain/shared";
 import type {
   ChannelConnectionId,
   ContentPackageId,
@@ -44,8 +44,8 @@ function variant(over: Partial<ContentVariant> = {}): ContentVariant {
     contentPackageId: "cp_delivery" as ContentPackageId,
     channel: "bluesky",
     format: "post",
-    authorPersonaId: "author_test" as never,
-    audiencePersonaId: "audience_test" as never,
+    authorPersonaId: asAuthorPersonaId("author_test"),
+    audiencePersonaId: asAudiencePersonaId("audience_test"),
     angle: "comparison_first",
     title: null,
     body: "比較した結果、今回はこの製品を選びました。",
@@ -53,8 +53,8 @@ function variant(over: Partial<ContentVariant> = {}): ContentVariant {
     cta: "view_comparison",
     disclosure: "広告",
     affiliateLinkIds: [],
-    claimIds: ["claim_test" as never],
-    evidenceIds: ["evidence_test" as never],
+    claimIds: [asClaimId("claim_test")],
+    evidenceIds: [asEvidenceId("evidence_test")],
     assumptions: [],
     platformWarnings: [],
     factualityScore: 1,
@@ -991,7 +991,12 @@ describe("監査だけを流し直す入口", () => {
         seen.push(limit);
         return ok({ scanned: 0, delivered: 0, pending: 0 });
       },
-    } as unknown as PublicationDeliveryAuditOutboxPort;
+      // 溜め直しだけを見る検査なので、配信の確定は通らない。
+      // ok を返して黙らせると、確定を通る変更が入っても気づけない。
+      settle: async () => {
+        throw new Error("流し直しの検査で配信の確定は呼ばない。");
+      },
+    } satisfies PublicationDeliveryAuditOutboxPort;
 
     await flushPublicationDeliveryAudits({ deliveryAudits }, { limit: 0 });
     await flushPublicationDeliveryAudits({ deliveryAudits }, { limit: 5_000 });

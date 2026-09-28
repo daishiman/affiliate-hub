@@ -42,7 +42,7 @@ export default async function EditPublishedArticlePage({
             */}
             <Card
               claim="記事を訂正するか、読者から取り下げる"
-              main={<PublishedArticleForm article={result.value.article} archivedAt={result.value.archivedAt} />}
+              main={<PublishedArticleForm revision={result.value.revision} article={result.value.article} archivedAt={result.value.archivedAt} />}
               supporting={[
                 <FactList
                   key="whereabouts"

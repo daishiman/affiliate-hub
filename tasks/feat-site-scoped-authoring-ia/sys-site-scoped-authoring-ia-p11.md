@@ -12,7 +12,7 @@ iteration: null
 title: "受入・品質証跡の集約と検証可能性の確保"
 owners: ["daishiman"]
 created_at: "2026-09-08T04:15:58Z"
-updated_at: "2026-09-08T05:47:12.983092Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "active"
 depends_on: ["SYS-SITE-SCOPED-AUTHORING-IA-P07","SYS-SITE-SCOPED-AUTHORING-IA-P09"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-08T11:52:36Z","evidence_refs":["beads:ah-ro3w.11"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-08T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

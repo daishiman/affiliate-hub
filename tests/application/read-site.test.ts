@@ -54,10 +54,29 @@ function realDeps(over: Partial<ReadSiteDeps> = {}): ReadSiteDeps {
   };
 }
 
+/**
+ * 見本の保存先を土台に、指定した口だけを差し替える。
+ *
+ * **土台を置くのは、口が 1 つ増えた日に気づくため。**以前はこの下の各検査が
+ * `markEditorial({ listRecent })` の 1 口だけを `as unknown as
+ * EditorialPublishedContentPort` で正本と名乗らせていた。読み口が増えても
+ * コンパイルは通り、**落ちるのは「関数ではありません」という実行時の例外**になる。
+ * 見本を土台にすれば、増えた口は見本の実装が埋める。
+ *
+ * 展開して組み直すと Editorial の印は消える（列挙されない形で付いている）ので、
+ * `markEditorial` で付け直す。付け直さないと、差し替えた中身とは
+ * 何の関係も無い場所で「印がありません」と落ちる。
+ */
+function editorialContent(
+  over: Partial<EditorialPublishedContentPort> = {},
+): EditorialPublishedContentPort {
+  return markEditorial({ ...createSampleContentRepository(), ...over });
+}
+
 /** どの呼び出しでも同じ失敗を返す保存先。「取れない」側の道を通すために使う。 */
 function brokenSites(): EditorialSiteRepositoryPort {
   const boom = async () => err(domainError("UPSTREAM_UNAVAILABLE", "保存先に接続できません。"));
-  return markEditorial({ findBySlug: boom, list: boom }) as unknown as EditorialSiteRepositoryPort;
+  return markEditorial({ findBySlug: boom, list: boom });
 }
 
 function brokenContent(): EditorialPublishedContentPort {
@@ -67,12 +86,13 @@ function brokenContent(): EditorialPublishedContentPort {
     listByCategory: boom,
     findArticle: boom,
     search: boom,
+    browse: boom,
     findPerson: boom,
     listByPerson: boom,
     listCorrections: boom,
     findPolicyDocument: boom,
     listBrands: boom,
-  }) as unknown as EditorialPublishedContentPort;
+  });
 }
 
 describe("読者向けの読み取りに渡してよい保存先", () => {
@@ -89,6 +109,11 @@ describe("読者向けの読み取りに渡してよい保存先", () => {
     ["方針の文書", createGetPolicyDocumentUseCase],
   ])("%s: 報酬に関わる保存先が混ざっていたら、組み立てた時点で止まる", (_name, create) => {
     const deps = realDeps({
+      /*
+        報酬に関わる印が付いた保存先を、型を外して読者向けの口へ流し込む。
+        **このキャストがこの検査の主題**——型は `as` で外せるので、
+        外されたときに実行時の印が捕まえるかどうかをここで見ている。
+      */
       content: markCommercial({}) as unknown as EditorialPublishedContentPort,
     });
     expect(() => (create as (d: ReadSiteDeps) => unknown)(deps)).toThrow(/報酬/);
@@ -160,12 +185,12 @@ describe("ブログ一覧", () => {
 describe("記事の一覧", () => {
   it("新着は、件数を指定しなければ既定の上限で引く", async () => {
     let askedLimit = -1;
-    const content = markEditorial({
+    const content = editorialContent({
       async listRecent(_slug: string, limit: number) {
         askedLimit = limit;
         return ok([]);
       },
-    }) as unknown as EditorialPublishedContentPort;
+    });
 
     await createListRecentArticlesUseCase(realDeps({ content })).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
@@ -175,12 +200,12 @@ describe("記事の一覧", () => {
 
   it.each([0, 1, 5])("件数を指定したときは、その数をそのまま渡す (%i)", async (limit) => {
     let askedLimit = -1;
-    const content = markEditorial({
+    const content = editorialContent({
       async listRecent(_slug: string, l: number) {
         askedLimit = l;
         return ok([]);
       },
-    }) as unknown as EditorialPublishedContentPort;
+    });
 
     await createListRecentArticlesUseCase(realDeps({ content })).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
@@ -338,12 +363,12 @@ describe("探す", () => {
 
   it("件数を指定しなければ、既定の上限で探す", async () => {
     let askedLimit = -1;
-    const content = markEditorial({
-      async search(_slug: string, _q: string, limit: number) {
-        askedLimit = limit;
-        return ok([]);
+    const content = editorialContent({
+      async browse(_slug: string, request: { limit: number }) {
+        askedLimit = request.limit;
+        return ok({ articles: [], hasMore: false });
       },
-    }) as unknown as EditorialPublishedContentPort;
+    });
 
     await createSearchArticlesUseCase(realDeps({ content })).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
@@ -409,14 +434,14 @@ describe("書き手・監修者", () => {
   });
 
   it("人は引けたが記事が読めないときは、失敗をそのまま上げる", async () => {
-    const content = markEditorial({
+    const content = editorialContent({
       async findPerson() {
         return ok({ slug: "mochizuki", name: "三輪 さとし", bio: "紹介文", credentials: ["経歴"] });
       },
       async listByPerson() {
         return err(domainError("UPSTREAM_UNAVAILABLE", "記事を読み出せません。"));
       },
-    }) as unknown as EditorialPublishedContentPort;
+    });
 
     const result = await createGetPersonUseCase(realDeps({ content })).execute(reader, {
       siteSlug: SAMPLE_SITE_SLUG,
@@ -487,5 +512,21 @@ describe("訂正と方針", () => {
     ).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, key: "methodology" });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+  });
+});
+
+
+describe("検索入力の境界", () => {
+  it.each([-1, 0, 1.5, 101, Number.NaN])("不正な件数 %s を拒否する", async (limit) => {
+    const result = await createSearchArticlesUseCase(realDeps()).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, query: "編集", limit });
+    expect(result.ok).toBe(false);
+  });
+  it("長すぎる検索語を黙って切らず入力エラーを返す", async () => {
+    const result = await createSearchArticlesUseCase(realDeps()).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, query: "あ".repeat(201) });
+    expect(result.ok).toBe(false);
+  });
+  it("検索語なしのタグ条件も検索と同じユースケースで扱える", async () => {
+    const result = await createSearchArticlesUseCase(realDeps()).execute(reader, { siteSlug: SAMPLE_SITE_SLUG, query: "", tag: "north" });
+    expect(result.ok).toBe(true);
   });
 });

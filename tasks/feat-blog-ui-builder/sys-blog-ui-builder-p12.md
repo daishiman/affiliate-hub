@@ -12,7 +12,7 @@ iteration: null
 title: "UI規則・SEO/AI検索運用規則と運用手順の文書化"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-30T10:25:24Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P10","SYS-BLOG-UI-BUILDER-P11"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-30T10:25:24Z","evidence_refs":["beads:ah-45ba.12"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-08-28T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

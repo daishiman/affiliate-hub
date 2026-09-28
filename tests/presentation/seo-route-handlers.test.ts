@@ -25,6 +25,7 @@ const routeState = vi.hoisted(() => ({
 
 vi.mock("@/presentation/composition", async () => {
   const { requestOriginFromRequest } = await import("@/infrastructure/http/request-origin");
+  const { STANDARD_PAGES, routesFor } = await import("@/domain/authoring");
   return {
     requestOriginFromWebRequest: requestOriginFromRequest,
     readerActor: () => ({ kind: "anonymous" }),
@@ -40,6 +41,12 @@ vi.mock("@/presentation/composition", async () => {
                   purpose: "実測で比べる。",
                   emitLlmsTxt: routeState.emitLlmsTxt,
                 },
+                /*
+                  出す画面の一覧。**`routesFor` の結果をそのまま渡す。**
+                  ここへ手で並べた偽の一覧を置くと、ルート表を変えた日に
+                  この検査だけが古い形のまま緑になる。
+                */
+                routes: routesFor({ pages: [...STANDARD_PAGES] }),
               },
             }
           : { ok: false as const, error: routeState.siteError },
@@ -115,6 +122,48 @@ describe("sitemap.xml Route Handler", () => {
     expect(response.headers.get("content-type")).toBe("application/xml; charset=utf-8");
     expect(routeState.requestedLimits).toEqual([50_001]);
     expect(body).toContain("https://example.com/s/gadget/best/item-21");
+  });
+
+  /**
+   * 記事だけを配ると、検索側から見たこのブログは
+   * 「親のいない記事が n 本ある」だけの形になる（残課題 ah-5b2p）。
+   * 入口の選び方そのものは `tests/application/seo/sitemap.test.ts` が見張る。
+   * ここは**実際に配られる XML に骨格が出ている**ことだけを確かめる。
+   */
+  it("記事だけでなく、ブログの骨格（トップ・記事一覧・索引・固定ページ）も配る", async () => {
+    routeState.articles = [article(1)];
+
+    const response = await getSitemap(
+      new Request("https://example.com/s/gadget/sitemap.xml"),
+      context,
+    );
+    const body = await response.text();
+
+    expect(body).toContain("<loc>https://example.com/s/gadget</loc>");
+    expect(body).toContain("<loc>https://example.com/s/gadget/blog</loc>");
+    expect(body).toContain("<loc>https://example.com/s/gadget/best</loc>");
+    expect(body).toContain("<loc>https://example.com/s/gadget/privacy</loc>");
+    expect(body).toContain("<loc>https://example.com/s/gadget/best/item-1</loc>");
+  });
+
+  /**
+   * 更新日を知らない入口を今日で埋めると、動いていない方針ページが
+   * 毎日更新されたことになり、`lastmod` 全体が信用されなくなる。
+   */
+  it("更新日を持たない入口には lastmod を付けない", async () => {
+    routeState.articles = [article(1)];
+
+    const response = await getSitemap(
+      new Request("https://example.com/s/gadget/sitemap.xml"),
+      context,
+    );
+    const body = await response.text();
+    const privacy = body
+      .split("<url>")
+      .find((block) => block.includes("/s/gadget/privacy</loc>"));
+
+    expect(privacy).toBeDefined();
+    expect(privacy).not.toContain("<lastmod>");
   });
 
   it("記事の読み取り失敗を空のsitemapにせず503で返す", async () => {

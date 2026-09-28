@@ -19,7 +19,7 @@
 - 状態書込は writer (`scripts/apply-spec-transition.py`) の一経路のみ。直接 JSON 編集禁止。
 - `確定` は `qa_ref` (qa_log entry) 必須、`対象外` は `reason` か `approval_ref` 必須。
 - `qa_log` は 1 entry = 1 論点。1問に複数の設計判断を束ねない。書面要件に複数論点が同居するときは、対応原文・相対 path・section・原文 SHA-256 を持つ `source.kind=written-requirements` の分離 source-index turn (`ops: []`) を先に追加し、`qa_ref` は当該セルの論点だけを指す entry にする。`answer` は指定 path/section に実在する利用者原文の逐語 excerpt、`source.sha256` はその `answer` UTF-8 bytes の SHA-256 とする。AI が生成した要約・判断・qa entry 自身の digest を「書面原文」として記録しない。
-- **章固有の設計原則採否**: セルを `confirm` する turn は `design_applications[]` を持つ。各要素は `knowledge_ref` / `principle` / `applicability` (`applied|not_applicable`) / `rationale` / 非空 `tradeoffs[]` を持ち、C04 deep card または doctrine anchor の具体原則が回答へどう効いたか、またはなぜ採用しないかを章固有に記録する。これは利用者の回答原文ではなく設計解釈なので `answer` と混ぜない。汎用的な「上記原則を適用する」だけの定型文は禁止する。
+- **設計原則の採否記録**: セルを `confirm` する turn は `design_applications[]` を持つ。各要素は `knowledge_ref` / `principle` / `applicability` (`applied|not_applicable`) / `rationale` / 非空 `tradeoffs[]` を持ち、C04 deep card または doctrine anchor の具体原則が回答へどう効いたか、またはなぜ採用しないかを、その質疑に即して記録する (欄は質疑ごとに 1 つで、章ごとには持てない)。これは利用者の回答原文ではなく設計解釈なので `answer` と混ぜない。汎用的な「上記原則を適用する」だけの定型文は禁止する。
 - 確定/対象外済みセルを再質問しない (未収集セルのみ対象)。
 - **required-info 順序ゲート**: 質問開始前に `references/required-info-catalog.json` を Read し、required-info validator の実出力 `collection_order` を取得する。質問順はこの配列に従い、依存先が未確定/N/A 未記録の item を飛び越えない。`screen-information-priority` を `frontend-arch` より先に処理する。
 
@@ -94,7 +94,7 @@
 ### 5.3 完了チェックリスト (停止条件)
 - [ ] 非対象platformの全セルがapproval_refまたは具体的reason付きの`対象外`である
 - [ ] 対象platformの回答済みセルがqa_ref付きの`確定`である
-- [ ] 各 `confirm` turn の `design_applications[]` が具体原則の採否・章固有理由・trade-off を持ち、回答原文と分離されている
+- [ ] 各 `confirm` turn の `design_applications[]` が具体原則の採否・その質疑に即した理由・trade-off を持ち、回答原文と分離されている
 - [ ] 各 qa_log entry が 1論点であり、複数論点の書面入力は path/section・対応原文の逐語 excerpt・その UTF-8 SHA-256 を持つ分離 source-index として記録されている
 - [ ] `確定`/`対象外` の付帯 (qa_ref / reason) が全て埋まっている
 - [ ] 確定qaに現れた外部技術/ツール/フレームワークが`set-targets`で`targets[]`へ反映されている

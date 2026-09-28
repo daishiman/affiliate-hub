@@ -22,8 +22,7 @@ export default async function ComparisonArticlePage({
     <ArticlePage
       siteSlug={site}
       slug={comparison}
-      pathPrefix="/compare"
-      routeLabel="比較"
+      type="comparison"
     />
   );
 }

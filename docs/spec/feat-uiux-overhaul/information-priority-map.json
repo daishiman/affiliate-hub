@@ -902,6 +902,48 @@
       }
     },
     {
+      "route": "/admin/seo",
+      "primary_task": "記事ごとの差分を確認して反映し、同じページの観測値を確かめる",
+      "task_frequency": "low",
+      "failure_cost": "high",
+      "keep": [
+        {
+          "item": "観測が止まっている系統の表示",
+          "why": "safety-critical: 所見が減ったのか観測が止まったのかを取り違えると、直っていないものを直ったと読む"
+        },
+        {
+          "item": "所見を「記事で直せる／画面の作りを直す」に分けた並び",
+          "why": "押しても消えない所見に時間を使わせないため"
+        },
+        {
+          "item": "機械が書き換えた記事の一覧と取り消し",
+          "why": "1 操作で戻せることが要件 (NFR5)"
+        }
+      ],
+      "drop": [
+        {
+          "item": "所見ごとの規則の解説全文",
+          "why": "常時 4 個",
+          "method": "collapse"
+        }
+      ],
+      "transform": [
+        {
+          "item": "観測時刻",
+          "why": "相対表記だと、毎晩動くはずのものが数日前で止まっていることに気づけない",
+          "method": "日付と時刻で出す"
+        }
+      ],
+      "baseline": {
+        "source": "src/app/admin/seo/page.tsx",
+        "lines": 437,
+        "lead_chars": 28,
+        "always_visible_callouts": 2,
+        "cards": 0,
+        "forms": 3
+      }
+    },
+    {
       "route": "/admin/improvement/dimensions",
       "primary_task": "試してよいもの / 変えないものを調べる (参照専用)",
       "task_frequency": "low",

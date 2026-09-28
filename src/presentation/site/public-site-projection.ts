@@ -1,5 +1,6 @@
 import type {
   BlogDeliveryPartRecord,
+  PublicHomeFeaturedArticles,
   BlogLayoutBandRecord,
   BlogLayoutSlotRecord,
   BlogTagRecord,
@@ -36,6 +37,8 @@ export type PublicSiteProjection = {
   /** 作成済みの全帯。描画には直接使わない。 */
   readonly provisionedBands: readonly BlogLayoutBandRecord[];
   readonly articles: readonly ArticleSummary[];
+  /** 運営者が選んだおすすめ。保存件数と現在表示できる記事を分けて持つ。 */
+  readonly featuredArticles: PublicHomeFeaturedArticles;
   readonly network: readonly SiteNetworkRecord[];
   readonly tags: readonly BlogTagRecord[];
   /**
@@ -118,6 +121,7 @@ export async function readPublicSiteProjection(
     reader.listLayoutBands(),
     reader.listProvisionedLayoutBands(),
     reader.listPublished(PROJECTION_ARTICLE_LIMIT),
+    reader.listFeaturedArticles(),
     reader.listNetwork(),
     reader.listTags(),
     reader.listDocuments(),
@@ -133,6 +137,7 @@ export async function readPublicSiteProjection(
     bands,
     provisionedBands,
     articles,
+    featuredArticles,
     network,
     tags,
     documents,
@@ -146,6 +151,7 @@ export async function readPublicSiteProjection(
     bands,
     provisionedBands,
     articles,
+    featuredArticles,
     network,
     tags,
     documents,

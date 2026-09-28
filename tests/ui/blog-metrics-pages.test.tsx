@@ -20,35 +20,57 @@
  */
 import { describe, expect, it, vi } from "vitest";
 import type { AudienceBreakdown, EngagementProfile } from "@/application/ports/blog-observability";
+import type {
+  BlogAudienceView,
+  ReadBlogAudienceInput,
+} from "@/application/usecases/blog-ops/read-blog-audience";
+import type { BlogRevenueView } from "@/application/usecases/blog-ops/read-blog-revenue";
+import type { ActorContext, DomainError, Result } from "@/domain/shared";
+import type {
+  BlogAudienceEntry,
+  BlogRevenueEntry,
+} from "@/presentation/composition";
 import { describeViolations, findA11yViolations } from "../support/a11y";
 import { focusableOrder, intoDom, renderMarkup, textOf } from "../support/render";
 
-type Outcome = { ok: boolean; value?: unknown; error?: unknown };
+/*
+  画面が呼ぶ読み口の戻り。テストごとに差し替える。
 
-/** 画面が呼ぶ読み口の戻り。テストごとに差し替える。 */
-const audienceOutcome = vi.hoisted(() => ({ current: null as Outcome | null }));
-const revenueOutcome = vi.hoisted(() => ({ current: null as Outcome | null }));
+  **`{ ok: boolean; value?: unknown }` で受けない。**`vi.mock` の factory が
+  返す値には型検査が効かないので、ここを緩めると画面が読む項目が増えたことに
+  気づけず、**壊れるのは実行時の描画**になる。正本の `Result` で受けると、
+  項目が増えた日にこのファイルがコンパイルエラーになる。
+*/
+const audienceOutcome = vi.hoisted(
+  () => ({ current: null }) as { current: Result<BlogAudienceView, DomainError> | null },
+);
+const revenueOutcome = vi.hoisted(
+  () => ({ current: null }) as { current: Result<BlogRevenueView, DomainError> | null },
+);
 /** 画面が読み口へ渡した条件。URL の値をそのまま信じていないかを見る。 */
-const audienceInput = vi.hoisted(() => ({ current: null as Record<string, unknown> | null }));
+const audienceInput = vi.hoisted(() => ({ current: null as ReadBlogAudienceInput | null }));
 
 vi.mock("@/presentation/composition", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   const { SAMPLE_ACTOR } = await import("@/infrastructure/identity/sample-actor");
+  const missing = (): never => {
+    throw new Error("この検査では戻りを設定していません。");
+  };
   return {
     ...actual,
     currentActor: async () => SAMPLE_ACTOR,
-    blogAudienceEntry: async () => ({
+    blogAudienceEntry: async (): Promise<BlogAudienceEntry> => ({
       ready: true,
       read: {
-        execute: async (_actor: unknown, input: Record<string, unknown>) => {
+        execute: async (_actor: ActorContext, input: ReadBlogAudienceInput) => {
           audienceInput.current = input;
-          return audienceOutcome.current;
+          return audienceOutcome.current ?? missing();
         },
       },
     }),
-    blogRevenueEntry: async () => ({
+    blogRevenueEntry: async (): Promise<BlogRevenueEntry> => ({
       ready: true,
-      read: { execute: async () => revenueOutcome.current },
+      read: { execute: async () => revenueOutcome.current ?? missing() },
     }),
   };
 });
@@ -89,7 +111,7 @@ function audienceDay(day: string, over: Record<string, number> = {}) {
 }
 
 async function drawAudience(
-  over: Record<string, unknown> = {},
+  over: Partial<BlogAudienceView> = {},
   article = "",
   viewport?: string,
 ): Promise<string> {
@@ -119,7 +141,7 @@ async function drawAudience(
   );
 }
 
-async function drawRevenue(over: Record<string, unknown> = {}): Promise<string> {
+async function drawRevenue(over: Partial<BlogRevenueView> = {}): Promise<string> {
   revenueOutcome.current = {
     ok: true,
     value: {

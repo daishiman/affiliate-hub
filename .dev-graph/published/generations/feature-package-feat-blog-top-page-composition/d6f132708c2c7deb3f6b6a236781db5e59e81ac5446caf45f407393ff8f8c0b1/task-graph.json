@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "parent_feature": "feat-blog-top-page-composition",
+  "nodes": [
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P01"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P02"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P03"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P04"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P06"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P07"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P08"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P09"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P10"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P11"
+      ]
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P12"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P02"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P03"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P04"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P06"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P07"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P08"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P09"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P10"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P11"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P12"
+    },
+    {
+      "type": "depends_on",
+      "from": "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+      "to": "SYS-BLOG-TOP-PAGE-COMPOSITION-P13"
+    }
+  ]
+}

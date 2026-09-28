@@ -10,6 +10,13 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+/*
+  取りまとめ (`@/domain/blogops`) 経由にしない。あの index は 17 個を再輸出するので、
+  定数 1 つのために本文の記法・自動生成の代替図版・記事一覧の並べ替えまで
+  引き込む。表の定義は cron の入口から手が届く場所にあるため、引いた分は
+  Worker の中にもう 1 部増える（`tests/architecture/worker-entry-weight.test.ts`）。
+  `@/domain/distribution` も同じ理由で分けて引く。
+*/
 import { CHANNEL_CAPABILITIES, type ChannelKind } from "@/domain/distribution/channel";
 import { PUBLICATION_STATES, type PublicationState } from "@/domain/distribution/publication";
 import { ARTICLE_TEMPLATES } from "@/domain/blogops/blog-article";
@@ -931,9 +938,26 @@ export const publishedArticles = sqliteTable(
     authorName: text("author_name").notNull(),
     publishedAt: text("published_at").notNull(),
     updatedAt: text("updated_at").notNull(),
+    /** 実作成日時。不明な既存行はNULLのまま。公開日時から補わない。 */
+    createdAt: text("created_at"),
+    /** 全公開更新経路でtriggerが進めるCAS版。 */
+    revision: integer("revision").notNull().default(1),
     /** 非公開にした時刻。NULL だけが読者画面に出る。 */
     archivedAt: text("archived_at"),
     articleJson: text("article_json").notNull(),
+    /**
+     * 検索の索引に載せる本文（`searchableTextOf` が作る）。
+     *
+     * `article_json` から導ける値をあえて列に出している。**導出の規則が
+     * SQL では書けない**からである。何が「読者に読まれる文」かは記事の形を
+     * 知っている層にしか判断できず、trigger から `json_tree` で拾うと
+     * slug も URL も索引に混ざる（`searchable-text.ts` の説明）。
+     *
+     * 全文検索の仮想表（`published_article_search`）はこの列だけを見る。
+     * 列を書けば索引も追従するように trigger を張ってあるので、
+     * 書き込み経路が増えても索引の更新を忘れることはない。
+     */
+    searchText: text("search_text").notNull().default(""),
   },
   (t) => [
     primaryKey({ columns: [t.siteSlug, t.slug] }),
@@ -945,6 +969,18 @@ export const publishedArticles = sqliteTable(
       .on(t.sourceArticleId)
       .where(sql`${t.sourceArticleId} is not null`),
   ],
+);
+
+/** 公開行を取り下げても保持するURL単位の版。再公開時の古い画面の上書きを防ぐ。 */
+export const publishedArticleRevisionCounters = sqliteTable(
+  "published_article_revision_counter",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    slug: text("slug").notNull(),
+    revision: integer("revision").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.siteSlug, t.slug] })],
 );
 
 /**
@@ -1437,6 +1473,8 @@ export const contentVariants = sqliteTable(
     generationPromptVersion: text("generation_prompt_version").notNull(),
     modelId: text("model_id").notNull(),
     status: text("status", { enum: CONTENT_VARIANT_STATUS_VALUES }).notNull(),
+    /** 初回保存で確定する実作成日時。移行前の不明行はNULL。 */
+    createdAt: integer("created_at", { mode: "timestamp" }),
     /** 本文・表記・根拠などContentVariant本体を保存するたびに単調増加する版。 */
     revision: integer("revision").notNull().default(1),
     /** 進行の現在地。正本は domain/authoring/content-state.ts の `CONTENT_STATES`。 */
@@ -2715,6 +2753,31 @@ export const blogLayoutBands = sqliteTable(
   (t) => [uniqueIndex("blog_layout_band_unique_idx").on(t.workspaceId, t.siteSlug, t.band)],
 );
 
+/**
+ * ブログトップのおすすめ記事。
+ *
+ * 公開記事の写しではなく、運営者が選んだ URL 名と順序だけを持つ。
+ * 非公開化や投影行の削除でも intent を残し、同じ URL の再公開時に復帰させるため、
+ * `published_articles` への物理 FK は持たない。新規行の整合は migration の trigger が守る。
+ */
+export const blogHomeFeaturedArticles = sqliteTable(
+  "blog_home_featured_article",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    position: integer("position").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.siteSlug, t.articleSlug] }),
+    uniqueIndex("blog_home_featured_article_position_idx").on(
+      t.workspaceId,
+      t.siteSlug,
+      t.position,
+    ),
+  ],
+);
+
 /** 記事本文の部品列 (§3.3)。 */
 export const blogArticleBlocks = sqliteTable(
   "blog_article_block",
@@ -2732,6 +2795,54 @@ export const blogArticleBlocks = sqliteTable(
     index("blog_article_block_article_idx").on(t.articleId, t.position),
     index("blog_article_block_workspace_idx").on(t.workspaceId, t.articleId, t.position),
   ],
+);
+
+/**
+ * 記事に添えるサムネイルのうち、**運営者が自分で上げた 1 枚**。
+ *
+ * ==========================================================================
+ * なぜ記事 1 件に 1 行なのか
+ * ==========================================================================
+ *
+ * サムネイルの候補は 4 つある（アップロード / アイキャッチ / 本文先頭 /
+ * 代替図版）が、そのうち**この表が持つのは第 1 候補だけ**である。残り 3 つは
+ * 本文から導けるので保存しない。優先順位は `resolveThumbnail` の担当で、
+ * この表は「上げた絵があるか」しか答えない。
+ *
+ * 差し替えは行の書き換え（`object_key` が新しい世代を指す）。古い世代の絵は
+ * 参照が外れた時点で R2 から消す。**鍵は組み直さず、ここに置いたものを使う** ─
+ * 記事の URL 名を変えると組み直した鍵は置いたときと変わり、消しに行っても
+ * 空振りするため（`domain/blogops/thumbnail-asset.ts` の説明）。
+ */
+export const blogArticleThumbnails = sqliteTable(
+  "blog_article_thumbnail",
+  {
+    /** 記事 1 件に 1 行。記事が消えれば行も消える。 */
+    articleId: text("article_id")
+      .primaryKey()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    /** 親記事の作業場所の写し。この表だけを読む 1 本でも他所の行に触れない。 */
+    workspaceId: text("workspace_id").notNull().default(""),
+    /** R2 の原本の鍵。**置いたときの形をそのまま持つ（組み直さない）。** */
+    objectKey: text("object_key").notNull(),
+    mimeType: text("mime_type").notNull(),
+    /** 原本のバイト数。上限の見直しと、置き場の使用量を数えるため。 */
+    byteLength: integer("byte_length").notNull().default(0),
+    /**
+     * 実際に置けた派生の幅（`[320,640,1280]` の JSON 配列）。
+     *
+     * 派生を作るのは投稿する側のブラウザなので、**全部が揃うとは限らない**
+     * （古い端末・大きすぎる原本）。揃っていない幅を `srcset` に並べると
+     * 404 になるので、置けたものだけを記録する。
+     */
+    derivedWidths: text("derived_widths").notNull().default("[]"),
+    /** 運営者が書いた代替テキスト。空なら記事の題名から作る。 */
+    altText: text("alt_text").notNull().default(""),
+    uploadedAt: integer("uploaded_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("blog_article_thumbnail_workspace_idx").on(t.workspaceId, t.articleId)],
 );
 
 /** ブランドタグ (§3.4 の brand-tag-cloud)。 */
@@ -2850,6 +2961,365 @@ export const blogArticleRatings = sqliteTable(
     index("blog_article_rating_workspace_idx").on(t.workspaceId, t.articleId),
   ],
 );
+
+/* ==========================================================================
+   SEO / AEO の計測ループ（feat-seo-aeo-measurement-loop）
+   ========================================================================== */
+
+/**
+ * 3 系統から集めた所見。
+ *
+ * ==========================================================================
+ * なぜ「同じ所見」を上書きするのか
+ * ==========================================================================
+ *
+ * 同じページの同じ規則違反は、収集のたびに何度でも出る。毎回積むと、
+ * 直していない 1 件が 30 行になり、**件数が「どれだけ放置したか」を
+ * 表すようになる。** 運営者が見たいのは「いま直すべきことが何件あるか」なので、
+ * (ページ, 規則) を鍵に上書きし、`observedAt` で最後に見た時刻を持つ。
+ *
+ * 直ったら行を消す。消えたことが「直った」の意味になる。
+ * 履歴が要る場面は反映ログ（`seo_auto_apply_log`）が持っており、
+ * そちらは積む。**所見は今の姿、反映ログは起きたこと**という分け方。
+ */
+export const seoFindings = sqliteTable(
+  "seo_finding",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    /** 3 系統を突き合わせる鍵（`pageKeyOf` が作る）。 */
+    pageKey: text("page_key").notNull(),
+    /** この所見がどのページの記事についてか。記事が無いページ（一覧など）は null。 */
+    articleSlug: text("article_slug"),
+    source: text("source").notNull(),
+    code: text("code").notNull(),
+    detail: text("detail").notNull().default(""),
+    observedAt: integer("observed_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /**
+     * この所見を根拠に反映した時刻。まだなら null。
+     *
+     * 「未反映の所見が増え続けている」（NFR6）は、この列が null のまま
+     * 古い行が残ることとして数える。
+     */
+    appliedAt: integer("applied_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    /*
+      作業場所を先頭に置く。`(page_key, code)` だけで一意にすると、
+      **別の作業場所の行と衝突する**。衝突すると `onConflictDoUpdate` が
+      他所の所見を書き換えるので、これは「索引の形」ではなく境界の話である。
+    */
+    uniqueIndex("seo_finding_page_code_idx").on(t.workspaceId, t.pageKey, t.code),
+    index("seo_finding_site_idx").on(t.workspaceId, t.siteSlug, t.source),
+    index("seo_finding_unapplied_idx").on(t.workspaceId, t.appliedAt, t.observedAt),
+  ],
+);
+
+/**
+ * 自動反映 1 回分の記録（NFR1・NFR3・NFR7）。
+ *
+ * ==========================================================================
+ * 変更前を丸ごと持つ
+ * ==========================================================================
+ *
+ * `snapshotJson` に反映前の記事をまるごと入れる。欄ごとの差分ではなく
+ * 全体を持つのは、戻すときに**組み立て直さなくてよい**ようにするためである。
+ * 差分から戻す作りは、差分の作り方を直した日に過去の記録が戻せなくなる。
+ *
+ * `diffSummary` は人が読むための説明で、**戻すのには使わない。**
+ * 戻すのに使う値と見せるための値を同じ列に持たせると、
+ * 表示を読みやすくした拍子に復元が壊れる。
+ */
+export const seoAutoApplyLogs = sqliteTable(
+  "seo_auto_apply_log",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    pageKey: text("page_key").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    /** 反映の根拠にした所見の `code` を並べたもの（JSON 配列）。 */
+    justifiedByJson: text("justified_by_json").notNull().default("[]"),
+    /** 反映前の記事まるごと。**これが戻す唯一の元。** */
+    snapshotJson: text("snapshot_json").notNull(),
+    /** 承認後の公開版と本文。旧履歴はNULLなのでCAS取消しない。 */
+    afterRevision: integer("after_revision"),
+    afterArticleJson: text("after_article_json"),
+    /** 編集元の復元に必要なtitle/lead/updatedAtと版。本文やタグは変更しない。 */
+    sourceSnapshotJson: text("source_snapshot_json"),
+    sourceAfterRevision: integer("source_after_revision"),
+    approvedBy: text("approved_by"),
+    revertedBy: text("reverted_by"),
+    /** 何が変わったかの説明（人が読む）。 */
+    diffSummary: text("diff_summary").notNull().default(""),
+    appliedAt: integer("applied_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    /**
+     * 取り消した時刻。取り消しても**行は消さない**。
+     *
+     * 消すと「反映して戻した」と「最初から反映していない」が同じ形になる。
+     * 運営者が「勝手に変わった」と言うとき、確かめる先がここしか無い。
+     */
+    revertedAt: integer("reverted_at", { mode: "timestamp" }),
+    /** 運営者へ通知を出した時刻（NFR3）。出せていない行が見えるように残す。 */
+    notifiedAt: integer("notified_at", { mode: "timestamp" }),
+  },
+  (t) => [
+    index("seo_auto_apply_log_page_idx").on(t.pageKey, t.appliedAt),
+    index("seo_auto_apply_log_site_idx").on(t.workspaceId, t.siteSlug, t.appliedAt),
+  ],
+);
+
+/**
+ * 系統ごとの最後の収集時刻（NFR6）。
+ *
+ * 系統は 3 つしかないので、行は作業場所ごとに最大 3 行。
+ * 収集の成否ではなく**最後に成功した時刻**を持つ。失敗が記録されないまま
+ * 止まる壊れ方（呼び出し自体が起きない）でも、この列は動かなくなる。
+ */
+export const seoSourceCollections = sqliteTable(
+  "seo_source_collection",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    source: text("source").notNull(),
+    lastCollectedAt: integer("last_collected_at", { mode: "timestamp" }),
+    /** 直近の失敗の理由。成功したら空にする（A8）。 */
+    lastFailureReason: text("last_failure_reason").notNull().default(""),
+    lastFailedAt: integer("last_failed_at", { mode: "timestamp" }),
+  },
+  (t) => [uniqueIndex("seo_source_collection_idx").on(t.workspaceId, t.source)],
+);
+
+/**
+ * 計測ループの設定（NFR2・NFR4・NFR9）。作業場所ごとに 1 行。
+ *
+ * `introducedAt` は**この仕組みを入れた時刻**で、自動反映の対象範囲を
+ * 決める境界になる（NFR2）。運営が変えられる値にしない —— 後ろへ動かせば
+ * 導入前の記事まで自動反映の対象になり、「触っていない記事が勝手に変わった」
+ * が起きる。行を作るときに 1 度だけ入れる。
+ */
+export const seoMeasurementSettings = sqliteTable("seo_measurement_setting", {
+  workspaceId: text("workspace_id").primaryKey(),
+  introducedAt: integer("introduced_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  /** 自動反映を止めているか（NFR4）。止めても収集と提示は続く。 */
+  autoApplyPaused: integer("auto_apply_paused", { mode: "boolean" }).notNull().default(false),
+  pausedAt: integer("paused_at", { mode: "timestamp" }),
+  resumedAt: integer("resumed_at", { mode: "timestamp" }),
+  /** 被引用チェックの 1 回あたりの上限（NFR9）。0 なら系統③を使わない。 */
+  citationCheckLimit: integer("citation_check_limit").notNull().default(50),
+  /** 全ブログ共有の月次 web 検索回数。未設定なら費用が出る問い合わせを始めない。 */
+  citationMonthlySearchLimit: integer("citation_monthly_search_limit"),
+});
+
+/** AI 被引用チェックの検索回数台帳。UTC月・siteで分け、workspace総枠もSUMで守る。 */
+export const seoAiCitationMonthlyUsages = sqliteTable(
+  "seo_ai_citation_monthly_usage",
+  {
+    workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+    monthKey: text("month_key").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    usedSearches: integer("used_searches").notNull().default(0),
+    unconfirmedSearches: integer("unconfirmed_searches").notNull().default(0),
+    reservedSearches: integer("reserved_searches").notNull().default(0),
+    leaseId: text("lease_id"),
+    leaseAt: integer("lease_at", { mode: "timestamp" }),
+    revision: integer("revision").notNull().default(1),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.monthKey, t.siteSlug] }),
+    index("seo_ai_citation_monthly_total_idx").on(t.workspaceId, t.monthKey),
+  ],
+);
+
+/** 成否と別の巡回記録。失敗ページだけで毎回の上限を使い切らないために持つ。 */
+export const seoAiCitationAttempts = sqliteTable(
+  "seo_ai_citation_attempt",
+  {
+    workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug").notNull(),
+    pageKey: text("page_key").notNull(),
+    lastAttemptedAt: integer("last_attempted_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.siteSlug, t.articleSlug] }),
+    index("seo_ai_citation_attempt_order_idx").on(t.workspaceId, t.siteSlug, t.lastAttemptedAt),
+  ],
+);
+
+/**
+ * ページごとの実績（系統②）。**推移を見るために積む。**
+ *
+ * 所見と違って上書きしないのは、順位や押された率は「いまの値」より
+ * 「動いたかどうか」に意味があるためである。1 日 1 行。
+ */
+export const seoPageMetrics = sqliteTable(
+  "seo_page_metric",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    pageKey: text("page_key").notNull(),
+    /** 実績の対象日（YYYY-MM-DD）。取得日ではない。 */
+    metricDate: text("metric_date").notNull(),
+    impressions: integer("impressions").notNull().default(0),
+    clicks: integer("clicks").notNull().default(0),
+    /** 掲載順位。小数なので実数で持つ。 */
+    position: real("position").notNull().default(0),
+    /** false の数値列は互換保存用。公開 read model では未観測の null として返す。 */
+    searchConsoleObserved: integer("search_console_observed", { mode: "boolean" }).notNull().default(true),
+    /** 古い取得の後着で実績を巻き戻さないための取得時刻。 */
+    searchConsoleCollectedAt: integer("search_console_collected_at", { mode: "timestamp" }),
+    /** 日ごとの最新AIチェックの引用あり=1/なし=0。未確認日は null。 */
+    aiCitations: integer("ai_citations"),
+  },
+  (t) => [
+    // 作業場所を先頭に置く理由は `seo_finding_page_code_idx` と同じ。
+    uniqueIndex("seo_page_metric_idx").on(t.workspaceId, t.pageKey, t.metricDate),
+  ],
+);
+
+/** Search Console の検索語別明細。API の表記を加工せず保持する。 */
+export const seoSearchQueryMetrics = sqliteTable(
+  "seo_search_query_metric",
+  {
+    id: text("id").primaryKey(),
+    /** 未完成 run は保存されても、sync の activeRunId が指すまで read されない。 */
+    runId: text("run_id").notNull(),
+    workspaceId: text("workspace_id").notNull().references(() => workspaces.id),
+    siteSlug: text("site_slug").notNull(),
+    pageKey: text("page_key").notNull(),
+    metricDate: text("metric_date").notNull(),
+    query: text("query").notNull(),
+    impressions: integer("impressions").notNull(),
+    clicks: integer("clicks").notNull(),
+    position: real("position").notNull(),
+    collectedAt: integer("collected_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("seo_search_query_metric_identity_idx")
+      .on(t.runId, t.workspaceId, t.siteSlug, t.pageKey, t.metricDate, t.query),
+    index("seo_search_query_metric_read_idx")
+      .on(t.workspaceId, t.siteSlug, t.pageKey, t.metricDate),
+    index("seo_search_query_metric_cleanup_idx")
+      .on(t.workspaceId, t.collectedAt),
+  ],
+);
+
+/** 25,000 行ごとの続きと完成 snapshot の状態。 */
+export const seoSearchQuerySyncs = sqliteTable(
+  "seo_search_query_sync",
+  {
+    workspaceId: text("workspace_id").notNull().references(() => workspaces.id),
+    siteSlug: text("site_slug").notNull(),
+    metricDate: text("metric_date").notNull(),
+    /** 現在読者へ見せる完成 run。初回の収集中は null。 */
+    activeRunId: text("active_run_id"),
+    /** 現在表示中の完了分に属する情報。再取得開始・途中保存では変更しない。 */
+    activeMayBeLimited: integer("active_may_be_limited", { mode: "boolean" }),
+    activeCompletedAt: integer("active_completed_at", { mode: "timestamp" }),
+    /** 収集中、または最後に完成した run。 */
+    runId: text("run_id").notNull(),
+    status: text("status", { enum: ["collecting", "complete"] }).notNull(),
+    nextStartRow: integer("next_start_row").notNull().default(0),
+    revision: integer("revision").notNull().default(1),
+    mayBeLimited: integer("may_be_limited", { mode: "boolean" }).notNull().default(false),
+    startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.siteSlug, t.metricDate] }),
+    index("seo_search_query_sync_next_idx").on(t.workspaceId, t.siteSlug, t.status, t.updatedAt),
+  ],
+);
+
+/** 問題所見と観測履歴は別。所見ゼロでも次回は別の記事へ巡回する。 */
+export const seoPageObservations = sqliteTable(
+  "seo_page_observation",
+  {
+    workspaceId: text("workspace_id").notNull(),
+    siteSlug: text("site_slug").notNull(),
+    articleSlug: text("article_slug"),
+    pageKey: text("page_key").notNull(),
+    source: text("source").notNull(),
+    lastCollectedAt: integer("last_collected_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.pageKey, t.source] }),
+    index("seo_page_observation_rotation_idx").on(t.workspaceId, t.siteSlug, t.source, t.articleSlug, t.lastCollectedAt),
+  ],
+);
+
+/** site 全体の所見置換を、古い収集の後着から守る CAS cursor。 */
+export const seoFindingSiteSnapshots = sqliteTable(
+  "seo_finding_site_snapshot",
+  {
+    workspaceId: text("workspace_id").notNull().references(() => workspaces.id),
+    siteSlug: text("site_slug").notNull(),
+    source: text("source").notNull(),
+    lastCollectedAt: integer("last_collected_at", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.siteSlug, t.source] })],
+);
+
+/** 静的監査の現在世代。実行権と完了所見を同じ確定単位で切り替える。 */
+export const seoStaticAuditScans = sqliteTable("seo_static_audit_scan", {
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  siteSlug: text("site_slug").notNull(),
+  runId: text("run_id").notNull(),
+  revision: integer("revision").notNull().default(1),
+  inventoryHash: text("inventory_hash").notNull(),
+  status: text("status", { enum: ["collecting", "ready", "published", "limited"] }).notNull(),
+  inventoryComplete: integer("inventory_complete", { mode: "boolean" }).notNull(),
+  total: integer("total").notNull(),
+  nextPosition: integer("next_position").notNull().default(0),
+  leaseId: text("lease_id"),
+  leaseExpiresAt: integer("lease_expires_at", { mode: "timestamp_ms" }),
+  leaseTargetsJson: text("lease_targets_json"),
+  startedAt: integer("started_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  completedAt: integer("completed_at", { mode: "timestamp_ms" }),
+  lastCompletedAt: integer("last_completed_at", { mode: "timestamp_ms" }),
+}, (t) => [primaryKey({ columns: [t.workspaceId, t.siteSlug] })]);
+
+/** HTML本文ではなく、世代に束縛した有限の観測事実と最新試行だけを保持する。 */
+export const seoStaticAuditTargets = sqliteTable("seo_static_audit_target", {
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  siteSlug: text("site_slug").notNull(),
+  runId: text("run_id").notNull(),
+  pageKey: text("page_key").notNull(),
+  url: text("url").notNull(),
+  articleSlug: text("article_slug"),
+  position: integer("position").notNull(),
+  targetUpdatedAt: integer("target_updated_at", { mode: "timestamp_ms" }),
+  lastAttemptAt: integer("last_attempt_at", { mode: "timestamp_ms" }),
+  lastSuccessAt: integer("last_success_at", { mode: "timestamp_ms" }),
+  lastFailureAt: integer("last_failure_at", { mode: "timestamp_ms" }),
+  failureCode: text("failure_code"),
+  observationJson: text("observation_json"),
+}, (t) => [
+  primaryKey({ columns: [t.workspaceId, t.siteSlug, t.runId, t.pageKey] }),
+  index("seo_static_audit_target_order_idx").on(t.workspaceId, t.siteSlug, t.runId, t.position),
+]);
+
+export type SeoStaticAuditScanRow = typeof seoStaticAuditScans.$inferSelect;
+export type SeoStaticAuditTargetRow = typeof seoStaticAuditTargets.$inferSelect;
+
+export type SeoFindingRow = typeof seoFindings.$inferSelect;
+export type SeoAutoApplyLogRow = typeof seoAutoApplyLogs.$inferSelect;
+export type SeoSourceCollectionRow = typeof seoSourceCollections.$inferSelect;
+export type SeoMeasurementSettingRow = typeof seoMeasurementSettings.$inferSelect;
+export type SeoAiCitationMonthlyUsageRow = typeof seoAiCitationMonthlyUsages.$inferSelect;
+export type SeoPageMetricRow = typeof seoPageMetrics.$inferSelect;
+export type SeoSearchQueryMetricRow = typeof seoSearchQueryMetrics.$inferSelect;
+export type SeoSearchQuerySyncRow = typeof seoSearchQuerySyncs.$inferSelect;
 
 /**
  * ブログの住所 (住所層)。
@@ -3388,6 +3858,7 @@ export type AiSearchReauditRunRow = typeof aiSearchReauditRuns.$inferSelect;
 export type SiteNetworkNodeRow = typeof siteNetworkNodes.$inferSelect;
 export type BlogLayoutSlotRow = typeof blogLayoutSlots.$inferSelect;
 export type BlogLayoutBandRow = typeof blogLayoutBands.$inferSelect;
+export type BlogHomeFeaturedArticleRow = typeof blogHomeFeaturedArticles.$inferSelect;
 export type BlogArticleRow = typeof articles.$inferSelect;
 export type BlogArticleBlockRow = typeof blogArticleBlocks.$inferSelect;
 export type BlogTagRow = typeof blogTags.$inferSelect;

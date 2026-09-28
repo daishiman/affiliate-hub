@@ -12,7 +12,7 @@ iteration: null
 title: "受入・品質証跡の集約と検証可能性の確保"
 owners: ["daishiman"]
 created_at: "2026-09-04T02:37:00Z"
-updated_at: "2026-09-04T08:28:11Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-SEO-AEO-GAP-CLOSURE-P07","SYS-SEO-AEO-GAP-CLOSURE-P09"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-04T08:28:11Z","evidence_refs":["beads:ah-f60p.11"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-04T02:17:16Z","missing_sections":[],"status":"complete"}
 ---
 

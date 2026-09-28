@@ -37,9 +37,14 @@ const catalog = (models: Record<string, (typeof MODEL)[]>): LlmProviderCatalogPo
   listModels: async (providerId) => ok(models[providerId] ?? []),
 });
 
-const vault = {
-  useKey: async <T>(input: { fn: (apiKey: string) => Promise<T> }) => ok(await input.fn(API_KEY)),
-} as unknown as LlmKeyAccess;
+/*
+  鍵の受け渡し口。正本の `useKey` は作業場所と提供元も受け取る——どの鍵を
+  使ったかを記録に残せるようにするためである。以前はここで `fn` だけを取る
+  形を `as unknown as` で名乗らせており、正本が引数を増やしても黙っていた。
+*/
+const vault: LlmKeyAccess = {
+  useKey: async (input) => ok(await input.fn(API_KEY)),
+};
 
 function fakeUsage(): { port: LlmUsageRecorder; entries: LlmUsageEntry[] } {
   const entries: LlmUsageEntry[] = [];
@@ -167,6 +172,7 @@ describe("疎通確認", () => {
       listProviders: async () => ok([]),
       listModels: async () => ({
         ok: false as const,
+        // 断り方の形を痩せさせて渡す表明。受け側が形を確かめるかを見る。
         error: { code: "VALIDATION_FAILED", message: "設定が壊れています。" } as never,
       }),
     };

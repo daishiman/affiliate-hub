@@ -15,7 +15,7 @@ serves_goals: [G1, G2, G3]
 
 | プラットフォーム | 状態 | 根拠 |
 |---|---|---|
-| Web (web) | 確定 | 確定質疑: qa-frontend-web-site-scoped-route-ownership。裏付け質疑 (`qa_refs`): `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
+| Web (web) | 確定 | 確定質疑: qa-frontend-web-site-scoped-route-ownership。裏付け質疑 (`qa_refs`): `qa-seo-apply-approval-mode-20260910`, `qa-seo-performance-presentation-20260910`, `qa-frontend-web-editor-verbatim`, `qa-frontend-web-blog-scoped-admin`, `qa-frontend-web-blog-composition-visibility`, `qa-frontend-web-capture-self-occlusion`, `qa-frontend-web-affiliate-link-preview-v3`, `qa-frontend-web-seo-ai-search-v2`, `qa-frontend-web-blog-builder`, `qa-frontend-web-spec-intake`, `qa-frontend-web`, `qa-frontend-web-analytics`, `qa-frontend-web-overhaul-v2`, `qa-frontend-web-aeo-emission-v4`, `qa-frontend-web-fixed-header-seo-aio-v6`, `qa-neutral-aio-policy-v7`, `qa-neutral-ai-surface-v6`, `qa-neutral-ogp-fallback-v6`, `qa-request-thumbnail-coverage-v6` — 本章の「確定内容 (質疑録)」へ接地根拠として併記 |
 | モバイル (mobile) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | タブレット (tablet) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
 | デスクトップ (Windows) (desktop-windows) | 対象外 | 理由: Web 以外を対象外にした帰結として、断片の描画部品を React 以外の描画系 (SwiftUI / Compose / デスクトップ) へ移植する必要がない。19 種の断片に対する描画部品の正本を 1 系統に留められる。 |
@@ -59,6 +59,18 @@ serves_goals: [G1, G2, G3]
 **質問**: frontend×web: ブログ単位へ移す画面の URL 階層をどう決め、いまの横断 URL (/admin/content/*, /admin/blog/*) からの移行をどう扱うか
 
 **回答**: /admin/sites/[site]/ を正本の階層とし、記事・読者像・書き方の決め事もこの配下へ置く。ブログを特定しない画面 (ブログ一覧・ブログ間比較) だけが /admin/sites とその上位に残る。既存の /admin/content/* と /admin/blog/* は消さずに転送で受け、ブログが特定できる場合は対応する /admin/sites/[site]/... へ、特定できない場合はブログ選択へ送る。既存の入口を突然消すと、書き手が覚えている経路と保存済みのリンクが一斉に死ぬためである。site セグメントが解決できないときは notFound とし、他ブログの内容を出さない。画面には『いまどのブログを見ているか』を常に出し、ブログの切替は同じ画面のまま別ブログへ移れる形にする
+
+### qa-seo-apply-approval-mode-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 検索最適化の分析結果を記事へ反映するとき、運営者の承認は必要ですか。(a) 自動反映＋事後通知 — 機械が反映し、あとから通知する。差分履歴を必ず残し、1 操作で元へ戻せることを条件にする。(b) 承認してから反映 — 運営者が差分を確認し、承認した対象だけ反映する。(c) 表示するだけ — 反映する仕組みを作らない。（2026-09-10 AskUserQuestion『反映の承認』。独立監査 C06 が qa-seo-approved-diff-20260906 を 5 論点の束ね質疑と指摘したため、論点を 1 つずつ分けて問い直した 5 件のうちの 1 件目。推奨は (a) を示したが、これは 2026-09-03 の対等提示で選ばれた決定と一致させるためであり、3 案は対等に並べた）
+
+**回答**: 自動反映＋事後通知（推奨）
+
+### qa-seo-performance-presentation-20260910 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 検索の実績（クリック数など）を画面でどう見せますか。(a) 時刻付きの推移として見せる — 選んだブログ・記事と同じページの観測時刻つきの推移につなぐ。クリック数が増減しただけで「この変更のおかげ／せい」とは書かない。(b) 変更の効果として見せる — 反映の前後でクリック数を比較し、効果として表示する。（2026-09-10 AskUserQuestion『実績の見せ方』。qa-seo-approved-diff-20260906 の束ねを解いた 5 件のうちの 5 件目）
+
+**回答**: 時刻付きの推移として見せる（推奨）
 
 ### qa-frontend-web-editor-verbatim (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
 
@@ -201,6 +213,36 @@ serves_goals: [G1, G2, G3]
 公開済み記事1本ごとに、上記のうち検証可能な項目の充足を判定する純粋関数を置く。判定は記事の保存実体だけを入力とし、外部の順位データや推測を混ぜない。判定結果は項目名・該当箇所・不足理由を持ち、管理画面のエディターへそのまま差し戻せる形で返す。アーキテクチャテストで、この判定関数が読者向け描画と同じ投影を読んでいることを機械が確認する。
 
 - (注記: 正本 qa_log[qa-frontend-web-aeo-emission-v4].answer が見出しを含むため、章の階層を守ってコンパイラが深い階層へ押し下げた。文字は変えていない)
+
+### qa-frontend-web-fixed-header-seo-aio-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: frontend×web: 追従ヘッダー・サムネイル・構造化データ・AI 向け表現物 (llms-full.txt と WebMCP) を、画面の側の要件としてどう書き分けるか。直前の qa-frontend-web-fixed-header-seo-aio-v5 は AI 向けの出力を目次のみ (llms.txt) として要件化していたが、2026-09-03 の対等提示による再確認で全文提供へ変わり、さらに WebMCP が加わったため差し替える
+
+**回答**: （対等提示での再確認）２で、webmcpとか使えばいい？／llms-full.txt ＋ WebMCP の両方／自動生成のOGP画像で埋める／各画面のサムネイルを表示するようにしておいてくださいね。トップ画面にはサムネイルを表示するようにもしておいてください。
+
+### qa-neutral-aio-policy-v7 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: AI 検索（AIO）へ向けて、記事の内容をどこまで出しますか。(a) 目次のみ（llms.txt）＋AI学習は許可 — 題名・URL・短い説明だけを出す。【利点】本文は自サイトへ読みに来てもらう形が保たれ、流入が維持される。出す情報が少ないので生成の経路も軽い。後から全文へ広げる余地が残る。【懸念】AI 検索面が本文を引用しにくく、被引用の機会は全文提供より減る。学習許可により自分の文章は学習に使われる。(b) 全文（llms-full.txt）まで出す — 【利点】AI 検索面が本文を引用しやすく、被引用の機会が最も多い。AI 経由の可視性が最大になる。【懸念】本文が自サイトの外で読めてしまうため流入は減りうる。一度出した本文は取り消せない。(c) 何も出さず AI 学習も拒否 — AI 向けの表現物を作らない。【利点】実装コストがゼロで、生成・更新・混入事故の面倒が一切生じない。自分の文章が学習にも引用にも使われず、著作物の管理が手元に完全に残る。読者は必ず自サイトへ来る。【懸念】AI 検索経由の可視性は得られない。今後 AI 検索の比重が上がった場合、後から方針を変えても失った期間は取り戻せない。（2026-09-04 AskUserQuestion『AIO方針』。独立監査 C06 が qa-neutral-aio-policy-v6 の質問文自体を『(a)(b) は「利点＋懸念」の対称構成なのに (c) だけ肯定的な言い回しが一切なく、実装コストがゼロ・学習データへの不使用というありうる利点が書かれていない。否定側の排除に類する機序として中立回答を妨げる疑いがある』と指摘したため、3 案とも「利点＋懸念」を揃えて再提示した。順序は前回と同一。利用者の選択は前回と同じ (b) で変わらなかった）
+
+**回答**: (b) 全文まで出す
+
+### qa-neutral-ai-surface-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: AI 検索への出し方はどの形にしますか。(a) llms-full.txt ＋ WebMCP の両方 — AI 検索に引用される経路と、AI エージェントに検索・記事取得を使わせる経路の両方を持つ。実装は 2 系統分増える。WebMCP はまだ新しい仕様で対応するエージェントが限られるため、効果が出るのは先になる。(b) llms-full.txt のみ — AI 検索への被引用を狙う目的に対してはこれだけで十分で、今すぐ効く。実装も静的ファイルの生成だけで済む。サイトを訪れた AI エージェントは、普通の人間と同じように画面を読むしかない。(c) WebMCP のみ — AI エージェントに対しては最も高度なことができる。ただし AI 検索のクローラは WebMCP を呼ばないので、『検索結果に引用される』という今回の目的には直接は効かない。（2026-09-03 AskUserQuestion『AIへの出し方』。利用者が qa-neutral-aio-policy-v6 の回答内で『webmcpとか使えばいい？』と逆質問したことへ、llms-full.txt は取りに来るクローラに読ませるもの・WebMCP は訪れたエージェントに操作させるもので狙う場面が別であると回答したうえで提示した）
+
+**回答**: llms-full.txt ＋ WebMCP の両方
+
+### qa-neutral-ogp-fallback-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 記事に画像が無いとき、一覧のカードをどう埋めますか。(a) 自動生成のOGP画像で埋める — カードの寸法が記事によらず一定になり、読み込み中に版面が飛ばない。外部共有時も画像が付く。生成の実装が要り、題名を直したら作り直す手当ても要る。内容を表さない画像なので実写より情報量は劣る。(b) 無地のプレースホルダを置く — 実装が最も軽く、寸法も一定に保てる。ただし全ての画像なし記事が同じ見た目になるため、一覧でカードを見分ける手がかりにならない。外部共有時の見栄えも弱い。(c) 画像枠ごと省いて高さ可変 — 無意味な画像を出さずに済み、文字情報の密度が上がる。カードの高さが記事ごとに変わるので一覧の視線の流れが乱れ、読み込み中に並びが動く。（2026-09-03 AskUserQuestion『画像不在時』。独立監査 C06 が qa-decision-ogp-fallback-v4 を推奨バッジによる誘導の疑いとして指摘したため、推奨表示を外し 3 案を対等に並べて再提示した。順序は前回と同一。利用者は前回と同じ案を選んだ）
+
+**回答**: 自動生成のOGP画像で埋める
+
+### qa-request-thumbnail-coverage-v6 (対応セル: web) — 接地根拠 (required_info/qa_refs が名指す裏付け)
+
+**質問**: 記事一覧のサムネイル表示は、どの画面を対象にしますか。（2026-09-03 利用者発話『各画面のサムネイルを表示するようにしておいてくださいね。トップ画面にはサムネイルを表示するようにもしておいてください。』を受けた要件化。発話は表示する場所を『各画面』と『トップ画面』としか述べていないため、対象の具体化はこの entry の設計適用で行い、発話が述べていない事柄を発話由来として扱わない）
+
+**回答**: 各画面のサムネイルを表示するようにしておいてくださいね。トップ画面にはサムネイルを表示するようにもしておいてください。
 
 ## 章の注記 (chapter_notes)
 
@@ -345,41 +387,25 @@ site_blueprint.theme（設計図の既定）
 
 - 正本へ入れた理由: feat-blog-ui-builder P01〜P12 の実装で確定したテーマ実装契約・コンポーネント契約・SEO/AI検索実装契約 (JSON-LD/sitemap/IndexNow/guideline_references) を、方針を上書きせず差分として正本へ記録する。章へ直接書くと compile で消えるため。
 
+### 記事カードの図版と題名リンクの読み上げ契約（2026-09-06）
+
+同じ現行契約の全文と記録理由は [記事カードの図版と題名リンクの読み上げ契約（2026-09-06）](ui-ux.md) を参照。本章にも同じ契約を適用する。
+
+### Search Console検索語内訳の管理画面表示（2026-09-08実装確認）
+
+同じ現行データ・表示契約の全文と記録理由は [Search Console検索語内訳の管理画面表示（2026-09-08実装確認）](database.md) を参照。frontendにも同じ段階表示と読取専用の契約を適用する。
+
+- 正本へ入れた理由: GSC検索語の完成snapshot・再取得状態・上限と選択記事UIを同じ意味へ同期する。旧QA・公開履歴・feature評価と全163仕様のSTALEを保持する。
+
 ### 意思決定が本章に効く形
 
-正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
-**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
-「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+- **`decision-ui-theme-implementation` が本章に効く形**: 09 §2 は「配色 × 明暗の掛け合わせを設定として持たない」と書いている。`light-dark()` は掛け合わせを CSS 側で解く仕組みそのものなので、この禁止が実装の形で担保される。Tailwind の `dark:` クラス方式だと、禁じられている掛け合わせがクラス名として現れてしまう。Tailwind は配置と余白に使い、**色だけ `light-dark()`** にする。
 
-- **`decision-ui-theme-implementation` が本章に効く形**: 09 §2 は「配色 × 明暗の
-  掛け合わせを設定として持たない」と書いている。`light-dark()` は掛け合わせを
-  CSS 側で解く仕組みそのものなので、この禁止が実装の形で担保される。Tailwind の
-  `dark:` クラス方式だと、禁じられている掛け合わせがクラス名として現れてしまう。
-  Tailwind は配置と余白に使い、**色だけ `light-dark()`** にする。
-- **`dec-structured-data-emission` が本章に効く形** (2026-09-04 確定、
-  `opt-render-time-derive`): 構造化データ (Article/BlogPosting/FAQPage/HowTo/
-  Speakable/BreadcrumbList)・canonical・OGP・robots は、**保存時に別途持たず
-  配信時に記事データから導出する**。別に持つと記事本文と構造化データが二つの
-  正本になり、本文だけ直したときに黙って食い違う。検索エンジンが読むのは
-  構造化データの側なので、この食い違いは画面上どこにも現れない。
-- 導出にする代償は 2 つあり、どちらも先に手当てする。(1) **生成関数の回帰検査を
-  実装と同時に置く** — 導出は関数 1 本に集約されるので、そこが壊れると全記事が
-  同時に壊れる。(2) **FAQPage / HowTo / Speakable が要する項目を記事データ側へ
-  先に設計する** — 見出しからの機械推定で埋めると、書き手の意図と無関係な
-  構造化データが出る。エディタ側にこれらを入力する場所を用意することが前提になる。
-
-- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+- 正本へ入れた理由: 手書きの「意思決定 (decisions)」節に在った章固有の注釈。表と件数は正本から生成するようにしたため節ごと置き換わるが、注釈は正本から導けないので移した(2026-09-08 / ah-lwmf)。
 
 ### 章の規範本文を正本から再生成しない理由
 
-`## 確定セルの記録` は 2026-09-04 から compile が正本 `matrix` / `qa_log` から描く。
-一方で **章の規範本文 (To-Be 契約表・故障モード・初期 SLO・Acceptance evidence) は
-正本から再生成しない。** その判断の根拠となる 3 つの実測 (再生成で消える 374 行 /
-正本の回答が章より古いことを示す 9 トークンの突き合わせ表 / 章と正本の `qa_ref` が
-8 件中 7 件で不一致) は `system-spec/database.md` の同じ節に 1 か所だけ書いてある。
-**本文を正本から複製すると退行する**ので、そちらを読まずに「正本に合わせる」修正をしないこと。
-
-- 正本へ入れた理由: 確定セルの記録を compile 生成へ移したため、その節の内側に手で書かれていた散文が 次の再生成で消える。散文が守っているのは「章の規範本文を正本で置き換えない」という 判断で、これは今も生きている。消えようのない場所 (正本) へ移して compile に描かせる。
+同じ現行契約の全文と記録理由は [章の規範本文を正本から再生成しない理由](auth.md) を参照。本章にも同じ契約を適用する。
 
 ### この章の要件 ID を書いたのは誰か
 
@@ -532,6 +558,31 @@ site_blueprint.theme（設計図の既定）
 
 - 正本へ入れた理由: 現行要件表を正本へ接続。旧再生成禁止 note を superseded とし、画像契約は現行実装・確定判断に同期。
 
+### 意思決定が本章に効く形
+
+正本 `decisions[]` の一覧と状態は `00-requirements-definition.md` が正本から生成する。
+**ここには表を写さない。**写した表は正本が動いても追従せず、2026-09-04 まで
+「全 7 件」と書かれたまま残った (実際には 12 件) のがその実例である。
+
+- **`decision-ui-theme-implementation` が本章に効く形**: 09 §2 は「配色 × 明暗の
+  掛け合わせを設定として持たない」と書いている。`light-dark()` は掛け合わせを
+  CSS 側で解く仕組みそのものなので、この禁止が実装の形で担保される。Tailwind の
+  `dark:` クラス方式だと、禁じられている掛け合わせがクラス名として現れてしまう。
+  Tailwind は配置と余白に使い、**色だけ `light-dark()`** にする。
+- **`dec-structured-data-emission` が本章に効く形** (2026-09-04 確定、
+  `opt-render-time-derive`): 構造化データ (Article/BlogPosting/FAQPage/HowTo/
+  Speakable/BreadcrumbList)・canonical・OGP・robots は、**保存時に別途持たず
+  配信時に記事データから導出する**。別に持つと記事本文と構造化データが二つの
+  正本になり、本文だけ直したときに黙って食い違う。検索エンジンが読むのは
+  構造化データの側なので、この食い違いは画面上どこにも現れない。
+- 導出にする代償は 2 つあり、どちらも先に手当てする。(1) **生成関数の回帰検査を
+  実装と同時に置く** — 導出は関数 1 本に集約されるので、そこが壊れると全記事が
+  同時に壊れる。(2) **FAQPage / HowTo / Speakable が要する項目を記事データ側へ
+  先に設計する** — 見出しからの機械推定で埋めると、書き手の意図と無関係な
+  構造化データが出る。エディタ側にこれらを入力する場所を用意することが前提になる。
+
+- 正本へ入れた理由: 各章の手書き意思決定表は正本 decisions[] の写しで、件数が 7 のまま古びていた。表は 00-requirements-definition.md が正本から生成するので削る。削れない章固有の突き合わせ (この決定が本章にどう効くか) を正本へ移し、compile の純関数出力として復元されるようにする。
+
 ### 実装で確定した URL 階層・転送規則・雛形複製経路 (feat-site-scoped-authoring-ia)
 
 **以下は利用者の回答ではない。** `feat-site-scoped-authoring-ia` の実装 (2026-09-08) で
@@ -614,6 +665,10 @@ route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + 
 
 - 正本へ入れた理由: P13 書き戻し: 所属替えした6route・データ層を動かさない境界・転送5本と未転送/admin/content/*の理由・複製するのは重みだけ、は実装で確定した内容で章にしか居場所が無い。利用者の逐語には足さない。
 
+### SEOの現行承認契約（2026-09-10 改定）
+
+同じ現行契約の全文と記録理由は [SEOの現行承認契約（2026-09-10 改定）](database.md) を参照。本章にも同じ契約を適用する。
+
 ## 上流指針 (doctrine anchor)
 
 | concern | authority (正本) | 導く上流原則 | 出典 |
@@ -627,10 +682,11 @@ route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + 
 
 | concern | 可否 | 引ける条項 / 引けない理由 |
 |---|---|---|
-| presentation | **条項引用不可** — 取得したが本文が無い (取得経路を変えれば可になる) | apple-hig は取得済み (retrieval-evidence/apple-hig.json, 17681 B) だが、取得物は JavaScript シェルで本文を含まない。可視テキストは 'This page requires JavaScript. Please turn on JavaScript in your browser and refresh the page to view its content.' のみ、見出し 1 件 (同文)、テキストを持つリンク 0 件。取得できているのはページの殻であって内容ではないため、引くべき条項がそもそも取得物に存在しない。 |
+| presentation | 引用可 | 第 1 章 Purpose — Make something meaningful. (https://developer.apple.com/design/human-interface-guidelines/design-principles#Purpose) / 第 2 章 Agency — Let people do things their own way. (https://developer.apple.com/design/human-interface-guidelines/design-principles#Agency) / 第 3 章 Responsibility — Act in people's best interest. (https://developer.apple.com/design/human-interface-guidelines/design-principles#Responsibility) / 第 4 章 Familiarity — Build on what people know. (https://developer.apple.com/design/human-interface-guidelines/design-principles#Familiarity) / 第 5 章 Flexibility — Adapt to diverse contexts and needs. (https://developer.apple.com/design/human-interface-guidelines/design-principles#Flexibility) / 第 6 章 Simplicity — Be clear and direct. (https://developer.apple.com/design/human-interface-guidelines/design-principles#Simplicity) / 第 7 章 Craft — Care about every detail. (https://developer.apple.com/design/human-interface-guidelines/design-principles#Craft) / 第 8 章 Delight — Make it human. (https://developer.apple.com/design/human-interface-guidelines/design-principles#Delight) |
 | application-architecture | **条項引用不可** — 取得経路が原理的に無い (この作業場所では永久に不可) | authority が書籍 (Clean Architecture, 2017) で、source_ref も URL ではなく書名と規則名の記述。fetched-references.json の取得対象 8 件のいずれでもなく、retrieval-evidence にも record が存在しない。この作業場所には書籍本文を取得する経路が無い。 |
 
-- **presentation が引用可になる条件**: JS 実行後の DOM を取得できる経路 (browser-render 等) で本文を取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得経路を変えれば塞がる穴であって、塞げない穴ではない。
+- **presentation の引用範囲**: 取得物は Design principles の記事 1 本 (機械可読 endpoint, 26295 B)。引用根拠にできるのは**この記事に実在する 8 原則の名称・一文の定義・各原則配下の詳細項目の文言**まで。HIG の他ページ (Layout, Accessibility, Typography 等) は取得していないので、そこの主張を要件文の根拠にはできない。chapter 番号は Apple が付けたものではない — 記事は 8 つの h2 を番号無しで並べているだけで、ここでの番号は取得物の並び順に付けた序数である。番号を Apple の章番号として引かないこと。
+
 - **application-architecture の反転先**: 反転先は無い。理由は難しさではなく、この作業場所が書籍本文を取得できないこと。fetched-but-no-body と not-in-fetch-targets は取得すれば塞がるが、これは塞がらない。3 種を『条項引用不可』の一語に潰すと、次に読む人が書籍を取りにいくか、取れるものを諦めるかのどちらかを必ず間違える。reason_class を消さないこと。
 
 ## 適用された設計知識
@@ -680,204 +736,8 @@ route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + 
 
 #### 本章での適用
 
-##### 確定内容 qa-frontend-web-site-scoped-route-ownership (対応セル: web)
-
-- 確定要件: /admin/sites/[site]/ を正本の階層とし、記事・読者像・書き方の決め事もこの配下へ置く。ブログを特定しない画面 (ブログ一覧・ブログ間比較) だけが /admin/sites とその上位に残る。既存の /admin/content/* と /admin/blog/* は消さずに転送で受け、ブログが特定できる場合は対応する /admin/sites/[site]/... へ、特定できない場合はブログ選択へ送る。既存の入口を突然消すと、書き手が覚えている経路と保存済みのリンクが一斉に死ぬためである。site セグメントが解決できないときは notFound とし、他ブログの内容を出さない。画面には『いまどのブログを見ているか』を常に出し、ブログの切替は同じ画面のまま別ブログへ移れる形にする
-- 設計解釈の記録経路: `dialogue`
-- 原則: URL の階層は、画面が属する対象物と一致させる (`information-design.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 画面がブログに属するなら URL もブログの下に置く。そうすると『いまどのブログか』が URL に出るので、画面の中で別途表示しなくても文脈が保たれ、リンクを共有したときも相手が同じ文脈で開く
-  - トレードオフ:
-    - ブログをまたぐ一括操作は URL 上の置き場所が無くなる。横断側に別の入口を作る必要がある
-- 原則: 移行時に既存の入口を消さず転送で受ける (`information-design.md#トレードオフ・失敗モード`)
-  - 採否: `applied`
-  - 章固有の根拠: 書き手は経路を身体で覚えており、保存済みのリンクもある。階層を変えた瞬間に旧経路を消すと、変更と無関係な作業まで止まる。転送で受ければ、覚え直しは自分のペースで進む
-  - トレードオフ:
-    - 転送を残すぶん経路が二重になり、どちらが正本かを検査で固定しないと新しい画面と古い画面が併存したまま放置される
-##### 接地根拠 qa-frontend-web-editor-verbatim (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-editor-verbatim` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: 表現物の種類は、利用者が名指しした対象を取りこぼさない集合として定める (`information-design.md`)
-  - 採否: `applied`
-  - 章固有の根拠: 逐語で名指しされた「コードブロック」「カード」「横に画像を並べる」「表形式」「色をつけたもの」を断片カタログの必須要素として取り込み、選択「断片欄を維持し、全断片を見た目へ」に従って全断片を描画部品で見せる
-  - トレードオフ:
-    - 断片の種類が増えるほど、挿入導線 (/) の一覧が長くなり探索の負荷が上がる
-    - 断片ごとに編集面と公開ページの描画一致を検証する対象が増える
-- 原則: 文字装飾は断片の種類ではなく、断片の内側の属性として持つ (`usability-accessibility.md`)
-  - 採否: `applied`
-  - 章固有の根拠: 逐語「色をつけたものを作る」を、色を独立した断片種にせず装飾属性として扱うことで、色付き文字が段落・表・カードのどこにでも置けるようにする
-  - トレードオフ:
-    - 装飾の組合せが増えるぶん、配色のコントラスト検査を装飾側で一括して持つ必要がある
-##### 接地根拠 qa-frontend-web-blog-scoped-admin (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-blog-scoped-admin` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: いま何を操作しているのかを、画面自身が示し続ける (`usability-accessibility.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: ブログの選択を画面内の絞り込みに置くと、別画面へ移った瞬間に何のブログを見ているかが消える。複数ブログを並行運営すると、これは『どのブログの記事を消したか分からない』事故に直結する。選択を URL 階層へ上げると、パンくず・戻る操作・共有した URL のすべてが対象を保つ
-  - トレードオフ:
-    - 全ブログ横断で見たい場面 (収益比較など) が別画面に分かれ、行き来が増える。単一画面で切り替える方式なら往復は減るが、いま見ている対象が曖昧になる
-- 原則: 計測が読者の体験を損なわない (`usability-accessibility.md#トレードオフ・失敗モード`)
-  - 採否: `applied`
-  - 章固有の根拠: 座標まで採ると送信回数が増える。1 イベント 1 リクエストにすると、読者の回線が細いときに記事本文の読み込みと競合する。まとめて sendBeacon で送れば、画面遷移時にも取りこぼさず、描画を待たせない
-  - トレードオフ:
-    - まとめる間に離脱すると直近ぶんが欠ける。sendBeacon は遷移時にも送るので大半は救えるが、完全ではない。取りこぼしを 0 にするには同期送信が要り、それは読者を待たせる
-##### 接地根拠 qa-frontend-web-blog-composition-visibility (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-blog-composition-visibility` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: 表示モデル — domain model (正本の意味と値) から view model への変換規則を明示し、表示層は勝手に再計算しない (`information-design.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 管理画面の構成要素一覧 (固定ページ・版面の帯・スロット・カテゴリー・記事) は、読者側と同じ public-site-projection を通して読む。記事は published_articles を唯一の canonical public projection とし、一覧・本文・検索・カテゴリー・人物・SEO・composition が同じ PublishedContentPort の identity 集合を使う。管理画面専用の数え直しや PublicBlogPort の articles 直読を残すと、『見えているのに直らない』が再発する。件数も各実体へのリンクも同じ正本から導く
-  - トレードオフ:
-    - 読者用 projection に管理画面の都合 (未公開要素の可視化) を混ぜると読者側へ漏れる危険がある。projection は共有しつつ、可視性の絞り込みは呼び出し側の権限で行う
-    - 共有するぶん、読者側の変更が管理画面を壊しうる。ずれない代わりに結合は強くなる
-    - 旧 /blog/:slug は同じ projection から articleHref の canonical URL へ 308 redirect し、既存入口を残したまま二重本文を作らない
-- 原則: 削除仮説 — 削除候補・代わりの手掛かり・誤読時の影響・検証方法・復元条件を持つ反証可能な仮説にする (`information-design.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 作成時点で公開に必要なのに無い要素は、隠さず名指しで提示し、その場へ移動できるようにする。『まだ無い』を画面から省くのは最も影響の大きい削除であり、省いた結果が今回の 404 である。不足の提示は削除候補から外す
-  - トレードオフ:
-    - 不足を全部出すと初回作成直後の画面が赤で埋まる。優先度 (公開を止めている要素か、質を下げるだけの要素か) で強さを分ける必要がある
-- 原則: Screaming architecture — top-level 構造が framework 名でなく system の use case と domain を語る (`clean-architecture.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 管理画面内のプレビューは既存の SiteFrame を通して描画し、読者用と別の描画経路を作らない。プレビュー専用のコンポーネント木を立てると『プレビューでは出るが本番では出ない』という第二の乖離を作る
-  - トレードオフ:
-    - SiteFrame は notFound() を呼ぶ前提で書かれており、管理画面の中で使うには『見つからない』の扱いを呼び出し側で受け取れる形に分ける必要がある
-##### 接地根拠 qa-frontend-web-capture-self-occlusion (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-capture-self-occlusion` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: 自己観測する UI は、観測の対象から自分自身を外す (観測器を被写体に含めない) (`user-dialogue:2026-08-30#撮影中だけ自動で隠す`)
-  - 採否: `applied`
-  - 章固有の根拠: 写しの用途は『利用者が伝えたい箇所』の提示であり、送信 UI 自身はその情報を 1 ビットも運ばない。むしろ画面の中央を占有して被写体を隠すため、写りは純粋な損失である。撮影開始 (getDisplayMedia 呼出) と、送信 UI の可視化を別の時点に分け、写しが確定するまで送信 UI を描かない。撮影開始そのものは押した勢い (transient activation) を失わないよう onClick 内に留める。
-  - トレードオフ:
-    - モーダルの出現が写しの確定まで遅れるため、押してから開くまでの体感が伸びる。写しが撮れない・断られた環境では即座に開く経路を残し、待ちが無限に伸びないようにする
-    - 『押した瞬間に開く』という既存の設計意図 (feedback-button.tsx の注記) を意図的に変更するため、変更理由をコード側にも残さないと元へ戻される
-- 原則: 本文の上に浮く操作は、記録・監査の対象になるときだけ自分を名乗り、それ以外では退く (`ref-system-design-knowledge:information-design`)
-  - 採否: `applied`
-  - 章固有の根拠: 右下固定の起動ボタンは data-floating-overlay で本文の上に居ることを名乗っている。同じ理由で、写しという記録の中では退く側に回る。名乗りと退避を同じ属性系で扱うことで、重なり監査 (tests/e2e/app-routes.spec.ts) と写しの除外規則が別々の手掛かりに分岐しない。
-  - トレードオフ:
-    - 隠す対象を属性で選ぶため、将来別の浮遊要素が増えたときに同じ属性を付け忘れると写り込みが再発する。属性の付与漏れを検査で拾う必要がある
-##### 接地根拠 qa-frontend-web-affiliate-link-preview-v3 (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-affiliate-link-preview-v3` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: 識別子ではなく判断対象そのものを先に見せ、入力と確認結果を同じ文脈に置く (`ref-system-design-knowledge:information-design`)
-  - 採否: `applied`
-  - 章固有の根拠: 現行の成果リンク受信箱はホスト名、URL、状態、商品IDの手入力を中心に表示し、リンクが指す商品を視覚的に照合できない。URL入力後は安全なサーバー取得を経て、取得元、正規URL、商品タイトル、販売元、利用可能な商品画像、価格の取得時点、既存商品候補、重複候補を一つの確認カードに表示する。画像が取得できない場合も壊れた枠にせず、取得不可の理由と手動選択を同じ位置に出す。確認前は保存可能な成果リンクとして扱わない
-  - トレードオフ:
-    - 外部URLからのメタデータ取得には遅延・失敗・画像利用条件・SSRFの危険があるため、貼り付けと同時にクライアントから直接取得せず、許可済み接続先をサーバー側で検査し、取得結果の出典と確認日時を表示する
-- 原則: 非同期処理の進行、成功、部分成功、失敗と回復手段を利用者が見失わないようにする (`ref-system-design-knowledge:usability-accessibility`)
-  - 採否: `applied`
-  - 章固有の根拠: リンク貼り付け後は解析中、確認待ち、取得済み、画像のみ未取得、重複、取得失敗を可視テキストで区別し、入力値を保持したまま再試行、手動補完、対象外を選べるようにする。保存後は保存済み時刻と掲載先件数を表示し、一覧へ戻っても同じ状態語彙を使う
-  - トレードオフ:
-    - 状態を細分化すると表示語彙が増えるため、内部状態をそのまま露出せず、利用者が次に行える操作が同じものは一つの表示状態にまとめる
-##### 接地根拠 qa-frontend-web-seo-ai-search-v2 (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-seo-ai-search-v2` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: 画面描画と機械向け出力 (JSON-LD / sitemap / RSS / llms.txt / robots) を同じ読み取りモデルから派生させる (`information-design.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 公開記事の読み取りモデル (PublishedArticle) を単一の正本にし、構造化データ・フィード・サイトマップ・llms.txt は application 層の pure 関数が文字列を生成する。Next.js の route handler は生成結果を返すだけにし、Server Component の generateMetadata も同じヘルパーから title/description/canonical/OGP を得る。これで画面と機械向け出力の食い違いを型で防ぐ
-  - トレードオフ:
-    - 全記事を列挙する読み取り口が無いため sitemap/feed は listRecent の大きな limit で代用する。記事数が上限を超えたら分割 sitemap を足す (今回の受入条件外)
-    - route handler を 4 本足すと公開ルートの台帳 (open-doors) が増える。読者の道であることを確かめて上限を上げる
-- 原則: 秘密は環境変数からだけ読み、失敗は黙らず記録する (`usability-accessibility.md#適用条件`)
-  - 採否: `applied`
-  - 章固有の根拠: IndexNow の鍵はサーバー環境変数からのみ読み、リポジトリ・管理画面・DB に保存しない。鍵が無いときは送信をスキップして『スキップした』ことを結果として返す。AI クローラ (GPTBot / ClaudeBot / PerplexityBot / Google-Extended) は robots.txt で既定許可にし、遮断するには設計図側の明示設定を要する
-  - トレードオフ:
-    - IndexNow は Google 非対応で、Bing 系 index (ChatGPT search の基盤) にだけ効く。効果は限定的だが送信コストがほぼ無いので既定 ON にする
-    - llms.txt は正式標準ではなく主要 LLM クローラが読む保証が無い。emitLlmsTxt を設計図の任意項目に留め、効果未確認であることを管理画面の説明に明記する
-##### 接地根拠 qa-frontend-web-blog-builder (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-blog-builder` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: Composite / Strategy: 宣言的 blueprint と共通コンポーネント群によるレンダリング分離 (`design-patterns.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 『ブログごとにテンプレートを元に作成』『色合いはその都度選択』を、テンプレート=セクション型カタログの合成、テーマ=デザイントークン集合の差し替えとして実装し、ハードコードの重複を書かない既存要件と整合させる
-  - トレードオフ:
-    - 任意レイアウトを許さず固定カタログに絞るため、参考ブログの細部を再現できない箇所が残る。カタログ追加は後続 feature とする
-    - light-dark() 方針により配色×明暗の掛け合わせを設定に持てないので、ページ単位上書きも色トークンのみに限定する
-##### 接地根拠 qa-frontend-web-spec-intake (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-spec-intake` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: 自動収集される項目は送信前に展開して確認できる (FB-AC-07)。画面の写しの不完全さを常に表示し、完全性を保証しない (FB-AC-09) (`docs/spec/12-改善要望フィードバック仕様.md#§5`)
-  - 採否: `applied`
-  - 章固有の根拠: 収集項目の一覧は送信処理と同じ 1 つの定義から描く。表示用に別の一覧を持つと、収集を増やしたときに表示だけ古くなる
-  - トレードオフ:
-    - モーダルの情報量が増えるが、送信者が何を送るのかを知らないまま送る状態が無くなる
-- 原則: 画像なしでも送信は成立する (FB-AC-10)。任意欄が空のとき、詳細画面では「本人からの記入はありません」と明示する (FB-AC-06) (`docs/spec/12-改善要望フィードバック仕様.md#§5`)
-  - 採否: `applied`
-  - 章固有の根拠: 画像取得の失敗を送信の失敗にしない。空欄は欄ごと消さず、記入が無かったことを文で出す。この文言が出ることをテストで固定する
-  - トレードオフ:
-    - 空欄でも要素が残るため画面はやや長くなるが、「書かれなかった」と「表示していない」を読み分けられる
-##### 接地根拠 qa-frontend-web (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: Next.js (現行リポジトリ構成) によるレスポンシブ管理画面 (`nextjs:app-router`)
-  - 採否: `applied`
-  - 章固有の根拠: PC主体+モバイル併用の利用形態(qa-uiux-web の情報設計9項目)に対しレスポンシブWebで対応する
-  - トレードオフ:
-    - ネイティブアプリ非対応のためプッシュ通知等はメール/Slack通知で代替する
-- 原則: WebMCP は機能フラグ配下の実験的追加インターフェース (`docs/spec/01-要求仕様書-v1.0.md §24.2`)
-  - 採否: `applied`
-  - 章固有の根拠: 現行PoCは navigator.modelContext をfeature detectionして使う。通常UIを主系統・WebMCPを追加系統とし、ブラウザー登録APIは製品契約として固定しない
-  - トレードオフ:
-    - 二系統の維持コストが生じるが、読み取り系ツールから段階導入して限定する
-##### 接地根拠 qa-frontend-web-analytics (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-analytics` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: 統計的規律の UI 反映: 速報と確定を区別し、ヒートマップのセルに n (サンプル数) を常時表示する (`docs/spec/03-分析・解析基盤仕様.md#§8`)
-  - 採否: `applied`
-  - 章固有の根拠: Next.js (App Router) の Server Components で D1 のロールアップを描画し、本日分は「速報」バッジ、n 不足セルは結論表示を抑制する (§7.3 の規律を UI で強制)
-  - トレードオフ:
-    - 表示ロジックが増えるが、根拠のない『勝ち宣言』を UI レベルで防げる
-- 原則: インサイト受信箱: InsightReport は確認→適用 (Brief 作成へ遷移)→却下のワークフローで人間が裁定する (`docs/spec/03-分析・解析基盤仕様.md#§8`)
-  - 採否: `applied`
-  - 章固有の根拠: 分析結果の生成への反映 (I4) は自動ではなく、受信箱 UI での人間承認を経由させる
-  - トレードオフ:
-    - 自動最適化より反映は遅くなるが、人間承認必須の制約 (U8) と整合する
-##### 接地根拠 qa-frontend-web-overhaul-v2 (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-overhaul-v2` を参照
-- 設計解釈の記録経路: `dialogue`
-- 原則: ブログ (配信先) ごとの構成をデータとして定義し、構成要素を再利用可能なコンポーネントとして組み立てる (`user-dialogue:2026-08-21#ブログ別構成コンポーネント`)
-  - 採否: `applied`
-  - 章固有の根拠: 利用者が「ブログごとにブログの構成を作成したい」「新しくブログを構築する際には、そのブログごとにコンポーネントを作成するような仕様にしたい」と明言した。ブログ=チャネルの構成 (セクション並び・記事テンプレート) を宣言的データとして持ち、レンダリングは共通コンポーネント群が担う構成にする
-  - トレードオフ:
-    - 構成の自由度を上げるほどスキーマとエディタ UI が複雑になる。初期はセクション型の固定カタログから選ぶ方式に絞り、任意レイアウトは後続にする
-- 原則: 一覧・詳細・作成・編集を分離し、各画面の主要アクションを 1 つにする (`ref-system-design-knowledge:information-design`)
-  - 採否: `applied`
-  - 章固有の根拠: 単一用途画面への分割要求 (qa-uiux-web-overhaul-v2) をフロントエンドのルーティング/画面構成として実装する。CRUD の各操作は専用画面または明示的なモーダルに分離し、破壊的操作 (削除・公開) のみ確認を挟む (本人回答の誤操作コスト境界に従う)
-  - トレードオフ:
-    - 画面数が増えるため、共通レイアウト・ナビゲーション (整理後のサイドバー) の一貫性維持が前提になる
-##### 接地根拠 qa-frontend-web-aeo-emission-v4 (対応セル: web)
-
-- 本文: 「確定内容 (質疑録)」の `qa-frontend-web-aeo-emission-v4` を参照
-- 設計解釈の記録経路: `secondary_ref_attachment` (`attach-qa-design-applications`)
-- 原則: 描画経路を二重に持たず、同じ投影を通す (`clean-architecture.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 回答は読者面と管理画面プレビューを同じ public-site-projection へ通すと定め、さらに欠落判定の純粋関数が読者向け描画と同じ投影を読んでいることをアーキテクチャテストで機械が確認すると定めている。判定と出力が別の入力を見ると『判定は緑なのに出力は欠けている』が成立してしまうため、両者を同一の投影へ束ねている
-  - トレードオフ:
-    - 投影を1本にすると、読者面だけの都合による最適化 (プレビューでは不要な処理の省略など) が入れにくくなる。判定と出力の一致を優先してこの硬さを受け入れる
-    - アーキテクチャテストという間接的な検査に依存するため、テストが緩むと二重経路が静かに復活する
-- 原則: 構造化データは、ページに実際に見えている内容と一致させる (`google-search-central:structured-data`)
-  - 採否: `applied`
-  - 章固有の根拠: 回答は『ブロックが無い記事に空の構造化データを出さない』と明記し、FAQPage は FAQ ブロックがあるとき、HowTo は手順ブロックがあるとき、Speakable は結論ブロックがあるときだけ出すと条件付けている。型の数を増やすこと自体を目的にすると、本文に無い内容を構造化データだけが主張する状態になり、公式ガイドラインが禁じている形になる
-  - トレードオフ:
-    - 条件付き出力にすることで、記事によって出る型が変わる。全記事で同じ型が揃わないため、充足度の判定は『出せるのに出していない』と『そもそも素材が無い』を区別する必要がある (解析側で対象外の3値目を持つ理由)
-    - schema.org の型と必須プロパティを検証する純粋関数を自前で持つため、仕様の更新に追従する責任がこちら側に残る。dec-guideline-registry-recheck の再確認間隔がこの追従を担う
-- 原則: 読み込み中に版面がずれない (`usability-accessibility.md#中核概念`)
-  - 採否: `applied`
-  - 章固有の根拠: 回答は画像へ width/height を必ず出すことを『読み込み中の版面ずれを防ぐ』ためと明示し、本文外画像の遅延読み込みとヒーロー画像の先読みを使い分けている。参考サイト実測では83枚中81枚が寸法指定済みで、ここは参考サイトも満たしている水準であり、下回らないことを条件にしている
-  - トレードオフ:
-    - 寸法を必ず出すには保存実体が寸法を持っている必要があり、画像を保存する時点で寸法を取得する処理が要る。取得に失敗した画像を公開できなくするか、寸法無しを許すかの判断が別途要る
-    - 広告・アフィリエイトリンクへの rel 付与を機械的に行うため、rel を付けたくない例外 (自社サイトへの内部リンクが広告枠に置かれる等) を表現する手段が要る
-- 資するゴール: G1, G2, G3
+- 本章固有の原則採否 (確定内容・接地根拠ごとの `採否` / 根拠 / トレードオフ) は [`applied/frontend.md`](applied/frontend.md) にある。
+- 章本文と別ファイルにしてあるのは、適用メモが確定セルの数だけ積み上がり、章の分量の見積もりを押し上げるためである (内容は 1 行も落としていない)。
 
 ## 最新ドキュメント出典
 
@@ -885,6 +745,8 @@ route を 1 本足せばその画面は自動的に描画と axe (WCAG 2.2 AA + 
 |---|---|---|---|---|---|
 | nextjs | 16.3.4 | Vercel (nextjs.org) | https://nextjs.org/docs | 2026-09-02T09:14:35Z | 2026-09-02T09:14:35Z |
 | mdn-light-dark | 2026-04-18 | Mozilla (developer.mozilla.org) | https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark | 2026-08-22T15:05:07Z | 2026-08-22T15:05:07Z |
+| llms-txt | 2026-08-10 | Jeremy Howard (Answer.AI) (llmstxt.org) | https://llmstxt.org/ | 2026-09-03T12:43:18Z | 2026-09-03T12:43:18Z |
+| webmcp | 2026-09-09 | W3C Web Machine Learning Community Group (webmachinelearning.github.io) | https://webmachinelearning.github.io/webmcp/ | 2026-09-10T00:00:00Z | 2026-09-10T00:00:00Z |
 | google-search-central | 2025-12-10 | Google (developers.google.com) | https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | schema-org | 30.0 | Schema.org Community Group (W3C) (schema.org) | https://schema.org/docs/releases.html | 2026-09-04T05:01:57Z | 2026-09-04T05:01:57Z |
 | web-dev-core-web-vitals | 2024-10-31 | Google (web.dev) | https://web.dev/articles/vitals | 2026-09-03T23:21:19Z | 2026-09-03T23:21:19Z |

@@ -12,7 +12,7 @@ iteration: null
 title: "日次指標テーブルと冪等集計の契約確定"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:49:24Z"
-updated_at: "2026-09-04T10:14:13Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-BLOG-METRICS-ROLLUP-P01"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-04T10:14:13Z","evidence_refs":["beads:ah-q4dt.2"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-04T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

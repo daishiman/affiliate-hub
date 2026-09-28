@@ -46,10 +46,11 @@ const article: PublishedArticle = {
 function repository() {
   let current: PublishedArticle | null = article;
   let archivedAt: string | null = null;
+  let revision = 1;
   const port: PublishedArticleAdminPort = {
     async list(workspaceId) {
       return ok(
-        workspaceId === WORKSPACE && current !== null ? [{ article: current, archivedAt }] : [],
+        workspaceId === WORKSPACE && current !== null ? [{ article: current, archivedAt, revision }] : [],
       );
     },
     async find(workspaceId, siteSlug, slug) {
@@ -58,13 +59,15 @@ function repository() {
           current !== null &&
           current.siteSlug === siteSlug &&
           current.slug === slug
-          ? { article: current, archivedAt }
+          ? { article: current, archivedAt, revision }
           : null,
       );
     },
-    async replace(workspaceId, next) {
+    async replace(workspaceId, next, expectedRevision) {
+      if (expectedRevision !== revision) return ok(false as const);
       if (workspaceId !== WORKSPACE || current === null) return ok(false as const);
       current = next;
+      revision += 1;
       return ok(true as const);
     },
     async archive(workspaceId, siteSlug, slug, at) {
@@ -77,6 +80,7 @@ function repository() {
         return ok(false as const);
       }
       archivedAt = at;
+      revision += 1;
       return ok(true as const);
     },
   };
@@ -91,6 +95,7 @@ function repositoryWith(overrides: Partial<PublishedArticleAdminPort>) {
 
 function updateInput(overrides: Partial<UpdatePublishedArticleInput> = {}): UpdatePublishedArticleInput {
   return {
+    expectedRevision: 1,
     siteSlug: article.siteSlug,
     slug: article.slug,
     title: article.title,
@@ -203,7 +208,7 @@ describe("公開済み記事の管理", () => {
     const articles = repositoryWith({
       async find(...args) {
         calls.push(args);
-        return ok({ article, archivedAt: null });
+        return ok({ article, archivedAt: null, revision: 1 });
       },
     });
     const useCase = createGetPublishedArticleUseCase({ articles });
@@ -236,6 +241,7 @@ describe("公開済み記事の管理", () => {
       now: () => new Date("2026-08-28T09:00:00.000Z"),
     });
     const result = await useCase.execute(aWriter(), {
+      expectedRevision: 1,
       siteSlug: article.siteSlug,
       slug: article.slug,
       title: "静かさを重視したノートパソコンの選び方",
@@ -266,6 +272,7 @@ describe("公開済み記事の管理", () => {
       now: () => new Date("2026-08-28T09:00:00.000Z"),
     });
     const result = await useCase.execute(aWriter(), {
+      expectedRevision: 1,
       siteSlug: article.siteSlug,
       slug: article.slug,
       title: article.title,
@@ -468,7 +475,7 @@ describe("公開済み記事の管理", () => {
     const disappeared = await createUpdatePublishedArticleUseCase(
       writeDeps(repositoryWith({ replace: async () => ok(false as const) })),
     ).execute(aWriter(), updateInput());
-    expect(disappeared).toMatchObject({ ok: false, error: { code: "NOT_FOUND" } });
+    expect(disappeared).toMatchObject({ ok: false, error: { code: "CONFLICT" } });
 
     const baseAudit = recordingAuditLog().port;
     const auditFailed = await createUpdatePublishedArticleUseCase(
@@ -640,6 +647,7 @@ describe("公開済み記事の管理", () => {
       reason: "再検証のため",
     });
     await createUpdatePublishedArticleUseCase(common).execute(aWriter(), {
+      expectedRevision: 2,
       siteSlug: article.siteSlug,
       slug: article.slug,
       title: `${article.title}（再検証中）`,
@@ -660,5 +668,20 @@ describe("公開済み記事の管理", () => {
       slug: article.slug,
     });
     expect(found.ok && found.value?.archivedAt).toBe("2026-08-28T09:00:00.000Z");
+  });
+});
+
+
+describe("別の画面で確認した古い記事を上書きしない", () => {
+  it("SEOなどの改稿後に開いたままの編集画面から保存すると競合を返す", async () => {
+    const deps = writeDeps();
+    const uc = createUpdatePublishedArticleUseCase(deps);
+    expect((await uc.execute(aWriter(), updateInput({ title: "先に確定した題名" }))).ok).toBe(true);
+    expect(await uc.execute(aWriter(), updateInput({ title: "古い画面からの題名" }))).toMatchObject({ ok: false, error: { code: "CONFLICT" } });
+    const stored = await deps.articles.find(WORKSPACE, article.siteSlug, article.slug);
+    expect(stored.ok && stored.value?.article.title).toBe("先に確定した題名");
+  });
+  it.each([0, -1, 1.5, NaN])("版 %s を確定できない", async (expectedRevision) => {
+    expect(await createUpdatePublishedArticleUseCase(writeDeps()).execute(aWriter(), updateInput({ expectedRevision }))).toMatchObject({ ok: false, error: { code: "VALIDATION_FAILED" } });
   });
 });

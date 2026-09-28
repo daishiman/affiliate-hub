@@ -147,7 +147,7 @@ const BASE: CollectorProps = {
   suppressAll: false,
 };
 
-function mount(props: Partial<CollectorProps> = {}): { unmount: () => void } {
+function mount(props: Partial<CollectorProps> = {}): { unmount: () => void; rerender: (next: Partial<CollectorProps>) => void } {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -155,6 +155,7 @@ function mount(props: Partial<CollectorProps> = {}): { unmount: () => void } {
     root.render(<TelemetryCollector {...BASE} {...props} />);
   });
   return {
+    rerender: (next) => { act(() => root.render(<TelemetryCollector {...BASE} {...props} {...next} />)); },
     unmount: () => {
       act(() => root.unmount());
     },
@@ -628,5 +629,55 @@ describe("送り方", () => {
     const { unmount } = mount();
     expect(() => unmount()).not.toThrow();
     expect(globalThis.fetch).toHaveBeenCalled();
+  });
+});
+
+describe("読者の検索結果と導線を同じ経路で計測する", () => {
+  it("成功した検索結果の件数だけを送信し、入力語とquery付きURLを送らない", async () => {
+    const { unmount } = mount({ path: "/s/sample/search?q=private", searchResult: { resultId: "private", resultCount: 0 } });
+    click(markedLink("/s/sample/search?q=private#result", { "data-tel-kind": "internal_link", "data-tel-id": "/s/sample/search?q=private#result", "data-tel-placement": "検索結果" }));
+    unmount();
+    const events = await sent();
+    expect(events.filter((e) => e.key === "search_performed")).toEqual([
+      expect.objectContaining({ payload: { siteSlug: "sample", resultCount: 0 } }),
+    ]);
+    expect(events.find((e) => e.key === "internal_link_click")?.payload.toPath).toBe("/s/sample/search");
+    expect(JSON.stringify(events)).not.toContain("private");
+  });
+
+  it("検索の送信試行や同意のない結果は成功検索として数えない", async () => {
+    const a = mount({ allowBehaviour: false, searchResult: { resultId: "query", resultCount: 4 } });
+    a.unmount();
+    const b = mount();
+    click(marked({ "data-tel-kind": "search_submit", "data-tel-id": "search" }));
+    b.unmount();
+    expect((await sent()).filter((e) => e.key === "search_performed")).toEqual([]);
+  });
+
+  it("並べ替えは選択した値を記録する", async () => {
+    const { unmount } = mount();
+    click(markedLink("/s/sample?sort=popular", { "data-tel-kind": "filter_control", "data-tel-id": "home-sort:popular" }));
+    unmount();
+    expect((await sent()).find((e) => e.key === "filter_changed")?.payload).toMatchObject({ axis: "article_sort", value: "popular" });
+  });
+});
+
+
+describe("主導線を重複して数えない", () => {
+  it("同じ検索結果の再レンダーは新しい成功表示にしない", async () => {
+    const view = mount({ searchResult: { resultId: "result-1", resultCount: 2 } });
+    view.rerender({ searchResult: { resultId: "result-1", resultCount: 2 } });
+    view.unmount();
+    expect((await sent()).filter((event) => event.key === "search_performed")).toHaveLength(1);
+  });
+
+  it("リンク内の画像を押しても、親のリンクとして1回だけ数える", async () => {
+    const view = mount();
+    const link = markedLink("/s/sample/guides/a", { "data-tel-kind": "internal_link", "data-tel-id": "/s/sample/guides/a" });
+    const image = document.createElement("img");
+    link.appendChild(image);
+    click(image);
+    view.unmount();
+    expect((await sent()).filter((event) => event.key === "internal_link_click")).toHaveLength(1);
   });
 });

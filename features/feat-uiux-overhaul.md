@@ -12,7 +12,7 @@ iteration: null
 title: "管理画面 UI/UX 全面改善"
 owners: ["daishiman"]
 created_at: "2026-08-21T12:00:00Z"
-updated_at: "2026-09-07T16:12:05.419068Z"
+updated_at: "2026-09-09T10:25:38Z"
 status: "active"
 depends_on: ["feat-ui-foundation","feat-distribution-hub"]
 related_nodes: []
@@ -32,7 +32,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"c3b797019d4e6a44859a1e502255b51ee723bdc471d184e6f5b3a625728c7089","evaluator":"system-spec-harness/aggregate-completeness (C05, forks C06/C07/C08 resolved)","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"generated","source_digest":"8fd12c00d74571b91306055ebbc3d4245cd408322ef0ce5b0cc43168bfdc74f6","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-11T00:00:00Z","origin_kind":"generated","source_digest":"333a4d77c9fdf9c9950d125c8f167fadab3eabadb7cc0c64c69597db5139042b","source_path":"system-spec/ui-ux.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "ユーザー要望の macro want を C14 分解で feature 化 (単一用途画面分割/基本管理/密度最適化/サイドバー/投稿反映/マルチSNS/複数ブログ/共通コンポーネント)"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-uiux-overhaul.md","confidence":0.95}]
@@ -45,7 +45,7 @@ pull_request_linkages: [{"base_branch":"dev","closing_reference_verified":false,
 execution_contexts: []
 completion_evidence: {"completed_at":null,"evidence_refs":["docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json","docs/spec/feat-uiux-overhaul/evidence/09-acceptance-reconciliation.txt"],"policy":"manual","reconciled_at":null,"source":"reconciliation","status":"open"}
 implementation_readiness: {"checked_at":"2026-08-21T12:00:00Z","missing_sections":[],"status":"complete"}
-acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:21b9f20d83a9cb354e162b08ac503f88265d2aede5b60644e7cf9498a75120df","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
+acceptance_reconciliation: {"implementation_status":"pass","release_status":"unpublished","tracking_status":"active","evaluated_digest":"sha256:8b1cce8f351873dafeb7eef18e05a9965f9f37eaf14ff691eca93ec30c6a44f1","manifest_ref":"docs/spec/feat-uiux-overhaul/acceptance-reconciliation.json"}
 ---
 
 # 目的

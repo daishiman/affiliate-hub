@@ -31,24 +31,25 @@ import { SITE_DOCUMENT_KEYS, type SiteDocumentKey } from "@/domain/authoring";
 import { markEditorial, ok } from "@/domain/shared";
 import { createUnavailableAuditLog } from "@/infrastructure/persistence/sample/audit-log-sample-repository";
 import { OTHER_WORKSPACE, WORKSPACE, anOwner, aWriter } from "../support/actors";
+import { aSiteBlueprint } from "../support/factories";
 import { recordingAuditLog } from "../support/doubles";
 
 const owner = anOwner({ workspaceId: WORKSPACE });
 const stranger = anOwner({ workspaceId: OTHER_WORKSPACE });
 
-const SITE = { name: "動画編集の道具", workspaceId: WORKSPACE };
+const SITE = { name: "動画編集の道具" };
 
 expectTypeOf<SiteDocument["key"]>().toEqualTypeOf<SiteDocumentKey>();
 
 function sitesOf(workspaceId = WORKSPACE): EditorialSiteRepositoryPort {
   return markEditorial({
     async findBySlug(slug: string) {
-      return ok(slug === "tools" ? { ...SITE, workspaceId } : null);
+      return ok(slug === "tools" ? aSiteBlueprint({ ...SITE, workspaceId }) : null);
     },
     async list() {
       return ok([]);
     },
-  }) as unknown as EditorialSiteRepositoryPort;
+  });
 }
 
 /** 保存した内容をそのまま持つ置き場。保存の形まで見たいので、記録も残す。 */
@@ -68,7 +69,7 @@ function documentsOf(seed: readonly SiteDocument[] = []) {
       saved.push({ workspaceId, siteSlug, document });
       return ok(true as const);
     },
-  }) as unknown as EditorialSiteDocumentRepositoryPort;
+  }) satisfies EditorialSiteDocumentRepositoryPort;
   return { port, saved };
 }
 

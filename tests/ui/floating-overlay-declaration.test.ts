@@ -27,6 +27,16 @@ import { cssFilesUnder, declarationOf, rulesOf } from "./css-rules";
  * CSS で `position: fixed` を持つ class を浮遊要素の定義とみなし、その class を
  * 使っている JSX の開始タグに名乗りがあるかを見る。**除外は理由付きでのみ許す。**
  * 既定が「落ちる」側なので、新しく浮かせた要素は必ずここに現れる。
+ *
+ * --- なぜ `sticky` は浮遊としないのか ---
+ *
+ * `position: sticky` は流れの中に席を持ったまま、その席の範囲でだけ追従する。
+ * 追従ヘッダー・表の見出し・目次がそれで、**写しに写ってよいし、重なり監査でも
+ * 席の分の場所を占めている**。名乗らせると、退避（撮影中は隠す）と監査除外の
+ * 両方が効いてしまい、写しからヘッダーが消え、監査は本物の重なりを見逃す。
+ *
+ * この線引きは書いておかないと次に触る人には見えないので、**sticky が名乗って
+ * いないことも数える**。名乗りの意味が薄まる側の drift も、同じ検査で塞ぐ。
  */
 
 const UI_ROOT = join(process.cwd(), "src/presentation/ui");
@@ -43,18 +53,29 @@ const EXEMPT: Readonly<Record<string, string>> = {
   skipLink: "焦点が当たるまで画面外にあり、写しにも重なり判定にも現れないため",
 };
 
-/** CSS module から `position: fixed` を持つ class 名を集める。 */
-function fixedClasses(): Set<string> {
+/** CSS module から、指定の `position` を持つ class 名を集める。 */
+function classesPositioned(position: string): Set<string> {
   const found = new Set<string>();
   for (const path of cssFilesUnder(UI_ROOT)) {
     for (const rule of rulesOf(path)) {
       const className = rule.selector.match(/^\.([A-Za-z0-9_-]+)$/)?.[1];
-      if (className !== undefined && declarationOf(rule.body, "position") === "fixed") {
+      if (className !== undefined && declarationOf(rule.body, "position") === position) {
         found.add(className);
       }
     }
   }
   return found;
+}
+
+/** 走査対象の `.tsx`。1 つ目の検査と 2 つ目で同じ母集団を見る。 */
+function tsxSources(): { path: string; text: string }[] {
+  const sourceRoot = join(process.cwd(), "src");
+  return readdirSync(sourceRoot, { encoding: "utf8", recursive: true })
+    .filter((relativePath) => relativePath.endsWith(".tsx"))
+    .map((relativePath) => {
+      const path = join(sourceRoot, relativePath);
+      return { path, text: readFileSync(path, "utf8") };
+    });
 }
 
 /**
@@ -87,7 +108,7 @@ function openingTags(source: string, className: string): string[] {
 }
 
 describe("本文の上に浮く要素は、自分で名乗る", () => {
-  const classes = fixedClasses();
+  const classes = classesPositioned("fixed");
 
   /*
     **床を同じ `it` の中に置いている。**「空振りしていないこと」を別の `it` へ
@@ -97,13 +118,7 @@ describe("本文の上に浮く要素は、自分で名乗る", () => {
     分けたい気持ちのほうが違反である。
   */
   it("名乗っていない浮遊要素は、理由付きの除外に限る", () => {
-    const sourceRoot = join(process.cwd(), "src");
-    const sources = readdirSync(sourceRoot, { encoding: "utf8", recursive: true })
-      .filter((relativePath) => relativePath.endsWith(".tsx"))
-      .map((relativePath) => {
-        const path = join(sourceRoot, relativePath);
-        return { path, text: readFileSync(path, "utf8") };
-      });
+    const sources = tsxSources();
 
     // --- 母集団の床（この 0 が「悪さが無い」ことを意味すると言えるための前提）---
     expect(classes.size, "position: fixed の class が 1 つも見つかりません").toBeGreaterThan(0);
@@ -133,6 +148,42 @@ describe("本文の上に浮く要素は、自分で名乗る", () => {
       unnamed,
       "本文の上に浮いているのに data-floating-overlay を名乗っていない要素があります。" +
         "名乗らせるか、理由を添えて EXEMPT へ入れてください",
+    ).toEqual([]);
+  });
+
+  /*
+    こちらは**逆向き**の検査である。上が「浮いているのに名乗らない」を数えるのに対し、
+    ここは「浮いていないのに名乗る」を数える。名乗りが増えすぎる側の壊れ方は、
+    落ちるのではなく *緑のまま意味が薄まる* ので、数えないと誰も気づかない。
+  */
+  it("席を持って追従するだけの要素（sticky）は名乗らない", () => {
+    const sources = tsxSources();
+    // 画面幅で fixed と sticky を切り替える class は、浮くときがある側で扱う。
+    const stickyOnly = [...classesPositioned("sticky")].filter((name) => !classes.has(name));
+
+    expect(stickyOnly.length, "position: sticky の class が 1 つも見つかりません").toBeGreaterThan(
+      0,
+    );
+
+    const overreaching: string[] = [];
+    let inspected = 0;
+    for (const className of stickyOnly) {
+      for (const { path, text } of sources) {
+        for (const tag of openingTags(text, className)) {
+          inspected += 1;
+          if (tag.includes("data-floating-overlay")) {
+            overreaching.push(`${path}: .${className}`);
+          }
+        }
+      }
+    }
+
+    expect(inspected, "sticky class を使っている JSX を 1 つも掴めていません").toBeGreaterThan(0);
+
+    expect(
+      overreaching,
+      "席を持って追従するだけの要素が data-floating-overlay を名乗っています。" +
+        "名乗ると写しから消え、重なり監査からも外れます。浮かせたいなら position: fixed にしてください",
     ).toEqual([]);
   });
 

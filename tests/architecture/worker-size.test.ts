@@ -16,8 +16,8 @@ import {
   environmentFrom,
   formatHeadline,
   judgeSize,
-  LIMIT_KIB,
   parseUploadSize,
+  UNCOMPRESSED_LIMIT_KIB,
   WARN_MARGIN_KIB,
 } from "../../scripts/worker-size.mjs";
 
@@ -33,7 +33,7 @@ describe("wrangler の出力から大きさを読む", () => {
   });
 
   it("要件 2: 読めない出力では null を返す（0 と取り違えさせない）", () => {
-    // 0 を返すと「上限まで 3072 KiB の余裕がある」と読めてしまい、
+    // 0 を返すと「上限まで 65536 KiB の余裕がある」と読めてしまい、
     // **測れていないのに一番安全な数字**が出る。null は呼ぶ側で必ず落ちる。
     for (const broken of [
       "", // 何も出なかった
@@ -53,29 +53,28 @@ describe("wrangler の出力から大きさを読む", () => {
 
 describe("収まっている／細っている／超えているの判定", () => {
   it("要件 4: 3 つの区分に分かれる", () => {
-    expect(judgeSize({ gzipKib: 1000 }).verdict).toBe("ok");
-    expect(judgeSize({ gzipKib: 2937.8 }).verdict).toBe("thin"); // いまの実測値
-    expect(judgeSize({ gzipKib: 3100 }).verdict).toBe("over");
+    expect(judgeSize({ rawKib: 16_766 }).verdict).toBe("ok");
+    expect(judgeSize({ rawKib: UNCOMPRESSED_LIMIT_KIB - 1 }).verdict).toBe("thin");
+    expect(judgeSize({ rawKib: UNCOMPRESSED_LIMIT_KIB + 1 }).verdict).toBe("over");
   });
 
   it("要件 5: 上限ちょうどは超過（Cloudflare 側と同じ境目にする）", () => {
     // ここを `>` に緩めると「手元は緑・本番は赤」になる。一番たちの悪い形。
-    expect(judgeSize({ gzipKib: LIMIT_KIB }).verdict).toBe("over");
-    expect(judgeSize({ gzipKib: LIMIT_KIB - 0.01 }).verdict).not.toBe("over");
+    expect(judgeSize({ rawKib: UNCOMPRESSED_LIMIT_KIB }).verdict).toBe("over");
+    expect(judgeSize({ rawKib: UNCOMPRESSED_LIMIT_KIB - 0.01 }).verdict).not.toBe("over");
   });
 
   it("要件 6: 警告の境目は余白ちょうどでは鳴らず、下回ると鳴る", () => {
-    expect(judgeSize({ gzipKib: LIMIT_KIB - WARN_MARGIN_KIB }).verdict).toBe("ok");
-    expect(judgeSize({ gzipKib: LIMIT_KIB - WARN_MARGIN_KIB + 0.01 }).verdict).toBe("thin");
+    expect(judgeSize({ rawKib: UNCOMPRESSED_LIMIT_KIB - WARN_MARGIN_KIB }).verdict).toBe("ok");
+    expect(judgeSize({ rawKib: UNCOMPRESSED_LIMIT_KIB - WARN_MARGIN_KIB + 0.01 }).verdict).toBe("thin");
   });
 
   it("要件 7: 余白は上限からの引き算で、超過分は負で出る", () => {
-    expect(judgeSize({ gzipKib: LIMIT_KIB + 100 }).marginKib).toBeCloseTo(-100, 5);
+    expect(judgeSize({ rawKib: UNCOMPRESSED_LIMIT_KIB + 100 }).marginKib).toBeCloseTo(-100, 5);
   });
 
-  it("要件 8: 上限は無料プランの 3 MiB（gzip 後）である", () => {
-    // 有料プランへ移るなら、この数を変える判断をここで一度止める。
-    expect(LIMIT_KIB).toBe(3 * 1024);
+  it("要件 8: 上限は全プラン共通の 64 MiB（非圧縮）である", () => {
+    expect(UNCOMPRESSED_LIMIT_KIB).toBe(64 * 1024);
   });
 });
 
@@ -96,8 +95,9 @@ describe("人が読む 1 行", () => {
     const size = parseUploadSize(REAL_OUTPUT);
     if (size === null) throw new Error("実出力が読めていません");
     const line = formatHeadline(size, judgeSize(size).marginKib);
-    expect(line).toContain("2938 KiB");
-    expect(line).toContain("3072 KiB");
-    expect(line).toContain("残り 134 KiB");
+    expect(line).toContain("非圧縮 15574 KiB");
+    expect(line).toContain("65536 KiB");
+    expect(line).toContain("残り 49962 KiB");
+    expect(line).toContain("gzip 参考値 2938 KiB");
   });
 });

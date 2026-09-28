@@ -1,0 +1,36 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-thumbnail-visual-system.md",
+  "package_current_pointer": null,
+  "promoted_generation": ".dev-graph/published/feature-package-feat-thumbnail-visual-system",
+  "selected_feature": "feat-thumbnail-visual-system",
+  "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform"
+  ],
+  "task_ids": [
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P01",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P02",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P03",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P04",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P05",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P06",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P08",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P12",
+    "SYS-THUMBNAIL-VISUAL-SYSTEM-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-thumbnail-visual-system-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-thumbnail-visual-system.json"
+  ],
+  "scope_digest": "sha256:6b23de767cd4ccf3ec082c39c060b08ad737bdb62eccc1fc892c73e287812fdc"
+}

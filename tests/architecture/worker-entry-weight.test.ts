@@ -4,8 +4,10 @@
  *
  * --- なぜ要るのか（2026-08-30 に起きたこと） ---
  *
- * Cloudflare Workers の上限は **1 Worker あたり 3 MiB（gzip 後）**。
+ * 当時の Cloudflare Workers の上限は **1 Worker あたり 3 MiB（gzip 後）**。
  * この日の公開はそこを超えて落ちた（gzip 3065 KiB / 上限 3072 KiB＝残り 6.5 KiB）。
+ * 2026-09-04 に公式上限は非圧縮64 MiBへ変わったが、入口の二重取り込みは
+ * 起動時間と保守性を悪化させるため、この構造上限は独立して維持する。
  *
  * 中を割ると、`worker-entry.js` → `distribution-scheduler.ts` → `createDeps()` の
  * 経路が **226 ファイル・1018 KiB** を引いていた。画面と API のコードは
@@ -157,9 +159,38 @@ const PATHS = [...REACHED.keys()].map((p) => relative(ROOT, p).replaceAll("\\", 
  * 「量が上限内であること」ではなく「引き込みの形が変わったら鳴ること」なので、
  * 実測が下がったら上限も下げる。次に赤くなったときは、数字を動かす前に
  * バレル経由の import が戻っていないかを先に見ること。
+ *
+ * ── 【2026-09-08】105 → 145 ファイル / 1000 → 1450 KiB へ上げた。
+ *
+ * 上の指示どおり、**数字を動かす前にバレル経由の import を先に見た。**
+ * 実際に 16 か所で戻っていて、直して 157 → 124 ファイル / 1460 → 1280 KiB。
+ * 戻っていたのは全部この枝で足した SEO/AEO 側のファイルで、
+ * `@/domain/shared` `@/domain/authoring` `@/domain/blogops`
+ * `@/domain/monetization` `@/domain/seo/aeo-measurement` を取りまとめ経由で
+ * 引いていた。定義元の module を直に指す形へ直した。
+ *
+ * **それでも 124 で、dev の実測 88 より 36 多い。**内訳は数えてある。
+ *
+ *   25 ファイル / 290 KiB … この枝で新しく足した、cron が回す仕事そのもの。
+ *                            運営者が自作すると決めた 3 系統（①公開 HTML の静的
+ *                            点検 ②Search Console の実績取り込み ③AI 検索の
+ *                            引用確認）と、表紙画像の掃除。いずれも定時実行が
+ *                            入口なので、cron から手が届かないという形が無い。
+ *   11 ファイル / 155 KiB … その 25 が引く、元からある module（記事の読み取り
+ *                            モデル、D1 の共通部品など）。新規ではないが、
+ *                            cron から届くのはこの 3 系統が入ってからである。
+ *
+ * つまり「cron の仕事が本当に増えた」場合であり、上の注記が上げてよいと
+ * 書いている場合にあたる。上限は実測 124 / 1280 を基点に、
+ * 2026-09-05 と**同じ余裕の取り方**（ふつうの追加 2 回ぶん＝ +21 ファイル /
+ * +170 KiB）で 145 / 1450 に置いた。総目録の復活（+88 ファイル / +775 KiB）は
+ * 124 からでも 212 / 2055 になるので、依然として必ず超える。
+ *
+ * **上げてよい理由が「赤いから」になっていないことを、上の 2 行の内訳で
+ * 確かめられるようにしてある。**次に赤くなったときも、まずバレルを見ること。
  */
-const MAX_FILES = 105;
-const MAX_KIB = 1000;
+const MAX_FILES = 145;
+const MAX_KIB = 1450;
 
 describe("Worker の入口が引き込む量", () => {
   it("要件 1: 入口から手が届く範囲が上限を超えていない", () => {
@@ -188,6 +219,25 @@ describe("Worker の入口が引き込む量", () => {
       PATHS,
       "SEO scheduler が画面用の composition を引いています。cron に要る依存だけを直に組んでください。",
     ).not.toContain("src/presentation/composition.ts");
+  });
+
+  it("要件 2: 収集cronが承認済み記事の編集用repositoryを引いていない", () => {
+    expect(
+      PATHS,
+      "計測用repositoryの工場へ記事の承認・公開writerを戻さないでください。\n" +
+        "画面だけが使う書換え口は presentation の組み立てで別に作ります。",
+    ).not.toEqual(expect.arrayContaining([
+      "src/infrastructure/persistence/d1/seo-article-revision-repository.ts",
+      "src/infrastructure/persistence/d1/published-article-repository.ts",
+      "src/infrastructure/persistence/d1/site-document-repository.ts",
+    ]));
+  });
+
+  it("要件 2: 収集cronが管理画面用の検索語readerを引いていない", () => {
+    expect(
+      PATHS,
+      "収集cronが、管理画面だけで使う検索語の読取repositoryを引いています。",
+    ).not.toContain("src/infrastructure/persistence/d1/seo-search-query-reader-repository.ts");
   });
 
   it("要件 3: 数えられている（たどれずに 0 件で緑になっていない）", () => {

@@ -4,60 +4,58 @@
  *
  * **名乗りには根拠を書く**（`form2-population-floor.test.ts` の教訓——根拠の無い名乗りは飾り）。
  *
- * `regression` の根拠は、**この検査が仮想の壊れではなく実際に 3 度起きた壊れを見ている**こと:
- * (1) `required_info` / `required_info_checks`、(2) `qa_refs`、(3) 再び `required_info_checks`。
- * 3 度目の実測では確定 8 セル全ての `required_info_checks` が 1 件から 0 件になっていた。
- * **同じ形が 4 度目に起きたときに赤くなることが、この検査の目的そのものである。**
+ * `regression` の根拠は、**この検査が仮想の壊れではなく実際に 4 度起きた壊れを見ている**こと:
+ * (1) `required_info` / `required_info_checks`、(2) `qa_refs`、(3) 再び `required_info_checks`、
+ * (4) 2026-09-02 の infrastructure / maintenance-ops。3 度目の実測では確定 8 セル全ての
+ * `required_info_checks` が 1 件から 0 件になっていた。
+ * **同じ形が 5 度目に起きたときに赤くなることが、この検査の目的そのものである。**
  *
  * `boundary` の根拠は、境目そのものを当てどころにしていること:
- * 確定セルの床 8、退避欄の床 5、戻す窓口を持たない欄の上限 1、載せ忘れの上限 0。
+ * 確定セルの床 8、退避しない欄の上限 3、単一窓口が名指しする欄の上限 2、載せ忘れの上限 0。
  * **どれも 1 動けば判定が変わる。**
  *
- * `equivalence` の根拠は、退避される欄を「戻す窓口が在る」「無い」の 2 群に割り、
- * 群ごとに全件を数えていること。群分けの網羅は「両群の和 = 退避リストの長さ」で確かめる。
+ * `equivalence` の根拠は、確定セルが持つ欄を「退避される」「されない」の 2 群に割り、
+ * 群ごとに全件を数えていること。群分けの網羅は「両群の和 = 確定セルが持つ欄の総数」で確かめる。
  */
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * **reopen で退避した欄が、再確定で戻らない。**同じ形の抜けが 3 度起きている（`ah-nuu`）。
+ * **reopen で退避した欄が、再確定で戻らない。**同じ形の抜けが 4 度起きている（`ah-nuu`）。
  *
- * ── 何が起きているのか ──────────────────────────────────────
+ * ── 何が起きていたのか ─────────────────────────────────────
  *
  * `reopen` は確定セルの欄を `reopen_log[].discarded` へ退避し、セルを「未収集」へ戻す。
- * ところが再確定（`confirm`）は退避を戻さない。**戻す窓口は欄ごとに個別に作られている。**
+ * ところが再確定（`confirm`）は退避を戻さない。**戻す窓口は欄ごとに個別に作られていた。**
  * `restore-qa-refs` は `qa_refs` 専用、`set-serves` は `serves_goals` 専用、という具合である。
  *
- * だから**欄が増えるたびに、同じ穴がもう 1 つ空く。**実測された 3 度は
- * (1) `required_info` / `required_info_checks`、(2) `qa_refs`、(3) 再び `required_info_checks`。
- * 3 度目のとき、確定 8 セル全ての `required_info_checks` が 1 件から 0 件になっていた。
+ * だから**欄が増えるたびに、同じ穴がもう 1 つ空いた。**原因は 2 つあり、どちらも
+ * 「実装が欄の名前を数え上げている」ことだった:
  *
- * ── なぜ「戻っていない欄が 0 件」だけでは足りないか ─────────────────
+ *   (A) 退避する欄が**リテラルの一覧**で書かれていた。確定セルに新しい欄が生えたとき
+ *       この一覧へ載せ忘れると、**その欄は reopen で黙って消える。**
+ *   (B) 戻す窓口が欄ごとに個別なので、**退避されるが戻す窓口が無い欄**が作れてしまった。
+ *       その欄は「一度 reopen したら二度と戻せない」。実際 `serves_intents` がそうだった。
  *
- * 症状（戻っていない欄）は直せば消える。実際 2026-08-28 の実測では 0 件である。
- * **だが原因は消えていない。**原因は 2 つあり、どちらも構造の側にある:
+ * ── どう塞いだか（2026-09-08） ─────────────────────────────
  *
- *   (A) 退避する欄が**リテラルの一覧**で書かれている（`state_transition_matrix.py` の
- *       `reopen` 分岐）。確定セルに新しい欄が生えたとき、この一覧へ載せ忘れると
- *       **その欄は reopen で黙って消える。**これが 4 度目の入口である。
- *   (B) 戻す窓口が欄ごとに個別なので、**退避されるが戻す窓口が無い欄**が作れてしまう。
- *       その欄は「一度 reopen したら二度と戻せない」。
+ * どちらも**欄を数え上げないこと**で塞いだ。列挙する側を裏返してある。
  *
- * (A) は上限 0、(B) は上限 1 で固定する。**どちらも上げる向きには動かさない。**
+ *   (A) `reopen` は「退避する欄」ではなく **`CELL_MACHINE_FIELDS`（退避しない欄）** だけを
+ *       挙げ、残りを丸ごと写す（`_snapshot_cell_fields`）。**知らない欄は退避される**方へ
+ *       倒れるので、載せ忘れが起こり得ない。
+ *   (B) `restore-discarded` が `discarded` の鍵をそのまま辿って戻す。**単一の窓口**であり、
+ *       欄の名前を知らない。専用窓口を持たない欄（`serves_intents`）もこれで戻る。
  *
- * ── (B) がいま 1 件であること ──────────────────────────────
+ * ── だからこの検査が見張るもの ────────────────────────────
  *
- * `serves_intents` は退避リストに載っているが、値を書ける op が 1 つも無い。
- * いま実データのどのセルも持っていないので無害だが、**誰かが書いた瞬間に
- * 「reopen したら二度と戻せない欄」になる。**これは (2) の `qa_refs` が
- * 辿った道そのもので、そのときは `split-qa-bundle` が `scope_notes.bundled=true` を
- * 要求するため解除済みの 6 件が全部拒否され、戻す道が実質無かった。
+ * 症状（戻っていない欄）は引き続き 0 件で固定する。加えて**原因が戻らないこと**を見る:
+ * 退避する側と戻す側の**どちらかがまた欄を数え上げ始めたら赤くなる。**
+ * これが 5 度目の入口である。
  *
- * **先回りで退避リストへ載せたことが、逆に「戻せない欄」を 1 つ作っている。**
- * 消すのではなく、1 件であることを固定する。窓口ができた日にここが赤くなる。
+ * なお `state_transition_matrix.py` はキット配布物で、次回のキット更新で上書きされる。
+ * 上書きされたらこの検査が赤くなる（REQ-TS18 と同じ事情）。
  */
 
 const ROOT = process.cwd();
@@ -71,6 +69,7 @@ type ReopenEntry = {
   readonly category?: string;
   readonly platform?: string;
   readonly discarded?: Record<string, unknown>;
+  readonly retired_fields?: Record<string, { readonly reason?: unknown }>;
 };
 
 const state = JSON.parse(readFileSync(join(ROOT, "system-spec/spec-state.json"), "utf-8"));
@@ -88,31 +87,105 @@ const confirmedCells: readonly (readonly [string, string, Cell])[] = Object.entr
 const pySource = readFileSync(MATRIX_PY, "utf-8");
 
 /**
- * `reopen` 分岐のリテラル一覧を実装から読む。
+ * `action == "<op>":` から次の `action == ` までを切り出す。
  *
- * **一覧を検査へ書き写さない。**書き写すと、実装から欄が消えた日に検査だけが古い一覧を
- * 持ち続け、「載っている」と言い続ける。読む先は 1 つにする。
+ * **本文を検査へ書き写さない。**書き写すと、実装が変わった日に検査だけが古い姿を
+ * 持ち続け、「まだこう書いてある」と言い続ける。読む先は 1 つにする。
  */
-function discardedFieldList(): readonly string[] {
-  const reopenBranch = pySource.slice(pySource.indexOf('if action == "reopen":'));
-  const forKey = reopenBranch.indexOf("for key in (");
-  const close = reopenBranch.indexOf(")", forKey);
-  const body = reopenBranch.slice(forKey, close);
+function branchSource(op: string): string {
+  const start = pySource.indexOf(`if action == "${op}":`);
+  if (start < 0) return "";
+  const next = pySource.indexOf('if action == "', start + 20);
+  return pySource.slice(start, next < 0 ? undefined : next);
+}
+
+/** 退避**しない**欄の一覧を実装から読む（列挙の向きが裏返っている側）。 */
+function machineFieldList(): readonly string[] {
+  const decl = pySource.slice(pySource.indexOf("CELL_MACHINE_FIELDS = ("));
+  const body = decl.slice(0, decl.indexOf(")"));
   return [...body.matchAll(/"([a-z_]+)"/g)].map((m) => m[1] as string);
 }
 
-/** その欄へ値を書ける op が実装に在るか。無い欄は「退避されるが戻せない」。 */
-const WRITER_OPS: Readonly<Record<string, readonly string[]>> = {
-  qa_ref: ["confirm"],
-  qa_refs: ["restore-qa-refs", "extend-qa-refs", "split-qa-bundle"],
-  approval_ref: ["set-approval"],
-  serves_goals: ["set-serves"],
-  required_info: ["set-required-info"],
-  required_info_checks: ["record-required-info-check"],
-  serves_intents: [],
-};
+/** 確定セルが実際に持っている欄（`state` を含む生の集合）。 */
+const heldFields: readonly string[] = [
+  ...new Set(confirmedCells.flatMap(([, , cell]) => Object.keys(cell))),
+].sort();
 
-describe("reopen で退避した欄が戻らない穴 (REQ-TS21 / ah-nuu の 4 度目を止める)", () => {
+/**
+ * その分岐が名指ししている「セルの**内容**欄」。名指しが増えるほど、欄を数え上げる実装へ戻る。
+ *
+ * 状態機械の欄（`state` など）は数えない。`reopen` はセルを「未収集」へ置き直すので
+ * 必ず名指しする。**数えたいのは内容の欄を名指ししているかどうか**である。
+ */
+function fieldsNamedIn(op: string): readonly string[] {
+  const machine = new Set(machineFieldList());
+  const known = new Set([...heldFields, "serves_intents"].filter((f) => !machine.has(f)));
+  const quoted = [...withoutDictKeys(branchSource(op)).matchAll(/"([a-z_]+)"/g)].map(
+    (m) => m[1] as string,
+  );
+  return [...new Set(quoted.filter((name) => known.has(name)))].sort();
+}
+
+/**
+ * dict リテラルの鍵 (`"qa_ref": qa_ref`) を落とす。
+ *
+ * ── なぜ要るか（2026-09-08）────────────────────────────────
+ *
+ * `reopen` は `reopen_log` へ「**どの問答を根拠に開け直したか**」を記録する。
+ * その記録の鍵がたまたま `qa_ref` という名前で、セルの欄と同じ綴りだった。
+ * 落とさずに数えると「reopen が欄を数え上げ始めた」と**記録の形**を見て言うことになる。
+ * それは原因 A（退避する欄をリテラルで並べる）とは別のものである。
+ *
+ * **塞げていないところ:** セルを dict リテラルで組み立てる実装が現れたら、その鍵は
+ * ここで落ちる。ただしその形は同じ it の `dropped === ["state"]` が実データで見ている
+ * ——確定セルが持つ欄のうち退避されないものが 1 つでも増えれば、そちらが割れる。
+ * この関数は当てどころの一方で、両方が同時に沈黙する形にはなっていない。
+ *
+ * **末尾の `:` だけを見ない。**`if field == "qa_ref":` も同じ形をしていて、そちらは
+ * 落としてはいけない名指しである（`restore-discarded` が実際にこの形で 2 欄を扱う）。
+ * dict の鍵は `{` か `,` に続く、という**位置**で区別する。
+ */
+function withoutDictKeys(source: string): string {
+  return source.replace(/([{,]\s*)"[a-z_]+"\s*:/g, "$1");
+}
+
+/**
+ * 「戻さないと決めた」と**理由つきで記録された**欄（`retire-discarded`）。
+ *
+ * ── なぜ第三の行き先が要るか（2026-09-08）────────────────────
+ *
+ * 退避の行き先は「戻す」「黙って消える」の 2 択では足りない。**戻すべきでない欄**が在る。
+ * 実例が `approval_ref` で、その承認記録の note 自身が「利用者は『つづけて』と回答。
+ * **親エージェントが**当該変更提案への承認として確定した」と書いていた。
+ * 戻せば根拠の無い承認が確定セルの裏付けとして生き返る。かといって黙って消えたままにすると、
+ * `ah-nuu`（戻す窓口が無くて消えた）と見分けがつかない。
+ *
+ * ── これが例外リストにならない理由 ─────────────────────────
+ *
+ * **検査は欄の名前を 1 つも持たない。**読むのは spec-state に実在する記録だけで、
+ * その記録は `retire-discarded` writer を通ったものしか作れない——writer は理由を必須にし、
+ * 退避に無い欄・既にセルに在る欄・二重の取り下げを拒む。理由の無い記録は
+ * ここで数えないので、鍵だけ手で足しても検査は緩まない (fail-closed)。
+ *
+ * 加えて下の「棚卸し」が件数の天井を置く。取り下げが増殖して検査が空洞化する形は、
+ * そちらが先に赤くなる。
+ */
+function retiredFields(entries: readonly ReopenEntry[]): ReadonlySet<string> {
+  return new Set(
+    entries.flatMap((e) =>
+      Object.entries(e.retired_fields ?? {})
+        .filter(([, v]) => typeof v?.reason === "string" && v.reason.trim() !== "")
+        .map(([field]) => field),
+    ),
+  );
+}
+
+/** そのセル向けの reopen 記録だけ。 */
+function entriesFor(category: string, platform: string): readonly ReopenEntry[] {
+  return reopenLog.filter((e) => e.category === category && e.platform === platform);
+}
+
+describe("reopen で退避した欄が戻らない穴 (REQ-TS21 / ah-nuu の 5 度目を止める)", () => {
   it("母集団の床 — 確定セルが 8 件ある（ここが 0 なら下の主張は全て空振り）", () => {
     expect(confirmedCells.length).toBe(8);
   });
@@ -127,115 +200,104 @@ describe("reopen で退避した欄が戻らない穴 (REQ-TS21 / ah-nuu の 4 �
     expect(withDiscarded.length).toBeGreaterThanOrEqual(50);
   });
 
-  it("(A) 確定セルが持つ欄は、すべて reopen の退避リストに載っている（載せ忘れ 0 件）", () => {
-    const listed = new Set(discardedFieldList());
-    // 床。実装からリストを読めていないと、下の差分は「全部載っていない」か
-    // 「全部載っている」のどちらかへ倒れて、意味を失う。
-    expect(listed.size, "退避リストを実装から読めていない").toBeGreaterThanOrEqual(5);
+  it("(A) 退避する側が欄を数え上げていない（確定セルの欄で、退避されないものは 0 件）", () => {
+    const excluded = new Set(machineFieldList());
+    // 床。実装から読めていないと、下の差分は「全部除外」か「全部退避」のどちらかへ
+    // 倒れて意味を失う。
+    expect(excluded.size, "退避しない欄を実装から読めていない").toBe(3);
+    expect(heldFields.length, "確定セルの欄を 1 つも数えられていない").toBeGreaterThanOrEqual(5);
 
-    const held = new Set(
-      confirmedCells.flatMap(([, , cell]) => Object.keys(cell)).filter((k) => k !== "state"),
-    );
-    expect(held.size, "確定セルの欄を 1 つも数えられていない").toBeGreaterThanOrEqual(5);
+    // 群分けが網羅であること（両群の和 = 確定セルが持つ欄の総数）。
+    const preserved = heldFields.filter((f) => !excluded.has(f));
+    const dropped = heldFields.filter((f) => excluded.has(f));
+    expect(preserved.length + dropped.length).toBe(heldFields.length);
 
-    const forgotten = [...held].filter((f) => !listed.has(f)).sort();
-    expect(forgotten, "この欄は reopen で黙って消える（4 度目の入口）").toEqual([]);
+    // 落ちてよいのは状態機械の欄だけ。内容の欄が 1 つでもここへ来たら黙って消える。
+    expect(dropped, "この欄は reopen で黙って消える（5 度目の入口）").toEqual(["state"]);
+
+    // **原因 A そのものの当てどころ。**reopen が欄をリテラルで数え上げ始めたら赤くなる。
+    expect(fieldsNamedIn("reopen"), "reopen が欄を名指ししている（一覧の再導入）").toEqual([]);
   });
 
-  it.each([true, false])(
-    "正規 writer は承認参照の有無 (%s) を履歴へ保ち、再オープン後の現在承認にはしない",
-    (hasApproval) => {
-      // 実 state の複製だけを一時領域で遷移させる。正本と過去の承認本文は書き換えない。
-      const fixture = structuredClone(state);
-      const [category, platform] = confirmedCells[0]!;
-      const cell = fixture.matrix[category][platform];
-      if (hasApproval) {
-        cell.approval_ref = "appr-reopen-regression";
-        fixture.approval_log.push({ id: cell.approval_ref, note: "再検証前の承認" });
-      } else {
-        delete cell.approval_ref;
-      }
-      const discarded = { ...cell };
-      delete discarded.state;
-      const reason = "承認を引き継がず要件を再検証する";
-      const directory = mkdtempSync(join(tmpdir(), "reopen-approval-"));
-      const fixturePath = join(directory, "fixture.json");
-      const writerArgs = [
-        join(dirname(MATRIX_PY), "apply-spec-transition.py"),
-        "apply", "--state", fixturePath,
-        "--op", JSON.stringify({ action: "reopen", category, platform, reason }),
-        "--out", fixturePath,
-      ];
-      try {
-        writeFileSync(fixturePath, JSON.stringify(fixture));
-        const result = spawnSync("python3", writerArgs, { encoding: "utf8" });
-        expect(result.status, result.stderr).toBe(0);
-        const saved = readFileSync(fixturePath, "utf8");
-        const reopened = JSON.parse(saved);
-        expect(reopened.reopen_log).toEqual([
-          ...fixture.reopen_log,
-          { category, platform, reason, from: "確定", discarded },
-        ]);
-        expect(reopened.matrix[category][platform]).toEqual({
-          state: "未収集", reopened_from: "確定", reopen_reason: reason,
-        });
-        expect(reopened.approval_log).toEqual(fixture.approval_log);
-        expect(reopened.qa_log).toEqual(fixture.qa_log);
-
-        // 同じ reopen の再実行は拒否され、退避した履歴も現在値も変わらない。
-        const replay = spawnSync("python3", writerArgs, { encoding: "utf8" });
-        expect(replay.status).not.toBe(0);
-        expect(replay.stderr).toContain("確定セルのみ reopen できる");
-        expect(readFileSync(fixturePath, "utf8")).toBe(saved);
-      } finally {
-        rmSync(directory, { recursive: true, force: true });
-      }
-    },
-  );
-
-  it("(症状) 退避されたことのある欄は、いまその章の確定セルに戻っている", () => {
+  it("(症状) 退避されたことのある欄は、戻っているか、理由つきで取り下げられている", () => {
     const missing: string[] = [];
     for (const [category, platform, cell] of confirmedCells) {
-      const everDiscarded = new Set(
-        reopenLog
-          .filter((e) => e.category === category && e.platform === platform)
-          .flatMap((e) => Object.keys(e.discarded ?? {})),
-      );
+      const entries = entriesFor(category, platform);
+      const everDiscarded = new Set(entries.flatMap((e) => Object.keys(e.discarded ?? {})));
+      // 取り下げは**そのセルの記録**だけを見る。別のセルの取り下げでここが緩まない。
+      const retired = retiredFields(entries);
       for (const field of [...everDiscarded].sort()) {
-        if (!cell[field]) missing.push(`${category}/${platform}: ${field}`);
+        if (!cell[field] && !retired.has(field)) missing.push(`${category}/${platform}: ${field}`);
       }
     }
     expect(missing).toEqual([]);
   });
 
-  it("(B) 退避されるのに戻す窓口が無い欄は 1 件（serves_intents）", () => {
-    const listed = discardedFieldList();
-    // 群分けが網羅であること。ここが崩れると下の 2 つの数は別々のものを数え始める。
-    expect(listed.every((f) => f in WRITER_OPS), "窓口を調べていない欄がある").toBe(true);
+  it("(B) 欄の名前を知らない単一の戻し窓口が在る", () => {
+    expect(branchSource("restore-discarded"), "単一の戻し窓口が消えた").not.toBe("");
 
-    const withWriter = listed.filter((f) => (WRITER_OPS[f] ?? []).length > 0);
-    const withoutWriter = listed.filter((f) => (WRITER_OPS[f] ?? []).length === 0);
-    expect(withWriter.length + withoutWriter.length).toBe(listed.length);
-
-    // 上限 1。**上げる向きには動かさない。**窓口ができた日にここが赤くなる。
-    expect(withoutWriter, "退避されるが二度と戻せない欄").toEqual(["serves_intents"]);
+    // **上限 2。上げる向きには動かさない。**
+    // この窓口が名指ししてよいのは、内容ではなく**関係**を守るための 2 欄だけである:
+    //   qa_ref  — confirm が必ず書く欄。退避値で上書きするのは付け替えにあたる。
+    //   qa_refs — `qa_refs[0]` はそのセルが引いている entry 自身、という不変条件を守る。
+    // 3 つ目が現れたら、単一窓口がまた欄ごとの窓口へ戻り始めている。
+    expect(fieldsNamedIn("restore-discarded"), "戻し窓口が欄を数え上げ始めている").toEqual([
+      "qa_ref",
+      "qa_refs",
+    ]);
   });
 
-  it("(B) 窓口があると書いた op は、実装に実在する（表が実物から離れていないこと）", () => {
-    // WRITER_OPS は手で書いた表なので、実装と離れうる。離れた瞬間に上の判定が嘘になる。
-    const declared = new Set(pySource.match(/action == "([a-z-]+)"/g) ?? []);
-    const implemented = new Set([...declared].map((s) => s.replace(/action == "|"/g, "")));
-    expect(implemented.size, "op を実装から読めていない").toBeGreaterThanOrEqual(8);
+  it("(B) 専用窓口しか無い欄が残っていない（`serves_intents` が戻せるようになったこと）", () => {
+    // かつてここは「退避されるが戻す窓口が無い欄は 1 件（serves_intents）」だった。
+    // 単一窓口ができたので、その 1 件は 0 になる。**個別窓口の有無はもう境目ではない**——
+    // 境目は「単一窓口が全ての退避欄を辿るか」に移った。上の it がそれを見ている。
+    // ここでは、個別窓口だけに頼っていた欄が実データで戻せる形になったことを見る。
+    const everDiscarded = new Set(
+      reopenLog.flatMap((e) => Object.keys(e.discarded ?? {})),
+    );
+    expect(everDiscarded.size, "退避された欄を 1 つも数えられていない").toBeGreaterThanOrEqual(4);
+    const reachable = new Set([...heldFields, "qa_ref", ...retiredFields(reopenLog)]);
+    const unreachable = [...everDiscarded].filter((f) => !reachable.has(f));
+    expect(unreachable, "退避されたが確定セルの欄として存在しない").toEqual([]);
+  });
 
-    const phantom = Object.values(WRITER_OPS)
-      .flat()
-      .filter((op) => !implemented.has(op) && op !== "split-qa-bundle")
-      .sort();
-    expect(phantom, "表にあるが実装に無い op（表が古い）").toEqual([]);
+  /**
+   * **取り下げの棚卸し。**第三の行き先が抜け道にならないよう、件数と形をここで締める。
+   *
+   * 天井 5 は現に取り下げた 5 セル分。**上げる向きには動かさない**——取り下げが増えるのは
+   * 「戻さないと決めた欄が増えた」ときだけで、それは人が判断した回数と一致するはずである。
+   * 増やすなら、増えた 1 件ずつについて判断の記録が在ることを人が確かめてからにする。
+   */
+  it("取り下げは理由つきで、対象の欄がセルに残っていない", () => {
+    const rows = reopenLog.flatMap((e) =>
+      Object.entries(e.retired_fields ?? {}).map(([field, meta]) => ({
+        where: `${e.category}/${e.platform}`,
+        field,
+        reason: meta?.reason,
+        cell: matrix[e.category ?? ""]?.[e.platform ?? ""],
+      })),
+    );
+
+    expect(rows.length, "取り下げが増えている（1 件ずつ判断の記録を確かめること）").toBe(5);
+    // 理由の無い取り下げは「黙って消えた」と区別がつかない。
+    expect(rows.filter((r) => typeof r.reason !== "string" || r.reason.trim() === "")).toEqual([]);
+    // 記録と実体の食い違い（取り下げた欄がセルに在る）を許さない。
+    expect(rows.filter((r) => r.cell && r.field in r.cell).map((r) => `${r.where}: ${r.field}`)).toEqual([]);
   });
 
   it("この検査自身が測れていることの確認 — 欄を 1 つ足せば (A) は割れる", () => {
-    const listed = new Set(discardedFieldList());
-    expect(listed.has("__新しく生えた欄__")).toBe(false);
+    const excluded = new Set(machineFieldList());
+    expect(excluded.has("__新しく生えた欄__")).toBe(false);
+    expect(branchSource("__存在しない op__")).toBe("");
+  });
+
+  /**
+   * 記録の鍵を落とす判定が、**落としすぎても落とさなすぎてもいない**こと。
+   * 実装を読む前に合成した文字列で確かめる（実装が変わってもここは動かない）。
+   */
+  it("記録の鍵と欄の名指しを取り違えない", () => {
+    expect(withoutDictKeys('log = {"qa_ref": qa_ref}')).not.toContain('"qa_ref"');
+    expect(withoutDictKeys('if field == "qa_ref":')).toContain('"qa_ref"');
+    expect(withoutDictKeys('cell["qa_refs"] = value')).toContain('"qa_refs"');
   });
 });

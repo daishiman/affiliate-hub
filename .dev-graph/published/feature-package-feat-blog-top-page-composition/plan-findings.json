@@ -1,0 +1,224 @@
+{
+  "schema_version": "1.0.0",
+  "plan_dir": ".dev-graph/staging/feature-package-feat-blog-top-page-composition",
+  "evaluator": {
+    "name": "assign-system-dev-plan-evaluator",
+    "version": "0.1.11",
+    "context": "fork"
+  },
+  "evaluated_digest": "sha256:527391117e2989ab2cdfba1fe6e95b526a8246a10561987153453687d101333c",
+  "verdict": "PASS",
+  "conditions": {
+    "C1": {
+      "id": "C1",
+      "status": "PASS",
+      "summary": "矛盾なし。task-graph.json の depends_on は P01→P13 で forward-only、write_scope の重複なし、P05(実装)とP08(移行)のwrite対象は別ファイル系統(実装は新規区画/追従ヘッダー配置ロジック、P08はhome-content.tsx/blog-top-bands.tsxの既存ロジック移行)で衝突しない。上流4 feature 依存(feat-blog-ui-builder等)のうち2件は features/*.md 上で status=draft だが、これはP01のentry gate('depends_on all done|closed のときだけ着手')が実行時に評価する条件であり、plan生成物内では矛盾ではない(finding: dependency-readiness参照)。system-spec/ui-ux.md の qa-uiux-web-kajetblog-top-composition-v4 / qa-uiux-web-top-composition-v5 (差し替え済み旧世代qa) への言及は13本のtask-specのいずれにも存在しない(gate:no-stale-qa-reference で実測 exit0)。",
+      "evidence": [
+        "task-graph.json",
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-05-implementation.md",
+        "task-specs/phase-08-refactoring-migration.md",
+        "gate:no-stale-qa-reference"
+      ]
+    },
+    "C2": {
+      "id": "C2",
+      "status": "PASS",
+      "summary": "漏れなし。feature正本が接地する qa-uiux-web-top-composition-v6 / qa-neutral-ogp-fallback-v6 / qa-request-thumbnail-coverage-v6 は repo 側 system-spec/spec-state.json の qa_log へ全件登録済み。3件とも staging 側 goal-spec.json の quality_constraints へ id 付きで literal 引用され意味反映されている(qa-request-thumbnail-coverage-v6 は初回評価時点では literal 引用が欠けており gate:qa-registration-and-goal-reflection が exit1 で FAIL していた。goal-spec.json へ `thumbnail-coverage-on-every-surface` constraint が id 付きで追加され、修正後の再実行で exit0 PASS を確認した。goal-spec.json は staging-manifest.json の files に含まれないため canonical_digest は不変)。確認済み回答が定める各要件見出し相当の内容 — マクロ構造(区画順序・件数・空状態)/外側ループ・内側ループ(各phaseのInner goal-seek execution loop)/スコープ分離(P03のfeature間責務境界レビュー)/情報配置(P01/P02のサムネイル・ヘッダー機能予算配置根拠)/書き戻し(P13のR4-reopen経由spec/architecture反映)/既存保全(P01テスト戦略の回帰保持・P08の後方互換移行) — がgoal-spec.jsonとP01〜P13全13本task-specの実行内容・受け入れ条件へ反映されている。追従ヘッダー3機能限定(サイト名/検索起動/カテゴリへの移動)はP01/P02/P05で明示列挙され、P03/P04/P07/P10/P11ではA1-A8(特にA3)のacceptance traceabilityとして、P06/P08/P09/P12/P13では実行・回帰・runbookとして一貫して trace されている。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md",
+        "task-specs/phase-02-architecture.md",
+        "task-specs/phase-03-design-review.md",
+        "task-specs/phase-04-test-design.md",
+        "task-specs/phase-05-implementation.md",
+        "task-specs/phase-06-test-run.md",
+        "task-specs/phase-07-acceptance.md",
+        "task-specs/phase-08-refactoring-migration.md",
+        "task-specs/phase-09-quality-assurance.md",
+        "task-specs/phase-10-final-review.md",
+        "task-specs/phase-11-evidence.md",
+        "task-specs/phase-12-documentation-operations.md",
+        "task-specs/phase-13-release-deploy.md",
+        "gate:qa-registration-and-goal-reflection"
+      ]
+    },
+    "C3": {
+      "id": "C3",
+      "status": "PASS",
+      "summary": "整合性あり。deterministic-validation gate (validate-system-plan.py) が0 violationsでPASSし、13本全てのtask-specがrequired sectionを充足、feature-package.json/workstream-inventory.json/task-graph.json/system-build-handoff.jsonのschema・id集合・repo identity・canonical digestが相互整合。source_feature_digest (feature-package.json) は repo 側 features/feat-blog-top-page-composition.context.json の実sha256 (95f362ca...) と一致している(gate外での手動sha256sum確認)。",
+      "evidence": [
+        "feature-package.json",
+        "workstream-inventory.json",
+        "system-build-handoff.json",
+        "staging-manifest.json",
+        "gate:deterministic-validation"
+      ]
+    },
+    "C4": {
+      "id": "C4",
+      "status": "PASS",
+      "summary": "依存関係整合。task-graph.jsonの13ノードはP01→...→P13のforward-only DAG (P08はP05から、P09はP07/P08合流、P11はP07/P09/P10、P12はP10/P11、P13はP12)で、非前方エッジ・存在しないノードへの依存は無い。deterministic-validation gateのnon-forward-edge/cross-feature-or-missing-edge検査もPASS。",
+      "evidence": [
+        "task-graph.json",
+        "gate:deterministic-validation"
+      ]
+    }
+  },
+  "gate_results": [
+    {
+      "id": "deterministic-validation",
+      "name": "validate-system-plan",
+      "command": [
+        "python3",
+        "/Users/dm/dev/dev/個人開発/harness/marketplaces/local/plugins/system-dev-planner/scripts/validate-system-plan.py",
+        "--repo-root",
+        ".",
+        "--staging",
+        ".dev-graph/staging/feature-package-feat-blog-top-page-composition"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1",
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "stdout": "{\n  \"schema_version\": \"1.0.0\",\n  \"status\": \"pass\",\n  \"validated_digest\": \"sha256:527391117e2989ab2cdfba1fe6e95b526a8246a10561987153453687d101333c\",\n  \"feature_package_id\": \"feature-package/feat-blog-top-page-composition\",\n  \"parent_feature\": \"feat-blog-top-page-composition\",\n  \"phase_refs\": [\n    \"P01\",\n    \"P02\",\n    \"P03\",\n    \"P04\",\n    \"P05\",\n    \"P06\",\n    \"P07\",\n    \"P08\",\n    \"P09\",\n    \"P10\",\n    \"P11\",\n    \"P12\",\n    \"P13\"\n  ],\n  \"violations\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "no-stale-qa-reference",
+      "name": "check-no-stale-qa-reference",
+      "command": [
+        "python3",
+        "check-no-stale-qa.py",
+        ".dev-graph/staging/feature-package-feat-blog-top-page-composition"
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C1"
+      ],
+      "stdout": "PASS: no stale qa references (v4/v5) in task-specs/*.md\n",
+      "stderr": ""
+    },
+    {
+      "id": "qa-registration-and-goal-reflection",
+      "name": "check-qa-semantic-coverage",
+      "command": [
+        "python3",
+        "check-qa-semantic-coverage.py",
+        ".dev-graph/staging/feature-package-feat-blog-top-page-composition",
+        "."
+      ],
+      "exit_code": 0,
+      "conditions": [
+        "C2"
+      ],
+      "stdout": "phrase 'サイト名' present in 3/13 task specs: ['phase-01-requirements.md', 'phase-02-architecture.md', 'phase-05-implementation.md']\nphrase '検索起動' present in 3/13 task specs: ['phase-01-requirements.md', 'phase-02-architecture.md', 'phase-05-implementation.md']\nphrase 'カテゴリへの移動' present in 3/13 task specs: ['phase-01-requirements.md', 'phase-02-architecture.md', 'phase-05-implementation.md']\nphrase 'OGP' present in 13/13 task specs: ['phase-01-requirements.md', 'phase-02-architecture.md', 'phase-03-design-review.md', 'phase-04-test-design.md', 'phase-05-implementation.md', 'phase-06-test-run.md', 'phase-07-acceptance.md', 'phase-08-refactoring-migration.md', 'phase-09-quality-assurance.md', 'phase-10-final-review.md', 'phase-11-evidence.md', 'phase-12-documentation-operations.md', 'phase-13-release-deploy.md']\nPASS: qa-*-v6 registered in qa_log, reflected in goal-spec.json, and traced into task-specs\n",
+      "stderr": ""
+    }
+  ],
+  "evaluated_inputs": [
+    {
+      "path": "feature-package.json",
+      "sha256": "c91cbe5237e7a6c43f085b3b47c59e57692223bcf646e9d30f12e16c8be20e61"
+    },
+    {
+      "path": "staging-manifest.json",
+      "sha256": "f27d767d88967bff51760e641e017113b1839a9e728fb9c8178023abd1fe43eb"
+    },
+    {
+      "path": "system-build-handoff.json",
+      "sha256": "0a8ccf0f249383cbb945705ba8592b7e643ddad94ce7f1c28a42b9d1991a8926"
+    },
+    {
+      "path": "task-graph.json",
+      "sha256": "071df75a7db9cfa25d1cdaf33bdc1b8697802750f15a645465fcae195685ba9e"
+    },
+    {
+      "path": "task-specs/phase-01-requirements.md",
+      "sha256": "0b95aaa5b6187551d27344e043ab7ef144fbb32d5a27fac49641369cb4d9dd26"
+    },
+    {
+      "path": "task-specs/phase-02-architecture.md",
+      "sha256": "073a29d73ea2428f9aefceaa425ba62bb9a61dd792f94d378b7c5c8bacf7a079"
+    },
+    {
+      "path": "task-specs/phase-03-design-review.md",
+      "sha256": "f85988c856171b9b66f92e429c29ec4f7c70a6f4701b05f7e77729e3321b9c9c"
+    },
+    {
+      "path": "task-specs/phase-04-test-design.md",
+      "sha256": "c9f868b4e65d7cb752a716fb6a4b7810d0f3d74d49d6a37e9e33d08498011a84"
+    },
+    {
+      "path": "task-specs/phase-05-implementation.md",
+      "sha256": "f273436643dd9d054d0ee56b260a1b454337d53a57082a60e3a1963f0cce44c1"
+    },
+    {
+      "path": "task-specs/phase-06-test-run.md",
+      "sha256": "743241e64eabd1f070fd367159dc57fb3f77830f4829e903533c1a90f33af728"
+    },
+    {
+      "path": "task-specs/phase-07-acceptance.md",
+      "sha256": "55987c6d70766d76ce71395103c64edc686f9a0b799a9d89682cce01ae00a6d5"
+    },
+    {
+      "path": "task-specs/phase-08-refactoring-migration.md",
+      "sha256": "d1fdd50119d56fe8222fae029bb68518e98f8514698fdef67d14fa64bf401fd8"
+    },
+    {
+      "path": "task-specs/phase-09-quality-assurance.md",
+      "sha256": "d50cc23fd21cfdf263c50acf46a0a4210c38728f7d5b3f142a80752fad4de080"
+    },
+    {
+      "path": "task-specs/phase-10-final-review.md",
+      "sha256": "4dc78ab29cfdc79a3c85b9958b89e45f8c2e23a4c2e0845fa864cdd1218019de"
+    },
+    {
+      "path": "task-specs/phase-11-evidence.md",
+      "sha256": "889aadb5e29f7ed1a5ee077f088b2b4cc14259f1be0ae691bbe9f7868d98832f"
+    },
+    {
+      "path": "task-specs/phase-12-documentation-operations.md",
+      "sha256": "79a30868aa676fc0fc284536b003da85e221958abb823b2a55fde372e1a8a5b2"
+    },
+    {
+      "path": "task-specs/phase-13-release-deploy.md",
+      "sha256": "ed7f70bacbf969444b45c0585e71d9f99a7e86c882dec077f6c9267010132f61"
+    },
+    {
+      "path": "workstream-inventory.json",
+      "sha256": "7db0dd5446d164a0ec0a0ac4c4bcf2833110406061e40d4a7e553882dcd32e7d"
+    }
+  ],
+  "staleness_rule": "evaluated_digest は staging-manifest.json の canonical_digest (sha256:527391117e2989ab2cdfba1fe6e95b526a8246a10561987153453687d101333c) と一致した状態でのみ有効。staged package の再生成・再ハッシュにより digest が変われば本 verdict は即座に stale とみなし、C11 promotion gate は本 findings を再利用してはならない。",
+  "findings": [
+    {
+      "severity": "low",
+      "bucket": "known-issue-not-fixed",
+      "observation": "全13本のtask specの Automated commands が `--feature-package feature-package/feat-blog-top-page-composition` フラグを付けて validate-system-plan.py を呼んでいるが、このフラグは repo 内 vendored fork (.claude/plugins/system-dev-planner, 0.1.0) の validator 契約であり、本評価で使用した marketplace 正本 (harness/marketplaces/local/plugins/system-dev-planner) の validate-system-plan.py には存在しない (`--staging` を要求する)。実際に `--feature-package` 付きで marketplace 版を実行すると argparse エラーで exit 2 になる。既に published 済みの他3 featureも同型のため、これは本 package 固有の欠陥ではなくリポジトリ全体の未決事項であり、修正はスコープ外として報告のみに留める。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md#Verification and evidence",
+        "task-specs/phase-05-implementation.md#Verification and evidence",
+        "task-specs/phase-13-release-deploy.md#Verification and evidence"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "qa-traceability-resolved",
+      "observation": "resolved. qa-request-thumbnail-coverage-v6 の literal 引用が goal-spec.json quality_constraints に無く、gate:qa-registration-and-goal-reflection (check-qa-semantic-coverage.py) が exit1 で FAIL していた欠落。architect 側が goal-spec.json へ `thumbnail-coverage-on-every-surface` constraint (qa-request-thumbnail-coverage-v6 を id 付きで引用) を追加し、evaluator が同一スクリプトを再実行して exit0 PASS を確認した。goal-spec.json は staging-manifest.json の files に含まれないため evaluated_digest/canonical_digest は不変 (sha256:527391117e2989ab2cdfba1fe6e95b526a8246a10561987153453687d101333c のまま)。この修正が入る前の版でこの FAIL を low severity finding へ格下げして記録したのは評価者側の誤りであり、本版で訂正した。",
+      "evidence": [
+        "gate:qa-registration-and-goal-reflection"
+      ]
+    },
+    {
+      "severity": "info",
+      "bucket": "dependency-readiness",
+      "observation": "parent feature の depends_on 4件のうち feat-thumbnail-visual-system と feat-reader-search-quality は repo 側 features/*.md frontmatter 上で status=draft (feat-blog-ui-builder / feat-reference-blog-admin-ux は active)。P01の Entry gate (`parent_feature.depends_on all done|closed`) はplan実行時に評価される運用ゲートであり、staged planの生成物自体に矛盾は無いが、P01着手前にこの2 featureの完了状況を確認する必要がある。",
+      "evidence": [
+        "task-specs/phase-01-requirements.md"
+      ]
+    }
+  ]
+}

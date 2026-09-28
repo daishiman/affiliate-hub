@@ -1,0 +1,8 @@
+$ node scripts/check-reference-site-reuse.mjs
+検査したファイル: 141 件
+構造で見る検査: 実行
+名前で見る検査: 見送り (.reference-ban.local がありません)
+被覆の検査: 実行 (母集団 7 群 / 理由つき除外 3 件)
+
+転用の疑いは 0 件です。
+exit=0

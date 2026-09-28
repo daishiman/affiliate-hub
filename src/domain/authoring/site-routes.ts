@@ -1,3 +1,4 @@
+import { ARTICLE_TYPES, type ArticleType } from "./article-structure";
 import type { SiteBlueprint, StandardPage } from "./site-blueprint";
 
 /**
@@ -47,12 +48,25 @@ export type SiteRoute = {
 };
 
 /**
- * 18 ルート。並びは仕様書 §7 の順。
+ * 30 行。並びは仕様書 §7 の順で、**索引はその記事の直前に置く**。
  *
  * `/privacy` と `/terms` は仕様上 1 項目にまとめられているが、
  * 画面は別なので 2 行に分けている。
- * ここに仕様書の 18 項目のほか、「計測について」1 本と
- * ブログの記事 2 本（一覧・記事）を足してあり、合計 22 行になる。
+ * ここに仕様書の 18 項目のほか、「計測について」1 本、
+ * ブログの記事 2 本（一覧・記事）、
+ * 記事タイプの索引 5 本（`/best`・`/reviews`・`/compare`・`/guides`・`/tools`）
+ * を足してあり、合計 30 行になる。
+ *
+ * --- 索引 5 本を足した理由（2026-09-05・残課題 ah-milz） ---
+ *
+ * `/best/{topic}` の親は `/best` である。にもかかわらず `/best` には
+ * 画面が無く、**根に置いた動的ルート `/{fixedPage}` が受けていた。**
+ * 記事のパンくずは「おすすめ順位 › 記事名」と出るのに、
+ * 「おすすめ順位」は行き先を持たない**押せない文字**だった。
+ *
+ * 押せると思って押す文字を置くのは、置かないより悪い。
+ * 索引を作れば、パンくずの親が本物のリンクになり、
+ * `BreadcrumbList` にも実在する親 URL を載せられる。
  */
 export const SITE_ROUTES = [
   {
@@ -74,38 +88,82 @@ export const SITE_ROUTES = [
     requiresDisclosure: false,
   },
   {
+    /*
+      おすすめ順位の索引。**記事と同じ `page` を持たせてある。**
+      設定で順位記事を出さないブログでは索引も出ない。別々にすると、
+      記事が 1 本も出ないブログに空の索引だけが残る。
+
+      名札は記事ルートと同じ言葉にしてある。パンくずの親のリンク文字と
+      索引の見出しが違う言葉になると、押した読者は別の場所へ来たと感じる。
+    */
+    key: "ranking-index",
+    path: "/best",
+    label: "おすすめ順位",
+    kind: "listing",
+    reachedFrom: "順位記事のパンくず・トップ・カテゴリーページ",
+    page: "ranking",
+    requiresDisclosure: false,
+  },
+  {
     key: "ranking",
     path: "/best/{topic}",
     label: "おすすめ順位",
     kind: "article",
-    reachedFrom: "トップ・カテゴリーページ",
+    reachedFrom: "おすすめ順位の索引・トップ・カテゴリーページ",
     page: "ranking",
     requiresDisclosure: true,
+  },
+  {
+    key: "review-index",
+    path: "/reviews",
+    label: "個別レビュー",
+    kind: "listing",
+    reachedFrom: "レビュー記事のパンくず・トップ",
+    page: "review",
+    requiresDisclosure: false,
   },
   {
     key: "review",
     path: "/reviews/{product}",
     label: "個別レビュー",
     kind: "article",
-    reachedFrom: "順位表の商品名・比較表の商品名",
+    reachedFrom: "個別レビューの索引・順位表の商品名・比較表の商品名",
     page: "review",
     requiresDisclosure: true,
+  },
+  {
+    key: "comparison-index",
+    path: "/compare",
+    label: "比較",
+    kind: "listing",
+    reachedFrom: "比較記事のパンくず・トップ・カテゴリーページ",
+    page: "comparison",
+    requiresDisclosure: false,
   },
   {
     key: "comparison",
     path: "/compare/{comparison}",
     label: "比較",
     kind: "article",
-    reachedFrom: "カテゴリーページ・記事内リンク",
+    reachedFrom: "比較の索引・カテゴリーページ・記事内リンク",
     page: "comparison",
     requiresDisclosure: true,
+  },
+  {
+    key: "guide-index",
+    path: "/guides",
+    label: "選び方・使い方",
+    kind: "listing",
+    reachedFrom: "選び方の記事のパンくず・トップの初心者向け導線",
+    page: "how_to_choose",
+    requiresDisclosure: false,
   },
   {
     key: "guide",
     path: "/guides/{topic}",
     label: "選び方・使い方",
     kind: "article",
-    reachedFrom: "トップの初心者向け導線・カテゴリーページ",
+    reachedFrom: "選び方・使い方の索引・トップの初心者向け導線・カテゴリーページ",
     page: "how_to_choose",
     requiresDisclosure: true,
   },
@@ -152,11 +210,24 @@ export const SITE_ROUTES = [
     requiresDisclosure: false,
   },
   {
+    /*
+      道具の索引だけは `kind: "listing"`。道具そのものは操作する画面だが、
+      索引は「どんな道具があるか」を並べるだけで、操作は 1 つも持たない。
+    */
+    key: "tool-index",
+    path: "/tools",
+    label: "診断・計算",
+    kind: "listing",
+    reachedFrom: "道具のページのパンくず・トップ・カテゴリーページ",
+    page: "tools",
+    requiresDisclosure: false,
+  },
+  {
     key: "tool",
     path: "/tools/{tool}",
     label: "診断・計算",
     kind: "interactive",
-    reachedFrom: "トップ・カテゴリーページ",
+    reachedFrom: "診断・計算の索引・トップ・カテゴリーページ",
     page: "tools",
     requiresDisclosure: false,
   },
@@ -424,4 +495,102 @@ export function buildPath(
 /** ルートの引き当て。無い名前を渡したら null（画面側で 404 にする）。 */
 export function findRoute(key: string): SiteRoute | null {
   return SITE_ROUTES.find((r) => r.key === key) ?? null;
+}
+
+/**
+ * 記事タイプ → その索引ルートの鍵。
+ *
+ * `satisfies Record<ArticleType, …>` にしてあるので、記事タイプを 1 つ足すと
+ * **ここが型で赤くなる。**索引を作らないまま記事タイプだけ増えると、
+ * その種類の記事のパンくずの親だけが押せない文字に戻る。
+ */
+export const ARTICLE_INDEX_ROUTE_KEY = {
+  ranking: "ranking-index",
+  review: "review-index",
+  comparison: "comparison-index",
+  guide: "guide-index",
+  tool: "tool-index",
+} as const satisfies Readonly<Record<ArticleType, string>>;
+
+/**
+ * 記事タイプの索引ルート。**URL も名札もここ 1 か所から出す。**
+ *
+ * 記事画面のパンくずの親と、索引画面自身の見出しが同じ言葉になるのは
+ * 両方がこれを呼ぶからである。画面側に文字列で持たせると、
+ * 「おすすめ順位」を押したら「ランキング」という見出しが出る、が作れてしまう。
+ */
+export function articleIndexRoute(type: ArticleType): SiteRoute {
+  const key = ARTICLE_INDEX_ROUTE_KEY[type];
+  const route = findRoute(key);
+  /*
+    表に無いのはコードの誤りで、読者の入力では起こらない。
+    既定値で塞ぐと、パンくずの親だけが別の言葉のまま公開される。黙らせない。
+  */
+  if (route === null) throw new Error(`ルート表に ${key} がありません`);
+  return route;
+}
+
+// ---------------------------------------------------------------------------
+// 機械（検索・AI 検索）へ渡してよい入口
+// ---------------------------------------------------------------------------
+
+/**
+ * 中身が**閲覧者ごとに違う**ルート。sitemap には載せない。
+ *
+ * `/search` はクエリが無ければ入力欄しか無く、`/shortlist` はその端末に
+ * 保存した商品だけを出す。クローラーが開くとどちらも中身が空になる。
+ * 空の URL を「これが私のページです」と差し出すのは、渡さないより悪い。
+ *
+ * **`kind: "interactive"` で括らない。**`/contact` も interactive だが、
+ * こちらは誰が開いても同じ案内が出る本物の固定ページで、載せてよい。
+ * 分けているのは操作の有無ではなく「中身が閲覧者に依るか」である。
+ */
+const VIEWER_SPECIFIC_ROUTE_KEYS = [
+  "search",
+  "shortlist",
+] as const satisfies readonly SiteRouteEntry["key"][];
+
+/**
+ * その URL を機械へ差し出してよいか。
+ *
+ * 落とすのは 3 種類だけ:
+ * 1. `{name}` を含む型（値を知らないと URL にならない。記事・カテゴリー・
+ *    書き手などは、値を持っている呼び出し側が別に足す）
+ * 2. 旧 URL の転送ルート（`kind: "fixed-page"`。308 で別の URL へ送るので、
+ *    載せると canonical でない住所を宣伝することになる）
+ * 3. 閲覧者ごとに中身が違うルート（上の `VIEWER_SPECIFIC_ROUTE_KEYS`）
+ */
+export function isCrawlableRoute(route: SiteRoute): boolean {
+  return (
+    !route.path.includes("{") &&
+    route.kind !== "fixed-page" &&
+    !(VIEWER_SPECIFIC_ROUTE_KEYS as readonly string[]).includes(route.key)
+  );
+}
+
+/** 全記事を並べる一覧。設定では消せない、ブログの骨格そのもの。 */
+const ALL_ARTICLE_LISTING_KEYS = [
+  "home",
+  "blog",
+] as const satisfies readonly SiteRouteEntry["key"][];
+
+const ARTICLE_INDEX_KEYS: readonly string[] = ARTICLE_TYPES.map(
+  (type) => ARTICLE_INDEX_ROUTE_KEY[type],
+);
+
+/**
+ * この画面が並べる記事の選び方。sitemap の `lastmod` と
+ * 「空の索引を載せない」判定の両方がここを見る。
+ *
+ * - `all`: 全記事（トップ・記事一覧）
+ * - `under-path`: その道の下の記事（記事タイプの索引。`/best` に対する `/best/…`）
+ * - `none`: 一覧ではない（方針・問い合わせなど）
+ *
+ * **記事タイプの索引を path の形で見分けない。**「1 段の道は索引」と読むと、
+ * `/measurement` のような固定ページまで索引に見える。鍵で引く。
+ */
+export function listedArticleScope(route: SiteRoute): "all" | "under-path" | "none" {
+  if ((ALL_ARTICLE_LISTING_KEYS as readonly string[]).includes(route.key)) return "all";
+  if (ARTICLE_INDEX_KEYS.includes(route.key)) return "under-path";
+  return "none";
 }

@@ -12,7 +12,7 @@ iteration: null
 title: "改善要望の写しから送信 UI 自身を外す（撮影中だけ自動で隠す）"
 owners: ["daishiman"]
 created_at: "2026-08-30T03:37:16Z"
-updated_at: "2026-09-07T15:54:29.215008Z"
+updated_at: "2026-09-09T10:22:27Z"
 status: "active"
 depends_on: ["feat-improvement-feedback"]
 related_nodes: []
@@ -33,7 +33,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d","evaluator":"system-dev-plan-evaluator","evidence_ref":".dev-graph/published/generations/feature-package-feat-feedback-capture-self-exclusion/892cd5611c443a5f90b97047a9542489c44be963ff4d775c30b640e7aca40b7d/plan-findings.json"}
-source_lineage: {"imported_at":"2026-09-07T15:53:28Z","origin_kind":"system-spec-harness","source_digest":"b510acf0dcaa4ac8731560386a1e2ab0fa3284fed594391394628aa5e19eb6fa","source_path":"system-spec/frontend.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-11T00:00:00Z","origin_kind":"system-spec-harness","source_digest":"1516f482855cab4d6b45e7735b700ee2e1ac03fa1aa3296dd0d7c461027fc5cb","source_path":"system-spec/frontend.md","source_plugin":"system-spec-harness","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "system-spec frontend×web 確定質疑 qa-frontend-web-capture-self-occlusion を作業単位として登録"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-feedback-capture-self-exclusion.md","confidence":0.95}]

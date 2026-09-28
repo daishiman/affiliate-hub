@@ -100,7 +100,7 @@ def _add_new_entry(state: dict, asks_for: object) -> None:
 
 
 def _cycle(state: dict, qa_ref: str = NEW_ID) -> None:
-    stm.apply_cell_op(state, {"action": "reopen", **CELL, "reason": "測定のため"})
+    stm.apply_cell_op(state, {"action": "reopen", **CELL, "reason": "測定のため", "qa_ref": ORIGIN_ID})
     stm.apply_cell_op(state, {"action": "confirm", **CELL, "qa_ref": qa_ref})
 
 
@@ -216,7 +216,7 @@ def test_extend_refuses_on_unconfirmed_cell() -> None:
     """確定していないセルへは書かない。"""
     state = _state()
     _add_new_entry(state, [dict(CELL)])
-    stm.apply_cell_op(state, {"action": "reopen", **CELL, "reason": "測定のため"})
+    stm.apply_cell_op(state, {"action": "reopen", **CELL, "reason": "測定のため", "qa_ref": ORIGIN_ID})
     with pytest.raises(TransitionError, match="extend-qa-refs 不可"):
         _extend(state)
 

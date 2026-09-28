@@ -267,6 +267,8 @@ describe("改善要望を受け取る", () => {
         workspaceId: WORKSPACE,
         kind: "not_working",
         body: "送信できません。",
+        // 以下の `as never` は**表明**。型が禁じている値を保存境界から受け取った回を
+        // 再現するのがこの検査の主題なので、ここだけは型を外して渡す。
         origin: {
           screenName: null as never,
           url: { token: "secret-token" } as never,

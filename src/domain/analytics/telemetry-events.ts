@@ -185,11 +185,11 @@ export const TELEMETRY_EVENTS = {
     label: "サイト内で探した",
     category: "reader",
     consent: "behaviour",
-    why: "探しても見つからない言葉を知る。記事の不足がここに出る。",
+    why: "検索結果が0件だった割合を知り、記事や入口を見直す。現在の読者画面は検索語を記録しない。",
     fields: {
       siteSlug: "string",
-      /** 検索語。**同意がある場合だけ送る**（consent: behaviour）。 */
-      query: "string",
+      /** 旧データ互換用。現在の読者UIは検索語を送信しない。 */
+      query: "string?",
       resultCount: "number",
     },
   },

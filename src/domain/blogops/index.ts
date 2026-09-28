@@ -21,3 +21,6 @@ export * from "./prose-node";
 export * from "./prose-inline";
 export * from "./prose-allowlist";
 export * from "./prose-format";
+export * from "./thumbnail";
+export * from "./thumbnail-asset";
+export * from "./article-sort";

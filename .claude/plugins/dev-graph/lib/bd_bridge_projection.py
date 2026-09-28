@@ -75,8 +75,12 @@ def create_one(
         actual_type = detail.get("issue_type") or detail.get("type")
         if actual_type and actual_type != issue_type:
             raise ContractError(f"existing {graph_node_id} has type {actual_type}, expected {issue_type}")
-        actual_parent = detail.get("parent") or detail.get("parent_id")
-        if parent and str(actual_parent) != parent:
+        actual_parent = detail.get("parent")
+        if actual_parent in (None, ""):
+            actual_parent = detail.get("parent_id")
+        parent_missing = actual_parent in (None, "")
+        parent_adopted = bool(parent and parent_missing)
+        if parent and not parent_missing and str(actual_parent) != parent:
             raise ContractError(f"existing {graph_node_id} belongs to a different epic")
         metadata = detail.get("metadata") if isinstance(detail.get("metadata"), dict) else {}
         current_digest = metadata.get("dev_graph_source_digest")
@@ -95,9 +99,21 @@ def create_one(
                 argv += ["--status", "open"]
             argv += ["--json"]
             updated = bd(argv, cwd=root)
-            return {
+            receipt = {
                 "id": existing_id, "external_ref": graph_node_id,
                 "superseded": True, "source_digest": source_digest, "updated": updated,
+            }
+            if parent_adopted:
+                receipt.update({"parent_adopted": True, "parent": parent})
+            return receipt
+        if parent_adopted:
+            updated = bd(["update", existing_id, "--parent", parent, "--json"], cwd=root)
+            return {
+                "id": existing_id,
+                "external_ref": graph_node_id,
+                "parent_adopted": True,
+                "parent": parent,
+                "updated": updated,
             }
         return {"id": existing_id, "external_ref": graph_node_id, "idempotent": True}
     argv = [

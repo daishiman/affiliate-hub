@@ -21,6 +21,7 @@ import type { DrizzleD1 } from "@/infrastructure/persistence/d1/link-inbox-repos
 import { createD1ProductRepository } from "@/infrastructure/persistence/d1/product-repository";
 import { sampleProducts } from "@/infrastructure/persistence/sample/product-sample-repository";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
+import { asProductId } from "@/domain/shared";
 
 const WS = SAMPLE_WORKSPACE_ID as WorkspaceId;
 const SAMPLE = sampleProducts();
@@ -115,7 +116,7 @@ describe("商品の保存先（D1）が見本と保存分を重ねる", () => {
   it("無い ID を引いたら、落ちずに「無い」と返す", async () => {
     const result = await createD1ProductRepository(fakeDb({})).findById(
       WS,
-      "p_nonexistent" as never,
+      asProductId("p_nonexistent"),
     );
 
     expect(result.ok).toBe(true);
@@ -201,7 +202,7 @@ describe("商品の保存と削除", () => {
   it("行が消えたなら、消えたと返す", async () => {
     const result = await createD1ProductRepository(fakeDb({ deleted: 1 })).remove(
       WS,
-      "p_stored_01" as never,
+      asProductId("p_stored_01"),
     );
 
     expect(result.ok).toBe(true);

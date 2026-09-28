@@ -22,8 +22,7 @@ export default async function GuideArticlePage({
     <ArticlePage
       siteSlug={site}
       slug={topic}
-      pathPrefix="/guides"
-      routeLabel="選び方・使い方"
+      type="guide"
     />
   );
 }

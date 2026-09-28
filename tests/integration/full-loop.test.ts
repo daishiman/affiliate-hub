@@ -43,7 +43,7 @@ import { createDeps } from "@/infrastructure/composition";
 import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
 import { anOwner } from "../support/actors";
-import { aChannelConnection } from "../support/factories";
+import { aChannelConnection, aProvenance } from "../support/factories";
 import { recordingAuditLog, recordingEvents, testDeps } from "../support/doubles";
 
 /**
@@ -311,14 +311,14 @@ function aSpec(id: string, label: string, value: string): VariantSpec {
     id,
     label,
     settings: [{ dimensionKey: "summary_position", value }],
-    provenance: {
-      source: "test",
-      collectedAt: NOW,
-      note: "1 周を通すための見本",
-    },
+    provenance: aProvenance({
+      sourceType: "test",
+      sourceName: "1 周を通すための見本",
+      retrievedAt: NOW,
+    }),
     approvedBy: "user-owner",
     approvedAt: NOW,
-  } as unknown as VariantSpec;
+  };
 }
 
 function aRun(): LoopRun {
@@ -337,7 +337,7 @@ function aRun(): LoopRun {
     concludedAt: null,
     verdict: null,
     stoppedReason: null,
-  } as unknown as LoopRun;
+  };
 }
 
 /** 差がはっきり出ていて、件数も足りている観測値。 */

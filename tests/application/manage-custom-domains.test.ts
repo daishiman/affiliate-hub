@@ -72,16 +72,33 @@ function aDomain(over: Partial<CustomDomain> = {}): CustomDomain {
  * 外部を消す、という向きが崩れると、外部 API が落ちている間は
  * 取り下げが 1 件もできなくなる。
  */
-function fakeRepo(seed: readonly CustomDomain[] = [], trace: string[] = []) {
+type RepoOp =
+  | "listForSite"
+  | "listForWorkspace"
+  | "register"
+  | "applySnapshot"
+  | "setCanonical"
+  | "revoke";
+
+function fakeRepo(
+  seed: readonly CustomDomain[] = [],
+  trace: string[] = [],
+  fail: Partial<Record<RepoOp, true>> = {},
+) {
   let rows = [...seed];
   const calls = trace;
+  /** 保存先の故障。**どの操作が落ちたか**を文面に残して取り違えを防ぐ。 */
+  const broken = (op: RepoOp) =>
+    err(domainError("UPSTREAM_UNAVAILABLE", `保存先の ${op} に失敗しました。`));
   const port: CustomDomainRepositoryPort = {
     async listForSite(_ws, siteSlug) {
       calls.push("listForSite");
+      if (fail.listForSite) return broken("listForSite");
       return ok(rows.filter((r) => r.siteSlug === siteSlug));
     },
     async listForWorkspace() {
       calls.push("listForWorkspace");
+      if (fail.listForWorkspace) return broken("listForWorkspace");
       return ok(rows);
     },
     async findActiveByHostname(hostname) {
@@ -89,12 +106,14 @@ function fakeRepo(seed: readonly CustomDomain[] = [], trace: string[] = []) {
     },
     async register(_ws, siteSlug, hostname) {
       calls.push("register");
+      if (fail.register) return broken("register");
       const created = aDomain({ id: `dom-${rows.length + 1}`, siteSlug, hostname });
       rows = [...rows, created];
       return ok(created);
     },
     async applySnapshot(_ws, domainId, snapshot) {
       calls.push("applySnapshot");
+      if (fail.applySnapshot) return broken("applySnapshot");
       rows = rows.map((r) =>
         r.id === domainId
           ? {
@@ -111,6 +130,7 @@ function fakeRepo(seed: readonly CustomDomain[] = [], trace: string[] = []) {
     },
     async setCanonical(_ws, siteSlug, domainId) {
       calls.push("setCanonical");
+      if (fail.setCanonical) return broken("setCanonical");
       rows = rows.map((r) =>
         r.siteSlug === siteSlug ? { ...r, canonical: r.id === domainId } : r,
       );
@@ -118,6 +138,7 @@ function fakeRepo(seed: readonly CustomDomain[] = [], trace: string[] = []) {
     },
     async revoke(_ws, domainId) {
       calls.push("revoke");
+      if (fail.revoke) return broken("revoke");
       rows = rows.map((r) => (r.id === domainId ? { ...r, status: "revoked", canonical: false } : r));
       return ok(true);
     },
@@ -412,5 +433,210 @@ describe("見るのと変えるのは別の権限", () => {
 
     expect(result.ok).toBe(false);
     expect(repo.rows()[0].canonical).toBe(false);
+  });
+});
+
+/*
+ * 正規の住所は「同じ記事が 2 つの住所で読める」状態を終わらせるための
+ * 唯一の宣言で、検索側はこれを見て重複を畳む。切り替えが黙って半分だけ
+ * 効くと、片方の住所だけが評価を集め続ける。
+ */
+describe("正規の住所を切り替える", () => {
+  it("正規はブログ 1 本につき 1 つだけになる（前の指定は降りる）", async () => {
+    const repo = fakeRepo([
+      aDomain({ id: "dom-1", status: "active", certificateStatus: "issued", canonical: true }),
+      aDomain({
+        id: "dom-2",
+        hostname: "new.example.com",
+        status: "active",
+        certificateStatus: "issued",
+      }),
+    ]);
+    const { usecase, audit } = useCase({ repo });
+
+    const result = await usecase.execute(owner(), {
+      action: "set_canonical",
+      siteSlug: SITE,
+      domainId: "dom-2",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(repo.rows().filter((r) => r.canonical).map((r) => r.id)).toEqual(["dom-2"]);
+    // 画面が自前で行を継ぎ足さないよう、切り替えのあとは読み直した姿を返す。
+    expect(result.value.canonical).toEqual({ kind: "custom", hostname: "new.example.com" });
+    expect(audit.entries).toEqual(["blog_domain.canonical_changed"]);
+  });
+
+  it("保存先が断ったら記録も残さない（記録だけが先走らない）", async () => {
+    const repo = fakeRepo([aDomain({ status: "active" })], [], { setCanonical: true });
+    const { usecase, audit } = useCase({ repo });
+
+    const result = await usecase.execute(owner(), {
+      action: "set_canonical",
+      siteSlug: SITE,
+      domainId: "dom-1",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(audit.entries).toEqual([]);
+  });
+
+  it("記録が書けなければ「切り替えた」と言わない", async () => {
+    const repo = fakeRepo([aDomain({ status: "active" })]);
+    const { usecase } = useCase({ repo, audit: fakeAudit(true) });
+
+    const result = await usecase.execute(owner(), {
+      action: "set_canonical",
+      siteSlug: SITE,
+      domainId: "dom-1",
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("ブログを指さない一覧では、正規の住所を答えずに null を返す", async () => {
+    const repo = fakeRepo([aDomain({ status: "active", canonical: true })]);
+    const { usecase } = useCase({ repo });
+
+    // ブログを指さない = siteSlug を渡さない。null は入力として受け取らない。
+    const result = await usecase.execute(owner(), { action: "read" });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // workspace 全体では「どのブログの正規か」が決まらない。でっち上げない。
+    expect(result.value.canonical).toBeNull();
+    expect(repo.calls).toEqual(["listForWorkspace"]);
+  });
+});
+
+/*
+ * 保存先が落ちたときに、済んでいない操作を済んだ形で返さないこと。
+ * ここは全部「そのまま上へ返す」枝で、握り潰すと画面には成功が出る。
+ */
+describe("保存先の故障は握り潰さない", () => {
+  it.each([
+    ["ブログ 1 本の一覧", { action: "read", siteSlug: SITE } as const, { listForSite: true } as const],
+    ["workspace 全体の一覧", { action: "read" } as const, { listForWorkspace: true } as const],
+    ["登録", { action: "register", siteSlug: SITE, hostname: "blog.example.com" } as const, { register: true } as const],
+  ])("%s が落ちたら失敗として返る", async (_label, input, fail) => {
+    const repo = fakeRepo([], [], fail);
+    const { usecase, provider } = useCase({ repo });
+
+    const result = await usecase.execute(owner(), input);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("UPSTREAM_UNAVAILABLE");
+    // 登録が保存できていないのに外部へ申し込むと、こちらに行の無い
+    // ホスト名が向こうに残る。
+    expect(provider.calls).toHaveLength(0);
+  });
+
+  it("申し込みは通ったのに写し取りが落ちたら、成功にしない", async () => {
+    const repo = fakeRepo([], [], { applySnapshot: true });
+    const { usecase } = useCase({ repo });
+
+    const result = await usecase.execute(owner(), {
+      action: "register",
+      siteSlug: SITE,
+      hostname: "blog.example.com",
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("状態の取り直しで外部が落ちたら、そのまま失敗として返る", async () => {
+    const repo = fakeRepo([aDomain({ externalHostnameId: "cf-1" })]);
+    const provider = fakeProvider({ snapshot: true });
+    const { usecase } = useCase({ repo, provider });
+
+    const result = await usecase.execute(owner(), {
+      action: "sync",
+      siteSlug: SITE,
+      domainId: "dom-1",
+    });
+
+    expect(result.ok).toBe(false);
+    // 登録と違い、取り直しは「済んだこと」が何も無い。notice で濁さない。
+    expect(repo.rows()[0].status).toBe("pending");
+  });
+
+  it("取り直した状態を書けなかったら、成功にしない", async () => {
+    const repo = fakeRepo([aDomain({ externalHostnameId: "cf-1" })], [], { applySnapshot: true });
+    const { usecase } = useCase({ repo });
+
+    const result = await usecase.execute(owner(), {
+      action: "sync",
+      siteSlug: SITE,
+      domainId: "dom-1",
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("取り直しの記録が書けなければ失敗として返る", async () => {
+    const repo = fakeRepo([aDomain({ externalHostnameId: "cf-1" })]);
+    const { usecase } = useCase({ repo, audit: fakeAudit(true) });
+
+    const result = await usecase.execute(owner(), {
+      action: "sync",
+      siteSlug: SITE,
+      domainId: "dom-1",
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("知らない id は、別ブログの行を触らずに断る", async () => {
+    const repo = fakeRepo([aDomain({ status: "active", externalHostnameId: "cf-1" })]);
+    const { usecase, provider } = useCase({ repo });
+
+    const result = await usecase.execute(owner(), {
+      action: "sync",
+      siteSlug: SITE,
+      domainId: "dom-999",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    // 直せる入力欄が無いので、欄の名前を付けない（付けると誰にも見えずに捨てられる）。
+    expect(result.error.details?.["field"]).toBeUndefined();
+    expect(provider.calls).toHaveLength(0);
+  });
+
+  it("取り下げを保存できなければ、外部にも触らない", async () => {
+    const trace: string[] = [];
+    const repo = fakeRepo([aDomain({ status: "active", externalHostnameId: "cf-1" })], trace, {
+      revoke: true,
+    });
+    const provider = fakeProvider({}, trace);
+    const { usecase } = useCase({ repo, provider });
+
+    const result = await usecase.execute(owner(), {
+      action: "revoke",
+      siteSlug: SITE,
+      domainId: "dom-1",
+      reason: "移転",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(trace).not.toContain("release");
+  });
+
+  it("外部 id を持たない行の取り下げでは、外部を呼ばない", async () => {
+    const repo = fakeRepo([aDomain({ status: "active", externalHostnameId: null })]);
+    const provider = fakeProvider();
+    const { usecase } = useCase({ repo, provider });
+
+    const result = await usecase.execute(owner(), {
+      action: "revoke",
+      siteSlug: SITE,
+      domainId: "dom-1",
+      reason: "申し込み前に取り下げる",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(provider.calls).toHaveLength(0);
   });
 });

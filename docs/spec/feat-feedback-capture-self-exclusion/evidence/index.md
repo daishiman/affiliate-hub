@@ -18,6 +18,8 @@
 | A7 | `tests/ui/floating-overlay-declaration.test.ts` | 下の変異手順 (1) |
 | A1（CSS 側） | `tests/e2e/capture-self-exclusion.spec.ts` — 本物の Chromium で `getComputedStyle(...).visibility` を見る | `pnpm exec playwright test tests/e2e/capture-self-exclusion.spec.ts` → desktop/mobile 4 件緑 |
 | A1（実 capture probe） | `evidence/10-display-capture-probe.txt` | Chromium の `getDisplayMedia` は OS screen recording 境界で `NotReadableError`。直接画素証跡としては不採用 |
+| **A1（実画素・本証跡）** | `evidence/12-capture-pixel-e2e.txt` — `tests/e2e/capture-pixel-exclusion.spec.ts` | `pnpm test:e2e:capture-pixel` → 1 passed。`floatingHits=0 / anchorHits=175561 / size=4480x3150`（2026-09-05 実測） |
+| A6/A7（P08 統一） | `evidence/13-floating-overlay-unification.txt` | 重なり監査の `querySelector` 単数前提を複数の帯へ直した記録 |
 
 **A1 に代理証跡が 3 段ある理由。** 退避は「属性を立てる側（TypeScript）」と
 「それを見て隠す側（CSS）」に分かれ、さらにその後の video frame 到着を待つ。
@@ -26,8 +28,21 @@
 セレクタが CSS Modules に握り潰されても、**単体は全部緑のまま写り込みだけが戻る。**
 後者は本物のブラウザでしか測れない。
 
-ただし 3 段はどれも入力・中間状態の代理観測である。**capture 出力自体の
-画素は読んでいない**ため、A1 の「1画素も含まれない」は PARTIAL のままとする。
+3 段はどれも入力・中間状態の代理観測であり、**capture 出力自体の画素は読んでいない。**
+そのため 2026-09-04 まで A1 は PARTIAL としていた。
+
+**2026-09-05 に PARTIAL を解消した。**`tests/e2e/capture-pixel-exclusion.spec.ts` が
+アプリ本体の経路（実際の「改善したいことを送る」ボタン → 実際の
+`getDisplayMedia({ video: true, preferCurrentTab: true })`）を走らせ、
+送信 UI が載せた canvas の**原寸の画素**（4480×3150 = 14,112,000 画素）を数える。
+
+  - 浮遊要素 `[data-floating-overlay]` に magenta を塗る → 写しに **0 画素**
+  - 浮遊**でない**固定要素に cyan を塗る → 写しに **175,561 画素**（対照）
+
+**対照を先に検査しているのが要点である。**`toBe(0)` は走査が壊れていても通るので、
+「無いことの証明」には「同じ手段で在るものが見つかる」ことが要る。
+合成映像への差し替えはしていない。詳細と、走らせるのに要った 3 つの起動条件
+（およびそれが撮影の中身を偽らない理由）は `12-capture-pixel-e2e.txt` に書いた。
 
 ## 変異手順（検査が空でないことの確認）
 
@@ -51,11 +66,13 @@ pnpm exec playwright test tests/e2e/capture-self-exclusion.spec.ts
 |---|---|---|
 | 型 | `pnpm run typecheck` | エラー 0 |
 | 静的解析 | `pnpm run lint` | 指摘 0 |
-| 単体・結合 | `pnpm vitest run` | 411 files / 9907 tests passed |
+| 単体・結合 | `pnpm vitest run` | 411 files / 9907 tests passed（2026-09-03）→ **493 files / 10981 passed / 0 failed**（2026-09-05） |
 | feature 対象 | `pnpm exec vitest run tests/ui/feedback-capture-exclusion.test.tsx tests/ui/floating-overlay-declaration.test.ts` | 2 files / 22 passed |
 | 受入 reconciliation | `pnpm run acceptance:reconcile` | PASS — 10 IDs / 196 evidence files、`sha256:35822cc2…` |
 | 受入 reconciliation test | `pnpm exec vitest run tests/architecture/acceptance-reconciliation.test.ts` | 5 passed |
 | 画面 (e2e) | `pnpm exec playwright test tests/e2e/capture-self-exclusion.spec.ts` | 4 passed (desktop/mobile × 2) |
+| 画面 (e2e 全件) | `pnpm run test:e2e` | **508 passed / 2 skipped / 0 failed**（2026-09-05・342s） |
+| 画面 (実画素) | `pnpm test:e2e:capture-pixel` | **1 passed**（`floatingHits=0`・要 headed 実行環境） |
 | 計画 | `python3 .claude/plugins/system-dev-planner/scripts/validate-system-plan.py --repo-root . --feature-package feature-package/feat-feedback-capture-self-exclusion` | status=pass / violations 0 / digest `sha256:892cd561…` |
 | graph | `python3 .claude/plugins/dev-graph/scripts/validate-graph-schema.py --repo-root . --graph .dev-graph/state/graph.json` | valid / violations 0 |
 | system-spec freshness | `node scripts/spec-freshness.mjs` | FRESH / PASS / 94 inputs |
@@ -83,3 +100,15 @@ epic `ah-0d2q` → task `ah-w6y` を型制約で拒否する。正規 bridge に
 
 P13 は実 commit / PR / CI / merge 後にだけ閉じる。現時点の blocked/open 状態は、公開を
 行っていない事実と一致しており、ローカルの13-phase構造やvalidatorの不整合ではない。
+
+## 2026-09-05 の更新点
+
+1. **A1 が PARTIAL でなくなった。**実画素証跡 `12-capture-pixel-e2e.txt` を取得した。
+   代理証跡 3 段は消していない——実画素の検査は headed の実行環境でしか走らないため、
+   CI で毎回効く網は依然として代理証跡の側だからである。
+2. **E2E を全件走らせた。**2026-09-03 時点で緑を主張していたのは
+   `capture-self-exclusion.spec.ts` の 4 件だけで、`pnpm run test:e2e`（全件）は赤だった。
+   赤の 3 件（ah-od20 / ah-g4ev / ah-t8jr）は本 feature の外の指摘だが、
+   **「関係ないので緑とみなす」とはせず実際に直してから**数え直した。
+3. **閾値・免除表・除外表・母集団の床は 1 つも動かしていない。**
+   `KNOWN_STALE_MAX` も上げず、`pnpm run generate` で生成物の側を合わせた。

@@ -12,7 +12,7 @@ iteration: null
 title: "改善要望フィードバック（受け取り → 一覧 → 払い出し）"
 owners: ["daishiman"]
 created_at: "2026-08-17T00:00:00Z"
-updated_at: "2026-08-30T12:03:07Z"
+updated_at: "2026-09-09T10:20:35Z"
 status: "closed"
 closed_at: "2026-08-17T04:25:22Z"
 depends_on: []
@@ -34,7 +34,7 @@ template_version: "1.0.0"
 confirmation_status: "draft"
 evaluation_status: "pending"
 confirmation_evidence: {"evaluated_digest":"f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856","evaluator":"app-orchestrator/decompose-redo","evidence_ref":"docs/spec/12-改善要望フィードバック仕様.md"}
-source_lineage: {"imported_at":"2026-08-17T00:00:00Z","origin_kind":"generated","source_digest":"f814f1a62e30eebb4512ba0c7964bfdb6986c4007af406aab7d8d7e58e17a856","source_path":"docs/spec/12-改善要望フィードバック仕様.md","source_plugin":"app-orchestrator","source_version":"1.0.0"}
+source_lineage: {"imported_at":"2026-09-09T10:20:35Z","origin_kind":"generated","source_digest":"63724449bb0a61f4cb3c88f15ebbda784cee1e529b5d284c37c6ecf52b8a2a22","source_path":"docs/spec/12-改善要望フィードバック仕様.md","source_plugin":"app-orchestrator","source_version":"1.0.0"}
 classification_confidence: 0.95
 classification_reason: "docs/product/backlog.md の残課題を作業単位として登録"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-improvement-feedback.md","confidence":0.95}]

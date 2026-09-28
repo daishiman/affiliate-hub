@@ -85,7 +85,7 @@ export default async function ReaderToolPage({
     ここで先に打ち切ると、記事だけ書かれている道具が永久に読めない。
   */
   if (!definition.ok && definition.error.code === "NOT_FOUND") {
-    return <ArticlePage siteSlug={site} slug={tool} pathPrefix="/tools" routeLabel="診断・計算" />;
+    return <ArticlePage siteSlug={site} slug={tool} type="tool" />;
   }
   if (!definition.ok) {
     return (
@@ -126,8 +126,7 @@ export default async function ReaderToolPage({
     <ArticlePage
       siteSlug={site}
       slug={tool}
-      pathPrefix="/tools"
-      routeLabel="診断・計算"
+      type="tool"
       fallbackTitle={definition.value.name}
       interactiveSlot={section}
       whenArticleMissing={

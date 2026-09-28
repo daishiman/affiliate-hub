@@ -1,0 +1,207 @@
+{
+  "schema": "dev-graph-requirements-handoff/v1",
+  "emitted_at": "2026-09-04T13:00:00Z",
+  "feature_id": "feat-seo-aeo-measurement-loop",
+  "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+  "graph_revision": 463,
+  "graph_snapshot_digest": "sha256:c6a9b3c405b1c23842659b80e914c70979f381e221267a16ad8551055cdfe341",
+  "scope_digest": "sha256:2e5944eb59e61ef871d7a39ad0354f59a33bd7198f93f6db535099178874c5ad",
+  "handoff_target": "task-graph",
+  "requirements_quality": "detailed",
+  "requirements_document": "docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md",
+  "requirements_document_sha256": "25ff6c45525584f86ffe9f8723fc275669983c746dacbd77372c61b3986ea806",
+  "implementation_code_generated": 0,
+  "promoted_generation": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop",
+  "lineage_closure": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform",
+    "feat-seo-aeo-measurement-loop",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P01",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P13"
+  ],
+  "readiness": {
+    "status": "complete",
+    "missing_sections": [],
+    "remediation_owner": null
+  },
+  "requirements_quality_source": "user-explicit",
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "source_digest": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-source-digest.py --repo-root . --registered <13-task-node-ids>",
+      "exit": 0,
+      "checked": 13,
+      "registered_mismatch": 0
+    },
+    "C02_saved_state": {
+      "checked": 14,
+      "confirmed_pass_complete": 14,
+      "missing_sections": []
+    },
+    "validate_system_plan": {
+      "command": "python3 /Users/dm/dev/dev/個人開発/harness/plugins/system-dev-planner/scripts/validate-system-plan.py --staging .dev-graph/published/feature-package-feat-seo-aeo-measurement-loop",
+      "exit": 0,
+      "status": "pass",
+      "schema_version": "1.0.0",
+      "validated_digest": "sha256:46209e547af534e49404d69ee60347cc4e61a4351d2310c497f51b36ee745eda",
+      "phase_refs": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "violations": 0
+    },
+    "C08_implementation_readiness": {
+      "command": "python3 /Users/dm/dev/dev/個人開発/harness/plugins/system-dev-planner/scripts/check-implementation-readiness.py --repo-root .",
+      "exit": 0
+    }
+  },
+  "tasks": [
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P01",
+      "phase_ref": "P01",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p01.md",
+      "tracker_binding": "beads",
+      "depends_on": []
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+      "phase_ref": "P02",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p02.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P01"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+      "phase_ref": "P03",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p03.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P02"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+      "phase_ref": "P04",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p04.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P03"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+      "phase_ref": "P05",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p05.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P04"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+      "phase_ref": "P06",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p06.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+      "phase_ref": "P07",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p07.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P06"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+      "phase_ref": "P08",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p08.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P05"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+      "phase_ref": "P09",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p09.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P08"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+      "phase_ref": "P10",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p10.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P09"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+      "phase_ref": "P11",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p11.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P10"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+      "phase_ref": "P12",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p12.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P11"
+      ]
+    },
+    {
+      "graph_node_id": "SYS-SEO-AEO-MEASUREMENT-LOOP-P13",
+      "phase_ref": "P13",
+      "file_path": "tasks/feat-seo-aeo-measurement-loop/sys-seo-aeo-measurement-loop-p13.md",
+      "tracker_binding": "beads",
+      "depends_on": [
+        "SYS-SEO-AEO-MEASUREMENT-LOOP-P12"
+      ]
+    }
+  ],
+  "trace_plan_digest": "sha256:d6ded2aa5cea7df785edaaab4300929ec68febc4e5402bcec8c743507ef0f642"
+}

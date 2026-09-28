@@ -21,18 +21,52 @@ import {
   BLOG_TEMPLATE_IDS,
   EXPRESSION_BLOCK_KINDS,
   type ExpressionBlock,
+  type ExpressionBlockKind,
   fillSlots,
   findBlogTemplate,
   orderBlocksForTemplate,
   resolvePageTheme,
 } from "@/domain/authoring/blog-template";
 
+/**
+ * 各 kind の**正しい形**を 1 つずつ作る。
+ *
+ * 以前はここで `{ kind, text: "x", items: [], rows: [] }` という、どの kind にも
+ * 当てはまらない合体形を `as unknown as ExpressionBlock` で通していた。
+ * `cta` に必須の `href` が無くても、`figure` に必須の `alt` が無くても緑だった。
+ * `switch` で分けておけば、正本に kind が増えたときここが**網羅漏れで落ちる**。
+ */
+function 見本のブロック(kind: ExpressionBlockKind): ExpressionBlock {
+  switch (kind) {
+    case "answer":
+      return { kind, text: "結論から書く。" };
+    case "key_points":
+      return { kind, items: ["書き出しの速さで選ぶ。"] };
+    case "faq":
+      return { kind, items: [{ question: "重いですか", answer: "1kg 台です。" }] };
+    case "sources":
+      return { kind, items: [{ label: "製造元の仕様", checkedAt: "2026-09-01" }] };
+    case "freshness":
+      return { kind, asOf: "2026-09-01" };
+    case "figure":
+      return { kind, caption: "本体の重さ", alt: "はかりに載せた本体" };
+    case "comparison":
+      return { kind, caption: "3 機種の比較" };
+    case "cta":
+      return { kind, label: "在庫を見る", href: "https://example.com/item" };
+    case "summary":
+      return { kind, text: "静かさで選ぶなら A。" };
+    case "spec_table":
+      return { kind, rows: [{ label: "重さ", value: "1.2kg" }] };
+  }
+}
+
 const anArticle: readonly ExpressionBlock[] = [
   { kind: "answer", text: "この用途なら B が良い。" },
   { kind: "spec_table", rows: [{ label: "重さ", value: "1.2kg" }] },
-  { kind: "figure", caption: "内部構造", src: "/img/x.png" },
+  { kind: "figure", caption: "内部構造", alt: "分解した内部の写真" },
   { kind: "faq", items: [{ question: "電池は持つ？", answer: "約 10 時間。" }] },
-] as readonly ExpressionBlock[];
+];
 
 describe("A1 テンプレート 6 種", () => {
   it("6 種すべてが引ける（語彙と定義が一致している）", () => {
@@ -81,9 +115,7 @@ describe("A1 テンプレート 6 種", () => {
 
   it("テンプレートは『使えるブロック』を決めない", () => {
     // 全 10 種を 1 記事に入れても、どのテンプレートでも 10 種のまま出る。
-    const everything = EXPRESSION_BLOCK_KINDS.map(
-      (kind) => ({ kind, text: "x", items: [], rows: [] }) as unknown as ExpressionBlock,
-    );
+    const everything = EXPRESSION_BLOCK_KINDS.map(見本のブロック);
     for (const id of BLOG_TEMPLATE_IDS) {
       const t = findBlogTemplate(id)!;
       expect(orderBlocksForTemplate(t, everything)).toHaveLength(EXPRESSION_BLOCK_KINDS.length);
@@ -134,11 +166,11 @@ describe("A5 スロット差し替え", () => {
       text: "ガジェット向けの説明",
       slot: { name: "gadget_note", fallback: "この機種に固有の注意はありません。" },
     },
-  ] as readonly ExpressionBlock[];
+  ];
 
   it("差し替え先があれば置き換わる", () => {
     const replaced = fillSlots(withSlot, {
-      gadget_note: { kind: "summary", text: "キッチン向けの説明" } as ExpressionBlock,
+      gadget_note: { kind: "summary", text: "キッチン向けの説明" },
     });
     expect(replaced[0]).toEqual({ kind: "summary", text: "キッチン向けの説明" });
   });
@@ -160,7 +192,7 @@ describe("A5 スロット差し替え", () => {
 
   it("スロットの無いブロックは触られない", () => {
     const plain: readonly ExpressionBlock[] = [{ kind: "answer", text: "答え" }];
-    expect(fillSlots(plain, { whatever: { kind: "summary", text: "x" } as ExpressionBlock })).toEqual(
+    expect(fillSlots(plain, { whatever: { kind: "summary", text: "x" } })).toEqual(
       plain,
     );
   });

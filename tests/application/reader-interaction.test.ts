@@ -19,13 +19,15 @@ import {
   createSaveToShortlistUseCase,
   createSubmitContactUseCase,
 } from "@/application/usecases/site/reader-interaction";
-import { domainError, err, markCommercial, markEditorial, ok } from "@/domain/shared";
+import { asWorkspaceId, domainError, err, markCommercial, markEditorial, ok } from "@/domain/shared";
 import {
   createSampleContactSink,
   createSampleReaderToolRepository,
   createSampleShortlistRepository,
 } from "@/infrastructure/persistence/sample/reader-interaction-sample";
 import { anOutsider } from "../support/actors";
+import { aSiteBlueprint } from "../support/factories";
+import type { SiteRepositoryPort } from "@/application/ports/site";
 import { NOW } from "../support/clock";
 
 /**
@@ -131,6 +133,9 @@ function contactPort(
   }) as EditorialContactPort;
 }
 
+/** 公開サイトが属する作業場所。問い合わせの保存先がここへ解決されることを見る。 */
+const PUBLIC_WS = asWorkspaceId("ws_public");
+
 function readerDeps(over: Partial<ReaderInteractionDeps> = {}): ReaderInteractionDeps {
   return {
     shortlist: memoryShortlist().port,
@@ -141,25 +146,29 @@ function readerDeps(over: Partial<ReaderInteractionDeps> = {}): ReaderInteractio
         return ok(`protected:${scope}:${value}`);
       },
     },
-    sites: markEditorial({
-      async findBySlug(siteSlug: string) {
-        return ok(
-          siteSlug === "missing-site"
-            ? null
-            : ({ workspaceId: "ws_public", categories: [] } as unknown),
-        );
+    /*
+      ブログの引き当ては見本の設計図をそのまま返す。以前は
+      `{ workspaceId, categories: [] } as unknown` という 2 欄だけの形を返し、
+      それを飲み込むために `readerDeps` 全体が `as unknown as` で締まっていた。
+      設計図に欄が増えても、この検査は何も言わない状態だった。
+    */
+    sites: markEditorial<SiteRepositoryPort>({
+      async findBySlug(siteSlug) {
+        return ok(siteSlug === "missing-site" ? null : aSiteBlueprint({ workspaceId: PUBLIC_WS }));
       },
       async list() {
         return ok([]);
       },
     }),
-    humanCheck: {
+    // 人かどうかの確認も編集側の印が要る。外側の `as unknown as` を外して
+    // 初めて、ここに印が付いていないことが型検査に出た。
+    humanCheck: markEditorial({
       async verify() {
         return ok(true as const);
       },
-    },
+    }),
     ...over,
-  } as unknown as ReaderInteractionDeps;
+  };
 }
 
 const VERIFIED_CONTACT = {
@@ -183,28 +192,19 @@ describe("読者向けの操作に渡してよい保存先", () => {
     ["問い合わせ", createSubmitContactUseCase],
   ])("%s: 報酬に関わる保存先が混ざっていたら、組み立てた時点で止まる", (_name, create) => {
     const deps = readerDeps({
-      shortlist: markCommercial({
-        async list() {
-          return ok([]);
-        },
-        async add() {
-          return ok(true as const);
-        },
-        async remove() {
-          return ok(true as const);
-        },
-      }) as unknown as EditorialShortlistPort,
+      /*
+        中身は読者向けの保存先と同じで、**印だけが報酬側**という形を作る。
+        口を減らして型を外すと、止まった理由が「口が足りない」なのか
+        「印が違う」なのか区別できない。ここで見たいのは印のほうだけ。
+      */
+      shortlist: markCommercial({ ...memoryShortlist().port }),
     });
     expect(() => (create as (d: ReaderInteractionDeps) => unknown)(deps)).toThrow(/報酬/);
   });
 
   it("止まったときに、どの保存先が原因かが分かる", () => {
     const deps = readerDeps({
-      contact: markCommercial({
-        async submit() {
-          return ok({ receiptId: "x" });
-        },
-      }) as unknown as EditorialContactPort,
+      contact: markCommercial({ ...contactPort() }),
     });
     expect(() => createSubmitContactUseCase(deps)).toThrow(/contact/);
   });
@@ -420,27 +420,33 @@ describe("問い合わせ", () => {
   });
 
   it("返信先を書かなくても送れる", async () => {
-    let received: ContactMessage | null = null;
+    /*
+      受け取った便りは配列へ貯める。`let ... = null` に代入する形だと、
+      呼び出しの中での代入を型検査が追えず `null` のまま絞られ、読むために
+      `as unknown as ContactMessage` が要った。貯め先を配列にすれば、
+      要素の型はそのまま `ContactMessage` で、型を外す必要が無くなる。
+    */
+    const received: ContactMessage[] = [];
     const result = await createSubmitContactUseCase(
       readerDeps({
         contact: contactPort((m) => {
-          received = m;
+          received.push(m);
           return ok({ receiptId: "rc_0001" });
         }),
       }),
     ).execute(reader, { ...VERIFIED_CONTACT, body: "記事の型番が古いようです。" });
 
     expect(result.ok && result.value.receiptId).toBe("rc_0001");
-    expect(received).not.toBeNull();
-    expect((received as unknown as ContactMessage).replyTo).toBeUndefined();
+    expect(received).toHaveLength(1);
+    expect(received[0]?.replyTo).toBeUndefined();
   });
 
   it("書かれた本文と返信先を、加工せずに渡す", async () => {
-    let received: ContactMessage | null = null;
+    const received: ContactMessage[] = [];
     await createSubmitContactUseCase(
       readerDeps({
         contact: contactPort((m) => {
-          received = m;
+          received.push(m);
           return ok({ receiptId: "rc" });
         }),
       }),
@@ -451,7 +457,8 @@ describe("問い合わせ", () => {
       humanCheckToken: "tok_abc",
     });
 
-    const got = received as unknown as ContactMessage;
+    expect(received).toHaveLength(1);
+    const got = received[0]!;
     expect(got.body).toBe("  前後に空白のある本文  ");
     expect(got.replyTo).toBe("reader@example.com");
     expect(got.humanCheckToken).toBe("tok_abc");
@@ -523,16 +530,16 @@ describe("問い合わせ", () => {
     let called = false;
     const result = await createSubmitContactUseCase(
       readerDeps({
-        humanCheck: {
+        humanCheck: markEditorial({
           async verify() {
             return err(domainError("FORBIDDEN", "自動送信よけの確認に失敗しました。"));
           },
-        },
+        }),
         contact: contactPort(() => {
           called = true;
           return ok({ receiptId: "unexpected" });
         }),
-      } as unknown as Partial<ReaderInteractionDeps>),
+      }),
     ).execute(reader, VERIFIED_CONTACT);
     expect(result.ok).toBe(false);
     expect(called).toBe(false);
@@ -544,7 +551,7 @@ describe("問い合わせ", () => {
         contact: contactPort(() =>
           err(domainError("RATE_LIMITED", "短時間に送れる回数を超えました。")),
         ),
-      } as unknown as Partial<ReaderInteractionDeps>),
+      }),
     ).execute(reader, VERIFIED_CONTACT);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("RATE_LIMITED");
@@ -635,7 +642,7 @@ describe("仮置きの見本", () => {
 
   it("控えの問い合わせは、受け取ったことにせず、別の連絡先を案内する", async () => {
     const port = createSampleContactSink();
-    const sent = await port.submit("ws_sample" as never, { siteSlug: "home-office-desk", body: "本文" }, "ip_hash_1");
+    const sent = await port.submit(asWorkspaceId("ws_sample"), { siteSlug: "home-office-desk", body: "本文" }, "ip_hash_1");
     expect(sent.ok).toBe(false);
     if (sent.ok) return;
     // 保存先が無いだけなので、直れば送れる（`retryable`）。実装が無いのではない。
@@ -649,7 +656,7 @@ describe("仮置きの見本", () => {
     // 保存先が繋がっていないことに誰も気づかなくなる。
     expect(
       await createSampleContactSink().list(
-        "ws_sample" as never,
+        asWorkspaceId("ws_sample"),
         ["home-office-desk"],
         "home-office-desk",
       ),

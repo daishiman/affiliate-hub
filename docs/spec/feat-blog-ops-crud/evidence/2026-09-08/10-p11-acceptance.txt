@@ -1,0 +1,15 @@
+# P11 受入コマンド (2026-09-08)
+
+$ node -e "JSON.parse(...blueprint-coverage-map.json)"
+exit=0  (無出力が正常)
+
+$ node -e "JSON.parse(...evidence/acceptance-evidence-map.json)"   # 本 task の成果物
+exit=0  (無出力が正常)
+
+$ validate-system-plan.py --repo-root . --feature-package feature-package/feat-blog-ops-crud
+    "contract_version": "1.3.0",
+    "enforced_from": "1.3.0"
+  },
+  "violations": []
+}
+exit=0

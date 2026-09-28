@@ -102,7 +102,7 @@ export const LAYOUT_REGION_LABEL: Readonly<Record<LayoutRegion, string>> = {
   footer: "フッター",
 };
 
-/** ハブトップの 4 帯 (§3.2)。 */
+/** 保存済み設定と初期化で扱う帯。旧2帯もデータ互換のため残す。 */
 export const TOP_BANDS = [
   "latest_posts",
   "sister_sites",
@@ -111,11 +111,22 @@ export const TOP_BANDS = [
 ] as const;
 export type TopBand = (typeof TOP_BANDS)[number];
 
+/** 新着とカテゴリーは常設区画。表示・編集できる補助帯はこの2種類だけ。 */
+export const SUPPLEMENTAL_TOP_BANDS = ["sister_sites", "navigator"] as const satisfies readonly TopBand[];
+export type SupplementalTopBand = (typeof SUPPLEMENTAL_TOP_BANDS)[number];
+
+export function isSupplementalTopBand(band: TopBand): band is SupplementalTopBand {
+  return SUPPLEMENTAL_TOP_BANDS.some((candidate) => candidate === band);
+}
+
+/** 読者が最初に選ぶ入口を増やしすぎない。公開と管理で同じ上限を使う。 */
+export const MAX_FEATURED_ARTICLES = 3;
+
 export const TOP_BAND_LABEL: Readonly<Record<TopBand, string>> = {
   latest_posts: "新着記事の帯",
   sister_sites: "姉妹サイトの帯",
   category_hub: "カテゴリー別のタイル",
-  navigator: "用途別ナビゲータへの入口",
+  navigator: "ブランドから探す",
 };
 
 /** 記事本文の部品 (§3.3)。並びは記事型が決める。 */

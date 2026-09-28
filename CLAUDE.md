@@ -78,7 +78,13 @@ python3 $B --op claim   --repo-root . --bd-issue-id <id>
 python3 $B --op close   --repo-root . --bd-issue-id <id> --reason "<なぜ完了と言えるか>"
 python3 $B --op update  --repo-root . --bd-issue-id <id> --status <status>
 python3 $B --op dep-add --repo-root . --bd-issue-id <id> --depends-on <id>
+python3 $B --op update  --repo-root . --bd-issue-id <id> --issue-type <type>
 ```
+
+`--issue-type` は `bug|feature|task|epic|chore|decision` だけを受けます。
+**`epic` から他の型へ落とす向きは拒否されます。** close ゲートはその時点の型を見て
+`--feature-rollup-manifest` を要求するので、先に `task` へ落とすとゲートごと外れるためです。
+`task` → `epic` は通ります（締まる向き）。
 
 `--dry-run` を付けると何も書かずに内容だけ返します。**先にこれで確かめること。**
 

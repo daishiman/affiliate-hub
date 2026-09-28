@@ -9,7 +9,8 @@ import {
 } from "@/domain/seo/guideline-reference";
 import type { AuditLogEntry } from "@/domain/compliance";
 import { asWorkspaceId, domainError, err, ok, taggedString } from "@/domain/shared";
-import type { ActorContext, AuditLogId, WorkspaceId } from "@/domain/shared";
+import type { ActorContext, AuditLogId, Role, WorkspaceId } from "@/domain/shared";
+import { aNobody } from "../support/actors";
 
 /**
  * SEO/AI 指針の出典レジストリ (feat-blog-ui-builder 受入条件 5)。
@@ -31,16 +32,16 @@ import type { ActorContext, AuditLogId, WorkspaceId } from "@/domain/shared";
 
 const WS = asWorkspaceId("ws_a") as WorkspaceId;
 
-const actor = (role: string): ActorContext =>
-  ({
-    workspaceId: WS,
-    userId: "u_1",
-    roles: [role],
-    isAiServiceAccount: false,
-    // 記録は身元の確かめられていない操作を受け付けない。ここを落とすと
-    // 登録そのものではなく記録の組み立てで断られ、原因が見えなくなる。
-    identified: true,
-  }) as unknown as ActorContext;
+/*
+  実行主体は `tests/support/actors.ts` に任せる。以前はここで 5 欄を手で並べ
+  `as unknown as ActorContext` で締めていた——`scopedBrandIds` を持たない形が
+  正本を名乗っており、`ActorContext` に欄が増えても気づけなかった。
+
+  `aNobody` を土台にするのは、あれが「権限を 1 つも持たない人」だから。
+  そこへ調べたい role だけを載せると、その role が何を通すかだけが残る。
+  身元は確かめてある側（`identified: true`）が既定で、記録の組み立ては通る。
+*/
+const actor = (role: Role): ActorContext => aNobody({ workspaceId: WS, userId: "u_1", roles: [role] });
 
 function ref(over: Partial<GuidelineReference> = {}): GuidelineReference {
   return {

@@ -344,8 +344,13 @@ describe("束ねて包む (auditDenials)", () => {
     const 群 = auditDenials(deps(port), { publishArticle: 常に断る, removeSite: 常に断る });
     expect(Object.keys(群).sort()).toEqual(["publishArticle", "removeSite"]);
 
-    await 群.publishArticle.execute(主体() as never, undefined as never);
-    await 群.removeSite.execute(主体() as never, undefined as never);
+    /*
+      入力の型は正本が `UseCase<never, unknown>` を要求しているので、
+      渡せる値が存在しない。`undefined as never` はその**表明**として置く。
+      主体まで `as never` で締めると、俳優の形がここで検査されなくなるので外した。
+    */
+    await 群.publishArticle.execute(主体(), undefined as never);
+    await 群.removeSite.execute(主体(), undefined as never);
     expect(行.map((r) => r.after?.attempted)).toEqual(["publishArticle", "removeSite"]);
     expect(行.map((r) => r.targetType)).toEqual(["publishArticle", "removeSite"]);
   });

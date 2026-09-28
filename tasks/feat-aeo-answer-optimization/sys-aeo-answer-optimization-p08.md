@@ -12,7 +12,7 @@ iteration: null
 title: "SEO 側構造化データ経路との重複解消と移行"
 owners: ["daishiman"]
 created_at: "2026-09-03T23:50:39Z"
-updated_at: "2026-09-04T11:01:27Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-AEO-ANSWER-OPTIMIZATION-P05"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-04T11:01:27Z","evidence_refs":["beads:ah-4d0q.8"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-04T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

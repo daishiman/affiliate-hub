@@ -1,0 +1,1136 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-reader-search-quality",
+  "parent_feature": "feat-reader-search-quality",
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/backend.md",
+      "system-spec/database.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P01",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "検索入口2経路・FTS5索引スコープ・URL契約の要求ベースライン確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/requirements-baseline.md",
+        "docs/spec/feat-reader-search-quality/search-entry-inventory.md",
+        "docs/spec/feat-reader-search-quality/fts5-index-scope-analysis.md",
+        "docs/spec/feat-reader-search-quality/url-contract-observed-fact.md",
+        "docs/spec/feat-reader-search-quality/acceptance-traceability.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP01 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: 検索の入口2経路(ヘッダー起動・検索ページ)、既存SearchBox(method=get)・searchArticlesユースケースのroute台帳、FTS5索引スコープ(題名・要約・本文の3列)分析、URL契約(query parameter名・応答形)の現況観測、A1-A8とfeature/データ/証跡の未対応0件を成立させる。"
+      ],
+      "verification": [
+        "P01のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P01のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P01",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p01.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P02",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "FTS5 trigram索引・順位付け・URL契約・画面/WebMCP同一ユースケースの設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "api",
+        "data",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/data-model.md",
+        "docs/spec/feat-reader-search-quality/api-contract.md",
+        "docs/spec/feat-reader-search-quality/ranking-contract.md",
+        "docs/spec/feat-reader-search-quality/url-contract.md",
+        "docs/spec/feat-reader-search-quality/progressive-enhancement-contract.md",
+        "docs/spec/feat-reader-search-quality/webmcp-parity-contract.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP02 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: FTS5 trigram索引(題名・要約・本文の3列、ブログ識別子・公開状態を列として持つ)のD1 migration契約、公開・更新・削除・非公開化の同一トランザクション追随契約、2文字以下の問い合わせを題名前方一致とカテゴリー誘導へ切り替える境界契約、関連度(FTS5既定rank)→公開日の新しさ→カテゴリー一致を合成する順位契約、検索結果面(件数・一致箇所抜粋・サムネイル・カテゴリー・公開日・0件時代替提案)のAPI契約、検索ページのURL契約(query parameter名・応答形)とWebSite.potentialAction(SearchAction)・llms.txtとの整合契約、画面のsearchArticlesユースケースとWebMCP道具searchArticlesが同一usecaseを通る契約、検索語のliteral化(FTS構文非解釈)と負荷上限・ページング契約をA1-A8欠落なく設計する。"
+      ],
+      "verification": [
+        "P02のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P02のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P02",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p02.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P03",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "設計の独立レビューと外部SaaS非依存・非公開流出防止・境界不可侵ゲート",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "backend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/design-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP03 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: C1矛盾なし・C2漏れなし・C3整合性あり・C4依存整合に加え、FTS5索引が外部SaaSに依存しないこと、検索語のliteral化により任意のFTS構文が通らないこと、非公開記事が索引スコープに含まれないこと、feat-blog-top-page-compositionが所有するSearchAction/ItemListのJSON-LD生成そのものへの非侵犯境界の全チェックを証拠付きPASSにする。"
+      ],
+      "verification": [
+        "P03のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P03のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P03",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p03.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P04",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "A1-A8・索引追従・日本語部分一致・JavaScript無効完走のテスト設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "security",
+        "data"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P03"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/test-design.md",
+        "tests/fixtures/feat-reader-search-quality/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP04 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: A1-A8ごとに正常・0件・非公開記事混入・2文字以下問い合わせ・索引未反映・D1障害・境界(空文字列・多バイト文字・長大問い合わせ)のケース、公開・更新・削除・非公開化の索引追従テスト、画面のsearchArticlesとWebMCP道具searchArticlesが同一入力で同一結果を返すことを検証する契約テスト、JavaScript無効時のmethod=get完走テスト、検索ページURL契約とSearchAction targetの整合を機械検査するテストが一意IDで定義される。"
+      ],
+      "verification": [
+        "P04のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P04のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P04",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p04.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P05",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "FTS5索引・日本語部分一致検索・検索結果面・二経路入口・WebMCP同一ユースケースの実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "backend",
+      "secondary_workstreams": [
+        "frontend",
+        "api",
+        "data",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P04"
+      ],
+      "write_scope": [
+        "src/domain/blogops/",
+        "src/domain/shared/",
+        "src/application/ports/site.ts",
+        "src/application/usecases/site/read-site.ts",
+        "src/infrastructure/persistence/d1/",
+        "src/presentation/site/search-box.tsx",
+        "src/presentation/site/",
+        "src/app/s/[site]/search/",
+        "src/presentation/tools/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "tests/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP05 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: 依存順に、D1 FTS5 trigram索引のmigration、公開・更新・削除・非公開化への同一トランザクション追随、日本語部分一致検索と2文字以下フォールバック(題名前方一致・カテゴリー誘導)、関連度→新しさ→カテゴリー一致の順位付け、検索結果面(件数・一致箇所抜粋・サムネイル・カテゴリー・公開日・0件時代替提案)、二経路の入口(ヘッダー起動・検索ページ)でのJavaScript無効完走、画面のsearchArticlesユースケースとWebMCP道具searchArticlesの同一usecase化、検索語のliteral化と負荷上限・ページングを実装し、P04のテストをgreenにする。既存SearchBox(method=get)を壊さない。"
+      ],
+      "verification": [
+        "P05のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P05のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P05",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p05.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P06",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "単体・結合・E2E・JavaScript無効・WebMCP契約テストの実行と緑化",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/test-run-report.md",
+        "test-results/feat-reader-search-quality/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP06 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: typecheck、content validation、unit、contract、DB integration、E2E、JavaScript無効E2E、画面/WebMCP同一結果contractテストが失敗0件で、各command・exit・件数・artifact pathがtest-run-reportに記録される。"
+      ],
+      "verification": [
+        "P06のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P06のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P06",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p06.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P07",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "A1-A8のfeature受入",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/acceptance-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP07 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: A1-A8の全件が手順・expected・actual・evidenceでPASSし、公開・更新・非公開化それぞれで索引追従を実データで確認し、日本語部分一致で結果が返り無関係な語で0件になることを実測し、JavaScript無効での検索完走をnetwork trace/screenshotで確認し、画面とWebMCPのsearchArticlesが同一入力で同一結果を返すことをacceptance-reportに記録する。"
+      ],
+      "verification": [
+        "P07のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P07のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P07",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p07.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P08",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "既存LIKE検索からFTS5索引への移行とbackfill",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "data",
+      "secondary_workstreams": [
+        "backend",
+        "infrastructure"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ],
+      "write_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/infrastructure/persistence/d1/",
+        "docs/spec/feat-reader-search-quality/migration-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP08 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 既存published_articlesのLIKE検索(題名・要約のみ)からFTS5索引への移行で、既存公開記事全件のbackfillが再実行可能で、索引再構築手順がrollback rehearsalも含めて成功し、migration-reportに件数差0が記録される。既存search usecase/portとの二重実装は新規0件にする。"
+      ],
+      "verification": [
+        "P08のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P08のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P08",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p08.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P09",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "非公開流出防止・FTS構文注入防止・境界動作・非侵犯境界の独立QA",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "frontend",
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/qa-report.md",
+        "test-results/feat-reader-search-quality/qa/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP09 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: 非公開記事の索引流出0件、検索語のFTS構文注入0件(静的解析+実行time trace)、2文字以下問い合わせの境界動作、画面とWebMCPのsearchArticles結果一致、JavaScript無効経路のaxe重大違反0、検索ページURL契約とSearchAction targetの整合、負荷上限・ページングの独立監査をP07と別証跡でPASSにする。"
+      ],
+      "verification": [
+        "P09のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P09のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P09",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p09.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P10",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "目的・受入・品質証跡の独立最終レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/final-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP10 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: A1-A8の証跡欠落0、high finding 0、P07/P09のdigest一致、feat-blog-top-page-compositionとのscope境界逸脱0、release blocker 0の場合のみreadiness=completeとし、それ以外はFAILと修正phaseを明記する。"
+      ],
+      "verification": [
+        "P10のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P10のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P10",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p10.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P11",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "FTS5索引・日本語部分一致・順位付け・WebMCP同一結果証跡の再現可能な集約",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P09",
+        "SYS-READER-SEARCH-QUALITY-P10"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/evidence/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP11 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P11: evidence/index.jsonがFTS5索引migration・公開状態追随・日本語部分一致・順位付け・画面/WebMCP同一結果・JavaScript無効完走・P06/P07/P09/P10の証跡をpath・digest・取得日時・tool versionで参照し、missing/duplicate/stale 0、再実行commandがexit0になる。"
+      ],
+      "verification": [
+        "P11のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P11のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P11",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p11.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P12",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "索引再構築runbook・負荷超過時fallback・URL/API契約の確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P10",
+        "SYS-READER-SEARCH-QUALITY-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/index-rebuild-runbook.md",
+        "docs/spec/feat-reader-search-quality/operations.md",
+        "docs/spec/feat-reader-search-quality/api-contract.md",
+        "docs/spec/feat-reader-search-quality/url-contract.md",
+        "docs/spec/feat-reader-search-quality/data-model.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP12 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: 索引再構築runbook(owner/trigger/command/evidence/escalation)、検索負荷上限超過時のfallback手順、URL契約・API契約の確定内容への更新が揃い、P02契約が実装確定内容へ更新される。"
+      ],
+      "verification": [
+        "P12のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P12のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P12",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p12.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P13",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "title": "development段階展開・rollback確認・仕様書への書き戻し",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-reader-search-quality"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "operations",
+      "secondary_workstreams": [
+        "infrastructure",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-reader-search-quality/release-report.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/frontend.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-reader-search-quality.md",
+        "features/feat-reader-search-quality.context.json",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-reader-search-qualityのP13 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: development deployment、smoke、FTS5索引反映・検索結果表示・WebMCP道具のtelemetry、rollback rehearsalがPASSし、本番releaseが未承認ならN/A理由を記録し、P13 spec/architecture writeback: required としてbackend・database・frontend・architectureの確定章へ実装差分と残findingをR4-reopen経由で反映しclose-out receiptを残す。"
+      ],
+      "verification": [
+        "P13のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P13のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-READER-SEARCH-QUALITY-P13",
+        "file_path": "tasks/feat-reader-search-quality/sys-reader-search-quality-p13.md",
+        "parent_feature": "feat-reader-search-quality",
+        "feature_package_id": "feature-package/feat-reader-search-quality",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

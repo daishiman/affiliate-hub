@@ -4,9 +4,9 @@
 末尾の指紋がその見張りで、手で 1 文字でも書くと次の実行が**上書きせずに止まる**（書いた行は残る）。
 宣言は `docs/product/required-test-types.md`、語彙と上限は `quality-gates.config.mjs` が正本。
 
-- 最終更新: 2026-09-08
-- 要件表の要件: 297 件
-- 性質を宣言済: 292 件
+- 最終更新: 2026-09-09
+- 要件表の要件: 308 件
+- 性質を宣言済: 303 件
 - **未宣言: 5 件**（上限 5 件）
 - 理由つきの除外: 5 件（上限 7 件）
 
@@ -159,6 +159,9 @@
 | REQ-TH01 | has-screen, has-color-scheme-variants | `a11y` `keyboard` `screen-states` | `a11y` `keyboard` `screen-states` | — |
 | REQ-TH02 | has-enumerated-input, has-color-scheme-variants | `a11y` `decision-table` `equivalence` | `a11y` `decision-table` `equivalence` | — |
 | REQ-TH03 | has-enumerated-input | `decision-table` `equivalence` | `decision-table` `equivalence` | — |
+| REQ-VIS01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-VIS02 | has-input, has-external | `boundary` `equivalence` `fault-injection` `idempotency` | `boundary` `equivalence` `fault-injection` `idempotency` | — |
+| REQ-VIS03 | has-input, has-permission, has-tenant, has-external, has-recorded-operation | `audit-log` `boundary` `equivalence` `fault-injection` `idempotency` `permission-matrix` `tenant-isolation` | `audit-log` `boundary` `equivalence` `fault-injection` `idempotency` `permission-matrix` `tenant-isolation` | — |
 | REQ-FB08 | has-state, has-recorded-operation | `audit-log` `state-transition` | `audit-log` `state-transition` | — |
 | REQ-FB09 | has-secret, has-recorded-operation | `audit-log` `secrets` | `audit-log` `secrets` | — |
 | REQ-FB12 | has-secret, has-recorded-operation | `audit-log` `secrets` | `audit-log` `secrets` | — |
@@ -238,6 +241,14 @@
 | REQ-SEO05 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO06 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-SEO07 | has-input, has-tenant, has-screen | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `tenant-isolation` | `a11y` `boundary` `equivalence` `keyboard` `screen-states` `tenant-isolation` | — |
+| REQ-SEO08 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO09 | has-input, has-secret | `boundary` `equivalence` `secrets` | `boundary` `equivalence` `secrets` | — |
+| REQ-SEO10 | has-input, has-secret | `boundary` `equivalence` `secrets` | `boundary` `equivalence` `secrets` | — |
+| REQ-SEO11 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO12 | has-input, has-permission | `boundary` `equivalence` `permission-matrix` | `boundary` `equivalence` `permission-matrix` | — |
+| REQ-SEO13 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
+| REQ-SEO14 | has-input, has-state, has-permission | `boundary` `equivalence` `permission-matrix` `state-transition` | `boundary` `equivalence` `permission-matrix` `state-transition` | — |
+| REQ-SEO15 | has-state, has-permission | `permission-matrix` `state-transition` | `permission-matrix` `state-transition` | — |
 | REQ-BLOG01 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-BLOG02 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
 | REQ-BLOG03 | has-input | `boundary` `equivalence` | `boundary` `equivalence` | — |
@@ -326,4 +337,4 @@
 ## 未宣言の要件
 
 `REQ-TH04` `REQ-TH05` `REQ-TS02` `REQ-TS03` `REQ-TS10`
-<!-- 生成物の指紋 sha256:e788a85c668f744975a245328aaeef9ef6196784a5d48f48d52966d15b3879d7 -->
+<!-- 生成物の指紋 sha256:a7458d84cc460777d76dc501864ae627116c6546a4bc1c1ad5a88bc5fb4ec80b -->

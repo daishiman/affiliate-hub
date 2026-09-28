@@ -1,0 +1,36 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-seo-aeo-measurement-loop.md",
+  "package_current_pointer": null,
+  "promoted_generation": ".dev-graph/published/feature-package-feat-seo-aeo-measurement-loop",
+  "selected_feature": "feat-seo-aeo-measurement-loop",
+  "feature_package_id": "feature-package/feat-seo-aeo-measurement-loop",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform"
+  ],
+  "task_ids": [
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P01",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P02",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P03",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P04",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P05",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P06",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P07",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P08",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P09",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P10",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P11",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P12",
+    "SYS-SEO-AEO-MEASUREMENT-LOOP-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-seo-aeo-measurement-loop-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-seo-aeo-measurement-loop.json"
+  ],
+  "scope_digest": "sha256:2e5944eb59e61ef871d7a39ad0354f59a33bd7198f93f6db535099178874c5ad"
+}

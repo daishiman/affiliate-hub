@@ -48,6 +48,7 @@ import {
   Pilcrow,
   Plus,
   Quote,
+  Radar,
   RadioTower,
   SearchCheck,
   Send,
@@ -86,6 +87,13 @@ const ICONS = {
   affiliate: HandCoins,
   inbox: Inbox,
   analytics: ChartNoAxesColumnIncreasing,
+  /*
+    検索と AI からの見え方。`evidence`（虫眼鏡+チェック）と分けてある。
+    どちらも「調べる」に見えるが、畳んだサイドバーでは絵しか残らないので、
+    **同じ絵を 2 つの項目に配ると行き先を選べなくなる**。
+    こちらは「外から自分がどう映っているかを走査する」ほうなので電波の絵にした。
+  */
+  visibility: Radar,
   aiUsage: CircleDollarSign,
   improvement: TrendingUp,
   feedback: MessageSquareMore,

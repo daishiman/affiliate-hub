@@ -35,7 +35,13 @@ function runsReturning(value: AiSearchReauditRun | null) {
       return ok(value);
     },
     save: async () => ok(undefined),
-  } as unknown as AiSearchReauditRunPort;
+    // 横断取得は cron 側の口。この検査は actor の workspace だけを見るので、
+    // ここへ来たら「1 人分の取得」という前提が崩れている。空配列で
+    // 黙って通すと、その崩れが緑のまま残る。
+    listKnownWorkspaceIds: async () => {
+      throw new Error("画面からの取得で横断の口は呼ばない。");
+    },
+  } satisfies AiSearchReauditRunPort;
   return { port, asked };
 }
 
@@ -67,7 +73,13 @@ describe("最新の定期再点検実行", () => {
     const port = {
       getLatest: async () => err(failure),
       save: async () => ok(undefined),
-    } as unknown as AiSearchReauditRunPort;
+    // 横断取得は cron 側の口。この検査は actor の workspace だけを見るので、
+    // ここへ来たら「1 人分の取得」という前提が崩れている。空配列で
+    // 黙って通すと、その崩れが緑のまま残る。
+    listKnownWorkspaceIds: async () => {
+      throw new Error("画面からの取得で横断の口は呼ばない。");
+    },
+    } satisfies AiSearchReauditRunPort;
 
     const result = await createGetLatestAiSearchReauditRunUseCase({ runs: port }).execute(
       anOwner(),

@@ -10,9 +10,9 @@ import {
 } from "@/application/usecases/distribution/manage-distribution";
 import type { ContentVariant } from "@/domain/authoring";
 import type { Publication } from "@/domain/distribution";
-import { domainError, err, markEditorial, ok } from "@/domain/shared";
+import { asBrandId, asChannelConnectionId, asClaimId, asEvidenceId, domainError, err, markEditorial, ok } from "@/domain/shared";
 import { OTHER_WORKSPACE, WORKSPACE, aNobody, anOwner } from "../support/actors";
-import { aChannelConnection, aPublication } from "../support/factories";
+import { aChannelConnection, aContentPackage, aPublication } from "../support/factories";
 import { NOW, daysFrom } from "../support/clock";
 import { failing, recordingAuditLog, testDeps } from "../support/doubles";
 import { SAMPLE_WORKSPACE_ID } from "@/infrastructure/persistence/sample/ranking-sample-repository";
@@ -125,10 +125,10 @@ function deps(over: Over = {}): ManageDistributionDeps {
         ok(
           over.packageBrand === null
             ? null
-            : ({
+            : aContentPackage({
                 workspaceId,
                 brandId: over.packageBrand ?? "brand-allowed",
-              } as never),
+              }),
         ),
     }),
     ids: base.ids,
@@ -144,14 +144,14 @@ async function approved(): Promise<ContentVariant> {
     workspaceId: WORKSPACE,
     complianceStatus: "pass",
     disclosure: "広告",
-    claimIds: ["claim-approved" as never],
-    evidenceIds: ["evidence-approved" as never],
+    claimIds: [asClaimId("claim-approved")],
+    evidenceIds: [asEvidenceId("evidence-approved")],
   };
 }
 
 describe("配信を作る", () => {
   it("ブランド限定担当者は担当外・所有元不明の記事を配信できない", async () => {
-    const limited = anOwner({ scopedBrandIds: ["brand-allowed" as never] });
+    const limited = anOwner({ scopedBrandIds: [asBrandId("brand-allowed")] });
     const outsideSaved: Publication[] = [];
     const outside = await createSchedulePublicationUseCase(
       deps({
@@ -176,7 +176,7 @@ describe("配信を作る", () => {
   });
 
   it("ブランド限定担当者も担当ブランドの記事なら配信できる", async () => {
-    const limited = anOwner({ scopedBrandIds: ["brand-allowed" as never] });
+    const limited = anOwner({ scopedBrandIds: [asBrandId("brand-allowed")] });
     const got = await createSchedulePublicationUseCase(
       deps({ variant: await approved(), packageBrand: "brand-allowed" }),
     ).execute(limited, { variantId: "cv_alpha_review", channelKind: "note" });
@@ -190,9 +190,9 @@ describe("配信を作る", () => {
   ] as const)(
     "ブランド限定担当者は、ブランド所有を持たないworkspace共通接続を%sで使えない",
     async (_label, connectionId) => {
-      const limited = anOwner({ scopedBrandIds: ["brand-allowed" as never] });
+      const limited = anOwner({ scopedBrandIds: [asBrandId("brand-allowed")] });
       const connection = aChannelConnection({
-        id: "conn-brandless" as never,
+        id: asChannelConnectionId("conn-brandless"),
         kind: "x",
         workspaceId: WORKSPACE,
       });
@@ -306,7 +306,7 @@ describe("配信を作る", () => {
 
   it("一覧の100件より後にある指定接続も、IDで直接確かめて選べる", async () => {
     const target = aChannelConnection({
-      id: "conn-after-first-page" as never,
+      id: asChannelConnectionId("conn-after-first-page"),
       kind: "x",
       accountLabel: "@after_first_page",
       workspaceId: WORKSPACE,
@@ -320,7 +320,7 @@ describe("配信を作る", () => {
           ok({
             items: Array.from({ length: 100 }, (_, index) =>
               aChannelConnection({
-                id: `conn-first-${String(index).padStart(3, "0")}` as never,
+                id: asChannelConnectionId(`conn-first-${String(index).padStart(3, "0")}`),
                 kind: "x",
                 workspaceId: WORKSPACE,
               }),
@@ -395,12 +395,12 @@ describe("配信を作る", () => {
   });
 
   it.each([
-    ["別の媒体の接続", aChannelConnection({ id: "conn-named" as never, kind: "bluesky", workspaceId: WORKSPACE })],
-    ["取り消された接続", aChannelConnection({ id: "conn-named" as never, kind: "x", workspaceId: WORKSPACE, revokedAt: daysFrom(NOW, -1) })],
+    ["別の媒体の接続", aChannelConnection({ id: asChannelConnectionId("conn-named"), kind: "bluesky", workspaceId: WORKSPACE })],
+    ["取り消された接続", aChannelConnection({ id: asChannelConnectionId("conn-named"), kind: "x", workspaceId: WORKSPACE, revokedAt: daysFrom(NOW, -1) })],
     ["存在しない接続", null],
   ] as const)("名指しされたのが%sなら、他の接続へ勝手に付け替えない", async (_label, chosen) => {
     // ここで「使える接続を探し直す」と、指定した覚えのないアカウントへ投稿される。
-    const usable = aChannelConnection({ id: "conn-other" as never, kind: "x", workspaceId: WORKSPACE });
+    const usable = aChannelConnection({ id: asChannelConnectionId("conn-other"), kind: "x", workspaceId: WORKSPACE });
     const base = deps({ variant: await approved(), connections: [usable] });
     const got = await createSchedulePublicationUseCase({
       ...base,
@@ -422,7 +422,7 @@ describe("配信を作る", () => {
 
   it("名指しされた接続の認証情報が使えないなら、送れる先として扱わない", async () => {
     // 期限内でも、鍵が抜かれていれば送れない。ここを通すと順番待ちのまま失敗する。
-    const chosen = aChannelConnection({ id: "conn-named" as never, kind: "x", workspaceId: WORKSPACE });
+    const chosen = aChannelConnection({ id: asChannelConnectionId("conn-named"), kind: "x", workspaceId: WORKSPACE });
     const base = deps({ variant: await approved(), connections: [chosen] });
     const got = await createSchedulePublicationUseCase({
       ...base,

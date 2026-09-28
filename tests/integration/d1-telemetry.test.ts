@@ -319,3 +319,26 @@ describe("計測から数字までを本物の D1 で通す", () => {
     expect(attempted.ok, "数字を直接入れられてしまいました").toBe(false);
   });
 });
+
+it("集計上限ちょうどは全件を数え、超過時は途中の数字を返さない", async () => {
+  await proxy.env.DB.prepare(`WITH RECURSIVE records(n) AS (
+    SELECT 1 UNION ALL SELECT n + 1 FROM records WHERE n < 20000
+  ) INSERT INTO telemetry_events (id, workspace_id, key, occurred_at, site_slug, reader_key, payload_json)
+    SELECT 'scan-' || n, ?, 'search_performed', unixepoch(), ?, NULL,
+      '{"siteSlug":"sample-blog","resultCount":0}' FROM records`)
+    .bind(String(WORKSPACE), SITE).run();
+  const atLimit = await listMetrics().execute(owner, {});
+  expect(atLimit.ok && atLimit.value.rows.find((row) => row.key === "search_result_count")?.value).toBe(20000);
+  expect(atLimit.ok && atLimit.value.rows.find((row) => row.key === "search_no_result_rate")?.value).toBe(1);
+
+  await proxy.env.DB.prepare(`INSERT INTO telemetry_events
+    (id, workspace_id, key, occurred_at, site_slug, payload_json)
+    VALUES ('scan-over', ?, 'search_performed', unixepoch(), ?, '{"siteSlug":"sample-blog","resultCount":4}')`)
+    .bind(String(WORKSPACE), SITE).run();
+  const overLimit = await listMetrics().execute(owner, {});
+  expect(overLimit.ok).toBe(false);
+  if (!overLimit.ok) {
+    expect(overLimit.error.message).toContain("20,000");
+    expect(overLimit.error.suggestedAction).toBe("管理者へ集計方法の見直しを依頼してください。");
+  }
+}, 30_000);

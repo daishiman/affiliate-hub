@@ -62,6 +62,7 @@ import {
   validateGenerationInput,
   verdictMayUse,
 } from "@/domain/generation";
+import type { GenerationInput } from "@/domain/generation";
 import { createToolCatalog } from "@/presentation/composition";
 
 /**
@@ -111,7 +112,7 @@ describe("渡す項目", () => {
     const withRanking = {
       ...base,
       articleTemplate: { type: "ranking", sectionIds: [] },
-    } as never;
+    } as Partial<GenerationInput>;
     const result = validateGenerationInput(withRanking);
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -468,6 +469,10 @@ describe("役の分け方", () => {
         tools: ["read", "generate"],
         freshContext: true,
         output: "—",
+        // 検証役に生成の道具を持たせた形は、**そもそも型として書けない**
+        // （`ReviewTool` は "read" だけ）。それが守りの 1 段目である。
+        // ここで型を外しているのは、1 段目をすり抜けた回を 3 段目の検査が
+        // 捕まえるかを確かめるため。口を揃えるとこの検査は成立しない。
       } as unknown as GenerationAgent,
     ];
     expect(separationBreaches(broken).length).toBeGreaterThan(0);

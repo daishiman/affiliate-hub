@@ -17,7 +17,7 @@ import {
   LAYOUT_REGION_LABEL,
   type LayoutRegion,
   SLOT_KEYS_BY_REGION,
-  TOP_BANDS,
+  SUPPLEMENTAL_TOP_BANDS,
   sanitizeSlotHtml,
   TOP_BAND_LABEL,
   type TopBand,
@@ -107,7 +107,7 @@ export type ReadBlogLayoutOutput = {
    * 画面が「入になっている」ことを「出せている」と描いてしまう。
    */
   readonly deliveryHealth: readonly DeliveryHealthRow[];
-  /** 一度も保存していない枠の数。画面の「未整備 n 件」に使う。 */
+  /** 版面画面で編集できる枠・補助帯のうち、一度も保存していない数。 */
   readonly untouchedCount: number;
 };
 
@@ -138,7 +138,7 @@ function mergeSlots(saved: readonly BlogLayoutSlotRecord[]): readonly LayoutSlot
 }
 
 function mergeBands(saved: readonly BlogLayoutBandRecord[]): readonly LayoutBandView[] {
-  return TOP_BANDS.map((band, index) => {
+  return SUPPLEMENTAL_TOP_BANDS.map((band, index) => {
     const hit = saved.find((b) => b.band === band);
     return {
       band,
@@ -210,8 +210,7 @@ export function createReadBlogLayoutUseCase(
         ),
         untouchedCount:
           slotViews.filter((s) => s.untouched).length +
-          bandViews.filter((b) => b.untouched).length +
-          partViews.filter((p) => p.untouched).length,
+          bandViews.filter((b) => b.untouched).length,
       });
     },
   };

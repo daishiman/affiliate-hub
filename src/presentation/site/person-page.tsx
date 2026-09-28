@@ -1,7 +1,7 @@
 import { readerActor, siteUseCases } from "@/presentation/composition";
 import { ArticleList, PersonView, SectionHeading, SitePage, UI_COPY } from "@/presentation/ui";
 import { ReadFailureBody, SiteFrame, stopIfMissing } from "./page-frame";
-import { siteHref, toArticleCards } from "./view-model";
+import { siteHref, thumbnailContextOf, toArticleCards } from "./view-model";
 
 /**
  * 書き手・監修者のページ。
@@ -37,7 +37,7 @@ export async function PersonPage({
       currentPath={siteHref(siteSlug, path)}
       trail={[{ label: result.ok ? result.value.person.name : roleLabel }]}
     >
-      {() =>
+      {({ blueprint }) =>
         result.ok ? (
           <SitePage title={result.value.person.name} lead={roleLabel}>
             <PersonView
@@ -48,7 +48,7 @@ export async function PersonPage({
             <section>
               <SectionHeading level={2}>この人が関わった記事</SectionHeading>
               <ArticleList
-                articles={toArticleCards(siteSlug, result.value.articles)}
+                articles={toArticleCards(siteSlug, result.value.articles, thumbnailContextOf(blueprint))}
                 emptyTitle={UI_COPY.article.emptyListTitle}
                 emptyBody={UI_COPY.article.emptyListBody}
                 headingLevel="h3"

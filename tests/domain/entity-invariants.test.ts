@@ -542,6 +542,7 @@ describe("Experiment（E30）: 件数が足りないうちは判定させない"
         { name: "A", change: "現行" },
         { name: "B", change: "変更" },
       ],
+      // 指標の一覧に無い綴りを**わざと**渡す表明。
       primaryMetric: "nonexistent_metric" as never,
       minimumSamples: 100,
     });

@@ -1,0 +1,273 @@
+P08 浮遊要素の属性統一と重なり監査との共通化
+date: 2026-09-05 JST
+phase: SYS-FB-CAPTURE-EXCLUSION-P08
+
+## 何が残っていたか
+
+`data-floating-overlay` を退避（capture-exclusion.ts）と重なり監査
+（tests/e2e/app-routes.spec.ts）が共有する形は P05〜P07 で既に成立しており、
+名乗り漏れは tests/ui/floating-overlay-declaration.test.ts が機械で数えていた。
+
+残っていたのは**使う側の単数前提**である。
+
+  tests/e2e/app-routes.spec.ts:192 (変更前)
+    const overlay = document.querySelector("[data-floating-overlay]");
+
+`querySelector` は DOM 順の先頭 1 つしか返さない。ところが名乗る側は既に
+2 箇所ある（feedback-button.tsx:299 の launcher と :590 の送信 UI）。
+退避の側は最初から複数を前提にしているのに、監査の側だけが 1 つを見ていた。
+
+**この食い違いは落ちない。**2 つ目が増えた日、検査は赤くならず
+*測る対象が減る*だけである。緑のまま黙る形の壊れ方なので、直した。
+
+## 変更 1: 重なり監査を複数の帯に対応させた
+
+tests/e2e/app-routes.spec.ts の `coveredControls`
+
+  - 名乗っていて可視で、幅と高さを持つ要素を**すべて**集める
+  - 帯ごとに個別に判定し、1 つでも取り残す帯があれば取り残されているとする
+
+帯を合成して 1 つの外接矩形にする案は採らなかった。右下と左上に浮遊要素が
+ある画面で「画面全体が帯」になり、無関係な操作まで有罪になるためである。
+
+現在の名乗りは launcher 1 つだけ（送信 UI は開くまで DOM に無い）なので、
+この変更で判定結果は変わらない。変わるのは**2 つ目が増えた日**である。
+
+## 変更 2: 名乗りすぎの側も数えるようにした
+
+tests/ui/floating-overlay-declaration.test.ts に
+「席を持って追従するだけの要素（sticky）は名乗らない」を追加した。
+
+既存の検査は「浮いているのに名乗らない」を数える。逆向き——
+「浮いていないのに名乗る」——は落ちずに意味が薄まるので、同じ検査で塞ぐ。
+
+position: sticky を浮遊としない理由も本文に書いた。sticky は流れの中に席を
+持ち、追従ヘッダー・表の見出し・目次がそれで、写しに写ってよいし重なり監査でも
+席の分の場所を占めている。名乗らせると写しからヘッダーが消え、監査は本物の
+重なりを見逃す。この線引きは書いておかないと次に触る人には見えない。
+
+## 検証
+
+| 検査 | コマンド | 結果 |
+|---|---|---|
+| 型 | `pnpm run typecheck` | エラー 0 |
+| 静的解析 | `npx eslint tests/e2e/app-routes.spec.ts tests/ui/floating-overlay-declaration.test.ts` | 指摘 0 |
+| 名乗り | `npx vitest run tests/ui/floating-overlay-declaration.test.ts` | 3 passed（sticky 検査を含む） |
+| UI 単体 | `npx vitest run tests/ui` | 105 files / 3474 passed |
+| 画面 (e2e) | `pnpm run test:e2e` | 当初 **214 failed / 2 skipped / 290 passed** → skip link 修正後 **134 failed** / 370 passed → 差し込み待ち導入後 **56 failed** / 450 passed → 種データに公開投影を足して **33 failed / 2 skipped / 473 passed** (6.9m) |
+
+## E2E が緑にならない（P08 の acceptance 未達）
+
+赤 214 件は P08 の変更に由来しない。内訳:
+
+  96 件  「<a> 本文へ移動 ↔ <a> 本文へ移動」→ **解消済み（実測）**
+         src/presentation/ui/templates/app-shell.tsx:286 と :290 に、
+         同じ href・同じ文言の skip link が 2 つあった。**このファイルは
+         HEAD のまま**（git diff で確認済み）で、作業ツリーの変更ではない。
+         別 task ah-06af として起票し、案内（nav）の中の 1 つを削除した。
+
+         再実行の結果は 214 → **134 failed**、290 → **370 passed**。
+         `grep -c "本文へ移動 ↔ 本文へ移動"` は **0**。差の 80 件は
+         desktop/mobile × 40 画面ぶん。**残った「主要操作どうしが
+         重なっています」6 件は別の指摘**（`<button> 役割を変える ↔
+         <input> invitedEmail` など）で、skip link の失敗に埋もれて
+         見えていなかったもの。
+
+  94 件  pending-hit-targets: `a.navLink` の実寸 0.0×0.0px が 2227 箇所。
+         → **解消済み（実測）。見張り側の見落としだった。**
+         案内は実際には 44px あり、**測る時点が早すぎた**。
+
+         React の streaming SSR は Suspense の中身を後から送り、届いた
+         中身をいったん `<body>` 直下の `<div hidden id="S:0">` へ置いて
+         から `$RV` が本来の位置へ移す。**移設前は `hidden` の中に居る**
+         ので `getBoundingClientRect()` はどの子孫も 0×0 を返す。
+         `waitUntil: "domcontentloaded"` も `"load"` も
+         `document.readyState === "complete"` も、この移設の完了を
+         意味しない。だから赤くなる画面が実行ごとに変わっていた。
+
+         `tests/e2e/streamed-content.ts` に `waitForStreamedContent` を
+         置き、`pending-hit-targets.spec.ts` と `app-routes.spec.ts` の
+         `settle` に入れた。`/admin/analytics` で
+         before `{pending:1, navLinkH:0}` → after `{pending:0, navLinkH:44}`
+         を実測。全体は 134 → **56 failed**、370 → **450 passed**。
+         `grep -c "navLink.*実寸0.0×0.0px"` は **0**。
+         **下限 44px (`--tap-target-min`) は下げていない。**
+         別 task ah-9vbj として起票し close 済み。
+
+  14 件  /s/home-office-desk/... 系の HTTP 404。
+         → **解消済み（実測）。種データが 1 表ぶん足りなかった。**
+
+         当初これを「見本データ源が 2 系統あり slug が食い違う」と
+         書いたが、**それは違った**。D1 を直接見ると
+         `select count(*) from published_articles` が **0** で、
+         slug 以前に**読む先の表が空**だった（`articles` には
+         `status='published'` が 8 本あった）。
+
+         `published_articles` は `articles` の参照ではなく**写し**である
+         （`src/db/schema.ts` の説明）。公開の瞬間に本文ごと確定させるので、
+         あとで人物名やカテゴリー名を直しても読者が既に読んだ記事は
+         変わらない。その代わり、**写しを作る手順を踏まないと
+         `articles.status='published'` が何本あっても読者には 404** になる。
+         `article-page.tsx` の `stopIfMissing` は正しく動いていた。
+
+         `scripts/seed/local-seed-data.ts` に `SAMPLE_ARTICLES` を
+         そのまま JSON 化して投入する処理と、`blog_home_featured_article`
+         の明示選定を足した。値は**写さず**見本から引く
+         （`site_blueprints` で 2026-08-30 に起きた同型事故の直し方に倣う）。
+         書き手・監修者のページに専用の表は無く、`author_slug` と
+         `$.reviewedBy.slug` から導出されるので、記事を入れれば人物も埋まる。
+
+         実測: `published_articles` **0 → 22 行**。全体は 56 → **33 failed**、
+         450 → **473 passed** (6.9m)。`に到達できません` の grep は **0**。
+         **床も除外表も動かしていない。**
+
+         残った読者側 6 件は 404 ではなく別の指摘で、内訳は下の 2 つ。
+
+   4 件  読者側の正規 URL 転送。`/s/…/blog/chairs-for-long-hours` は
+         `/best/…` へ、`/s/…/profile` は `/operator` へ着く。
+         **転送は正しい**（記事の種類・固定ページの正名へ寄せている）。
+         合っていないのは `tests/ui/route-table.ts` の fixture の割り当てで、
+         `blog` 入口に ranking の記事を、`[fixedPage]` に別名を置いている。
+
+   4 件  記事本文の目次リンク（「結論」「どうやって比べたか」「選び方」）が
+         実寸 0.0×0.0px。**記事が描けるようになって初めて測れた本物の指摘**で、
+         種データを直した結果として新しく見えた。上の navLink とは別物
+         （差し込み待ちは入っている）。
+
+   4 件  route registry の床: 111 画面を宣言しているが実際は 116 画面。
+         → **解消済み（実測）。5 枚の出所を全部割ってから直した。**
+
+           content/published                      #40 (2026-08-30)
+           content/published/[site]/[slug]/edit   #40 (2026-08-30)
+           sites/[site]/appearance                #46 (2026-09-02)
+           sites/[site]/placements                #46 (2026-09-02)
+           settings/seo                           2026-09-05（本作業）
+
+         さらに **111 は書かれた日から 2 ずれていた**ことも分かった。
+         #41 でこの検査を書いたとき実数は既に 113 で、#34 時点の 111 の
+         まま、同じ日の #40 が足した `content/published` 2 枚を数え落として
+         いる。E2E は当時から落ちていたので、ずれに気づく機会が無かった。
+
+         `app-routes.spec.ts` を 116/115、`pending-hit-targets.spec.ts` を
+         115 へ直し、検査名も合わせた。内訳と「なぜ床を上げる話ではないか」を
+         検査の直上に残した。playwright で 4 件 passed。
+         別 task ah-b2j7 として起票し close 済み。
+
+## 残り 12 件の帰属（2026-09-05 時点・再測定）
+
+214 → 134 → 56 → 33 → 23 → **12 failed / 2 skipped / 498 passed（3.1m）**。
+**残る 12 件は 1 件残らず帰属がついている。**
+件数は印象で束ねず、各失敗の `Error:` 第一行を機械で数えて割った
+（`12 = 7 + 4 + 1`）。
+
+前回の 23 件からの差は `-11`（ah-od20）で、ちょうど合う。
+床・上限・除外表・重なりの閾値（20%）はどれも動かしていない。
+
+   0 件  浮いたボタンの帯から出せない 6 / 画面外に隠れた 3 / 重なり 2
+         → ah-od20。**解消済み。11 件 → 0 件。**
+
+         **本証跡が「直す場所は `.content` の `padding-bottom`」と
+         書いていたのは誤りだった。**下余白は最初から正しく効いていた
+         （`/admin/site-network` desktop 実測: `.page` 下端 1187.7 +
+         `--overlay-clearance` 76px = `.content` 下端 1263.7）。
+
+         6 件と、重なり 2 件の本当の原因は同じ 1 つである。
+         **表は `.tableWrap`（`max-block-size` 32rem・`overflow: auto`）の
+         中で自分だけ縦に送る器に入っており、器から溢れた行の
+         `getBoundingClientRect()` は切り取られる前の位置を返す。**
+         そこは画面に描かれていない。監査はその位置を操作の居場所として
+         測っていたので、送っても出せない・別の操作と重なっている、と読めた。
+
+           /admin/site-network desktop
+             .tableWrap 下端 1175.7 ／ 中の table 下端 1275.7（100px 溢れ）
+             最後の「直す」 1256.3 → 器の下端で測れば 1175.7 − 364 = 811
+             帯の上端 838.8 より上。**指は届く。**
+
+           /admin/settings/members desktop
+             .tableWrap 下端 874（client/scroll = 510/1464）
+             <button> 役割を変える 886–930  ← 器の外。描かれていない
+             <input> invitedEmail 915–962  ← 器の後ろ。こちらは描かれている
+             この 2 つは画面上で同時に在ることが無い。
+
+         直したのは `app-routes.spec.ts` の `scrollClipOf`（新設）で、
+         送れる器の padding box を限界として矩形を切り取ってから測る。
+         `offscreenControls` が `reachableByHorizontalScroll` で横の器を
+         見ているのと同じ話の一般化である。閾値も除外表も動かしていない。
+         **器を送り切ってもなお帯に食い込む・重なる操作は、この後も有罪になる。**
+
+         「画面外に隠れた」3 件（mobile のみ）は**別原因で、本物の不具合だった。**
+         `.headerActions` は狭い画面で `flex-wrap: nowrap; overflow-x: auto` に
+         なるが、既定の `justify-content: flex-end` が残っていた。
+         **折り返さない flex で `flex-end` のまま溢れると、溢れた分は左へ出る。**
+         左の溢れは `scrollWidth` に乗らないので、`overflow-x: auto` があっても
+         器は「送る余地なし」のままで、スクロールバーも出ない。
+
+           /admin/evidence 幅375: .headerActions scrollWidth 351 = clientWidth 351
+                                  中の <a> 根拠を登録する  left -212 / right -88
+
+         これで `根拠を登録する`・`このブログを直す`・`固定ページ`・
+         `登録したリンク` が狭い画面で 1 つも押せなくなっていた。
+         **どれもその画面の主な入口である。**
+         `ui.module.css` の狭い画面側に `justify-content: flex-start` を戻した。
+
+   7 件  正規 URL 転送と fixture の食い違い → ah-7e23。内訳は
+         `[fixedPage]` 2、`blog/[article]` 2、`admin/blog/pages` 1、
+         および `Execution context was destroyed` 2。
+         **後者 2 件は別の謎ではない。**mobile の `admin/blog/pages` が
+         `…/documents` へ転送されており、**転送の最中に DOM を読んだ**という
+         同じ 1 つの事実の別の顔である（desktop app-routes と mobile
+         pending-hit-targets が同じ画面で出している）。
+
+   4 件  記事本文の目次リンクが実寸 0×0 → ah-g4ev。
+         `/best/<slug>` と `/blog/<slug>`（転送先は同じ画面）で各 2 件。
+
+   1 件  admin/blog/articles の 404 console.error → ah-t8jr。
+         **回によって出る画面数が変わる。**全体走行では desktop の 1 件だけ、
+         `app-routes.spec.ts` だけを単独で走らせた回では desktop と mobile の
+         2 件が出た（どちらも 2026-09-05 実測）。
+         **「desktop 固有」と決めてかからないこと。**引きに行く資源が
+         間に合うかどうかで見え方が変わる、つまり競合の匂いがする。
+
+         「mobile は手前の浮いたボタンで落ちて console.error の検査まで
+         到達していない」という以前の説明は**成り立たない。**
+         配置と console.error の検査はすべて `expect.soft` なので、
+         1 つ落ちても後ろの検査は全部走る。実際 ah-od20 の 11 件を
+         消しても、全体走行での件数は 1 件のままだった。
+
+         到達を止めているのは soft ではなく、その手前の**固い**検査
+         `${requestedPath} ではなく ${finalPath} に着きました` である。
+         転送される route は配置の監査に一度も入っていない。
+         **ah-7e23 を直すと、その 5 画面で配置の赤が新しく出る可能性がある。**
+         そちらは後退ではない。
+
+   0 件  読者の記事ページで評価 UI に着けない → ah-kreb。**解消済み。**
+         原因は評価 UI の未実装ではなかった。`published_articles` は
+         `articles` の参照ではなく**写し**で、読者側の解決はこの表しか見ない。
+         公開記事を作る SQL を手書きしている 3 か所（見本 seed・下書き seed・
+         public-site-lifecycle fixture）がどこも写しを作っておらず、
+         `articles.status='published'` のまま 404 になっていた。
+         **Next.js の 404 ページにも `h1` があるので**
+         `getByRole("heading",{level:1})` の検査が 404 を隠しており、
+         失敗は次の行（評価 UI）まで遅れて出ていた。
+         写しは本番の公開経路と同じ `projectBlogArticle` から作るようにした。
+         `blog-ops-crud -g "読者側"` 6 passed / `public-site-lifecycle` 2 passed。
+         45 秒で落ちていた 4 件は 0.4〜0.8 秒で通る。
+         待ち時間の延長・skip・除外は使っていない。
+
+どれも P08 の write_scope（src/presentation/ui/patterns,
+tests/e2e/app-routes.spec.ts）の外なので、この phase では直せない。
+
+**床も上限も除外表も動かしていない。**赤を「見張り側の見落とし」
+「数の床の更新」「本物のバグ」に分け、後ろ 2 つは直し、残りは task にした。
+P08 自身の acceptance（E2E 緑）は満たしていないので open のままにする。
+
+## coveredControls の指摘 3 件について
+
+赤の中に、本 phase が触った `coveredControls` の指摘が 3 画面ある:
+
+  <a> 直す / <textarea> reason ×4 / <button>「…」を担当から外す
+
+これは「本文の下余白が足りず、一番下まで送っても浮いたボタンの帯から
+出せない操作」の実在の指摘で、直す場所は `.content` の `padding-bottom`
+（ui.module.css）である。名乗る要素が 1 つしかない現状では変更前の単数版と
+同一の計算になるため、P08 の変更が新たに生んだ赤ではない。

@@ -59,17 +59,27 @@ export function canonicalSiteUrl(site: CanonicalSiteUrl, path = ""): string {
   return `${site.origin}${site.basePath}${path}`;
 }
 
-/** サイトマップ 1 本。entries の path はサイト内の道（例: /best/laptops）。 */
+/**
+ * サイトマップ 1 本。entries の path はサイト内の道（例: /best/laptops）。
+ *
+ * `updatedAt` が `null` の行は `<lastmod>` を**出さない**。sitemap の仕様で
+ * `lastmod` は任意なので、これは欠けではなく「知らない」の正しい書き方である。
+ * 知らない日を今日で埋めると、更新していないページが毎日更新されたことになり、
+ * `lastmod` 全体が信用されなくなる（方針ページなど、更新日を持たない入口がある）。
+ */
 export function buildSitemapXml(
   origin: string,
   basePath: string,
-  entries: readonly { readonly path: string; readonly updatedAt: string }[],
+  entries: readonly { readonly path: string; readonly updatedAt: string | null }[],
 ): string {
   const urls = entries
     .map((entry) => {
       const loc = escapeXml(canonicalSiteUrl({ origin, basePath }, entry.path));
-      const lastmod = escapeXml(entry.updatedAt);
-      return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
+      const lastmod =
+        entry.updatedAt === null
+          ? ""
+          : `\n    <lastmod>${escapeXml(entry.updatedAt)}</lastmod>`;
+      return `  <url>\n    <loc>${loc}</loc>${lastmod}\n  </url>`;
     })
     .join("\n");
   return [
@@ -146,9 +156,34 @@ export function buildLlmsTxt(
   const links = items
     .map((item) => `- [${item.title}](${canonicalSiteUrl(site, item.path)}): ${item.summary}`)
     .join("\n");
-  return [`# ${site.siteName}`, ``, `> ${site.purpose}`, ``, `## 記事一覧`, ``, links, ``].join(
-    "\n",
-  );
+  /*
+    検索の口を、記事一覧より**先に**書く。
+
+    llms.txt を読む相手（AI 検索・回答エンジン）にとって、記事一覧は
+    「今そこにある物の目録」でしかない。目録は必ず古くなるし、
+    記事が増えれば全部は読まれない。**探し方**を先に渡せば、
+    目録に載っていない記事にも到達できる。
+
+    `{query}` を波括弧のままにしているのは、これが埋める場所だと
+    読み手に分かる書き方だからである（構造化データの `SearchAction` が
+    `{search_term_string}` を置くのと同じ考え方）。実際に叩ける URL を
+    1 本だけ載せるより、**型**を渡すほうが使い道が広い。
+  */
+  const searchUrl = `${canonicalSiteUrl(site, "/search")}?q={query}`;
+  return [
+    `# ${site.siteName}`,
+    ``,
+    `> ${site.purpose}`,
+    ``,
+    `## 探す`,
+    ``,
+    `- [記事を言葉で探す](${searchUrl}): {query} に探したい言葉を入れる。題名・要約・本文から探す。`,
+    ``,
+    `## 記事一覧`,
+    ``,
+    links,
+    ``,
+  ].join("\n");
 }
 
 /**

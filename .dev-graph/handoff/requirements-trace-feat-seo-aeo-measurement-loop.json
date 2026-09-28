@@ -1,0 +1,241 @@
+{
+  "schema": "dev-graph-requirements-trace/v1",
+  "feature_id": "feat-seo-aeo-measurement-loop",
+  "scope_digest": "sha256:2e5944eb59e61ef871d7a39ad0354f59a33bd7198f93f6db535099178874c5ad",
+  "verdict": "PASS",
+  "entry_count": 8,
+  "requirement_ids": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8"
+  ],
+  "entries": [
+    {
+      "requirement_id": "A1",
+      "requirement": "3 データ源が単独で実行でき 1 系統の失敗が他系統の結果を失わせない",
+      "confirmed_sources": [
+        "feature:A1",
+        "context:A1",
+        "backend:確定内容 (質疑録)"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A1",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A2",
+      "requirement": "公開 HTML から 8 項目を静的抽出し規則違反をページ単位で列挙する",
+      "confirmed_sources": [
+        "feature:A2",
+        "context:A2",
+        "frontend:章の注記 (chapter_notes)/3. SEO / AI 検索実装契約 (A10〜A14)"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A2",
+        "tasks[phase_ref=P01|P02|P04|P05|P06|P07|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A3",
+      "requirement": "Search Console 資格情報がサーバー環境変数のみに存在することを機械検査できる",
+      "confirmed_sources": [
+        "feature:A3",
+        "context:A3",
+        "frontend:章の注記 (chapter_notes)/3. SEO / AI 検索実装契約 (A10〜A14)",
+        "maintenance_ops:To-Be"
+      ],
+      "system_tasks": [
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P11",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A3",
+        "tasks[phase_ref=P02|P03|P04|P05|P06|P07|P09|P11|P12]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A4",
+      "requirement": "被引用チェックの実行件数に上限を設定でき到達時は記録して停止する",
+      "confirmed_sources": [
+        "feature:A4",
+        "context:A4",
+        "backend:章の注記 (chapter_notes)/被引用チェックの費用が比例する量",
+        "maintenance_ops:To-Be"
+      ],
+      "system_tasks": [
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P12"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A4",
+        "tasks[phase_ref=P02|P04|P05|P06|P07|P09|P12]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A5",
+      "requirement": "3 データ源の結果が同一ページ識別子で突合されページ別に一覧・推移表示できる",
+      "confirmed_sources": [
+        "feature:A5",
+        "context:A5",
+        "database:章の注記 (chapter_notes)/1. 確定した 6 表"
+      ],
+      "system_tasks": [
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P11"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A5",
+        "tasks[phase_ref=P02|P04|P05|P06|P07|P08|P11]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A6",
+      "requirement": "導入後に作成された記事へ自動反映し差分と時刻を記録して事後通知する",
+      "confirmed_sources": [
+        "feature:A6",
+        "context:A6",
+        "maintenance_ops:確定内容 (質疑録)",
+        "backend:確定内容 (質疑録)"
+      ],
+      "system_tasks": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P11",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A6",
+        "tasks[phase_ref=P01|P02|P03|P04|P05|P06|P07|P08|P09|P11|P13]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A7",
+      "requirement": "反映を次回静的解析で確認でき 1 操作で取り消せ運営画面から停止できる",
+      "confirmed_sources": [
+        "feature:A7",
+        "context:A7",
+        "maintenance_ops:確定内容 (質疑録)"
+      ],
+      "system_tasks": [
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P12",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A7",
+        "tasks[phase_ref=P02|P03|P04|P05|P06|P07|P09|P12|P13]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    },
+    {
+      "requirement_id": "A8",
+      "requirement": "定期実行の失敗回と理由が記録され次回の実行を妨げない",
+      "confirmed_sources": [
+        "feature:A8",
+        "context:A8",
+        "maintenance_ops:To-Be",
+        "maintenance_ops:Acceptance evidence"
+      ],
+      "system_tasks": [
+        "P02",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P12",
+        "P13"
+      ],
+      "handoff_fields": [
+        "requirements_document#traceability.A8",
+        "tasks[phase_ref=P02|P04|P05|P06|P07|P09|P12|P13]",
+        "lineage_closure",
+        "promoted_generation"
+      ]
+    }
+  ],
+  "common_handoff_fields": [
+    "lineage_closure",
+    "promoted_generation",
+    "feature_package_id",
+    "tasks"
+  ],
+  "source_aliases": {
+    "backend": "system-spec/backend.md",
+    "context": "features/feat-seo-aeo-measurement-loop.context.json",
+    "database": "system-spec/database.md",
+    "feature": "features/feat-seo-aeo-measurement-loop.md",
+    "frontend": "system-spec/frontend.md",
+    "maintenance_ops": "system-spec/maintenance-ops.md"
+  },
+  "implementation_code_planned": 0,
+  "trace_plan_digest": "sha256:d6ded2aa5cea7df785edaaab4300929ec68febc4e5402bcec8c743507ef0f642",
+  "trace_plan_digest_algorithm": "sha256(canonical-json(entries): utf8, keys sorted, no insignificant whitespace)"
+}

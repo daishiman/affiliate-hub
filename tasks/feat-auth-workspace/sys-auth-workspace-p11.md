@@ -12,7 +12,7 @@ iteration: null
 title: "再現可能な証跡取得"
 owners: ["daishiman"]
 created_at: "2026-08-16T12:39:37Z"
-updated_at: "2026-08-24T12:54:43Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-AUTH-WORKSPACE-P07","SYS-AUTH-WORKSPACE-P09"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-24T08:45:41Z","evidence_refs":["beads:ah-361.11"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-08-16T21:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

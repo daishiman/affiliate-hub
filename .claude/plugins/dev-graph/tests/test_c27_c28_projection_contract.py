@@ -138,6 +138,33 @@ def test_c28_projects_epic_exact13_and_returns_only_parity_confirmed_ready(tmp_p
     assert sum(args[0] == "create" for args in calls) == create_count
     assert any(args[:2] == ["dep", "add"] and args[-3:] == ["--type", "blocks", "--json"] for args in calls)
 
+    # Legacy projection rows can predate the exact-13 epic linkage.  A missing
+    # parent is the sole safe adoption case, and must converge even when the
+    # source digest already matches (otherwise the idempotent path masks it).
+    del issues["B02"]["parent"]
+    calls_before_adoption = len(calls)
+    _, adopted = call_main(
+        module, monkeypatch, capsys,
+        "--op", "create", "--repo-root", tmp_path, "--projection-manifest", projection,
+    )
+    adopted_child = adopted["result"]["children"][0]
+    assert adopted_child["parent_adopted"] is True
+    assert adopted_child["parent"] == "B01"
+    assert issues["B02"]["parent"] == "B01"
+    adoption_calls = calls[calls_before_adoption:]
+    assert ["update", "B02", "--parent", "B01", "--json"] in adoption_calls
+    assert not any(args[0] == "create" for args in adoption_calls)
+
+    # A non-empty parent is an ownership assertion, not a legacy omission.
+    # Never steal the task from a different epic, including on re-projection.
+    issues["B02"]["parent"] = "B99"
+    with pytest.raises(module.ContractError, match="belongs to a different epic"):
+        call_main(
+            module, monkeypatch, capsys,
+            "--op", "create", "--repo-root", tmp_path, "--projection-manifest", projection,
+        )
+    issues["B02"]["parent"] = "B01"
+
     superseding = package_manifest()
     superseding["source_digest"] = "sha256:" + "b" * 64
     superseding["children"][1]["depends_on"] = []

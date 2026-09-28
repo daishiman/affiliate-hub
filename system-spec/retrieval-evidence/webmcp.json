@@ -1,0 +1,56 @@
+{
+ "target_id": "webmcp",
+ "source_url": "https://webmachinelearning.github.io/webmcp/",
+ "retrieved_at": "2026-09-10T00:00:00Z",
+ "retrieval_method": {
+  "tool": "WebFetch",
+  "note": "公式URLの本文を WebFetch の整形済み応答で確認した。生HTMLやHTTP応答そのものは保持していないため、content_bytes / content_sha256 / http_status は記録しない。行数も応答から数えられないので observed_line_count は置かない。"
+ },
+ "observed_line_count": null,
+ "page_title": "WebMCP",
+ "refetch_note": "2026-09-08 の記録が 2026-09-04 版だったのに対し、公式の版表示が 2026-09-09 へ進んでいたため再取得した。Community Group の rolling draft であり、転記誤りではなく上流更新である。今回の改稿で、認証済み状態を述べた一文が本文から消え、道具として露出した高価値機能が新たな攻撃対象になるという 6.3.1.3 の一文へ置き換わっていた。設計上の含意 (露出は読み取りに限り、書き込み系を露出しない) は変わらないので、逐語だけを現行版へ差し替える。unregisterTool と SubmitEvent.agentInvoked が現行版にも無いことを再確認した。",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-09-09",
+  "found_in": [
+   "Draft Community Group Report, 9 September 2026"
+  ],
+  "note": "公式本文先頭の版表示を採用する。"
+ },
+ "quoted_for_design": [
+  {
+   "claim": "WebMCP は W3C 標準ではなく標準化トラック上にもない Community Group の草案報告である。採用は将来の非互換変更を前提にしなければならない",
+   "verbatim": "This specification was published by the Web Machine Learning Community Group. It is not a W3C Standard nor is it on the W3C Standards Track.",
+   "used_by": "qa-neutral-ai-surface-v6"
+  },
+  {
+   "claim": "接点は Document の modelContext 属性であり、secure context に限定される。したがって HTTPS 配信が前提になる",
+   "verbatim": "partial interface Document { [SecureContext, SameObject] readonly attribute ModelContext modelContext; };",
+   "used_by": "qa-frontend-web-fixed-header-seo-aio-v6"
+  },
+  {
+   "claim": "道具の登録は registerTool で行い、Promise を返す。登録解除の専用メソッドは無く、options の AbortSignal で取り消す",
+   "verbatim": "Promise<undefined> registerTool(ModelContextTool tool, optional ModelContextRegisterToolOptions options = {});",
+   "used_by": "qa-neutral-ai-surface-v6"
+  },
+  {
+   "claim": "パスワード再設定や決済のような高価値機能を道具として露出すると、それ自体が悪意ある agent の新たな標的になる。露出する道具は読み取りに限り、書き込み系を露出しない設計上の理由になる",
+   "verbatim": "Websites have high-value functionality (e.g., password resets, transactions) through their UI. When websites additionally expose such functionality via WebMCP tools, they create another potential target for malicious agents.",
+   "used_by": "qa-backend-web-aeo-analysis-pipeline-v6"
+  }
+ ],
+ "not_found_in_source": [
+  {
+   "looked_for": "unregisterTool メソッド / SubmitEvent.agentInvoked",
+   "result": "いずれも現行版に存在しない。二次記事はこれらが在ると述べているが、一次資料には見つからない。仕様書で参照しないこと。"
+  }
+ ],
+ "removed_upstream": [
+  {
+   "verbatim": "Even when an agent does not share sensitive user data through tool parameters, having an authenticated state means tools can perform high-privilege actions without additional verification.",
+   "observed_in_version": "2026-09-04",
+   "absent_since_version": "2026-09-09",
+   "note": "2026-09-08 取得時の 2026-09-04 版には在った。2026-09-09 版で本文から消えた。同じ論点は 6.3.1.3 の別の一文が担っているため、そちらへ差し替えた。消えた逐語は仕様書から参照しない。"
+  }
+ ]
+}

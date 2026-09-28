@@ -1,0 +1,52 @@
+{
+ "target_id": "gemini-google-search-grounding",
+ "source_url": "https://ai.google.dev/gemini-api/docs/google-search.md.txt",
+ "retrieved_at": "2026-09-03T20:57:55Z",
+ "http_status": 200,
+ "content_bytes": 13529,
+ "content_sha256": "4b7188098a681959620e3656e2e8d870dbf7f1ec0c0e66953a008768bdbfb240",
+ "page_title": null,
+ "source_url_note": "通常ページ (https://ai.google.dev/gemini-api/docs/google-search) は本文を JS で描画するため、取得すると 149KB のシェルしか返らず逐語が一語も拾えなかった (2026-09-03 実測: 8 語すべて 0 箇所)。同じ公式 host (ai.google.dev) が同一文書のテキスト版として配信する .md.txt を証跡に採る。公式 host は変わっていない。content_sha256 は 2 回の取得で完全一致し、Anthropic 側と違って安定している。",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "Gemini 3.8 Flash",
+  "found_in": [
+   "\"## Supported models\" 節の表の先頭行 \"| Gemini 3.8 Flash | ✔️ |\" (本文が申告する対応モデルのうち最新)"
+  ],
+  "http_last_modified": null,
+  "note": "この配信物は Last-Modified を返さず、本文にも更新日の表示が無い (Last updated / Updated / datePublished / dateModified を走査して 0 件)。よって鮮度根拠は本文が自ら申告する対応モデルの最新版を採る。この target が支えるのは『引用 URL が構造化されて返るか』と『課金の単位』であり、どちらも文書の更新日ではなく現行版に依存する性質のため、この採り方で用途を満たす。"
+ },
+ "quoted_for_design": [
+  {
+   "claim": "接地された応答は本文テキストに注記として引用を持ち、各注記は型 url_citation と URL・題名・本文中の位置を持つ。よって『自サイトが引用されたか』を機械で判定できる",
+   "verbatim": "url_citation\",\n                  \"url\": \"https://www.aljazeera.com/sports/euro-2024-final\",\n                  \"title\": \"aljazeera.com\",\n                  \"start_index\": 0,\n                  \"end_index\": 56",
+   "used_by": "qa-neutral-citation-check-v6"
+  },
+  {
+   "claim": "引用は応答の本文ブロックに直接付く注記として返る。別途の後処理で本文と突き合わせる必要がない",
+   "verbatim": "Understanding the grounding response\n\nWhen a response is successfully grounded, the model's text output includes\ninline `annotations` directly on the text content block. These annotations\nprovide citation information linking parts of the response to their sour",
+   "used_by": "qa-neutral-citation-check-v6"
+  },
+  {
+   "claim": "課金の単位は『モデルが実行を決めた検索クエリごと』である。Anthropic の『検索 1,000 件あたり』とは単位が違うため、2 系統を横並びで見積もる要件になる",
+   "verbatim": "Pricing\n\nWhen you use Grounding with Google Search with Gemini 3, your project is billed\nfor each search query that the model decides to execute.",
+   "used_by": "qa-neutral-citation-check-v6"
+  },
+  {
+   "claim": "接地は道具指定 google_search で有効化し、Interactions API を通じて呼ぶ",
+   "verbatim": "google_search\"}]\n    )\n\n    print(interaction.output_text)",
+   "used_by": "qa-backend-web-aeo-analysis-pipeline-v6"
+  }
+ ],
+ "requirement_note": "系統3 (AI 検索での被引用チェック) を Anthropic 一社に依存させないための第二の出典。両社とも引用 URL を構造化して返すため、qa-answer-aeo-feasibility-v6 の前提はどちらでも成立する。ただし**課金の単位が社ごとに違う** — Anthropic は『検索 1,000 件あたり』の従量、Gemini 3 は『モデルが実行を決めた検索クエリごと』。どちらを使うかで費用の計算式が変わるため、被引用チェックの実行頻度を要件で決めるときは両方の単位で見積もる。",
+ "not_found_in_source": [
+  {
+   "looked_for": "groundingMetadata / groundingChunks / groundingSupports / webSearchQueries / searchEntryPoint",
+   "result": "現行版の本文にいずれも存在しない (2026-09-03 実測: 全て 0 箇所)。これらは旧 generateContent 系の応答形式で、現行版は Interactions API の annotations / url_citation / start_index / end_index へ置き換わっている。二次情報 (検索結果の要約) は旧形式を混ぜて述べるため、仕様書で参照しないこと。"
+  },
+  {
+   "looked_for": "文書の更新日 (Last updated / datePublished / dateModified)",
+   "result": "配信物に存在しない。鮮度根拠には本文が申告する対応モデルの最新版を採った。"
+  }
+ ]
+}

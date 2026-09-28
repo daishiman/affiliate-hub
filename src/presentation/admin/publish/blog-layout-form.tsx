@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ComponentProps } from "react";
 import {
   ARTICLE_BLOCK_LABEL,
   type LayoutRegion,
@@ -30,7 +30,11 @@ import { manageBlogLayoutAction } from "./blog-layout-action";
  * 画面から新しい枠を作れないようにしてある。
  * 枠を自由に増やせると、どのブログにも同じ形がある、という前提が崩れる。
  */
-export function BlogLayoutSlotForm({
+export function BlogLayoutSlotForm(props: ComponentProps<typeof LayoutSlotFields>) {
+  return <LayoutSlotFields key={`${props.siteSlug}:${props.region}:${props.slotKey}`} {...props} />;
+}
+
+function LayoutSlotFields({
   siteSlug,
   region,
   slotKey,
@@ -77,6 +81,7 @@ export function BlogLayoutSlotForm({
         label="見出し"
         name="title"
         value={titleValue}
+        disabled={pending}
         onValueChange={setTitleValue}
         optional
         hint={`空にすると「${LAYOUT_SLOT_LABEL[slotKey] ?? slotKey}」が見出しになります。`}
@@ -86,6 +91,7 @@ export function BlogLayoutSlotForm({
         label="中身"
         name="body"
         value={bodyValue}
+        disabled={pending}
         onValueChange={setBodyValue}
         rows={3}
         optional
@@ -96,6 +102,7 @@ export function BlogLayoutSlotForm({
         name="position"
         type="number"
         value={positionValue}
+        disabled={pending}
         onValueChange={setPositionValue}
         hint="小さいほど上に出ます。"
         toolParamDescription="同じ置き場所の中での並び順"
@@ -103,6 +110,7 @@ export function BlogLayoutSlotForm({
       <Checkbox
         name="enabled"
         label="読者に見せる"
+        disabled={pending}
         defaultChecked={enabled}
         toolParamDescription="この部品を読者の画面に出すかどうか"
       />
@@ -116,7 +124,7 @@ export function BlogLayoutSlotForm({
         <Callout tone="warn" reason={state.message} />
       ) : null}
 
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" busy={pending} busyLabel="保存しています">
         この枠を保存
       </Button>
       <FormResult state={state} />
@@ -127,10 +135,14 @@ export function BlogLayoutSlotForm({
 /**
  * トップの帯 1 本ぶんの設定。
  *
- * `itemLimit` は「この帯に何本まで並べるか」。
- * 0 のままだと帯が空で出るので、出すと決めたら本数も決めてもらう。
+ * `itemLimit` は「この帯に何件まで並べるか」。
+ * 0 のままだと帯が空で出るので、出すと決めたら件数も決めてもらう。
  */
-export function BlogLayoutBandForm({
+export function BlogLayoutBandForm(props: ComponentProps<typeof LayoutBandFields>) {
+  return <LayoutBandFields key={`${props.siteSlug}:${props.band}`} {...props} />;
+}
+
+function LayoutBandFields({
   siteSlug,
   band,
   title,
@@ -157,7 +169,7 @@ export function BlogLayoutBandForm({
     <ToolForm
       action={action}
       toolName={`save_top_band_${band.replace(/-/g, "_")}`}
-      toolDescription={`トップの帯「${TOP_BAND_LABEL[band]}」の表示・見出し・本数を決める`}
+      toolDescription={`トップの補助帯「${TOP_BAND_LABEL[band]}」の表示・見出し・件数を決める`}
     >
       <FormValue name="intent" value="band" />
       <FormValue name="siteSlug" value={siteSlug} />
@@ -168,36 +180,40 @@ export function BlogLayoutBandForm({
         label="見出し"
         name="title"
         value={titleValue}
+        disabled={pending}
         onValueChange={setTitleValue}
         toolParamDescription="帯の見出し"
       />
       <Field
-        label="並べる本数"
+        label="並べる件数"
         name="itemLimit"
         type="number"
         value={itemLimitValue}
+        disabled={pending}
         onValueChange={setItemLimitValue}
         error={state.field === "itemLimit" ? state.message : null}
-        unit="本"
+        unit="件"
         hint="0 だと帯が空のまま出ます。"
-        toolParamDescription="この帯に並べる記事の最大件数"
+        toolParamDescription="この帯に並べるリンクの最大件数"
       />
       <Field
         label="並び順"
         name="position"
         type="number"
         value={positionValue}
+        disabled={pending}
         onValueChange={setPositionValue}
         toolParamDescription="トップページでの帯の並び順"
       />
       <Checkbox
         name="enabled"
         label="読者に見せる"
+        disabled={pending}
         defaultChecked={enabled}
         toolParamDescription="この部品を読者の画面に出すかどうか"
       />
 
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" busy={pending} busyLabel="保存しています">
         この帯を保存
       </Button>
       <FormResult state={state} />

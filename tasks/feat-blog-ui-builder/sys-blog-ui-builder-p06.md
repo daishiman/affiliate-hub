@@ -12,7 +12,7 @@ iteration: null
 title: "テスト全量実行と回帰0件の確認"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-30T06:19:13Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P05"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-30T06:19:13Z","evidence_refs":["beads:ah-45ba.6"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-08-28T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

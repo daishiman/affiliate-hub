@@ -202,6 +202,23 @@ def render_decisions(spec: dict, cat_id: str) -> str:
         return "\n".join(lines + ["- (正本 `decisions[]` に記録なし)"])
 
     own = [d for d in decisions if isinstance(d, dict) and d.get("owner_category") == cat_id]
+    # 主担当章の宣言が無い decision は、どの章の表にも出ない = 章から見えなくなる。
+    # 黙って落とすと「無い」と「割り当てていない」が同じ姿になるので、全章に名前だけ挙げる。
+    # (2026-09-08 の dev 合流で、同じ節を描く二重実装のうち片方だけが持っていた性質を
+    #  こちらへ移した。落とすと「割り当て漏れ」を報せる場所が章から消える。)
+    unowned = [
+        d for d in decisions if isinstance(d, dict) and not str(d.get("owner_category") or "").strip()
+    ]
+    unowned_note = (
+        [
+            "",
+            f"- **主担当章が未宣言の decision が {len(unowned)} 件ある** "
+            f"({', '.join('`' + str(d.get('id')) + '`' for d in unowned)})。"
+            "宣言が無いものはどの章の表にも出ないため、ここで名前だけ挙げてある。",
+        ]
+        if unowned
+        else []
+    )
     lead = (
         f"> 正本 `spec-state.json` の `decisions[]` のうち、本章 (`{cat_id}`) を主担当とする"
         f" **{len(own)} 件**。全 {len(decisions)} 件の一覧は"
@@ -209,7 +226,7 @@ def render_decisions(spec: dict, cat_id: str) -> str:
         " (章へ写さない)。"
     )
     if not own:
-        return "\n".join(lines + [lead, "", "- 本章を主担当とする決定は無い。"])
+        return "\n".join(lines + [lead, "", "- 本章を主担当とする決定は無い。"] + unowned_note)
 
     lines += [
         lead,
@@ -241,7 +258,7 @@ def render_decisions(spec: dict, cat_id: str) -> str:
                 f"- **`{decision.get('id', '-')}` の caveat**: "
                 + " / ".join(str(c) for c in caveats),
             ]
-    return "\n".join(lines)
+    return "\n".join(lines + unowned_note)
 
 
 def _qa_by_id(spec: dict) -> dict[str, dict]:
@@ -399,6 +416,25 @@ def _render_qa_body(
     return lines
 
 
+def shared_chapter_note_copies(spec: dict, cat_id: str) -> dict[str, str]:
+    """正本で全項目が同一の注記だけを、全文から参照へ置き換える対応表。"""
+    copies = {}
+    for note in (spec.get("chapter_notes") or {}).get(cat_id, []):
+        if not isinstance(note, dict):
+            continue
+        owner = next((category.get("id") for category in spec.get("categories", [])
+                      if isinstance(category, dict) and note in (spec.get("chapter_notes") or {}).get(category.get("id"), [])), cat_id)
+        if owner == cat_id:
+            continue
+        heading = str(note.get("heading", "(見出しなし)"))
+        full = f"### {heading}\n\n" + str(note.get("body", "")).rstrip("\n")
+        reason = str(note.get("reason") or "").strip()
+        if reason:
+            full += f"\n\n- 正本へ入れた理由: {reason}"
+        copies[full] = f"### {heading}\n\n同じ現行契約の全文と記録理由は [{heading}]({owner}.md) を参照。本章にも同じ契約を適用する。"
+    return copies
+
+
 def render_chapter_notes(spec: dict, cat_id: str) -> str:
     """正本 `chapter_notes` の散文を、章の独立した `##` 節として描く。
 
@@ -435,7 +471,10 @@ def render_chapter_notes(spec: dict, cat_id: str) -> str:
         reason = str(note.get("reason") or "").strip()
         if reason:
             lines += ["", f"- 正本へ入れた理由: {reason}"]
-    return "\n".join(lines)
+    rendered = "\n".join(lines)
+    for full, reference in shared_chapter_note_copies(spec, cat_id).items():
+        rendered = rendered.replace(full, reference)
+    return rendered
 
 
 def render_confirmed_cell(spec: dict, cat_id: str) -> str:
@@ -682,6 +721,23 @@ def _render_candidate_card(candidate: dict) -> list[str]:
     return lines
 
 
+#: 章固有の原則採否 (「本章での適用」) を置くディレクトリ。章本文とは別ファイルにする。
+#:
+#: なぜ章から出すか: 適用メモは**確定セルの数だけ積み上がる**性質のもので、章本文が
+#: どれだけ簡潔でも増える。2026-09-08 の実測では 8 技術章 4829 行のうち 1027 行 (21.3%)
+#: が適用メモで、ui-ux は行数の天井まで残り 0 行・database は 1 行・frontend は 7 行だった。
+#: **次に本文が 1 行増えた日、天井を上げる以外の道が無い。**天井を上げて逃がすのは
+#: この repo が一貫して断ってきた形なので、数える対象のほうを分ける。
+#:
+#: 消すのではなく移すだけなので、内容は 1 行も失われない。章からは導線 (1 行) を残す。
+APPLIED_DIR = "applied"
+
+
+def applied_doc_name(cat_id: str) -> str:
+    """章 cat_id の適用メモファイル名 (docset のキー / out_dir 相対パス)。"""
+    return f"{APPLIED_DIR}/{cat_id}.md"
+
+
 def _render_chapter_application(spec: dict, cat_id: str) -> list[str]:
     """caller が記録した章固有の原則採否を確定判断へ紐付けて描画する。
 
@@ -694,6 +750,11 @@ def _render_chapter_application(spec: dict, cat_id: str) -> list[str]:
     confirmed = _confirmed_cells_by_qa_ref(spec, cat_id)
     goals = chapter_serves_goals(spec, cat_id)
     qa_map = _qa_by_id(spec)
+    # 見出しの階層は章に在ったときのまま (`####` / `#####`) にする。**下げてはならない。**
+    # `_subsection_key` は階層と ref の組で小節の同一性を見るので、階層を変えると
+    # 「章から消えた別物」と判定され、`preserve` が旧本文を章へ引き戻す (実測: ui-ux で
+    # 238 行が章末へ復活した)。単独文書としては `####` 始まりは不揃いに見えるが、
+    # **見た目より、移動を移動と認識できることを採る。**
     lines = ["#### 本章での適用", ""]
     if not confirmed:
         lines.append("- (確定セルなし。本章は対象外または収集中のため上記原則の適用先は未確定)")
@@ -759,6 +820,17 @@ def _render_application_entry(
         )
     else:
         lines.append("- 設計解釈の記録経路: `dialogue`")
+    # **ラベルは「章固有」を名乗らない。**`design_applications` は qa entry に 1 つ
+    # ぶら下がる配列で、章を指す欄を持たない (`designApplication` は
+    # `additionalProperties: false`)。よって `asks_for` が n セルに跨る質疑では、
+    # 同じ rationale が n 章へそのまま出る。これは記入者の手抜きではなく構造の帰結で、
+    # データをどう直しても消えない。
+    #
+    # かつてここは「章固有の根拠」と名乗っていた。そのため C05 が
+    # 「4 章で同文になっており章固有性が形骸化しかけている」を毎回 finding に挙げ、
+    # 誰も閉じられない指摘が溜まった (2026-09-11 の completeness-report がこの型)。
+    # **名乗りを実態へ合わせる。**章ごとに違う根拠が要るなら、要るのは欄であって
+    # 書き分けの努力ではない。欄を足す判断をした日に、この注記ごと書き換えること。
     for application in applications:
         if not isinstance(application, dict):
             continue
@@ -767,7 +839,8 @@ def _render_application_entry(
                 f"- 原則: {application.get('principle', '(未記入)')} "
                 f"(`{application.get('knowledge_ref', '-')}`)",
                 f"  - 採否: `{application.get('applicability', '-')}`",
-                f"  - 章固有の根拠: {application.get('rationale', '(未記入)')}",
+                f"  - 採否の根拠 (この質疑が確定した全セルに共通): "
+                f"{application.get('rationale', '(未記入)')}",
                 "  - トレードオフ:",
             ]
         )
@@ -823,9 +896,48 @@ def render_design_refs(cat_id: str, spec: dict | None = None) -> str:
         for candidate in candidates:
             lines.extend(["", "---", ""])
             lines.extend(_render_candidate_card(candidate))
-        lines.extend(["", "---", ""])
-        lines.extend(_render_chapter_application(spec, cat_id))
+        # 適用メモ本体は別ファイルへ出す (APPLIED_DIR の注記を参照)。章には導線だけを残す。
+        # **導線を消さないこと。**適用メモは「この章の確定内容がどの設計原則に基づくか」の
+        # 接地であり、辿れなくなると章の主張が宙に浮く。分けたのは数え方の都合であって、
+        # 章と無関係になったからではない。
+        lines.extend(
+            [
+                "",
+                "---",
+                "",
+                "#### 本章での適用",
+                "",
+                f"- 本章固有の原則採否 (確定内容・接地根拠ごとの `採否` / 根拠 / トレードオフ) は"
+                f" [`{applied_doc_name(cat_id)}`]({APPLIED_DIR}/{cat_id}.md) にある。",
+                "- 章本文と別ファイルにしてあるのは、適用メモが確定セルの数だけ積み上がり、"
+                "章の分量の見積もりを押し上げるためである (内容は 1 行も落としていない)。",
+            ]
+        )
     return "\n".join(lines)
+
+
+def render_chapter_application_doc(spec: dict, cat_id: str) -> str:
+    """章 cat_id の「本章での適用」を独立した Markdown 文書として組み立てる。
+
+    frontmatter は章と同じ `render_frontmatter` を使う。同じ `status` / `category` を
+    持たせることで、`guard-confirmed-chapter-overwrite.py` の保護が章と同じ根拠で
+    このファイルにも効く (`system-spec/` 配下の `.md` で `status: confirmed` なら保護)。
+    **保護のために新しい仕組みを足していない**——既にある判定にそのまま乗せている。
+    """
+    label = category_label(spec, cat_id)
+    parts = [
+        render_frontmatter(spec, cat_id),
+        "",
+        f"# 本章での適用 — {label} ({cat_id})",
+        "",
+        f"> 本文は [`../{cat_id}.md`](../{cat_id}.md) の一部である。"
+        "章の分量の見積もりから適用メモを外すために別ファイルにしてあるだけで、"
+        "内容・順序・語句は章に在ったときと同じである。",
+        "",
+        "\n".join(_render_chapter_application(spec, cat_id)),
+        "",
+    ]
+    return "\n".join(parts)
 
 
 def render_citations(refs: list[dict], *, empty_note: str) -> str:

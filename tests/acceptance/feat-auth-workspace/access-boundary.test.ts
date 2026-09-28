@@ -10,9 +10,9 @@ import type { SessionReaderPort } from "@/infrastructure/identity/session-reposi
 import { assertSameTenant } from "@/domain/shared/tenancy";
 import { requireCapability } from "@/domain/identity";
 import { asUserId, asWorkspaceId, notFound, ok } from "@/domain/shared";
-import type { Membership } from "@/domain/identity";
 import { errorResponse } from "@/presentation/http/error-response";
 import { anAnalyst } from "../../support/actors";
+import { aMembership } from "../../support/factories";
 import type { WorkspaceId } from "@/domain/shared/ids";
 
 /**
@@ -111,18 +111,18 @@ describe("AWS-ACC-04 権限の無い役は公開できない／許された操�
 
 describe("認証→所属→権限→所有の 4 段を 1 本で通す", () => {
   it("有効な通行証でも、別workspace・別userの担当登録から公開権限を借りられない", async () => {
-    const otherMembership = {
-      id: asUserId("membership-other"),
+    /*
+      この検査が関心を持つのは**別 workspace の別 user が公開権限を持っている**
+      ことだけ。招待日時や表示名は関係しないので、雛形の既定に任せる。
+      以前は 10 項目を手で並べ `as unknown as Membership` で締めていた——
+      `id` に `asUserId` を使っており（正しくは `MembershipId`）、
+      型を外していたからこそ通っていた。
+    */
+    const otherMembership = aMembership({
       workspaceId: asWorkspaceId("ws-other"),
       userId: asUserId("user-other"),
-      invitedEmail: "other@example.com",
       roles: ["publisher"],
-      scopedBrandIds: [],
-      displayName: "別の担当者",
-      invitedAt: NOW,
-      acceptedAt: NOW,
-      revokedAt: null,
-    } as unknown as Membership;
+    });
     const resolve = createSessionActorResolver({
       sessions: reader,
       memberships: { findByUser: async () => ok(otherMembership) },

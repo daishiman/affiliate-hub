@@ -40,6 +40,7 @@ record 素材 (入力) の期待形状:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import re
@@ -111,12 +112,47 @@ def host_of(url: str) -> str:
     return norm_host(urlparse(url or "").netloc)
 
 
-def build_record(rec: dict) -> dict:
+def verify_evidence_digest(tid: str, rec: dict, repo_root: Path) -> None:
+    """evidence_ref の実バイトが evidence_sha256 と一致することを確かめる。
+
+    形式検査 (SHA256_HEX) は「64 桁の 16 進数であること」しか言わない。**証跡ファイルを
+    後から書き換えても、古い digest はその形を保ったまま通る。** 実際 2026-09-08 の回で、
+    注記を足した apple-hig の証跡に対して古い digest が残ったまま、この唯一の正規 writer を
+    素通りし、下流の validate-source-citation.py と C08 監査 fork まで誰も気付かなかった。
+
+    digest の目的は「記録後に証跡が改変されていない」ことの機械的担保なので、担保する側が
+    実バイトを一度も開かないなら担保になっていない。ここで開いて突き合わせる。
+
+    repo_root を渡さない呼び出し (純関数として使う単体テスト等) では実行しない。
+    ファイル系の検査を必ず伴わせると assembler が repo に縛られるため、依存の有無は
+    呼び出し側が --repo-root で明示する。
+    """
+    ref = str(rec.get("evidence_ref", ""))
+    path = (repo_root / ref).resolve()
+    # repo 外へ出る evidence_ref は突合の対象にしない。`..` や絶対 path で repo 外の
+    # ファイルを指し、その digest で「証跡がある」と名乗れてしまう形を先に断つ。
+    try:
+        path.relative_to(repo_root.resolve())
+    except ValueError:
+        raise RecordError(f"{tid}: evidence_ref={ref!r} が repo_root の外を指している")
+    if not path.is_file():
+        raise RecordError(f"{tid}: evidence_ref={ref!r} が実在しない ({path})")
+    actual = hashlib.sha256(path.read_bytes()).hexdigest()
+    if actual != rec.get("evidence_sha256"):
+        raise RecordError(
+            f"{tid}: evidence_sha256 が {ref} の実バイトと不一致 "
+            f"(宣言={rec.get('evidence_sha256')} 実測={actual})。"
+            "証跡を書き換えたなら実測値で再ピンすること"
+        )
+
+
+def build_record(rec: dict, repo_root: Path | None = None) -> dict:
     """1 件の record 素材を契約形状へ正規化・検証する。
 
     - 必須素材フィールド欠落は RecordError。
     - version と last_updated のいずれも無ければ RecordError。
     - official_host は未指定なら source_url から導出し、指定時は host 一致を検証する。
+    - repo_root 指定時は evidence_ref の実バイトと evidence_sha256 の一致も検証する。
     """
     if not isinstance(rec, dict):
         raise RecordError("record はオブジェクトでない")
@@ -133,6 +169,8 @@ def build_record(rec: dict) -> dict:
         raise RecordError(f"{tid}: version と last_updated の両方が空 (いずれか必須)")
     if not SHA256_HEX.fullmatch(str(rec.get("evidence_sha256", ""))):
         raise RecordError(f"{tid}: evidence_sha256 は小文字16進数64桁の SHA-256 必須")
+    if repo_root is not None:
+        verify_evidence_digest(str(tid), rec, repo_root)
 
     src = rec["source_url"]
     derived = host_of(src)
@@ -158,7 +196,7 @@ def build_record(rec: dict) -> dict:
     return {k: normalized[k] for k in OUTPUT_FIELD_ORDER if normalized.get(k)}
 
 
-def assemble(records: list) -> dict:
+def assemble(records: list, repo_root: Path | None = None) -> dict:
     """record 素材列を fetched-references.json 形状へ組み立てる。
 
     target_id 重複は RecordError。順序は入力順を保つ (決定論)。
@@ -189,7 +227,7 @@ def assemble(records: list) -> dict:
     seen: set[str] = set()
     refs: list[dict] = []
     for rec in records:
-        built = build_record(rec)
+        built = build_record(rec, repo_root)
         tid = built["target_id"]
         if tid in seen:
             raise RecordError(f"target_id={tid!r} が重複")
@@ -260,12 +298,22 @@ def main(argv: list[str]) -> int:
     p_asm.add_argument("--records", required=True, help="record 素材 JSON (list か {records:[...]})")
     p_asm.add_argument("--targets", help="全件対応を突合する targets JSON (任意)")
     p_asm.add_argument("--out", help="出力先 (省略時 stdout)")
+    p_asm.add_argument(
+        "--repo-root",
+        help=(
+            "evidence_ref を解決する repo root。指定すると各 record の evidence_sha256 を "
+            "証跡ファイルの実バイトと突き合わせる (形式検査だけでは古い digest が通るため)"
+        ),
+    )
 
     args = ap.parse_args(argv)
 
     try:
         records = _records_from(_load(args.records, "records"))
-        result = assemble(records)
+        repo_root = Path(args.repo_root) if args.repo_root else None
+        if repo_root is not None and not repo_root.is_dir():
+            raise FileNotFoundError(f"--repo-root が存在しない: {args.repo_root}")
+        result = assemble(records, repo_root)
         if args.targets:
             missing = missing_targets(_load(args.targets, "targets"), result)
             if missing:

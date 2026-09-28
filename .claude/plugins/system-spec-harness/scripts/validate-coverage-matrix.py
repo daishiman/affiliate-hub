@@ -526,6 +526,52 @@ def _derive_aggregate(cells: list[str]) -> str:
     return "確定"
 
 
+def _retired_into_a_cited_successor(entry: dict, cited: set, by_id: dict) -> bool:
+    """引退を名乗った質疑の設計適用を、この門の対象から外してよいかを返す。
+
+    引数:
+      entry  — 判定対象の qa_log entry (`design_applications` を持ち、どのセルからも
+               引かれていないことは呼び出し側で確認済み)
+      cited  — 確定セルの `qa_ref` / `qa_refs` から引かれている質疑 id の集合
+      by_id  — qa_log の id -> entry
+
+    3 つ揃ったときだけ True。どれか 1 つでも欠ければ False (落とす):
+      1. `superseded_by` を名乗っている — 置き換えたのか忘れたのかを、正本の側が言う
+      2. その後継が qa_log に実在する — 実在しない id への逃がしを塞ぐ
+      3. **鎖の先のどこかが確定セルから引かれている** — 鎖の先が空でないこと。ここが要。
+         鎖の全員が孤立していれば、設計適用の適用先はどこにも無い
+
+    **鎖を辿る理由 (2026-09-03)**: 世代を重ねると v4 -> v5 -> v6 の鎖ができる。
+    v4 が v5 を後継と宣言した事実は後から書き換えられない (writer が
+    `supersede-qa` の異なる値での再適用を拒否する — 宣言は「その時点で何を後継と
+    したか」の履歴であり、張り替えると経過が消える)。よって 1 リンクしか見ないと、
+    中間の v5 が引かれなくなった瞬間に v4 が永久に落ち続け、**記録を直す手が無い**。
+    直すべきは記録ではなく読み方なので、門の側が鎖を辿る。
+
+    鎖を辿っても 2026-08-24 の事故 (孤立した 7 件) は緑にならない。あれは
+    `superseded_by` の宣言そのものが無く、最初のリンクで落ちる。
+    循環 (A -> B -> A) は訪問済み集合で止め、False へ倒す。
+
+    `reopen_log` を材料にしない (呼び出し側も渡していない)。手放しは「置いた」記録で
+    あって「適用先が在る」証明ではない。壊れた値は例外にせず False へ倒す。
+    """
+    seen: set[str] = set()
+    current = entry
+    while True:
+        successor = current.get("superseded_by")
+        if not isinstance(successor, str) or not successor.strip():
+            return False
+        successor = successor.strip()
+        if successor in seen:
+            return False
+        seen.add(successor)
+        if successor not in by_id:
+            return False
+        if successor in cited:
+            return True
+        current = by_id[successor]
+
+
 def _validate_grounded_design_applications(data: dict) -> list[str]:
     """**設計適用を持つ質疑が、どのセルからも引かれていない状態を落とす。**
 
@@ -543,6 +589,14 @@ def _validate_grounded_design_applications(data: dict) -> list[str]:
 
     塞げていないところ: 引かれてさえいれば通る。引いているセルの主張と設計適用の
     中身が噛み合っているかは、ここでは見ていない。
+
+    **引退した質疑の例外 (2026-09-03)**: 設計適用を持つ質疑を作り直したとき、古い方は
+    どのセルからも引かれなくなる。それは正しい経過だが、writer は設計適用を空にでき
+    ない (`design_applications は非空配列必須`)。よって引退した質疑はこの門を永久に
+    落ち続け、出口が無かった。`_retired_into_a_cited_successor` がその一点だけを
+    例外にする。**`_validate_declared_qa_supersession` と同じ数え方にはしない** —
+    あちらは `reopen_log[].discarded` も参照として数えるが、ここで同じことをすると
+    2026-08-24 の事故 (手放したまま再確定が通らず孤立した 7 件) が緑になる。
     """
     findings: list[str] = []
     cited: set[str] = set()
@@ -557,31 +611,20 @@ def _validate_grounded_design_applications(data: dict) -> list[str]:
             for ref in cell.get("qa_refs") or []:
                 if isinstance(ref, str):
                     cited.add(ref)
-    entries = [entry for entry in data.get("qa_log") or [] if isinstance(entry, dict)]
-    entry_ids = {
-        entry.get("id")
-        for entry in entries
-        if isinstance(entry.get("id"), str)
-    }
+    entries = [e for e in (data.get("qa_log") or []) if isinstance(e, dict)]
+    by_id = {e["id"]: e for e in entries if isinstance(e.get("id"), str)}
     for entry in entries:
         if not entry.get("design_applications"):
             continue
         entry_id = entry.get("id")
-        successor = entry.get("superseded_by")
-        if (
-            isinstance(entry_id, str)
-            and isinstance(successor, str)
-            and successor != entry_id
-            and successor in entry_ids
-        ):
-            # 後継が実在する旧QAは経過の記録であり、現行セルの根拠ではない。
-            # 旧と新を両方接地すると、後継申告の意味が消える。
+        if not isinstance(entry_id, str) or entry_id in cited:
             continue
-        if isinstance(entry_id, str) and entry_id not in cited:
-            findings.append(
-                f"qa_log[{entry_id}]: design_applications を持つのに、どの確定セルの "
-                "qa_ref / qa_refs からも引かれていない (集めた設計適用に適用先が無い)"
-            )
+        if _retired_into_a_cited_successor(entry, cited, by_id):
+            continue
+        findings.append(
+            f"qa_log[{entry_id}]: design_applications を持つのに、どの確定セルの "
+            "qa_ref / qa_refs からも引かれていない (集めた設計適用に適用先が無い)"
+        )
     return findings
 
 

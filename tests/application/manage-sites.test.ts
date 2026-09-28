@@ -107,7 +107,7 @@ function sitesOf(
       if (options.fails) return err(domainError("UPSTREAM_UNAVAILABLE", "保存先に接続できません。"));
       return ok(sites);
     },
-  }) as unknown as EditorialSiteRepositoryPort;
+  }) satisfies EditorialSiteRepositoryPort;
 }
 
 async function listSites(sites: readonly { slug: string; blueprint: SiteBlueprint }[], actor = owner) {

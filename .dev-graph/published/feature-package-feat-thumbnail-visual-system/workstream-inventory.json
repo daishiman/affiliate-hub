@@ -1,0 +1,1148 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+  "parent_feature": "feat-thumbnail-visual-system",
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/backend.md",
+      "system-spec/database.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P01",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "サムネイル適用8画面・登録経路・観測factの要求ベースライン確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/requirements-baseline.md",
+        "docs/spec/feat-thumbnail-visual-system/screen-application-inventory.md",
+        "docs/spec/feat-thumbnail-visual-system/registration-priority-analysis.md",
+        "docs/spec/feat-thumbnail-visual-system/cls-observed-fact.md",
+        "docs/spec/feat-thumbnail-visual-system/acceptance-traceability.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP01 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: サムネイル適用対象8画面(トップページ・記事一覧・カテゴリー・タグ・検索結果・関連記事・管理画面ブログ一覧・管理画面記事一覧/プレビュー)のroute一覧、登録経路優先順位(明示アップロード>アイキャッチ>本文先頭画像>決定論的代替図版)定義、観測fact(kajetblog-top-analysis.md §3/§4の16:9約1200x675・img 54/54件のwidth/height/sizes保持)の引用、A1-A7と画面・データ・証跡の未対応0件を成立させる。"
+      ],
+      "verification": [
+        "P01のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P01のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P01",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p01.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P02",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "登録優先順位・決定論的代替図版・R2派生・CLS/OGP規約の設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "api",
+        "data",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/data-model.md",
+        "docs/spec/feat-thumbnail-visual-system/api-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/deterministic-placeholder-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/r2-derivative-naming-cache-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/component-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/icon-set-contract.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP02 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: 登録優先順位の状態機械、代替図版のinput(タイトル・カテゴリー・配色トークン)からoutputバイト列への決定論的契約、R2派生命名規約(original保持・16:9 1200x675・複数幅srcset)とcache key、CLS実装規約(固有width/height・srcset/sizes・decoding=async・初期表示外loading=lazy)、OGP/Twitter Card summary_large_image契約、独自SVGアイコン契約をA1-A7欠落なく設計する。"
+      ],
+      "verification": [
+        "P02のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P02のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P02",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p02.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P03",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "設計の独立レビューと外部接続なし・決定論性・境界不可侵ゲート",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/design-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP03 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: C1矛盾なし・C2漏れなし・C3整合性あり・C4依存整合に加え、代替図版生成の外部接続0、同一入力から同一バイト列が得られる決定論性、CLS規約の測定可能性、feat-reader-surfaceの本文画像責務への非侵犯境界の全チェックを証拠付きPASSにする。"
+      ],
+      "verification": [
+        "P03のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P03のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P03",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p03.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P04",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "A1-A7・CLS・決定論性・OGPのテスト設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P03"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/test-design.md",
+        "tests/fixtures/thumbnail-visual-system/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP04 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: A1-A7ごとに正常・未登録・取得失敗・R2障害・権限・境界(空タイトル・多バイト文字)のケース、同一入力2回実行で出力バイト列が一致することを検証する決定論性テスト、CLS計測手順(対象要素をサムネイル・代替図版・アイコンに限定)、OGP/Twitter Card出力検証が一意IDで定義される。加えて、読者向け一覧と管理画面一覧が別の寸法型を取ること、管理画面一覧でサムネイル表示の折りたたみが機能すること、面ごとの個別寸法の書き分けが0件であることを検証するケースを一意IDで定義する。"
+      ],
+      "verification": [
+        "P04のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P04のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P04",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p04.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P05",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "サムネイル登録・代替図版生成・R2配信・全画面表示・SVGアイコンの実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "backend",
+        "api",
+        "data",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P04"
+      ],
+      "write_scope": [
+        "src/domain/blogops/",
+        "src/domain/shared/",
+        "src/application/ports/",
+        "src/application/usecases/blog-ops/",
+        "src/application/read-models/",
+        "src/application/seo/",
+        "src/infrastructure/persistence/d1/",
+        "src/infrastructure/platform/storage-r2.ts",
+        "src/presentation/ui/primitives/",
+        "src/presentation/ui/patterns/",
+        "src/presentation/ui/tokens/",
+        "src/presentation/site/",
+        "src/presentation/admin/",
+        "src/app/s/[site]/",
+        "src/app/admin/blog/",
+        "src/app/admin/content/",
+        "src/db/schema.ts",
+        "drizzle/",
+        "tests/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP05 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: 依存順に、登録経路優先順位判定、決定論的代替図版生成、R2派生保存とcache key付与、8画面全てへの表示適用、CLS実装規約準拠のimg出力、OGP/Twitter Card生成、独自SVGアイコンセット、失敗時代替表示を実装し、P04のテストをgreenにする。管理画面一覧のサムネイル行は読者向け一覧より低い行高で表示され、サムネイル表示の折りたたみ操作を持つ。寸法は面ごとに書き分けず、P02が定めた少数の型を1か所から読む。既存記事一覧・関連記事コンポーネントとの重複実装は新規0件にする。"
+      ],
+      "verification": [
+        "P05のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P05のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P05",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p05.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P06",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "単体・結合・CLS・決定論性・OGPテストの実行と緑化",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "backend",
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P05"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/test-run-report.md",
+        "test-results/thumbnail-visual-system/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP06 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: typecheck、content validation、unit、contract、DB integration、E2E、決定論性再現テスト、CLS計測、OGP/Twitter Card検証が失敗0件で、各command・exit・件数・artifact pathがtest-run-reportに記録される。"
+      ],
+      "verification": [
+        "P06のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P06のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P06",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p06.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "A1-A7のfeature受入",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend",
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/acceptance-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP07 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: A1-A7の全件が手順・expected・actual・evidenceでPASSし、8画面全てで実際にサムネイルまたは代替図版が表示され、代替図版生成が外部通信0であることをnetwork traceで確認し、CLS実測値が0.1未満であることをacceptance-reportに記録する。管理画面一覧のサムネイル行高が読者向け一覧より低いこと、折りたたみ操作でサムネイル列を畳めることも同じreportに手順・expected・actualで記録する。"
+      ],
+      "verification": [
+        "P07のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P07のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p07.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P08",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "既存記事一覧・関連記事コンポーネントとの重複解消と移行",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "data",
+      "secondary_workstreams": [
+        "backend",
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P05"
+      ],
+      "write_scope": [
+        "src/db/schema.ts",
+        "drizzle/",
+        "src/domain/blogops/",
+        "src/application/usecases/blog-ops/",
+        "src/infrastructure/persistence/d1/",
+        "src/presentation/site/",
+        "src/presentation/admin/",
+        "docs/spec/feat-thumbnail-visual-system/migration-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP08 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 既存の記事一覧・関連記事表示コンポーネントとの二重実装が解消され、既存記事のサムネイル未設定データへのbackfillが再実行可能で、legacy表示はredirectまたは互換adapterで収束し、rollback rehearsalが成功し、migration-reportに件数差0が記録される。"
+      ],
+      "verification": [
+        "P08のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P08のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P08",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p08.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "CLS・決定論性・外部接続なし・非侵犯境界の独立QA",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security",
+        "frontend",
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/qa-report.md",
+        "test-results/thumbnail-visual-system/qa/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP09 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: 8画面のaxe重大違反0、代替図版生成コードのoutbound network call 0(静的解析+実行time trace)、同一入力での再現バイト列一致、CLS実測0.1未満、OGP/Twitter Card画像の到達可能性、読者向け一覧と管理画面一覧で寸法の型が使い分けられていること(面ごとの個別寸法の書き分け0件)と管理画面一覧の折りたたみが操作可能であること、feat-reader-surface本文画像責務への越境0を独立証跡でPASSにする。"
+      ],
+      "verification": [
+        "P09のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P09のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p09.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "目的・受入・品質証跡の独立最終レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/final-review.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP10 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: A1-A7の証跡欠落0、high finding 0、P07/P09のdigest一致、feat-reader-surfaceとのscope境界逸脱0、release blocker 0の場合のみreadiness=completeとし、それ以外はFAILと修正phaseを明記する。"
+      ],
+      "verification": [
+        "P10のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P10のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p10.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "サムネイル・代替図版・アイコン証跡の再現可能な集約",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P07",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P09",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P10"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/evidence/"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP11 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P11: evidence/index.jsonがサムネイル登録・代替図版生成・R2派生・CLS計測・OGP出力・P06/P07/P09/P10の証跡をpath・digest・取得日時・tool versionで参照し、missing/duplicate/stale 0、再実行commandがexit0になる。"
+      ],
+      "verification": [
+        "P11のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P11のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P11",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p11.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P12",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "管理者ガイド・派生再生成runbook・障害対応の確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P10",
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/admin-guide.md",
+        "docs/spec/feat-thumbnail-visual-system/thumbnail-regeneration-runbook.md",
+        "docs/spec/feat-thumbnail-visual-system/icon-asset-runbook.md",
+        "docs/spec/feat-thumbnail-visual-system/operations.md",
+        "docs/spec/feat-thumbnail-visual-system/api-contract.md",
+        "docs/spec/feat-thumbnail-visual-system/data-model.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP12 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: サムネイル登録・アイキャッチ指定・代替図版差し替えの管理者ガイドが主タスクを各3段階以内で案内し、派生再生成・R2障害時fallback・rollbackのrunbookがowner/trigger/command/evidence/escalationを持ち、P02契約が実装確定内容へ更新される。"
+      ],
+      "verification": [
+        "P12のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P12のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P12",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p12.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P13",
+      "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+      "parent_feature": "feat-thumbnail-visual-system",
+      "title": "development段階展開・rollback確認・仕様書への書き戻し",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-thumbnail-visual-system"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "operations",
+      "secondary_workstreams": [
+        "infrastructure",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-THUMBNAIL-VISUAL-SYSTEM-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-thumbnail-visual-system/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/backend.md",
+        "system-spec/database.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-thumbnail-visual-system.md",
+        "features/feat-thumbnail-visual-system.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-thumbnail-visual-systemのP13 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: development deployment、smoke、サムネイル表示/代替図版生成/R2派生telemetry、rollback rehearsalがPASSし、本番releaseが未承認ならN/A理由を記録し、P13 spec/architecture writeback: required としてUI・frontend・backend・database・architectureの確定章へ実装差分と残findingをR4-reopen経由で反映しclose-out receiptを残す。"
+      ],
+      "verification": [
+        "P13のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P13のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-THUMBNAIL-VISUAL-SYSTEM-P13",
+        "file_path": "tasks/feat-thumbnail-visual-system/sys-thumbnail-visual-system-p13.md",
+        "parent_feature": "feat-thumbnail-visual-system",
+        "feature_package_id": "feature-package/feat-thumbnail-visual-system",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

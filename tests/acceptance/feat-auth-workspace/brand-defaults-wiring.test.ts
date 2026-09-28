@@ -25,7 +25,7 @@ import { createBrand } from "@/domain/identity";
 import type { Brand } from "@/domain/identity";
 import type { BrandRepositoryPort } from "@/application/ports/identity";
 import type { LlmCostEstimatorPort, LlmPort, LlmRequest } from "@/application/ports";
-import { ok } from "@/domain/shared";
+import { domainError, err, ok } from "@/domain/shared";
 import { asBrandId } from "@/domain/shared";
 import { sampleGenerationInput } from "@/infrastructure/persistence/sample/generation-sample-input";
 import type { GenerationInput } from "@/domain/generation/generation-input";
@@ -139,14 +139,18 @@ const 記録するLLM: LlmPort = {
   embed: async () => {
     throw new Error("下書きの生成が embed を呼んでいる");
   },
-  generateStructured: async (req: LlmRequest) => {
+  // 正本の `LlmResponse` は `truncated` を必須にしている——打ち切られた本文を
+  // そのまま公開しないための欄である。以前はそれを落とした形を `as never` で
+  // 通していたので、欄が増えても減っても検査は黙っていた。
+  generateStructured: async <T,>(req: LlmRequest) => {
     渡された指示.push(req);
     return ok({
       modelId: MODEL.modelId,
-      output: {},
+      output: {} as T,
       inputTokens: 1,
       outputTokens: 1,
-    }) as never;
+      truncated: false,
+    });
   },
 };
 
@@ -197,8 +201,9 @@ describe("brandId を明示しない画面経路で、既定値が届くか", ()
       findById: async () => {
         throw new Error("使わない");
       },
-      list: async () =>
-        ({ ok: false, error: { code: "UNAVAILABLE", message: "保存先が落ちています。" } }) as never,
+      // 正本の `DomainErrorCode` に `"UNAVAILABLE"` は無い。以前はその**存在しない
+      // 名前**を `as never` で通し、実装が理由をそのまま返すせいで検査まで緑だった。
+      list: async () => err(domainError("UPSTREAM_UNAVAILABLE", "保存先が落ちています。")),
       save: async () => {
         throw new Error("使わない");
       },
@@ -209,7 +214,7 @@ describe("brandId を明示しない画面経路で、既定値が届くか", ()
       brands: 落ちる保存先,
     }).execute(anOwner(), { model: MODEL, provided: 免責なしの入力 });
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error.code).toBe("UNAVAILABLE");
+    if (!r.ok) expect(r.error.code).toBe("UPSTREAM_UNAVAILABLE");
     expect(渡された指示.length).toBe(0);
   });
 });

@@ -16,12 +16,13 @@
 ## Layer 1: 基本定義層 (不変原則)
 
 ### 1.1 不変ルール
-- `確定` セルの状態を動かせるのは `action=reopen` (要 reason) だけ。
+- `確定` セルの状態を動かせるのは `action=reopen` (要 reason + qa_ref) だけ。
 - reopen 非経由の `確定`→`未収集`/`対象外` 直接変更は writer が `TransitionError` で拒否する (C11 hook も遮断)。
 - reopen は当該セルを `未収集` へ戻し `reopen_log` に根拠を残す。
 
 ### 1.2 倫理ガード
 - 根拠 (reason) なき再オープンをしない。確定を無断で消さない。
+- **自由文 `reason` だけで確定を外さない。**`reason` は writer が中身を見ない。確定は `qa_ref` で問答へ接地しているのだから、外す側も `qa_log` の id を名乗る (writer が実在を検査する)。名乗れないなら、まだ根拠は集まっていない。
 
 ## Layer 2: ドメイン層 (本質ロジック)
 
@@ -38,7 +39,8 @@
 |---|---|---|---|
 | spec_state | path | yes | 現在の spec-state.json |
 | target_cell | {category, platform} | yes | 再オープン対象の確定セル |
-| reason | string | yes | 再検討の根拠 |
+| reason | string | yes | 再検討の根拠 (人が読む文) |
+| qa_ref | string | yes | 再検討の根拠となる `qa_log` の id (機械が辿る接地) |
 
 ### 2.4 出力契約
 - 更新後 `spec-state.json` (対象セル `未収集`、`reopen_log` に entry 追加)。
@@ -52,13 +54,14 @@
 | question_bank | references/elicit-question-bank.md | 追加質問設計時 |
 
 ### 3.2 外部ツール
-- `Bash`: `python3 scripts/apply-spec-transition.py apply --state spec-state.json --op '{"action":"reopen","category":"<c>","platform":"<p>","reason":"<why>"}'`
+- `Bash`: `python3 scripts/apply-spec-transition.py apply --state spec-state.json --op '{"action":"reopen","category":"<c>","platform":"<p>","reason":"<why>","qa_ref":"<qa-id>"}'`
 
 ## Layer 4: 共通ポリシー
 
 ### 4.1 失敗時挙動
 - 対象が `確定` でない → writer が拒否。対象セル状態を確認して停止 (fail-closed)。
 - reason 欠落 → writer が拒否。
+- qa_ref 欠落、または `qa_log` に無い id → writer が拒否。既存 entry を遡って埋めない (当時名乗られなかった事実の方が記録として正しい)。
 
 ### 4.2 最大反復
 - 再オープンは根拠ごとに単発。連鎖再オープンは根拠を都度記録。
@@ -82,7 +85,7 @@
 ### 5.3 完了チェックリスト (停止条件)
 - [ ] reopen対象の直前状態が`確定`である
 - [ ] reopen後の対象状態がreason付きの`未収集`である
-- [ ] `reopen_log` に根拠 entry が残っている
+- [ ] `reopen_log` の entry が reason と qa_ref の両方を持つ
 - [ ] 影響カテゴリの `category_aggregate` が真理値表と一致する
 - [ ] `validate-coverage-matrix.py` (loop) が exit0
 

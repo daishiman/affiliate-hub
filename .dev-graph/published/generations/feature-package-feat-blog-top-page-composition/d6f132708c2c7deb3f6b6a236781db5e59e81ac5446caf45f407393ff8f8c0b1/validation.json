@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "status": "pass",
+  "validated_digest": "sha256:d6f132708c2c7deb3f6b6a236781db5e59e81ac5446caf45f407393ff8f8c0b1",
+  "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "parent_feature": "feat-blog-top-page-composition",
+  "phase_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13"
+  ],
+  "violations": []
+}

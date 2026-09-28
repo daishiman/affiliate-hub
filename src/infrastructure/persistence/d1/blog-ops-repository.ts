@@ -1,10 +1,12 @@
-import { and, asc, desc, eq, inArray, isNotNull, isNull, ne, or } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import type { BatchItem } from "drizzle-orm/batch";
 import type {
   ArticleRatingPort,
+  ArticleThumbnailRecord,
   BlogArticleDetail,
   BlogDeliveryPartRecord,
   BlogDeliverySnapshotRecord,
+  BlogHomeFeaturedArticlesRecord,
   BlogLayoutBandRecord,
   BlogLayoutSlotRecord,
   BlogOpsRepositoryPort,
@@ -22,7 +24,11 @@ import type {
   EditorialSiteRepositoryPort,
   SiteDocument,
 } from "@/application/ports/site";
-import { projectBlogArticle } from "@/application/read-models/published-article";
+import {
+  type PublishedArticle,
+  projectBlogArticle,
+  toSummary,
+} from "@/application/read-models/published-article";
 import {
   type ArticleBlockKind,
   type ArticleTemplate,
@@ -35,17 +41,23 @@ import {
   type NetworkStatus,
   type RatingSummary,
   summarizeRatings,
+  type ThumbnailCandidates,
+  firstImageUrlInBody,
+  safeImageUrl,
   UNCATEGORIZED_ARTICLE_CATEGORY,
 } from "@/domain/blogops";
 import { domainError, err, ok, validationError, type WorkspaceId } from "@/domain/shared";
+import { blogThumbnailHref } from "@/infrastructure/platform/blog-thumbnail-r2";
 import {
   type BlogArticleRow,
   articles as blogArticles,
   blogArticleBlocks,
+  blogArticleThumbnails,
   blogArticleRatings,
   blogArticleTags,
   blogDeliveryParts,
   blogDeliverySnapshots,
+  blogHomeFeaturedArticles,
   blogLayoutBands,
   blogLayoutSlots,
   blogTags,
@@ -119,6 +131,98 @@ function toArticle(row: BlogArticleRow): BlogArticle {
     updatedAt: row.updatedAt,
     revision: row.revision,
   };
+}
+
+/**
+ * 一覧に出す記事のサムネイル候補を、記事 ID ごとにまとめて引く。
+ *
+ * ==========================================================================
+ * なぜ列に持たず、そのつど引くのか
+ * ==========================================================================
+ *
+ * 候補は記事のブロックから導ける値であり、正本はブロックの側にある。
+ * 列へ写しを置くと、ブロックを更新する経路すべてで
+ * 「写しも直したか」を気にすることになり、直し忘れた経路だけが
+ * **古い絵を出し続ける。** 導出できるものは導出する。
+ *
+ * 記事 1 本ずつ引くと一覧の記事数だけ問い合わせが出るので、まとめて 1 回にする。
+ *
+ * ==========================================================================
+ * 何を候補と見なすか
+ * ==========================================================================
+ *
+ * `featured-image` ブロックはアイキャッチそのものなので第 2 候補。
+ * それ以外のブロックの本文に混ざる `<img>` は第 3 候補。
+ * 第 1 候補（運営者が上げた 1 枚）だけは本文から導けないので、`blog_article_thumbnail`
+ * を引く。**この 1 件だけが「導出できない値」で、だから表を持っている。**
+ * 優先順位を決めるのは `resolveThumbnail` の側で、ここは候補を並べるだけ。
+ */
+async function thumbnailCandidatesByArticle(
+  db: DrizzleD1,
+  workspaceId: string,
+  articleIds: readonly string[],
+): Promise<Map<string, ThumbnailCandidates>> {
+  const found = new Map<string, ThumbnailCandidates>();
+  if (articleIds.length === 0) return found;
+
+  const blocks = await db
+    .select({
+      articleId: blogArticleBlocks.articleId,
+      kind: blogArticleBlocks.kind,
+      body: blogArticleBlocks.body,
+    })
+    .from(blogArticleBlocks)
+    .where(
+      and(
+        eq(blogArticleBlocks.workspaceId, workspaceId),
+        inArray(blogArticleBlocks.articleId, [...articleIds]),
+      ),
+    )
+    .orderBy(asc(blogArticleBlocks.articleId), asc(blogArticleBlocks.position));
+
+  // 並び順（position 昇順）のまま先に来たものを採る。
+  // 読者が画面を上から読んだときに最初に出会う絵と一致させるため。
+  for (const block of blocks) {
+    const current = found.get(block.articleId) ?? {};
+    if (block.kind === "featured-image") {
+      if (current.eyecatchUrl === undefined) {
+        // アイキャッチは `<img>` で保存されることも、URL がそのまま入ることもある。
+        // どちらの形でも同じ関門（`safeImageUrl`）を通す。
+        const url = firstImageUrlInBody(block.body) ?? safeImageUrl(block.body);
+        if (url !== null) found.set(block.articleId, { ...current, eyecatchUrl: url });
+      }
+      continue;
+    }
+    if (current.bodyFirstImageUrl === undefined) {
+      const url = firstImageUrlInBody(block.body);
+      if (url !== null) found.set(block.articleId, { ...current, bodyFirstImageUrl: url });
+    }
+  }
+
+  /*
+    第 1 候補（運営者が上げた 1 枚）。本文からは導けないので別表を引く。
+
+    渡すのは R2 の鍵ではなく**取り出す口の住所**である。鍵をそのまま渡すと、
+    画面側が「鍵から URL を組む」規則を持つことになり、置き場の住所の決め方が
+    2 か所へ散る（`feedback-capture-r2.ts` の説明と同じ理由）。
+  */
+  const uploaded = await db
+    .select({
+      articleId: blogArticleThumbnails.articleId,
+      objectKey: blogArticleThumbnails.objectKey,
+    })
+    .from(blogArticleThumbnails)
+    .where(
+      and(
+        eq(blogArticleThumbnails.workspaceId, workspaceId),
+        inArray(blogArticleThumbnails.articleId, [...articleIds]),
+      ),
+    );
+  for (const row of uploaded) {
+    const current = found.get(row.articleId) ?? {};
+    found.set(row.articleId, { ...current, uploadedUrl: blogThumbnailHref(row.objectKey) });
+  }
+  return found;
 }
 
 async function loadDeletedDetail(
@@ -528,6 +632,122 @@ export function createD1BlogOpsRepository(
       }
     },
 
+    async findBlogHomeFeaturedArticles(
+      workspaceId,
+      siteSlug,
+    ): PortResult<BlogHomeFeaturedArticlesRecord | null> {
+      try {
+        const rows = await db
+          .select({ articleSlug: blogHomeFeaturedArticles.articleSlug })
+          .from(blogHomeFeaturedArticles)
+          .where(
+            and(
+              eq(blogHomeFeaturedArticles.workspaceId, workspaceId),
+              eq(blogHomeFeaturedArticles.siteSlug, siteSlug),
+            ),
+          )
+          .orderBy(asc(blogHomeFeaturedArticles.position));
+        return ok(rows.length === 0 ? null : { siteSlug, articleSlugs: rows.map((row) => row.articleSlug) });
+      } catch (cause) {
+        return storageFailure("おすすめ記事の読み取り", cause);
+      }
+    },
+
+    async replaceBlogHomeFeaturedArticles(workspaceId, input): PortResult<true> {
+      if (input.articleSlugs.length > 3 || new Set(input.articleSlugs).size !== input.articleSlugs.length) {
+        return err(validationError("おすすめ記事は重複なしで3件まで選んでください。", "articleSlugs"));
+      }
+      try {
+        const existing = await db
+          .select({
+            articleSlug: blogHomeFeaturedArticles.articleSlug,
+            position: blogHomeFeaturedArticles.position,
+          })
+          .from(blogHomeFeaturedArticles)
+          .where(
+            and(
+              eq(blogHomeFeaturedArticles.workspaceId, workspaceId),
+              eq(blogHomeFeaturedArticles.siteSlug, input.siteSlug),
+            ),
+          );
+        const existingBySlug = new Map(existing.map((row) => [row.articleSlug, row] as const));
+        const requested = new Set(input.articleSlugs);
+        const batch: BatchItem<"sqlite">[] = [];
+
+        // 削除対象を先に外し、残す行を未使用の一時位置へ退避させてから最終順に置く。
+        // すべて batch に入るので、入れ替え途中の並びは外から見えない。
+        for (const row of existing) {
+          if (requested.has(row.articleSlug)) continue;
+          batch.push(
+            db
+              .delete(blogHomeFeaturedArticles)
+              .where(
+                and(
+                  eq(blogHomeFeaturedArticles.workspaceId, workspaceId),
+                  eq(blogHomeFeaturedArticles.siteSlug, input.siteSlug),
+                  eq(blogHomeFeaturedArticles.articleSlug, row.articleSlug),
+                ),
+              ),
+          );
+        }
+
+        const lowestExisting = existing.reduce(
+          (lowest, row) => Math.min(lowest, row.position),
+          0,
+        );
+        const temporaryBase = lowestExisting - input.articleSlugs.length - 1;
+        input.articleSlugs.forEach((articleSlug, position) => {
+          if (!existingBySlug.has(articleSlug)) return;
+          batch.push(
+            db
+              .update(blogHomeFeaturedArticles)
+              .set({ position: temporaryBase - position })
+              .where(
+                and(
+                  eq(blogHomeFeaturedArticles.workspaceId, workspaceId),
+                  eq(blogHomeFeaturedArticles.siteSlug, input.siteSlug),
+                  eq(blogHomeFeaturedArticles.articleSlug, articleSlug),
+                ),
+              ),
+          );
+        });
+        input.articleSlugs.forEach((articleSlug, position) => {
+          if (existingBySlug.has(articleSlug)) {
+            // identity は書き換えない。位置だけなら、一時非公開の保存済み slug も保持できる。
+            batch.push(
+              db
+                .update(blogHomeFeaturedArticles)
+                .set({ position })
+                .where(
+                  and(
+                    eq(blogHomeFeaturedArticles.workspaceId, workspaceId),
+                    eq(blogHomeFeaturedArticles.siteSlug, input.siteSlug),
+                    eq(blogHomeFeaturedArticles.articleSlug, articleSlug),
+                  ),
+                ),
+            );
+          } else {
+            // 新規行だけが insert trigger を通り、現在公開中かを再検査される。
+            batch.push(
+              db.insert(blogHomeFeaturedArticles).values({
+                workspaceId,
+                siteSlug: input.siteSlug,
+                articleSlug,
+                position,
+              }),
+            );
+          }
+        });
+
+        if (batch.length > 0) {
+          await db.batch(batch as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
+        }
+        return ok(true);
+      } catch (cause) {
+        return storageFailure("おすすめ記事の並びの保存", cause);
+      }
+    },
+
     async listDeliveryParts(workspaceId, siteSlug): PortResult<readonly BlogDeliveryPartRecord[]> {
       try {
         const rows = await db
@@ -647,7 +867,18 @@ export function createD1BlogOpsRepository(
           .from(blogArticles)
           .where(where)
           .orderBy(desc(blogArticles.updatedAt));
-        return ok(rows.map(toArticle));
+        const thumbnails = await thumbnailCandidatesByArticle(
+          db,
+          workspaceId,
+          rows.map((row) => row.id),
+        );
+        return ok(
+          rows.map((row) => {
+            const article = toArticle(row);
+            const thumbnail = thumbnails.get(row.id);
+            return thumbnail === undefined ? article : { ...article, thumbnail };
+          }),
+        );
       } catch (cause) {
         return storageFailure("記事の読み取り", cause);
       }
@@ -1111,7 +1342,7 @@ export function createD1BlogOpsRepository(
           .limit(1);
         const mutation = db
           .update(blogArticles)
-          .set({ deletedAt, updatedAt: deletedAt })
+          .set({ deletedAt, updatedAt: deletedAt, revision: sql`${blogArticles.revision} + 1` })
           .where(
             and(
               eq(blogArticles.workspaceId, workspaceId),
@@ -1486,7 +1717,120 @@ export function createD1BlogOpsRepository(
         return storageFailure("評価の非表示", cause);
       }
     },
+
+    async findArticleThumbnail(workspaceId, articleId): PortResult<ArticleThumbnailRecord | null> {
+      try {
+        const rows = await db
+          .select()
+          .from(blogArticleThumbnails)
+          .where(
+            and(
+              eq(blogArticleThumbnails.workspaceId, workspaceId),
+              eq(blogArticleThumbnails.articleId, articleId),
+            ),
+          )
+          .limit(1);
+        const row = rows[0];
+        if (row === undefined) return ok(null);
+        return ok({
+          articleId: row.articleId,
+          objectKey: row.objectKey,
+          mimeType: row.mimeType,
+          byteLength: row.byteLength,
+          derivedWidths: parseDerivedWidths(row.derivedWidths),
+          altText: row.altText,
+          uploadedAt: row.uploadedAt,
+        });
+      } catch (cause) {
+        return storageFailure("サムネイルの取得", cause);
+      }
+    },
+
+    async saveArticleThumbnail(workspaceId, input): PortResult<true> {
+      try {
+        // **他所の記事に絵を付けられないこと。**主キーが `article_id` なので、
+        // 作業場所を確かめずに upsert すると、id を知っているだけで
+        // 他所の記事の表紙を差し替えられる。
+        const owned = await db
+          .select({ id: blogArticles.id })
+          .from(blogArticles)
+          .where(
+            and(
+              eq(blogArticles.id, input.articleId),
+              eq(blogArticles.workspaceId, workspaceId),
+              isNull(blogArticles.deletedAt),
+            ),
+          )
+          .limit(1);
+        if (owned[0] === undefined) return ownedResourceNotFound("ブログ記事");
+
+        const values = {
+          articleId: input.articleId,
+          workspaceId,
+          objectKey: input.objectKey,
+          mimeType: input.mimeType,
+          byteLength: input.byteLength,
+          // 幅は数の並びなので JSON の文字列で持つ。列を 3 本立てると
+          // 配信する幅を増やした日に migration が要る。
+          derivedWidths: JSON.stringify([...input.derivedWidths]),
+          altText: input.altText,
+          uploadedAt: input.uploadedAt,
+        };
+        await db
+          .insert(blogArticleThumbnails)
+          .values(values)
+          .onConflictDoUpdate({
+            target: blogArticleThumbnails.articleId,
+            set: {
+              objectKey: values.objectKey,
+              mimeType: values.mimeType,
+              byteLength: values.byteLength,
+              derivedWidths: values.derivedWidths,
+              altText: values.altText,
+              uploadedAt: values.uploadedAt,
+            },
+          });
+        return ok(true);
+      } catch (cause) {
+        return storageFailure("サムネイルの保存", cause);
+      }
+    },
+
+    async deleteArticleThumbnail(workspaceId, articleId): PortResult<true> {
+      try {
+        await db
+          .delete(blogArticleThumbnails)
+          .where(
+            and(
+              eq(blogArticleThumbnails.workspaceId, workspaceId),
+              eq(blogArticleThumbnails.articleId, articleId),
+            ),
+          );
+        // 既に無いときも成功にする。押し直しで失敗が出ると、
+        // 運営者は「消えていないのでは」と思って触り続ける。
+        return ok(true);
+      } catch (cause) {
+        return storageFailure("サムネイルの取り消し", cause);
+      }
+    },
   };
+}
+
+/**
+ * 保存してある幅の並びを戻す。
+ *
+ * **壊れていたら「派生は無い」にする。**ここで例外を投げると、絵が 1 枚も
+ * 出なくなる（一覧全体の読み取りが落ちる）。派生が無いと分かっている場合の
+ * 挙動は既に決まっていて、原本 1 枚で成立する。
+ */
+function parseDerivedWidths(raw: string): readonly number[] {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((v): v is number => typeof v === "number");
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -1630,6 +1974,37 @@ export function createD1PublicBlogPort(
         async listPublished(limit) {
           return publishedContent.listRecent(identity.siteSlug, limit);
         },
+        async listFeaturedArticles() {
+          try {
+            const rows = await db
+              .select({ articleJson: publishedArticles.articleJson })
+              .from(blogHomeFeaturedArticles)
+              .leftJoin(
+                publishedArticles,
+                and(
+                  eq(publishedArticles.workspaceId, identity.workspaceId),
+                  eq(publishedArticles.siteSlug, identity.siteSlug),
+                  eq(publishedArticles.slug, blogHomeFeaturedArticles.articleSlug),
+                  isNull(publishedArticles.archivedAt),
+                ),
+              )
+              .where(
+                and(
+                  eq(blogHomeFeaturedArticles.workspaceId, identity.workspaceId),
+                  eq(blogHomeFeaturedArticles.siteSlug, identity.siteSlug),
+                ),
+              )
+              .orderBy(asc(blogHomeFeaturedArticles.position));
+            const articles = rows.flatMap((row) =>
+              row.articleJson === null
+                ? []
+                : [toSummary(JSON.parse(row.articleJson) as PublishedArticle)],
+            );
+            return ok({ selectedCount: rows.length, articles });
+          } catch (cause) {
+            return storageFailure("おすすめ記事の読み取り", cause);
+          }
+        },
         async findSourceArticleId(slug) {
           try {
             const rows = await db
@@ -1647,6 +2022,63 @@ export function createD1PublicBlogPort(
             return ok(rows[0]?.sourceArticleId ?? null);
           } catch (cause) {
             return storageFailure("公開記事の由来の読み取り", cause);
+          }
+        },
+        async summarizeReaderRatings(slugs) {
+          try {
+            if (slugs.length === 0) return ok({});
+            // slug → 評価の対象 ID。公開中（取り下げていない）ものだけを見る。
+            const published = await db
+              .select({
+                slug: publishedArticles.slug,
+                sourceArticleId: publishedArticles.sourceArticleId,
+              })
+              .from(publishedArticles)
+              .where(
+                and(
+                  eq(publishedArticles.workspaceId, identity.workspaceId),
+                  eq(publishedArticles.siteSlug, identity.siteSlug),
+                  inArray(publishedArticles.slug, [...slugs]),
+                  isNull(publishedArticles.archivedAt),
+                ),
+              );
+            const sourceIds = published
+              .map((row) => row.sourceArticleId)
+              .filter((id): id is string => id !== null);
+            const rows =
+              sourceIds.length === 0
+                ? []
+                : await db
+                    .select()
+                    .from(blogArticleRatings)
+                    .where(
+                      and(
+                        eq(blogArticleRatings.workspaceId, identity.workspaceId),
+                        inArray(blogArticleRatings.articleId, sourceIds),
+                      ),
+                    );
+            // 伏せた票を落とすのは集計側 (`summarizeRatings`) の仕事。
+            // ここで落とすと、同じ判断が 2 か所に写る。
+            const byArticle = new Map<string, { score: number; hidden: boolean }[]>();
+            for (const row of rows) {
+              const list = byArticle.get(row.articleId) ?? [];
+              list.push({ score: row.score, hidden: row.hidden });
+              byArticle.set(row.articleId, list);
+            }
+            const sourceBySlug = new Map(
+              published.map((row) => [row.slug, row.sourceArticleId] as const),
+            );
+            const out: Record<string, RatingSummary> = {};
+            for (const slug of slugs) {
+              const sourceId = sourceBySlug.get(slug) ?? null;
+              out[slug] =
+                sourceId === null
+                  ? { count: 0, average: null }
+                  : summarizeRatings(byArticle.get(sourceId) ?? []);
+            }
+            return ok(out);
+          } catch (cause) {
+            return storageFailure("読者評価の集計", cause);
           }
         },
         async listLayoutSlots() {

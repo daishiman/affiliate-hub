@@ -23,7 +23,13 @@ export const PROSE_NODE_FIXTURE_BY_KIND = {
     headers: ["名前", "重さ"],
     rows: [["見本 A", "1.2kg"]],
   },
-  image: { kind: "image", src: "/api/article-images/image_fixture", alt: "机の全体" },
+  image: {
+    kind: "image",
+    src: "/api/article-images/image_fixture",
+    alt: "机の全体",
+    width: 1600,
+    height: 900,
+  },
   divider: { kind: "divider" },
   code: { kind: "code", language: "ts", text: "const answer = 42;" },
   table: {
@@ -34,8 +40,10 @@ export const PROSE_NODE_FIXTURE_BY_KIND = {
   "image-row": {
     kind: "image-row",
     images: [
-      { src: "/api/article-images/image_left", alt: "左側" },
-      { src: "/api/article-images/image_right", alt: "右側" },
+      /* 測れた絵と測れなかった絵を 1 本ずつ置く。**片方だけを揃えると、
+         もう片方の道 (寸法なし) を誰も通らないまま緑になる。** */
+      { src: "/api/article-images/image_left", alt: "左側", width: 800, height: 600 },
+      { src: "/api/article-images/image_right", alt: "右側", width: null, height: null },
     ],
   },
   toggle: { kind: "toggle", title: "詳しい条件", text: "補足の本文" },

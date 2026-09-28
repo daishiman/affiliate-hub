@@ -25,10 +25,22 @@
   "concerns": [
     {"concern_id": "presentation", "authority": "Apple Human Interface Guidelines", "source_ref": "https://developer.apple.com/design/human-interface-guidelines", "guides": "画面設計・操作フロー・情報階層・アクセシビリティの上流原則", "freshness_class": "standard-tracked", "last_checked_at": "2026-07-12", "revalidate_on": "Apple HIG の年次改訂/改称",
      "clause_citation": {
-       "state": "unavailable",
-       "reason_class": "fetched-but-no-body",
-       "reason": "apple-hig は取得済み (retrieval-evidence/apple-hig.json, 17681 B) だが、取得物は JavaScript シェルで本文を含まない。可視テキストは 'This page requires JavaScript. Please turn on JavaScript in your browser and refresh the page to view its content.' のみ、見出し 1 件 (同文)、テキストを持つリンク 0 件。取得できているのはページの殻であって内容ではないため、引くべき条項がそもそも取得物に存在しない。",
-       "reversal": "JS 実行後の DOM を取得できる経路 (browser-render 等) で本文を取得できた日に state を available へ変え、cited_clauses を埋め、検査を『この章は条項を引いていること』側へ反転させる。取得経路を変えれば塞がる穴であって、塞げない穴ではない。"
+       "state": "available",
+       "evidence_target_id": "apple-hig",
+       "evidence_url": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/design-principles.json",
+       "citation_scope": "取得物は Design principles の記事 1 本 (機械可読 endpoint, 26295 B)。引用根拠にできるのは**この記事に実在する 8 原則の名称・一文の定義・各原則配下の詳細項目の文言**まで。HIG の他ページ (Layout, Accessibility, Typography 等) は取得していないので、そこの主張を要件文の根拠にはできない。chapter 番号は Apple が付けたものではない — 記事は 8 つの h2 を番号無しで並べているだけで、ここでの番号は取得物の並び順に付けた序数である。番号を Apple の章番号として引かないこと。",
+       "cited_clauses": [
+         {"chapter": 1, "title": "Purpose — Make something meaningful.", "url": "https://developer.apple.com/design/human-interface-guidelines/design-principles#Purpose"},
+         {"chapter": 2, "title": "Agency — Let people do things their own way.", "url": "https://developer.apple.com/design/human-interface-guidelines/design-principles#Agency"},
+         {"chapter": 3, "title": "Responsibility — Act in people's best interest.", "url": "https://developer.apple.com/design/human-interface-guidelines/design-principles#Responsibility"},
+         {"chapter": 4, "title": "Familiarity — Build on what people know.", "url": "https://developer.apple.com/design/human-interface-guidelines/design-principles#Familiarity"},
+         {"chapter": 5, "title": "Flexibility — Adapt to diverse contexts and needs.", "url": "https://developer.apple.com/design/human-interface-guidelines/design-principles#Flexibility"},
+         {"chapter": 6, "title": "Simplicity — Be clear and direct.", "url": "https://developer.apple.com/design/human-interface-guidelines/design-principles#Simplicity"},
+         {"chapter": 7, "title": "Craft — Care about every detail.", "url": "https://developer.apple.com/design/human-interface-guidelines/design-principles#Craft"},
+         {"chapter": 8, "title": "Delight — Make it human.", "url": "https://developer.apple.com/design/human-interface-guidelines/design-principles#Delight"}
+       ],
+       "note": "**2026-09-08 に unavailable から反転させた。**以前の理由文は『17681 B の JavaScript シェルで本文が無い』だったが、これは 2026-09-02 に差し替わる前の取得物 (人間向け HTML) を指したままだった。現在の取得物は同一公式 host の機械可読 endpoint (26295 B) で、8 原則の本文をすべて含む。**穴が塞がったのに理由文だけが古い取得物を指し続けると、引ける条項を引かないまま『引用不可』が既成事実になる。**これは registry 自身が reversal に書いていた条件 (『本文を取得できた日に state を available へ変え cited_clauses を埋める』) がすでに満たされていた状態である。8 件すべてを挙げるのは、取得物が 8 原則ちょうどで構成される 1 記事であり、部分を選ぶと選定理由が要るため。source_ref は人間向け URL のままだが、実際に取得したのは evidence_url。cited_clauses の URL も人間向け URL の anchor を指す (anchor 名は取得物の anchor フィールドそのもの)。",
+       "reason_class_history": "fetched-but-no-body (2026-08-16〜2026-09-02 の取得物に対して正しかった。取得経路を変えれば塞がる穴、という判定どおりに塞がった)"
      }},
     {"concern_id": "application-architecture", "authority": "Robert C. Martin — Clean Architecture", "source_ref": "Clean Architecture (2017), the Dependency Rule", "guides": "レイヤ境界・依存方向 (内向き)・ユースケース中心設計", "freshness_class": "foundational-stable", "last_checked_at": "2026-07-12", "revalidate_on": "新版書籍/公式訂正",
      "clause_citation": {

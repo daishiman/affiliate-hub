@@ -6,14 +6,15 @@ import {
   evaluatePublishGate,
   type PublishCandidate,
 } from "@/domain/compliance";
+import { asAuthorPersonaId, asClaimId, asEvidenceId } from "@/domain/shared";
 
 const candidate = {
   status: "approved" as const,
   complianceStatus: "pass" as const,
   disclosure: "広告",
-  authorPersonaId: "author_1" as never,
-  claimIds: ["claim_1" as never],
-  evidenceIds: ["evidence_1" as never],
+  authorPersonaId: asAuthorPersonaId("author_1"),
+  claimIds: [asClaimId("claim_1")],
+  evidenceIds: [asEvidenceId("evidence_1")],
 };
 
 const siteCandidate: PublishCandidate = {
@@ -69,7 +70,7 @@ describe("外部媒体の公開前評価", () => {
       name: "著者がない",
       requirement: "author" as const,
       site: { authorIds: [] },
-      external: { authorPersonaId: "" as never },
+      external: { authorPersonaId: asAuthorPersonaId("") },
     },
     {
       name: "必須の広告表記がない",
@@ -87,7 +88,7 @@ describe("外部媒体の公開前評価", () => {
       name: "主張はあるが根拠がない",
       requirement: "evidence" as const,
       site: { claimCount: 1, evidenceCount: 0 },
-      external: { claimIds: ["claim_1" as never], evidenceIds: [] },
+      external: { claimIds: [asClaimId("claim_1")], evidenceIds: [] },
     },
   ])("共通policy: $nameのとき両経路の修正案が同じ", ({ requirement, site, external }) => {
     const siteResult = evaluatePublishGate({ ...siteCandidate, ...site });

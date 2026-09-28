@@ -62,7 +62,19 @@ const SECRET_PATTERNS: { name: string; re: RegExp }[] = [
   { name: "GitHub のトークン", re: new RegExp("gh[pousr]" + "_[A-Za-z0-9]{36,}") },
   { name: "AWS のアクセスキー", re: new RegExp("AKIA" + "[0-9A-Z]{16}") },
   { name: "Slack のトークン", re: new RegExp("xox[baprs]" + "-[A-Za-z0-9-]{20,}") },
-  { name: "秘密鍵ファイルの中身", re: new RegExp("-----BEGIN [A-Z ]{0,20}PRIVATE" + " KEY-----") },
+  /*
+   * 秘密鍵ファイルの中身。**見出しの行だけでは鍵ではない。**
+   *
+   * PEM を読み書きする側は、何を読むのかを説明するために見出しを本文へ書く
+   * （`search-console-client.ts` の `pemToBytes`）。見出しだけで赤くすると、
+   * 避け方は「語をずらして書く」になり、次に PEM を扱う人が同じ空振りを踏む。
+   * 本物には必ず中身が続くので、見出しの後ろに base64 の並びを要求する。
+   * 40 文字は「説明の文が偶然そう見えることは無く、本物なら必ず超える」位置。
+   */
+  {
+    name: "秘密鍵ファイルの中身",
+    re: new RegExp("-----BEGIN [A-Z ]{0,20}PRIVATE" + " KEY-----[\\s]*[A-Za-z0-9+/]{40,}"),
+  },
   /*
    * 名前つきの代入に実際の値が入っている形。
    * 見本や説明のための空欄・伏せ字（`=`, `=...`, `=<ここに>`, `=your-key`）は通す。

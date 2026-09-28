@@ -1,19 +1,21 @@
 {
-  "target_id": "better-auth",
-  "source_url": "https://better-auth.com/docs/introduction",
-  "retrieved_at": "2026-09-07T13:48:07Z",
-  "http_status": 200,
-  "content_bytes": 627145,
-  "content_sha256": "f44876ac638146c65aff133568bbee0c589e7a8423ae6182097972e2e5d97b1d",
-  "page_title": "Introduction | Better Auth",
-  "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
-  "freshness_extraction": {
-    "freshness_source": "publisher-registry",
-    "value": "1.7.3",
-    "found_in": [
-      "npm registry latest: 1.7.3 (published 2026-09-06, confirmed via WebSearch 2026-09-07)"
-    ],
-    "body_search_method": "公式ページ本文には具体バージョンが表示されないため、npm registry の最新版を WebSearch で確認した。",
-    "note": "公式ページ Introduction には Latest Version 表示がなくなったため publisher-registry を採用。npm search で 1.7.3 が最新版であることを 2026-09-07 に確認。"
-  }
+ "target_id": "better-auth",
+ "source_url": "https://better-auth.com/docs/introduction",
+ "retrieved_at": "2026-09-07T13:48:07Z",
+ "http_status": 200,
+ "content_bytes": 627145,
+ "content_sha256": "f44876ac638146c65aff133568bbee0c589e7a8423ae6182097972e2e5d97b1d",
+ "page_title": "Introduction | Better Auth",
+ "retrieval_method": "official page HTTP fetch (Accept-Encoding: identity)",
+ "freshness_extraction": {
+  "freshness_source": "publisher-registry",
+  "value": "1.6.31",
+  "found_in": [
+   "npm registry dist-tags latest: 1.6.31 (https://registry.npmjs.org/-/package/better-auth/dist-tags を 2026-09-10 に取得)",
+   "同 dist-tags の 1.7 系は beta: 1.7.0-beta.10 / rc: 1.7.0-rc.6 のみで、安定版チャネルに 1.7.x は無い"
+  ],
+  "body_search_method": "公式ページ本文には具体バージョンが表示されないため、npm registry の dist-tags を直接取得して安定版 latest を読んだ。",
+  "note": "2026-09-07 の記録は『npm registry の最新版 1.7.3 (published 2026-09-06、WebSearch で確認)』としていたが、2026-09-10 に dist-tags を直接取得したところ latest は 1.6.31 で、1.7.3 という版はどのチャネルにも存在しなかった。WebSearch の要約を版の根拠に使ったことが誤りの出所と考えられる。以後この target は registry の dist-tags を一次根拠にする。"
+ },
+ "freshness_checked_at": "2026-09-10T00:00:00Z"
 }

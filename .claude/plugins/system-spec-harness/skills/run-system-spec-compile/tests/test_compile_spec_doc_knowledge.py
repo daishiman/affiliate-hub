@@ -29,6 +29,16 @@ mod = _load_mod()
 def _spec() -> dict:
     return json.loads(SPEC.read_text(encoding="utf-8"))
 
+
+def _refs_with_application(cat_id: str, spec: dict) -> str:
+    """章の設計知識節と、そこから切り出した適用メモを**読者が見る単位**で連結して返す。
+
+    「本章での適用」は 2026-09-08 に `applied/<cat>.md` へ移した (章の行数の天井に対して
+    ui-ux の余白が 0 行になったため)。原則の採否が確定判断へ紐付いているかという検査の
+    対象は移動前後で変わらないので、置き場所ではなく**読者に届く内容**で照合する。
+    """
+    return mod.render_design_refs(cat_id, spec) + "\n" + mod.render_chapter_application_doc(spec, cat_id)
+
 def test_render_design_knowledge_contains_deep_meaning_not_only_pointer():
     rendered = mod.render_design_refs("database", _spec())
     for heading in (
@@ -85,7 +95,7 @@ def test_render_design_refs_ties_principle_to_chapter_confirmed_decision():
             "tradeoffs": ["将来複数の業務語彙が生じた場合は再評価する"],
         }
     ]
-    rendered = mod.render_design_refs("database", spec)
+    rendered = _refs_with_application("database", spec)
     assert "#### 本章での適用" in rendered
     assert "確定内容 qa-database" in rendered
     assert "対応セル: web, mobile, tablet, desktop-windows, desktop-linux, desktop-macos" in rendered
@@ -106,19 +116,19 @@ def test_render_design_refs_distinguishes_dialogue_and_legacy_backfill():
         "rationale": "DB 境界を明確にする",
         "tradeoffs": ["境界の維持コスト"],
     }]
-    assert "設計解釈の記録経路: `dialogue`" in mod.render_design_refs("database", spec)
+    assert "設計解釈の記録経路: `dialogue`" in _refs_with_application("database", spec)
 
     qa["design_application_provenance"] = {
         "mode": "legacy_backfill",
         "writer": "set-qa-design-applications",
     }
-    rendered = mod.render_design_refs("database", spec)
+    rendered = _refs_with_application("database", spec)
     assert "設計解釈の記録経路: `legacy_backfill`" in rendered
     assert "`set-qa-design-applications`" in rendered
 
 
 def test_render_design_refs_missing_application_is_fail_visible_not_generic_pass():
-    rendered = mod.render_design_refs("database", _spec())
+    rendered = _refs_with_application("database", _spec())
     assert "この質疑に `design_applications` が無いため" in rendered
     assert "章はこの質疑を根拠に設計原則の採否を主張しない" in rendered
     assert "writer 経由で補完" not in rendered
@@ -127,7 +137,7 @@ def test_render_design_refs_missing_application_is_fail_visible_not_generic_pass
 
 def test_render_design_refs_application_note_explicit_when_no_confirmed_cell():
     # 対象外/収集中カテゴリでは適用先を捏造せず「未確定」を明示する (fail-visible)。
-    rendered = mod.render_design_refs("maintenance-ops", _spec())
+    rendered = _refs_with_application("maintenance-ops", _spec())
     assert "#### 本章での適用" in rendered
     assert "確定セルなし。本章は対象外または収集中のため上記原則の適用先は未確定" in rendered
 

@@ -6,10 +6,13 @@
  * ローカル見本を何度入れ直しても、固定IDの行数と状態が変わらず、
  * 開発者が手で作った成果リンクを巻き込まないことを本物のD1で確かめる。
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { getPlatformProxy } from "wrangler";
+/*
+  移行の読み方は `tests/support/migrations.ts` が正本。ここに同じ実装を
+  写していたため、**中身がコメントだけの回**を D1 へ渡して止まっていた。
+*/
+import { migrationStatements } from "../support/migrations";
 import {
   SEED_AFFILIATE_ACCOUNTS,
   SEED_AFFILIATE_LINKS,
@@ -24,19 +27,6 @@ type TestEnv = { readonly DB: D1Database };
 type Proxy = Awaited<ReturnType<typeof getPlatformProxy<TestEnv>>>;
 
 let proxy: Proxy;
-
-function migrationStatements(): readonly string[] {
-  const dir = path.resolve(process.cwd(), "drizzle");
-  return readdirSync(dir)
-    .filter((file) => file.endsWith(".sql"))
-    .sort()
-    .flatMap((file) =>
-      readFileSync(path.join(dir, file), "utf8")
-        .split("--> statement-breakpoint")
-        .map((statement) => statement.trim())
-        .filter((statement) => statement !== ""),
-    );
-}
 
 async function applySeed(nowSeconds: number): Promise<void> {
   for (const statement of buildSeedSql(nowSeconds)) {

@@ -93,14 +93,22 @@ function unicodeIconsIn(path: string): readonly string[] {
   return offenders;
 }
 
-/** 折りたたみを含む props。実装で `AppShell` の props に加わる。 */
-function shell(extra: Record<string, unknown> = {}): string {
-  const props = {
+/**
+ * 折りたたみを含む props。実装で `AppShell` の props に加わる。
+ *
+ * `extra` を `Record<string, unknown>` にすると、綴りを間違えた props 名も
+ * 通ってしまい、**何も渡していないのに検査だけが緑**になる。正本の props から
+ * `children` を除いた形の部分集合に縛る。
+ */
+type ShellProps = Omit<Parameters<typeof AppShell>[0], "children">;
+
+function shell(extra: Partial<ShellProps> = {}): string {
+  const props: ShellProps = {
     actualRoutePath: "/admin",
     navContextPath: "/admin",
     breadcrumbs: [{ label: "ホーム" }],
     ...extra,
-  } as unknown as Parameters<typeof AppShell>[0];
+  };
   return renderToStaticMarkup(<AppShell {...props}>本文</AppShell>);
 }
 

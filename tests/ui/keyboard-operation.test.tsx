@@ -67,6 +67,30 @@ async function domOf(route: (typeof ALL_ROUTES)[number]) {
   return intoDom(html);
 }
 
+/**
+ * 同じ行き先へ、同じ入れ物の中から、キーボードで辿り着ける相方がいるか。
+ *
+ * 記事カードの図版は、すぐ下の見出しと**同じ記事へ行く同じリンク**である。
+ * 読み上げも順路も 2 回ずつ通ると、同じ題を 2 度聞かされる。だから図版側は
+ * `aria-hidden` + `tabindex="-1"` で 1 本に畳む。
+ *
+ * **これを名指しの除外一覧で通さないのは、名前は中身が変わっても残るため。**
+ * ここが見るのは「畳んだ相手が実在するか」だけで、見出し側のリンクが消えたり
+ * 行き先が変わったりした瞬間、図版は辿り着けない孤立したリンクとして赤に戻る。
+ */
+function hasReachableTwin(el: Element): boolean {
+  const href = el.getAttribute("href");
+  if (href === null || href === "") return false;
+  const box = el.closest("li, article") ?? el.ownerDocument.body;
+  return [...box.querySelectorAll("a[href]")].some(
+    (other) =>
+      other !== el &&
+      other.getAttribute("href") === href &&
+      other.getAttribute("tabindex") !== "-1" &&
+      other.closest('[aria-hidden="true"]') === null,
+  );
+}
+
 describe("順番を手で決めていない", () => {
   for (const route of ALL_ROUTES) {
     it(`${route.file}（${route.state}）`, async () => {
@@ -101,6 +125,27 @@ describe("押せるものは、辿り着ける", () => {
       const removed = [...document.querySelectorAll(NATIVELY_FOCUSABLE.join(","))]
         .filter((el) => el.getAttribute("tabindex") === "-1")
         .filter((el) => !(el.tagName.toLowerCase() === "input" && el.getAttribute("type") === "hidden"))
+        /*
+          描かれていない欄。**`type="hidden"` だけを外すのでは足りない。**
+          `input[type=file]` の値はプログラムから書けない（書けたら任意の
+          ファイルを読ませる画面が作れてしまう）ので、ブラウザで作った絵を
+          `DataTransfer` で入れる欄は `type="file"` のまま隠すしかない。
+          （記事の表紙の縮小版 320/640/1280 がこれ。）
+
+          `hidden` 属性だけでは通さず `aria-hidden="true"` も要求する。
+          片方だけの要素は「目には出ないが読み上げには出る」ような
+          食い違った状態なので、ここで見逃す対象ではない。
+        */
+        .filter((el) => !(el.hasAttribute("hidden") && el.getAttribute("aria-hidden") === "true"))
+        // 同じ行き先へ辿り着ける相方がいる、読み上げから隠したリンクは重複の畳み込み。
+        .filter(
+          (el) =>
+            !(
+              el.tagName.toLowerCase() === "a" &&
+              el.getAttribute("aria-hidden") === "true" &&
+              hasReachableTwin(el)
+            ),
+        )
         .map((el) => `${el.tagName.toLowerCase()}:${(el.textContent ?? "").trim().slice(0, 20)}`);
 
       cleanup();

@@ -1,5 +1,7 @@
 import type { ExpressionBlock } from "@/domain/authoring/blog-template";
-import { serializeInline, serializeProse, type ProseNode } from "@/domain/blogops";
+import { serializeInline } from "@/domain/blogops/prose-inline";
+import { serializeProse } from "@/domain/blogops/prose-format";
+import type { ProseNode } from "@/domain/blogops/prose-node";
 
 const text = (value: string) => serializeInline([{ text: value, marks: [] }]);
 

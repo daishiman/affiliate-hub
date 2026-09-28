@@ -25,7 +25,7 @@ import type { TelemetryEvent, TelemetryEventKey } from "./telemetry-events";
  */
 
 /** 畳み方。表示にそのまま出せる短い言い方にする。 */
-export type Aggregation = "count" | "median";
+export type Aggregation = "count" | "median" | "ratio";
 
 export type MetricDerivation = {
   readonly key: MetricKey;
@@ -88,7 +88,56 @@ const medianOf = (
   };
 };
 
+/** 新しい行動指標は未観測を0と表示しない。 */
+const observedCount = (matches: (event: TelemetryEvent) => boolean): MetricDerivation["compute"] =>
+  (events) => {
+    const count = events.filter(matches).length;
+    return count === 0 ? null : { value: count, denominator: count };
+  };
+
+function isSearchResult(event: TelemetryEvent): boolean {
+  const count = (event.payload as Record<string, unknown>).resultCount;
+  return event.key === "search_performed" && typeof count === "number" && Number.isInteger(count) && count >= 0;
+}
+
 export const METRIC_DERIVATIONS: readonly MetricDerivation[] = [
+  {
+    key: "search_result_count",
+    from: ["search_performed"],
+    aggregation: "count",
+    compute: observedCount(isSearchResult),
+  },
+  {
+    key: "search_no_result_rate",
+    from: ["search_performed"],
+    aggregation: "ratio",
+    compute: (events) => {
+      const results = events.filter(isSearchResult);
+      if (results.length === 0) return null;
+      const empty = results.filter((e) => (e.payload as Record<string, unknown>).resultCount === 0);
+      return { value: empty.length / results.length, denominator: results.length };
+    },
+  },
+  {
+    key: "internal_navigation_count",
+    from: ["internal_link_click"],
+    aggregation: "count",
+    compute: observedCount((e) => e.key === "internal_link_click"),
+  },
+  {
+    key: "toc_navigation_count",
+    from: ["element_click"],
+    aggregation: "count",
+    compute: observedCount((e) => e.key === "element_click" &&
+      (e.payload as Record<string, unknown>).elementKind === "toc_item"),
+  },
+  {
+    key: "article_sort_count",
+    from: ["filter_changed"],
+    aggregation: "count",
+    compute: observedCount((e) => e.key === "filter_changed" &&
+      (e.payload as Record<string, unknown>).axis === "article_sort"),
+  },
   {
     key: "page_views",
     from: ["page_view"],

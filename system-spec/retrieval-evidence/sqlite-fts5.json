@@ -1,0 +1,32 @@
+{
+ "target_id": "sqlite-fts5",
+ "source_url": "https://www.sqlite.org/fts5.html",
+ "retrieved_at": "2026-09-08T12:32:03Z",
+ "retrieval_method": {
+  "tool": "OpenAI web.open",
+  "note": "公式URLの本文は web.open の整形済み応答で確認した。生HTMLやHTTP応答そのものは保持していないため、content_bytes / content_sha256 / http_status は記録しない。"
+ },
+ "observed_line_count": 1974,
+ "page_title": "SQLite FTS5 Extension",
+ "refetch_note": "2026-09-08 の独立鮮度監査で HTTP Last-Modified を再確認できなかったため、公式本文自身が表明する更新日時へ freshness 根拠を切り替えて再取得した。設計に使う組込トークナイザと trigram の記述、および末尾の更新日時を同じ取得結果で確認した。",
+ "freshness_extraction": {
+  "freshness_source": "page-declared",
+  "value": "2026-08-01",
+  "found_in": [
+   "This page was last updated on 2026-08-01 20:38:41Z"
+  ],
+  "note": "公式本文末尾の自己表明を採用する。HTTP ヘッダー値には依存しない。"
+ },
+ "quoted_for_design": [
+  {
+   "claim": "FTS5 の組込トークナイザは4種 (unicode61 / ascii / porter / trigram) であり、bigram は存在しない",
+   "verbatim": "FTS5 features four built-in tokenizer modules, described in subsequent sections: The unicode61 tokenizer, based on the Unicode 6.1 standard. This is the default. The ascii tokenizer, which assumes all characters outside of the ASCII codepoint range (0-127) are to be treated as token characters. The porter tokenizer, which implements the porter stemming algorithm.",
+   "used_by": "qa-database-web-fts5-trigram-index-v4b"
+  },
+  {
+   "claim": "trigram トークナイザは通常のトークン一致ではなく部分一致を可能にし、問い合わせ語は行内の任意の文字列に一致しうる",
+   "verbatim": "The trigram tokenizer extends FTS5 to support substring matching in general, instead of the usual token matching. When using the trigram tokenizer, a query or phrase token may match any sequence of characters within a row, not just a complete token.",
+   "used_by": "qa-database-web-fts5-trigram-index-v4b"
+  }
+ ]
+}

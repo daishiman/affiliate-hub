@@ -90,8 +90,10 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await proxy.env.DB.prepare("DELETE FROM published_articles").run();
+  await proxy.env.DB.prepare("DELETE FROM published_article_revision_counter").run();
   await proxy.env.DB.prepare("DELETE FROM published_article_tombstones").run();
   await proxy.env.DB.prepare("DELETE FROM articles").run();
+  await proxy.env.DB.prepare("DELETE FROM blog_tag").run();
   await proxy.env.DB.prepare("DELETE FROM legal_page").run();
   await proxy.env.DB.prepare("DELETE FROM site_network_node").run();
   await proxy.env.DB.prepare("DELETE FROM site_blueprints").run();
@@ -482,6 +484,101 @@ describe("一覧と検索に出る", () => {
     if (!bySummary.ok) throw new Error("検索に失敗しました");
     expect(bySummary.value.map((a) => a.slug)).toContain("quiet-laptop");
   });
+
+  /*
+    ここから下は全文検索（0044）が入って初めて成り立つ。
+    題名と結論だけを見ていた頃は、本文にしか出ない語で 0 件だった。
+  */
+
+  it("本文にしか出ない語でも探せる", async () => {
+    await writer.save(workspaceId, anArticle());
+    // 「排気口」は題名にも結論にも無く、節の本文にだけ出る。
+    const found = await content.search(SAMPLE_SITE_SLUG, "排気口", 10);
+    if (!found.ok) throw new Error("検索に失敗しました");
+    expect(found.value.map((a) => a.slug)).toContain("quiet-laptop");
+  });
+
+  it("見出しの語でも探せる", async () => {
+    await writer.save(workspaceId, anArticle());
+    const found = await content.search(SAMPLE_SITE_SLUG, "全手順", 10);
+    if (!found.ok) throw new Error("検索に失敗しました");
+    expect(found.value.map((a) => a.slug)).toContain("quiet-laptop");
+  });
+
+  it("記事に無い語では出ない（何でも当たる索引になっていない）", async () => {
+    await writer.save(workspaceId, anArticle());
+    const found = await content.search(SAMPLE_SITE_SLUG, "食洗機の分岐水栓", 10);
+    if (!found.ok) throw new Error("検索に失敗しました");
+    expect(found.value).toEqual([]);
+  });
+
+  it("slug や URL では当たらない（読者が読める言葉だけを索引に載せている）", async () => {
+    await writer.save(workspaceId, anArticle());
+    /*
+      `slug` は "quiet-laptop"、根拠の URL は "example.com/measure"。
+      どちらも `article_json` の中の文字列だが、画面に文としては出ない。
+      SQL 側で `json_tree` を舐めていたら、ここが当たってしまう。
+    */
+    const bySlug = await content.search(SAMPLE_SITE_SLUG, "quiet-laptop", 10);
+    if (!bySlug.ok) throw new Error("検索に失敗しました");
+    expect(bySlug.value).toEqual([]);
+
+    const byUrl = await content.search(SAMPLE_SITE_SLUG, "example.com/measure", 10);
+    if (!byUrl.ok) throw new Error("検索に失敗しました");
+    expect(byUrl.value).toEqual([]);
+  });
+
+  it("題名に語がある記事が、本文にだけある記事より先に出る", async () => {
+    await writer.save(
+      workspaceId,
+      anArticle({
+        slug: "in-body-only",
+        title: "机の高さの合わせ方",
+        summary: "座り姿勢の話です。",
+        sections: [{ id: "b", heading: "本文", paragraphs: ["排気口の位置も一応見ます。"] }],
+      }),
+    );
+    await writer.save(
+      workspaceId,
+      anArticle({
+        slug: "in-title",
+        title: "排気口の位置で選ぶノートパソコン",
+        summary: "音の話です。",
+        sections: [{ id: "b", heading: "本文", paragraphs: ["机の高さも一応見ます。"] }],
+      }),
+    );
+
+    const found = await content.search(SAMPLE_SITE_SLUG, "排気口", 10);
+    if (!found.ok) throw new Error("検索に失敗しました");
+    expect(found.value.map((a) => a.slug)).toEqual(["in-title", "in-body-only"]);
+  });
+
+  it("検索の記号を打ち込んでも落ちない（読者の入力を式として読まない）", async () => {
+    await writer.save(workspaceId, anArticle());
+    /*
+      FTS5 の MATCH は式を受け取る。`AND` も `"` も `*` も意味を持つので、
+      読者の言葉をそのまま渡すと構文エラーで検索が落ちる。
+      落ちないこと（`ok`）だけを見る。当たるかどうかは語による。
+    */
+    for (const query of ['静かな"', "AND OR NOT", "排気口 AND *", "col:umn", "^caret"]) {
+      const found = await content.search(SAMPLE_SITE_SLUG, query, 10);
+      expect(found.ok, `「${query}」で落ちました`).toBe(true);
+    }
+  });
+
+  it("空白だけの検索語では何も返さない（一覧と区別がつかなくなる）", async () => {
+    await writer.save(workspaceId, anArticle());
+    const found = await content.search(SAMPLE_SITE_SLUG, "   ", 10);
+    if (!found.ok) throw new Error("検索に失敗しました");
+    expect(found.value).toEqual([]);
+  });
+
+  it("別のブログの記事は検索に混ざらない", async () => {
+    await writer.save(workspaceId, anArticle());
+    const found = await content.search(SECOND_SITE_SLUG, "排気口", 10);
+    if (!found.ok) throw new Error("検索に失敗しました");
+    expect(found.value).toEqual([]);
+  });
 });
 
 describe("書き手のページ", () => {
@@ -711,10 +808,16 @@ describe("公開済み記事の管理ポート", () => {
       .bind(SAMPLE_SITE_SLUG)
       .run();
 
+    const before = await proxy.env.DB.prepare(
+      "SELECT * FROM published_articles WHERE workspace_id = ? AND site_slug = ? AND slug = 'quiet-laptop'",
+    ).bind(String(workspaceId), SAMPLE_SITE_SLUG).first<{ revision: number }>();
+    if (before === null) throw new Error("編集元付きの記事がありません");
+
     const [listed, found, replaced, archived] = await Promise.all([
       admin.list(workspaceId),
       admin.find(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop"),
-      admin.replace(workspaceId, anArticle({ title: "AI管理口からの上書き" })),
+      // 古い版による拒否に隠さず、現在の版でもsource制約が拒否することを見る。
+      admin.replace(workspaceId, anArticle({ title: "AI管理口からの上書き" }), before.revision),
       admin.archive(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop", "2026-09-01"),
     ]);
 
@@ -722,6 +825,9 @@ describe("公開済み記事の管理ポート", () => {
     expect(found).toEqual({ ok: true, value: null });
     expect(replaced).toEqual({ ok: true, value: false });
     expect(archived).toEqual({ ok: true, value: false });
+    expect(await proxy.env.DB.prepare(
+      "SELECT * FROM published_articles WHERE workspace_id = ? AND site_slug = ? AND slug = 'quiet-laptop'",
+    ).bind(String(workspaceId), SAMPLE_SITE_SLUG).first()).toEqual(before);
     const publicArticle = await content.findArticle(SAMPLE_SITE_SLUG, "quiet-laptop");
     expect(publicArticle.ok && publicArticle.value?.title).toBe(
       "静かなノートパソコンの選び方",
@@ -759,8 +865,8 @@ describe("公開済み記事の管理ポート", () => {
       },
     });
 
-    const refused = await admin.replace("workspace_other" as WorkspaceId, changed);
-    const replaced = await admin.replace(workspaceId, changed);
+    const refused = await admin.replace("workspace_other" as WorkspaceId, changed, 1);
+    const replaced = await admin.replace(workspaceId, changed, 1);
     const [managed, searched] = await Promise.all([
       admin.find(workspaceId, SAMPLE_SITE_SLUG, "quiet-laptop"),
       content.search(SAMPLE_SITE_SLUG, "騒音値", 10),
@@ -782,5 +888,63 @@ describe("公開済み記事の管理ポート", () => {
     );
 
     expect(archived.ok && archived.value).toBe(false);
+  });
+});
+
+
+describe("読者が検索と一覧から続きへ進める", () => {
+  it("31件目以降も重複なく辿れ、種類はページ分割前に絞られる", async () => {
+    for (let index = 0; index < 32; index++) {
+      await writer.save(workspaceId, anArticle({ slug: `page-${String(index).padStart(2, "0")}` }));
+    }
+    await writer.save(workspaceId, anArticle({ slug: "only-review", type: "review", updatedAt: "2020-01-01" }));
+    const first = await content.browse(SAMPLE_SITE_SLUG, { limit: 30, offset: 0 });
+    const next = await content.browse(SAMPLE_SITE_SLUG, { limit: 30, offset: 30 });
+    const filtered = await content.browse(SAMPLE_SITE_SLUG, { type: "review", limit: 30, offset: 0 });
+    if (!first.ok || !next.ok || !filtered.ok) throw new Error("一覧を読み込めません");
+    expect(first.value.articles).toHaveLength(30);
+    expect(first.value.hasMore).toBe(true);
+    expect(next.value.articles).toHaveLength(3);
+    expect(next.value.hasMore).toBe(false);
+    expect(new Set([...first.value.articles, ...next.value.articles].map((a) => a.slug)).size).toBe(33);
+    expect(filtered.value.articles.map((a) => a.slug)).toEqual(["only-review"]);
+  });
+
+  it.each(["%", "_"])("記号 %s を含まない記事を検索結果に混ぜない", async (query) => {
+    await writer.save(workspaceId, anArticle());
+    await writer.save(workspaceId, anArticle({ slug: "literal", title: `記号${query}の読み方` }));
+    const result = await content.search(SAMPLE_SITE_SLUG, query, 20);
+    expect(result.ok && result.value.map((a) => a.slug)).toEqual(["literal"]);
+  });
+
+  it("本文だけの一致箇所が抜粋で分かる", async () => {
+    await writer.save(workspaceId, anArticle());
+    const result = await content.browse(SAMPLE_SITE_SLUG, { query: "排気口", limit: 20, offset: 0 });
+    if (!result.ok) throw new Error("検索できません");
+    expect(result.value.articles[0]?.snippet).toContain("排気口");
+    expect(result.value.articles[0]?.publishedAt).toBe("2026-08-17");
+  });
+
+  it("本文の語で代用せず保存されたタグ関連で絞り、非公開記事は除外する", async () => {
+    await writer.save(workspaceId, anArticle());
+    await writer.save(workspaceId, anArticle({ slug: "unrelated", title: "北工房の記事" }));
+    await proxy.env.DB.prepare(`INSERT INTO articles
+      (id, workspace_id, site_slug, slug, article_template, type, title, lead, status,
+       author_name, public_category_slug, published_at)
+      VALUES ('tag_source', ?, ?, 'quiet-laptop', 'T3', 'guide', '編集aggregate',
+       '本文', 'published', '運営者', 'chairs', unixepoch())`).bind(String(workspaceId), SAMPLE_SITE_SLUG).run();
+    await proxy.env.DB.prepare(`UPDATE published_articles SET source_article_id = 'tag_source'
+      WHERE site_slug = ? AND slug = 'quiet-laptop'`).bind(SAMPLE_SITE_SLUG).run();
+    await proxy.env.DB.prepare(`INSERT INTO blog_tag (id, workspace_id, site_slug, slug, name)
+      VALUES ('browse_tag', ?, ?, 'north', '北工房')`).bind(String(workspaceId), SAMPLE_SITE_SLUG).run();
+    await proxy.env.DB.prepare(`INSERT INTO blog_article_tag (workspace_id, article_id, tag_id)
+      VALUES (?, 'tag_source', 'browse_tag')`).bind(String(workspaceId)).run();
+    const tagged = await content.browse(SAMPLE_SITE_SLUG, { tag: "north", limit: 20, offset: 0 });
+    expect(tagged.ok && tagged.value.articles.map((a) => a.slug)).toEqual(["quiet-laptop"]);
+    // 公開readerの非公開条件を確かめる。BlogOps由来はAI管理口では非公開化できない。
+    await proxy.env.DB.prepare("UPDATE published_articles SET archived_at = ? WHERE site_slug = ? AND slug = ?")
+      .bind("2026-09-06", SAMPLE_SITE_SLUG, "quiet-laptop").run();
+    const hidden = await content.browse(SAMPLE_SITE_SLUG, { tag: "north", limit: 20, offset: 0 });
+    expect(hidden.ok && hidden.value.articles).toEqual([]);
   });
 });

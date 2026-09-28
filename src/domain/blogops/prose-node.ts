@@ -86,7 +86,27 @@ export type ProseCtaTone = (typeof CTA_TONES)[number];
 export const IMAGE_ROW_MIN = 2;
 export const IMAGE_ROW_MAX = 4;
 
-export type ProseImage = { readonly src: string; readonly alt: string };
+/**
+ * 1 枚の画像。単体の `image` と `:::image-row` の両方がこの形を使う。
+ *
+ * `width`/`height` は**絵の実寸**であって、表示する大きさではない。
+ *
+ * **なぜ寸法を持つのか。** 属性が無いと、絵が届いた瞬間に高さが確定し、
+ * 読者が読んでいた行が下へ飛ぶ。ブラウザは `width`/`height` の比だけを
+ * 使って場所を先に空ける (表示幅は CSS が決める) ので、実寸を入れておけば
+ * 読んでいる最中に文章が動かない。
+ *
+ * **`null` を許す。** 本文画像は運営者がその場で貼る URL で、workerd に
+ * 画像デコーダは無い。測れるのはブラウザだけなので、測れなかった絵と
+ * 既存の記事は `null` のまま残る。ここを必須にすると、測れない絵を
+ * 貼った日に保存が落ちる。
+ */
+export type ProseImage = {
+  readonly src: string;
+  readonly alt: string;
+  readonly width: number | null;
+  readonly height: number | null;
+};
 export type ProseChecklistItem = { readonly text: string; readonly checked: boolean };
 
 export type ProseNode =
@@ -109,7 +129,7 @@ export type ProseNode =
       readonly headers: readonly string[];
       readonly rows: readonly (readonly string[])[];
     }
-  | { readonly kind: "image"; readonly src: string; readonly alt: string }
+  | ({ readonly kind: "image" } & ProseImage)
   | { readonly kind: "divider" }
   /**
    * プログラムなどの引用。**言語の指定は見た目のためだけに持つ。**
@@ -284,7 +304,7 @@ export function emptyProseNode(kind: ProseNodeKind): ProseNode {
       */
       return { kind: "comparison-table", headers: ["", ""], rows: [["", ""]] };
     case "image":
-      return { kind: "image", src: "", alt: "" };
+      return { kind: "image", src: "", alt: "", width: null, height: null };
     case "divider":
       return { kind: "divider" };
     case "code":
@@ -295,7 +315,12 @@ export function emptyProseNode(kind: ProseNodeKind): ProseNode {
       /* 横並びは 2 枚から。1 枚の横並びは `image` と見分けが付かない。 */
       return {
         kind: "image-row",
-        images: Array.from({ length: IMAGE_ROW_MIN }, () => ({ src: "", alt: "" })),
+        images: Array.from({ length: IMAGE_ROW_MIN }, () => ({
+          src: "",
+          alt: "",
+          width: null,
+          height: null,
+        })),
       };
     case "toggle":
       return { kind: "toggle", title: "", text: "" };

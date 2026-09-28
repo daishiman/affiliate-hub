@@ -39,3 +39,49 @@ CSS 側に追加は要らない（`patterns.module.css` の `:global(html[data-c
 開発者ツールで `document.documentElement.setAttribute("data-capturing", "true")`
 を実行すると、退避後の画面がそのまま見える。戻すときは
 `removeAttribute("data-capturing")`。
+
+## 名乗りを**読む**側を足すとき（2026-09-05 追補）
+
+`data-floating-overlay` を読む場所は現在 3 つある。
+
+| 読む場所 | 何のために |
+|---|---|
+| `patterns.module.css` の `:global(html[data-capturing="true"] [data-floating-overlay])` | 撮影中の退避 |
+| `tests/e2e/app-routes.spec.ts` の `coveredControls` | 重なり監査からの除外 |
+| `tests/e2e/capture-pixel-exclusion.spec.ts` | 実画素の判定 |
+
+**読む側を足すときは、必ず「複数ある」前提で書く。**
+
+```ts
+document.querySelectorAll("[data-floating-overlay]")   // ○
+document.querySelector("[data-floating-overlay]")      // ✗ 先頭 1 つしか返さない
+```
+
+`querySelector` を使うと、名乗る要素が 2 つ目に増えた日に**検査は赤くならず、
+測る対象が静かに減る。**2026-09-05 に重なり監査でこの形が 1 件見つかった
+（名乗る側は既に起動ボタンと送信 UI の 2 箇所あったのに、読む側だけが単数前提だった）。
+
+帯を合成して 1 つの外接矩形にするのも避ける。右下と左上に浮遊要素があると、
+外接矩形が画面のほぼ全体になり、間にある操作が全部「覆われている」ことになる。
+**帯ごとに個別に判定する。**
+
+## `position: sticky` を名乗らせないこと
+
+追従ヘッダー・表の見出し・目次のように**流れの中に席を持つ**ものは名乗らせない。
+名乗ると写しからヘッダーが消え、重なり監査も本物の重なりを見逃す。
+`floating-overlay-declaration.test.ts` の 2 つ目の `it` がこの向きを数えている。
+
+画面幅で `fixed` と `sticky` を切り替える class は、**浮くときがある側**として扱う。
+
+## 実画素で確かめたいとき
+
+```bash
+pnpm test:e2e:capture-pixel        # = PLAYWRIGHT_CAPTURE_PIXEL=1 playwright test
+```
+
+**画面を持つ実行環境でしか走らない**（同梱 Chromium の headless に display capture の
+実装が無い）。CI へ混ぜると環境依存で赤くなるので project ごと分けてあり、
+既定の `pnpm run test:e2e` には現れない。CI で毎回効く網は代理証跡の側である。
+
+読み方は `evidence/12-capture-pixel-e2e.txt`。`floatingHits` が 0 でも、
+**`anchorHits`（対照）が 0 なら走査が壊れている。**先に対照を見ること。

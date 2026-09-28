@@ -1,0 +1,36 @@
+{
+  "schema": "dev-graph-requirements-scope/v1",
+  "repo_root": ".",
+  "graph_path": ".dev-graph/state/graph.json",
+  "feature_path": "features/feat-blog-top-page-composition.md",
+  "package_current_pointer": null,
+  "promoted_generation": ".dev-graph/published/feature-package-feat-blog-top-page-composition",
+  "selected_feature": "feat-blog-top-page-composition",
+  "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "architecture_refs": [
+    "arch-system-spec-overview",
+    "arch-two-layer-platform"
+  ],
+  "task_ids": [
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+    "SYS-BLOG-TOP-PAGE-COMPOSITION-P13"
+  ],
+  "handoff_target": "task-graph",
+  "handoff_authority": "user-explicit",
+  "expected_outputs": [
+    "docs/requirements/feat-blog-top-page-composition-implementation-requirements.md",
+    ".dev-graph/handoff/task-graph/feat-blog-top-page-composition.json"
+  ],
+  "scope_digest": "sha256:d691c400be6cd842edffc9ff11f6b5c5e48ee7dce7b76433c229d6030c64c684"
+}

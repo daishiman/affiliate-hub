@@ -6,6 +6,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Field,
+  FilePicker,
   HumanOnlyForm,
   Select,
   TextArea,
@@ -30,6 +31,7 @@ export function InputSamples() {
   const [category, setCategory] = useState("");
   const [uses, setUses] = useState<readonly string[]>(["video"]);
   const [memo, setMemo] = useState("");
+  const [photoName, setPhotoName] = useState<string | null>(null);
 
   return (
     <ToolForm
@@ -114,6 +116,28 @@ export function InputSamples() {
         rows={3}
         hint="記事には出ません。"
         toolParamDescription="社内向けの補足メモ"
+      />
+
+      {/*
+        ファイルを選ぶ欄。**`Field` の `type="file"` では作れない。**
+        `Field` は打ち込んだ文字を `value` で持ち帰る形（controlled）だが、
+        `input[type=file]` の `value` はプログラムから書けない
+        （書けたら、利用者に気づかれずに任意のファイルを読ませる画面が作れる）。
+        だから別の部品にしてある。ここに並べておかないと、次に必要になった人が
+        「無いから」と生の `<input type="file">` を書き、押しどころの下限と
+        名札の結び付けだけが抜けた欄が増える。
+      */}
+      <FilePicker
+        label="商品の写真"
+        name="photo"
+        accept="image/jpeg,image/png,image/webp"
+        onPick={(file) => setPhotoName(file?.name ?? null)}
+        hint={
+          photoName === null
+            ? "JPEG / PNG / WebP。見本帳の例なので、選んでも送信はされません。"
+            : `選んだファイル: ${photoName}`
+        }
+        toolParamDescription="商品の写真ファイル"
       />
 
       <Button tone="primary" type="submit">

@@ -121,6 +121,25 @@ def test_fallback_validator_exercises_supported_draft_boundaries(monkeypatch):
     assert fallback == [{"node": "x", "code": "schema_violation", "detail": "$: missing required property status"}]
 
 
+def test_fallback_validator_honors_else_and_not_required():
+    mod = load()
+    schema = {
+        "if": {"properties": {"artifact_kind": {"const": "document"}}},
+        "then": {"required": ["layer"]},
+        "else": {"not": {"required": ["layer"]}},
+    }
+
+    assert mod._schema_fallback({"artifact_kind": "document", "layer": "feature-design"}, schema, schema) == []
+    assert mod._schema_fallback({"artifact_kind": "issue"}, schema, schema) == []
+
+    missing = mod._schema_fallback({"artifact_kind": "document"}, schema, schema)
+    forbidden = mod._schema_fallback(
+        {"artifact_kind": "issue", "layer": "feature-design"}, schema, schema
+    )
+    assert any("missing required property layer" in detail for _, detail in missing)
+    assert any("not constraint is satisfied" in detail for _, detail in forbidden)
+
+
 def test_frontmatter_repo_root_and_artifact_failure_classification(tmp_path):
     mod = load()
     assert mod._scalar(" true ") is True

@@ -1,3 +1,5 @@
+import { fallbackCoverDataUri } from "@/application/seo/fallback-cover";
+import { thumbnailHeightFor, thumbnailSeed } from "@/domain/blogops/thumbnail";
 import { AdminShell } from "@/presentation/admin/admin-shell";
 import {
   adminOperation,
@@ -10,6 +12,7 @@ import {
   EmptyView,
   ErrorView,
   FactList,
+  Figure,
   Note,
   Prose,
   Section,
@@ -19,6 +22,37 @@ import {
 } from "@/presentation/ui";
 
 export const dynamic = "force-dynamic";
+
+/** 一覧に並べる表紙の実寸。`THUMBNAIL_WIDTHS` の最小値を使う。 */
+const COVER_WIDTH = 320;
+
+/**
+ * ブログ自身の表紙を組み立てる。
+ *
+ * 記事と同じ `thumbnailSeed` を通すのは、**運営者が管理画面で見た絵と、
+ * 読者が一覧で見る絵の作られ方を 1 つにする**ため。ここだけ別の生成規則を
+ * 置くと、配色を変えた日に片方だけ古い色のままになる。
+ *
+ * `slug` に記事では取り得ない値を入れているのは、同じブログの記事と
+ * 表紙が同じ絵にならないようにするため（seed の材料に slug が入る）。
+ */
+function blogCoverDataUri(site: {
+  readonly slug: string;
+  readonly name: string;
+  readonly genre: string;
+  readonly brandTheme: string;
+}): string {
+  return fallbackCoverDataUri(
+    thumbnailSeed({
+      siteSlug: site.slug,
+      slug: "__blog-cover__",
+      title: site.name,
+      categorySlug: site.genre,
+      categoryName: site.genre,
+      brandTheme: site.brandTheme,
+    }),
+  );
+}
 
 /**
  * ブログの一覧（運営者向け）。
@@ -78,6 +112,12 @@ export default async function SitesPage() {
                   title={site.name}
                   lead={`${site.patternLabel} / ${site.genre} / 収益の形: ${site.revenueModelLabel}`}
                 >
+                  <Figure
+                    src={blogCoverDataUri(site)}
+                    alt={`${site.name}の表紙（${site.brandTheme}）`}
+                    width={COVER_WIDTH}
+                    height={thumbnailHeightFor(COVER_WIDTH)}
+                  />
                   <FactList
                     rows={[
                       { key: "theme", label: "色の組み合わせ", value: site.brandTheme },

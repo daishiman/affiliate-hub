@@ -156,6 +156,54 @@
   background: var(--color-surface-default);
 }
 
+/*
+ * カテゴリーの畳み。
+ *
+ * 広い画面では取っ手（`summary`）を消し、中身だけを常に出す。
+ * `display: none` にした `summary` は `<details>` の開閉に関わらなくなるが、
+ * 初期値 `open` を書いてあるので中身は開いたまま残る。
+ *
+ * 高さを切らないのは、切られたナビの矩形が本文と重なり続けた前例による
+ * （`.siteHeader` 上の註）。畳むなら、畳んだという状態が
+ * 画面にも読み上げにも残る形でしか畳まない。
+ */
+.siteNavSummary {
+  display: none;
+}
+
+.siteNavDisclosure > .siteNav {
+  /* `details` の直下に来ても、開いていない見た目にならないようにする。 */
+  content-visibility: visible;
+}
+
+@media (width <= 48rem) { /* --breakpoint-md */
+  .siteNavSummary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-target-min);
+    max-width: var(--content-max-width);
+    margin-inline: auto;
+    padding-inline: var(--space-5);
+    color: var(--color-text-default);
+    font-weight: var(--weight-bold);
+    cursor: pointer;
+  }
+
+  /*
+   * 取っ手であることを、開閉の向きが変わる印で示す。
+   * 文字だけにすると、押せることも今どちらかも分からない。
+   */
+  .siteNavSummary::after {
+    content: "▾";
+    color: var(--color-text-muted);
+  }
+
+  .siteNavDisclosure[open] > .siteNavSummary::after {
+    content: "▴";
+  }
+}
+
 .siteNav {
   display: flex;
   align-items: stretch;
@@ -437,6 +485,36 @@
   text-decoration: none;
 }
 
+/*
+ * 足元の導線の束。
+ *
+ * 束ごとに列を持たせる。1 列に積むと「方針を探す人がカテゴリー全件を通る」
+ * が視線の上でも起きる（読み上げは `nav` の名前で飛べても、目は飛べない）。
+ * 列幅は中身しだいなので `auto-fit` に任せ、狭い画面では自然に 1 列へ落ちる。
+ */
+.footerNavGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--layout-sidebar-width), 100%), 1fr));
+  gap: var(--space-5) var(--space-6);
+  align-content: start;
+}
+
+.footerNavTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-strong);
+}
+
+/*
+ * 束の中は縦に積む。横に流すと、束が 3 つ並んだときに
+ * どの見出しの下の項目なのかが目で追えなくなる。
+ */
+.footerNavGroups .footerLinks {
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .footerLinks {
   display: flex;
   flex-wrap: wrap;
@@ -523,6 +601,63 @@ nav.section a {
   gap: var(--space-4);
 }
 
+/*
+ * 最新／人気の切り替え。**見た目は押しボタンだが、中身はリンクである。**
+ *
+ * 見た目を寄せているのは、読者が「押して切り替えるもの」だと分かるため。
+ * 中身をリンクのままにしてあるのは、JavaScript が動かない読者にも
+ * 並べ替えが届き、その並びのまま人へ住所を送れるようにするため。
+ * どちらか片方だけを取ると、分かるが届かないか、届くが分からないになる。
+ */
+.homeSortSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.homeSortSwitch a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+  padding-inline: var(--space-4);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-default);
+  text-decoration: none;
+}
+
+.homeSortSwitch a:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-action-hover);
+}
+
+/*
+ * いま選ばれている方。**色だけで示さない。**
+ * 枠を太くして文字も太くするのは、色の差が見えない読者にも
+ * 今どちらかが伝わるようにするため（WCAG 1.4.1）。
+ */
+.homeSortSwitch a[data-current="true"] {
+  border-width: var(--border-width-emphasis);
+  border-color: var(--color-accent-default);
+  color: var(--color-text-strong);
+  font-weight: var(--weight-bold);
+}
+
+.homeAllArticles {
+  margin: 0;
+}
+
+/*
+ * 一覧へ渡す最後の 1 本。段落の中の文ではなく、それ自体が行き先なので、
+ * 押しどころの下限を持たせる（文の中のリンクの例外には当たらない）。
+ */
+.homeAllArticles a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-min);
+  color: var(--color-action-default);
+}
+
 .siteSectionHead {
   display: grid;
   gap: var(--space-2);
@@ -534,57 +669,6 @@ nav.section a {
 .siteSectionTitle,
 .siteSectionHead span {
   margin: 0;
-}
-
-.categoryArticleGroups {
-  display: grid;
-  gap: var(--space-6);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.categoryArticleGroups > li {
-  display: grid;
-  gap: var(--space-3);
-}
-
-.categoryArticleGroupHead {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
-.categoryArticleGroupHead div {
-  display: grid;
-  gap: var(--space-1);
-}
-
-.categoryArticleGroupTitle,
-.categoryArticleGroupHead p,
-.categoryArticleGroupEmpty {
-  margin: 0;
-}
-
-.categoryArticleGroupTitle {
-  color: var(--color-text-strong);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
-  line-height: var(--leading-heading);
-}
-
-.categoryArticleGroupHead p,
-.categoryArticleGroupEmpty {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
-.categoryArticleGroupHead > a {
-  flex: none;
-  min-height: var(--tap-target-min);
-  display: inline-flex;
-  align-items: center;
 }
 
 .siteSectionHead p {
@@ -840,15 +924,63 @@ nav.section a {
 
 .articleListItem {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
+  /* 図版 → 本文。図版の幅を固定にして、題の長さで図版が伸び縮みしないようにする。 */
+  grid-template-columns:
+    clamp(calc(var(--space-8) * 2), 22vw, calc(var(--space-8) * 3))
+    minmax(0, 1fr);
   gap: var(--space-4);
   padding-block: var(--space-4);
   border-bottom: var(--border-width-default) solid var(--color-border-default);
+  align-items: start;
+}
+
+/*
+ * 16:9 の枠。`aspect-ratio` を枠側が持ち、画像は枠に合わせて切る。
+ * 画像側の縦横比に任せると、比率の違う写真が混ざった瞬間に一覧が段違いになる。
+ */
+.articleListThumb {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken, var(--color-surface-raised));
+}
+
+.articleListThumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*
+ * 自動生成の図版は写真ではない。少しだけ質感を変えて、
+ * 「撮った写真」と読者が取り違えないようにする。
+ */
+.articleListThumb img[data-generated="true"] {
+  object-fit: contain;
+}
+
+.articleListMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
 }
 
 .articleListDate {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
+}
+
+.articleListCategory {
+  font-size: var(--text-sm);
+  color: var(--color-accent-default);
+  text-decoration: none;
+}
+
+.articleListCategory:hover {
+  text-decoration: underline;
 }
 
 .articleListBody {
@@ -1011,11 +1143,6 @@ nav.section a {
     gap: var(--space-2);
   }
 
-  .categoryArticleGroupHead {
-    align-items: start;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
 }
 
 /*

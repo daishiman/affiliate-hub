@@ -12,7 +12,7 @@ iteration: null
 title: "旧入口の重複実装解消と転送シェルへの一本化"
 owners: ["daishiman"]
 created_at: "2026-09-08T04:15:58Z"
-updated_at: "2026-09-08T05:45:40.008960Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "active"
 depends_on: ["SYS-SITE-SCOPED-AUTHORING-IA-P05"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-09-08T11:31:23Z","evidence_refs":["beads:ah-ro3w.8"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-09-08T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

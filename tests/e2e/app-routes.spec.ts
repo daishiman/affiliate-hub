@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { authenticateE2E } from "./auth-fixture";
-import { readBrowserRoutes, urlOf } from "./source-registries";
+import { finalPathOf, readBrowserRoutes, urlOf } from "./source-registries";
+import { waitForStreamedContent } from "./streamed-content";
 
 const ALL_ROUTES = readBrowserRoutes();
 const AUDITED_ROUTES = ALL_ROUTES.filter((route) => route.file !== "signin/page.tsx");
@@ -16,6 +17,11 @@ type LayoutAudit = {
 };
 
 async function settle(page: Page): Promise<void> {
+  // **描画を待つ前に、本文が画面へ入っているかを待つ。**
+  // streaming SSR の途中では中身が hidden の待機領域に居て、可視な要素が
+  // 1 つも無い。その状態で重なりを測ると「重なりは無い」と出る——
+  // 落ちずに測る対象が消える形の壊れ方になる。
+  await waitForStreamedContent(page);
   await page.evaluate(async () => {
     if (document.fonts !== undefined) await document.fonts.ready;
     await new Promise<void>((resolve) =>
@@ -44,6 +50,57 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
       const text = (element.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, 40);
       const name = element.getAttribute("aria-label") ?? element.getAttribute("name") ?? text;
       return `<${element.tagName.toLowerCase()}> ${name}`.trim();
+    };
+    /*
+     * **送れる器は、中身を切り取る。**
+     *
+     * 表は `.tableWrap`（`screen-parts.module.css`）に入っており、
+     * `max-block-size` を超えると器の中だけで送る。このとき器から出た行の
+     * `getBoundingClientRect()` は**切り取られる前の位置**を返す。そこは
+     * 画面に描かれていない。器の外に在る別の操作と重なって見えるのは、
+     * 描かれていない矩形どうしを突き合わせているからである。
+     *
+     * 2026-09-05 の実測（`/admin/settings/members` desktop、幅 1280）:
+     *
+     *   .tableWrap        下端 874   client/scroll = 510/1464
+     *   <button> 役割を変える  886–930   ← 器の外。描かれていない
+     *   <input> invitedEmail  915–962   ← 器の後ろ。こちらは描かれている
+     *
+     * この 2 つは画面上で同時に在ることが無い。器の内側へ切り取ってから測る。
+     * 切り取った結果が空になる操作は、いま描かれていないので誰とも重ならない。
+     *
+     * 閾値（20%）も除外表も動かしていない。**測る位置を、目に見える位置へ
+     * 合わせただけである。**器を送り切っても重なる操作は、この後も有罪になる。
+     */
+    const scrollClipOf = (element: Element): { top: number; right: number; bottom: number; left: number } => {
+      const clip = {
+        top: Number.NEGATIVE_INFINITY,
+        right: Number.POSITIVE_INFINITY,
+        bottom: Number.POSITIVE_INFINITY,
+        left: Number.NEGATIVE_INFINITY,
+      };
+      let ancestor = element.parentElement;
+      while (ancestor !== null && ancestor !== document.body) {
+        const style = getComputedStyle(ancestor);
+        const scrollsY =
+          (style.overflowY === "auto" || style.overflowY === "scroll") &&
+          ancestor.scrollHeight > ancestor.clientHeight + 1;
+        const scrollsX =
+          (style.overflowX === "auto" || style.overflowX === "scroll") &&
+          ancestor.scrollWidth > ancestor.clientWidth + 1;
+        if (scrollsY || scrollsX) {
+          // 枠線の内側（padding box）が、中身の出られる限界である。
+          const rect = ancestor.getBoundingClientRect();
+          const top = rect.top + ancestor.clientTop;
+          const left = rect.left + ancestor.clientLeft;
+          clip.top = Math.max(clip.top, top);
+          clip.left = Math.max(clip.left, left);
+          clip.bottom = Math.min(clip.bottom, top + ancestor.clientHeight);
+          clip.right = Math.min(clip.right, left + ancestor.clientWidth);
+        }
+        ancestor = ancestor.parentElement;
+      }
+      return clip;
     };
     const reachableByHorizontalScroll = (element: Element): boolean => {
       let ancestor = element.parentElement;
@@ -119,10 +176,25 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
     }
     // 折り返すinline linkのgetBoundingClientRect()は、行間の空白まで含む外接矩形になる。
     // 実際に押せる各fragmentを測り、存在しない空白域を「重なり」と数えない。
-    const boxes = controls.map((element) => ({
-      element,
-      rects: [...element.getClientRects()],
-    }));
+    const boxes = controls.map((element) => {
+      const rects = [...element.getClientRects()];
+      const clip = scrollClipOf(element);
+      // 送れる器の内側だけを残す。空になったものは、いま描かれていない。
+      const paintedRects = rects
+        .map((rect) => ({
+          top: Math.max(rect.top, clip.top),
+          left: Math.max(rect.left, clip.left),
+          bottom: Math.min(rect.bottom, clip.bottom),
+          right: Math.min(rect.right, clip.right),
+        }))
+        .filter((rect) => rect.right - rect.left > 1 && rect.bottom - rect.top > 1)
+        .map((rect) => ({
+          ...rect,
+          width: rect.right - rect.left,
+          height: rect.bottom - rect.top,
+        }));
+      return { element, rects, clip, paintedRects };
+    });
     const emptyControls = boxes
       .filter(({ rects }) => rects.every((rect) => rect.width < 1 || rect.height < 1))
       .map(({ element }) => label(element));
@@ -157,8 +229,9 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
         const second = boxes[otherIndex];
         if (isFloatingOverlay(second.element)) continue;
         if (first.element.contains(second.element) || second.element.contains(first.element)) continue;
-        const overlaps = first.rects.some((firstRect) =>
-          second.rects.some((secondRect) => {
+        // 描かれている面どうしで測る（器から出た分は画面に無い）。
+        const overlaps = first.paintedRects.some((firstRect) =>
+          second.paintedRects.some((secondRect) => {
             const width =
               Math.min(firstRect.right, secondRect.right) - Math.max(firstRect.left, secondRect.left);
             const height =
@@ -187,21 +260,62 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
      * 一番下まで送ってもなお、ボタンの帯（横の範囲も見る）に食い込む操作は、
      * その画面で一生隅が隠れたままになる。多くは本文の下余白が足りない画面で、
      * 直す場所は `.content` の `padding-bottom`（`ui.module.css`）である。
+     *
+     * **名乗るものは 1 つとは限らない。**`data-floating-overlay` は写しからの退避と
+     * ここの監査で共有する手掛かりであり、退避の側は最初から複数を前提にしている
+     * （`capture-exclusion.ts`）。`querySelector` で先頭 1 つだけを見ていると、
+     * 2 つ目が増えた日にこの検査は落ちずに *測る対象が減る*。緑のまま黙るので、
+     * 名乗っている可視な要素をすべて数える。
+     */
+    /*
+     * **縦に送れる器の中にいる操作は、器の下端より下へは出られない。**
+     *
+     * 表は `.tableWrap`（`screen-parts.module.css`）に入っており、
+     * `max-block-size` を超えると器の中だけで縦に送る。このとき最後の行の
+     * `getBoundingClientRect()` は**器の外まではみ出した位置**を返す。
+     * そこは画面に出ていない。器を送れば、その行は器の下端に来る。
+     *
+     * 2026-09-05 の実測（`/admin/site-network` desktop）:
+     *
+     *   .tableWrap の下端  1175.7   ← 実際に見える一番下
+     *   その中の table     1275.7   ← 100px はみ出して切り取られている
+     *   最後の「直す」     1256.3   ← 器の外。ここを居場所として測っていた
+     *
+     * 器の外の 1256.3 で測ると「送っても浮遊ボタンから出せない」になるが、
+     * 器の下端 1175.7 で測れば 1175.7 − 364（文書の残り送り量）= 811 で、
+     * 帯の上端 838.8 より上にいる。**指は届く。**
+     *
+     * これは閾値を緩めているのではない。`offscreenControls` が
+     * `reachableByHorizontalScroll` で横の器を見ているのと同じ話の、縦版である。
+     * 器を送り切っても帯に食い込む操作は、この後も変わらず有罪になる。
+     * 器の限界は `scrollClipOf`（上）が 1 か所で持つ。
      */
     const coveredControls: string[] = [];
-    const overlay = document.querySelector("[data-floating-overlay]");
-    if (overlay !== null && visible(overlay)) {
-      const overlayRect = overlay.getBoundingClientRect();
+    const overlayRects = [...document.querySelectorAll("[data-floating-overlay]")]
+      .filter((element) => visible(element))
+      .map((element) => element.getBoundingClientRect())
+      // 畳まれている・高さが無いものは帯を持たない。
+      .filter((rect) => rect.width >= 1 && rect.height >= 1);
+    if (overlayRects.length > 0) {
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - innerHeight);
-      for (const { element, rects } of boxes) {
+      for (const { element, rects, clip } of boxes) {
         if (isFloatingOverlay(element)) continue;
-        const trapped = rects.some((rect) => {
-          const sideBySide = rect.right <= overlayRect.left + 1 || rect.left >= overlayRect.right - 1;
-          if (sideBySide) return false;
-          // 一番下まで送ったときの、この操作の下端（画面座標）。
-          const bottomAtEnd = rect.bottom + scrollY - maxScroll;
-          return bottomAtEnd > overlayRect.top + 1;
-        });
+        /*
+         * **帯ごとに個別に見る。**全帯を包む外接矩形で測ると、右下と左上に
+         * 浮遊要素がある画面で「画面全体が帯」になり、無関係な操作まで有罪になる。
+         * 1 つでも取り残す帯があれば取り残されている、という保守側で合成する。
+         */
+        const trapped = overlayRects.some((overlayRect) =>
+          rects.some((rect) => {
+            const sideBySide =
+              rect.right <= overlayRect.left + 1 || rect.left >= overlayRect.right - 1;
+            if (sideBySide) return false;
+            // 一番下まで送ったときの、この操作の下端（画面座標）。
+            // 縦に送れる器の中にいるなら、器の下端より下へは出られない。
+            const bottomAtEnd = Math.min(rect.bottom, clip.bottom) + scrollY - maxScroll;
+            return bottomAtEnd > overlayRect.top + 1;
+          }),
+        );
         if (trapped) coveredControls.push(label(element));
       }
     }
@@ -218,18 +332,42 @@ async function auditLayout(page: Page): Promise<LayoutAudit> {
 }
 
 /*
- * **54 ではなく 111 である**（2026-08-30 に再度数え直した。
- * 2026-08-26 の 87 画面から、管理・公開画面が 24 枚増えた）。
+ * **54 ではなく 116 である**（2026-09-05 に数え直した）。
  *
  * 54 は、この spec が最後に実際に走った日の数である。以後この spec は
  * `readBrowserRoutes()` が投げるようになり（`source-registries.ts` 冒頭に経緯）、
  * **収集の時点で落ちて 1 件も走らないまま**、画面だけが 32 枚増えていた。
  * 落ちていたので、数が合わないことも誰にも見えていなかった。
+ *
+ * **この数は上限ではない。**見張っているのは「知らないうちに画面が増減して
+ * いないか」であって、赤くなったら床を上げるのではなく、増えた画面を 1 枚ずつ
+ * 数え直して意図どおりか確かめる。111 → 116 の 5 枚の出所は次のとおり:
+ *
+ *   content/published                        #40 (2026-08-30)
+ *   content/published/[site]/[slug]/edit     #40 (2026-08-30)
+ *   sites/[site]/appearance                  #46 (2026-09-02)
+ *   sites/[site]/placements                  #46 (2026-09-02)
+ *   settings/seo                             2026-09-05
+ *
+ * 116 → 121 の 5 枚は記事タイプの索引で、出所は 1 つ（残課題 ah-milz）:
+ *
+ *   s/[site]/best      s/[site]/reviews    s/[site]/compare
+ *   s/[site]/guides    s/[site]/tools                        2026-09-05
+ *
+ * `/best/{topic}` の親 `/best` に画面が無く、記事のパンくずの真ん中が
+ * 押せない文字だった。5 枚は**その行き先**であって、数を増やすために
+ * 足した画面ではない。5 枚とも `ArticleIndexPage` 1 つを呼ぶだけである。
+ *
+ * **111 は書かれた日から 2 ずれていた。**#41 でこの検査を書いたとき、実数は
+ * 既に 113 だった。#34 の時点（111）で数えたまま、同じ日の #40 が足した
+ * `content/published` 2 枚を数え落としている。E2E は当時から落ちていたので、
+ * ずれたことに気づく機会が無かった。**数え直しは実装の一覧を突き合わせる**
+ * ——宣言の側を信じて足し引きしない。
  */
-test("route registryは111画面、signin確認済みを除く監査対象は110画面", () => {
-  expect(ALL_ROUTES).toHaveLength(111);
-  expect(AUDITED_ROUTES).toHaveLength(110);
-  expect(new Set(AUDITED_ROUTES.map((route) => urlOf(route))).size).toBe(110);
+test("route registryは121画面、signin確認済みを除く監査対象は120画面", () => {
+  expect(ALL_ROUTES).toHaveLength(121);
+  expect(AUDITED_ROUTES).toHaveLength(120);
+  expect(new Set(AUDITED_ROUTES.map((route) => urlOf(route))).size).toBe(120);
 });
 
 for (const route of AUDITED_ROUTES) {
@@ -244,6 +382,11 @@ for (const route of AUDITED_ROUTES) {
     await authenticateE2E(context);
     await page.emulateMedia({ reducedMotion: "reduce" });
     const response = await page.goto(urlOf(route), { waitUntil: "domcontentloaded" });
+    // **移すだけの入口は、着くまで待ってから読む。**
+    // `domcontentloaded` の直後に転送が起きると、DOM を読んでいる最中に
+    // 文書が入れ替わり `Execution context was destroyed` になる。
+    // 不安定なのではなく、転送されている事実がその形で出ているだけである。
+    if (route.redirectTo !== undefined) await page.waitForURL(`**${route.redirectTo}`);
     await settle(page);
 
     expect(response, "ナビゲーション応答がありません").not.toBeNull();
@@ -254,10 +397,17 @@ for (const route of AUDITED_ROUTES) {
     expect(namedHeadings, "文字のある h1 がありません").not.toHaveLength(0);
 
     const requestedPath = urlOf(route).split("?")[0];
+    /*
+      **着くはずの場所は表が名指しする。**転送を宣言していない入口は開いた
+      path のまま、宣言している入口はその行き先。どちらも固い検査であり、
+      「転送先でも可」ではない。入口が黙って消えた日も、宣言した転送が
+      消えた日も、ここが赤くなる。
+    */
+    const expectedPath = finalPathOf(route);
     const finalPath = new URL(page.url()).pathname;
     expect(
-      finalPath === requestedPath,
-      `${requestedPath} ではなく ${finalPath} に着きました`,
+      finalPath === expectedPath,
+      `${expectedPath} ではなく ${finalPath} に着きました`,
     ).toBe(true);
     test.info().annotations.push({
       type: "実route・画面本体",

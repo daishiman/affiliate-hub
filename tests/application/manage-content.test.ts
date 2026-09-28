@@ -184,6 +184,7 @@ describe("記事の依存関係", () => {
     const commercial = markCommercial({ findById: async () => ok(null) });
     expect(() =>
       createListContentBoardUseCase(
+        // 報酬の印が付いた口を、型を外して編集側へ流し込む表明。
         deps({ variants: commercial as unknown as ManageContentDeps["variants"] }),
       ),
     ).toThrow(/商業データのポート/);
@@ -193,6 +194,7 @@ describe("記事の依存関係", () => {
     const commercial = markCommercial({ findById: async () => ok(null) });
     expect(() =>
       createApproveContentUseCase(
+        // 報酬の印が付いた口を、型を外して編集側へ流し込む表明。
         deps({ variants: commercial as unknown as ManageContentDeps["variants"] }),
       ),
     ).toThrow(/報酬/);

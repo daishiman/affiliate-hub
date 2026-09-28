@@ -22,8 +22,7 @@ export default async function ReviewArticlePage({
     <ArticlePage
       siteSlug={site}
       slug={product}
-      pathPrefix="/reviews"
-      routeLabel="個別レビュー"
+      type="review"
     />
   );
 }

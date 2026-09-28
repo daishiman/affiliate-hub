@@ -23,25 +23,39 @@ const WS = taggedString<"WorkspaceId">("ws_test") as WorkspaceId;
 /** 設計図の配色（旧正本）。ブログ既定が無いときだけ効く土台。 */
 const BLUEPRINT: Appearance = { brandTheme: "graphite-amber", colorMode: "auto" };
 
+/**
+ * 読み取りだけを持つ保存先。書き込みの 6 口は呼ばれたら落ちる。
+ *
+ * `override` に関数を渡すと、頁ごとに違う上書きを返す保存先になる。
+ * 正規化の検査（末尾スラッシュ）はこの形を使う——**そこだけ 2 口の
+ * 痩せたオブジェクトを別に組んで型を外していた**のをここへ寄せた。
+ * 口が 1 つ増えた日に、落ちるのがこの関数 1 か所で済む。
+ */
 function fakePort(input: {
   readonly theme?: BlogTheme | null;
-  readonly override?: PageThemeOverride | null;
+  readonly override?:
+    | PageThemeOverride
+    | null
+    | ((pagePath: string) => PageThemeOverride | null);
   readonly broken?: boolean;
 }): BlogAppearancePort {
   const fail = () => err(domainError("UPSTREAM_UNAVAILABLE", "保存先を読めませんでした。"));
   const unused = () => {
     throw new Error("この検査では呼ばれない口です。");
   };
+  const overrideFor = (pagePath: string) =>
+    typeof input.override === "function" ? input.override(pagePath) : (input.override ?? null);
   return {
     themeOf: async () => (input.broken === true ? fail() : ok(input.theme ?? null)),
-    overrideOf: async () => (input.broken === true ? fail() : ok(input.override ?? null)),
+    overrideOf: async (i: { readonly pagePath: string }) =>
+      input.broken === true ? fail() : ok(overrideFor(i.pagePath)),
     templateOf: unused,
     saveTemplate: unused,
     saveTheme: unused,
     listOverrides: unused,
     saveOverride: unused,
     clearOverride: unused,
-  } as unknown as BlogAppearancePort;
+  } satisfies BlogAppearancePort;
 }
 
 async function read(port: BlogAppearancePort, pagePath = "/about") {
@@ -127,11 +141,10 @@ describe("A2-4 公開面の配色は保存された 2 層から決まる", () =>
       正規化を通していなければ `/about/` の読者には見つからず、
       明暗がブログ既定（light）のまま出る。
     */
-    const port = {
-      themeOf: async () => ok({ brandTheme: "blue", colorMode: "light" as const }),
-      overrideOf: async (i: { readonly pagePath: string }) =>
-        ok(i.pagePath === "/about" ? { colorMode: "dark" as const } : null),
-    } as unknown as BlogAppearancePort;
+    const port = fakePort({
+      theme: { brandTheme: "blue", colorMode: "light" },
+      override: (pagePath) => (pagePath === "/about" ? { colorMode: "dark" } : null),
+    });
 
     expect((await read(port, "/about/")).appearance.colorMode).toBe("dark");
     expect((await read(port, "about")).appearance.colorMode).toBe("dark");

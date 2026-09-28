@@ -1,0 +1,34 @@
+{
+  "canonical_digest": "sha256:527391117e2989ab2cdfba1fe6e95b526a8246a10561987153453687d101333c",
+  "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "files": {
+    "feature-package.json": "c91cbe5237e7a6c43f085b3b47c59e57692223bcf646e9d30f12e16c8be20e61",
+    "system-build-handoff.json": "0a8ccf0f249383cbb945705ba8592b7e643ddad94ce7f1c28a42b9d1991a8926",
+    "task-graph.json": "071df75a7db9cfa25d1cdaf33bdc1b8697802750f15a645465fcae195685ba9e",
+    "task-specs/phase-01-requirements.md": "0b95aaa5b6187551d27344e043ab7ef144fbb32d5a27fac49641369cb4d9dd26",
+    "task-specs/phase-02-architecture.md": "073a29d73ea2428f9aefceaa425ba62bb9a61dd792f94d378b7c5c8bacf7a079",
+    "task-specs/phase-03-design-review.md": "f85988c856171b9b66f92e429c29ec4f7c70a6f4701b05f7e77729e3321b9c9c",
+    "task-specs/phase-04-test-design.md": "c9f868b4e65d7cb752a716fb6a4b7810d0f3d74d49d6a37e9e33d08498011a84",
+    "task-specs/phase-05-implementation.md": "f273436643dd9d054d0ee56b260a1b454337d53a57082a60e3a1963f0cce44c1",
+    "task-specs/phase-06-test-run.md": "743241e64eabd1f070fd367159dc57fb3f77830f4829e903533c1a90f33af728",
+    "task-specs/phase-07-acceptance.md": "55987c6d70766d76ce71395103c64edc686f9a0b799a9d89682cce01ae00a6d5",
+    "task-specs/phase-08-refactoring-migration.md": "d1fdd50119d56fe8222fae029bb68518e98f8514698fdef67d14fa64bf401fd8",
+    "task-specs/phase-09-quality-assurance.md": "d50cc23fd21cfdf263c50acf46a0a4210c38728f7d5b3f142a80752fad4de080",
+    "task-specs/phase-10-final-review.md": "4dc78ab29cfdc79a3c85b9958b89e45f8c2e23a4c2e0845fa864cdd1218019de",
+    "task-specs/phase-11-evidence.md": "889aadb5e29f7ed1a5ee077f088b2b4cc14259f1be0ae691bbe9f7868d98832f",
+    "task-specs/phase-12-documentation-operations.md": "79a30868aa676fc0fc284536b003da85e221958abb823b2a55fde372e1a8a5b2",
+    "task-specs/phase-13-release-deploy.md": "ed7f70bacbf969444b45c0585e71d9f99a7e86c882dec077f6c9267010132f61",
+    "workstream-inventory.json": "7db0dd5446d164a0ec0a0ac4c4bcf2833110406061e40d4a7e553882dcd32e7d"
+  },
+  "handoff_contract": {
+    "manifest_is_commit_point": true,
+    "path": "system-build-handoff.json",
+    "schema_version": "1.0.0",
+    "self_reference_policy": "handoff hash and final digest are manifest-only",
+    "sha256": "0a8ccf0f249383cbb945705ba8592b7e643ddad94ce7f1c28a42b9d1991a8926",
+    "source_canonical_digest": "sha256:7beb5875bc3f1f2f0d8cd4dd82a3369a2572c57093de3a0b34e4ca15a7e69105"
+  },
+  "parent_feature": "feat-blog-top-page-composition",
+  "run_id": "run-20260904-feat-blog-top-page-composition",
+  "schema_version": "1.0.0"
+}

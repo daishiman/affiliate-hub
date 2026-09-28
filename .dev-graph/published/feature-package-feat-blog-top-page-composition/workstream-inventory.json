@@ -1,0 +1,1115 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-blog-top-page-composition",
+  "parent_feature": "feat-blog-top-page-composition",
+  "repo_context": {
+    "config_path": ".dev-graph/config.json",
+    "repo_identity": "github:daishiman/affiliate-hub",
+    "root_resolution_source": "explicit-cli"
+  },
+  "source_lineage": {
+    "source_plugin": "system-spec-harness",
+    "source_version": "0.1.0",
+    "compile_entrypoint": "run-system-spec-compile",
+    "completeness_entrypoint": "assign-system-spec-completeness-evaluator",
+    "source_paths": [
+      "system-spec/index.md",
+      "system-spec/00-requirements-definition.md",
+      "system-spec/ui-ux.md",
+      "system-spec/frontend.md",
+      "system-spec/backend.md",
+      "system-spec/database.md",
+      "architecture/system-spec-overview.md",
+      "architecture/arch-two-layer-platform.md"
+    ],
+    "confirmed": true
+  },
+  "tasks": [
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "トップページ区画構成・カード規約・追従ヘッダー機能予算・非模倣ゲートの要求ベースライン確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p01",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P01",
+      "depends_on": [],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/requirements-baseline.md",
+        "docs/spec/feat-blog-top-page-composition/section-composition-inventory.md",
+        "docs/spec/feat-blog-top-page-composition/sticky-header-function-budget.md",
+        "docs/spec/feat-blog-top-page-composition/non-imitation-gate-definition.md",
+        "docs/spec/feat-blog-top-page-composition/acceptance-traceability.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP01 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p01.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P01: 区画順序(おすすめ記事→最新/人気切替→カテゴリーから探す→記事一覧導線)・カード16:9(約1200x675)規約とOGP自動生成fallback・追従ヘッダー機能予算(サイト名/検索起動/カテゴリへの移動の3つに限定し小画面での下方向スクロール中の畳みと上方向での復帰・アンカー移動時の見出し自己遮蔽回避)・フッター7導線・JavaScript無効時のURL到達性・WebSite+SearchAction+ItemListの構造化データ・非模倣ゲート対象(文章・写真・ロゴ・固有名・色値・テーマ資産)をA1-A8のacceptance idと1:1で対応させ、未対応0件を成立させる。"
+      ],
+      "verification": [
+        "P01のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P01のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P01",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p01.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P01"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "トップページ構成コンポーネント・URL契約・JSON-LD契約・非模倣静的検査のアーキテクチャ設計",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p02",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "api",
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P02",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P01"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/architecture-design.md",
+        "docs/spec/feat-blog-top-page-composition/url-contract.md",
+        "docs/spec/feat-blog-top-page-composition/json-ld-contract.md",
+        "docs/spec/feat-blog-top-page-composition/non-imitation-scan-design.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP02 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p02.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P02: セクション構成・記事カード・追従ヘッダー(サイト名/検索起動/カテゴリへの移動の3機能、小画面での畳み/復帰、見出しscroll-margin)・フッター導線のコンポーネント設計、?sort=latest|popularのURL契約(JavaScript無効到達性込み)、WebSite+SearchAction+ItemListのJSON-LD契約、非模倣静的検査設計がP01のA1-A8全項目を機械検証可能な形で満たすことを成立させる。"
+      ],
+      "verification": [
+        "P02のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P02のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P02",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p02.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P02"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "トップページ設計の独立レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p03",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P03",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P02"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/design-review-p03.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP03 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p03.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P03: P02設計に対する独立レビューが完了し、A1-A8全項目の対応漏れ0件・他feature(feat-blog-ui-builder/feat-thumbnail-visual-system/feat-reader-search-quality/feat-reader-surface/feat-seo-aeo-measurement-loop/feat-reference-blog-admin-ux)が所有する責務の混入0件・参照元観測factの実装契約への無批判な読み替え0件を確認し、指摘事項があれば解消記録とともに成立させる。"
+      ],
+      "verification": [
+        "P03のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P03のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P03",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p03.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P03"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "テストファースト: 区画構成・追従ヘッダー・JS無効到達性・非模倣・JSON-LDの受入テスト契約",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p04",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P04",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P03"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/test-design.md",
+        "tests/blog-top-page/section-composition.spec.ts",
+        "tests/blog-top-page/sticky-header-budget.spec.ts",
+        "tests/blog-top-page/no-js-sort-toggle.spec.ts",
+        "tests/blog-top-page/non-imitation-scan.spec.ts",
+        "tests/blog-top-page/structured-data.spec.ts"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP04 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p04.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P04: 区画順序/空状態・カードCLS 0.1未満とOGP fallback・追従ヘッダー3機能限定と畳み/復帰とアンカー自己遮蔽回避・?sort=latest|popularのJavaScript無効到達性・WebSite+SearchAction+ItemList JSON-LD・axe-core重大違反0件とコントラスト・非模倣静的検査を検証するテストスイートが、未実装のP05に対して失敗する状態で用意され、A1-A8の全項目に1件以上のテストが対応することを成立させる。"
+      ],
+      "verification": [
+        "P04のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P04のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P04",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p04.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P04"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "トップページ区画構成・記事カード・追従ヘッダー配置・URL段階的強化・JSON-LDの実装",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p05",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P05",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P04"
+      ],
+      "write_scope": [
+        "src/app/s/[site]/page.tsx",
+        "src/presentation/site/home-content.tsx",
+        "src/presentation/site/blog-top-bands.tsx",
+        "src/presentation/site/page-frame.tsx",
+        "src/presentation/site/view-model.ts",
+        "src/presentation/site/site-metadata.ts",
+        "src/application/seo/structured-data.ts",
+        "src/presentation/ui/index.ts"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP05 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p05.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P05: おすすめ記事→最新/人気切替→カテゴリーから探す→記事一覧導線の区画構成、16:9カード(OGP fallback込み)、追従ヘッダー3機能限定と小画面畳み/復帰とアンカー自己遮蔽回避、フッター7導線、?sort=latest|popularのJavaScript無効到達性、WebSite+SearchAction+ItemListのJSON-LDが実装され、P04のテストスイートが全てGREENになることを成立させる。"
+      ],
+      "verification": [
+        "P05のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P05のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P05",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p05.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P05"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "単体・結合・境界値・回帰・a11y・no-jsテストの実行",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p06",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "frontend"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P06",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/test-run-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP06 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p06.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P06: P04の単体・結合・境界値・回帰テスト、axe-coreスキャン、no-js e2e、非模倣静的検査が全てPASSし、新規/変更application codeのcoverageが既定80%以上であることをtest-run reportへ記録して成立させる。"
+      ],
+      "verification": [
+        "P06のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P06のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P06",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p06.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P06"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "feature acceptance A1-A8の充足判定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p07",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P07",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P06"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/acceptance-report.md",
+        "docs/spec/feat-blog-top-page-composition/acceptance-traceability.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP07 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p07.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P07: features/feat-blog-top-page-composition.md frontmatter.acceptanceのA1-A8全項目がP06のtest-run reportを根拠にPASSと判定され、FAILが1件も残らないことを成立させる。"
+      ],
+      "verification": [
+        "P07のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P07のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p07.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P07"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "既存トップページ実装のリファクタリングと3機能予算への移行",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p08",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "frontend",
+      "secondary_workstreams": [
+        "quality"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P08",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P05"
+      ],
+      "write_scope": [
+        "src/presentation/site/home-content.tsx",
+        "src/presentation/site/blog-top-bands.tsx",
+        "docs/spec/feat-blog-top-page-composition/migration-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP08 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p08.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P08: 既存home-content.tsx/blog-top-bands.tsxの区画・ヘッダー関連ロジックが新しい区画順序・追従ヘッダー3機能予算・フッター導線集約へ後方互換を保って移行され、dry-runとrollback証跡を伴ってP06テストの回帰0件を確認する。移行対象が実質的に存在しない場合はN/A: reasonを成果として記録し完了する。"
+      ],
+      "verification": [
+        "P08のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P08のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P08",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p08.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P08"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "品質・セキュリティ・運用readinessの保証",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p09",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "security"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P09",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P08"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/quality-assurance-report.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP09 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p09.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P09: axe-core重大違反0件、light/dark双方のコントラスト基準達成、CLS 0.1未満、非模倣静的検査のCI組込み確認、secret非混入確認、監視対象とrollback手順のreadiness確認をquality-assurance-reportへ記録して成立させる。"
+      ],
+      "verification": [
+        "P09のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P09のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p09.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P09"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "独立最終レビュー",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p10",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P10",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P09"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/final-review-p10.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP10 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p10.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P10: A1-A8全項目の充足、非模倣ゲートの実効性、他feature責務との境界遵守を独立レビューが確認し、指摘事項があれば解消記録とともに成立させる。"
+      ],
+      "verification": [
+        "P10のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P10のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p10.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P10"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "再現可能な証跡の確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p11",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "quality",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P11",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P07",
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P09",
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P10"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/evidence-manifest.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/axe-report.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/cls-report.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/non-imitation-scan.json",
+        "docs/spec/feat-blog-top-page-composition/evidence/structured-data-validation.json"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP11 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p11.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P11: A1-A8それぞれについて第三者が再実行可能な証跡(axe-coreレポート・CLS測定・非模倣静的検査ログ・JSON-LDスキーマ検証結果)がevidence-manifest.jsonで対応付けられ、再実行手順が世代非依存のコマンドで解決可能であることを成立させる。"
+      ],
+      "verification": [
+        "P11のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P11のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P11",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p11.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P11"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "ドキュメント・runbook・引き継ぎの確定",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p12",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "documentation",
+      "secondary_workstreams": [
+        "operations"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P12",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P10",
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P11"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/runbook.md",
+        "docs/spec/feat-blog-top-page-composition/handover.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP12 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p12.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P12: 非模倣検査fail時の切り戻し手順・追従ヘッダー表示不具合時の対応・監視対象・アラート・引き継ぎ先を含むrunbookとhandoverが確定し、A1-A8それぞれの障害モードに対応する手順が1件以上存在することを成立させる。"
+      ],
+      "verification": [
+        "P12のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P12のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P12",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p12.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P12"
+      }
+    },
+    {
+      "id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P13",
+      "feature_package_id": "feature-package/feat-blog-top-page-composition",
+      "parent_feature": "feat-blog-top-page-composition",
+      "title": "development段階展開・rollback確認・仕様書への書き戻し",
+      "owners": [
+        "daishiman"
+      ],
+      "tags": [
+        "p13",
+        "feat-blog-top-page-composition"
+      ],
+      "related_nodes": [
+        "spec-system-spec-index",
+        "arch-system-spec-overview"
+      ],
+      "workstream_kind": "operations",
+      "secondary_workstreams": [
+        "documentation"
+      ],
+      "build_target_kind": "application-code",
+      "phase_ref": "P13",
+      "depends_on": [
+        "SYS-BLOG-TOP-PAGE-COMPOSITION-P12"
+      ],
+      "write_scope": [
+        "docs/spec/feat-blog-top-page-composition/release-report.md",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "architecture/system-spec-overview.md"
+      ],
+      "deploy_unit": "cloudflare-workers-opennext-app",
+      "source_lineage": [
+        "features/feat-blog-top-page-composition.md",
+        "features/feat-blog-top-page-composition.context.json",
+        "system-spec/ui-ux.md",
+        "system-spec/frontend.md",
+        "system-spec/retrieval-evidence/kajetblog-top-analysis.md"
+      ],
+      "classification": {
+        "confidence": 1.0,
+        "reason": "feat-blog-top-page-compositionのP13 lifecycle責務への確定写像",
+        "candidates": [
+          {
+            "artifact_kind": "task",
+            "confidence": 1.0,
+            "candidate_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p13.md"
+          }
+        ]
+      },
+      "tracker_binding_intent": "beads",
+      "github_publication": {
+        "mode": "local_only",
+        "project_aliases": [],
+        "labels": [],
+        "milestone": null
+      },
+      "pr_completion_policy": "linked_pr_merged_all",
+      "branch_policy": {
+        "strategy": "one-task-one-branch",
+        "worktree_lease_required": true,
+        "completion_projection": "default-branch-reconciliation",
+        "assignment_owner": "dev-graph-scheduler"
+      },
+      "acceptance": [
+        "P13: development deployment、smoke、区画構成/追従ヘッダー/OGP fallback/JSON-LD telemetry、rollback rehearsalがPASSし、本番releaseが未承認ならN/A理由を記録し、P13 spec/architecture writeback: required としてUI・frontend・architectureの確定章へ実装差分と残findingをR4-reopen経由で反映しclose-out receiptを残す。"
+      ],
+      "verification": [
+        "P13のVerification and evidenceに記載した世代非依存commandとrequired evidenceを実行する"
+      ],
+      "rollback": "P13のrubric verdictがFAILのまま上限へ到達した場合、write_scope内の当phase変更を戻し、直前のpromoted generationへ復帰する",
+      "implementation_readiness": {
+        "status": "complete",
+        "missing_sections": [],
+        "checked_at": "2026-09-04T03:19:00Z"
+      },
+      "graph_node_registration": {
+        "graph_node_id": "SYS-BLOG-TOP-PAGE-COMPOSITION-P13",
+        "file_path": "tasks/feat-blog-top-page-composition/sys-blog-top-page-composition-p13.md",
+        "parent_feature": "feat-blog-top-page-composition",
+        "feature_package_id": "feature-package/feat-blog-top-page-composition",
+        "phase_ref": "P13"
+      }
+    }
+  ]
+}

@@ -88,6 +88,10 @@ describe("診断・計算の道具の保存先（D1）", () => {
 
   it("保存境界から JSON 文字列で届いた入力欄と計算式を、形を確かめて読む", async () => {
     const encoded = row({
+      /*
+        保存境界は JSON 文字列で返してくることがある。型はそれを禁じているので、
+        その回を再現するにはここで型を外すしかない——**表明**として置く。
+      */
       inputs: JSON.stringify(row().inputs) as unknown as ReaderToolRow["inputs"],
       formula: JSON.stringify(row().formula) as unknown as ReaderToolRow["formula"],
     });
@@ -105,6 +109,7 @@ describe("診断・計算の道具の保存先（D1）", () => {
   it("壊れた保存 JSON を作り付けの定義で隠さず、読み出し失敗にする", async () => {
     const corrupted = row({
       slug: "storage-estimator",
+      // 壊れた保存値を**わざと**渡す表明。読み出し失敗になることを見る。
       inputs: "not-json" as unknown as ReaderToolRow["inputs"],
     });
     const repository = createD1ReaderToolRepository(fakeDb([corrupted]));

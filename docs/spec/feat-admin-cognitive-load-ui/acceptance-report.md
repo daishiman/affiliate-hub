@@ -22,3 +22,7 @@
 ## 自動突合
 
 台帳・規則 JSON は機械検査し、画面数、許可表現、必須フィールドを突合する。既存 `acceptance:reconcile` は `feat-uiux-overhaul` A1〜A10 専用であり、本 feature の 12 件は上記 feature 固有テストで突合した。
+
+## 2026-09-06 数字画面の契約更新
+
+`/admin/analytics` は「探す・読む・次へ進む」の3要点と編集先をSummaryStripで示すため、主表現をsummaryへ変更した。全指標と数え方は初期状態で閉じたFoldableに収める。上記の86画面・graph4件は当時の記録であり、現在の配線はscreen-information-ledger.jsonとledger-contract検証を正本とする。閾値や検査器の緩和はしていない。

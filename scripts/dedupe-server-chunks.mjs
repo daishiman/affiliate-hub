@@ -3,8 +3,9 @@
  * Turbopack が同じ中身を何度も吐いたサーバ側のかたまりを、1 つに寄せる。
  *
  * --- なぜ要るのか ---
- * Cloudflare Workers には **1 つの Worker が 3 MiB（gzip 後）** という上限がある。
- * このアプリは 2026-08-21 に 3431 KiB でその上限に当たり、公開が止まった。
+ * 当時の Cloudflare Workers には **1 つの Worker が 3 MiB（gzip 後）** という上限があり、
+ * このアプリは 2026-08-21 に 3431 KiB で公開が止まった。2026-09-04 から上限は
+ * 全プラン共通の非圧縮64 MiBへ変わったが、重複除去は転送量と起動負荷を抑えるため残す。
  *
  * 中を割ってみると、`.next/.../server/chunks/` の **46%（3.84 MiB）が完全な重複**だった。
  * Turbopack は同じかたまりを違うハッシュ名で何度も書き出す。中身は
@@ -36,8 +37,8 @@
  *
  * --- 効かなくなったときに何が起きるか ---
  * Next や OpenNext の更新でかたまりの形が変わると、このスクリプトは
- * 何も見つけられなくなる。そのときは Worker が上限に当たり、`wrangler deploy` が
- * `exceeded the size limit of 3 MiB` で落ちる。**黙って通ることはない。**
+ * 何も見つけられなくなる。そのときも後段の `worker-size.mjs` が非圧縮実寸を表示し、
+ * 64 MiB超過なら公開前に落とす。
  *
  * ```
  * node scripts/dedupe-server-chunks.mjs
@@ -105,8 +106,8 @@ if (groups.size < READ_FLOOR) {
     `NG かたまりを ${groups.size} 個しか読めていません（床 ${READ_FLOOR} 個）。\n` +
       `見に行った先: ${relative(ROOT, CHUNKS)}\n` +
       "置き場か命名が変わった可能性があります。`.next/standalone/.next/server/` の\n" +
-      "下に何があるかを先に見てください。ここで見落とすと Worker が上限に当たり、\n" +
-      "`wrangler deploy` が `exceeded the size limit of 3 MiB` で落ちます。\n",
+      "下に何があるかを先に見てください。ここで見落とすと重複除去が効かず、\n" +
+      "後段のサイズ測定と起動時間が悪化します。\n",
   );
   process.exit(1);
 }
@@ -115,8 +116,7 @@ if (duplicated.length === 0) {
   /*
     読めてはいるが重複が無い。Turbopack 側が直った可能性が高いので、ここは通す。
     **通しても無言にはならない。** 仮に判断を誤っていて実は削り損ねていたなら、
-    その分だけ Worker が太ったまま `wrangler deploy` まで進み、そこで
-    サイズ超過として落ちる。落ちる場所が遅れるだけで、緑にはならない。
+    後段の `worker-size.mjs` が太った実寸を表示し、非圧縮64 MiB超過なら落とす。
     逆にここで止めると、本当に直った日に正しいビルドが落ちる。
   */
   process.stdout.write(

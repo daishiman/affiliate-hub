@@ -1,5 +1,7 @@
 # 管理 API 契約
 
+更新日: **2026-09-08**（P12。操作一覧を実装と 1 件ずつ突き合わせた）
+
 本 feature は **Server Action を正本の入口**とし、REST は置かない。
 理由は既存の管理面と同じで、同じ操作に 2 つの入口があると
 権限判定と監査記録が 2 か所に分かれ、片方だけ古くなる。
@@ -35,6 +37,11 @@ P05 フェーズ仕様 (`.dev-graph/published/.../task-specs/phase-05-implementa
 
 ## 操作一覧
 
+**表の名前は概念名で、実装の export 名ではない。** 実装は
+`create<概念名>UseCase` の工場関数として `src/application/usecases/` に置く
+（例: `listSiteNetwork` → `createListSiteNetworkUseCase`）。
+概念名で grep しても見つからないので、ここに書いておく。
+
 | ユースケース | 入力 | 出力 | 権限 | 監査 |
 |---|---|---|---|---|
 | `listSiteNetwork` | `{}` | 節点一覧 + 親子の木 | `content.read` | — |
@@ -54,14 +61,56 @@ P05 フェーズ仕様 (`.dev-graph/published/.../task-specs/phase-05-implementa
 | `updateBlogArticle` | `{articleId, ...}` + `blocks` + `tagIds` | `articles` で変わった項目名 | `content.write` | `blog_article.changed` |
 | `deleteBlogArticle` | `{articleId, reason}` | `articles.deleted_at` を設定した記事 | `content.write` | `blog_article.deleted` |
 | `restoreBlogArticle` | `{articleId}` | `articles.deleted_at` を解除した記事 | `content.write` | `blog_article.restored` |
-| `listFixedPages` | `{siteSlug}` | 固定ページ 8 種と未作成数 | `content.read` | — |
-| `listDeletedFixedPages` | `{siteSlug}` | ID・title・body・status を保った削除済み一覧 | `content.read` | — |
-| `saveFixedPage` | `{siteSlug, kind, title, body, status}` | 保存した kind。削除済み行は暗黙復活しない | `site.manage` | `blog_page.changed` |
-| `deleteFixedPage` | `{siteSlug, kind, reason}` | 論理削除した kind | `site.manage` | `blog_page.deleted` |
-| `restoreFixedPage` | `{siteSlug, pageId}` | 元の内容で明示復元した固定ページ | `site.manage` | `blog_page.restored` |
+| `listSiteDocuments` | `{siteSlug}` | 固定ページ 8 種と未作成数 | `content.read` | — |
+| `saveSiteDocument` | `{siteSlug, kind, title, body, status}` | 保存した kind | `site.manage` | `blog_page.changed` |
+| `listDeletedBlogArticles` | `{siteSlug?}` | 論理削除した記事の一覧（復元の元） | `content.read` | — |
 | `listBlogTags` / `saveBlogTag` / `deleteBlogTag` | | | `content.read` / `content.write` | `blog_tag.changed` / `blog_tag.deleted` |
 | `evaluateBlogArticles` | `{siteSlug?}` | 記事ごとの平均評価・件数・鮮度・適合 | `content.read` | — |
+| `listArticleRatings` | `{articleId}` | 1 件ずつの評価。**伏せたものも返す** | `content.read` | — |
+| `setArticleRatingHidden` | `{ratingId, hidden, reason}` | 付け替え後の状態。**理由は必須** | `content.write` | `blog_rating.hidden` / `blog_rating.shown` |
 | `submitArticleRating` | `{siteSlug, articleSlug, readerKey, score, comment}` | 反映後の平均と件数 | 読者 (権限不要) | — |
+| `readBlogHomeFeaturedArticles` | `{siteSlug}` | トップに指名した記事の並び | `content.read` | — |
+| `replaceBlogHomeFeaturedArticles` | `{siteSlug, articleSlugs}` | 置き換え後の並び | `site.manage` | `blog_layout.changed` |
+| `getArticleThumbnail` | `{articleId}` | サムネイルの鍵・幅・代替文 | `content.read` | — |
+| `setArticleThumbnail` | `{articleId, objectKey, mimeType, byteLength, altText}` | 保存したサムネイル | `content.write` | `blog_article.changed` |
+| `removeArticleThumbnail` | `{articleId}` | 外したこと。R2 の実体も消す | `content.write` | `blog_article.changed` |
+
+### 2026-09-08 に直した 2 種類のズレ
+
+**約束が実装より広かった側（消した 3 行）。** この表は
+`listDeletedFixedPages` / `deleteFixedPage` / `restoreFixedPage` を約束していたが、
+**実装に 1 件も無い**。固定ページの実装は
+`createListSiteDocumentsUseCase` と `createSaveSiteDocumentUseCase` の 2 つだけで、
+名前も `FixedPage` ではなく `SiteDocument` である。
+
+`legal_page.deleted_at` 列は存在するが、**書く経路が無い**。
+保存時に常に `null` が入り、読むときに `isNull` で絞るだけの眠っている列である。
+受入条文 A7 は「作成・編集・公開」しか要求していないので**これは条文の未達ではない**。
+契約文書が実装より広かっただけである。
+
+**約束が実装より狭かった側（足した 8 行）。** 逆に、実装に在るのに表から
+抜けていたものがある。とくに `listArticleRatings` / `setArticleRatingHidden` は
+**受入条文 A11 が名指しする「管理側の評価一覧で確認・非表示にでき」そのもの**で、
+契約文書に無いまま実装だけが在った。
+
+**この向きのズレは検査では出ない。** テストは実装を見るので、
+文書が実装より広くても狭くても緑のままである。実装名を 1 件ずつ
+grep して突き合わせて初めて出る。
+
+### この表に載せていないユースケース
+
+`src/application/usecases/` には上の表に無いものが 34 件ある
+（`publishArticle`, `listPublishedArticles`, `startSiteDraft`, `manageBlogAppearance` など）。
+**書き漏れではなく、別 feature の持ち物**である。
+
+| 群 | 所有 |
+|---|---|
+| `*PublishedArticle*` / `browseArticles` / `searchArticles` | 公開面の読み取り |
+| `*SiteDraft*` / `createSiteFromDraft` / `*ManagedSite*` | サイト作成ウィザード |
+| `auditArticleDraft` / `explainArticleRanking` / `*ArticleProduct*` | AI 生成・比較 |
+| `manageBlogAppearance` / `reviewBlogPlacements` | feat-blog-ui / アフィリエイト |
+
+境界を書いておかないと、次に照合する人が同じ 34 件を毎回調べ直す。
 
 ## 断り方
 

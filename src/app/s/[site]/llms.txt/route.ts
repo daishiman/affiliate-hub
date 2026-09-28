@@ -26,7 +26,8 @@ export async function GET(
       headers: { "cache-control": "no-store", "content-type": "text/plain; charset=utf-8" },
     });
   }
-  const capacityError = completeArticleSetError(items);
+  // llms.txt は記事だけを並べるので、数えるのも記事の本数でよい。
+  const capacityError = completeArticleSetError(items.length);
   if (capacityError !== null) return capacityError;
   return seoTextResponse(
     buildLlmsTxt(

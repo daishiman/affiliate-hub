@@ -33,7 +33,7 @@ template_version: "1.0.0"
 confirmation_status: "confirmed"
 evaluation_status: "pass"
 confirmation_evidence: {"evaluated_digest":"2e3b834654f7407de7a5408d25a79eda49a7e8a216f3abfb92748e0a039bb741","evaluator":"system-spec-harness/assign-system-spec-completeness-evaluator","evidence_ref":"system-spec/completeness-report.json"}
-source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"29c9e6c7be6c64d71cc39c3575795f6211a47129a089deb10f0a5971c9002f2c","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
+source_lineage: {"imported_at":"2026-09-04T00:00:00Z","origin_kind":"generated","source_digest":"952d2fdb01272959ac2334c0752e3d1c9c6c8b2cdb96229ce03dbb601227bba6","source_path":"system-spec/backend.md","source_plugin":"dev-graph","source_version":"0.1.0"}
 classification_confidence: 0.95
 classification_reason: "撤回。実装コードと突き合わせた結果、本 feature の scope_in の大半が feat-blog-ui-builder で既に実装済みだった (src/application/seo/structured-data.ts の JSON-LD 導出、src/application/usecases/seo/manage-guideline-references.ts の出典レジストリ、src/application/seo/ai-search-audit.ts と publish-article.ts の公開時点検)。feature の scope 記述だけを見て未被覆と判断したのが誤り。真に未実装だった 3 項目 (HowTo/Speakable の JSON-LD・解析履歴の保持・定期再解析) は feat-seo-aeo-gap-closure へ移した。"
 classification_candidates: [{"artifact_kind":"feature","candidate_path":"features/feat-seo-aeo-analysis-feedback.md","confidence":0.95}]

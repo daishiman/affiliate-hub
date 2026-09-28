@@ -1,0 +1,141 @@
+{
+  "schema": "system-dev-planner/R1-elicit/goal-spec",
+  "run_id": "run-20260904-feat-seo-aeo-measurement-loop",
+  "session_owner": "claude-e091b379-seo-aeo",
+  "generated_at": "2026-09-04T03:19:00Z",
+  "feature_id": "feat-seo-aeo-measurement-loop",
+  "graph_node_id": "feat-seo-aeo-measurement-loop",
+  "artifact_kind": "feature",
+  "purpose": "SEO と AEO の良し悪しを推測ではなく自前の計測で判断し、その結果をブログの構成へ戻せるようにする",
+  "goal": "サイト内静的解析・Google Search Console 連携・AI 検索での被引用チェックの 3 つの自前データ源が定期的に走り、ページ単位の課題と改善案が管理画面に出て、導入後に作られた記事へは機械が自動で反映して事後通知し、どの反映も差分として記録され 1 操作で取り消せる状態になっている",
+  "scope_in": [
+    "データ源①サイト内静的解析: 自サイトの公開 HTML から title / meta description / canonical / OGP / JSON-LD / 見出し階層 / 内部リンク / 画像 alt と寸法 / llms.txt の有無を自前で抽出し、規則違反をページ単位の課題として記録する",
+    "データ源②Google Search Console 連携: Search Analytics API から クエリ・ページ・表示回数・クリック・平均掲載順位 を取得して保存する。資格情報はサーバー環境変数からのみ読み、リポジトリ・管理画面・ログに保存しない",
+    "データ源③AI 検索での被引用チェック: 自前の質問セットを AI 検索へ投げ、自サイトが引用されたか・どの URL が引用されたかを記録する。費用が件数に比例するため実行上限と頻度を設定できる (system-spec/backend.md 「被引用チェックの費用が比例する量」)",
+    "3 データ源を同じページ識別子へ突合する解析基盤と履歴保持・保持期間",
+    "課題から改善案の導出: 不足している構造化データ / 薄い description / 内部リンクの孤立 / alt 欠落 / 掲載順位が高いのにクリックが低いページ / AI に引用されないページ の検出と提案。自動反映の根拠にできるのは再現する系統①の所見だけとし、系統②③は反映後に何が動いたかを見る材料に留める (system-spec/backend.md qa-backend-web-aeo-analysis-pipeline-v6)",
+    "管理画面の SEO/AEO ダッシュボード: ページ別の課題一覧・推移・改善案・自動反映の履歴と 1 操作の取り消し・自動反映の停止と再開",
+    "改善の自動反映と可逆性: この仕組みの導入後に作成された記事に限り、本文・題名・画像を含む全要素へ機械が自動で反映し、何をいつなぜ変えたかを事後通知する。反映の前に必ず変更前の状態を記録し、記録が取れなければ書き換えを実行しない。自動反映は運営画面から停止でき、停止中も収集と課題の提示は続く (system-spec/maintenance-ops.md qa-ops-web-aeo-auto-apply-v6, qa-neutral-application-mode-v6, qa-neutral-auto-scope-v6)",
+    "定期実行 (Cron Trigger) と失敗時の記録・再開。系統ごとの最終収集時刻を保持し、想定間隔を超えて更新されない系統と、自動反映が止まって未反映の所見が増え続ける状態を運営画面で名指しする"
+  ],
+  "scope_out": [
+    "アフィリエイト成果のイベント計測・アトリビューション・KPI (feat-analytics-insight)",
+    "JSON-LD / llms.txt / sitemap.xml / robots.txt の生成そのもの (feat-blog-ui-builder)",
+    "有料広告の効果測定、外部 SEO SaaS の利用",
+    "この仕組みの導入前から公開されている記事の自動書き換え (所見の提示に留める)、変更前の状態を記録せず取り消せない反映",
+    "検索エンジンへの順位操作を目的とした手法"
+  ],
+  "acceptance": [
+    "3 データ源がそれぞれ単独で実行でき、1 つが失敗しても他の結果が失われない",
+    "静的解析が公開 HTML から title / description / canonical / OGP / JSON-LD / 見出し / 内部リンク / 画像 alt と寸法を抽出し、規則違反をページ単位で列挙する",
+    "Search Console の資格情報がサーバー環境変数からのみ読まれ、リポジトリ・管理画面・ログのいずれにも現れないことを機械検査で確認できる",
+    "被引用チェックの実行件数に上限を設定でき、上限到達時は記録して停止する",
+    "3 データ源の結果が同じページ識別子で突合され、ページ別に一覧・推移表示できる",
+    "導入後に作成された記事へ改善が自動で反映され、反映の事実・変更前後の差分・時刻が記録されて運営者へ通知される。導入前から公開されている記事は自動反映されず所見として提示されるに留まる",
+    "自動反映が公開 HTML へ出たことを次回の静的解析で確認でき、記録された反映を 1 操作で取り消すと反映前の状態に戻る。自動反映は運営画面から停止でき、停止中も 3 データ源の収集と課題の提示は続く",
+    "定期実行が失敗したとき失敗した回と理由が記録され、次回の実行を妨げない"
+  ],
+  "architecture_refs": [
+    "architecture/system-spec-overview.md",
+    "architecture/arch-two-layer-platform.md",
+    "system-spec/index.md",
+    "system-spec/00-requirements-definition.md",
+    "system-spec/ui-ux.md",
+    "system-spec/frontend.md",
+    "system-spec/backend.md",
+    "system-spec/database.md"
+  ],
+  "lineage": {
+    "feature_context": {
+      "source_path": "features/feat-seo-aeo-measurement-loop.context.json",
+      "source_plugin": "dev-graph",
+      "source_digest": "sha256:a2e2fd7333a69561db5d065ed331284cdfa1ce2a79b0b5ded34018f532c5d28e",
+      "updated_at": "2026-09-04T00:00:00Z",
+      "graph_node_id_match": true
+    },
+    "feature_document": {
+      "source_path": "features/feat-seo-aeo-measurement-loop.md",
+      "confirmation_status": "draft",
+      "evaluation_status": "pending",
+      "note": "C14 macro 分解で 2026-09-04 に新規登録した feature。exact-13 の生成をもって implementation_readiness を complete へ進める"
+    },
+    "system_spec_sources": [
+      {
+        "source_path": "architecture/system-spec-overview.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "architecture/arch-two-layer-platform.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/index.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/00-requirements-definition.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/ui-ux.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/frontend.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/backend.md",
+        "verdict": "confirmed"
+      },
+      {
+        "source_path": "system-spec/database.md",
+        "verdict": "confirmed"
+      }
+    ],
+    "completeness_evaluation": {
+      "source_path": "system-spec/completeness-report.json",
+      "evaluator": "assign-system-spec-completeness-evaluator",
+      "verdict": "PASS"
+    }
+  },
+  "quality_constraints": [
+    {
+      "id": "semantic-coverage-not-tag-only",
+      "requirements": [
+        "公開 HTML からの自前静的抽出",
+        "Search Console Search Analytics 連携",
+        "AI 検索での被引用チェック",
+        "同一ページ識別子への突合と履歴",
+        "課題から改善案の導出",
+        "管理画面ダッシュボード",
+        "導入後の記事への自動反映と事後通知・差分記録・1 操作の取り消し",
+        "Cron Trigger と失敗記録"
+      ]
+    },
+    {
+      "id": "credential-boundary",
+      "rule": "Search Console の資格情報はサーバー環境変数からのみ読む。リポジトリ・管理画面・ログ・エラーメッセージのいずれにも保存や出力をしない"
+    },
+    {
+      "id": "reversible-auto-apply",
+      "rule": "自動反映は変更前の状態を記録してからのみ実行し、記録が取れなければ書き換えない。反映は差分として記録され 1 操作で元へ戻せる。何をいつなぜ変えたかを事後通知するが、通知は可逆性の担保ではなく気づきの手段として扱う (qa-neutral-application-mode-v6)"
+    },
+    {
+      "id": "auto-apply-scope-by-creation-time",
+      "rule": "自動反映の対象はこの仕組みの導入後に作成された記事に限り、導入前から公開されている記事は所見の提示に留める。境界は記事の作成時刻という機械が判定できる値で引き、運用の心がけに委ねない。範囲内では本文・題名・画像を含む全要素が対象で、要素の種類では線を引かない (qa-neutral-auto-scope-v6)"
+    },
+    {
+      "id": "auto-apply-must-be-stoppable",
+      "rule": "自動反映は運営画面から停止でき、停止中も所見の収集と提示は続く。停止と再開の事実を記録し、停止している状態を運営画面の入口に出し続ける (qa-ops-web-aeo-auto-apply-v6)"
+    },
+    {
+      "id": "auto-apply-evidence-limited-to-source-1",
+      "rule": "自動反映の根拠にできるのは再現する系統① (サイト内静的解析) の所見だけとし、系統②③は反映後に何が動いたかを見る材料に留める。止める人がいないため型の側で限る (qa-backend-web-aeo-analysis-pipeline-v6)"
+    },
+    {
+      "id": "self-built-data-sources",
+      "rule": "3 つのデータ源をいずれも自前実装する。第三者 SEO SaaS へ依存しない"
+    }
+  ]
+}

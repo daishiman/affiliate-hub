@@ -20,7 +20,7 @@
 - 5 loop (per-invocation chunk limit) 到達で未収集が残れば `complete=false`・`next_question` 非 null を保存し resumable に返す。
 - 状態書込は writer の一経路のみ。
 - 再質問で新しい利用者入力を得ていない場合、AI 生成の回答・要約・判断を `user-dialogue` / `written-requirements` や新規 approval にすり替えない。書面根拠を再利用するときは、指定 path/section 内に実在する逐語 `answer` とその UTF-8 SHA-256 を維持する。
-- 再回答で `confirm` する turn も R2 と同じ `design_applications[]`（具体原則の採否・章固有理由・trade-off）を回答原文と分離して持つ。
+- 再回答で `confirm` する turn も R2 と同じ `design_applications[]`（具体原則の採否・その質疑に即した理由・trade-off）を回答原文と分離して持つ。
 - **required-info 順序ゲート**: resume ごとに `references/required-info-catalog.json` を Read し直し、required-info validator の実出力 `collection_order` を再質問順の正本にする。保存済み `next_question` が未完了の依存を飛び越える場合はそのまま提示せず、先行 item の質問を優先する。`screen-information-priority` は常に `frontend-arch` より先に完了させる。
 
 ### 1.2 倫理ガード

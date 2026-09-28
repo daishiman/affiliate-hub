@@ -12,7 +12,7 @@ iteration: null
 title: "テンプレート・配色2層・sticky常時表示・固定ページ・表現ブロック・配置管理・SEO/AI検索の実装"
 owners: ["daishiman"]
 created_at: "2026-08-28T13:02:37Z"
-updated_at: "2026-08-30T06:05:35Z"
+updated_at: "2026-09-09T00:00:00Z"
 status: "closed"
 depends_on: ["SYS-BLOG-UI-BUILDER-P04"]
 related_nodes: []
@@ -43,7 +43,7 @@ github_publication: {"labels":[],"milestone":null,"mode":"local_only","project_a
 github_project_linkages: []
 pull_request_linkages: []
 execution_contexts: []
-completion_evidence: {"completed_at":null,"evidence_refs":[],"policy":"manual","reconciled_at":null,"source":null,"status":"in_progress"}
+completion_evidence: {"completed_at":"2026-08-30T06:05:35Z","evidence_refs":["beads:ah-45ba.5"],"policy":"manual","reconciled_at":"2026-09-09T00:00:00Z","source":"reconciliation","status":"done"}
 implementation_readiness: {"checked_at":"2026-08-28T00:00:00Z","missing_sections":[],"status":"complete"}
 ---
 

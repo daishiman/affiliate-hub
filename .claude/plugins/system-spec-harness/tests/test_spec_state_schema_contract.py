@@ -63,8 +63,12 @@ def test_only_archive_may_preserve_a_source_less_legacy_qa() -> None:
     with __import__("pytest").raises(jsonschema.ValidationError):
         validator().validate(active)
 
+    # 正本にまだ退避棚が無いこともある (2026-09-08 の本ブランチがそう)。
+    # **この検査の主題は「source を持たない問答は archive にだけ置ける」というスキーマの
+    # 分岐**であって、正本が既に退避棚を持っているかどうかではない。棚の有無で
+    # 主題が測れなくなるのを避けるため、無ければ空の棚から始める。
     archived = copy.deepcopy(state)
-    archived["retracted_qa_log"].append({
+    archived.setdefault("retracted_qa_log", []).append({
         "id": source_less["id"],
         "reason": "現行契約を満たさないため原文のまま退避",
         "retracted_on": "2026-09-06",

@@ -201,6 +201,8 @@
    * 項目ごとの margin で調整しないための、単一の正本。
    */
   --layout-nav-icon-label-gap: var(--space-3);
+  /* 一覧に並べる絵の幅。管理画面と読者面で同じ値を使う。 */
+  --layout-thumbnail-width: var(--measure-thumbnail);
 
   /* === 重なり順 ========================================================= */
   --z-raised: var(--layer-raised);

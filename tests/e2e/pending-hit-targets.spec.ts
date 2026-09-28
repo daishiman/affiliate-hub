@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { authenticateE2E } from "./auth-fixture";
+import { waitForStreamedContent } from "./streamed-content";
 import {
   readBrowserRoutes,
   readPendingTargetSelectors,
@@ -43,6 +44,21 @@ async function measurementsOn(
     const required = probe.getBoundingClientRect().height;
     probe.remove();
     const links = anchors.flatMap((anchor) => {
+      /*
+        **組版されていないものは、押しどころではない。**
+
+        記事の目次は 2 つある（`tocSidebar` と `tocInline`）。`site.module.css` は
+        どの幅でも必ず片方を `display: none` にするので、画面には常に 1 つしか
+        出ていない。出ていない側の `<a>` は `getComputedStyle` では下限 44px を
+        名乗るのに `getBoundingClientRect()` は 0×0 を返す——**測れないのであって、
+        小さいのではない。**2026-09-05 まで、この 3 リンクを両方の幅で数えていた。
+
+        外すのは「組版されていない」ものだけである（`getClientRects()` が空）。
+        **組版された上で 0×0 なら、それは本物の不具合なのでこれまでどおり赤い。**
+        desktop では `tocSidebar` が、mobile では `tocInline` が出るので、
+        どちらの作りも監査から漏れない。
+      */
+      if (anchor.getClientRects().length === 0) return [];
       const style = getComputedStyle(anchor);
       const declaredMinimum = Math.max(
         Number.parseFloat(style.minHeight) || 0,
@@ -67,11 +83,11 @@ async function measurementsOn(
   }, { route });
 }
 
-test("screen-hit-and-currentの保留は0件で、監査対象は110画面", () => {
+test("screen-hit-and-currentの保留は0件で、監査対象は120画面", () => {
   expect(PENDING_SELECTORS, "jsdom側に実ブラウザ未計測の保留が残っています").toEqual([]);
-  // 53 → 85 → 86 → 110。2026-08-30 に、新しく登録された 24 画面も
-  // 実ブラウザ監査の対象に含まれることを数え直した。
-  expect(ROUTES).toHaveLength(110);
+  // 53 → 85 → 86 → 110 → 115 → 120。2026-09-05 に数え直した。
+  // 内訳と「なぜ床を上げる話ではないか」は app-routes.spec.ts の同じ検査に書いた。
+  expect(ROUTES).toHaveLength(120);
 });
 
 /*
@@ -93,6 +109,10 @@ for (const route of ROUTES) {
     const url = urlOf(route);
     const response = await page.goto(url, { waitUntil: "domcontentloaded" });
     expect(response?.status(), `${url} に到達できません`).toBeLessThan(400);
+    // 移すだけの入口は、着いてから測る（`app-routes.spec.ts` と同じ理由）。
+    if (route.redirectTo !== undefined) await page.waitForURL(`**${route.redirectTo}`);
+    // 差し込みを待たずに測ると、案内が hidden の待機領域に居るまま 0×0 になる。
+    await waitForStreamedContent(page);
     await page.evaluate(async () => {
       if (document.fonts !== undefined) await document.fonts.ready;
     });

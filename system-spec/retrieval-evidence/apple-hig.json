@@ -6,6 +6,25 @@
   "content_bytes": 26295,
   "content_sha256": "69ea6425412bcb6410f8b6355e4d113c773731056e31b9ef730f07515045fa36",
   "page_title": "Design principles",
+  "quoted_for_design": [
+    {
+      "claim": "HIG の design principles は 8 原則 (Purpose / Agency / Responsibility / Familiarity / Flexibility / Simplicity / Craft / Delight) であり、取得物は各原則の本文を含む",
+      "verbatim": "Purpose: Make something meaningful. / Agency: Let people do things their own way. / Responsibility: Act in people's best interest. / Familiarity: Build on what people know. / Flexibility: Adapt to diverse contexts and needs. / Simplicity: Be clear and direct. / Craft: Care about every detail. / Delight: Make it human.",
+      "used_by": "doctrine-anchor-registry.json#concerns[presentation].clause_citation"
+    },
+    {
+      "claim": "情報階層は Simplicity 原則の配下にある (ui-ux / frontend の presentation concern が引く条項)",
+      "verbatim": "Establish hierarchy. When form and function are readily apparent, people know how to reach a desired outcome. Prioritize recognizable controls and a consistent structure that helps people understand where they are and what comes next.",
+      "used_by": "doctrine-anchor-registry.json#concerns[presentation].clause_citation"
+    },
+    {
+      "claim": "アクセシビリティは Flexibility 原則の配下で『最初から優先事項として扱う』ものとされる",
+      "verbatim": "Design for everyone. People are empowered by products designed with them in mind. Think about the diversity of people who may encounter your design, and take the range of their experiences, perspectives, and needs into account. Treat accessibility as a priority from the start.",
+      "used_by": "doctrine-anchor-registry.json#concerns[presentation].clause_citation"
+    }
+  ],
+  "body_reconfirmed_at": "2026-09-08",
+  "body_reconfirmation_note": "2026-09-08 に同一 endpoint を再読し、8 原則の本文が取得物に実在することを確認した (上の quoted_for_design が原文)。**再取得ではないので content_bytes / content_sha256 は 2026-09-02 の値のまま動かしていない** — この作業場所では raw bytes を取れる経路が塞がれており、digest を名乗り直せないため。ここで確かめたのは『本文が在るか』であって『bytes が同一か』ではない。doctrine-anchor-registry の presentation concern はこの確認をもって clause_citation を unavailable → available へ反転させた (`ah-1igm`)。",
   "freshness_extraction": {
     "freshness_source": "page-declared",
     "value": "2026-06-08",

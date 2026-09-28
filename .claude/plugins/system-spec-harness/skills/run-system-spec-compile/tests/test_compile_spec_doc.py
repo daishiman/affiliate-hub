@@ -126,6 +126,11 @@ def test_OUT1_matches_golden_fixtures():
         "maintenance-ops.md": "expected-maintenance-ops.md",
         "security.md": "expected-security.md",
         "index.md": "expected-index.md",
+        # 章から切り出した適用メモも golden で押さえる。**章側だけを golden にすると、
+        # 移した本文が誰にも見張られない場所へ落ちる。**移動で被覆を減らさないための対。
+        "applied/database.md": "expected-applied-database.md",
+        "applied/maintenance-ops.md": "expected-applied-maintenance-ops.md",
+        "applied/security.md": "expected-applied-security.md",
     }
     for src, gold in golden.items():
         expected = (FIXTURES / gold).read_text(encoding="utf-8")
@@ -164,6 +169,29 @@ def test_render_decisions_confirmed_shows_user_choice():
     }
     rendered = mod.render_decisions(spec)
     assert "managed-free @ 2026-07-11T01:00:00Z" in rendered
+
+
+def test_chapter_decisions_table_is_filtered_by_owner_category():
+    """主担当章にだけ行が出て、他章には出ないことを押さえる。
+
+    golden fixture の `D1` は `owner_category` を持たないため、golden が覆うのは
+    「0 件」と「未宣言」の 2 分岐だけである。**主分岐が golden の外に落ちる**ので、
+    ここで塞ぐ。絞り込みが壊れて全章へ全件が出る退行は、章が増えるほど気づきにくい。
+    """
+    spec = _spec()
+    spec["decisions"][0]["owner_category"] = "auth"  # D1 は認証基盤の論点
+    docset = mod.compile_docset(spec, _refs())
+
+    auth = docset["auth.md"]
+    assert "| `D1` |" in auth, "主担当章に行が出ていない"
+    assert "主担当章が未宣言" not in auth, "宣言済みなのに未宣言として挙げている"
+
+    other = docset["database.md"]
+    assert "| `D1` |" not in other, "他章へ漏れている (絞り込みが効いていない)"
+    assert "本章を主担当とする decision は 0 件" in other
+
+    # 全件表は foundation 章だけが持つ。章へ複製しないことが本改修の目的である。
+    assert "全 1 件の一覧・候補比較・推奨根拠は" in other
 
 
 def test_requirements_definition_draft_when_no_foundation():
@@ -427,5 +455,13 @@ def test_recompile_is_pure_and_preserves_semantic_sections():
     for name, text in second.items():
         if name in ("index.md", "00-requirements-definition.md"):
             continue
+        if name.startswith("applied/"):
+            # 適用メモは章から切り出した一部分であり、章の全節を持たない。**代わりに
+            # 「移した本文が実際に入っているか」を見る。**空の器だけが残るのを防ぐ。
+            assert "#### 本章での適用" in text, name
+            assert f"../{name[len('applied/'):]}" in text, name  # 章への戻り導線
+            continue
         assert "## 確定内容 (質疑録)" in text, name
         assert "## 上流指針 (doctrine anchor)" in text, name
+        # 章側には適用メモへの導線が必ず残る (切り出しで辿れなくならないこと)。
+        assert f"applied/{name}" in text, name

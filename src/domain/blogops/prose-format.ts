@@ -24,7 +24,7 @@
  * チェック    - [ ] item  /  - [x] item
  * 引用        > text
  * 区切り線    ---
- * 画像        ![alt](src)
+ * 画像        ![alt](src)  /  ![alt](src "640x360")  ← 後ろは絵の実寸 (任意)
  * プログラム  ```lang … ```
  * 比較表      | 見出し | 見出し |     ← Markdown の表そのもの
  *             | --- | --- |
@@ -178,7 +178,44 @@ function unescapeImageSrc(src: string): string {
 }
 
 function serializeImage(image: ProseImage): string {
-  return `![${escapeImageAlt(image.alt)}](${escapeImageSrc(image.src)})`;
+  /*
+    **寸法は Markdown の題名の場所へ入れる。**`:::image` の囲みを新設せず、
+    素の `![alt](src)` の形を保つ。理由は 2 つある。
+
+    1. **既存の本文が 1 行も変わらない。**寸法を持たない画像は今までどおり
+       `![alt](src)` のまま書き出され、往復しても同じ文字列に戻る。
+    2. **AI に覚えさせるものが増えない。**寸法は任意で、書かなくても正しい。
+       ローカルの CLI が `![alt](src)` とだけ書いても本文は成立する。
+
+    題名の場所は他のどの記法にも使っていないので、衝突しない。
+  */
+  const target = escapeImageSrc(image.src);
+  const sized =
+    image.width !== null && image.height !== null
+      ? `${target} "${image.width}x${image.height}"`
+      : target;
+  return `![${escapeImageAlt(image.alt)}](${sized})`;
+}
+
+/**
+ * 丸括弧の中身を、場所と実寸に分ける。
+ *
+ * **寸法として読むのは `"640x360"` の形だけ。**それ以外の題名 (`![a](b "説明")`)
+ * は場所の一部として残す。**捨てない。**知らない書き方を落とすと、
+ * 保存を押しただけで運営者の書いたものが消える。
+ */
+function splitImageTarget(target: string): {
+  readonly src: string;
+  readonly width: number | null;
+  readonly height: number | null;
+} {
+  const sized = /^(.*?)\s+"(\d+)x(\d+)"$/.exec(target);
+  if (sized === null) return { src: target, width: null, height: null };
+  return {
+    src: sized[1] as string,
+    width: Number(sized[2]),
+    height: Number(sized[3]),
+  };
 }
 
 /** alt を閉じる、逃がされていない `]`。 */
@@ -221,9 +258,13 @@ function parseImage(source: string): ProseImage | null {
   if (altClose === null || source[altClose + 1] !== "(") return null;
   const srcClose = findImageSrcClose(source, altClose + 2);
   if (srcClose === null || srcClose !== source.length - 1) return null;
+  /* 寸法は逃がし記号を持たないので、外してから場所を戻す。 */
+  const target = splitImageTarget(source.slice(altClose + 2, srcClose));
   return {
     alt: unescapeImageAlt(source.slice(2, altClose)),
-    src: unescapeImageSrc(source.slice(altClose + 2, srcClose)),
+    src: unescapeImageSrc(target.src),
+    width: target.width,
+    height: target.height,
   };
 }
 

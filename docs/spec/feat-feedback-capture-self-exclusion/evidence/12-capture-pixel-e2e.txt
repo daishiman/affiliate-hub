@@ -1,0 +1,58 @@
+受入 A1 の実画素判定
+date: 2026-09-05 JST
+test: tests/e2e/capture-pixel-exclusion.spec.ts
+command: pnpm test:e2e:capture-pixel   （= PLAYWRIGHT_CAPTURE_PIXEL=1 playwright test）
+environment: Playwright 1.62.1 同梱 Chromium (headed) / macOS 25.3.0
+
+## 結果
+
+  1 passed
+  [capture-pixel] {"floatingHits":0,"anchorHits":175561,"size":[4480,3150]}
+
+- size 4480x3150 … 実際に撮れた 1 枚の原寸（14,112,000 画素）
+- anchorHits 175561 … 浮遊でない固定要素に置いた対照色 rgb(0,255,255) の画素数。
+  120x120 CSS px を devicePixelRatio 約 3.5 で撮ると 420x420 = 176,400 で、
+  色差の間引きによる縁のずれを除いた数と整合する。
+- floatingHits 0 … 浮遊要素 [data-floating-overlay] に塗った rgb(255,0,255) は
+  **1 画素も写っていない。**
+
+## 何を見ているか
+
+アプリ本体の経路をそのまま走らせている。押すのは実際の「改善したいことを送る」で、
+撮るのは実際の `getDisplayMedia({ video: true, preferCurrentTab: true })`。
+読むのは送信 UI が載せた canvas そのもの（`canvas.width = image.naturalWidth` なので
+写しの原寸）。合成映像に差し替えてはいない。
+
+判定は色を当てずに、撮る直前へ目印を 2 つ置いて数える:
+  - 浮遊要素に magenta … 写しに 0 画素であること（A1 の主張そのもの）
+  - 浮遊でない固定要素に cyan … 写しに在ること（**対照**）
+
+対照が要る理由: `toBe(0)` は走査が壊れていても通る。「無いことの証明」には
+「同じ手段で在るものが見つかる」ことが要る。対照を先に検査している。
+
+## 走らせるのに要った条件（3 つとも、撮影の中身を偽るものではない）
+
+1. `--auto-accept-this-tab-capture`
+   自タブ取得を選択窓なしで承諾する。**`--use-fake-ui-for-media-stream` は入れない**
+   （getUserMedia 用で、display capture では開始できない source を掴んで
+   `NotReadableError` になる。evidence/11 参照）。
+
+2. `headless: false`
+   同梱 Chromium の headless には display capture の実装が無い
+   （`NotSupportedError: Not supported`）。
+
+3. `--disable-backgrounding-occluded-windows` ほか 2 つ
+   撮影は `afterNextPaint`（requestAnimationFrame）を待ってから 1 枚を取り出す。
+   Chromium は隠れた窓の rAF を止めるため、走らせている間に別の窓が前に来ると
+   待ちが解けず、撮影が期限（`CAPTURE_OPEN_DEADLINE_MS` = 45 秒）で中断され、
+   写しが `null` のまま送信 UI だけが開く。実際に 3 回この形で落ちた。
+   実装側のコメント（capture-exclusion.ts の afterNextPaint）が
+   「非表示タブは rAF 自体が止まる」と書いているとおりの挙動。
+
+## 既定の E2E から外してある理由
+
+- (1) の起動引数は、隣の検査 `capture-self-exclusion.spec.ts` が前提にしている
+  「画面共有は選ぶ操作を必ず伴う」を崩す。既定へ入れるとその検査の意味が消える。
+- (2) により画面を持つ実行環境でしか走らない。CI へ混ぜると環境依存で赤くなる。
+
+そのため project ごと分け、`PLAYWRIGHT_CAPTURE_PIXEL=1` のときだけ現れる。

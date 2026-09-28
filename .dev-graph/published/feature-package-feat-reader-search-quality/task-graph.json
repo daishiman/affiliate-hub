@@ -1,0 +1,208 @@
+{
+  "schema_version": "1.0.0",
+  "feature_package_id": "feature-package/feat-reader-search-quality",
+  "parent_feature": "feat-reader-search-quality",
+  "nodes": [
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P01",
+      "phase_ref": "P01",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": []
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P02",
+      "phase_ref": "P02",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P01"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P03",
+      "phase_ref": "P03",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P02"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P04",
+      "phase_ref": "P04",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P03"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P05",
+      "phase_ref": "P05",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P04"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P06",
+      "phase_ref": "P06",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P07",
+      "phase_ref": "P07",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P06"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P08",
+      "phase_ref": "P08",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P05"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P09",
+      "phase_ref": "P09",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P08"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P10",
+      "phase_ref": "P10",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P09"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P11",
+      "phase_ref": "P11",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P07",
+        "SYS-READER-SEARCH-QUALITY-P09",
+        "SYS-READER-SEARCH-QUALITY-P10"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P12",
+      "phase_ref": "P12",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P10",
+        "SYS-READER-SEARCH-QUALITY-P11"
+      ]
+    },
+    {
+      "id": "SYS-READER-SEARCH-QUALITY-P13",
+      "phase_ref": "P13",
+      "feature_package_id": "feature-package/feat-reader-search-quality",
+      "parent_feature": "feat-reader-search-quality",
+      "depends_on": [
+        "SYS-READER-SEARCH-QUALITY-P12"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P01",
+      "to": "SYS-READER-SEARCH-QUALITY-P02",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P02",
+      "to": "SYS-READER-SEARCH-QUALITY-P03",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P03",
+      "to": "SYS-READER-SEARCH-QUALITY-P04",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P04",
+      "to": "SYS-READER-SEARCH-QUALITY-P05",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P05",
+      "to": "SYS-READER-SEARCH-QUALITY-P06",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P06",
+      "to": "SYS-READER-SEARCH-QUALITY-P07",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P05",
+      "to": "SYS-READER-SEARCH-QUALITY-P08",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P07",
+      "to": "SYS-READER-SEARCH-QUALITY-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P08",
+      "to": "SYS-READER-SEARCH-QUALITY-P09",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P09",
+      "to": "SYS-READER-SEARCH-QUALITY-P10",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P07",
+      "to": "SYS-READER-SEARCH-QUALITY-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P09",
+      "to": "SYS-READER-SEARCH-QUALITY-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P10",
+      "to": "SYS-READER-SEARCH-QUALITY-P11",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P10",
+      "to": "SYS-READER-SEARCH-QUALITY-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P11",
+      "to": "SYS-READER-SEARCH-QUALITY-P12",
+      "type": "depends_on"
+    },
+    {
+      "from": "SYS-READER-SEARCH-QUALITY-P12",
+      "to": "SYS-READER-SEARCH-QUALITY-P13",
+      "type": "depends_on"
+    }
+  ]
+}

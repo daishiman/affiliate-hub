@@ -22,14 +22,21 @@ export type CheckboxProps = {
   /** 何に「はい」と答えることになるのかを、そのまま書く。 */
   readonly label: string;
   readonly defaultChecked?: boolean;
+  readonly disabled?: boolean;
   /** この欄が AI から見て何の値かの説明 (WebMCP)。 */
   readonly toolParamDescription?: string;
 };
 
-export function Checkbox({ name, label, defaultChecked = false, toolParamDescription }: CheckboxProps) {
+export function Checkbox({
+  name,
+  label,
+  defaultChecked = false,
+  disabled = false,
+  toolParamDescription,
+}: CheckboxProps) {
   return (
     <label className={styles.choiceItem} toolparamdescription={toolParamDescription}>
-      <input defaultChecked={defaultChecked} name={name} type="checkbox" />
+      <input defaultChecked={defaultChecked} disabled={disabled} name={name} type="checkbox" />
       {label}
     </label>
   );

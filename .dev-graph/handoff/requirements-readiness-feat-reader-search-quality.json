@@ -1,0 +1,62 @@
+{
+  "schema": "dev-graph-requirements-readiness/v1",
+  "feature_id": "feat-reader-search-quality",
+  "feature_package_id": "feature-package/feat-reader-search-quality",
+  "scope_digest": "sha256:67ce36d05a3b268cb34752a2c45e82e96b723eaf9128af375a68dee6ccf07baf",
+  "graph_revision": 463,
+  "graph_snapshot_digest": "sha256:c6a9b3c405b1c23842659b80e914c70979f381e221267a16ad8551055cdfe341",
+  "package_digest": "sha256:b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+  "verdict": "ready",
+  "ready": true,
+  "blocked": false,
+  "stale": false,
+  "missing_sections": [],
+  "remediation_owner": null,
+  "closure_count": 14,
+  "gates": {
+    "C11_validate_graph_schema": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-graph-schema.py --graph .dev-graph/state/graph.json --repo-root .",
+      "exit": 0,
+      "valid": true,
+      "violations": 0
+    },
+    "source_digest": {
+      "command": "python3 .claude/plugins/dev-graph/scripts/validate-source-digest.py --repo-root . --registered <13-task-node-ids>",
+      "exit": 0,
+      "checked": 13,
+      "registered_mismatch": 0
+    },
+    "C02_saved_state": {
+      "checked": 14,
+      "confirmed_pass_complete": 14,
+      "missing_sections": []
+    },
+    "validate_system_plan": {
+      "command": "python3 /Users/dm/dev/dev/個人開発/harness/plugins/system-dev-planner/scripts/validate-system-plan.py --staging .dev-graph/published/feature-package-feat-reader-search-quality",
+      "exit": 0,
+      "status": "pass",
+      "schema_version": "1.0.0",
+      "validated_digest": "sha256:b55948e2e68707fa2a8b09dbfe1319c1b799fb956a2f6eaa4f667865b9534d5a",
+      "phase_refs": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "violations": 0
+    },
+    "C08_implementation_readiness": {
+      "command": "python3 /Users/dm/dev/dev/個人開発/harness/plugins/system-dev-planner/scripts/check-implementation-readiness.py --repo-root .",
+      "exit": 0
+    }
+  }
+}

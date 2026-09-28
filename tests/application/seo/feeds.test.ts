@@ -242,7 +242,22 @@ describe("llms.txt", () => {
     );
     expect(text).toContain("# 研究室");
     expect(text).toContain("## 記事一覧");
-    expect(text).not.toContain("- [");
+    // 記事のリンクは 1 本も出ない（検索の口は記事ではないので残る）。
+    expect(text.split("## 記事一覧")[1]).not.toContain("- [");
+  });
+
+  it("記事一覧より先に、探し方を渡す", () => {
+    const text = buildLlmsTxt(
+      { siteName: "研究室", purpose: "実測。", origin: "https://example.com", basePath: "/s/g" },
+      items,
+    );
+    /*
+      目録は必ず古くなる。**探し方**が先にあれば、
+      llms.txt に載っていない記事にも到達できる。
+    */
+    expect(text).toContain("## 探す");
+    expect(text).toContain("https://example.com/s/g/search?q={query}");
+    expect(text.indexOf("## 探す")).toBeLessThan(text.indexOf("## 記事一覧"));
   });
 
   it("ブログ運用で書いた記事も同じ形で並ぶ", () => {
